@@ -1,0 +1,12 @@
+appId: kr.lunatica.projectra
+productName: Project RA
+copyright: Copyright © 2024 Lunatica Luna
+directories:
+  output: dist
+  buildResources: resources
+files:
+  - from: .
+    filter:
+      - package.json
+      - app
+publish: null

@@ -1,0 +1,115 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply tw-text-white;
+    scroll-behavior: smooth !important;
+    /* user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none; */
+  }
+
+  .background-image {
+    position: fixed;
+    left: 0;
+    right: 0;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    background-image: url('/images/bg.png');
+    background-size: cover;
+    background-attachment: fixed;
+    background-position: center center;
+    filter: blur(4px) grayscale(100%);
+  }
+
+  .background-image-color {
+    @apply tw-bg-gray-900 tw-bg-opacity-90;
+    position: fixed;
+    left: 0;
+    right: 0;
+    z-index: 2;
+    width: 100%;
+    height: 100%;
+  }
+
+  main {
+    scroll-behavior: smooth !important;
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    z-index: 3;
+    overflow-y: scroll;
+  }
+
+  .dragable {
+    -webkit-app-region: drag;
+  }
+
+  .dragable > button {
+    -webkit-app-region: none;
+  }
+
+  ::-webkit-scrollbar {
+    display: none;
+    width: 10px; /* 세로축 스크롤바 폭 너비 */
+    height: 20px; /* 가로축 스크롤바 폭 너비 */
+  }
+}
+
+@layer components {
+  .btn-blue {
+    @apply tw-text-white tw-font-bold tw-px-4 tw-py-2 tw-rounded tw-bg-blue-600 tw-hover:bg-blue-500;
+  }
+
+  .btn-select-game {
+    @apply tw-h-8 tw-px-2 tw-transition-all;
+  }
+
+  .btn-select-game.active {
+    @apply tw-bg-gray-700;
+  }
+
+  .btn-select-game:hover {
+    @apply tw-bg-gray-700;
+  }
+
+  .btn-select-game.active:hover {
+    @apply tw-bg-gray-700;
+  }
+
+  .btn-ipc {
+    @apply tw-flex tw-justify-center tw-items-center tw-w-8 tw-h-8 tw-transition-all tw-rounded-sm;
+  }
+
+  .btn-ipc:hover {
+    @apply tw-bg-gray-600;
+  }
+
+  .dropdown-item {
+    @apply tw-transition-all;
+  }
+
+  .dropdown-item.active {
+    @apply tw-bg-gray-600;
+  }
+
+  .dropdown-item:hover {
+    @apply tw-bg-gray-600;
+  }
+}
+
+@layer utilities {
+  .flex-equal {
+    flex: 1 1 0;
+  }
+}
+
+:root {
+  --bs-body-font-family: var(--noto-sans-kr) !important;
+}
