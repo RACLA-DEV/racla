@@ -2,16 +2,13 @@ import React, { useEffect, useState } from 'react'
 import type { AppProps } from 'next/app'
 import { Noto_Sans_KR } from 'next/font/google'
 import axios, { AxiosResponse } from 'axios'
-
-interface IUserNameRequest {
-  token: string
-  userNo: string
-}
-
-interface IUserNameResponse {
-  success: boolean
-  nickname: string
-}
+import NavComponent from '@/components/NavComponent'
+import FooterComponent from '@/components/FooterComponent'
+import { IUserNameRequest, IUserNameResponse } from '@/types/IUserName'
+import { useNotifications } from '@/libs/client/useNotifications'
+import NotificationComponent from '@/components/NotificationComponent'
+import { AnimatePresence, motion } from 'framer-motion'
+import { useRouter } from 'next/router'
 
 const noto = Noto_Sans_KR({
   subsets: ['latin'], // 또는 preload: false
@@ -21,10 +18,11 @@ const noto = Noto_Sans_KR({
 
 import 'bootstrap/dist/css/bootstrap.min.css'
 import '@styles/globals.css'
-import NavComponent from '@/components/NavComponent'
-import FooterComponent from '@/components/FooterComponent'
+import SidebarComponent from '@/components/SidebarComponent'
 
 function MyApp({ Component, pageProps }: AppProps) {
+  const { asPath } = useRouter()
+
   useEffect(() => {
     // Bootstrap
     require('bootstrap/dist/js/bootstrap.bundle.min.js')
@@ -35,6 +33,9 @@ function MyApp({ Component, pageProps }: AppProps) {
   const [userToken, setUserToken] = useState<string>('')
   const [userError, setUserError] = useState<string>('')
   const [userName, setUserName] = useState<string>('')
+  const [userLoading, setUserLoading] = useState<boolean>(false)
+
+  const { notifications, addNotification, removeNotification } = useNotifications()
 
   const getUserName = async <T = IUserNameResponse, R = IUserNameRequest>(body: R): Promise<T> => {
     const { data } = await axios.post<T, AxiosResponse<T>, R>('https://cors.lunatica.kr/proxy?url=https://v-archive.net/client/login', body, {
@@ -43,86 +44,77 @@ function MyApp({ Component, pageProps }: AppProps) {
     return data
   }
 
-  // const getUserName = async (body) => {
-  //   const data = await fetch('/varchive/client/login', {
-  //     method: 'post',
-  //     credentials: 'include',
-  //     body: JSON.stringify(body),
-  //   }).then((res) => {
-  //     console.log(res)
-  //   })
-  //   return data
-  // }
-
-  const onFileChange = async (e) => {
-    const file = e.target.files[0]
-    const fileReader = new FileReader()
-    fileReader.onload = () => {
-      const text = fileReader.result.toString().trim()
-      try {
-        if (
-          // account.txt 유효성 검증
-          // 구분자(공백)이 존재하는지
-          text.includes(' ') &&
-          // 구분자(공백)으로 나눈 후 배열의 길이가 2 인지(userNo, token)
-          text.split(' ').length === 2 &&
-          // userNo로 추정되는 부분 인덱스(0)이 숫자로만 구성되어 있는지
-          !Number.isNaN(Number(text.split(' ')[0])) &&
-          // token(uuidv4)으로 추정되는 부분 인덱스(1)에 - 문자가 포함되는지
-          text.split(' ')[1].includes('-') &&
-          // uuid 구조상 첫 번째(time-low) 필드의 문자열 길이가 8인지
-          text.split(' ')[1].split('-')[0].length === 8 &&
-          // uuid 구조상 두 번째(time-mid) 필드의 문자열 길이가 4인지
-          text.split(' ')[1].split('-')[1].length === 4 &&
-          // uuid 구조상 세 번째(time-hight-and-version) 필드의 문자열 길이가 4인지
-          text.split(' ')[1].split('-')[2].length === 4 &&
-          // uuid 구조상 네 번째(clock-seq-hi-and-reserved & clock-seq-low) 필드의 문자열 길이가 4인지
-          text.split(' ')[1].split('-')[3].length === 4 &&
-          // uuid 구조상 다섯 번째(node) 필드의 문자열 길이가 12인지
-          text.split(' ')[1].split('-')[4].length === 12
-        ) {
-          const data = getUserName({ userNo: text.split(' ')[0], token: text.split(' ')[1] })
-          data.then((result) => {
-            if (result.success) {
-              setUserNo(text.split(' ')[0])
-              setUserToken(text.split(' ')[1])
-              setUserError('')
-              setUserName(result.nickname)
-            } else {
-              setUserNo('')
-              setUserToken('')
-              setUserError('유효하지 않은 유저 정보입니다. V-ARCHIVE 클라이언트 실행 파일이 위치한 폴더의 account.txt 파일을 선택해주세요.')
-              setUserName('')
-            }
-          })
+  useEffect(() => {
+    const fetchSessionData = () => {
+      setUserLoading(true)
+      const userData = window.ipc.getSession()
+      userData.then((data) => {
+        if (data.userNo !== '' && data.userToken !== '') {
+          setUserNo(data.userNo)
+          setUserToken(data.userToken)
         } else {
-          setUserNo('')
-          setUserToken('')
-          setUserError('유효하지 않은 유저 정보입니다. V-ARCHIVE 클라이언트 실행 파일이 위치한 폴더의 account.txt 파일을 선택해주세요.')
-          setUserName('')
+          setUserLoading(false)
         }
-      } catch (e) {
-        setUserNo('')
-        setUserToken('')
-        setUserError('유효하지 않은 유저 정보입니다. V-ARCHIVE 클라이언트 실행 파일이 위치한 폴더의 account.txt 파일을 선택해주세요.')
-        setUserName('')
+      })
+    }
+    fetchSessionData()
+  }, [])
+
+  useEffect(() => {
+    const handleLogined = (value) => {
+      if (value !== undefined && Boolean(value)) {
+        const userData = window.ipc.getSession()
+        userData.then((data) => {
+          if (data.userNo !== '' && data.userToken !== '') {
+            setUserNo(data.userNo)
+            setUserToken(data.userToken)
+          }
+        })
       }
     }
-    try {
-      fileReader.readAsText(file)
-    } catch (error) {
-      setUserNo('')
-      setUserToken('')
-      setUserError(String(error))
-      setUserName('')
+
+    window.ipc.on('IPC_RENDERER_IS_LOGINED', handleLogined)
+
+    // 메모리 누수 방지
+    return () => {
+      window.ipc.removeListener('IPC_RENDERER_IS_LOGINED', handleLogined)
     }
-  }
+  }, [])
+
+  useEffect(() => {
+    const fetchUserName = async () => {
+      if (userNo !== '' && userToken !== '') {
+        try {
+          const response = getUserName({ userNo, token: userToken })
+          response.then((result) => {
+            if (result.success) {
+              setUserName(result.nickname)
+              addNotification(`${result.nickname}님 프로젝트 RA에 오신 것을 환영합니다.`)
+            } else {
+              window.ipc.logout()
+              addNotification(`유효하지 않은 사용자 세션으로 자동 로그인에 실패하였습니다.`)
+            }
+          })
+        } catch (error) {
+          window.ipc.logout()
+          addNotification(`알 수 없는 오류로 인해 사용자 정보 조회에 실패하였습니다. ${String(error)}`)
+        } finally {
+          setUserLoading(false)
+        }
+      }
+    }
+    fetchUserName()
+  }, [userNo, userToken])
 
   return (
-    <>
+    <div className={`tw-w-full tw-h-full ${noto.className}`}>
+      {/* 배경 이미지 레이어 */}
       <div className="background-image" />
+      {/* 배경 색상 레이어 */}
       <div className="background-image-color" />
-      <main className={noto.className + ' tw-mx-2 tw-my-12 tw-text-sm'} data-bs-theme="dark">
+
+      {/* 메인 콘텐츠 */}
+      <main className="tw-mx-5 tw-text-sm" style={{ marginLeft: '14.25rem', marginBottom: '4rem', marginTop: '4rem' }} data-bs-theme="dark">
         <NavComponent
           className={noto.className}
           user={{ userNo, userToken, userName }}
@@ -131,30 +123,27 @@ function MyApp({ Component, pageProps }: AppProps) {
             setUserToken('')
             setUserName('')
           }}
+          addNotificationCallback={addNotification}
         />
-        <Component {...pageProps} />
-        <input className="form-control" type="file" accept=".txt" onChange={onFileChange} />
-        <div className="tw-flex tw-flex-col">
-          <div>
-            <span>userNo : </span>
-            <span>{userNo}</span>
-          </div>
-          <div>
-            <span>userToken : </span>
-            <span>{userToken}</span>
-          </div>
-          <div>
-            <span>userError : </span>
-            <span>{userError}</span>
-          </div>
-          <div>
-            <span>userName : </span>
-            <span>{userName}</span>
-          </div>
-        </div>
+        <SidebarComponent />
+        <AnimatePresence initial={false} mode="wait">
+          <motion.div
+            key={asPath} // 페이지가 변경될 때마다 새 key로 애니메이션을 트리거
+            initial={{ x: 10, opacity: 0.5 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: -10, opacity: 0 }}
+            transition={{ duration: 0.3 }} // 애니메이션 지속 시간
+            style={{ width: '100%' }} // 위치와 너비를 설정
+          >
+            <Component {...pageProps} addNotificationCallback={addNotification} />
+          </motion.div>
+        </AnimatePresence>
         <FooterComponent className={noto.className} />
       </main>
-    </>
+
+      {/* 알림 컴포넌트(우측 하단) */}
+      <NotificationComponent notifications={notifications} removeNotificationCallback={removeNotification} />
+    </div>
   )
 }
 

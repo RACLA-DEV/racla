@@ -4,11 +4,13 @@ import { useEffect, useState } from 'react'
 import { FiMinus, FiMinimize, FiMaximize, FiX } from 'react-icons/fi'
 import { FaConnectdevelop } from 'react-icons/fa6'
 import { OverlayTrigger, Tooltip } from 'react-bootstrap'
+import { useRouter } from 'next/router'
 
 interface INavComponent {
   className?: string
   user?: TUser
   logoutCallback: any
+  addNotificationCallback: any
 }
 
 type TUser = {
@@ -17,23 +19,31 @@ type TUser = {
   userName: string
 }
 
-const NavComponent = ({ className, user, logoutCallback }: INavComponent) => {
+const NavComponent = ({ className, user, logoutCallback, addNotificationCallback }: INavComponent) => {
   const [isMaximized, setIsMaximized] = useState(false)
   const [ipcRenderer, setIpcRenderer] = useState(null)
 
   useEffect(() => {
     setIpcRenderer(window.ipc)
-    window.ipc.on('IPC_RENDERER_RESIZE_IS_MAXIMIZED', (value) => {
+
+    const handleResize = (value) => {
       if (value !== undefined && Boolean(value)) {
         setIsMaximized(true)
       } else if (value !== undefined && !Boolean(value)) {
         setIsMaximized(false)
       }
-    })
+    }
+
+    window.ipc.on('IPC_RENDERER_RESIZE_IS_MAXIMIZED', handleResize)
+
+    // 메모리 누수 방지
+    return () => {
+      window.ipc.removeListener('IPC_RENDERER_RESIZE_IS_MAXIMIZED', handleResize)
+    }
   }, [])
 
   return (
-    <div className="tw-flex tw-fixed tw-w-full tw-bg-gray-900 tw-items-center tw-top-0 tw-h-12 tw-items-center tw-left-0 tw-bg-opacity-50 tw-px-2">
+    <div className="tw-flex tw-fixed tw-w-full tw-bg-gray-900 tw-items-center tw-top-0 tw-h-12 tw-items-center tw-left-0 tw-bg-opacity-50 tw-px-2 tw-border-b tw-border-opacity-50 tw-border-gray-600">
       {/* 홈 로고 */}
       <OverlayTrigger
         placement="bottom"
@@ -43,7 +53,7 @@ const NavComponent = ({ className, user, logoutCallback }: INavComponent) => {
           </Tooltip>
         }
       >
-        <Link href="/" className="tw-px-2 tw-py-2">
+        <Link href="/" className="tw-px-2 tw-py-2 btn-ipc tw-mr-2">
           <Image src="/images/logo.svg" height={24} width={24} alt="Logo" />
         </Link>
       </OverlayTrigger>
@@ -64,7 +74,7 @@ const NavComponent = ({ className, user, logoutCallback }: INavComponent) => {
           }
         >
           <button type="button" className="tw-flex tw-justify-center tw-items-center btn-select-game active tw-gap-1 tw-rounded-sm tw-text-xs">
-            <Image src="/images/respect-logo.png" height={16} width={16} alt="DJMAX RESPECT V" />
+            <Image src="/images/respect/logo.png" height={16} width={16} alt="DJMAX RESPECT V" />
             <span className="tw-text-xs">DJMAX RESPECT V</span>
           </button>
         </OverlayTrigger>
@@ -74,7 +84,7 @@ const NavComponent = ({ className, user, logoutCallback }: INavComponent) => {
           placement="bottom"
           overlay={
             <Tooltip id="btn-select-game-respect-v" className={className + ' tw-text-xs'}>
-              프로젝트 RA는 항상 개발 중에 있습니다!
+              Life is too short, You need Project RA
             </Tooltip>
           }
         >
@@ -102,29 +112,40 @@ const NavComponent = ({ className, user, logoutCallback }: INavComponent) => {
           '로그인해주세요'
         )}
       </button>
-      <ul className="dropdown-menu tw-text-xs" aria-labelledby="btn-nav-user">
+      <ul className="dropdown-menu tw-text-xs tw-bg-gray-900 tw-bg-opacity-90 tw-p-0" aria-labelledby="btn-nav-user">
         <li>
-          <Link className="dropdown-item" href="https://v-archive.net/">
+          <button
+            className="dropdown-item tw-py-2 tw-rounded-t-md"
+            onClick={() => {
+              ipcRenderer.send('openBrowser', 'https://v-archive.net/')
+            }}
+          >
             V-ARCHIVE 바로가기
-          </Link>
+          </button>
+        </li>
+        <li>
+          <hr className="dropdown-divider tw-m-0" />
         </li>
         {user.userNo !== '' && user.userToken !== '' && user.userName !== '' ? (
-          <>
-            <li>
-              <hr className="dropdown-divider" />
-            </li>
-            <li>
-              <button
-                className="dropdown-item tw-text-red-600"
-                onClick={() => {
-                  logoutCallback()
-                }}
-              >
-                로그아웃
-              </button>
-            </li>
-          </>
-        ) : null}
+          <li>
+            <button
+              className="dropdown-item tw-py-2 tw-rounded-b-md tw-text-red-600"
+              onClick={() => {
+                logoutCallback()
+                ipcRenderer.logout()
+                addNotificationCallback('정상적으로 로그아웃 되었습니다.')
+              }}
+            >
+              로그아웃
+            </button>
+          </li>
+        ) : (
+          <li>
+            <Link href="/login" className="dropdown-item tw-py-2 tw-rounded-b-md">
+              로그인
+            </Link>
+          </li>
+        )}
       </ul>
       {/* 우측 유틸리티 버튼 */}
       <div className="tw-flex tw-justify-center tw-items-center tw-gap-1 tw-h-8 tw-pr-1">

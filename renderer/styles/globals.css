@@ -3,8 +3,13 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --bs-body-font-family: var(--noto-sans-kr) !important;
+    --bs-font-sans-serif: var(--noto-sans-kr) !important;
+  }
+
   body {
-    @apply tw-text-white;
+    @apply tw-text-white tw-bg-gray-900;
     scroll-behavior: smooth !important;
     /* user-select: none;
     -webkit-user-select: none;
@@ -80,7 +85,7 @@
   }
 
   .btn-select-game.active:hover {
-    @apply tw-bg-gray-700;
+    @apply tw-bg-gray-800;
   }
 
   .btn-ipc {
@@ -102,14 +107,392 @@
   .dropdown-item:hover {
     @apply tw-bg-gray-600;
   }
+
+  .tooltip {
+    font-family: var(--noto-sans-kr) !important;
+    z-index: 9999 !important;
+  }
+
+  /* From V-ARCHIVE */
+  .respect_dlc_code {
+    padding: 0 5px;
+    -webkit-background-clip: text !important;
+    background-clip: text !important;
+    color: transparent !important;
+    text-stroke: 1.2px;
+    -webkit-text-stroke: 1.2px;
+    font-weight: bold;
+  }
+  .respect_dlc_code_R {
+    background-color: #efb506;
+  }
+  .respect_dlc_code_TR {
+    background-color: #56baf3;
+  }
+  .respect_dlc_code_GC {
+    background-color: #5fe4ee;
+  }
+  .respect_dlc_code_CHU {
+    background-color: #ffd302;
+  }
+  .respect_dlc_code_GF {
+    background-color: #e9a740;
+  }
+  .respect_dlc_code_GG {
+    background-color: #f14c0b;
+  }
+  .respect_dlc_code_DM {
+    background-color: #abe0cc;
+  }
+  .respect_dlc_code_ESTI {
+    background-color: #cdc49a;
+  }
+  .respect_dlc_code_BS {
+    background: linear-gradient(#ff2a2f, #ac2022);
+  }
+  .respect_dlc_code_VE {
+    background: linear-gradient(90deg, #ef8945 51%, #33aef8 52%);
+  }
+  .respect_dlc_code_VE2 {
+    background: linear-gradient(129deg, #ffa50f 43%, #fff 50%, #fc6672 57%);
+  }
+  .respect_dlc_code_VE3 {
+    background-color: #9f3df6;
+  }
+  .respect_dlc_code_VE4 {
+    background-color: #b70b18;
+  }
+  .respect_dlc_code_VE5 {
+    background: linear-gradient(150deg, #fba902 45%, #1c6bec 45%);
+  }
+  .respect_dlc_code_VL {
+    background: linear-gradient(180deg, #fc5abb 60%, #7fdcdb 60%, #7fdcdb 80%, #fff 80%);
+  }
+  .respect_dlc_code_CP {
+    background: linear-gradient(90deg, #ffbf00, #ff7e0f);
+  }
+  .respect_dlc_code_TQ {
+    background: linear-gradient(90deg, white 46%, #22c10b 47%);
+  }
+  .respect_dlc_code_CE {
+    background: linear-gradient(#fff300, #e1ab41);
+  }
+  .respect_dlc_code_P1 {
+    background: linear-gradient(90deg, #587adf 25%, #00b3d1 75%);
+  }
+  .respect_dlc_code_P2 {
+    background: linear-gradient(90deg, #ff37af, #fb1d47);
+  }
+  .respect_dlc_code_P3 {
+    background: linear-gradient(#857422, #f3c80a, #857422);
+  }
+  .respect_dlc_code_CY {
+    background: linear-gradient(#ff2a2f, #ac2022);
+  }
+  .respect_dlc_code_MD {
+    background: linear-gradient(111deg, #f3ce44 35%, #ff00dc 50%, #ff0004);
+  }
+  .respect_dlc_code_NXN {
+    background: linear-gradient(147deg, #089ed9 45%, #b9cd15 55%, #b9cd15);
+  }
+  .respect_dlc_code_ES {
+    background: linear-gradient(#25ff22, #36ac56);
+  }
+  .respect_dlc_code_T1 {
+    background-color: #f40098;
+  }
+  .respect_dlc_code_T2 {
+    background: linear-gradient(112deg, red 20%, orange, yellow, green 80%, blue);
+  }
+  .respect_dlc_code_T3 {
+    background-color: #3b79ff;
+  }
+  .respect_dlc_code_EZ2 {
+    background: linear-gradient(180deg, #04e7f7 50%, #04a7b7 50%);
+  }
+  .respect_dlc_code_MAP {
+    background: linear-gradient(90deg, #ff9e03, #e04d3b);
+  }
+  .respect_dlc_code_FAL {
+    background: linear-gradient(180deg, #b68870 10%, #ede472 10%, #ede472 50%, #73bca4 50%);
+  }
+  .respect_dlc_list_wrap {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    margin: 0px 40px;
+  }
+  .respect_dlc_logo {
+    display: inline-block;
+    text-decoration: none;
+    -webkit-text-stroke: 1px;
+    box-shadow: 0px 0px 10px 0px #aaa;
+    font-size: 15px;
+    line-height: 1.3;
+    padding: 5px 20px;
+    color: white;
+    box-sizing: border-box;
+    background-color: #999;
+  }
+  .respect_dlc_logo.respect_dlc_collabo {
+    border: 5px solid;
+    background-color: #222;
+    padding: 0px 15px;
+  }
+  .respect_dlc_logo span {
+    display: block;
+  }
+  .respect_dlc_list_wrap .respect_dlc_logo {
+    font-size: 25px;
+    line-height: 1.3;
+    padding: 15px 30px;
+    margin: 0 25px 15px 0;
+    opacity: 0.9;
+    transform: skew(-10deg);
+    min-width: 230px;
+    text-align: center;
+  }
+  .respect_dlc_list_wrap .respect_dlc_logo span {
+    transform: skew(10deg);
+  }
+  .respect_dlc_list_wrap .respect_dlc_logo.respect_dlc_collabo {
+    border: 5px solid;
+    background-color: #222;
+    padding: 10px 25px;
+  }
+  .respect_dlc_list_wrap .respect_dlc_logo:hover {
+    opacity: 1;
+    text-decoration: none;
+    box-shadow: 0px 0px 15px 0px #333;
+  }
+  .respect_db_title_info .respect_dlc_title.respect_dlc_logo {
+    display: flex;
+    align-items: center;
+    padding: 0;
+  }
+  .respect_db_title_info .respect_dlc_title.respect_dlc_logo span {
+    width: 100%;
+    margin-right: 80px;
+    display: inline;
+  }
+  .respect_dlc_logo_R {
+    background: linear-gradient(90deg, #f96775 10%, #f0b405 75%);
+  }
+  .respect_dlc_logo_P1 {
+    background: linear-gradient(90deg, #a749f8 25%, #00b3d1 75%);
+  }
+  .respect_dlc_logo_P2 {
+    background: linear-gradient(90deg, #ff37af 25%, #fb1d47 75%);
+  }
+  .respect_dlc_logo_P3 {
+    background: linear-gradient(90deg, #fcac00 12%, #e7931f 12%, #e7931f 20%, #d1740c 20%, #ba5605 85%, #d1750d 85%);
+  }
+  .respect_dlc_logo_TR {
+    background: linear-gradient(90deg, #67e0ff 25%, #4a79ff 75%);
+  }
+  .respect_dlc_logo_CE {
+    text-shadow: 0 0 10px #000f, 0 0 10px #000f;
+    background: linear-gradient(120deg, #fff 70%, #f5d74f 70%, #f5d74f 80%, #a97d1f 80%, #a97d1f 85%, #cd9731 85%);
+  }
+  .respect_dlc_logo_BS {
+    background: linear-gradient(90deg, #ec0043 60%, #881624 95%);
+  }
+  .respect_dlc_logo_VE {
+    background: linear-gradient(90deg, #ff6f1b 65%, #328abc 85%);
+  }
+  .respect_dlc_logo_VE2 {
+    text-shadow: 0 0 10px #0009;
+    background: linear-gradient(
+      120deg,
+      #b82b49 25%,
+      #f35664 25%,
+      #f35664 33%,
+      #f29491 33%,
+      #f29491 36%,
+      #f35664 36%,
+      #f35664 40%,
+      #f29491 40%,
+      #f29491 45%,
+      #fafafa 45%,
+      #fafafa 50%,
+      #f8d37c 50%,
+      #f8d37c 55%,
+      #f6a64d 55%,
+      #f6a64d 60%,
+      #f8d37c 60%,
+      #f8d37c 63%,
+      #e17543 63%,
+      #e17543 72%,
+      #f6a64d 72%,
+      #f6a64d 76%,
+      #e17543 76%
+    );
+  }
+  .respect_dlc_logo_ES {
+    background: linear-gradient(90deg, #0e86c4 15%, #34df26 40%);
+  }
+  .respect_dlc_logo_T1 {
+    background: linear-gradient(90deg, #ff0096 25%, #8062ea 75%);
+  }
+  .respect_dlc_logo_T2 {
+    background: linear-gradient(90deg, #ff00e4 10%, #ff6b03 30%, #ffc600 60%, #63d163 80%, #00d2fe 100%);
+  }
+  .respect_dlc_logo_T3 {
+    background: linear-gradient(120deg, #5b3ee6 25%, #3b3ed8 25%, #2f79cd 100%);
+  }
+  .respect_dlc_logo_TQ {
+    background: linear-gradient(60deg, #c5c5c5 50%, #777 50%, #777 55%, #1ad10b 55%);
+  }
+  .respect_dlc_logo_VE3 {
+    background: linear-gradient(
+      180deg,
+      #7f1cff 20%,
+      #440e82 20%,
+      #440e82 32%,
+      #7f1cff 32%,
+      #7f1cff 44%,
+      #440e82 44%,
+      #440e82 56%,
+      #7f1cff 56%,
+      #7f1cff 68%,
+      #440e82 68%,
+      #440e82 80%,
+      #7f1cff 80%
+    );
+  }
+  .respect_dlc_logo_VE4 {
+    background: linear-gradient(90deg, #b70b18, #500509);
+  }
+  .respect_dlc_logo_VE5 {
+    background: linear-gradient(126deg, #fba902 15%, #06264d 15%);
+  }
+  .respect_dlc_logo_CP {
+    background: linear-gradient(90deg, #ffbf00, #ff7e0f);
+  }
+  .respect_dlc_logo_VL {
+    text-shadow: 0 0 10px #000f, 0 0 10px #000f;
+    background: linear-gradient(180deg, #49f8fc 20%, #fff650 20%, #fff650 50%, #ff5abc 50%);
+  }
+  .respect_dlc_logo_GG {
+    color: #db4111;
+  }
+  .respect_dlc_logo_BG_GG {
+    background-color: #db4111;
+  }
+  .respect_dlc_logo_CHU {
+    color: #ffd601;
+  }
+  .respect_dlc_logo_BG_CHU {
+    background-color: #ffd601;
+  }
+  .respect_dlc_logo_CY {
+    color: #f41334;
+  }
+  .respect_dlc_logo_BG_CY {
+    background-color: #f41334;
+  }
+  .respect_dlc_logo_DM {
+    color: #9ef1e0;
+  }
+  .respect_dlc_logo_BG_DM {
+    background-color: #9ef1e0;
+  }
+  .respect_dlc_logo_ESTI {
+    color: #ebd29b;
+  }
+  .respect_dlc_logo_BG_ESTI {
+    background-color: #ebd29b;
+  }
+  .respect_dlc_logo_GC {
+    color: #ebd29b;
+  }
+  .respect_dlc_logo_BG_GC {
+    background-color: #ebd29b;
+  }
+  .respect_dlc_logo_GF {
+    color: #e29600;
+  }
+  .respect_dlc_logo_BG_GF {
+    background-color: #e29600;
+  }
+  .respect_dlc_logo_NXN {
+    border-image: linear-gradient(150deg, #089ed9 50%, #b9cd15 50%, #b9cd15) !important;
+    border-image-slice: 1 !important;
+  }
+  .respect_dlc_logo_BG_NXN {
+    background: linear-gradient(150deg, #089ed9 50%, #b9cd15 50%, #b9cd15);
+  }
+  .respect_dlc_logo_NXN span {
+    background: linear-gradient(150deg, #089ed9 50%, #b9cd15 50%, #b9cd15);
+    -webkit-background-clip: text !important;
+    background-clip: text !important;
+    color: transparent !important;
+  }
+  .respect_dlc_logo_MD {
+    border-image: linear-gradient(110deg, #f3ce44 35%, #ff00dc 50%, #ff0004) !important;
+    border-image-slice: 1 !important;
+  }
+  .respect_dlc_logo_BG_MD {
+    background: linear-gradient(110deg, #f3ce44 35%, #ff00dc 50%, #ff0004);
+  }
+  .respect_dlc_logo_MD span {
+    background: linear-gradient(110deg, #f3ce44 35%, #ff00dc 50%, #ff0004);
+    -webkit-background-clip: text !important;
+    background-clip: text !important;
+    color: transparent !important;
+  }
+  .respect_dlc_logo_EZ2 {
+    border-image: linear-gradient(180deg, #02e5f5 50%, #04becf) !important;
+    border-image-slice: 1 !important;
+  }
+  .respect_dlc_logo_BG_EZ2 {
+    background: linear-gradient(180deg, #02e5f5 50%, #04becf) !important;
+  }
+  .respect_dlc_logo_EZ2 span {
+    background: linear-gradient(180deg, #03dcf2 50%, #069da8 50%);
+    -webkit-background-clip: text !important;
+    background-clip: text !important;
+    color: transparent !important;
+  }
+  .respect_dlc_logo_MAP {
+    border-image: linear-gradient(90deg, #ff9e03, #cf3625) !important;
+    border-image-slice: 1 !important;
+  }
+  .respect_dlc_logo_BG_MAP {
+    background: linear-gradient(90deg, #ff9e03, #cf3625) !important;
+  }
+  .respect_dlc_logo_MAP span {
+    background: linear-gradient(90deg, #ff9e03, #cf3625);
+    -webkit-background-clip: text !important;
+    background-clip: text !important;
+    color: transparent !important;
+  }
+  .respect_dlc_logo_FAL {
+    border-image: linear-gradient(180deg, #ffa1c9 20%, #fff54e 20%, #fff54e 50%, #8ec765 50%, #8ec765 80%, #3cc7f7 80%) !important;
+    border-image-slice: 1 !important;
+  }
+  .respect_dlc_logo_BG_FAL {
+    background: linear-gradient(180deg, #ffa1c9 20%, #fff54e 20%, #fff54e 50%, #8ec765 50%, #8ec765 80%, #3cc7f7 80%);
+  }
+  .respect_dlc_logo_FAL span {
+    background: linear-gradient(180deg, #ffa1c9 35%, #fff54e 35%, #fff54e 50%, #8ec765 50%, #8ec765 65%, #3cc7f7 65%);
+    -webkit-background-clip: text !important;
+    background-clip: text !important;
+    color: transparent !important;
+  }
+  .respect_dlc_title {
+    font-size: 30px;
+    width: 100%;
+    text-align: center;
+    box-sizing: border-box;
+  }
+  .respect_dlc_title.respect_dlc_logo {
+    padding: 15px;
+  }
 }
 
 @layer utilities {
   .flex-equal {
     flex: 1 1 0;
   }
-}
-
-:root {
-  --bs-body-font-family: var(--noto-sans-kr) !important;
 }

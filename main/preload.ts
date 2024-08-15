@@ -12,6 +12,10 @@ const handler = {
       ipcRenderer.removeListener(channel, subscription)
     }
   },
+  login: (credentials) => ipcRenderer.invoke('login', credentials),
+  logout: () => ipcRenderer.invoke('logout'),
+  getSession: () => ipcRenderer.invoke('get-session'),
+  removeListener: (channel, subscription) => ipcRenderer.removeListener(channel, subscription),
 }
 
 contextBridge.exposeInMainWorld('ipc', handler)

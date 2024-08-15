@@ -29,8 +29,34 @@ module.exports = {
       fuchsia: colors.fuchsia,
       pink: colors.pink,
       rose: colors.rose,
+      'respect-nm-5': '#f5bb01',
+      'respect-nm-10': '#f95b08aa',
+      'respect-nm-15': '#f30253aa',
+      'respect-sc-5': '#df0074',
+      'respect-sc-10': '#c604e4',
+      'respect-sc-15': '#3d66ff',
     },
-    extend: {},
+    extend: {
+      animation: {
+        fadeIn: 'fadeIn 0.5s ease-out',
+        fadeOut: 'fadeOut 0.5s ease-in',
+        notificationProgress: 'notificationProgress 10s linear forwards',
+      },
+      keyframes: {
+        fadeIn: {
+          '0%': { opacity: '0', transform: 'translateY(10px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        fadeOut: {
+          '0%': { opacity: '1', transform: 'translateY(0)' },
+          '100%': { opacity: '0', transform: 'translateY(10px)' },
+        },
+        notificationProgress: {
+          '0%': { transform: 'translateX(-100%)' },
+          '100%': { transform: 'translateX(0)' },
+        },
+      },
+    },
   },
   plugins: [],
 }

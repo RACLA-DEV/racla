@@ -1,7 +1,8 @@
 import path from 'path'
-import { app, ipcMain, ipcRenderer } from 'electron'
+import { app, ipcMain, ipcRenderer, shell } from 'electron'
 import serve from 'electron-serve'
 import { createWindow } from './helpers'
+import { clearSession, getSession, storeSession } from './sessionManager'
 
 const isProd = process.env.NODE_ENV === 'production'
 
@@ -36,10 +37,12 @@ if (isProd) {
     mainWindow.webContents.openDevTools()
   }
 
+  // 창 닫기 버튼 감지
   ipcMain.on('closeApp', () => {
     mainWindow.close()
   })
 
+  // 창 최대화 버튼 감지
   ipcMain.on('maximizeApp', () => {
     if (mainWindow.isMaximized()) {
       mainWindow.restore()
@@ -48,16 +51,46 @@ if (isProd) {
     }
   })
 
+  // 창 최소화 버튼 감지
   ipcMain.on('minimizeApp', () => {
     mainWindow.minimize()
   })
 
+  // 창 크기 최대화 감지
   mainWindow.on('resize', () => {
     if (mainWindow.isMaximized()) {
-      mainWindow.webContents.send('IPC_RENDERER_RESIZE_IS_MAXIMIZED', 'true')
+      mainWindow.webContents.send('IPC_RENDERER_RESIZE_IS_MAXIMIZED', true)
     } else {
-      mainWindow.webContents.send('IPC_RENDERER_RESIZE_IS_MAXIMIZED', '')
+      mainWindow.webContents.send('IPC_RENDERER_RESIZE_IS_MAXIMIZED', false)
     }
+  })
+
+  // 세션 저장 처리
+  ipcMain.handle('login', async (event, { userNo, userToken }) => {
+    try {
+      storeSession({ userNo, userToken })
+      mainWindow.webContents.send('IPC_RENDERER_IS_LOGINED', true)
+      return { success: true }
+    } catch (e) {
+      return { success: false, error: String(e) }
+    }
+  })
+
+  // 로그아웃 요청 처리
+  ipcMain.handle('logout', () => {
+    clearSession()
+    return { success: true }
+  })
+
+  // 세션 정보 요청 처리
+  ipcMain.handle('get-session', () => {
+    const session = getSession()
+    return session ? session : null
+  })
+
+  ipcMain.on('openBrowser', (event, url) => {
+    event.preventDefault()
+    shell.openExternal(url)
   })
 })()
 

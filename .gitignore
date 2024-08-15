@@ -11,3 +11,7 @@ next-env.d.ts
 # build
 /app
 dist
+
+/renderer/public/images/respect/sprite/*
+/renderer/public/images/respect/texture/*
+/renderer/public/videos/respect/preview/*
