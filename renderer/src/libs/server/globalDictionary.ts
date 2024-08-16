@@ -1,5 +1,6 @@
 export const globalDictionary = {
-  respectLevel: {
+  respect: {
+    keyModeList: [4, 5, 6, 8],
     levelList: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
     difficulty: {
       NM: {
@@ -16,7 +17,7 @@ export const globalDictionary = {
       },
       SC: {
         name: 'SC',
-        fullName: 'SCRECT(SUPER CRAZY)',
+        fullName: 'SC',
       },
     },
   },

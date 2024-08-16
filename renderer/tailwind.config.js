@@ -38,6 +38,8 @@ module.exports = {
     },
     extend: {
       animation: {
+        fadeInDown: 'fadeInDown 0.5s ease-out forwards',
+        fadeInLeft: 'fadeInLeft 0.5s ease-out forwards',
         fadeIn: 'fadeIn 0.5s ease-out',
         fadeOut: 'fadeOut 0.5s ease-in',
         notificationProgress: 'notificationProgress 10s linear forwards',
@@ -54,6 +56,14 @@ module.exports = {
         notificationProgress: {
           '0%': { transform: 'translateX(-100%)' },
           '100%': { transform: 'translateX(0)' },
+        },
+        fadeInDown: {
+          '0%': { opacity: '0', transform: 'translateY(-10px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        fadeInLeft: {
+          '0%': { opacity: '0', transform: 'translateX(10px)' },
+          '100%': { opacity: '1', transform: 'translateX(0)' },
         },
       },
     },

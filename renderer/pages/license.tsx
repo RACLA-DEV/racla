@@ -20,7 +20,7 @@ export default function LicensePage() {
         <span className="tw-mb-2">V-ARCHIVE(DJMAX RESPECT V의 유저 제작 웹 성과 관리 도구) - V-ARCHIVE</span>
         <span className="tw-text-lg tw-font-bold">외부 연동 API</span>
         <span>V-ARCHIVE Open API - V-ARCHIVE</span>
-        <span className="tw-mb-2">LunaticaLuna CORS Free Proxy API - LunaticaLuna</span>
+        <span className="tw-mb-2">LunaticaLuna CORS Proxy API - LunaticaLuna</span>
       </div>
     </React.Fragment>
   )

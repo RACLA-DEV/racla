@@ -15,6 +15,8 @@ const handler = {
   login: (credentials) => ipcRenderer.invoke('login', credentials),
   logout: () => ipcRenderer.invoke('logout'),
   getSession: () => ipcRenderer.invoke('get-session'),
+  putSongData: (songData) => ipcRenderer.invoke('putSongData', songData),
+  getSongData: () => ipcRenderer.invoke('getSongData'),
   removeListener: (channel, subscription) => ipcRenderer.removeListener(channel, subscription),
 }
 

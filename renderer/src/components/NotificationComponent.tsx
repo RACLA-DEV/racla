@@ -4,7 +4,7 @@ const NotificationComponent = ({ notifications, removeNotificationCallback }) =>
       {notifications.map(({ id, message, fadeOut }) => (
         <div
           key={id}
-          className={`tw-bg-lime-600 tw-text-xs tw-bg-opacity-90 tw-relative tw-text-white tw-py-3 tw-px-4 tw-mb-2 tw-rounded-lg tw-overflow-hidden tw-shadow-lg ${
+          className={`tw-bg-lime-600 tw-cursor-pointer tw-text-xs tw-bg-opacity-90 tw-relative tw-text-white tw-py-3 tw-px-4 tw-mb-2 tw-rounded-lg tw-overflow-hidden tw-shadow-lg ${
             fadeOut ? 'tw-animate-fadeOut' : 'tw-animate-fadeIn'
           }`}
           onClick={() => {

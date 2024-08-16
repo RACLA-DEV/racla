@@ -5,6 +5,7 @@ import { FiMinus, FiMinimize, FiMaximize, FiX } from 'react-icons/fi'
 import { FaConnectdevelop } from 'react-icons/fa6'
 import { OverlayTrigger, Tooltip } from 'react-bootstrap'
 import { useRouter } from 'next/router'
+import * as R from 'ramda'
 
 interface INavComponent {
   className?: string
@@ -22,6 +23,18 @@ type TUser = {
 const NavComponent = ({ className, user, logoutCallback, addNotificationCallback }: INavComponent) => {
   const [isMaximized, setIsMaximized] = useState(false)
   const [ipcRenderer, setIpcRenderer] = useState(null)
+  const [randomIcon, setRandomIcon] = useState<any>([])
+
+  // 배열에서 랜덤 요소를 선택하는 함수
+  const getRandomElement = (array): any => {
+    if (array.length === 0) return null // 배열이 비어 있을 경우 처리
+    const index = Math.floor(Math.random() * array.length)
+    return R.nth(index, array)
+  }
+
+  useEffect(() => {
+    window.ipc.getSongData().then((result: any[]) => setRandomIcon(getRandomElement(result).title))
+  }, [])
 
   useEffect(() => {
     setIpcRenderer(window.ipc)
@@ -39,6 +52,19 @@ const NavComponent = ({ className, user, logoutCallback, addNotificationCallback
     // 메모리 누수 방지
     return () => {
       window.ipc.removeListener('IPC_RENDERER_RESIZE_IS_MAXIMIZED', handleResize)
+    }
+  }, [])
+
+  useEffect(() => {
+    const handleRandomIcon = () => {
+      window.ipc.getSongData().then((result: any[]) => setRandomIcon(getRandomElement(result).title))
+    }
+
+    window.ipc.on('IPC_RENDERER_IS_LOGINED', handleRandomIcon)
+
+    // 메모리 누수 방지
+    return () => {
+      window.ipc.removeListener('IPC_RENDERER_IS_LOGINED', handleRandomIcon)
     }
   }, [])
 
@@ -105,7 +131,13 @@ const NavComponent = ({ className, user, logoutCallback, addNotificationCallback
       >
         {user.userNo !== '' && user.userToken !== '' && user.userName !== '' ? (
           <>
-            <Image src="https://v-archive.net/static/images/jackets/464.jpg" height="24" width="24" className="tw-rounded-full" alt="Profile Image" />
+            <Image
+              src={`https://v-archive.net/static/images/jackets/${randomIcon}.jpg`}
+              height="24"
+              width="24"
+              className="tw-rounded-full"
+              alt="Profile Image"
+            />
             {user.userName}
           </>
         ) : (

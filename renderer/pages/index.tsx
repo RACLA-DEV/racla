@@ -9,7 +9,6 @@ export default function HomePage() {
       <Head>
         <title>홈 - 프로젝트 RA</title>
       </Head>
-      프로젝트 RA
     </React.Fragment>
   )
 }

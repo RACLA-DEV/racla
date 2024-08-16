@@ -2,7 +2,7 @@ import path from 'path'
 import { app, ipcMain, ipcRenderer, shell } from 'electron'
 import serve from 'electron-serve'
 import { createWindow } from './helpers'
-import { clearSession, getSession, storeSession } from './sessionManager'
+import { clearSession, getSession, getSongData, storeSession, storeSongData } from './sessionManager'
 
 const isProd = process.env.NODE_ENV === 'production'
 
@@ -16,15 +16,16 @@ if (isProd) {
   await app.whenReady()
 
   const mainWindow = createWindow('main', {
-    width: 1280,
-    height: 720,
-    minWidth: 1280,
-    minHeight: 720,
+    width: 1600,
+    height: 900,
+    minWidth: 1600,
+    minHeight: 900,
     frame: false,
     center: true,
     icon: path.join(__dirname + '/../resources/', 'icon.ico'),
     webPreferences: {
       nodeIntegration: true,
+      devTools: true,
       preload: path.join(__dirname, 'preload.js'),
     },
   })
@@ -88,10 +89,35 @@ if (isProd) {
     return session ? session : null
   })
 
+  // 곡 데이터 저장 처리
+  ipcMain.handle('putSongData', async (event, songData) => {
+    try {
+      storeSongData(songData)
+      mainWindow.webContents.send('IPC_RENDERER_IS_LOADED_SONG_DATA', true)
+      return { success: true }
+    } catch (e) {
+      return { success: false, error: String(e) }
+    }
+  })
+
+  // 세션 정보 요청 처리
+  ipcMain.handle('getSongData', () => {
+    const songData = getSongData()
+    return songData ? songData : null
+  })
+
   ipcMain.on('openBrowser', (event, url) => {
     event.preventDefault()
     shell.openExternal(url)
   })
+
+  if (getSession() === undefined || getSession() === null) {
+    storeSession({ userNo: '', userToken: '' })
+  }
+
+  if (getSongData() === undefined || getSongData() === null) {
+    storeSongData([{}])
+  }
 })()
 
 app.on('window-all-closed', () => {

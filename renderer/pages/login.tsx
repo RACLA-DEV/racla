@@ -101,7 +101,7 @@ export default function LoginPage({ addNotificationCallback }) {
         <title>로그인 - 프로젝트 RA</title>
       </Head>
       <input className="form-control" type="file" accept=".txt" onChange={onFileChange} />
-      <div className="tw-flex tw-flex-col">
+      {/* <div className="tw-flex tw-flex-col">
         <div>
           <span>userNo : </span>
           <span>{userNo}</span>
@@ -118,7 +118,7 @@ export default function LoginPage({ addNotificationCallback }) {
           <span>userName : </span>
           <span>{userName}</span>
         </div>
-      </div>
+      </div> */}
     </React.Fragment>
   )
 }

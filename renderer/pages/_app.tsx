@@ -37,6 +37,16 @@ function MyApp({ Component, pageProps }: AppProps) {
 
   const { notifications, addNotification, removeNotification } = useNotifications()
 
+  useEffect(() => {
+    const fetchData = async () => {
+      const { data } = await axios.get('https://cors.lunatica.kr/proxy?url=https://v-archive.net/db/songs.json')
+      if (data.length > 0 && data[0].title === 0) {
+        window.ipc.putSongData(data)
+      }
+    }
+    fetchData()
+  }, [])
+
   const getUserName = async <T = IUserNameResponse, R = IUserNameRequest>(body: R): Promise<T> => {
     const { data } = await axios.post<T, AxiosResponse<T>, R>('https://cors.lunatica.kr/proxy?url=https://v-archive.net/client/login', body, {
       withCredentials: false,
@@ -114,7 +124,19 @@ function MyApp({ Component, pageProps }: AppProps) {
       <div className="background-image-color" />
 
       {/* 메인 콘텐츠 */}
-      <main className="tw-mx-5 tw-text-sm" style={{ marginLeft: '14.25rem', marginBottom: '4rem', marginTop: '4rem' }} data-bs-theme="dark">
+      <main className="tw-mx-5 tw-text-sm" style={{ marginLeft: '14.25rem', marginBottom: '3rem', marginTop: '4rem' }} data-bs-theme="dark">
+        <AnimatePresence initial={false} mode="wait">
+          <motion.div
+            key={asPath} // 페이지가 변경될 때마다 새 key로 애니메이션을 트리거
+            initial={{ x: 10, opacity: 0.5 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: -10, opacity: 0 }}
+            transition={{ duration: 0.3 }} // 애니메이션 지속 시간
+            style={{ width: '100%' }} // 위치와 너비를 설정
+          >
+            <Component {...pageProps} addNotificationCallback={addNotification} fontFamily={noto.className} userData={{ userName, userNo, userToken }} />
+          </motion.div>
+        </AnimatePresence>
         <NavComponent
           className={noto.className}
           user={{ userNo, userToken, userName }}
@@ -126,18 +148,6 @@ function MyApp({ Component, pageProps }: AppProps) {
           addNotificationCallback={addNotification}
         />
         <SidebarComponent />
-        <AnimatePresence initial={false} mode="wait">
-          <motion.div
-            key={asPath} // 페이지가 변경될 때마다 새 key로 애니메이션을 트리거
-            initial={{ x: 10, opacity: 0.5 }}
-            animate={{ x: 0, opacity: 1 }}
-            exit={{ x: -10, opacity: 0 }}
-            transition={{ duration: 0.3 }} // 애니메이션 지속 시간
-            style={{ width: '100%' }} // 위치와 너비를 설정
-          >
-            <Component {...pageProps} addNotificationCallback={addNotification} />
-          </motion.div>
-        </AnimatePresence>
         <FooterComponent className={noto.className} />
       </main>
 
