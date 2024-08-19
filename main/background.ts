@@ -1,8 +1,9 @@
 import path from 'path'
-import { app, ipcMain, ipcRenderer, shell } from 'electron'
+import { app, dialog, ipcMain, ipcRenderer, shell } from 'electron'
 import serve from 'electron-serve'
 import { createWindow } from './helpers'
-import { clearSession, getSession, getSongData, storeSession, storeSongData } from './sessionManager'
+import { clearSession, getSession, getSettingData, getSongData, storeSession, storeSettingData, storeSongData } from './fsManager'
+import { autoUpdater } from 'electron-updater'
 
 const isProd = process.env.NODE_ENV === 'production'
 
@@ -16,16 +17,20 @@ if (isProd) {
   await app.whenReady()
 
   const mainWindow = createWindow('main', {
-    width: 1600,
-    height: 900,
-    minWidth: 1600,
-    minHeight: 900,
+    // width: 1600,
+    // height: 900,
+    // minWidth: 1600,
+    // minHeight: 900,
+    width: 1440,
+    height: 810,
+    minWidth: 1440,
+    minHeight: 810,
     frame: false,
     center: true,
     icon: path.join(__dirname + '/../resources/', 'icon.ico'),
     webPreferences: {
       nodeIntegration: true,
-      devTools: true,
+      devTools: !isProd,
       preload: path.join(__dirname, 'preload.js'),
     },
   })
@@ -67,43 +72,41 @@ if (isProd) {
   })
 
   // 세션 저장 처리
-  ipcMain.handle('login', async (event, { userNo, userToken }) => {
+  ipcMain.on('login', async (event, { userNo, userToken }) => {
     try {
       storeSession({ userNo, userToken })
       mainWindow.webContents.send('IPC_RENDERER_IS_LOGINED', true)
-      return { success: true }
     } catch (e) {
-      return { success: false, error: String(e) }
+      mainWindow.webContents.send('IPC_RENDERER_IS_LOGINED', false)
     }
   })
 
   // 로그아웃 요청 처리
-  ipcMain.handle('logout', () => {
+  ipcMain.on('logout', async (event) => {
     clearSession()
-    return { success: true }
+    mainWindow.webContents.send('IPC_RENDERER_IS_LOGOUTED', { success: true })
   })
 
   // 세션 정보 요청 처리
-  ipcMain.handle('get-session', () => {
-    const session = getSession()
-    return session ? session : null
+  ipcMain.on('getSession', async (event) => {
+    const session = await getSession()
+    mainWindow.webContents.send('IPC_RENDERER_GET_SESSION', session ? session : null)
   })
 
   // 곡 데이터 저장 처리
-  ipcMain.handle('putSongData', async (event, songData) => {
+  ipcMain.on('putSongData', async (event, songData) => {
     try {
       storeSongData(songData)
       mainWindow.webContents.send('IPC_RENDERER_IS_LOADED_SONG_DATA', true)
-      return { success: true }
     } catch (e) {
-      return { success: false, error: String(e) }
+      mainWindow.webContents.send('IPC_RENDERER_IS_LOADED_SONG_DATA', false)
     }
   })
 
   // 세션 정보 요청 처리
-  ipcMain.handle('getSongData', () => {
-    const songData = getSongData()
-    return songData ? songData : null
+  ipcMain.on('getSongData', async (event) => {
+    const songData = await getSongData()
+    mainWindow.webContents.send('IPC_RENDERER_GET_SONG_DATA', songData ? songData : null)
   })
 
   ipcMain.on('openBrowser', (event, url) => {
@@ -118,6 +121,32 @@ if (isProd) {
   if (getSongData() === undefined || getSongData() === null) {
     storeSongData([{}])
   }
+
+  if (getSettingData() === undefined || getSettingData() === null) {
+    storeSettingData({ hardwareAcceleration: true, homeButtonAlignRight: false })
+  }
+
+  // 자동 업데이트 체크
+  autoUpdater.checkForUpdatesAndNotify()
+
+  // 업데이트 가용 시 버전 정보를 렌더러 프로세스로 전송
+  autoUpdater.on('update-available', (info) => {
+    mainWindow.webContents.send('update-available', info.version)
+  })
+
+  // 다운로드 진행 상황을 렌더러 프로세스로 전송
+  autoUpdater.on('download-progress', (progress) => {
+    mainWindow.webContents.send('download-progress', {
+      percent: progress.percent,
+      transferred: progress.transferred,
+      total: progress.total,
+    })
+  })
+
+  // 업데이트 다운로드 완료 시 렌더러 프로세스로 이벤트 전송
+  autoUpdater.on('update-downloaded', (info) => {
+    mainWindow.webContents.send('update-downloaded', info.version)
+  })
 })()
 
 app.on('window-all-closed', () => {
@@ -127,3 +156,20 @@ app.on('window-all-closed', () => {
 ipcMain.on('message', async (event, arg) => {
   event.reply('message', `${arg} World!`)
 })
+
+ipcMain.on('reload-app', () => {
+  app.relaunch()
+  app.exit()
+})
+
+// 렌더러 프로세스에서 업데이트 승인 시 설치 및 앱 종료
+ipcMain.on('update-app', () => {
+  autoUpdater.quitAndInstall()
+})
+
+// 업데이트 테스트 용
+// Object.defineProperty(app, 'isPackaged', {
+//   get() {
+//     return true
+//   },
+// })

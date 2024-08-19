@@ -4,9 +4,9 @@ import { v4 as uuidv4 } from 'uuid'
 export const useNotifications = () => {
   const [notifications, setNotifications] = useState([])
 
-  const addNotification = useCallback((message) => {
+  const addNotification = useCallback((message, color?) => {
     const id = uuidv4()
-    setNotifications((prevNotifications) => [...prevNotifications, { id, message, fadeOut: false }])
+    setNotifications((prevNotifications) => [...prevNotifications, { id, message, fadeOut: false, color }])
 
     setTimeout(() => {
       setNotifications((prevNotifications) =>

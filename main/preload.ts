@@ -12,12 +12,14 @@ const handler = {
       ipcRenderer.removeListener(channel, subscription)
     }
   },
-  login: (credentials) => ipcRenderer.invoke('login', credentials),
-  logout: () => ipcRenderer.invoke('logout'),
-  getSession: () => ipcRenderer.invoke('get-session'),
-  putSongData: (songData) => ipcRenderer.invoke('putSongData', songData),
-  getSongData: () => ipcRenderer.invoke('getSongData'),
+  login: (credentials) => ipcRenderer.send('login', credentials),
+  logout: () => ipcRenderer.send('logout'),
+  getSetting: () => ipcRenderer.send('getSetting'),
+  getSession: () => ipcRenderer.send('getSession'),
+  putSongData: (songData) => ipcRenderer.send('putSongData', songData),
+  getSongData: () => ipcRenderer.send('getSongData'),
   removeListener: (channel, subscription) => ipcRenderer.removeListener(channel, subscription),
+  openBrowser: (url) => ipcRenderer.send('openBrowser', url),
 }
 
 contextBridge.exposeInMainWorld('ipc', handler)

@@ -1,10 +1,12 @@
 const NotificationComponent = ({ notifications, removeNotificationCallback }) => {
   return (
     <div className="tw-fixed tw-bottom-0 tw-right-2 tw-z-50 tw-max-w-sm tw-break-keep">
-      {notifications.map(({ id, message, fadeOut }) => (
+      {notifications.map(({ id, message, fadeOut, color }) => (
         <div
           key={id}
-          className={`tw-bg-lime-600 tw-cursor-pointer tw-text-xs tw-bg-opacity-90 tw-relative tw-text-white tw-py-3 tw-px-4 tw-mb-2 tw-rounded-lg tw-overflow-hidden tw-shadow-lg ${
+          className={`${
+            color ? color : `tw-bg-lime-600`
+          } tw-cursor-pointer tw-text-xs tw-bg-opacity-80 tw-relative tw-text-white tw-py-3 tw-px-4 tw-mb-2 tw-rounded-lg tw-overflow-hidden tw-shadow-lg ${
             fadeOut ? 'tw-animate-fadeOut' : 'tw-animate-fadeIn'
           }`}
           onClick={() => {

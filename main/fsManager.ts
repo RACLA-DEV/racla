@@ -1,9 +1,15 @@
+import { app } from 'electron'
+
 // sessionManager.js
 const fs = require('fs')
 const path = require('path')
 
-const sessionFile = path.join(__dirname, 'session.json')
-const songDataFile = path.join(__dirname, 'songData.json')
+// const sessionFile = path.join('C:\\Users\\Administrator\\Desktop', 'session.json')
+// const songDataFile = path.join('C:\\Users\\Administrator\\Desktop', 'songData.json')
+
+const sessionFile = path.join(app.getPath('userData'), 'session.json')
+const songDataFile = path.join(app.getPath('userData'), 'songData.json')
+const settingDataFile = path.join(app.getPath('userData'), 'settings.json')
 
 // 세션 저장
 export function storeSession(session) {
@@ -37,6 +43,21 @@ export function storeSongData(songData) {
 export function getSongData() {
   if (fs.existsSync(songDataFile)) {
     const data = fs.readFileSync(songDataFile, 'utf-8')
+    return JSON.parse(data)
+  }
+  return null
+}
+
+// 설정 파일 저장
+export function storeSettingData(settingData) {
+  console.log('settingData Saved:', settingDataFile)
+  fs.writeFileSync(settingDataFile, JSON.stringify(settingData), 'utf-8')
+}
+
+// 설정 파일 읽기
+export function getSettingData() {
+  if (fs.existsSync(settingDataFile)) {
+    const data = fs.readFileSync(settingDataFile, 'utf-8')
     return JSON.parse(data)
   }
   return null

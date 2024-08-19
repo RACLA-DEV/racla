@@ -12,6 +12,13 @@ next-env.d.ts
 /app
 dist
 
-/renderer/public/images/respect/sprite/*
-/renderer/public/images/respect/texture/*
-/renderer/public/videos/respect/preview/*
+/renderer/public/images/djmax_respect_v/sprite/*
+/renderer/public/images/djmax_respect_v/texture/*
+/renderer/public/videos/djmax_respect_v/preview/*
+
+# next-video
+videos/*
+!videos/*.json
+!videos/*.js
+!videos/*.ts
+public/_next-video

@@ -42,9 +42,15 @@ module.exports = {
         fadeInLeft: 'fadeInLeft 0.5s ease-out forwards',
         fadeIn: 'fadeIn 0.5s ease-out',
         fadeOut: 'fadeOut 0.5s ease-in',
+        fadeInOut: 'fadeInOut 1s ease infinite alternate',
+        fadeInOnly: 'fadeInOut 1s ease forwards',
         notificationProgress: 'notificationProgress 10s linear forwards',
       },
       keyframes: {
+        fadeInOut: {
+          '0%': { opacity: '0.25' },
+          '100%': { opacity: '1' },
+        },
         fadeIn: {
           '0%': { opacity: '0', transform: 'translateY(10px)' },
           '100%': { opacity: '1', transform: 'translateY(0)' },

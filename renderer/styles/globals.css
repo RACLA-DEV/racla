@@ -11,10 +11,10 @@
   body {
     @apply tw-text-gray-200 tw-bg-gray-900;
     scroll-behavior: smooth !important;
-    /* user-select: none;
+    user-select: none;
     -webkit-user-select: none;
     -moz-user-select: none;
-    -ms-user-select: none; */
+    -ms-user-select: none;
   }
 
   .background-image {
@@ -28,11 +28,19 @@
     background-size: cover;
     background-attachment: fixed;
     background-position: center center;
-    filter: blur(4px) grayscale(100%) brightness(75%);
+  }
+
+  .background-video {
+    position: fixed;
+    left: 0;
+    right: 0;
+    z-index: 1;
+    width: 100%;
+    height: auto;
   }
 
   .background-image-color {
-    @apply tw-bg-gray-900 tw-bg-opacity-90;
+    @apply tw-bg-gray-900 tw-bg-opacity-95 tw-backdrop-blur;
     position: fixed;
     left: 0;
     right: 0;
@@ -219,7 +227,7 @@
 .respect_bg_b4 {
   background-size: cover;
   background-repeat: no-repeat;
-  background-image: url(/images/respect/4B-BG.png);
+  background-image: url(/images/djmax_respect_v/4B-BG.png);
   opacity: 50%;
   filter: blur(4px);
 }
@@ -227,7 +235,7 @@
 .respect_bg_b5 {
   background-size: cover;
   background-repeat: no-repeat;
-  background-image: url(/images/respect/5B-BG.png);
+  background-image: url(/images/djmax_respect_v/5B-BG.png);
   opacity: 50%;
   filter: blur(4px);
 }
@@ -235,7 +243,7 @@
 .respect_bg_b6 {
   background-size: cover;
   background-repeat: no-repeat;
-  background-image: url(/images/respect/6B-BG.png);
+  background-image: url(/images/djmax_respect_v/6B-BG.png);
   opacity: 50%;
   filter: blur(4px);
 }
@@ -243,7 +251,7 @@
 .respect_bg_b8 {
   background-size: cover;
   background-repeat: no-repeat;
-  background-image: url(/images/respect/8B-BG.png);
+  background-image: url(/images/djmax_respect_v/8B-BG.png);
   opacity: 50%;
   filter: blur(4px);
 }
@@ -435,7 +443,8 @@
 }
 
 .respect_dlc_logo_GG {
-  color: #db4111;
+  box-shadow: 0 0 0 4px #db4111 inset;
+  /* color: #db4111; */
 }
 
 .respect_dlc_logo_BG_GG {
@@ -443,7 +452,8 @@
 }
 
 .respect_dlc_logo_CHU {
-  color: #ffd601;
+  box-shadow: 0 0 0 4px #ffd601 inset;
+  /* color: #ffd601; */
 }
 
 .respect_dlc_logo_BG_CHU {
@@ -451,7 +461,8 @@
 }
 
 .respect_dlc_logo_CY {
-  color: #f41334;
+  box-shadow: 0 0 0 4px #f41334 inset;
+  /* color: #f41334; */
 }
 
 .respect_dlc_logo_BG_CY {
@@ -459,7 +470,8 @@
 }
 
 .respect_dlc_logo_DM {
-  color: #9ef1e0;
+  box-shadow: 0 0 0 4px #9ef1e0 inset;
+  /* color: #9ef1e0; */
 }
 
 .respect_dlc_logo_BG_DM {
@@ -467,7 +479,8 @@
 }
 
 .respect_dlc_logo_ESTI {
-  color: #ebd29b;
+  box-shadow: 0 0 0 4px #ebd29b inset;
+  /* color: #ebd29b; */
 }
 
 .respect_dlc_logo_BG_ESTI {
@@ -475,7 +488,8 @@
 }
 
 .respect_dlc_logo_GC {
-  color: #ebd29b;
+  box-shadow: 0 0 0 4px #ebd29b inset;
+  /* color: #ebd29b; */
 }
 
 .respect_dlc_logo_BG_GC {
@@ -483,7 +497,8 @@
 }
 
 .respect_dlc_logo_GF {
-  color: #e29600;
+  box-shadow: 0 0 0 4px #e29600 inset;
+  /* color: #e29600; */
 }
 
 .respect_dlc_logo_BG_GF {
@@ -503,7 +518,7 @@
   background: linear-gradient(150deg, #089ed9 50%, #b9cd15 50%, #b9cd15);
   -webkit-background-clip: text !important;
   background-clip: text !important;
-  color: transparent !important;
+  /* color: transparent !important; */
 }
 
 .respect_dlc_logo_MD {
@@ -519,7 +534,7 @@
   background: linear-gradient(110deg, #f3ce44 35%, #ff00dc 50%, #ff0004);
   -webkit-background-clip: text !important;
   background-clip: text !important;
-  color: transparent !important;
+  /* color: transparent !important; */
 }
 
 .respect_dlc_logo_EZ2 {
@@ -535,7 +550,7 @@
   background: linear-gradient(180deg, #03dcf2 50%, #069da8 50%);
   -webkit-background-clip: text !important;
   background-clip: text !important;
-  color: transparent !important;
+  /* color: transparent !important; */
 }
 
 .respect_dlc_logo_MAP {
@@ -551,7 +566,7 @@
   background: linear-gradient(90deg, #ff9e03, #cf3625);
   -webkit-background-clip: text !important;
   background-clip: text !important;
-  color: transparent !important;
+  /* color: transparent !important; */
 }
 
 .respect_dlc_logo_FAL {
@@ -567,7 +582,7 @@
   background: linear-gradient(180deg, #ffa1c9 35%, #fff54e 35%, #fff54e 50%, #8ec765 50%, #8ec765 65%, #3cc7f7 65%);
   -webkit-background-clip: text !important;
   background-clip: text !important;
-  color: transparent !important;
+  /* color: transparent !important; */
 }
 
 .respect_dlc_title {
@@ -730,6 +745,191 @@
 
 .tooltip-inner {
   background: rgba(0, 0, 0, 0.9) !important;
-  max-width: 640px !important;
+  max-width: 960px !important;
   padidng: 8px !important;
+}
+
+.vh-screen {
+  height: calc(100vh - 112px) !important;
+}
+
+.respect_db_pattern_table {
+  margin: 0 auto;
+  padding: 2px;
+  box-sizing: border-box;
+  position: relative;
+  text-shadow: none;
+}
+
+.respect_db_pattern_table::before {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  background-color: #77777770;
+}
+
+.respect_db_pattern_table .row {
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  justify-content: space-evenly;
+  align-content: center;
+  height: 90px;
+  margin: 2px 0 0;
+  position: inherit;
+}
+
+.respect_db_pattern_table .table_title {
+  height: 50px;
+  margin-top: 0px;
+}
+
+.respect_db_pattern_table .row > span {
+  width: 20%;
+}
+
+.respect_db_pattern {
+  font-size: 16px !important;
+  -webkit-text-stroke: 1.5px;
+  text-align: center;
+}
+
+.respect_db_button {
+  height: 100%;
+  display: flex;
+  color: white;
+  font-size: 35px;
+  align-items: center;
+  justify-content: center;
+  -webkit-text-stroke: 1.3px;
+}
+
+.respect_db_pattern_detail {
+  display: flex;
+  font-size: 20px;
+  line-height: 1.2;
+  text-align: left;
+  height: 100%;
+  flex-direction: column;
+  justify-content: flex-start;
+  position: relative;
+  margin: 1px;
+}
+
+.respect_db_pattern_detail:last-child {
+  border-right: none;
+}
+
+.respect_db_pattern_level {
+  padding-left: 37%;
+  display: flex;
+  align-items: center;
+  flex-basis: 35px;
+  flex-shrink: 0;
+  border-bottom: 1px solid #999;
+  -webkit-text-stroke: 1.5px;
+}
+
+.respect_db_pattern_level.none {
+  padding: 0;
+  justify-content: center;
+  -webkit-text-stroke: 0;
+  background-color: #fffc;
+}
+
+.respect_db_pattern_level .nm5 {
+  color: #f7b401aa;
+}
+.respect_db_pattern_level .nm10 {
+  color: #f95b08aa;
+}
+.respect_db_pattern_level .nm15 {
+  color: #f30253aa;
+}
+.respect_db_pattern_level .sc5 {
+  color: #df0074;
+}
+.respect_db_pattern_level .sc10 {
+  color: #c604e4;
+}
+.respect_db_pattern_level .sc15 {
+  color: #3d66ff;
+}
+.respect_db_pattern_level img {
+  margin-right: 4px;
+}
+
+.respect_db_pattern_level .floor {
+  font-size: 12px;
+  margin-left: 4px;
+  -webkit-text-stroke: 0;
+  transform: translateY(-8px);
+  opacity: 0.8;
+}
+
+.respect_db_pattern_score {
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  flex-grow: 1;
+  align-items: center;
+}
+
+.respect_db_pattern_score a {
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  font-size: 21px;
+  font-weight: bold;
+  justify-content: center;
+}
+
+.respect_db_pattern_score a:hover {
+  text-decoration: underline;
+}
+
+.respect_db_pattern_score.none {
+  background-color: #fffc;
+}
+
+.respect_db_pattern_NM {
+  color: #f5bb01;
+}
+.respect_db_pattern_HD {
+  color: #f35c00;
+}
+.respect_db_pattern_MX {
+  color: #ef004e;
+}
+.respect_db_pattern_SC {
+  color: #3a63ff;
+}
+.respect_db_grade {
+  -webkit-text-stroke: 0.6px;
+}
+.respect_db_grade.grade_SS,
+.respect_db_grade.grade_SSS {
+  letter-spacing: -2px;
+  margin-right: 2px;
+}
+
+.respect_db_pattern_detail .open_editor {
+  display: none;
+  position: absolute;
+  font-size: 16px;
+  padding: 4px;
+  color: #999;
+  left: 0;
+  top: 35px;
+}
+
+.respect_db_pattern_detail .open_editor:hover {
+  color: #333;
+}
+
+.respect_db_pattern_detail:hover .open_editor {
+  display: block;
 }

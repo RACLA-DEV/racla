@@ -5,39 +5,24 @@ import Image from 'next/image'
 import axios, { AxiosResponse } from 'axios'
 import { IUserNameRequest, IUserNameResponse } from '@/types/IUserName'
 import { useRouter } from 'next/router'
+import { useParams } from 'next/navigation'
+import { FaCircleInfo, FaLink, FaTriangleExclamation } from 'react-icons/fa6'
 
-export default function LoginPage({ addNotificationCallback }) {
+export default function VArchiveLoginPage({ addNotificationCallback, userData }) {
   const router = useRouter()
 
-  const [userNo, setUserNo] = useState<string>('')
-  const [userToken, setUserToken] = useState<string>('')
-  const [userError, setUserError] = useState<string>('')
-  const [userName, setUserName] = useState<string>('')
-
   const getUserName = async <T = IUserNameResponse, R = IUserNameRequest>(body: R): Promise<T> => {
-    const { data } = await axios.post<T, AxiosResponse<T>, R>('https://cors.lunatica.kr/proxy?url=https://v-archive.net/client/login', body, {
+    const { data } = await axios.post<T, AxiosResponse<T>, R>(`${process.env.NEXT_PUBLIC_PROXY_API_URL}?url=https://v-archive.net/client/login`, body, {
       withCredentials: false,
     })
     return data
   }
 
-  // const getUserName = async (body) => {
-  //   const data = await fetch('/varchive/client/login', {
-  //     method: 'post',
-  //     credentials: 'include',
-  //     body: JSON.stringify(body),
-  //   }).then((res) => {
-  //     console.log(res)
-  //   })
-  //   return data
-  // }
-
   const handleError = (error?: string) => {
-    setUserNo('')
-    setUserToken('')
-    setUserError('유효하지 않은 사용자 정보입니다. V-ARCHIVE 클라이언트 실행 파일이 위치한 폴더의 account.txt 파일을 선택해주세요.')
-    addNotificationCallback('유효하지 않은 사용자 정보입니다. V-ARCHIVE 클라이언트 실행 파일이 위치한 폴더의 account.txt 파일을 선택해주세요.')
-    setUserName('')
+    addNotificationCallback(
+      '유효하지 않은 사용자 정보입니다. V-ARCHIVE 공식 클라이언트 실행 파일이 위치한 폴더의 account.txt 파일을 선택해주세요.',
+      'tw-bg-red-600',
+    )
     const ipcResult = window.ipc.logout()
   }
 
@@ -71,12 +56,8 @@ export default function LoginPage({ addNotificationCallback }) {
           const data = getUserName({ userNo: text.split(' ')[0], token: text.split(' ')[1] })
           data.then((result) => {
             if (result.success) {
-              setUserNo(text.split(' ')[0])
-              setUserToken(text.split(' ')[1])
-              setUserError('')
-              setUserName(result.nickname)
               const ipcResult = window.ipc.login({ userNo: text.split(' ')[0], userToken: text.split(' ')[1] })
-              router.push('/')
+              router.push(`${String(router.query.url)}`)
             } else {
               handleError()
             }
@@ -95,30 +76,51 @@ export default function LoginPage({ addNotificationCallback }) {
     }
   }
 
-  return (
-    <React.Fragment>
-      <Head>
-        <title>로그인 - 프로젝트 RA</title>
-      </Head>
-      <input className="form-control" type="file" accept=".txt" onChange={onFileChange} />
-      {/* <div className="tw-flex tw-flex-col">
-        <div>
-          <span>userNo : </span>
-          <span>{userNo}</span>
+  if (userData.userName !== '') {
+    if (router.query.url !== undefined) {
+      router.push(`${String(router.query.url)}`)
+    } else {
+      router.push('/')
+    }
+  } else {
+    return (
+      <React.Fragment>
+        <Head>
+          <title>DJMAX REPSECT V(V-ARCHIVE) 로그인 - 프로젝트 RA</title>
+        </Head>
+        <div className="tw-flex tw-flex-col tw-gap-1 tw-bg-gray-600 tw-bg-opacity-10 tw-rounded-md p-4 tw-mb-4">
+          {/* 상단 */}
+          <div className="tw-flex tw-w-full">
+            {/* 제목 */}
+            <span className="tw-text-lg tw-font-bold me-auto">로그인</span>
+            <div className="tw-flex tw-gap-2"></div>
+          </div>
+
+          {/* 내용 */}
+          <span>프로젝트 RA는 V-ARCHIVE과 동일한 포맷의 사용자 데이터를 수집 및 사용하고 있습니다.</span>
+          <span>V-ARCHIVE 공식 클라이언트 실행 파일이 위치한 폴더의 account.txt 파일 또는 프로젝트 RA로 생성한 account.txt 파일을 선택해주세요.</span>
+          <input
+            className="form-control tw-mt-2 tw-text-sm tw-bg-gray-900 tw-bg-opacity-20"
+            placeholder="account.txt"
+            type="file"
+            accept=".txt"
+            onChange={onFileChange}
+          />
+          <br />
+
+          <span className="tw-flex tw-justify-end tw-gap-2 tw-items-center tw-text-xs tw-font-semibold tw-mt-4">
+            <FaCircleInfo />
+            <div className="tw-flex tw-flex-col">
+              <span>현재 회원가입은 V-ARCHIVE 공식 클라이언트에서만 가능합니다.</span>
+              <span>추후 V-ARCHIVE와 연동된 회원가입이 제공될 예정입니다.</span>
+              <span className="tw-flex tw-items-center tw-cursor-pointer" onClick={() => window.ipc.send('openBrowser', 'https://v-archive.net/downloads')}>
+                V-ARCHIVE 공식 클라이언트 다운로드 바로가기(
+                <FaLink />)
+              </span>
+            </div>
+          </span>
         </div>
-        <div>
-          <span>userToken : </span>
-          <span>{userToken}</span>
-        </div>
-        <div>
-          <span>userError : </span>
-          <span>{userError}</span>
-        </div>
-        <div>
-          <span>userName : </span>
-          <span>{userName}</span>
-        </div>
-      </div> */}
-    </React.Fragment>
-  )
+      </React.Fragment>
+    )
+  }
 }
