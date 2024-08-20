@@ -45,6 +45,8 @@ module.exports = {
         fadeInOut: 'fadeInOut 1s ease infinite alternate',
         fadeInOnly: 'fadeInOut 1s ease forwards',
         notificationProgress: 'notificationProgress 10s linear forwards',
+        scaleUpAndScaleDown: 'scaleUpAndScaleDown 0.5s forwards',
+        scaleDownAndScaleUp: 'scaleDownAndScaleUp 0.5s forwards',
       },
       keyframes: {
         fadeInOut: {
@@ -70,6 +72,16 @@ module.exports = {
         fadeInLeft: {
           '0%': { opacity: '0', transform: 'translateX(10px)' },
           '100%': { opacity: '1', transform: 'translateX(0)' },
+        },
+        scaleUpAndScaleDown: {
+          '0%': { transform: 'scale(1.0)' },
+          '50%': { transform: 'scale(1.4)' },
+          '100%': { transform: 'scale(1.0)' },
+        },
+        scaleDownAndScaleUp: {
+          '0%': { transform: 'scale(1.0)' },
+          '50%': { transform: 'scale(0.6)' },
+          '100%': { transform: 'scale(1.0)' },
         },
       },
     },

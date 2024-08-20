@@ -2,7 +2,7 @@
   "private": true,
   "name": "project-ra",
   "description": "PROJECT RA : Rhythm Analyzer",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "author": "Lunatica Luna <luna@lunatica.kr>",
   "main": "app/background.js",
   "scripts": {

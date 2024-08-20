@@ -100,7 +100,7 @@ export default function VArchiveLoginPage({ addNotificationCallback, userData })
           <span>프로젝트 RA는 V-ARCHIVE과 동일한 포맷의 사용자 데이터를 수집 및 사용하고 있습니다.</span>
           <span>V-ARCHIVE 공식 클라이언트 실행 파일이 위치한 폴더의 account.txt 파일 또는 프로젝트 RA로 생성한 account.txt 파일을 선택해주세요.</span>
           <input
-            className="form-control tw-mt-2 tw-text-sm tw-bg-gray-900 tw-bg-opacity-20"
+            className="form-control tw-mt-2 tw-text-sm tw-bg-gray-900 tw-bg-opacity-20 tw-font-light"
             placeholder="account.txt"
             type="file"
             accept=".txt"

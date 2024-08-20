@@ -1,5 +1,5 @@
 import path from 'path'
-import { app, dialog, ipcMain, ipcRenderer, shell } from 'electron'
+import { app, dialog, ipcMain, ipcRenderer, session, shell } from 'electron'
 import serve from 'electron-serve'
 import { createWindow } from './helpers'
 import { clearSession, getSession, getSettingData, getSongData, storeSession, storeSettingData, storeSongData } from './fsManager'
@@ -17,10 +17,6 @@ if (isProd) {
   await app.whenReady()
 
   const mainWindow = createWindow('main', {
-    // width: 1600,
-    // height: 900,
-    // minWidth: 1600,
-    // minHeight: 900,
     width: 1440,
     height: 810,
     minWidth: 1440,
@@ -112,6 +108,28 @@ if (isProd) {
   ipcMain.on('openBrowser', (event, url) => {
     event.preventDefault()
     shell.openExternal(url)
+  })
+
+  ipcMain.on('setAuthorization', async (event, { userNo, userToken }) => {
+    // 쿠키 설정
+    if (userNo !== '' && userToken !== '') {
+      session.defaultSession.cookies
+        .set({
+          url: isProd ? 'https://app-proxy.lunatica.kr' : 'https://dev-proxy.lunatica.kr',
+          name: 'Authorization',
+          value: `${userNo}|${userToken}`,
+          secure: true,
+          httpOnly: true,
+          sameSite: 'no_restriction',
+        })
+        .then(() => {
+          console.log('Authorization Cookie Saved : ', userNo, userToken)
+        })
+    } else {
+      session.defaultSession.cookies.remove(isProd ? 'https://app-proxy.lunatica.kr' : 'https://dev-proxy.lunatica.kr', 'Authorization').then(() => {
+        console.log('Authorization Cookie Removed.')
+      })
+    }
   })
 
   if (getSession() === undefined || getSession() === null) {

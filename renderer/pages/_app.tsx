@@ -2,14 +2,14 @@ import React, { useEffect, useState } from 'react'
 import type { AppProps } from 'next/app'
 import { Noto_Sans_KR } from 'next/font/google'
 import axios, { AxiosResponse } from 'axios'
-import NavComponent from '@/components/NavComponent'
-import FooterComponent from '@/components/FooterComponent'
+import HeaderComponent from '@/components/header/HeaderComponent'
+import FooterComponent from '@/components/footer/FooterComponent'
 import { IUserNameRequest, IUserNameResponse } from '@/types/IUserName'
 import { useNotifications } from '@/libs/client/useNotifications'
-import NotificationComponent from '@/components/NotificationComponent'
+import NotificationComponent from '@/components/notification/NotificationComponent'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useRouter } from 'next/router'
-import SidebarComponent from '@/components/SidebarComponent'
+import SidebarComponent from '@/components/sidebar/SidebarComponent'
 import Cookies from 'universal-cookie'
 
 import 'bootstrap/dist/css/bootstrap.min.css'
@@ -41,7 +41,7 @@ function MyApp({ Component, pageProps }: AppProps) {
   const [vArchiveSongData, setVArchiveSongData] = useState<any[]>([])
 
   const [selectedGame, setSelectedGame] = useState<string>('DJMAX_RESPECT_V')
-  const [backgroundVideoName, setBackgroundVideoName] = useState<string>('bg')
+  const [backgroundVideoName, setBackgroundVideoName] = useState<string>('bg_title')
 
   const { notifications, addNotification, removeNotification } = useNotifications()
 
@@ -52,7 +52,10 @@ function MyApp({ Component, pageProps }: AppProps) {
   // 쿠키 설정 함수
   const setCookie = (userNo, userToken) => {
     cookies.set('Authorization', `${userNo}|${userToken}`, {
-      path: '/',
+      path: 'https://dev-proxy.lunatica.kr',
+      httpOnly: true,
+      secure: true,
+      sameSite: 'none',
     })
     // console.log('쿠키가 설정되었습니다.')
   }
@@ -149,7 +152,7 @@ function MyApp({ Component, pageProps }: AppProps) {
           response.then((result) => {
             if (result.success) {
               setUserName(result.nickname)
-              setCookie(userNo, userToken)
+              window.ipc.setAuthorization({ userNo, userToken })
               addNotification(`${result.nickname}님 프로젝트 RA에 오신 것을 환영합니다.`, 'tw-bg-lime-600')
             } else {
               window.ipc.logout()
@@ -204,7 +207,7 @@ function MyApp({ Component, pageProps }: AppProps) {
             />
           </motion.div>
         </AnimatePresence>
-        <NavComponent
+        <HeaderComponent
           className={noto.className}
           user={{ userNo, userToken, userName, randomTitle }}
           logoutCallback={() => {

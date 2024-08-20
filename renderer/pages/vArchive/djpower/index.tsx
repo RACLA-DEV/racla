@@ -261,7 +261,7 @@ export default function VArchiveDjPowerPage({ fontFamily, userData, songData }) 
                   setIsLoading(true)
                 }}
                 className={
-                  'tw-flex tw-items-center tw-justify-center tw-relative tw-px-6 tw-py-3 tw-border tw-border-opacity-50 tw-border-gray-600 tw-rounded-sm' +
+                  'tw-flex tw-items-center tw-justify-center tw-relative tw-px-6 tw-py-3 tw-border tw-border-opacity-50 tw-transition-all tw-duration-500 tw-border-gray-600 tw-rounded-sm' +
                   (keyMode === String(value) ? ' tw-brightness-200' : '')
                 }
                 disabled={keyMode === String(value) || (!isScoredBaseSongData && !isScoredNewSongData)}
@@ -332,10 +332,13 @@ export default function VArchiveDjPowerPage({ fontFamily, userData, songData }) 
                             key={'songDataPack' + songDataPackIndex + '_item' + songItem.title}
                             placement="auto"
                             overlay={
-                              <Tooltip id="btn-nav-home" className={`tw-bg-gray-950 tw-text-xs tw-min-h-48 ${fontFamily}`}>
+                              <Tooltip id="btn-nav-home" className={`tw-text-xs tw-min-h-48 ${fontFamily}`}>
                                 {songItem !== null ? (
-                                  <div className="tw-flex tw-flex-col tw-bg-gray-950">
-                                    <div className="tw-flex tw-flex-col tw-w-80 tw-h-32 tw-relative tw-mb-2 tw-mt-1 tw-bg-gray-900" style={{ opacity: 1 }}>
+                                  <div className="tw-flex tw-flex-col">
+                                    <div
+                                      className="tw-flex tw-flex-col tw-w-80 tw-h-32 tw-relative tw-mb-2 tw-mt-1 tw-bg-gray-900 tw-overflow-hidden tw-rounded-md "
+                                      style={{ opacity: 1 }}
+                                    >
                                       <Image
                                         src={`https://v-archive.net/static/images/jackets/${songItem.title}.jpg`}
                                         className="tw-absolute tw-animate-fadeInLeft tw-rounded-md tw-blur tw-brightness-50 tw-bg-opacity-90"
@@ -352,7 +355,7 @@ export default function VArchiveDjPowerPage({ fontFamily, userData, songData }) 
                                         <span className={`respect_dlc_code respect_dlc_code_${songItem.dlcCode}`}>{songItem.dlc}</span>
                                       </span>
                                     </div>
-                                    <div className="tw-flex tw-flex-col tw-gap-2 tw-w-80 tw-p-2 tw-rounded-md tw-mb-1 tw-bg-gray-700 tw-bg-opacity-20">
+                                    <div className="tw-flex tw-flex-col tw-gap-2 tw-w-80 tw-p-2 tw-rounded-md tw-mb-1 tw-bg-gray-900 tw-bg-opacity-100">
                                       {['NM', 'HD', 'MX', 'SC'].map((value, difficultyIndex) =>
                                         songItem.patterns[`${keyMode}B`][value] !== undefined && songItem.patterns[`${keyMode}B`][value] !== null ? (
                                           <div
@@ -432,8 +435,10 @@ export default function VArchiveDjPowerPage({ fontFamily, userData, songData }) 
                                                   {songItem.patterns[`${keyMode}B`][value].score !== undefined &&
                                                   songItem.patterns[`${keyMode}B`][value].score !== null
                                                     ? songItem.patterns[`${keyMode}B`][value].score === '100.00'
-                                                      ? `PERFECT${songItem.patterns[`${keyMode}B`][value].maxCombo ? `(MAX COMBO)` : ''}`
-                                                      : `${songItem.patterns[`${keyMode}B`][value].score}%`
+                                                      ? `PERFECT`
+                                                      : `${songItem.patterns[`${keyMode}B`][value].score}%${
+                                                          songItem.patterns[`${keyMode}B`][value].maxCombo ? `(MAX COMBO)` : ''
+                                                        }`
                                                     : '0%(기록 미존재)'}
                                                 </div>
                                               </div>

@@ -20,6 +20,7 @@ const handler = {
   getSongData: () => ipcRenderer.send('getSongData'),
   removeListener: (channel, subscription) => ipcRenderer.removeListener(channel, subscription),
   openBrowser: (url) => ipcRenderer.send('openBrowser', url),
+  setAuthorization: (userData) => ipcRenderer.send('setAuthorization', userData),
 }
 
 contextBridge.exposeInMainWorld('ipc', handler)

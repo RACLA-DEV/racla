@@ -96,6 +96,22 @@
     @apply tw-bg-gray-800;
   }
 
+  .btn-reg {
+    @apply tw-transition-all;
+  }
+
+  .btn-reg.active {
+    @apply tw-bg-gray-700;
+  }
+
+  .btn-reg:hover {
+    @apply tw-bg-gray-700;
+  }
+
+  .btn-reg.active:hover {
+    @apply tw-bg-gray-800;
+  }
+
   .btn-ipc {
     @apply tw-flex tw-justify-center tw-items-center tw-w-8 tw-h-8 tw-transition-all tw-rounded-sm;
   }
@@ -932,4 +948,8 @@
 
 .respect_db_pattern_detail:hover .open_editor {
   display: block;
+}
+
+.z-n9999 {
+  z-index: -100 !important;
 }

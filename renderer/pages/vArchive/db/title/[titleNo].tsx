@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import Head from 'next/head'
 import Image from 'next/image'
 import * as R from 'ramda'
-import { FaCircleInfo, FaHeart, FaRegHeart, FaRotate, FaTriangleExclamation } from 'react-icons/fa6'
+import { FaCircleInfo, FaHeart, FaPencil, FaRegHeart, FaRotate, FaTriangleExclamation } from 'react-icons/fa6'
 import { OverlayTrigger, Tooltip } from 'react-bootstrap'
 import { globalDictionary } from '@/libs/server/globalDictionary'
 import { IconContext } from 'react-icons'
@@ -14,7 +14,7 @@ import axios from 'axios'
 import { useParams } from 'next/navigation'
 import { useRouter } from 'next/router'
 
-export default function VArchiveDbTitlePage({ fontFamily, userData, songData }) {
+export default function VArchiveDbTitlePage({ fontFamily, userData, songData, addNotificationCallback }) {
   const params = useParams()
   const router = useRouter()
 
@@ -34,8 +34,8 @@ export default function VArchiveDbTitlePage({ fontFamily, userData, songData }) 
 
   const [searchName, setSearchName] = useState<string>('')
 
-  const [rivalName, setRivalName] = useState<string>('')
-  const [rivalSongItemData, setRivalSongItemData] = useState<any>(null)
+  const [commentRivalName, setCommentRivalName] = useState<string>('')
+  const [commentRivalSongItemData, setCommentRivalSongItemData] = useState<any>(null)
 
   // URL 패턴을 정규식으로 정의
   const urlPattern = /https?:\/\/[^\s]+/g
@@ -65,6 +65,66 @@ export default function VArchiveDbTitlePage({ fontFamily, userData, songData }) 
     }
   }, [])
 
+  const [patternCode, setPatternCode] = useState<string>('')
+  const [patternButton, setPatternButton] = useState<string>('')
+  const [patternDificulty, setPatternDificulty] = useState<string>('')
+  const [patternMaxCombo, setPatternMaxCombo] = useState<boolean>(false)
+  const [updateScore, setUpdateScore] = useState<number>(0)
+  const [fetchingUpdateScore, setFetchingUpdateScore] = useState<boolean>(false)
+
+  const fetchUpdateScore = async () => {
+    if (updateScore <= 100) {
+      try {
+        const response = await axios
+          .post(
+            `${process.env.NEXT_PUBLIC_PROXY_API_URL}?url=https://v-archive.net/api/archive/userRecord`,
+            {
+              button: Number(String(patternButton).replace('B', '')),
+              pattern: patternDificulty,
+              force: true,
+              maxCombo: patternMaxCombo ? Number(1) : Number(0),
+              score: updateScore,
+              title: Number(baseSongData[0].title),
+            },
+            {
+              method: 'POST',
+              headers: {
+                Authorization: `${userData.userNo}|${userData.userToken}`,
+                'Content-Type': 'application/json',
+              },
+              withCredentials: true,
+            },
+          )
+          .then((data) => {
+            if (data.data.success) {
+              let songData = baseSongData[0]
+              songData.patterns[patternButton][patternDificulty].maxCombo = patternMaxCombo ? Number(1) : Number(0)
+              songData.patterns[patternButton][patternDificulty].score = String(updateScore).includes('.') ? String(updateScore) : String(updateScore) + '.00'
+
+              setBaseSongData([songData])
+              setFetchingUpdateScore(false)
+              setPatternCode('')
+              addNotificationCallback('성과 기록을 정상적으로 저장하였습니다.', 'tw-bg-lime-600')
+            }
+          })
+          .catch((error) => {
+            console.log(error)
+          })
+      } catch (error) {
+        console.error('Error fetching data:', error)
+      }
+    } else {
+      setFetchingUpdateScore(false)
+      addNotificationCallback('DJMAX RESPECT V 데이터베이스에서 기록할 수 있는 최대 점수는 100점입니다. 입력한 값을 다시 한번 확인해주세요.', 'tw-bg-red-600')
+    }
+  }
+
+  useEffect(() => {
+    if (fetchingUpdateScore) {
+      fetchUpdateScore()
+    }
+  }, [fetchingUpdateScore])
+
   const fetchSongItemData = async (title) => {
     try {
       if (userData.userName !== '') {
@@ -83,44 +143,133 @@ export default function VArchiveDbTitlePage({ fontFamily, userData, songData }) 
     }
   }
 
-  const fetchRivalSongItemData = async (title) => {
+  const fetchCommentRivalSongItemData = async (title) => {
     try {
-      if (rivalName !== '') {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_PROXY_API_URL}?url=https://v-archive.net/api/archive/${rivalName}/title/${hoveredTitle}`)
+      if (commentRivalName !== '') {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_PROXY_API_URL}?url=https://v-archive.net/api/archive/${commentRivalName}/title/${hoveredTitle}`)
         const result = await response.json()
-        setRivalSongItemData(result)
+        setCommentRivalSongItemData(result)
       } else {
         const response = baseSongData.filter((baseSongData) => String(baseSongData.title) == String(title))
         const result = response.length > 0 ? response[0] : []
-        setRivalSongItemData(result)
+        setCommentRivalSongItemData(result)
       }
     } catch (error) {
       console.error('Error fetching data:', error)
     }
   }
 
-  // 댓글 데이터 가져오기 함수
+  const [voteComment, setVoteComment] = useState<number>(null)
+
+  const updateCommentVote = async (title, cmtNo, cmd) => {
+    try {
+      const response = await axios
+        .post(
+          `${process.env.NEXT_PUBLIC_PROXY_API_URL}?url=https://v-archive.net/api/db/title/${title}/comment/${cmtNo}/vote`,
+          {
+            vote: 1,
+            cmd,
+          },
+          {
+            method: 'POST',
+            headers: {
+              Authorization: `${userData.userNo}|${userData.userToken}`,
+              'Content-Type': 'application/json',
+            },
+            withCredentials: true,
+          },
+        )
+        .then((data) => {
+          if (data.data.success) {
+            setVoteComment(cmtNo)
+            setCommentData(
+              commentData.map((commentItem) => {
+                if (commentItem.cmtNo === cmtNo) {
+                  return data.data.comment
+                } else {
+                  return commentItem
+                }
+              }),
+            )
+          }
+        })
+        .catch((error) => {
+          // console.log(error)
+        })
+    } catch (error) {
+      console.error('Error fetching data:', error)
+    }
+  }
+
+  const [commentContent, setCommentContent] = useState<string>('')
+  const [isCommentUpdateMode, setIsCommentUpdateMode] = useState<boolean>(false)
+
+  const fetchCommentContent = async (comment, cmd) => {
+    try {
+      const response = await axios
+        .post(
+          `${process.env.NEXT_PUBLIC_PROXY_API_URL}?url=https://v-archive.net/api/db/title/${baseSongData[0].title}/comment`,
+          cmd === 'POST'
+            ? {
+                cmd,
+                comment,
+              }
+            : {
+                cmd,
+                comment: '',
+                userNo: Number(userData.userNo),
+              },
+          {
+            method: 'POST',
+            headers: {
+              Authorization: `${userData.userNo}|${userData.userToken}`,
+              'Content-Type': 'application/json',
+            },
+            withCredentials: true,
+          },
+        )
+        .then((data) => {
+          if (data.data.success && cmd === 'POST') {
+            setCommentData([data.data.myComment, ...commentData.filter((commentItem) => commentItem.nickname !== userData.userName)])
+            addNotificationCallback(isCommentUpdateMode ? '코멘트가 정상적으로 수정되었습니다.' : '코멘트가 정상적으로 등록되었습니다.', 'tw-bg-lime-600')
+          } else {
+            setCommentData(commentData.filter((commentItem) => commentItem.nickname !== userData.userName))
+            addNotificationCallback('코멘트가 정상적으로 삭제되었습니다.', 'tw-bg-lime-600')
+          }
+        })
+        .catch((error) => {
+          // console.log(error)
+        })
+        .finally(() => {
+          setIsCommentUpdateMode(false)
+        })
+    } catch (error) {
+      console.error('Error fetching data:', error)
+    }
+  }
+
+  // DJ 코멘트 데이터 가져오기 함수
   const fetchCommentData = async () => {
     if (isFetchingCommentData) return // 이미 데이터를 가져오는 중이면 종료
     setIsFetchingCommentData(true)
 
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_PROXY_API_URL}?url=https://v-archive.net/api/db/title/${params.titleNo}/comments?page=${commentPage}&order=ymdt`,
-        {
-          headers:
-            userData.userNo !== null && userData.userToken !== null
-              ? { Authorization: `${userData.userNo}|${userData.userToken}`, Cookie: `Authorization=${userData.userNo}|${userData.userToken};` }
-              : {},
-        },
-      )
-      const result = await response.json()
-      if (result.success) {
-        // console.log(result.commentList[0].myVote)
-        setCommentData((prevData) => [...prevData, ...result.commentList])
-        setCommentPage((prevPage) => prevPage + 1)
-        setHasNextCommentData(result.hasNext)
-      }
+      const response = await axios
+        .get(`${process.env.NEXT_PUBLIC_PROXY_API_URL}?url=https://v-archive.net/api/db/title/${params.titleNo}/comments?page=${commentPage}&order=ymdt`, {
+          headers: {
+            Authorization: `${userData.userNo}|${userData.userToken}`,
+            'Content-Type': 'application/json',
+          },
+          withCredentials: true,
+        })
+        .then((result) => {
+          if (result.data.success) {
+            // console.log(result.data.commentList)
+            setCommentData((prevData) => [...prevData, ...result.data.commentList])
+            setCommentPage((prevPage) => prevPage + 1)
+            setHasNextCommentData(result.data.hasNext)
+          }
+        })
     } catch (error) {
       console.error('Error fetching data:', error)
     } finally {
@@ -137,7 +286,7 @@ export default function VArchiveDbTitlePage({ fontFamily, userData, songData }) 
     if (hoveredTitle) {
       timer = setTimeout(() => {
         fetchSongItemData(hoveredTitle)
-        fetchRivalSongItemData(hoveredTitle)
+        fetchCommentRivalSongItemData(hoveredTitle)
       }, 500)
     }
 
@@ -147,14 +296,6 @@ export default function VArchiveDbTitlePage({ fontFamily, userData, songData }) 
       }
     }
   }, [hoveredTitle])
-
-  // useEffect(() => {
-  //   console.log(baseSongData)
-  //   setBasebaseSongData(basebaseSongData)
-  //   if (userData.userName !== '') {
-  //     setIsScoredBasebaseSongData(true)
-  //   }
-  // }, [])
 
   function getGrade(scoreStr) {
     // 문자열을 숫자로 변환
@@ -200,8 +341,9 @@ export default function VArchiveDbTitlePage({ fontFamily, userData, songData }) 
         const updatedArray = await Promise.all(
           baseSongData.map(async (item) => {
             const data = await loadDataWithScore(item.title)
-            const keysToRemove = ['SC', 'MX', 'HD', 'NM']
-            const pathsToRemove = keysToRemove.map((key) => ['patterns', '4B', key, 'level'])
+            const keysToRemove1 = ['4B', '5B', '6B', '8B']
+            const keysToRemove2 = ['SC', 'MX', 'HD', 'NM']
+            const pathsToRemove = keysToRemove1.map((key1) => keysToRemove2.map((key2) => ['patterns', key1, key2, 'level']))
             const removeLevels = (paths, obj) => {
               return paths.reduce((acc, path) => R.dissocPath(path, acc), obj)
             }
@@ -276,36 +418,22 @@ export default function VArchiveDbTitlePage({ fontFamily, userData, songData }) 
         </Head>
         <div className="tw-flex tw-gap-4 vh-screen">
           {/* 곡 데이터 */}
-          <div className="tw-flex tw-flex-col tw-w-8/12 tw-relative">
+          <div className="tw-flex tw-flex-col tw-w-8/12 tw-relative ">
             <div
               className={
                 'tw-flex tw-flex-col tw-gap-1 tw-bg-opacity-10 tw-rounded-md p-0 tw-mb-4 tw-h-60 ' +
                 ` respect_dlc_${baseSongData[0].dlcCode}} respect_dlc_logo_${baseSongData[0].dlcCode} respect_dlc_logo_BG_${baseSongData[0].dlcCode}`
               }
+              onClick={() => {
+                setPatternCode('')
+              }}
             >
               <div className="tw-flex tw-flex-col tw-animate-fadeInLeft p-4 flex-equal tw-bg-gray-900 tw-bg-opacity-30 tw-rounded-md">
                 <div className="tw-flex">
-                  <span className="respect_dlc_code_wrap tw-animate-fadeInLeft tw-rounded-md p-1 tw-bg-gray-950 tw-bg-opacity-75 tw-me-auto">
-                    <span className={`respect_dlc_code respect_dlc_code_${baseSongData[0].dlcCode}`}>{baseSongData[0].dlc}</span>
-                  </span>
-                  <div className="tw-flex tw-gap-2 tw-justify-end">
-                    {globalDictionary.respect.keyModeList.map((value) => (
-                      <button
-                        key={`keyModeSelector_${value}`}
-                        onClick={() => {
-                          setKeyMode(String(value))
-                        }}
-                        className={
-                          'tw-flex tw-items-center tw-justify-center tw-relative tw-px-6 tw-py-3 tw-border tw-border-opacity-50 tw-border-gray-600 tw-rounded-sm' +
-                          (keyMode === String(value) ? ` tw-brightness-150 respect_dlc_logo_BG_${baseSongData[0].dlcCode}` : ' opacity-50')
-                        }
-                        disabled={keyMode === String(value)}
-                      >
-                        <div className="tw-absolute tw-bg-gray-950 tw-bg-opacity-50 tw-w-full tw-h-full tw-rounded-sm" />
-                        <div className={`tw-absolute tw-w-full tw-h-full ` + ' tw-opacity-100'} />
-                        <span className="tw-absolute tw-text-lg tw-font-bold">{String(value)}B</span>
-                      </button>
-                    ))}
+                  <div className="tw-animate-fadeInLeft tw-rounded-md p-1 tw-bg-gray-950 tw-bg-opacity-75 tw-me-auto">
+                    <span className="respect_dlc_code_wrap ">
+                      <span className={`respect_dlc_code respect_dlc_code_${baseSongData[0].dlcCode}`}>{baseSongData[0].dlc}</span>
+                    </span>
                   </div>
                 </div>
 
@@ -323,7 +451,10 @@ export default function VArchiveDbTitlePage({ fontFamily, userData, songData }) 
                     <span className="tw-flex tw-font-light tw-text-gray-300">{baseSongData[0].composer}</span>
                     <span className="tw-text-lg tw-font-bold me-auto">
                       {baseSongData[0].name}
-                      <sup className="tw-text-xs tw-font-light tw-text-gray-300"> (V-ARCHIVE : {baseSongData[0].title} / 프로젝트-RA : 미지원)</sup>
+                      <sup className="tw-text-xs tw-font-light tw-text-gray-300">
+                        {' '}
+                        (V-ARCHIVE : {baseSongData[0].title} / 프로젝트-RA : {baseSongData[0].title})
+                      </sup>
                     </span>
                   </div>
                 </div>
@@ -334,9 +465,9 @@ export default function VArchiveDbTitlePage({ fontFamily, userData, songData }) 
             </div>
 
             {true ? (
-              <table className="tw-w-full tw-h-full tw-overflow-hidden tw-rounded-md tw-text-center tw-bg-gray-950 tw-bg-opacity-30">
-                <thead className="tw-h-14 tw-border tw-border-gray-700 tw-animate-fadeInLeft">
-                  <tr className="tw-h-full tw-bg-gray-600 tw-bg-opacity-10">
+              <table className="tw-w-full tw-h-full tw-overflow-hidden tw-rounded-md tw-text-center tw-border tw-border-gray-100 tw-shadow-lg tw-bg-gray-950 tw-bg-opacity-30">
+                <thead className="tw-h-14 tw-animate-fadeInLeft">
+                  <tr className="tw-h-full tw-bg-gray-950 tw-bg-opacity-25" onClick={() => setPatternCode('')}>
                     <th className="tw-w-1/12"></th>
                     <th className="tw-w-1/5 respect_db_pattern respect_db_pattern_NM">NORMAL</th>
                     <th className="tw-w-1/5 respect_db_pattern respect_db_pattern_HD">HARD</th>
@@ -349,9 +480,10 @@ export default function VArchiveDbTitlePage({ fontFamily, userData, songData }) 
                     R.keys(baseSongData[0].patterns).map((patternName, index) => (
                       <>
                         <tr className="tw-animate-fadeInDown">
-                          <td rowSpan={2} className="tw-border tw-border-gray-700 ">
+                          <td rowSpan={2} className="tw-border tw-border-gray-600 tw-border-opacity-25 tw-overflow-hidden " onClick={() => setPatternCode('')}>
                             <div className="tw-h-full tw-w-full tw-relative">
                               <div className={`tw-absolute respect_db_button respect_bg_b${String(patternName).replace('B', '')} tw-h-full tw-w-full`} />
+                              <div className={`tw-absolute tw-bg-gray-950 tw-opacity-30 tw-h-full tw-w-full`} />
                               <span className="tw-absolute tw-top-0 tw-left-0 tw-h-full tw-w-full tw-flex tw-items-center tw-justify-center tw-font-extrabold tw-text-2xl">
                                 {String(patternName)}
                               </span>
@@ -360,7 +492,7 @@ export default function VArchiveDbTitlePage({ fontFamily, userData, songData }) 
                           {R.keys(globalDictionary.respect.difficulty).map((difficultyCode, value) =>
                             baseSongData[0].patterns[patternName][difficultyCode] !== undefined &&
                             baseSongData[0].patterns[patternName][difficultyCode] !== null ? (
-                              <td className="tw-border tw-border-gray-700 ">
+                              <td className="tw-border tw-border-gray-600 tw-border-opacity-25 " onClick={() => setPatternCode('')}>
                                 <span className="tw-flex tw-justify-center tw-items-center tw-gap-1">
                                   <Image
                                     src={
@@ -394,7 +526,7 @@ export default function VArchiveDbTitlePage({ fontFamily, userData, songData }) 
                                 </span>
                               </td>
                             ) : (
-                              <td className="tw-border tw-border-gray-700 "></td>
+                              <td className="tw-border tw-border-gray-600 tw-border-opacity-25" onClick={() => setPatternCode('')}></td>
                             ),
                           )}
                         </tr>
@@ -403,30 +535,122 @@ export default function VArchiveDbTitlePage({ fontFamily, userData, songData }) 
                             R.keys(globalDictionary.respect.difficulty).map((difficultyCode, value) =>
                               baseSongData[0].patterns[patternName][difficultyCode] !== undefined &&
                               baseSongData[0].patterns[patternName][difficultyCode] !== null ? (
-                                <td className="tw-border tw-border-gray-700 ">
-                                  <span className="tw-text-lg tw-font-extrabold tw-flex tw-justify-center item-center tw-gap-1">
-                                    {}
-                                    {baseSongData[0].patterns[patternName][difficultyCode].score
-                                      ? baseSongData[0].patterns[patternName][difficultyCode].score === '100.00'
-                                        ? 'PERFECT'
-                                        : `${getGrade(baseSongData[0].patterns[patternName][difficultyCode].score)}${
-                                            baseSongData[0].patterns[patternName][difficultyCode].score
-                                          }%`
-                                      : '0%'}
-                                    {baseSongData[0].patterns[patternName][difficultyCode].score !== undefined &&
-                                    baseSongData[0].patterns[patternName][difficultyCode].score === '100.00' ? (
-                                      <Image src="https://v-archive.net/static/images/perfect.png" width={30} height={16} alt="" />
-                                    ) : baseSongData[0].patterns[patternName][difficultyCode].maxCombo === 1 ? (
-                                      <Image src="https://v-archive.net/static/images/maxcombo.png" width={30} height={24} alt="" />
-                                    ) : null}
-                                  </span>
+                                <td className="tw-border tw-border-gray-600 tw-border-opacity-25">
+                                  <div className="tw-w-full tw-h-full tw-relative tw-flex tw-items-center tw-justify-center">
+                                    <span className="tw-text-lg tw-font-extrabold tw-flex tw-justify-center item-center tw-gap-1">
+                                      {baseSongData[0].patterns[patternName][difficultyCode].score
+                                        ? baseSongData[0].patterns[patternName][difficultyCode].score === '100.00'
+                                          ? 'PERFECT'
+                                          : `${getGrade(baseSongData[0].patterns[patternName][difficultyCode].score)}${
+                                              baseSongData[0].patterns[patternName][difficultyCode].score
+                                            }%`
+                                        : '0%'}
+                                      {baseSongData[0].patterns[patternName][difficultyCode].score !== undefined &&
+                                      baseSongData[0].patterns[patternName][difficultyCode].score === '100.00' ? (
+                                        <Image src="https://v-archive.net/static/images/perfect.png" width={30} height={16} alt="" />
+                                      ) : baseSongData[0].patterns[patternName][difficultyCode].maxCombo === 1 ? (
+                                        <Image src="https://v-archive.net/static/images/maxcombo.png" width={30} height={24} alt="" />
+                                      ) : null}
+                                    </span>
+                                    <button
+                                      className={
+                                        'tw-absolute tw-top-2 tw-right-2 tw-transition-all tw-duration-500 tw-text-gray-800 hover:tw-text-gray-300 ' +
+                                        (patternCode !== `patterns${String(patternName)}${difficultyCode}` ? ' tw-z-50 opacity-100' : ' opacity-0 tw-hidden')
+                                      }
+                                      type="button"
+                                      onClick={() => {
+                                        setPatternCode(`patterns${String(patternName)}${difficultyCode}`)
+                                        setPatternMaxCombo(baseSongData[0].patterns[patternName][difficultyCode].maxCombo === 1)
+                                        setPatternButton(String(patternName))
+                                        setPatternDificulty(difficultyCode)
+                                        setUpdateScore(
+                                          Number(
+                                            baseSongData[0].patterns[patternName][difficultyCode].score !== undefined &&
+                                              baseSongData[0].patterns[patternName][difficultyCode].score !== null
+                                              ? Number(baseSongData[0].patterns[patternName][difficultyCode].score)
+                                              : 0,
+                                          ),
+                                        )
+                                      }}
+                                    >
+                                      <FaPencil />
+                                    </button>
+                                    <div
+                                      className={
+                                        'tw-absolute tw-w-full tw-h-full tw-bg-gray-900 ' +
+                                        (patternCode === `patterns${String(patternName)}${difficultyCode}` ? 'tw-opacity-100' : 'tw-opacity-0 tw-hidden')
+                                      }
+                                      style={{
+                                        width: 'calc(100% + 2px)',
+                                        height: 'calc(200% - 9%)',
+                                        top: 'calc(-100% + 9%)',
+                                      }}
+                                    />
+                                    <div
+                                      className={
+                                        'tw-absolute tw-w-full tw-h-full tw-bg-gray-950 tw-opacity-50 ' +
+                                        (patternCode === `patterns${String(patternName)}${difficultyCode}` ? 'tw-opacity-100' : 'tw-opacity-0 tw-hidden')
+                                      }
+                                      style={{
+                                        width: 'calc(100% + 2px)',
+                                        height: 'calc(200% - 9%)',
+                                        top: 'calc(-100% + 9%)',
+                                      }}
+                                    />
+                                    <div
+                                      className={
+                                        'tw-absolute tw-left-0 tw-flex tw-gap-2 tw-transition-all tw-items-center tw-p-2 ' +
+                                        (patternCode === `patterns${String(patternName)}${difficultyCode}` ? 'tw-opacity-100' : 'tw-opacity-0 tw-hidden')
+                                      }
+                                      style={{
+                                        width: 'calc(100% + 2px)',
+                                        height: 'calc(200% - 9%)',
+                                        top: 'calc(-100% + 9%)',
+                                      }}
+                                    >
+                                      <div className="tw-flex tw-flex-col tw-justify-center tw-items-center">
+                                        <div className="tw-flex tw-justify-center tw-items-center">
+                                          <span className="tw-ms-2 tw-text-xs tw-font-extrabold">MAX COMBO</span>
+                                          <button
+                                            className={`tw-scale-50 tw-relative tw-inline-flex tw-items-center tw-h-8 tw-w-16 tw-rounded-full tw-transition-colors tw-duration-300 ${
+                                              patternMaxCombo ? 'tw-bg-blue-950' : 'tw-bg-gray-600'
+                                            }`}
+                                            onClick={() => {
+                                              setPatternMaxCombo(!patternMaxCombo)
+                                            }}
+                                          >
+                                            <span
+                                              className={`tw-inline-block tw-h-6 tw-w-6 tw-bg-white tw-rounded-full tw-shadow tw-transform tw-transition-transform tw-duration-300 ${
+                                                patternMaxCombo ? 'tw-translate-x-9' : 'tw-translate-x-1'
+                                              }`}
+                                            />
+                                          </button>
+                                        </div>
+                                        <input
+                                          className="form-control tw-text-sm tw-bg-gray-900 tw-bg-opacity-20 tw-text-center tw-font-extrabold tw-ps-7"
+                                          type="number"
+                                          max="100"
+                                          value={updateScore !== undefined && updateScore !== null ? Number(updateScore) : 0}
+                                          onChange={(e) => setUpdateScore(Number(e.currentTarget.value))}
+                                        />
+                                      </div>
+                                      <button
+                                        className="tw-bg-gray-800 tw-bg-opacity-50 btn-reg tw-w-20 tw-rounded-md tw-text-xs tw-h-16 tw-mt-2"
+                                        onClick={() => {
+                                          setFetchingUpdateScore(true)
+                                        }}
+                                      >
+                                        저장
+                                      </button>
+                                    </div>
+                                  </div>
                                 </td>
                               ) : (
-                                <td className="tw-border tw-border-gray-700 "></td>
+                                <td className="tw-border tw-border-gray-600 tw-border-opacity-25 "></td>
                               ),
                             )
                           ) : (
-                            <td className="tw-border tw-border-gray-700 " colSpan={4}>
+                            <td className="tw-border tw-border-gray-600 tw-border-opacity-25 " colSpan={4}>
                               <span className="flex-equal tw-flex tw-w-full tw-h-full tw-items-center tw-justify-center">
                                 성과 기록 조회는 로그인이 필요합니다.
                               </span>
@@ -453,346 +677,528 @@ export default function VArchiveDbTitlePage({ fontFamily, userData, songData }) 
             )}
           </div>
 
-          {/* 댓글, 팁 */}
-          <div className="tw-flex tw-flex-col tw-w-4/12 tw-overflow-y-auto tw-gap-1 tw-bg-gray-600 tw-bg-opacity-10 tw-rounded-md p-4 tw-scroll-smooth">
-            <div className="tw-flex tw-flex-col tw-w-full tw-gap-3 flex-equal">
-              {commentData.length > 0 ? (
-                commentData.map((commentItem, index) => (
-                  <OverlayTrigger
-                    key={'baseSongDataPack_item' + commentItem.title + '_cmtNo' + commentItem.cmtNo}
-                    placement="auto-start"
-                    delay={{ show: 500, hide: 0 }}
-                    overlay={
-                      <Tooltip id="btn-nav-home" className={`tw-bg-gray-950 tw-text-xs tw-min-h-48 ${fontFamily}`}>
-                        {songItemData !== null && rivalSongItemData !== null ? (
-                          <div className="tw-flex tw-gap-2">
-                            <div className="tw-flex tw-flex-col tw-bg-gray-950">
-                              <div className="tw-flex tw-flex-col tw-w-80 tw-h-32 tw-relative tw-mb-2 tw-mt-1 tw-bg-gray-900" style={{ opacity: 1 }}>
-                                <Image
-                                  src={`https://v-archive.net/static/images/jackets/${songItemData.title}.jpg`}
-                                  className="tw-absolute tw-animate-fadeInLeft tw-rounded-md tw-blur tw-brightness-50 tw-bg-opacity-90"
-                                  fill
-                                  alt=""
-                                  style={{ objectFit: 'cover' }}
-                                />
-                                <span className="tw-absolute tw-left-0 tw-bottom-0 tw-px-2 tw-font-bold tw-text-left tw-break-keep">
-                                  <span className="tw-font-medium tw-text-md">{songItemData.composer}</span>
-                                  <br />
-                                  <span className=" tw-text-xl">{songItemData.name}</span>
-                                </span>
-                                <span className="tw-absolute tw-top-1 tw-right-1 respect_dlc_code_wrap tw-animate-fadeInLeft tw-rounded-md p-1 tw-bg-gray-950">
-                                  <span className={`respect_dlc_code respect_dlc_code_${songItemData.dlcCode}`}>{songItemData.dlc}</span>
-                                </span>
-                              </div>
-                              <div className="tw-flex tw-flex-col tw-gap-2 tw-w-80 tw-p-2 tw-rounded-md tw-mb-1 tw-bg-gray-700 tw-bg-opacity-20">
-                                {['NM', 'HD', 'MX', 'SC'].map((value, difficultyIndex) =>
-                                  songItemData.patterns[`${keyMode}B`][value] !== undefined && songItemData.patterns[`${keyMode}B`][value] !== null ? (
+          {/* DJ 코멘트, 팁 */}
+          {!isLoading && !isFetchingCommentData ? (
+            <div className="tw-flex tw-w-4/12 tw-flex-col">
+              <div className="tw-flex tw-flex-col tw-flex-col tw-overflow-y-auto tw-gap-1 tw-bg-gray-600 tw-bg-opacity-10 tw-rounded-t-md pt-4 px-4">
+                {userData.userNo !== '' && userData.userToken !== '' && userData.userName !== '' && !isLoading && !isFetchingCommentData ? (
+                  <>
+                    <div className="tw-flex tw-items-center">
+                      <span className="tw-text-lg tw-font-bold mb-2 tw-me-auto">내 코멘트</span>
+                      {commentData.filter((commentItem) => commentItem.nickname === userData.userName).length === 1 ? (
+                        <div className="tw-flex tw-gap-4">
+                          <span
+                            className="tw-cursor-pointer"
+                            onClick={() => {
+                              setIsCommentUpdateMode(!isCommentUpdateMode)
+                              if (!isCommentUpdateMode) {
+                                addNotificationCallback('참고 : 코멘트를 수정하면 추천수가 초기화됩니다.', 'tw-bg-orange-600')
+                              } else {
+                                addNotificationCallback('코멘트 수정을 취소하였습니다.', 'tw-bg-blue-600')
+                              }
+                            }}
+                          >
+                            {!isCommentUpdateMode ? '수정' : '수정 취소'}
+                          </span>
+                          <span
+                            className="tw-cursor-pointer"
+                            onClick={() => {
+                              fetchCommentContent('', 'DELETE')
+                            }}
+                          >
+                            삭제
+                          </span>
+                        </div>
+                      ) : null}
+                    </div>
+                    {commentData.filter((commentItem) => commentItem.nickname === userData.userName).length === 0 ? (
+                      <div className="tw-flex tw-gap-2">
+                        <textarea
+                          rows={3}
+                          className="form-control tw-resize-none tw-text-sm tw-font-light tw-bg-gray-900 tw-bg-opacity-20"
+                          placeholder="감상, 팁, 남기고 싶은 말을 자유롭게 입력해주세요"
+                          onChange={(e) => setCommentContent(e.currentTarget.value)}
+                        />
+                        <button
+                          onClick={(e) => fetchCommentContent(commentContent, 'POST')}
+                          className="tw-flex tw-justify-center tw-items-center tw-w-20 tw-gap-1 btn-reg tw-rounded-md tw-text-md tw-bg-gray-950 tw-bg-opacity-50"
+                        >
+                          등록
+                        </button>
+                      </div>
+                    ) : !isCommentUpdateMode ? (
+                      <div
+                        key={commentData.filter((commentItem) => commentItem.nickname === userData.userName)[0].cmtNo}
+                        className="tw-flex tw-w-full tw-gap-3"
+                      >
+                        <div className="tw-min-h-16 tw-h-16 tw-min-w-16 tw-w-16 tw-relative hover-scale-110 tw-cursor-pointer">
+                          <Image
+                            src={`https://v-archive.net/static/images/jackets/${
+                              commentData.filter((commentItem) => commentItem.nickname === userData.userName)[0].title
+                            }.jpg`}
+                            height={80}
+                            width={80}
+                            alt=""
+                            className="tw-animate-fadeInLeft tw-rounded-md tw-shadow-sm"
+                          />
+                        </div>
+                        <div className="tw-flex tw-flex-col tw-gap-2 flex-equal">
+                          <div className="tw-flex tw-gap-2 tw-items-center tw-animate-fadeInOnly">
+                            <span className="tw-font-extrabold">
+                              {commentData.filter((commentItem) => commentItem.nickname === userData.userName)[0].nickname}
+                            </span>
+                            <span className="tw-font-light tw-text-xs tw-text-gray-400">
+                              {moment(commentData.filter((commentItem) => commentItem.nickname === userData.userName)[0].ymdt)
+                                .locale('ko')
+                                .format('LL')}
+                            </span>
+                          </div>
+                          <span
+                            className="tw-animate-fadeInDown"
+                            dangerouslySetInnerHTML={{
+                              __html: `
+                            ${parseText(commentData.filter((commentItem) => commentItem.nickname === userData.userName)[0].comment)}
+                            `,
+                            }}
+                          />
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="tw-flex tw-gap-2">
+                        <textarea
+                          rows={3}
+                          className="form-control tw-resize-none tw-text-sm tw-font-light tw-bg-gray-900 tw-bg-opacity-20"
+                          placeholder="감상, 팁, 남기고 싶은 말을 자유롭게 입력해주세요"
+                          onChange={(e) => setCommentContent(e.currentTarget.value)}
+                        />
+                        <button
+                          onClick={(e) => fetchCommentContent(commentContent, 'POST')}
+                          className="tw-flex tw-justify-center tw-items-center tw-w-20 tw-gap-1 btn-reg tw-rounded-md tw-text-md tw-bg-gray-950 tw-bg-opacity-50"
+                        >
+                          등록
+                        </button>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <span></span>
+                )}
+              </div>
+
+              <div
+                className={
+                  'tw-flex tw-bg-gray-600 tw-bg-opacity-10 pt-4 pb-2 px-4 tw-items-center ' +
+                  (userData.userNo !== '' && userData.userToken !== '' && userData.userName !== '' ? ' pt-4' : '')
+                }
+              >
+                <span className="tw-text-lg tw-font-bold tw-me-auto">DJ 코멘트</span>
+                <div className="tw-flex tw-gap-2">
+                  {globalDictionary.respect.keyModeList.map((value) => (
+                    <button
+                      key={`keyModeSelector_${value}`}
+                      onClick={() => {
+                        setKeyMode(String(value))
+                      }}
+                      className={
+                        'tw-flex tw-items-center tw-justify-center tw-relative tw-px-6 tw-py-3 tw-border tw-border-opacity-50 tw-transition-all tw-duration-500 tw-border-gray-600 tw-rounded-sm' +
+                        (keyMode === String(value) ? ' tw-brightness-200' : '')
+                      }
+                      disabled={keyMode === String(value) || !isScoredBaseSongData}
+                    >
+                      <div className={`tw-absolute tw-w-full tw-h-full respect_bg_b` + String(value)} />
+                      <span className="tw-absolute tw-text-lg tw-font-bold">{String(value)}B</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="tw-flex tw-flex-col flex-equal tw-overflow-y-auto tw-gap-1 tw-bg-gray-600 tw-bg-opacity-10 tw-rounded-b-md pt-2 px-4 pb-4 tw-scroll-smooth">
+                <div className="tw-flex tw-flex-col tw-w-full tw-gap-3 flex-equal">
+                  {commentData.length > 0 ? (
+                    commentData
+                      .filter((commentItem) => commentItem.nickname !== userData.userName)
+                      .map((commentItem, index) => (
+                        <OverlayTrigger
+                          key={'baseSongDataPack_item' + commentItem.title + '_cmtNo' + commentItem.cmtNo}
+                          placement="auto-start"
+                          delay={{ show: 500, hide: 0 }}
+                          overlay={
+                            <Tooltip id="btn-nav-home" className={`tw-text-xs tw-min-h-48 ${fontFamily}`}>
+                              {songItemData !== null && commentRivalSongItemData !== null ? (
+                                <div className="tw-flex tw-gap-2">
+                                  <div className="tw-flex tw-flex-col ">
                                     <div
-                                      className="tw-flex tw-flex-col tw-gap-2"
-                                      key={'baseSongDataPack_item' + songItemData.title + '_hover' + value + '_cmtNo' + commentItem.cmtNo}
+                                      className="tw-flex tw-flex-col tw-w-80 tw-h-32 tw-relative tw-mb-2 tw-mt-1  tw-bg-gray-900 tw-bg-opacity-100 tw-overflow-hidden tw-rounded-md "
+                                      style={{ opacity: 1 }}
                                     >
-                                      <div className="tw-flex tw-items-center tw-gap-1">
-                                        <span
-                                          className={
-                                            `tw-text-base tw-font-extrabold tw-text-left tw-z-50 text-stroke-100 tw-me-auto ` +
-                                            (value === 'NM'
-                                              ? 'tw-text-respect-nm-5'
-                                              : value === 'HD'
-                                              ? 'tw-text-respect-nm-10'
-                                              : value === 'MX'
-                                              ? 'tw-text-respect-nm-15'
-                                              : 'tw-text-respect-sc-15')
-                                          }
-                                        >
-                                          {globalDictionary.respect.difficulty[value].fullName}
-                                        </span>
-                                        <Image
-                                          src={
-                                            songItemData.patterns[`${keyMode}B`][value].level <= 5
-                                              ? `/images/djmax_respect_v/${value === 'SC' ? 'sc' : 'nm'}_5_star.png`
-                                              : songItemData.patterns[`${keyMode}B`][value].level <= 10
-                                              ? `/images/djmax_respect_v/${value === 'SC' ? 'sc' : 'nm'}_10_star.png`
-                                              : `/images/djmax_respect_v/${value === 'SC' ? 'sc' : 'nm'}_15_star.png`
-                                          }
-                                          height={14}
-                                          width={14}
-                                          alt=""
-                                        />
-                                        <span
-                                          className={
-                                            songItemData.patterns[`${keyMode}B`][value].level <= 5
-                                              ? 'tw-text-base text-stroke-100 ' + (value === 'SC' ? ' tw-text-respect-sc-5' : ' tw-text-respect-nm-5')
-                                              : songItemData.patterns[`${keyMode}B`][value].level <= 10
-                                              ? 'tw-text-base text-stroke-100 ' + (value === 'SC' ? ' tw-text-respect-sc-10' : ' tw-text-respect-nm-10')
-                                              : 'tw-text-base text-stroke-100 ' + (value === 'SC' ? ' tw-text-respect-sc-15' : ' tw-text-respect-nm-15')
-                                          }
-                                        >
-                                          {songItemData.patterns[`${keyMode}B`][value].level}{' '}
-                                          <sup className="tw-text-xs">
-                                            {songItemData.patterns[`${keyMode}B`][value].floor !== undefined &&
-                                            songItemData.patterns[`${keyMode}B`][value].floor !== null
-                                              ? `(${songItemData.patterns[`${keyMode}B`][value].floor}F)`
-                                              : null}
-                                          </sup>
-                                        </span>
-                                      </div>
-                                      {userData.userName !== '' && songItemData ? (
-                                        <div className="tw-relative tw-w-full tw-bg-gray-950 tw-rounded-sm tw-overflow-hidden tw-animate-fadeInDown">
+                                      <Image
+                                        src={`https://v-archive.net/static/images/jackets/${songItemData.title}.jpg`}
+                                        className="tw-absolute tw-animate-fadeInLeft tw-rounded-md tw-blur tw-brightness-50 tw-bg-opacity-90"
+                                        fill
+                                        alt=""
+                                        style={{ objectFit: 'cover' }}
+                                      />
+                                      <span className="tw-absolute tw-left-0 tw-bottom-0 tw-px-2 tw-font-bold tw-text-left tw-break-keep">
+                                        <span className="tw-font-medium tw-text-md">{songItemData.composer}</span>
+                                        <br />
+                                        <span className=" tw-text-xl">{songItemData.name}</span>
+                                      </span>
+                                      <span className="tw-absolute tw-top-1 tw-right-1 respect_dlc_code_wrap tw-animate-fadeInLeft tw-rounded-md p-1 tw-bg-gray-950">
+                                        <span className={`respect_dlc_code respect_dlc_code_${songItemData.dlcCode}`}>{songItemData.dlc}</span>
+                                      </span>
+                                    </div>
+                                    <div className="tw-flex tw-flex-col tw-gap-2 tw-w-80 tw-p-2 tw-rounded-md tw-mb-1 tw-bg-gray-700 tw-bg-opacity-20">
+                                      {['NM', 'HD', 'MX', 'SC'].map((value, difficultyIndex) =>
+                                        songItemData.patterns[`${keyMode}B`][value] !== undefined && songItemData.patterns[`${keyMode}B`][value] !== null ? (
                                           <div
-                                            className={
-                                              `tw-h-6 tw-transition-all tw-duration-500 tw-ease-in-out ` +
-                                              (value === 'NM'
-                                                ? 'tw-bg-respect-nm-5'
-                                                : value === 'HD'
-                                                ? 'tw-bg-respect-nm-10'
-                                                : value === 'MX'
-                                                ? 'tw-bg-respect-nm-15'
-                                                : 'tw-bg-respect-sc-15')
-                                            }
-                                            style={{
-                                              width: `${
-                                                songItemData.patterns[`${keyMode}B`][value].score !== undefined &&
-                                                songItemData.patterns[`${keyMode}B`][value].score !== null
-                                                  ? String(Math.floor(Number(songItemData.patterns[`${keyMode}B`][value].score)))
-                                                  : '0'
-                                              }%`,
-                                            }}
-                                          />
-                                          <div className={'tw-absolute tw-inset-0 tw-flex tw-items-center tw-justify-center tw-font-extrabold tw-text-white'}>
-                                            {songItemData.patterns[`${keyMode}B`][value].score !== undefined &&
-                                            songItemData.patterns[`${keyMode}B`][value].score !== null
-                                              ? songItemData.patterns[`${keyMode}B`][value].score === '100.00'
-                                                ? `PERFECT${songItemData.patterns[`${keyMode}B`][value].maxCombo ? `(MAX COMBO)` : ''}`
-                                                : `${songItemData.patterns[`${keyMode}B`][value].score}%`
-                                              : '0%(기록 미존재)'}
+                                            className="tw-flex tw-flex-col tw-gap-2"
+                                            key={'baseSongDataPack_item' + songItemData.title + '_hover' + value + '_cmtNo' + commentItem.cmtNo}
+                                          >
+                                            <div className="tw-flex tw-items-center tw-gap-1">
+                                              <span
+                                                className={
+                                                  `tw-text-base tw-font-extrabold tw-text-left tw-z-50 text-stroke-100 tw-me-auto ` +
+                                                  (value === 'NM'
+                                                    ? 'tw-text-respect-nm-5'
+                                                    : value === 'HD'
+                                                    ? 'tw-text-respect-nm-10'
+                                                    : value === 'MX'
+                                                    ? 'tw-text-respect-nm-15'
+                                                    : 'tw-text-respect-sc-15')
+                                                }
+                                              >
+                                                {globalDictionary.respect.difficulty[value].fullName}
+                                              </span>
+                                              <Image
+                                                src={
+                                                  songItemData.patterns[`${keyMode}B`][value].level <= 5
+                                                    ? `/images/djmax_respect_v/${value === 'SC' ? 'sc' : 'nm'}_5_star.png`
+                                                    : songItemData.patterns[`${keyMode}B`][value].level <= 10
+                                                    ? `/images/djmax_respect_v/${value === 'SC' ? 'sc' : 'nm'}_10_star.png`
+                                                    : `/images/djmax_respect_v/${value === 'SC' ? 'sc' : 'nm'}_15_star.png`
+                                                }
+                                                height={14}
+                                                width={14}
+                                                alt=""
+                                              />
+                                              <span
+                                                className={
+                                                  songItemData.patterns[`${keyMode}B`][value].level <= 5
+                                                    ? 'tw-text-base text-stroke-100 tw-font-extrabold ' +
+                                                      (value === 'SC' ? ' tw-text-respect-sc-5' : ' tw-text-respect-nm-5')
+                                                    : songItemData.patterns[`${keyMode}B`][value].level <= 10
+                                                    ? 'tw-text-base text-stroke-100 tw-font-extrabold ' +
+                                                      (value === 'SC' ? ' tw-text-respect-sc-10' : ' tw-text-respect-nm-10')
+                                                    : 'tw-text-base text-stroke-100 tw-font-extrabold ' +
+                                                      (value === 'SC' ? ' tw-text-respect-sc-15' : ' tw-text-respect-nm-15')
+                                                }
+                                              >
+                                                {songItemData.patterns[`${keyMode}B`][value].level}{' '}
+                                                <sup className="tw-text-xs">
+                                                  {songItemData.patterns[`${keyMode}B`][value].floor !== undefined &&
+                                                  songItemData.patterns[`${keyMode}B`][value].floor !== null
+                                                    ? `(${songItemData.patterns[`${keyMode}B`][value].floor}F)`
+                                                    : null}
+                                                </sup>
+                                              </span>
+                                            </div>
+                                            {userData.userName !== '' && songItemData ? (
+                                              <div className="tw-relative tw-w-full tw-bg-gray-950 tw-rounded-sm tw-overflow-hidden tw-animate-fadeInDown">
+                                                <div
+                                                  className={
+                                                    `tw-h-6 tw-transition-all tw-duration-500 tw-ease-in-out ` +
+                                                    (value === 'NM'
+                                                      ? 'tw-bg-respect-nm-5'
+                                                      : value === 'HD'
+                                                      ? 'tw-bg-respect-nm-10'
+                                                      : value === 'MX'
+                                                      ? 'tw-bg-respect-nm-15'
+                                                      : 'tw-bg-respect-sc-15')
+                                                  }
+                                                  style={{
+                                                    width: `${
+                                                      songItemData.patterns[`${keyMode}B`][value].score !== undefined &&
+                                                      songItemData.patterns[`${keyMode}B`][value].score !== null
+                                                        ? String(Math.floor(Number(songItemData.patterns[`${keyMode}B`][value].score)))
+                                                        : '0'
+                                                    }%`,
+                                                  }}
+                                                />
+                                                <div
+                                                  className={'tw-absolute tw-inset-0 tw-flex tw-items-center tw-justify-center tw-font-extrabold tw-text-white'}
+                                                >
+                                                  {songItemData.patterns[`${keyMode}B`][value].score !== undefined &&
+                                                  songItemData.patterns[`${keyMode}B`][value].score !== null
+                                                    ? songItemData.patterns[`${keyMode}B`][value].score === '100.00'
+                                                      ? `PERFECT`
+                                                      : `${songItemData.patterns[`${keyMode}B`][value].score}%${
+                                                          songItemData.patterns[`${keyMode}B`][value].maxCombo ? `(MAX COMBO)` : ''
+                                                        }`
+                                                    : '0%(기록 미존재)'}
+                                                </div>
+                                              </div>
+                                            ) : null}
                                           </div>
-                                        </div>
+                                        ) : null,
+                                      )}
+                                      {userData.userName !== '' ? (
+                                        <span className="tw-text-xs tw-font-light tw-text-gray-300">로그인 사용자({userData.userName})의 성과 기록입니다.</span>
                                       ) : null}
                                     </div>
-                                  ) : null,
-                                )}
-                                {userData.userName !== '' ? (
-                                  <span className="tw-text-xs tw-font-light tw-text-gray-300">로그인 사용자({userData.userName})의 점수 데이터입니다.</span>
-                                ) : null}
-                              </div>
-                            </div>
-
-                            {rivalName !== '' && userData.userName !== '' && rivalSongItemData ? (
-                              <>
-                                <div className="tw-w-2 tw-bg-gray-300 tw-opacity-10 tw-backdrop-blur tw-my-1 tw-rounded-sm" />
-                                <div className="tw-flex tw-flex-col tw-bg-gray-950">
-                                  <div className="tw-flex tw-flex-col tw-w-80 tw-h-32 tw-relative tw-mb-2 tw-mt-1 tw-bg-gray-900" style={{ opacity: 1 }}>
-                                    <Image
-                                      src={`https://v-archive.net/static/images/jackets/${rivalSongItemData.title}.jpg`}
-                                      className="tw-absolute tw-animate-fadeInLeft tw-rounded-md tw-blur tw-brightness-50 tw-bg-opacity-90"
-                                      fill
-                                      alt=""
-                                      style={{ objectFit: 'cover' }}
-                                    />
-                                    <span className="tw-absolute tw-left-0 tw-bottom-0 tw-px-2 tw-font-bold tw-text-left tw-break-keep">
-                                      <span className="tw-font-medium tw-text-md">{rivalSongItemData.composer}</span>
-                                      <br />
-                                      <span className=" tw-text-xl">{rivalSongItemData.name}</span>
-                                    </span>
-                                    <span className="tw-absolute tw-top-1 tw-right-1 respect_dlc_code_wrap tw-animate-fadeInLeft tw-rounded-md p-1 tw-bg-gray-950">
-                                      <span className={`respect_dlc_code respect_dlc_code_${rivalSongItemData.dlcCode}`}>{rivalSongItemData.dlc}</span>
-                                    </span>
                                   </div>
-                                  <div className="tw-flex tw-flex-col tw-gap-2 tw-w-80 tw-p-2 tw-rounded-md tw-mb-1 tw-bg-gray-700 tw-bg-opacity-20">
-                                    {['NM', 'HD', 'MX', 'SC'].map((value, difficultyIndex) =>
-                                      rivalSongItemData.patterns[`${keyMode}B`][value] !== undefined &&
-                                      rivalSongItemData.patterns[`${keyMode}B`][value] !== null ? (
+                                  {commentRivalName !== '' && userData.userName !== '' && commentRivalSongItemData && commentRivalName !== userData.userName ? (
+                                    <>
+                                      <div className="tw-flex tw-flex-col">
                                         <div
-                                          className="tw-flex tw-flex-col tw-gap-2"
-                                          key={'baseSongDataPack_item' + rivalSongItemData.title + '_hover' + value + '_cmtNo' + commentItem.cmtNo}
+                                          className="tw-flex tw-flex-col tw-w-80 tw-h-32 tw-relative tw-mb-2 tw-mt-1 tw-bg-gray-900 tw-bg-opacity-100 tw-overflow-hidden tw-rounded-md "
+                                          style={{ opacity: 1 }}
                                         >
-                                          <div className="tw-flex tw-items-center tw-gap-1">
-                                            <span
-                                              className={
-                                                `tw-text-base tw-font-extrabold tw-text-left tw-z-50 text-stroke-100 tw-me-auto ` +
-                                                (value === 'NM'
-                                                  ? 'tw-text-respect-nm-5'
-                                                  : value === 'HD'
-                                                  ? 'tw-text-respect-nm-10'
-                                                  : value === 'MX'
-                                                  ? 'tw-text-respect-nm-15'
-                                                  : 'tw-text-respect-sc-15')
-                                              }
-                                            >
-                                              {globalDictionary.respect.difficulty[value].fullName}
+                                          <Image
+                                            src={`https://v-archive.net/static/images/jackets/${commentRivalSongItemData.title}.jpg`}
+                                            className="tw-absolute tw-animate-fadeInLeft tw-rounded-md tw-blur tw-brightness-50 tw-bg-opacity-90"
+                                            fill
+                                            alt=""
+                                            style={{ objectFit: 'cover' }}
+                                          />
+                                          <span className="tw-absolute tw-left-0 tw-bottom-0 tw-px-2 tw-font-bold tw-text-left tw-break-keep">
+                                            <span className="tw-font-medium tw-text-md">{commentRivalSongItemData.composer}</span>
+                                            <br />
+                                            <span className=" tw-text-xl">{commentRivalSongItemData.name}</span>
+                                          </span>
+                                          <span className="tw-absolute tw-top-1 tw-right-1 respect_dlc_code_wrap tw-animate-fadeInLeft tw-rounded-md p-1 tw-bg-gray-950">
+                                            <span className={`respect_dlc_code respect_dlc_code_${commentRivalSongItemData.dlcCode}`}>
+                                              {commentRivalSongItemData.dlc}
                                             </span>
-                                            <Image
-                                              src={
-                                                rivalSongItemData.patterns[`${keyMode}B`][value].level <= 5
-                                                  ? `/images/djmax_respect_v/${value === 'SC' ? 'sc' : 'nm'}_5_star.png`
-                                                  : rivalSongItemData.patterns[`${keyMode}B`][value].level <= 10
-                                                  ? `/images/djmax_respect_v/${value === 'SC' ? 'sc' : 'nm'}_10_star.png`
-                                                  : `/images/djmax_respect_v/${value === 'SC' ? 'sc' : 'nm'}_15_star.png`
-                                              }
-                                              height={14}
-                                              width={14}
-                                              alt=""
-                                            />
-                                            <span
-                                              className={
-                                                rivalSongItemData.patterns[`${keyMode}B`][value].level <= 5
-                                                  ? 'tw-text-base text-stroke-100 ' + (value === 'SC' ? ' tw-text-respect-sc-5' : ' tw-text-respect-nm-5')
-                                                  : rivalSongItemData.patterns[`${keyMode}B`][value].level <= 10
-                                                  ? 'tw-text-base text-stroke-100 ' + (value === 'SC' ? ' tw-text-respect-sc-10' : ' tw-text-respect-nm-10')
-                                                  : 'tw-text-base text-stroke-100 ' + (value === 'SC' ? ' tw-text-respect-sc-15' : ' tw-text-respect-nm-15')
-                                              }
-                                            >
-                                              {rivalSongItemData.patterns[`${keyMode}B`][value].level}{' '}
-                                              <sup className="tw-text-xs">
-                                                {rivalSongItemData.patterns[`${keyMode}B`][value].floor !== undefined &&
-                                                rivalSongItemData.patterns[`${keyMode}B`][value].floor !== null
-                                                  ? `(${rivalSongItemData.patterns[`${keyMode}B`][value].floor}F)`
-                                                  : null}
-                                              </sup>
-                                            </span>
-                                          </div>
-                                          {userData.userName !== '' && rivalSongItemData ? (
-                                            <div className="tw-relative tw-w-full tw-bg-gray-950 tw-rounded-sm tw-overflow-hidden tw-animate-fadeInDown">
+                                          </span>
+                                        </div>
+                                        <div className="tw-flex tw-flex-col tw-gap-2 tw-w-80 tw-p-2 tw-rounded-md tw-mb-1 tw-bg-gray-700 tw-bg-opacity-20">
+                                          {['NM', 'HD', 'MX', 'SC'].map((value, difficultyIndex) =>
+                                            commentRivalSongItemData.patterns[`${keyMode}B`][value] !== undefined &&
+                                            commentRivalSongItemData.patterns[`${keyMode}B`][value] !== null ? (
                                               <div
-                                                className={
-                                                  `tw-h-6 tw-transition-all tw-duration-500 tw-ease-in-out ` +
-                                                  (value === 'NM'
-                                                    ? 'tw-bg-respect-nm-5'
-                                                    : value === 'HD'
-                                                    ? 'tw-bg-respect-nm-10'
-                                                    : value === 'MX'
-                                                    ? 'tw-bg-respect-nm-15'
-                                                    : 'tw-bg-respect-sc-15')
-                                                }
-                                                style={{
-                                                  width: `${
-                                                    rivalSongItemData.patterns[`${keyMode}B`][value].score !== undefined &&
-                                                    rivalSongItemData.patterns[`${keyMode}B`][value].score !== null
-                                                      ? String(Math.floor(Number(rivalSongItemData.patterns[`${keyMode}B`][value].score)))
-                                                      : '0'
-                                                  }%`,
-                                                }}
-                                              />
-                                              <div
-                                                className={'tw-absolute tw-inset-0 tw-flex tw-items-center tw-justify-center tw-font-extrabold tw-text-white'}
+                                                className="tw-flex tw-flex-col tw-gap-2"
+                                                key={'baseSongDataPack_item' + commentRivalSongItemData.title + '_hover' + value + '_cmtNo' + commentItem.cmtNo}
                                               >
-                                                {rivalSongItemData.patterns[`${keyMode}B`][value].score !== undefined &&
-                                                rivalSongItemData.patterns[`${keyMode}B`][value].score !== null
-                                                  ? rivalSongItemData.patterns[`${keyMode}B`][value].score === '100.00'
-                                                    ? `PERFECT${rivalSongItemData.patterns[`${keyMode}B`][value].maxCombo ? `(MAX COMBO)` : ''}`
-                                                    : `${rivalSongItemData.patterns[`${keyMode}B`][value].score}%`
-                                                  : '0%(기록 미존재)'}
+                                                <div className="tw-flex tw-items-center tw-gap-1">
+                                                  <span
+                                                    className={
+                                                      `tw-text-base tw-font-extrabold tw-text-left tw-z-50 text-stroke-100 tw-me-auto ` +
+                                                      (value === 'NM'
+                                                        ? 'tw-text-respect-nm-5'
+                                                        : value === 'HD'
+                                                        ? 'tw-text-respect-nm-10'
+                                                        : value === 'MX'
+                                                        ? 'tw-text-respect-nm-15'
+                                                        : 'tw-text-respect-sc-15')
+                                                    }
+                                                  >
+                                                    {globalDictionary.respect.difficulty[value].fullName}
+                                                  </span>
+                                                  <Image
+                                                    src={
+                                                      commentRivalSongItemData.patterns[`${keyMode}B`][value].level <= 5
+                                                        ? `/images/djmax_respect_v/${value === 'SC' ? 'sc' : 'nm'}_5_star.png`
+                                                        : commentRivalSongItemData.patterns[`${keyMode}B`][value].level <= 10
+                                                        ? `/images/djmax_respect_v/${value === 'SC' ? 'sc' : 'nm'}_10_star.png`
+                                                        : `/images/djmax_respect_v/${value === 'SC' ? 'sc' : 'nm'}_15_star.png`
+                                                    }
+                                                    height={14}
+                                                    width={14}
+                                                    alt=""
+                                                  />
+                                                  <span
+                                                    className={
+                                                      commentRivalSongItemData.patterns[`${keyMode}B`][value].level <= 5
+                                                        ? 'tw-text-base text-stroke-100 tw-font-extrabold ' +
+                                                          (value === 'SC' ? ' tw-text-respect-sc-5' : ' tw-text-respect-nm-5')
+                                                        : commentRivalSongItemData.patterns[`${keyMode}B`][value].level <= 10
+                                                        ? 'tw-text-base text-stroke-100 tw-font-extrabold ' +
+                                                          (value === 'SC' ? ' tw-text-respect-sc-10' : ' tw-text-respect-nm-10')
+                                                        : 'tw-text-base text-stroke-100 tw-font-extrabold ' +
+                                                          (value === 'SC' ? ' tw-text-respect-sc-15' : ' tw-text-respect-nm-15')
+                                                    }
+                                                  >
+                                                    {commentRivalSongItemData.patterns[`${keyMode}B`][value].level}{' '}
+                                                    <sup className="tw-text-xs">
+                                                      {commentRivalSongItemData.patterns[`${keyMode}B`][value].floor !== undefined &&
+                                                      commentRivalSongItemData.patterns[`${keyMode}B`][value].floor !== null
+                                                        ? `(${commentRivalSongItemData.patterns[`${keyMode}B`][value].floor}F)`
+                                                        : null}
+                                                    </sup>
+                                                  </span>
+                                                </div>
+                                                {userData.userName !== '' && commentRivalSongItemData ? (
+                                                  <div className="tw-relative tw-w-full tw-bg-gray-950 tw-rounded-sm tw-overflow-hidden tw-animate-fadeInDown">
+                                                    <div
+                                                      className={
+                                                        `tw-h-6 tw-transition-all tw-duration-500 tw-ease-in-out ` +
+                                                        (value === 'NM'
+                                                          ? 'tw-bg-respect-nm-5'
+                                                          : value === 'HD'
+                                                          ? 'tw-bg-respect-nm-10'
+                                                          : value === 'MX'
+                                                          ? 'tw-bg-respect-nm-15'
+                                                          : 'tw-bg-respect-sc-15')
+                                                      }
+                                                      style={{
+                                                        width: `${
+                                                          commentRivalSongItemData.patterns[`${keyMode}B`][value].score !== undefined &&
+                                                          commentRivalSongItemData.patterns[`${keyMode}B`][value].score !== null
+                                                            ? String(Math.floor(Number(commentRivalSongItemData.patterns[`${keyMode}B`][value].score)))
+                                                            : '0'
+                                                        }%`,
+                                                      }}
+                                                    />
+                                                    <div
+                                                      className={
+                                                        'tw-absolute tw-inset-0 tw-flex tw-items-center tw-justify-center tw-font-extrabold tw-text-white'
+                                                      }
+                                                    >
+                                                      {commentRivalSongItemData.patterns[`${keyMode}B`][value].score !== undefined &&
+                                                      commentRivalSongItemData.patterns[`${keyMode}B`][value].score !== null
+                                                        ? commentRivalSongItemData.patterns[`${keyMode}B`][value].score === '100.00'
+                                                          ? `PERFECT`
+                                                          : `${commentRivalSongItemData.patterns[`${keyMode}B`][value].score}%${
+                                                              commentRivalSongItemData.patterns[`${keyMode}B`][value].maxCombo ? `(MAX COMBO)` : ''
+                                                            }`
+                                                        : '0%(기록 미존재)'}
+                                                    </div>
+                                                  </div>
+                                                ) : null}
                                               </div>
-                                            </div>
+                                            ) : null,
+                                          )}
+                                          {userData.userName !== '' ? (
+                                            <span className="tw-text-xs tw-font-light tw-text-gray-300">
+                                              코멘트 작성자(<span className="">{commentRivalName}</span>)의 성과 기록입니다.
+                                            </span>
                                           ) : null}
                                         </div>
-                                      ) : null,
-                                    )}
-                                    {userData.userName !== '' ? (
-                                      <span className="tw-text-xs tw-font-light tw-text-gray-300">
-                                        라이벌 사용자(<span className="">{rivalName}</span>)의 점수 데이터입니다.
-                                      </span>
-                                    ) : null}
+                                      </div>
+                                    </>
+                                  ) : null}
+                                </div>
+                              ) : (
+                                <div className="tw-flex tw-flex-col">
+                                  <div
+                                    className="tw-flex tw-flex-col tw-w-80 tw-h-32 tw-relative tw-items-center tw-content-center tw-mb-2 tw-mt-1 tw-bg-gray-900"
+                                    style={{ opacity: 1 }}
+                                  >
+                                    <div className="tw-flex flex-equal tw-items-center tw-justify-center">
+                                      <IconContext.Provider value={{ className: 'tw-text-center tw-animate-spin' }}>
+                                        <FaRotate />
+                                      </IconContext.Provider>
+                                    </div>
+                                  </div>
+                                  <div className="tw-flex tw-flex-col tw-w-80 tw-h-32 tw-relative tw-items-center tw-content-center mb-1 tw-bg-gray-900 tw-opacity-40">
+                                    <div className="tw-flex flex-equal tw-items-center tw-justify-center">
+                                      <IconContext.Provider value={{ className: 'tw-text-center tw-animate-spin' }}>
+                                        <FaRotate />
+                                      </IconContext.Provider>
+                                    </div>
                                   </div>
                                 </div>
-                              </>
-                            ) : null}
-                          </div>
-                        ) : (
-                          <div className="tw-flex tw-flex-col tw-bg-gray-950">
-                            <div
-                              className="tw-flex tw-flex-col tw-w-80 tw-h-32 tw-relative tw-items-center tw-content-center tw-mb-2 tw-mt-1 tw-bg-gray-900"
-                              style={{ opacity: 1 }}
-                            >
-                              <div className="tw-flex flex-equal tw-items-center tw-justify-center">
-                                <IconContext.Provider value={{ className: 'tw-text-center tw-animate-spin' }}>
-                                  <FaRotate />
-                                </IconContext.Provider>
-                              </div>
+                              )}
+                            </Tooltip>
+                          }
+                        >
+                          <div
+                            key={commentItem.cmtNo}
+                            className="tw-flex tw-w-full tw-gap-3"
+                            onMouseEnter={() => {
+                              setHoveredTitle(String(commentItem.title))
+                              setSongItemData(null)
+                              if (userData.userName !== '') {
+                                setCommentRivalName(String(commentItem.nickname))
+                                setCommentRivalSongItemData(null)
+                              }
+                            }}
+                            onMouseLeave={() => {
+                              setHoveredTitle(null)
+                              setCommentRivalName('')
+                              setSongItemData(null)
+                              setCommentRivalSongItemData(null)
+                            }}
+                          >
+                            <div className="tw-min-h-16 tw-h-16 tw-min-w-16 tw-w-16 tw-relative hover-scale-110 tw-cursor-pointer">
+                              <Image
+                                src={`https://v-archive.net/static/images/jackets/${commentItem.title}.jpg`}
+                                height={80}
+                                width={80}
+                                alt=""
+                                className="tw-animate-fadeInLeft tw-rounded-md tw-shadow-sm"
+                              />
                             </div>
-                            <div
-                              className="tw-flex tw-flex-col tw-w-80 tw-h-32 tw-relative tw-items-center tw-content-center mb-1 tw-bg-gray-900"
-                              style={{ opacity: 1 }}
-                            >
-                              <div className="tw-flex flex-equal tw-items-center tw-justify-center">
-                                <IconContext.Provider value={{ className: 'tw-text-center tw-animate-spin' }}>
-                                  <FaRotate />
-                                </IconContext.Provider>
+                            <div className="tw-flex tw-flex-col tw-gap-2 flex-equal">
+                              <div className="tw-flex tw-gap-2 tw-items-center tw-animate-fadeInOnly">
+                                <span className="tw-font-extrabold">{commentItem.nickname}</span>
+                                <span className="tw-font-light tw-text-xs tw-text-gray-400">{moment(commentItem.ymdt).locale('ko').format('LL')}</span>
                               </div>
-                            </div>
-                          </div>
-                        )}
-                      </Tooltip>
-                    }
-                  >
-                    <div
-                      key={commentItem.cmtNo}
-                      className="tw-flex tw-w-full tw-gap-3"
-                      onMouseEnter={() => {
-                        setHoveredTitle(String(commentItem.title))
-                        setSongItemData(null)
-                        if (userData.userName !== '') {
-                          setRivalName(String(commentItem.nickname))
-                          setRivalSongItemData(null)
-                        }
-                      }}
-                      onMouseLeave={() => {
-                        setHoveredTitle(null)
-                        setRivalName('')
-                        setSongItemData(null)
-                        setRivalSongItemData(null)
-                      }}
-                    >
-                      <div className="tw-min-h-16 tw-h-16 tw-min-w-16 tw-w-16 tw-relative hover-scale-110 tw-cursor-pointer">
-                        <Image
-                          src={`https://v-archive.net/static/images/jackets/${commentItem.title}.jpg`}
-                          height={80}
-                          width={80}
-                          alt=""
-                          className="tw-animate-fadeInLeft tw-rounded-md tw-shadow-sm"
-                        />
-                      </div>
-                      <div className="tw-flex tw-flex-col tw-gap-2 flex-equal">
-                        <div className="tw-flex tw-gap-2 tw-items-center tw-animate-fadeInOnly">
-                          <span className="tw-font-extrabold">{commentItem.nickname}</span>
-                          <span className="tw-font-light tw-text-xs tw-text-gray-400">{moment(commentItem.ymdt).locale('ko').format('LL')}</span>
-                        </div>
-                        <span
-                          className="tw-animate-fadeInDown"
-                          dangerouslySetInnerHTML={{
-                            __html: `
+                              <span
+                                className="tw-animate-fadeInDown"
+                                dangerouslySetInnerHTML={{
+                                  __html: `
                                     ${parseText(commentItem.comment)}
                                     `,
-                          }}
-                        />
-                        <div className="tw-flex tw-justify-end tw-items-center gap-2">
-                          <FaHeart />
-                          <span className="tw-font-light tw-text-xs">{commentItem.vote}</span>
-                        </div>
-                      </div>
+                                }}
+                              />
+                              <div
+                                className={'tw-flex tw-justify-end tw-items-center gap-2 tw-cursor-pointer'}
+                                onClick={() => {
+                                  if (userData.userNo !== '' && userData.userToken !== '' && userData.userName !== '') {
+                                    if (commentItem.myVote === 1) {
+                                      updateCommentVote(commentItem.title, commentItem.cmtNo, 'DELETE')
+                                    } else {
+                                      updateCommentVote(commentItem.title, commentItem.cmtNo, 'POST')
+                                    }
+                                  } else {
+                                    addNotificationCallback('DJ 코멘트 좋아요 기능은 로그인이 필요합니다.', 'tw-bg-red-600')
+                                  }
+                                }}
+                              >
+                                <span className={`${commentItem.myVote === 1 ? 'tw-text-red-600' : ''}`}>
+                                  <IconContext.Provider
+                                    value={{
+                                      className:
+                                        voteComment === commentItem.cmtNo && commentItem.myVote === 1
+                                          ? ' tw-animate-scaleUpAndScaleDown'
+                                          : voteComment === commentItem.cmtNo && commentItem.myVote === 0
+                                          ? ' tw-animate-scaleDownAndScaleUp'
+                                          : '',
+                                    }}
+                                  >
+                                    <FaHeart />
+                                  </IconContext.Provider>
+                                </span>
+                                <span className="tw-font-light tw-text-xs">{commentItem.vote}</span>
+                              </div>
+                            </div>
+                          </div>
+                        </OverlayTrigger>
+                      ))
+                  ) : isFetchingCommentData && commentData.length == 0 ? (
+                    <div className="tw-flex tw-justify-center flex-equal tw-items-center">
+                      <IconContext.Provider value={{ className: 'tw-text-center tw-animate-spin' }}>
+                        <FaRotate />
+                      </IconContext.Provider>
                     </div>
-                  </OverlayTrigger>
-                ))
-              ) : isFetchingCommentData && commentData.length == 0 ? (
-                <div className="tw-flex tw-justify-center flex-equal tw-items-center">
-                  <IconContext.Provider value={{ className: 'tw-text-center tw-animate-spin' }}>
-                    <FaRotate />
-                  </IconContext.Provider>
+                  ) : !hasNextCommentData ? (
+                    <div className="tw-flex tw-justify-center flex-equal tw-items-center">
+                      <span className="tw-w-full tw-flex tw-justify-center">등록된 DJ 코멘트가 없습니다.</span>
+                    </div>
+                  ) : (
+                    <></>
+                  )}
                 </div>
-              ) : !hasNextCommentData ? (
-                <div className="tw-flex tw-justify-center flex-equal tw-items-center">
-                  <span className="tw-w-full tw-flex tw-justify-center">등록된 댓글이 없습니다.</span>
-                </div>
-              ) : (
-                <></>
-              )}
+                {commentData.length > 0 && hasNextCommentData ? (
+                  <button onClick={() => fetchCommentData()} className="tw-mt-2 tw-bg-gray-600 tw-bg-opacity-20 tw-rounded-md tw-w-full tw-p-2 tw-font-bold">
+                    더보기
+                  </button>
+                ) : null}
+              </div>
             </div>
-            {commentData.length > 0 && hasNextCommentData ? (
-              <button onClick={() => fetchCommentData()} className="tw-mt-2 tw-bg-gray-600 tw-bg-opacity-20 tw-rounded-md tw-w-full tw-p-2 tw-font-bold">
-                더보기
-              </button>
-            ) : null}
-          </div>
+          ) : (
+            <></>
+          )}
         </div>
       </React.Fragment>
     )
