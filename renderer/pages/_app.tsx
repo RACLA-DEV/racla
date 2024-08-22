@@ -42,6 +42,7 @@ function MyApp({ Component, pageProps }: AppProps) {
 
   const [selectedGame, setSelectedGame] = useState<string>('DJMAX_RESPECT_V')
   const [backgroundVideoName, setBackgroundVideoName] = useState<string>('bg_title')
+  const [backgroundBgaName, setBackgroundBgaName] = useState<string>('')
 
   const { notifications, addNotification, removeNotification } = useNotifications()
 
@@ -170,9 +171,18 @@ function MyApp({ Component, pageProps }: AppProps) {
     fetchUserName()
   }, [userNo, userToken])
 
+  const router = useRouter()
+
+  useEffect(() => {
+    if (!router.pathname.includes('/db/title')) {
+      setBackgroundBgaName('')
+    }
+  }, [router])
+
   return (
     <div className={`tw-w-full tw-h-full ${noto.className}`}>
       {/* 배경 이미지 레이어 */}
+      <div className="background-image-base" />
       {/* <div className={'background-image tw-transition-all tw-duration-1000 ' + (selectedGame === 'DJMAX_RESPECT_V' ? 'tw-opacity-100' : 'tw-opacity-0')} /> */}
       {backgroundVideoName !== '' ? (
         <video
@@ -180,7 +190,19 @@ function MyApp({ Component, pageProps }: AppProps) {
           autoPlay={true}
           muted={true}
           loop={true}
-          className="background-video tw-opacity-100"
+          className={'background-video tw-transition-all tw-duration-1000 ' + (backgroundBgaName !== '' ? ' tw-opacity-0' : ' tw-opacity-100')}
+        />
+      ) : null}
+
+      {backgroundBgaName !== '' ? (
+        <video
+          src={`https://project-ra.lunatica.kr/${selectedGame.toLowerCase()}/preview/title/${backgroundBgaName}.webm`}
+          autoPlay={true}
+          muted={true}
+          loop={true}
+          className={
+            'background-video tw-transition-all tw-duration-1000 tw-animate-fadeInLeft ' + (backgroundBgaName === '' ? ' tw-opacity-0' : ' tw-opacity-100')
+          }
         />
       ) : null}
 
@@ -198,13 +220,16 @@ function MyApp({ Component, pageProps }: AppProps) {
             transition={{ duration: 0.3 }} // 애니메이션 지속 시간
             style={{ width: '100%' }} // 위치와 너비를 설정
           >
+            <div id="ContentHeader" />
             <Component
               {...pageProps}
               songData={vArchiveSongData}
               addNotificationCallback={addNotification}
               fontFamily={noto.className}
               userData={{ userName, userNo, userToken }}
+              setBackgroundBgaName={setBackgroundBgaName}
             />
+            <div id="ContentFooter" />
           </motion.div>
         </AnimatePresence>
         <HeaderComponent

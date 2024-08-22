@@ -61,25 +61,25 @@ const SidebarComponent: React.FC<SidebarProps> = ({ addNotificationCallback, tog
 
         {/* 기타 */}
         <div className="tw-flex tw-flex-col tw-gap-1 tw-mt-auto">
-          <span className="tw-text-sm tw-text-gray-400 tw-font-light tw-flex tw-items-center tw-gap-2 btn-sidebar">
+          <span className="tw-text-xs tw-text-gray-400 tw-font-bold tw-flex tw-items-center tw-gap-2 btn-sidebar">
             <FaBug />
             <span className="tw-flex tw-gap-1 tw-w-full tw-items-center">
               버그 신고{' '}
-              <span className="tw-ms-auto tw-text-xs tw-bg-gray-600 tw-rounded-full tw-px-2" style={{ padding: '2px 8px' }}>
+              <span className="tw-ms-auto tw-text-xs tw-font-light tw-bg-gray-600 tw-rounded-full tw-px-2" style={{ padding: '2px 8px' }}>
                 공사중
               </span>
             </span>
           </span>
-          <span className="tw-text-sm tw-text-gray-400 tw-font-light tw-flex tw-items-center tw-gap-2 btn-sidebar">
+          <span className="tw-text-xs tw-font-bold tw-text-gray-400 tw-flex tw-items-center tw-gap-2 btn-sidebar">
             <FaNoteSticky />
-            <span className="tw-flex tw-gap-1 tw-w-full tw-items-center">
+            <span className="tw-flex tw-gap-1 tw-w-full  tw-items-center">
               개발자 노트{' '}
-              <span className="tw-ms-auto tw-text-xs tw-bg-gray-600 tw-rounded-full tw-px-2" style={{ padding: '2px 8px' }}>
+              <span className="tw-ms-auto tw-text-xs tw-font-light tw-bg-gray-600 tw-rounded-full tw-px-2" style={{ padding: '2px 8px' }}>
                 공사중
               </span>
             </span>
           </span>
-          <span className="tw-text-sm tw-text-gray-400 tw-font-light tw-flex tw-items-center tw-gap-2 btn-sidebar" onClick={() => toggleSettingCallback(true)}>
+          <span className=" tw-text-xs tw-text-gray-400 tw-font-bold tw-flex tw-items-center tw-gap-2 btn-sidebar" onClick={() => toggleSettingCallback(true)}>
             <FaGear />
             <span>설정</span>
           </span>

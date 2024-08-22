@@ -13,7 +13,7 @@ import 'moment/locale/ko'
 import axios from 'axios'
 import Link from 'next/link'
 
-export default function VArchiveDbPage({ fontFamily, userData, songData, addNotificationCallback }) {
+export default function VArchiveDbPage({ fontFamily, userData, songData, addNotificationCallback, setBackgroundBgaName }) {
   const [keyMode, setKeyMode] = useState<string>('4')
   const [baseSongData, setBaseSongData] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(false)
@@ -86,18 +86,6 @@ export default function VArchiveDbPage({ fontFamily, userData, songData, addNoti
       console.error('Error fetching data:', error)
     }
   }
-
-  useEffect(() => {
-    console.log(
-      R.sortBy(R.compose(R.toLower, R.prop('name')))(
-        songData
-          .filter((item) => !['GC', 'EZ2', 'FAL'].includes(item.dlcCode))
-          .map((item) => {
-            return { name: item.name, title: item.title, composer: item.composer, dlcCode: item.dlcCode }
-          }),
-      ),
-    )
-  }, [songData])
 
   const [voteComment, setVoteComment] = useState<number>(null)
 
@@ -180,6 +168,7 @@ export default function VArchiveDbPage({ fontFamily, userData, songData, addNoti
       timer = setTimeout(() => {
         fetchSongItemData(hoveredTitle)
         fetchCommentRivalSongItemData(hoveredTitle)
+        setBackgroundBgaName(String(hoveredTitle))
       }, 500)
     }
 
@@ -189,57 +178,6 @@ export default function VArchiveDbPage({ fontFamily, userData, songData, addNoti
       }
     }
   }, [hoveredTitle])
-
-  // useEffect(() => {
-  //   console.log(songData)
-  //   setBaseSongData(baseSongData)
-  //   if (userData.userName !== '') {
-  //     setIsScoredBaseSongData(true)
-  //   }
-  // }, [])
-
-  // const loadDataWithScore = async (title) => {
-  //   try {
-  //     const response = await fetch(`${process.env.NEXT_PUBLIC_PROXY_API_URL}?url=https://v-archive.net/api/archive/${userData.userName}/title/${title}`)
-  //     if (!response) {
-  //       throw new Error('Network response was not ok')
-  //     }
-  //     const data = await response.json()
-  //     return data
-  //   } catch (error) {
-  //     console.error('There has been a problem with your fetch operation:', error)
-  //     return null
-  //   }
-  // }
-
-  // 스코어 갱신
-  // useEffect(() => {
-  //   if (baseSongData.length > 0 && !isScoredBaseSongData) {
-  //     const updateArrayWithAPIData = async () => {
-  //       // 배열의 각 항목에 대해 API 호출 및 데이터 업데이트
-  //       const updatedArray = await Promise.all(
-  //         baseSongData.map(async (item) => {
-  //           const data = await loadDataWithScore(item.title)
-  //           const keysToRemove = ['SC', 'MX', 'HD', 'NM']
-  //           const pathsToRemove = keysToRemove.map((key) => ['patterns', '4B', key, 'level'])
-  //           const removeLevels = (paths, obj) => {
-  //             return paths.reduce((acc, path) => R.dissocPath(path, acc), obj)
-  //           }
-
-  //           const newItem = removeLevels(pathsToRemove, data)
-
-  //           return R.mergeDeepRight(newItem, item)
-  //         }),
-  //       )
-  //         .then((value) => setBaseSongData(value))
-  //         .finally(() => {
-  //           setIsScoredBaseSongData(true)
-  //         })
-  //     }
-
-  //     updateArrayWithAPIData()
-  //   }
-  // }, [])
 
   // 초성을 추출하는 함수
   const getChosung = (char) => {
@@ -319,7 +257,7 @@ export default function VArchiveDbPage({ fontFamily, userData, songData, addNoti
               <FaCircleInfo />
               <div className="tw-flex tw-flex-col">
                 <span>수록곡 데이터가 많은 관계로 마우스 커서를 수록곡(자켓) 이미지에 올려둔 경우에만 성과 기록이 제공됩니다.</span>
-                <span>추후 도입될 라이벌 시스템의 일부 기능 사용은 로그인이 필요합니다.</span>
+                <span>추후 도입될 라이벌 시스템의 일부 기능은 로그인 후 사용하실 수 있습니다.</span>
               </div>
             </span>
           </div>
@@ -339,7 +277,7 @@ export default function VArchiveDbPage({ fontFamily, userData, songData, addNoti
                     <OverlayTrigger
                       key={'songDataPack_item' + songItem.title}
                       placement="auto"
-                      delay={{ show: 500, hide: 0 }}
+                      delay={{ show: userData.userName !== '' ? 500 : 500, hide: 0 }}
                       overlay={
                         <Tooltip id="btn-nav-home" className={`tw-text-xs tw-min-h-48 ${fontFamily}`}>
                           {songItem !== null ? (
@@ -468,6 +406,7 @@ export default function VArchiveDbPage({ fontFamily, userData, songData, addNoti
                         onMouseLeave={() => {
                           setHoveredTitle(null)
                           setSongItemData(null)
+                          setBackgroundBgaName('')
                         }}
                       >
                         <Link
@@ -546,7 +485,7 @@ export default function VArchiveDbPage({ fontFamily, userData, songData, addNoti
                   <OverlayTrigger
                     key={'baseSongDataPack_item' + commentItem.title + '_cmtNo' + commentItem.cmtNo}
                     placement="auto-start"
-                    delay={{ show: 500, hide: 0 }}
+                    delay={{ show: userData.userName !== '' ? 500 : 500, hide: 0 }}
                     overlay={
                       <Tooltip id="btn-nav-home" className={`tw-text-xs tw-min-h-48 ${fontFamily}`}>
                         {songItemData !== null && commentRivalSongItemData !== null ? (
@@ -843,6 +782,7 @@ export default function VArchiveDbPage({ fontFamily, userData, songData, addNoti
                         setCommentRivalName('')
                         setSongItemData(null)
                         setCommentRivalSongItemData(null)
+                        setBackgroundBgaName('')
                       }}
                     >
                       <Link

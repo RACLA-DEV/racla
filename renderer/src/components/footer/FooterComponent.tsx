@@ -37,7 +37,7 @@ const FooterComponent = ({ className, selectedGame }: IFooterComponent) => {
                 window.ipc.openBrowser('https://github.com/Lunatica-Luna/project-ra/releases')
               }}
             >
-              프로젝트 RA · V0.2.3.20240820 0625
+              프로젝트 RA · V0.3.0.20240821 2030
             </span>
             {/* - <FaTriangleExclamation /> 해당 버전은 개발 중인 화면으로 최종적인 버전이 아닙니다. */}
           </span>

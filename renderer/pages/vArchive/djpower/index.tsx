@@ -8,7 +8,7 @@ import { globalDictionary } from '@/libs/server/globalDictionary'
 import { IconContext } from 'react-icons'
 import Link from 'next/link'
 
-export default function VArchiveDjPowerPage({ fontFamily, userData, songData }) {
+export default function VArchiveDjPowerPage({ fontFamily, userData, songData, setBackgroundBgaName }) {
   const [keyMode, setKeyMode] = useState<string>('4')
   const [baseSongData, setBaseSongData] = useState<any[]>([])
   const [newSongData, setNewSongData] = useState<any[]>([])
@@ -456,6 +456,8 @@ export default function VArchiveDjPowerPage({ fontFamily, userData, songData }) 
                               <Link
                                 href={`/vArchive/db/title/${songItem.title}`}
                                 className="tw-relative tw-h-20 tw-w-20 tw-rounded-md hover-scale-110 respect_record tw-shadow-lg tw-cursor-pointer"
+                                onMouseEnter={() => setBackgroundBgaName(String(songItem.title))}
+                                onMouseLeave={() => setBackgroundBgaName('')}
                               >
                                 <Image
                                   src={`https://v-archive.net/static/images/jackets/${songItem.title}.jpg`}

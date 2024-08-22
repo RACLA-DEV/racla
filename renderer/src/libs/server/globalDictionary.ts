@@ -16,6 +16,7 @@ import {
   FaWindowMaximize,
   FaWandMagicSparkles,
   FaDownload,
+  FaTrophy,
 } from 'react-icons/fa6'
 
 export const globalDictionary = {
@@ -91,7 +92,7 @@ export const globalDictionary = {
             isOpenBrowser: false,
             link: '/grade',
             userLevel: [],
-            status: 'dev',
+            status: 'stable',
           },
           {
             id: 'vArchiveNavItemsDb',
@@ -135,6 +136,20 @@ export const globalDictionary = {
             userLevel: [],
             status: 'stable',
           },
+          {
+            id: 'vArchiveNavItemsArchiveMyBoard',
+            name: {
+              startWithSup: '',
+              base: '성과표',
+              lastWithSup: '',
+            },
+            icon: FaTrophy,
+            isDisplay: true,
+            isOpenBrowser: false,
+            link: '/archive',
+            userLevel: [],
+            status: 'dev',
+          },
         ],
       },
       projectRa: {
@@ -152,7 +167,7 @@ export const globalDictionary = {
               lastWithSup: '',
             },
             icon: FaRankingStar,
-            isDisplay: true,
+            isDisplay: false,
             isOpenBrowser: false,
             link: '/leaderboard',
             userLevel: [],
@@ -166,7 +181,7 @@ export const globalDictionary = {
               lastWithSup: '',
             },
             icon: FaWandMagicSparkles,
-            isDisplay: true,
+            isDisplay: false,
             isOpenBrowser: false,
             link: '/course',
             userLevel: [],

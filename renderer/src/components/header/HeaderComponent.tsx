@@ -8,7 +8,7 @@ import { renderGameButtons } from './renderGameButtons'
 import { renderUserDropdown } from './renderUserDropdown'
 import { renderUtilityButtons } from './renderUtilityButtons'
 import { OverlayTrigger, Tooltip } from 'react-bootstrap'
-import { FaArrowLeft, FaConnectdevelop, FaRotate } from 'react-icons/fa6'
+import { FaArrowDown, FaArrowDownUpAcrossLine, FaArrowLeft, FaArrowUp, FaConnectdevelop, FaRotate } from 'react-icons/fa6'
 
 interface IHeaderComponentProps {
   className?: string
@@ -96,6 +96,32 @@ const HeaderComponent: React.FC<IHeaderComponentProps> = ({ className, user, log
         <button type="button" className="tw-px-2 tw-py-2 btn-ipc tw-mr-2" onClick={() => router.push(`/refresh?url=${router.asPath}`)}>
           <FaRotate />
         </button>
+      </OverlayTrigger>
+
+      <OverlayTrigger
+        placement="bottom"
+        overlay={
+          <Tooltip id="btn-nav-home" className={className + ' tw-text-xs'}>
+            콘텐츠 최상단으로 이동
+          </Tooltip>
+        }
+      >
+        <a href={`#ContentHeader`} className="tw-px-2 tw-py-2 btn-ipc tw-mr-2">
+          <FaArrowUp />
+        </a>
+      </OverlayTrigger>
+
+      <OverlayTrigger
+        placement="bottom"
+        overlay={
+          <Tooltip id="btn-nav-home" className={className + ' tw-text-xs'}>
+            콘텐츠 최하단으로 이동
+          </Tooltip>
+        }
+      >
+        <a href={`#ContentFooter`} type="button" className="tw-px-2 tw-py-2 btn-ipc tw-mr-2">
+          <FaArrowDown />
+        </a>
       </OverlayTrigger>
 
       {/* 창 드래그 할당 부분 */}

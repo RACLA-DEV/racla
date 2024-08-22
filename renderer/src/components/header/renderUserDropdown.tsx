@@ -24,7 +24,7 @@ export const renderUserDropdown = (user, logoutCallback, addNotificationCallback
               ipcRenderer.send('openBrowser', `https://v-archive.net/archive/${user.userName}/board`)
             }}
           >
-            성과표 바로가기
+            성과표(V-ARCHIVE) 바로가기
           </button>
         </li>
       ) : null}

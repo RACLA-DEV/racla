@@ -27,16 +27,26 @@ export default function HomePage() {
         <br />
 
         <span className="tw-text-base tw-font-bold">공지사항</span>
-        <span>1. 서열표 데이터 조회 시 애플리케이션 문제가 발생하여 일시적으로 접근 제한 조치하였습니다.</span>
+        <span className="tw-font-bold">1. 서열표 데이터 조회 시 애플리케이션 문제가 해결되어 정상적인 접근이 가능합니다.</span>
         <span className="tw-flex tw-gap-1 tw-items-center">
           2. 애플리케이션 내 제공되는 콘텐츠가 많아짐에 따라 최소 요구 해상도가 <span className="tw-font-bold">1440x810</span>으로 변경되었습니다.
         </span>
-        <span>
-          3. 애플리케이션 확장성 테스트를 위해 WJMAX(왁제이맥스), TJMAX(텔제이맥스)가 서비스 항목에 추가되었습니다. 추후 메이저(또는 마이너) 업데이트를 통해
-          사용이 가능합니다.
+        <span className="tw-font-bold">
+          3. BGA 영상(이하 프리뷰 영상)을 배경으로 표시하는 기능이 적용되었습니다. 추후 제공될 업데이트를 통해 설정에서 해당 기능을 켜고 끄실 수 있습니다.
         </span>
-        <span>4. BGA 또는 프리뷰 영상을 배경으로 표시하기 위한 기능을 준비 중에 있습니다.</span>
-        <span>5. 라이선스 고지 내용이 업데이트 되었습니다.</span>
+        <span>4. 라이선스 고지 내용이 업데이트 되었습니다.</span>
+        <br />
+
+        <span className="tw-text-base tw-font-bold">현재 작업 중인 내용</span>
+        <span>
+          1. 애플리케이션 확장성 테스트를 위해 WJMAX(왁제이맥스), TJMAX(텔제이맥스)가 서비스 항목 탭에 추가되었습니다. 추후 제공될 업데이트를 통해 사용이
+          가능합니다.
+        </span>
+        <span>2. 라이벌 사용자를 등록하여 DJ 코멘트 외 콘텐츠에서도 점수 비교 등을 할 수 있는 기능을 작업 중에 있습니다.</span>
+        <span>3. 자동 기록(점수) 등록과 파일 저장 기능을 작업 중에 있습니다.</span>
+        <span>4. 추천 옵션과 코멘트(팁)을 표시하기 위한 게임 화면 인식 오버레이을 작업 중에 있습니다.</span>
+        <span>5. 성과 기록 성과표(V-ARCHIVE)를 컨버팅 작업 중에 있습니다.</span>
+        <span>6. 가독성 향상 작업을 지속적으로 진행하고 있습니다.</span>
 
         <br />
 

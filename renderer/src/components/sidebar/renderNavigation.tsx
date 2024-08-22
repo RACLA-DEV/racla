@@ -24,7 +24,7 @@ export const renderNavigation = (selectedGame: string, router: any) => {
                       key={page.id}
                       href={navItem.link + page.link}
                       className={`tw-text-sm tw-text-gray-400 tw-font-light tw-flex tw-items-center tw-gap-2 btn-sidebar ${
-                        router.pathname.includes(navItem.link + page.link) ? 'active' : ''
+                        router.pathname.includes(navItem.link + '/' + String(String(page.link).split('/')[1])) ? 'active' : ''
                       }`}
                     >
                       {React.createElement(page.icon)}
@@ -50,9 +50,9 @@ export const renderNavigation = (selectedGame: string, router: any) => {
                 ) : page.isDisplay && page.status === 'dev' ? (
                   <button key={page.id} className={`tw-text-sm tw-text-gray-400 tw-font-light tw-flex tw-items-center tw-gap-2 btn-sidebar`}>
                     {React.createElement(page.icon)}
-                    <span className="tw-flex tw-gap-1 tw-w-full tw-items-center">
+                    <span className="tw-flex tw-gap-1 tw-items-center flex-equal">
                       {page.name.startWithSup ? <sup>{page.name.startWithSup}</sup> : null}
-                      {page.name.base}
+                      <span className="tw-me-auto">{page.name.base}</span>
                       <span className="tw-ms-auto tw-text-xs tw-bg-gray-600 tw-rounded-full tw-px-2" style={{ padding: '2px 8px' }}>
                         공사중
                       </span>

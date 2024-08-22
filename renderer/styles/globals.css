@@ -34,9 +34,19 @@
     position: fixed;
     left: 0;
     right: 0;
-    z-index: 1;
+    z-index: 2;
     width: 100%;
     height: auto;
+  }
+
+  .background-image-base {
+    @apply tw-bg-gray-950 tw-bg-opacity-100 tw-backdrop-blur;
+    position: fixed;
+    left: 0;
+    right: 0;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
   }
 
   .background-image-color {
@@ -44,7 +54,7 @@
     position: fixed;
     left: 0;
     right: 0;
-    z-index: 2;
+    z-index: 3;
     width: 100%;
     height: 100%;
   }
@@ -154,16 +164,6 @@
 
   .hover-scale-110:hover {
     transform: scale(1.1);
-  }
-
-  .tooltip {
-    @apply tw-transition-transform tw-duration-300 tw-ease-in-out tw-transform;
-    font-family: 'Noto Sans KR', var(--noto-sans-kr);
-  }
-
-  .tooltip-inner {
-    @apply tw-transition-transform tw-duration-300 tw-ease-in-out tw-transform;
-    font-family: 'Noto Sans KR', var(--noto-sans-kr);
   }
 }
 
@@ -952,4 +952,14 @@
 
 .z-n9999 {
   z-index: -100 !important;
+}
+
+.tooltip {
+  font-family: 'Noto Sans KR', var(--noto-sans-kr);
+  z-index: 9999;
+}
+
+.tooltip-inner {
+  font-family: 'Noto Sans KR', var(--noto-sans-kr);
+  z-index: 9999;
 }

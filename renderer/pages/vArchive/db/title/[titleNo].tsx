@@ -14,7 +14,7 @@ import axios from 'axios'
 import { useParams } from 'next/navigation'
 import { useRouter } from 'next/router'
 
-export default function VArchiveDbTitlePage({ fontFamily, userData, songData, addNotificationCallback }) {
+export default function VArchiveDbTitlePage({ fontFamily, userData, songData, addNotificationCallback, setBackgroundBgaName }) {
   const params = useParams()
   const router = useRouter()
 
@@ -65,6 +65,12 @@ export default function VArchiveDbTitlePage({ fontFamily, userData, songData, ad
     }
   }, [])
 
+  useEffect(() => {
+    if (baseSongData.length > 0) {
+      setBackgroundBgaName(String(baseSongData[0].title))
+    }
+  }, [baseSongData])
+
   const [patternCode, setPatternCode] = useState<string>('')
   const [patternButton, setPatternButton] = useState<string>('')
   const [patternDificulty, setPatternDificulty] = useState<string>('')
@@ -108,7 +114,7 @@ export default function VArchiveDbTitlePage({ fontFamily, userData, songData, ad
             }
           })
           .catch((error) => {
-            console.log(error)
+            // console.log(error)
           })
       } catch (error) {
         console.error('Error fetching data:', error)
@@ -320,16 +326,18 @@ export default function VArchiveDbTitlePage({ fontFamily, userData, songData, ad
   }
 
   const loadDataWithScore = async (title) => {
-    try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_PROXY_API_URL}?url=https://v-archive.net/api/archive/${userData.userName}/title/${title}`)
-      if (!response) {
-        throw new Error('Network response was not ok')
+    if (userData.userName !== '') {
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_PROXY_API_URL}?url=https://v-archive.net/api/archive/${userData.userName}/title/${title}`)
+        if (!response) {
+          throw new Error('Network response was not ok')
+        }
+        const data = await response.json()
+        return data
+      } catch (error) {
+        console.error('There has been a problem with your fetch operation:', error)
+        return null
       }
-      const data = await response.json()
-      return data
-    } catch (error) {
-      console.error('There has been a problem with your fetch operation:', error)
-      return null
     }
   }
 
@@ -360,7 +368,12 @@ export default function VArchiveDbTitlePage({ fontFamily, userData, songData, ad
           })
       }
 
-      updateArrayWithAPIData()
+      if (userData.userName !== '') {
+        updateArrayWithAPIData()
+      } else {
+        setIsScoredBaseSongData(true)
+        setIsLoading(false)
+      }
     }
   }, [isScoredBaseSongData])
 
@@ -820,7 +833,7 @@ export default function VArchiveDbTitlePage({ fontFamily, userData, songData, ad
                         <OverlayTrigger
                           key={'baseSongDataPack_item' + commentItem.title + '_cmtNo' + commentItem.cmtNo}
                           placement="auto-start"
-                          delay={{ show: 500, hide: 0 }}
+                          delay={{ show: userData.userName !== '' ? 500 : 500, hide: 0 }}
                           overlay={
                             <Tooltip id="btn-nav-home" className={`tw-text-xs tw-min-h-48 ${fontFamily}`}>
                               {songItemData !== null && commentRivalSongItemData !== null ? (
