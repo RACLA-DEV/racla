@@ -453,7 +453,7 @@ export default function VArchiveDbTitlePage({ fontFamily, userData, songData, ad
                 {/* 하단 */}
                 <div className="tw-flex tw-gap-3 tw-mt-auto tw-items-end">
                   <Image
-                    src={`https://v-archive.net/static/images/jackets/${baseSongData[0].title}.jpg`}
+                    src={`/images/djmax_respect_v/jackets/${baseSongData[0].title}.jpg`}
                     height={90}
                     width={90}
                     alt=""
@@ -560,9 +560,9 @@ export default function VArchiveDbTitlePage({ fontFamily, userData, songData, ad
                                         : '0%'}
                                       {baseSongData[0].patterns[patternName][difficultyCode].score !== undefined &&
                                       baseSongData[0].patterns[patternName][difficultyCode].score === '100.00' ? (
-                                        <Image src="https://v-archive.net/static/images/perfect.png" width={30} height={16} alt="" />
+                                        <Image src="/images/perfect.png" width={30} height={16} alt="" />
                                       ) : baseSongData[0].patterns[patternName][difficultyCode].maxCombo === 1 ? (
-                                        <Image src="https://v-archive.net/static/images/maxcombo.png" width={30} height={24} alt="" />
+                                        <Image src="/images/maxcombo.png" width={30} height={24} alt="" />
                                       ) : null}
                                     </span>
                                     <button
@@ -746,7 +746,7 @@ export default function VArchiveDbTitlePage({ fontFamily, userData, songData, ad
                       >
                         <div className="tw-min-h-16 tw-h-16 tw-min-w-16 tw-w-16 tw-relative hover-scale-110 tw-cursor-pointer">
                           <Image
-                            src={`https://v-archive.net/static/images/jackets/${
+                            src={`/images/djmax_respect_v/jackets/${
                               commentData.filter((commentItem) => commentItem.nickname === userData.userName)[0].title
                             }.jpg`}
                             height={80}
@@ -844,7 +844,7 @@ export default function VArchiveDbTitlePage({ fontFamily, userData, songData, ad
                                       style={{ opacity: 1 }}
                                     >
                                       <Image
-                                        src={`https://v-archive.net/static/images/jackets/${songItemData.title}.jpg`}
+                                        src={`/images/djmax_respect_v/jackets/${songItemData.title}.jpg`}
                                         className="tw-absolute tw-animate-fadeInLeft tw-rounded-md tw-blur tw-brightness-50 tw-bg-opacity-90"
                                         fill
                                         alt=""
@@ -966,7 +966,7 @@ export default function VArchiveDbTitlePage({ fontFamily, userData, songData, ad
                                           style={{ opacity: 1 }}
                                         >
                                           <Image
-                                            src={`https://v-archive.net/static/images/jackets/${commentRivalSongItemData.title}.jpg`}
+                                            src={`/images/djmax_respect_v/jackets/${commentRivalSongItemData.title}.jpg`}
                                             className="tw-absolute tw-animate-fadeInLeft tw-rounded-md tw-blur tw-brightness-50 tw-bg-opacity-90"
                                             fill
                                             alt=""
@@ -1134,7 +1134,7 @@ export default function VArchiveDbTitlePage({ fontFamily, userData, songData, ad
                           >
                             <div className="tw-min-h-16 tw-h-16 tw-min-w-16 tw-w-16 tw-relative hover-scale-110 tw-cursor-pointer">
                               <Image
-                                src={`https://v-archive.net/static/images/jackets/${commentItem.title}.jpg`}
+                                src={`/images/djmax_respect_v/jackets/${commentItem.title}.jpg`}
                                 height={80}
                                 width={80}
                                 alt=""

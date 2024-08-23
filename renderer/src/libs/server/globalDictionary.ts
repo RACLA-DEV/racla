@@ -17,6 +17,7 @@ import {
   FaWandMagicSparkles,
   FaDownload,
   FaTrophy,
+  FaTextSlash,
 } from 'react-icons/fa6'
 
 export const globalDictionary = {
@@ -149,6 +150,20 @@ export const globalDictionary = {
             link: '/archive',
             userLevel: [],
             status: 'dev',
+          },
+          {
+            id: 'vArchiveTest',
+            name: {
+              startWithSup: '',
+              base: '테스트',
+              lastWithSup: '',
+            },
+            icon: FaTextSlash,
+            isDisplay: true,
+            isOpenBrowser: false,
+            link: '/reg',
+            userLevel: [],
+            status: 'stable',
           },
         ],
       },

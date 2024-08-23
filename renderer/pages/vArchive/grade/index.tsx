@@ -356,7 +356,7 @@ export default function VArchiveDbPage({ fontFamily, userData, songData, addNoti
                                               style={{ opacity: 1 }}
                                             >
                                               <Image
-                                                src={`https://v-archive.net/static/images/jackets/${songItemData.title}.jpg`}
+                                                src={`/images/djmax_respect_v/jackets/${songItemData.title}.jpg`}
                                                 className="tw-absolute tw-animate-fadeInLeft tw-rounded-md tw-blur tw-brightness-50 tw-bg-opacity-90"
                                                 fill
                                                 alt=""
@@ -487,7 +487,7 @@ export default function VArchiveDbPage({ fontFamily, userData, songData, addNoti
                                                   style={{ opacity: 1 }}
                                                 >
                                                   <Image
-                                                    src={`https://v-archive.net/static/images/jackets/${commentRivalSongItemData.title}.jpg`}
+                                                    src={`/images/djmax_respect_v/jackets/${commentRivalSongItemData.title}.jpg`}
                                                     className="tw-absolute tw-animate-fadeInLeft tw-rounded-md tw-blur tw-brightness-50 tw-bg-opacity-90"
                                                     fill
                                                     alt=""
@@ -672,7 +672,7 @@ export default function VArchiveDbPage({ fontFamily, userData, songData, addNoti
                                       onMouseLeave={() => setBackgroundBgaName('')}
                                     >
                                       <Image
-                                        src={`https://v-archive.net/static/images/jackets/${songItem.title}.jpg`}
+                                        src={`/images/djmax_respect_v/jackets/${songItem.title}.jpg`}
                                         className="tw-absolute tw-rounded-md"
                                         height={80}
                                         width={80}

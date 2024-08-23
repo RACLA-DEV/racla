@@ -162,13 +162,7 @@ const HeaderComponent: React.FC<IHeaderComponentProps> = ({ className, user, log
       >
         {user.userNo !== '' && user.userToken !== '' && user.userName !== '' ? (
           <>
-            <Image
-              src={`https://v-archive.net/static/images/jackets/${user.randomTitle}.jpg`}
-              height="24"
-              width="24"
-              className="tw-rounded-full"
-              alt="Profile Image"
-            />
+            <Image src={`/images/djmax_respect_v/jackets/${user.randomTitle}.jpg`} height="24" width="24" className="tw-rounded-full" alt="Profile Image" />
             {user.userName}
           </>
         ) : (

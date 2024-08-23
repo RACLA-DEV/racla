@@ -15,7 +15,9 @@
     "resolveJsonModule": true,
     "noImplicitAny": false,
     "isolatedModules": true,
-    "jsx": "preserve"
+    "jsx": "preserve",
+    "outDir": "app",
+    "allowSyntheticDefaultImports": true
   },
   "exclude": ["node_modules", "renderer/next.config.js", "app", "dist"]
 }

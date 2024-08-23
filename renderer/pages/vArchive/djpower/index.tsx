@@ -340,7 +340,7 @@ export default function VArchiveDjPowerPage({ fontFamily, userData, songData, se
                                       style={{ opacity: 1 }}
                                     >
                                       <Image
-                                        src={`https://v-archive.net/static/images/jackets/${songItem.title}.jpg`}
+                                        src={`/images/djmax_respect_v/jackets/${songItem.title}.jpg`}
                                         className="tw-absolute tw-animate-fadeInLeft tw-rounded-md tw-blur tw-brightness-50 tw-bg-opacity-90"
                                         fill
                                         alt=""
@@ -460,7 +460,7 @@ export default function VArchiveDjPowerPage({ fontFamily, userData, songData, se
                                 onMouseLeave={() => setBackgroundBgaName('')}
                               >
                                 <Image
-                                  src={`https://v-archive.net/static/images/jackets/${songItem.title}.jpg`}
+                                  src={`/images/djmax_respect_v/jackets/${songItem.title}.jpg`}
                                   className="tw-absolute tw-animate-fadeInLeft tw-rounded-md"
                                   height={80}
                                   width={80}

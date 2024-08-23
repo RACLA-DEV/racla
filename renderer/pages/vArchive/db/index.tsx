@@ -287,7 +287,7 @@ export default function VArchiveDbPage({ fontFamily, userData, songData, addNoti
                                 style={{ opacity: 1 }}
                               >
                                 <Image
-                                  src={`https://v-archive.net/static/images/jackets/${songItem.title}.jpg`}
+                                  src={`/images/djmax_respect_v/jackets/${songItem.title}.jpg`}
                                   className="tw-absolute tw-animate-fadeInLeft tw-rounded-md tw-blur tw-brightness-50 tw-bg-opacity-90"
                                   fill
                                   alt=""
@@ -414,7 +414,7 @@ export default function VArchiveDbPage({ fontFamily, userData, songData, addNoti
                           className="tw-relative tw-h-20 tw-w-20 tw-rounded-md hover-scale-110 respect_record tw-shadow-lg tw-cursor-pointer"
                         >
                           <Image
-                            src={`https://v-archive.net/static/images/jackets/${songItem.title}.jpg`}
+                            src={`/images/djmax_respect_v/jackets/${songItem.title}.jpg`}
                             className="tw-absolute tw-animate-fadeInLeft tw-rounded-md"
                             height={80}
                             width={80}
@@ -496,7 +496,7 @@ export default function VArchiveDbPage({ fontFamily, userData, songData, addNoti
                                 style={{ opacity: 1 }}
                               >
                                 <Image
-                                  src={`https://v-archive.net/static/images/jackets/${songItemData.title}.jpg`}
+                                  src={`/images/djmax_respect_v/jackets/${songItemData.title}.jpg`}
                                   className="tw-absolute tw-animate-fadeInLeft tw-rounded-md tw-blur tw-brightness-50 tw-bg-opacity-90"
                                   fill
                                   alt=""
@@ -617,7 +617,7 @@ export default function VArchiveDbPage({ fontFamily, userData, songData, addNoti
                                     style={{ opacity: 1 }}
                                   >
                                     <Image
-                                      src={`https://v-archive.net/static/images/jackets/${commentRivalSongItemData.title}.jpg`}
+                                      src={`/images/djmax_respect_v/jackets/${commentRivalSongItemData.title}.jpg`}
                                       className="tw-absolute tw-animate-fadeInLeft tw-rounded-md tw-blur tw-brightness-50 tw-bg-opacity-90"
                                       fill
                                       alt=""
@@ -790,7 +790,7 @@ export default function VArchiveDbPage({ fontFamily, userData, songData, addNoti
                         className="tw-min-h-16 tw-h-16 tw-min-w-16 tw-w-16 tw-relative hover-scale-110 tw-cursor-pointer"
                       >
                         <Image
-                          src={`https://v-archive.net/static/images/jackets/${commentItem.title}.jpg`}
+                          src={`/images/djmax_respect_v/jackets/${commentItem.title}.jpg`}
                           height={80}
                           width={80}
                           alt=""
