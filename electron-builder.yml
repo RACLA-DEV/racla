@@ -10,6 +10,10 @@ files:
       - package.json
       - app
 
+extraResources:
+  - from: ./images/
+    to: ./images/
+
 publish:
   provider: github
   owner: Lunatica-Luna

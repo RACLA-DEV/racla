@@ -468,11 +468,11 @@ export default function VArchiveDbPage({ fontFamily, userData, songData, addNoti
                                                   </div>
                                                 ) : null,
                                               )}
-                                              {userData.userName !== '' ? (
+                                              {/* {userData.userName !== '' ? (
                                                 <span className="tw-text-xs tw-font-light tw-text-gray-300">
                                                   로그인 사용자({userData.userName})의 성과 기록입니다.
                                                 </span>
-                                              ) : null}
+                                              ) : null} */}
                                             </div>
                                           </div>
 
@@ -627,9 +627,11 @@ export default function VArchiveDbPage({ fontFamily, userData, songData, addNoti
                                             style={{ opacity: 1 }}
                                           >
                                             <div className="tw-flex flex-equal tw-items-center tw-justify-center">
-                                              <IconContext.Provider value={{ className: 'tw-text-center tw-animate-spin' }}>
-                                                <FaRotate />
-                                              </IconContext.Provider>
+                                              <div className="tw-relative tw-text-center tw-animate-spin">
+                                                <IconContext.Provider value={{ className: '' }}>
+                                                  <FaRotate />
+                                                </IconContext.Provider>
+                                              </div>
                                             </div>
                                           </div>
                                           <div
@@ -637,9 +639,11 @@ export default function VArchiveDbPage({ fontFamily, userData, songData, addNoti
                                             style={{ opacity: 1 }}
                                           >
                                             <div className="tw-flex flex-equal tw-items-center tw-justify-center">
-                                              <IconContext.Provider value={{ className: 'tw-text-center tw-animate-spin' }}>
-                                                <FaRotate />
-                                              </IconContext.Provider>
+                                              <div className="tw-relative tw-text-center tw-animate-spin">
+                                                <IconContext.Provider value={{ className: '' }}>
+                                                  <FaRotate />
+                                                </IconContext.Provider>
+                                              </div>
                                             </div>
                                           </div>
                                         </div>
@@ -697,9 +701,11 @@ export default function VArchiveDbPage({ fontFamily, userData, songData, addNoti
               ))
             ) : (
               <div className="tw-flex tw-justify-center">
-                <IconContext.Provider value={{ className: 'tw-text-center tw-animate-spin' }}>
-                  <FaRotate />
-                </IconContext.Provider>
+                <div className="tw-relative tw-text-center tw-animate-spin">
+                  <IconContext.Provider value={{ className: '' }}>
+                    <FaRotate />
+                  </IconContext.Provider>
+                </div>
               </div>
             )}
           </div>

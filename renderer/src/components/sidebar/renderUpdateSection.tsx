@@ -18,7 +18,7 @@ export const renderUpdateSection = (updateVersion: string | null, downloadProgre
       >
         <div className="tw-flex tw-items-center tw-justify-center tw-relative tw-h-3 tw-w-3">
           {updateVersion && downloadProgress && !isDownloaded ? (
-            <IconContext.Provider value={{ className: 'tw-text-center tw-animate-spin tw-absolute' }}>
+            <IconContext.Provider value={{ className: 'tw-relative tw-text-center tw-animate-spin tw-absolute' }}>
               <FaRotate />
             </IconContext.Provider>
           ) : (

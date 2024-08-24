@@ -17,6 +17,7 @@ interface IHeaderComponentProps {
   addNotificationCallback: (message: string, color?: string) => void
   selectedGame: string
   selectedGameCallback: (game: string) => void
+  settingData: any
 }
 
 interface User {
@@ -26,7 +27,15 @@ interface User {
   randomTitle: string
 }
 
-const HeaderComponent: React.FC<IHeaderComponentProps> = ({ className, user, logoutCallback, addNotificationCallback, selectedGame, selectedGameCallback }) => {
+const HeaderComponent: React.FC<IHeaderComponentProps> = ({
+  className,
+  user,
+  logoutCallback,
+  addNotificationCallback,
+  selectedGame,
+  selectedGameCallback,
+  settingData,
+}) => {
   const router = useRouter()
   const [isMaximized, setIsMaximized] = useState(false)
   const [ipcRenderer, setIpcRenderer] = useState(null)
@@ -57,18 +66,20 @@ const HeaderComponent: React.FC<IHeaderComponentProps> = ({ className, user, log
   return (
     <div className="tw-flex tw-fixed tw-w-full tw-bg-gray-900 tw-items-center tw-top-0 tw-h-12 tw-items-center tw-left-0 tw-bg-opacity-50 tw-px-2 tw-border-b tw-border-opacity-50 tw-border-gray-600">
       {/* 홈 로고 */}
-      <OverlayTrigger
-        placement="bottom"
-        overlay={
-          <Tooltip id="btn-nav-home" className={className + ' tw-text-xs'}>
-            홈으로 돌아가기
-          </Tooltip>
-        }
-      >
-        <Link href="/" className="tw-px-2 tw-py-2 btn-ipc tw-mr-2">
-          <Image src="/images/logo.svg" height={24} width={24} alt="Logo" />
-        </Link>
-      </OverlayTrigger>
+      {settingData.homeButtonAlignRight ? null : (
+        <OverlayTrigger
+          placement="bottom"
+          overlay={
+            <Tooltip id="btn-nav-home" className={className + ' tw-text-xs'}>
+              홈으로 돌아가기
+            </Tooltip>
+          }
+        >
+          <Link href="/" className="tw-px-2 tw-py-2 btn-ipc tw-mr-2">
+            <Image src="/images/logo.svg" height={24} width={24} alt="Logo" />
+          </Link>
+        </OverlayTrigger>
+      )}
 
       {/* 뒤로가기 */}
       <OverlayTrigger
@@ -123,6 +134,21 @@ const HeaderComponent: React.FC<IHeaderComponentProps> = ({ className, user, log
           <FaArrowDown />
         </a>
       </OverlayTrigger>
+
+      {settingData.homeButtonAlignRight ? (
+        <OverlayTrigger
+          placement="bottom"
+          overlay={
+            <Tooltip id="btn-nav-home" className={className + ' tw-text-xs'}>
+              홈으로 돌아가기
+            </Tooltip>
+          }
+        >
+          <Link href="/" className="tw-px-2 tw-py-2 btn-ipc tw-mr-2">
+            <Image src="/images/logo.svg" height={24} width={24} alt="Logo" />
+          </Link>
+        </OverlayTrigger>
+      ) : null}
 
       {/* 창 드래그 할당 부분 */}
       <div

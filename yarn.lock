@@ -3491,6 +3491,11 @@ bl@^4.0.3:
     inherits "^2.0.4"
     readable-stream "^3.4.0"
 
+blockhash@^0.2.0:
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/blockhash/-/blockhash-0.2.0.tgz#7c979ae5017fd252e819fbe761b096703942ccf7"
+  integrity sha512-iIoPZblHBUfccUGT9Zzx3O15hwEtWrkzk/cYUJqYF3tfRQVuXuyDe1K2pqA1hl7gSMRRBe8kvT+lYrDg3Srq9w==
+
 bluebird-lst@^1.0.9:
   version "1.0.9"
   resolved "https://registry.yarnpkg.com/bluebird-lst/-/bluebird-lst-1.0.9.tgz#a64a0e4365658b9ab5fe875eb9dfb694189bb41c"
@@ -7237,11 +7242,6 @@ wildcard@^2.0.0:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/wildcard/-/wildcard-2.0.1.tgz#5ab10d02487198954836b6349f74fff961e10f67"
   integrity sha512-CC1bOL87PIWSBhDcTrdeLo6eGT7mCFtrg0uIJtqJUFyK+eJnzl8A1niH56uu7KMa5XFrtiV+AQuHO3n7DsHnLQ==
-
-winax@^3.5.3:
-  version "3.5.3"
-  resolved "https://registry.yarnpkg.com/winax/-/winax-3.5.3.tgz#9406a0bf567eb2ce5b46e2944c5d720137c6e218"
-  integrity sha512-R2PLw0Yx7eigetLzpEw9XEZa+xBEH1oUo5tVfYJCKflu+g30+2VelihU+fIM701mCZm8XzUDSSEUqmTSXQZnxQ==
 
 "wrap-ansi-cjs@npm:wrap-ansi@^7.0.0":
   version "7.0.0"

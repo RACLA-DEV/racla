@@ -17,7 +17,7 @@ export const renderNavigation = (selectedGame: string, router: any) => {
             </span>
             <div key={navItem.id + 'Body'} className="tw-flex tw-flex-col tw-gap-1 tw-mb-4">
               {navItem.pages.map((page) =>
-                page.isDisplay && page.status === 'stable' ? (
+                page.isDisplay && ['stable', 'beta'].includes(page.status) ? (
                   !page.isOpenBrowser ? (
                     // 클라이언트 내 이동
                     <Link
@@ -28,9 +28,14 @@ export const renderNavigation = (selectedGame: string, router: any) => {
                       }`}
                     >
                       {React.createElement(page.icon)}
-                      <span>
+                      <span className="tw-flex tw-items-center flex-equal">
                         {page.name.startWithSup ? <sup>{page.name.startWithSup}</sup> : null}
-                        {page.name.base}
+                        <span className="tw-me-auto">{page.name.base}</span>
+                        {page.status === 'beta' ? (
+                          <span className="tw-text-xs tw-bg-blue-600 tw-rounded-full tw-px-2" style={{ padding: '2px 8px' }}>
+                            베타
+                          </span>
+                        ) : null}
                       </span>
                     </Link>
                   ) : (
@@ -50,10 +55,10 @@ export const renderNavigation = (selectedGame: string, router: any) => {
                 ) : page.isDisplay && page.status === 'dev' ? (
                   <button key={page.id} className={`tw-text-sm tw-text-gray-400 tw-font-light tw-flex tw-items-center tw-gap-2 btn-sidebar`}>
                     {React.createElement(page.icon)}
-                    <span className="tw-flex tw-gap-1 tw-items-center flex-equal">
+                    <span className="tw-flex tw-items-center flex-equal">
                       {page.name.startWithSup ? <sup>{page.name.startWithSup}</sup> : null}
                       <span className="tw-me-auto">{page.name.base}</span>
-                      <span className="tw-ms-auto tw-text-xs tw-bg-gray-600 tw-rounded-full tw-px-2" style={{ padding: '2px 8px' }}>
+                      <span className="tw-text-xs tw-bg-gray-600 tw-rounded-full tw-px-2" style={{ padding: '2px 8px' }}>
                         공사중
                       </span>
                     </span>

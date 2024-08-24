@@ -626,15 +626,15 @@ export default function VArchiveDbTitlePage({ fontFamily, userData, songData, ad
                                           <span className="tw-ms-2 tw-text-xs tw-font-extrabold">MAX COMBO</span>
                                           <button
                                             className={`tw-scale-50 tw-relative tw-inline-flex tw-items-center tw-h-8 tw-w-16 tw-rounded-full tw-transition-colors tw-duration-300 ${
-                                              patternMaxCombo ? 'tw-bg-blue-950' : 'tw-bg-gray-600'
+                                              patternMaxCombo ? 'tw-bg-blue-600' : 'tw-bg-gray-600'
                                             }`}
                                             onClick={() => {
                                               setPatternMaxCombo(!patternMaxCombo)
                                             }}
                                           >
                                             <span
-                                              className={`tw-inline-block tw-h-6 tw-w-6 tw-bg-white tw-rounded-full tw-shadow tw-transform tw-transition-transform tw-duration-300 ${
-                                                patternMaxCombo ? 'tw-translate-x-9' : 'tw-translate-x-1'
+                                              className={`tw-inline-block tw-h-6 tw-w-6 tw-bg-white tw-rounded-full tw-absolute tw-shadow tw-transform tw-transition-all tw-duration-300 ${
+                                                patternMaxCombo ? 'tw-right-1' : 'tw-left-1'
                                               }`}
                                             />
                                           </button>
@@ -675,9 +675,11 @@ export default function VArchiveDbTitlePage({ fontFamily, userData, songData, ad
                   ) : (
                     <tr>
                       <td colSpan={5}>
-                        <IconContext.Provider value={{ className: 'tw-text-center tw-animate-spin' }}>
-                          <FaRotate />
-                        </IconContext.Provider>
+                        <div className="tw-relative tw-text-center tw-animate-spin">
+                          <IconContext.Provider value={{ className: '' }}>
+                            <FaRotate />
+                          </IconContext.Provider>
+                        </div>
                       </td>
                     </tr>
                   )}
@@ -1097,16 +1099,20 @@ export default function VArchiveDbTitlePage({ fontFamily, userData, songData, ad
                                     style={{ opacity: 1 }}
                                   >
                                     <div className="tw-flex flex-equal tw-items-center tw-justify-center">
-                                      <IconContext.Provider value={{ className: 'tw-text-center tw-animate-spin' }}>
-                                        <FaRotate />
-                                      </IconContext.Provider>
+                                      <div className="tw-relative tw-text-center tw-animate-spin">
+                                        <IconContext.Provider value={{ className: '' }}>
+                                          <FaRotate />
+                                        </IconContext.Provider>
+                                      </div>
                                     </div>
                                   </div>
                                   <div className="tw-flex tw-flex-col tw-w-80 tw-h-32 tw-relative tw-items-center tw-content-center mb-1 tw-bg-gray-900 tw-opacity-40">
                                     <div className="tw-flex flex-equal tw-items-center tw-justify-center">
-                                      <IconContext.Provider value={{ className: 'tw-text-center tw-animate-spin' }}>
-                                        <FaRotate />
-                                      </IconContext.Provider>
+                                      <div className="tw-relative tw-text-center tw-animate-spin">
+                                        <IconContext.Provider value={{ className: '' }}>
+                                          <FaRotate />
+                                        </IconContext.Provider>
+                                      </div>
                                     </div>
                                   </div>
                                 </div>
@@ -1190,9 +1196,11 @@ export default function VArchiveDbTitlePage({ fontFamily, userData, songData, ad
                       ))
                   ) : isFetchingCommentData && commentData.length == 0 ? (
                     <div className="tw-flex tw-justify-center flex-equal tw-items-center">
-                      <IconContext.Provider value={{ className: 'tw-text-center tw-animate-spin' }}>
-                        <FaRotate />
-                      </IconContext.Provider>
+                      <div className="tw-relative tw-text-center tw-animate-spin">
+                        <IconContext.Provider value={{ className: '' }}>
+                          <FaRotate />
+                        </IconContext.Provider>
+                      </div>
                     </div>
                   ) : !hasNextCommentData ? (
                     <div className="tw-flex tw-justify-center flex-equal tw-items-center">

@@ -503,9 +503,11 @@ export default function VArchiveDjPowerPage({ fontFamily, userData, songData, se
           ))
         ) : (
           <div className="tw-flex tw-justify-center">
-            <IconContext.Provider value={{ className: 'tw-text-center tw-animate-spin' }}>
-              <FaRotate />
-            </IconContext.Provider>
+            <div className="tw-relative tw-text-center tw-animate-spin">
+              <IconContext.Provider value={{ className: '' }}>
+                <FaRotate />
+              </IconContext.Provider>
+            </div>
           </div>
         )}
       </div>

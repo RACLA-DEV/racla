@@ -2,7 +2,7 @@
   "private": true,
   "name": "project-ra",
   "description": "PROJECT RA : Rhythm Analyzer",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "author": "Lunatica Luna <luna@lunatica.kr>",
   "main": "app/background.js",
   "scripts": {
@@ -19,6 +19,7 @@
     "@popperjs/core": "^2.11.8",
     "@react-icons/all-files": "^4.1.0",
     "axios": "^1.7.3",
+    "blockhash": "^0.2.0",
     "bootstrap": "^5.3.3",
     "date-fns": "^3.6.0",
     "dmg-builder": "24.13.3",
@@ -52,8 +53,7 @@
     "swr": "^2.2.5",
     "tesseract.js": "^5.1.0",
     "universal-cookie": "^7.2.0",
-    "uuid": "^10.0.0",
-    "winax": "^3.5.3"
+    "uuid": "^10.0.0"
   },
   "devDependencies": {
     "@types/node": "^20.11.16",

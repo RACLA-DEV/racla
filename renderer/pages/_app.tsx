@@ -11,11 +11,14 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { useRouter } from 'next/router'
 import SidebarComponent from '@/components/sidebar/SidebarComponent'
 import Cookies from 'universal-cookie'
+import Image from 'next/image'
 
 import 'bootstrap/dist/css/bootstrap.min.css'
 import '@styles/globals.css'
-import { FaGear, FaX } from 'react-icons/fa6'
+import { FaGear, FaRotate, FaX } from 'react-icons/fa6'
 import { FiX } from 'react-icons/fi'
+import SettingComponent from '@/components/layout/SettingComponent'
+import { IconContext } from 'react-icons'
 
 const noto = Noto_Sans_KR({
   subsets: ['latin'], // 또는 preload: false
@@ -30,6 +33,7 @@ function MyApp({ Component, pageProps }: AppProps) {
     // Bootstrap
     require('bootstrap/dist/js/bootstrap.bundle.min.js')
     // preload.ts 에서 정의된 ipc 로드
+    setTimeout(() => window.ipc.send('getSettingData'), 3000)
   }, [])
 
   const [userNo, setUserNo] = useState<string>('')
@@ -47,24 +51,12 @@ function MyApp({ Component, pageProps }: AppProps) {
   const { notifications, addNotification, removeNotification } = useNotifications()
 
   const [isSetting, setIsSetting] = useState<boolean>(false)
+  const [settingData, setSettingData] = useState<any>(null)
 
   const cookies = new Cookies()
 
-  // 쿠키 설정 함수
-  const setCookie = (userNo, userToken) => {
-    cookies.set('Authorization', `${userNo}|${userToken}`, {
-      path: 'https://dev-proxy.lunatica.kr',
-      httpOnly: true,
-      secure: true,
-      sameSite: 'none',
-    })
-    // console.log('쿠키가 설정되었습니다.')
-  }
-
-  // 쿠키 읽기 함수
-  const getCookie = () => {
-    const value = cookies.get('Authorization')
-  }
+  const [uploadedData, setUploadedData] = useState<any>(null)
+  const [isDetectedGame, setIsDetectedGame] = useState<boolean>(false)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -103,10 +95,72 @@ function MyApp({ Component, pageProps }: AppProps) {
   }
 
   useEffect(() => {
+    window.ipc.on('screenshot-uploaded', (data: any) => {
+      if (data.isVerified) {
+        setUploadedData(data)
+        if (selectedGame === 'DJMAX_RESPECT_V') {
+          if (!router.asPath.includes('/vArchive/regScore')) {
+            router.push('/vArchive/regScore')
+          }
+        }
+      } else {
+        setUploadedData(data)
+      }
+    })
+
+    return () => {
+      window.ipc.removeListener('screenshot-uploaded', (data: any) => {
+        if (data.isVerified) {
+          setUploadedData(data)
+          if (selectedGame === 'DJMAX_RESPECT_V') {
+            if (!router.asPath.includes('/vArchive/regScore')) {
+              router.push('/vArchive/regScore')
+            }
+          }
+        } else {
+          setUploadedData(data)
+        }
+      })
+    }
+  })
+
+  useEffect(() => {
+    window.ipc.on('isDetectedGame', (data: boolean) => {
+      setIsDetectedGame(data)
+    })
+
+    window.ipc.on('IPC_RENDERER_GET_SETTING_DATA', (data) => {
+      setSettingData(data)
+    })
+
+    return () => {
+      window.ipc.removeListener('isDetectedGame', (data: boolean) => {
+        setIsDetectedGame(data)
+      })
+
+      window.ipc.removeListener('IPC_RENDERER_GET_SETTING_DATA', (data) => {
+        setSettingData(data)
+      })
+    }
+  }, [])
+
+  useEffect(() => {
+    if (isDetectedGame) {
+      addNotification(
+        isDetectedGame
+          ? 'DJMAX RESPECT V(게임) 실행이 감지되어 게임 모드(배경 BGA 미표시)가 활성화 되었습니다.'
+          : 'DJMAX RESPECT V(게임) 종료가 감지되어 게임 모드(배경 BGA 미표시)가 비활성화 되었습니다.',
+        'tw-bg-blue-600',
+      )
+    }
+  }, [isDetectedGame])
+
+  useEffect(() => {
     const fetchSessionData = () => {
       setUserLoading(true)
       window.ipc.getSession()
 
+      console.log('Session Requested.')
       window.ipc.on('IPC_RENDERER_GET_SESSION', (data: any) => {
         if (data.userNo !== '' && data.userToken !== '') {
           setUserNo(data.userNo)
@@ -116,7 +170,7 @@ function MyApp({ Component, pageProps }: AppProps) {
         }
       })
     }
-    fetchSessionData()
+    setTimeout(fetchSessionData, 3000)
   }, [])
 
   useEffect(() => {
@@ -155,6 +209,7 @@ function MyApp({ Component, pageProps }: AppProps) {
               setUserName(result.nickname)
               window.ipc.setAuthorization({ userNo, userToken })
               addNotification(`${result.nickname}님 프로젝트 RA에 오신 것을 환영합니다.`, 'tw-bg-lime-600')
+              window.ipc.send('logined')
             } else {
               window.ipc.logout()
               addNotification(`유효하지 않은 사용자 세션으로 자동 로그인에 실패하였습니다.`, 'tw-bg-red-600')
@@ -177,31 +232,39 @@ function MyApp({ Component, pageProps }: AppProps) {
     if (!router.pathname.includes('/db/title')) {
       setBackgroundBgaName('')
     }
+    if (!router.pathname.includes('/regScore')) {
+      setUploadedData(null)
+    }
   }, [router])
 
-  return (
-    <div className={`tw-w-full tw-h-full ${noto.className}`}>
+  return settingData !== null ? (
+    <div className={`tw-w-full tw-transition-all tw-h-full ${noto.className}`}>
       {/* 배경 이미지 레이어 */}
       <div className="background-image-base" />
       {/* <div className={'background-image tw-transition-all tw-duration-1000 ' + (selectedGame === 'DJMAX_RESPECT_V' ? 'tw-opacity-100' : 'tw-opacity-0')} /> */}
-      {backgroundVideoName !== '' ? (
+      {backgroundVideoName !== '' && !isDetectedGame && settingData.visibleBga ? (
         <video
           src={`https://project-ra.lunatica.kr/${selectedGame.toLowerCase()}/${backgroundVideoName}.mp4`}
           autoPlay={true}
           muted={true}
           loop={true}
-          className={'background-video tw-transition-all tw-duration-1000 ' + (backgroundBgaName !== '' ? ' tw-opacity-0' : ' tw-opacity-100')}
+          className={'background-video tw-transition-all tw-h-screen tw-duration-1000 ' + (backgroundBgaName !== '' ? ' tw-opacity-0' : ' tw-opacity-100')}
         />
-      ) : null}
+      ) : selectedGame === 'DJMAX_RESPECT_V' ? (
+        <div className={'background-image tw-transition-all tw-duration-1000 tw-animate-fadeInLeft'} />
+      ) : (
+        <div className={'tw-bg-gray-950 tw-transition-all tw-duration-1000 tw-animate-fadeInLeft'} />
+      )}
 
-      {backgroundBgaName !== '' ? (
+      {backgroundBgaName !== '' && settingData.visibleBga ? (
         <video
           src={`https://project-ra.lunatica.kr/${selectedGame.toLowerCase()}/preview/title/${backgroundBgaName}.webm`}
           autoPlay={true}
           muted={true}
           loop={true}
           className={
-            'background-video tw-transition-all tw-duration-1000 tw-animate-fadeInLeft ' + (backgroundBgaName === '' ? ' tw-opacity-0' : ' tw-opacity-100')
+            'background-video tw-transition-all tw-h-screen tw-duration-1000 tw-animate-fadeInLeft ' +
+            (backgroundBgaName === '' ? ' tw-opacity-0' : ' tw-opacity-100')
           }
         />
       ) : null}
@@ -228,6 +291,9 @@ function MyApp({ Component, pageProps }: AppProps) {
               fontFamily={noto.className}
               userData={{ userName, userNo, userToken }}
               setBackgroundBgaName={setBackgroundBgaName}
+              uploadedData={uploadedData}
+              settingData={settingData}
+              setSettingData={setSettingData}
             />
             <div id="ContentFooter" />
           </motion.div>
@@ -239,10 +305,12 @@ function MyApp({ Component, pageProps }: AppProps) {
             setUserNo('')
             setUserToken('')
             setUserName('')
+            setUploadedData(null)
           }}
           selectedGame={selectedGame}
           selectedGameCallback={setSelectedGame}
           addNotificationCallback={addNotification}
+          settingData={settingData}
         />
         <SidebarComponent addNotificationCallback={addNotification} toggleSettingCallback={setIsSetting} selectedGame={selectedGame} />
         <FooterComponent className={noto.className} selectedGame={selectedGame} />
@@ -252,151 +320,16 @@ function MyApp({ Component, pageProps }: AppProps) {
       <NotificationComponent notifications={notifications} removeNotificationCallback={removeNotification} />
 
       {/* 설정 모달 */}
-      <div
-        className={`tw-bg-gray-950 tw-backdrop-blur-sm tw-h-full tw-w-full tw-fixed tw-transition-all tw-bg-opacity-75 tw-shadow-lg ${
-          isSetting ? ' tw-opacity-100 tw-z-50 tw-animate-fadeInDown' : 'tw-opacity-0'
-        }`}
-      >
-        <div className="tw-flex tw-items-center tw-justify-center tw-h-full tw-w-full">
-          <div className="tw-flex tw-gap-3 tw-flex-col tw-h-4/6 tw-w-3/6 tw-bg-gray-900 tw-rounded-md tw-p-4 tw-border-gray-700 tw-border">
-            <div className="tw-flex tw-items-center">
-              <span className="tw-flex tw-gap-2 tw-items-center tw-text-lg tw-font-bold me-auto">
-                <FaGear />
-                설정
-              </span>
-              <button
-                className="tw-text-xl"
-                type="button"
-                onClick={() => {
-                  setIsSetting(false)
-                }}
-              >
-                <FiX />
-              </button>
-            </div>
-            <div className="tw-flex tw-gap-3 tw-flex-col tw-overflow-y-auto tw-scroll-smooth">
-              <div className="tw-flex tw-flex-col tw-gap-1">
-                <div className="tw-flex tw-items-center">
-                  <span className="tw-text-sm">하드웨어 가속 활성화</span>
-                  <button
-                    className={`tw-scale-50 tw-relative tw-inline-flex tw-items-center tw-h-8 tw-w-16 tw-rounded-full tw-transition-colors tw-duration-300 ${
-                      true ? 'tw-bg-blue-600' : 'tw-bg-gray-300'
-                    }`}
-                  >
-                    <span
-                      className={`tw-inline-block tw-h-6 tw-w-6 tw-bg-white tw-rounded-full tw-shadow tw-transform tw-transition-transform tw-duration-300 ${
-                        true ? 'tw-translate-x-9' : 'tw-translate-x-1'
-                      }`}
-                    />
-                  </button>
-                </div>
-                <span className="tw-text-xs tw-font-light tw-text-gray-400 tw-break-keep">
-                  하드웨어 가속은 GPU를 사용하여 프로젝트 RA가 더 부드럽게 동작하게 해줍니다. 프로젝트 RA의 화면에 문제가 발생한다면 이 설정을 비활성화 해보시기
-                  바랍니다. 설정을 변경하면 앱이 다시 시작됩니다.
-                </span>
-                <span className="tw-text-xs tw-font-light tw-text-red-500">해당 버전에서는 변경할 수 없는 설정값입니다.</span>
-              </div>
-              <div className="tw-flex tw-flex-col tw-gap-1">
-                <div className="tw-flex tw-items-center">
-                  <span className="tw-text-sm">상단바 홈 버튼을 오른쪽으로 정렬</span>
-                  <button
-                    className={`tw-scale-50 tw-relative tw-inline-flex tw-items-center tw-h-8 tw-w-16 tw-rounded-full tw-transition-colors tw-duration-300 ${
-                      false ? 'tw-bg-blue-600' : 'tw-bg-gray-600'
-                    }`}
-                  >
-                    <span
-                      className={`tw-inline-block tw-h-6 tw-w-6 tw-bg-white tw-rounded-full tw-shadow tw-transform tw-transition-transform tw-duration-300 ${
-                        false ? 'tw-translate-x-9' : 'tw-translate-x-1'
-                      }`}
-                    />
-                  </button>
-                </div>
-                <span className="tw-text-xs tw-font-light tw-text-gray-400 tw-break-keep">
-                  뒤로가기와 새로고침 버튼을 홈 버튼보다 우선으로 배치되도록 설정합니다.
-                </span>
-                <span className="tw-text-xs tw-font-light tw-text-red-500">해당 버전에서는 변경할 수 없는 설정값입니다.</span>
-              </div>
-              <div className="tw-flex tw-flex-col tw-gap-1">
-                <div className="tw-flex tw-items-center">
-                  <span className="tw-text-sm">BGA 영상 표시</span>
-                  <button
-                    className={`tw-scale-50 tw-relative tw-inline-flex tw-items-center tw-h-8 tw-w-16 tw-rounded-full tw-transition-colors tw-duration-300 ${
-                      true ? 'tw-bg-blue-600' : 'tw-bg-gray-600'
-                    }`}
-                  >
-                    <span
-                      className={`tw-inline-block tw-h-6 tw-w-6 tw-bg-white tw-rounded-full tw-shadow tw-transform tw-transition-transform tw-duration-300 ${
-                        true ? 'tw-translate-x-9' : 'tw-translate-x-1'
-                      }`}
-                    />
-                  </button>
-                </div>
-                <span className="tw-text-xs tw-font-light tw-text-gray-400 tw-break-keep">
-                  기본적인 배경 BGA 영상과 BGA가 존재하는 곡의 이미지(자켓)에 마우스 커서를 올려둔 경우 해당 곡의 BGA 영상을 표시합니다.
-                </span>
-                <span className="tw-text-xs tw-font-light tw-text-red-500">해당 버전에서는 변경할 수 없는 설정값입니다.</span>
-              </div>
-              <div className="tw-flex tw-flex-col tw-gap-1">
-                <div className="tw-flex tw-items-center">
-                  <span className="tw-text-sm">자동 업데이트</span>
-                  <button
-                    className={`tw-scale-50 tw-relative tw-inline-flex tw-items-center tw-h-8 tw-w-16 tw-rounded-full tw-transition-colors tw-duration-300 ${
-                      true ? 'tw-bg-blue-600' : 'tw-bg-gray-600'
-                    }`}
-                  >
-                    <span
-                      className={`tw-inline-block tw-h-6 tw-w-6 tw-bg-white tw-rounded-full tw-shadow tw-transform tw-transition-transform tw-duration-300 ${
-                        true ? 'tw-translate-x-9' : 'tw-translate-x-1'
-                      }`}
-                    />
-                  </button>
-                </div>
-                <span className="tw-text-xs tw-font-light tw-text-gray-400 tw-break-keep">
-                  자동 업데이트 활성화 시 프로젝트 RA를 실행할 때마다 업데이트를 확인합니다.
-                </span>
-                <span className="tw-text-xs tw-font-light tw-text-red-500">해당 버전에서는 변경할 수 없는 설정값입니다.</span>
-              </div>
-              <div className="tw-flex tw-flex-col tw-gap-1">
-                <div className="tw-flex tw-items-center">
-                  <span className="tw-text-sm">언어</span>
-                  {/* <button
-                  className={`tw-scale-50 tw-relative tw-inline-flex tw-items-center tw-h-8 tw-w-16 tw-rounded-full tw-transition-colors tw-duration-300 ${
-                    false ? 'tw-bg-blue-600' : 'tw-bg-gray-600'
-                  }`}
-                >
-                  <span
-                    className={`tw-inline-block tw-h-6 tw-w-6 tw-bg-white tw-rounded-full tw-shadow tw-transform tw-transition-transform tw-duration-300 ${
-                      false ? 'tw-translate-x-9' : 'tw-translate-x-1'
-                    }`}
-                  />
-                </button> */}
-                </div>
-                <span className="tw-text-xs tw-font-light tw-text-gray-400 tw-break-keep">
-                  프로젝트 RA의 언어를 변경합니다. 일부 화면은 언어 데이터가 미존재 시 한국어 또는 영어를 우선하여 표시합니다. 설정을 변경하면 앱이 다시
-                  시작됩니다.
-                </span>
-                <select className="form-select tw-my-1 tw-text-xs tw-bg-gray-900 tw-bg-opacity-20 tw-text-gray-300 tw-w-36" defaultValue="ko">
-                  <option value="ko">한국어(Korean)</option>
-                  <option value="en" disabled>
-                    영어(English)
-                  </option>
-                </select>
-                <span className="tw-text-xs tw-font-light tw-text-red-500">해당 버전에서는 변경할 수 없는 설정값입니다.</span>
-              </div>
-              <div className="tw-mt-1">
-                <button
-                  className="tw-ms-2 tw-px-3 tw-py-2 tw-bg-gray-600 tw-text-xs tw-shadow-sm tw-rounded-md"
-                  type="button"
-                  onClick={() => {
-                    window.ipc.send('reload-app')
-                  }}
-                >
-                  앱 재시작
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+      <SettingComponent isSetting={isSetting} toggleSettingCallback={setIsSetting} settingData={settingData} settingDataCallback={setSettingData} />
+    </div>
+  ) : (
+    <div className={`tw-flex tw-w-screen tw-h-screen flex-equal tw-flex-col tw-gap-10 tw-items-center tw-justify-center ${noto.className}`}>
+      <Image src="/images/logo.svg" height={240} width={240} alt="Logo" />
+      <span className="tw-text-xs tw-font-bold">프로젝트 RA 실행에 필요한 데이터를 불러오고 있습니다. 잠시만 기다려주세요.</span>
+      <div className="tw-relative tw-text-center tw-animate-spin">
+        <IconContext.Provider value={{ className: '' }}>
+          <FaRotate />
+        </IconContext.Provider>
       </div>
     </div>
   )
