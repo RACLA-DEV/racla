@@ -58,9 +58,12 @@ function MyApp({ Component, pageProps }: AppProps) {
   const [uploadedData, setUploadedData] = useState<any>(null)
   const [isDetectedGame, setIsDetectedGame] = useState<boolean>(false)
 
+  const [cached, setCached] = useState<boolean>(false)
+
   useEffect(() => {
     const fetchData = async () => {
       const { data } = await axios.get(`${process.env.NEXT_PUBLIC_PROXY_API_URL}?url=https://v-archive.net/db/songs.json`)
+      console.log(data)
       if (data.length > 0 && data[0].title === 0) {
         window.ipc.putSongData(data)
       }
@@ -122,15 +125,25 @@ function MyApp({ Component, pageProps }: AppProps) {
         }
       })
     }
-  })
+  }, [])
 
   useEffect(() => {
+    window.ipc.send('startCache')
+
     window.ipc.on('isDetectedGame', (data: boolean) => {
       setIsDetectedGame(data)
     })
 
     window.ipc.on('IPC_RENDERER_GET_SETTING_DATA', (data) => {
       setSettingData(data)
+    })
+
+    window.ipc.on('cacheResponse', (data: any) => {
+      setCached(data)
+    })
+
+    window.ipc.on('isDetectedResultScreen', (data: string) => {
+      addNotification('DJMAX RESPECT V(게임)의 게임 결과창이 자동 인식되어 성과 기록 이미지를 처리 중에 있습니다. 잠시만 기다려주세요.', 'tw-bg-blue-600')
     })
 
     return () => {
@@ -140,6 +153,12 @@ function MyApp({ Component, pageProps }: AppProps) {
 
       window.ipc.removeListener('IPC_RENDERER_GET_SETTING_DATA', (data) => {
         setSettingData(data)
+      })
+
+      window.ipc.on('cacheResponse', (data: any) => {
+        if (data) {
+          setCached(true)
+        }
       })
     }
   }, [])
@@ -237,10 +256,17 @@ function MyApp({ Component, pageProps }: AppProps) {
     }
   }, [router])
 
-  return settingData !== null ? (
+  useEffect(() => {
+    if (settingData !== null && cached) {
+      window.ipc.send('PROGRAM_LOADED')
+    }
+  }, [settingData, cached])
+
+  return settingData !== null && cached ? (
     <div className={`tw-w-full tw-transition-all tw-h-full ${noto.className}`}>
       {/* 배경 이미지 레이어 */}
       <div className="background-image-base" />
+      <div className={'background-image tw-transition-all tw-duration-1000 tw-animate-fadeInLeft'} />
       {/* <div className={'background-image tw-transition-all tw-duration-1000 ' + (selectedGame === 'DJMAX_RESPECT_V' ? 'tw-opacity-100' : 'tw-opacity-0')} /> */}
       {backgroundVideoName !== '' && !isDetectedGame && settingData.visibleBga ? (
         <video
@@ -251,7 +277,7 @@ function MyApp({ Component, pageProps }: AppProps) {
           className={'background-video tw-transition-all tw-h-screen tw-duration-1000 ' + (backgroundBgaName !== '' ? ' tw-opacity-0' : ' tw-opacity-100')}
         />
       ) : selectedGame === 'DJMAX_RESPECT_V' ? (
-        <div className={'background-image tw-transition-all tw-duration-1000 tw-animate-fadeInLeft'} />
+        null
       ) : (
         <div className={'tw-bg-gray-950 tw-transition-all tw-duration-1000 tw-animate-fadeInLeft'} />
       )}

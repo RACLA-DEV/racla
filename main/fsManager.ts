@@ -102,7 +102,7 @@ if (getSettingData() === undefined || getSettingData() === null) {
     autoCaptureMode: false,
     autoCaptureIntervalTime: 3000,
     autoCaptureDisplayName: '',
-    autoCaptureApi: 'napi',
+    autoCaptureApi: 'eapi',
     visibleBga: true,
     language: 'ko',
     rivalName: '',

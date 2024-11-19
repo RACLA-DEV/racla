@@ -22,14 +22,17 @@ const SidebarComponent: React.FC<SidebarProps> = ({ addNotificationCallback, tog
 
   useEffect(() => {
     const handleUpdateAvailable = (info: string) => {
+      console.log('update-available', info)
       setUpdateVersion(info)
     }
 
     const handleDownloadProgress = (info: { percent: string }) => {
+      console.log('download-progress', info)
       setDownloadProgress(info)
     }
 
     const handleUpdateDownloaded = () => {
+      console.log('update-downloaded')
       setIsDownloaded(true)
     }
 
@@ -46,6 +49,7 @@ const SidebarComponent: React.FC<SidebarProps> = ({ addNotificationCallback, tog
 
   useEffect(() => {
     if (updateVersion) {
+      console.log('updateVersion', updateVersion)
       addNotificationCallback(`프로젝트 RA의 업데이트(${updateVersion})가 존재합니다. 자동 업데이트를 준비합니다.`, 'tw-bg-blue-600')
     }
   }, [updateVersion, addNotificationCallback])
@@ -63,12 +67,12 @@ const SidebarComponent: React.FC<SidebarProps> = ({ addNotificationCallback, tog
         <div className="tw-flex tw-flex-col tw-gap-1 tw-mt-auto">
           <span className="tw-text-xs tw-text-gray-400 tw-font-bold tw-flex tw-items-center tw-gap-2 btn-sidebar">
             <FaBug />
-            <span className="tw-flex tw-gap-1 tw-w-full tw-items-center">
+            <button type="button" className="tw-flex tw-gap-1 tw-w-full tw-items-center" onClick={() => window.ipc.send('openBrowser', 'https://open.kakao.com/me/LunaticaLuna')}>
               버그 신고{' '}
-              <span className="tw-ms-auto tw-text-xs tw-font-light tw-bg-gray-600 tw-rounded-full tw-px-2" style={{ padding: '2px 8px' }}>
+              {/* <span className="tw-ms-auto tw-text-xs tw-font-light tw-bg-gray-600 tw-rounded-full tw-px-2" style={{ padding: '2px 8px' }}>
                 공사중
-              </span>
-            </span>
+              </span> */}
+            </button>
           </span>
           <span className="tw-text-xs tw-font-bold tw-text-gray-400 tw-flex tw-items-center tw-gap-2 btn-sidebar">
             <FaNoteSticky />

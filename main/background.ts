@@ -9,6 +9,7 @@ import sharp from 'sharp'
 import Tesseract from 'tesseract.js'
 import moment from 'moment'
 import screenshotDesktop from 'screenshot-desktop'
+import { Window } from 'node-screenshots'
 import { exec } from 'child_process'
 import 'moment/locale/ko'
 
@@ -20,39 +21,22 @@ if (isProd) {
   app.setPath('userData', `${app.getPath('userData')} (development)`)
 }
 
+const baseDir = !isProd ? path.join(__dirname, '/../') : app.getAppPath().replace('app.asar', '')
+
 let djmaxRespectVJacketCacheData = []
 let djmaxRespectVEffectorCache = []
 
-let autoCaptureMode = true
+let autoCaptureMode = false
 let autoCaptureIntervalId
-let autoCaptureApi = ''
+let autoCaptureApi = 'eapi'
 let autoCaptureIntervalTime = 3000
 let lastAutoCaptureResultData = null
 let isSendedAutoCapture = false
 let isLogined = false
 let displayName = ''
-
+let isLoaded = false
 ;(async () => {
   await app.whenReady()
-
-  const baseDir = !isProd ? path.join(__dirname, '/../') : app.getAppPath().replace('app.asar', '')
-
-  await cacheImagesFromFolder(path.join(baseDir, 'images/jackets'))
-  await cacheImagesFromFolderEffector(path.join(baseDir, 'images/effectors'))
-
-  const settingData = await getSettingData()
-  console.log(settingData)
-  autoCaptureMode = settingData.autoCaptureMode
-  autoCaptureApi = settingData.autoCaptureApi
-  autoCaptureIntervalTime = settingData.autoCaptureIntervalTime
-  displayName = settingData.displayName
-
-  const displays = await screenshotDesktop.listDisplays()
-
-  if (displays.filter((value) => value.id === displayName).length === 0) {
-    displayName = displays[0].id
-    storeSettingData({ ...settingData, displayName })
-  }
 
   const mainWindow = createWindow('main', {
     width: 1440,
@@ -64,8 +48,8 @@ let displayName = ''
     icon: path.join(__dirname + '/../resources/', 'icon.ico'),
     webPreferences: {
       nodeIntegration: true,
-      devTools: !isProd,
-      // devTools: true,
+      // devTools: !isProd,
+      devTools: true,
       preload: path.join(__dirname, 'preload.js'),
     },
   })
@@ -179,8 +163,8 @@ let displayName = ''
   })
 
   ipcMain.on('getSettingData', async (event) => {
-    const session = await getSettingData()
-    mainWindow.webContents.send('IPC_RENDERER_GET_SETTING_DATA', session ? session : null)
+    const settingData = await getSettingData()
+    mainWindow.webContents.send('IPC_RENDERER_GET_SETTING_DATA', settingData ? { ...settingData } : null)
   })
 
   ipcMain.on('getDisplayList', async () => {
@@ -223,6 +207,207 @@ let displayName = ''
     storeSettingData({ ...settingData, ...data })
   })
 
+  // 자동 업데이트 체크
+  ipcMain.on('PROGRAM_LOADED', () => {
+    if (!isLoaded) {
+      autoUpdater.checkForUpdatesAndNotify()
+      isLoaded = true
+    }
+  })
+
+  // 업데이트 가용 시 버전 정보를 렌더러 프로세스로 전송
+  autoUpdater.on('update-available', (info) => {
+    console.log('Update Available :', info)
+    mainWindow.webContents.send('update-available', info.version)
+  })
+
+  // 다운로드 진행 상황을 렌더러 프로세스로 전송
+  autoUpdater.on('download-progress', (progress) => {
+    console.log('Update Download Progress :', progress)
+    mainWindow.webContents.send('download-progress', {
+      percent: progress.percent,
+      transferred: progress.transferred,
+      total: progress.total,
+    })
+  })
+
+  // 업데이트 다운로드 완료 시 렌더러 프로세스로 이벤트 전송
+  autoUpdater.on('update-downloaded', (info) => {
+    console.log('Update Downloaded :', info)
+    mainWindow.webContents.send('update-downloaded', info.version)
+  })
+
+  async function processAndCapture(source, isUpload?) {
+    try {
+      const imageBuffer = isUpload ? source : await captureScreen()
+
+      let processedBuffer = await sharp(imageBuffer).extract({ width: 230, height: 24, left: 100, top: 236 }).grayscale().linear(1.5, 0).toBuffer()
+
+      const text = await recognizeText(processedBuffer, 'eng')
+
+      const isResult = ['JUDGEMENT', 'DETAILS', 'DETAIL', 'JUDGE', 'JUDGEMENT DETAILS'].filter((value) => {
+        return text.toUpperCase().trim().includes(value) && text.length !== 0
+      })
+
+      console.log('Section(isResultScreen) KeyWord :', text.toUpperCase().trim(), '/ isResultScreen:', isResult.length >= 1)
+
+      if (isResult.length >= 1) {
+        console.log('Result Screen Detected: Processing image data...')
+
+        if (!isSendedAutoCapture && !isUpload) {
+          mainWindow.webContents.send('isDetectedResultScreen', moment().utcOffset(9).format('YYYY-MM-DD-HH-mm-ss'))
+        }
+
+        const ocrResult = await processImageAndOCR(imageBuffer)
+        const { button, pattern, score, speed, ...judgement } = ocrResult
+
+        const SongData: any[] = await getSongData()
+
+        const title = await findJacketToTitleId(isUpload ? source : source, isUpload)
+        const note = await findNote(isUpload ? source : source, isUpload)
+        const fader = await findFader(isUpload ? source : source, isUpload)
+        const chaos = await findChaos(isUpload ? source : source, isUpload)
+
+        if (!title) {
+          console.log('Error processing capture: Result Screen Jacket Image not Detected.')
+          return {
+            playData: {
+              isVerified: false,
+              error: '수록곡 이미지(자켓) 인식에 실패하였습니다.',
+            },
+          }
+        }
+
+        const resizeScore = () => {
+          return score.length === 7 && score.replaceAll('\n', '').replaceAll('\\', '').startsWith('90')
+            ? score.replaceAll('\n', '').replaceAll('\\', '').replace('90', '9')
+            : score.replaceAll('\n', '').replaceAll('\\', '')
+        }
+
+        console.log('resizeScore :', resizeScore())
+
+        const normalizedScore =
+          resizeScore().length === 6
+            ? resizeScore().startsWith('00')
+              ? resizeScore().replace('00', '99')
+              : resizeScore().startsWith('0')
+              ? resizeScore().replace('0', '9')
+              : resizeScore()
+            : null
+
+        const isVerified =
+          // String(score).replaceAll('\n', '').replaceAll('\\', '') === normalizedScore &&
+          normalizedScore !== null &&
+          normalizedScore.length === 6 &&
+          [4, 5, 6, 8].includes(Number(button.replaceAll('\n', '').replaceAll('\\', ''))) &&
+          ['NORMAL', 'NM', 'HARD', 'HD', 'MAXIMUM', 'MX', 'SC'].includes(
+            String(pattern).toUpperCase().replaceAll(' ', '').replaceAll('-', '').replaceAll('.', '').replaceAll(',', ''),
+          )
+
+        // 수동 업로드 시 예외 처리
+        if (isUpload) {
+          isSendedAutoCapture = false
+        }
+
+        const data = {
+          playData: {
+            isVerified,
+            button: Number(button.replaceAll('\n', '').replaceAll('\\', '')),
+            pattern: String(pattern).toUpperCase(),
+            score: normalizedScore !== null ? parseFloat(normalizedScore.substring(0, 2) + '.' + normalizedScore.substring(2, 4)) : null,
+            normalizedScore: normalizedScore,
+            maxCombo:
+              !isNaN(Number(judgement.breakCount.replaceAll('\n', '').replaceAll('\\', ''))) &&
+              Number(judgement.breakCount.replaceAll('\n', '').replaceAll('\\', '')) === 0
+                ? Number(1)
+                : Number(0),
+            speed:
+              speed.replaceAll('\n', '').replaceAll('\\', '').length === 2
+                ? parseFloat(
+                    speed.replaceAll('\n', '').replaceAll('\\', '').substring(0, 1) + '.' + speed.replaceAll('\n', '').replaceAll('\\', '').substring(1, 2),
+                  )
+                : null,
+            note: String(note).includes('BLANK') ? null : String(note),
+            fader: String(fader).includes('BLANK') ? null : String(fader),
+            chaos: String(chaos).includes('BLANK') ? null : String(chaos),
+            songData: SongData[Number(title)],
+          },
+        }
+
+        console.log(data)
+
+        if (isVerified && !isSendedAutoCapture && data !== lastAutoCaptureResultData) {
+          isSendedAutoCapture = true
+
+          if (!isUpload) {
+            lastAutoCaptureResultData = data
+          }
+
+          if (!isUpload) {
+            const filePath = path.join(
+              app.getPath('pictures'),
+              'PROJECT-RA',
+              String(SongData[Number(title)].name).replaceAll(':', '-') +
+                '-' +
+                parseFloat(normalizedScore.substring(0, 2) + '.' + normalizedScore.substring(2, 4)) +
+                '-' +
+                moment().utcOffset(9).format('YYYY-MM-DD-HH-mm-ss') +
+                '.png',
+            )
+
+            fs.writeFile(filePath, Buffer.from(imageBuffer), (err) => {
+              if (err) {
+                console.error('Failed to save file:', err)
+              } else {
+                console.log('File saved to', filePath)
+              }
+            })
+          }
+
+          return data
+        } else {
+          if (isSendedAutoCapture) {
+            console.log('Result Screen Processed Result : Already Uploaded Data(Auto)')
+            return {
+              playData: {
+                isVerified: null,
+                error: '이미 자동 업로드된 성과 기록입니다.',
+              },
+            }
+          } else {
+            if (isUpload) {
+              console.log('Result Screen Processed Result : Data Verify Failed(Menual)')
+              return {
+                playData: {
+                  isVerified: false,
+                  error: '성과 기록 유효성 검증에 실패하였습니다. 게임 화면을 다시 캡쳐한 후 업로드해주세요.',
+                },
+              }
+            } else {
+              console.log('Result Screen Processed Result : Data Verify Failed(Auto)')
+              isSendedAutoCapture = false
+              return {
+                playData: {
+                  isVerified: false,
+                },
+              }
+            }
+          }
+        }
+      } else {
+        console.log('Waiting for Result Screen...')
+        isSendedAutoCapture = false
+        return {
+          playData: {
+            isVerified: null,
+          },
+        }
+      }
+    } catch (error) {
+      console.error('Error processing capture:', error)
+    }
+  }
+
   ipcMain.on('captureTest', async (event, data) => {
     const imageBuffer = await captureScreen()
 
@@ -246,28 +431,6 @@ let displayName = ''
     }
   })
 
-  // 자동 업데이트 체크
-  autoUpdater.checkForUpdatesAndNotify()
-
-  // 업데이트 가용 시 버전 정보를 렌더러 프로세스로 전송
-  autoUpdater.on('update-available', (info) => {
-    mainWindow.webContents.send('update-available', info.version)
-  })
-
-  // 다운로드 진행 상황을 렌더러 프로세스로 전송
-  autoUpdater.on('download-progress', (progress) => {
-    mainWindow.webContents.send('download-progress', {
-      percent: progress.percent,
-      transferred: progress.transferred,
-      total: progress.total,
-    })
-  })
-
-  // 업데이트 다운로드 완료 시 렌더러 프로세스로 이벤트 전송
-  autoUpdater.on('update-downloaded', (info) => {
-    mainWindow.webContents.send('update-downloaded', info.version)
-  })
-
   async function startCapturing() {
     const captureAndProcess = async () => {
       try {
@@ -280,9 +443,9 @@ let displayName = ''
 
         if (isLogined && autoCaptureMode) {
           const gameSource = await captureScreen()
-          const { playData } = await processAndCapture(gameSource) // gameSource를 버퍼로 전달
-          if (playData !== null && playData.isVerified !== null) {
-            mainWindow.webContents.send('screenshot-uploaded', playData)
+          const data = await processAndCapture(gameSource) // gameSource를 버퍼로 전달
+          if (data !== null && data !== undefined && data.playData && data.playData.isVerified !== null) {
+            mainWindow.webContents.send('screenshot-uploaded', data.playData)
           }
         }
       } catch (error) {
@@ -301,6 +464,66 @@ let displayName = ''
   }
 
   startCapturing()
+
+  // 앱 부팅 시 모든 이미지를 메모리에 캐시
+  async function cacheImagesFromFolder(folderPath) {
+    const files = fs.readdirSync(folderPath)
+    djmaxRespectVJacketCacheData = await Promise.all(
+      files
+        .filter((file) => path.extname(file).toLowerCase() === '.jpg')
+        .map(async (file) => {
+          const filePath = path.join(folderPath, file)
+          const buffer = fs.readFileSync(filePath)
+          return { filePath, buffer }
+        }),
+    )
+    return true
+  }
+
+  async function cacheImagesFromFolderEffector(folderPath) {
+    const files = fs.readdirSync(folderPath)
+    djmaxRespectVEffectorCache = await Promise.all(
+      files
+        .filter((file) => path.extname(file).toLowerCase() === '.jpg')
+        .map(async (file) => {
+          const filePath = path.join(folderPath, file)
+          const buffer = fs.readFileSync(filePath)
+          return { filePath, buffer }
+        }),
+    )
+    return true
+  }
+
+  ipcMain.on('startCache', async (event, name) => {
+    console.log('Started Cache Data.')
+    const cache1 = await cacheImagesFromFolder(path.join(baseDir, 'images/jackets'))
+    const cache2 = await cacheImagesFromFolderEffector(path.join(baseDir, 'images/effectors'))
+
+    console.log('Started Load Setting Data')
+    const settingData = await getSettingData()
+    console.log(settingData)
+    autoCaptureMode = settingData.autoCaptureMode
+    autoCaptureApi = settingData.autoCaptureApi
+    autoCaptureIntervalTime = settingData.autoCaptureIntervalTime
+    displayName = 'eapi'
+    console.log('Setting Data Loaded.')
+
+    // console.log('Started Analyze Display')
+    // const displays = await screenshotDesktop.listDisplays()
+
+    // if (displays.filter((value) => value.id === displayName).length === 0) {
+    //   displayName = displays[0].id
+    //   storeSettingData({ ...settingData, displayName })
+    // }
+    // console.log('Display Analyzed.')
+
+    if (cache1 && cache2 && settingData) {
+      console.log('Finished Cache Data.')
+      mainWindow.webContents.send('cacheResponse', true)
+    } else {
+      console.log('Image Cached Failed.')
+    }
+  })
 })()
 
 const isDjmaxRunning = () => {
@@ -316,33 +539,6 @@ const isDjmaxRunning = () => {
       resolve(isRunning)
     })
   })
-}
-
-// 앱 부팅 시 모든 이미지를 메모리에 캐시
-async function cacheImagesFromFolder(folderPath) {
-  const files = fs.readdirSync(folderPath)
-  djmaxRespectVJacketCacheData = await Promise.all(
-    files
-      .filter((file) => path.extname(file).toLowerCase() === '.jpg')
-      .map(async (file) => {
-        const filePath = path.join(folderPath, file)
-        const buffer = fs.readFileSync(filePath)
-        return { filePath, buffer }
-      }),
-  )
-}
-
-async function cacheImagesFromFolderEffector(folderPath) {
-  const files = fs.readdirSync(folderPath)
-  djmaxRespectVEffectorCache = await Promise.all(
-    files
-      .filter((file) => path.extname(file).toLowerCase() === '.jpg')
-      .map(async (file) => {
-        const filePath = path.join(folderPath, file)
-        const buffer = fs.readFileSync(filePath)
-        return { filePath, buffer }
-      }),
-  )
 }
 
 async function compareImages(image1Buffer, image2Buffer) {
@@ -475,30 +671,82 @@ async function findChaos(source, isUpload?) {
 
 async function captureScreen() {
   try {
-    if (displayName !== '' && autoCaptureApi === 'napi') {
-      console.log('Native API : Display Captured.')
-      // 빠르고 저서양 모드
-      const displays = await screenshotDesktop.listDisplays()
+    // if (displayName !== '' && autoCaptureApi === 'napi') {
+    //   console.log('Native API : Display Captured.')
+    //   // 빠르고 저서양 모드
+    //   const displays = await screenshotDesktop.listDisplays()
 
-      // 모든 디스플레이에서 게임 창 검색
-      for (const display of displays) {
-        if (display.id === displayName) {
-          const screenshot = await screenshotDesktop({ screen: display.id, format: 'png' })
+    //   // 모든 디스플레이에서 게임 창 검색
+    //   for (const display of displays) {
+    //     if (display.id === displayName) {
+    //       const screenshot = await screenshotDesktop({ screen: display.id, format: 'png' })
 
-          return screenshot // 캡처된 이미지를 버퍼로 반환
-        }
-      }
-    }
+    //       return screenshot // 캡처된 이미지를 버퍼로 반환
+    //     }
+    //   }
+    // }
     // 느리고 고사양 모드(정확한 창 캡처)
-    else if (autoCaptureApi === 'eapi') {
-      console.log('Electron API : Window Captured.')
+    if (['napi', 'eapi', 'xcap-api'].includes(autoCaptureApi)) {
+      console.log('Game Window Captured')
 
-      const screenshot = (await desktopCapturer.getSources({ types: ['window'], thumbnailSize: { width: 1920, height: 1080 } })).filter((value) =>
-        value.name.includes('DJMAX RESPECT V'),
-      )
+      if (autoCaptureApi === 'xcap-api') {
+        const windows = Window.all().filter((value) => value.title.includes('DJMAX RESPECT V'))
 
-      if (screenshot.length > 0) {
-        return screenshot[0].thumbnail.toPNG()
+        // forEach 대신 find나 map을 사용하여 첫 번째 찾은 창의 이미지를 반환
+        if (windows.length > 0) {
+          const window = windows[0]
+          // console.log({
+          //   id: window.id,
+          //   x: window.x,
+          //   y: window.y,
+          //   width: window.width,
+          //   height: window.height,
+          //   appName: window.appName,
+          //   title: window.title,
+          //   isMinimized: window.isMinimized,
+          //   isMinimizied: window.isMinimized
+          // });
+
+          if (![640, 720, 800, 1024, 1128, 1280, 1366, 1600, 1680, 1760, 1920, 2048, 2288, 2560, 3072, 3200, 3840, 5120].includes(window.width)) {
+            const image = window.captureImageSync()
+            const sharpedImage = await sharp(image.toPngSync()).resize(1920).toBuffer()
+
+            const extractedImage = await sharp(sharpedImage).extract({ left: 10, top: 44, width: 1900, height: 1068 }).resize(1920, 1080).toBuffer()
+
+            return extractedImage
+          } else {
+            return await sharp(window.captureImageSync().toPngSync()).resize(1920, 1080).toBuffer()
+          }
+        }
+        return null
+      } else if (autoCaptureApi === 'eapi') {
+        const screenshot = (await desktopCapturer.getSources({ types: ['window'], thumbnailSize: { width: 1920, height: 1080 } })).filter((value) =>
+          value.name.includes('DJMAX RESPECT V'),
+        )
+
+        console.log(screenshot[0].thumbnail.getSize())
+
+        if (screenshot.length > 0) {
+          if (Number(screenshot[0].thumbnail.getSize().width) === 1920) {
+            return screenshot[0].thumbnail.toPNG()
+          } else {
+            // 1080p 이상 창모드
+            if (Number(screenshot[0].thumbnail.getSize().width) <= 1861) {
+              if (Number(screenshot[0].thumbnail.getSize().width) <= 1848) {
+                return sharp(screenshot[0].thumbnail.toPNG()).extract({ left: 9, top: 36, width: 1830, height: 1035 }).resize(1920, 1080).toBuffer()
+              } else {
+                return sharp(screenshot[0].thumbnail.toPNG()).extract({ left: 9, top: 36, width: 1841, height: 1035 }).resize(1920, 1080).toBuffer()
+              }
+            }
+            // 900p 창모드
+            else {
+              console.log('900p')
+              return sharp(screenshot[0].thumbnail.toPNG()).extract({ left: 8, top: 30, width: 1853, height: 1042 }).resize(1920, 1080).toBuffer()
+            }
+          }
+        }
+      } else {
+        return null
       }
     }
 
@@ -511,18 +759,15 @@ async function captureScreen() {
 
 // OCR 작업을 위한 영역 및 설정 정의
 const ocrRegions = {
-  button: { width: 66, height: 120, left: 70, top: 0, grayscale: true, linear: [1.5, 0] },
-  pattern: { width: 92, height: 20, left: 711, top: 85, grayscale: true, linear: [1.5, 0] },
-  score: { width: 428, height: 128, left: 752, top: 672, grayscale: false, linear: null },
+  button: { width: 66, height: 120, left: 70, top: 0, grayscale: true, linear: [2, 0] },
+  pattern: { width: 92, height: 20, left: 711, top: 85, grayscale: true, linear: [2, 0] },
+  score: { width: 458, height: 128, left: 732, top: 672, grayscale: false, linear: [1, 0] },
   speed: { width: 70, height: 52, left: 105, top: 725, grayscale: false, linear: null },
-  breakCount: { width: 67, height: 21, left: 354, top: 615, grayscale: false, linear: [1.5, 0] },
+  breakCount: { width: 67, height: 21, left: 354, top: 615, grayscale: false, linear: null },
 }
 
 // 텍스트 정규화 함수 (중복 제거)
 const normalizeText = (text) => String(text).replaceAll('|', '').replaceAll('\n', ' ').replaceAll('\\n', ' ').trim()
-
-// 숫자만 추출하는 함수
-const extractNumber = (text) => parseInt(normalizeText(text)) || 0
 
 // OCR 실행 함수
 async function recognizeText(imageBuffer, lang = 'eng') {
@@ -571,173 +816,6 @@ async function processImageAndOCR(imageBuffer) {
 
   const results = await Promise.all(promises)
   return Object.assign({}, ...results) // 객체 병합
-}
-
-async function processAndCapture(source, isUpload?) {
-  try {
-    const imageBuffer = isUpload ? source : source
-
-    let processedBuffer = await sharp(imageBuffer)
-      .resize(1920, 1080)
-      .extract({ width: 230, height: 24, left: 100, top: 236 })
-      .grayscale()
-      .linear(1.5, 0)
-      .toBuffer()
-
-    const text = await recognizeText(processedBuffer, 'eng')
-
-    console.log(
-      'Section(isResultScreen) KeyWord :',
-      text.toUpperCase().trim(),
-      '/ isResultScreen:',
-      ['JUDGEMENT DETAILS', 'JUDGEMENT', 'DETAILS', 'JUDGE', 'DETAIL'].includes(text.toUpperCase().trim()),
-    )
-
-    if (['JUDGEMENT DETAILS', 'JUDGEMENT', 'DETAILS', 'JUDGE', 'DETAIL'].includes(text.toUpperCase().trim())) {
-      console.log('Result Screen Detected: Processing image data...')
-      const ocrResult = await processImageAndOCR(imageBuffer)
-      const { button, pattern, score, speed, ...judgement } = ocrResult
-
-      const SongData: any[] = await getSongData()
-
-      const title = await findJacketToTitleId(isUpload ? source : source, isUpload)
-      const note = await findNote(isUpload ? source : source, isUpload)
-      const fader = await findFader(isUpload ? source : source, isUpload)
-      const chaos = await findChaos(isUpload ? source : source, isUpload)
-
-      if (!title) {
-        console.log('Error processing capture: Result Screen Jacket Image not Detected.')
-        return {
-          playData: {
-            isVerified: false,
-            error: '수록곡 이미지(자켓) 인식에 실패하였습니다.',
-          },
-        }
-      }
-
-      const resizeScore = () => {
-        return score.length === 7 && score.replaceAll('\n', '').replaceAll('\\', '').startsWith('90')
-          ? score.replaceAll('\n', '').replaceAll('\\', '').replace('90', '9')
-          : score.replaceAll('\n', '').replaceAll('\\', '')
-      }
-
-      const normalizedScore =
-        resizeScore().length === 6
-          ? resizeScore().startsWith('00')
-            ? resizeScore().replace('00', '99')
-            : resizeScore().startsWith('0')
-            ? resizeScore().replace('0', '9')
-            : resizeScore()
-          : null
-
-      const isVerified =
-        // String(score).replaceAll('\n', '').replaceAll('\\', '') === normalizedScore &&
-        normalizedScore.length === 6 &&
-        [4, 5, 6, 8].includes(Number(button.replaceAll('\n', '').replaceAll('\\', ''))) &&
-        ['NORMAL', 'NM', 'HARD', 'HD', 'MAXIMUM', 'MX', 'SC'].includes(String(pattern).toUpperCase())
-
-      // 수동 업로드 시 예외 처리
-      if (isUpload) {
-        isSendedAutoCapture = false
-      }
-
-      const data = {
-        playData: {
-          isVerified,
-          button: Number(button.replaceAll('\n', '').replaceAll('\\', '')),
-          pattern: String(pattern).toUpperCase(),
-          score: normalizedScore !== null ? parseFloat(normalizedScore.substring(0, 2) + '.' + normalizedScore.substring(2, 4)) : null,
-          normalizedScore: normalizedScore,
-          maxCombo:
-            !isNaN(Number(judgement.breakCount.replaceAll('\n', '').replaceAll('\\', ''))) &&
-            Number(judgement.breakCount.replaceAll('\n', '').replaceAll('\\', '')) === 0
-              ? Number(1)
-              : Number(0),
-          speed:
-            speed.replaceAll('\n', '').replaceAll('\\', '').length === 2
-              ? parseFloat(
-                  speed.replaceAll('\n', '').replaceAll('\\', '').substring(0, 1) + '.' + speed.replaceAll('\n', '').replaceAll('\\', '').substring(1, 2),
-                )
-              : null,
-          note: String(note).includes('BLANK') ? null : String(note),
-          fader: String(fader).includes('BLANK') ? null : String(fader),
-          chaos: String(chaos).includes('BLANK') ? null : String(chaos),
-          songData: SongData[Number(title)],
-        },
-      }
-
-      console.log(data)
-
-      if (isVerified && !isSendedAutoCapture && data !== lastAutoCaptureResultData) {
-        isSendedAutoCapture = true
-
-        if (!isUpload) {
-          lastAutoCaptureResultData = data
-        }
-
-        if (!isUpload) {
-          const filePath = path.join(
-            app.getPath('pictures'),
-            'PROJECT-RA',
-            SongData[Number(title)].name +
-              '-' +
-              parseFloat(normalizedScore.substring(0, 2) + '.' + normalizedScore.substring(2, 4)) +
-              '-' +
-              moment().utcOffset(9).format('YYYY-MM-DD-HH-mm-ss') +
-              '.png',
-          )
-
-          fs.writeFile(filePath, Buffer.from(imageBuffer), (err) => {
-            if (err) {
-              console.error('Failed to save file:', err)
-            } else {
-              console.log('File saved to', filePath)
-            }
-          })
-        }
-
-        return data
-      } else {
-        if (isSendedAutoCapture) {
-          console.log('Result Screen Processed Result : Already Uploaded Data(Auto)')
-          return {
-            playData: {
-              isVerified: null,
-              error: '이미 자동 업로드된 성과 기록입니다.',
-            },
-          }
-        } else {
-          if (isUpload) {
-            console.log('Result Screen Processed Result : Data Verify Failed(Menual)')
-            return {
-              playData: {
-                isVerified: false,
-                error: '성과 기록 유효성 검증에 실패하였습니다. 게임 화면을 다시 캡쳐한 후 업로드해주세요.',
-              },
-            }
-          } else {
-            console.log('Result Screen Processed Result : Data Verify Failed(Auto)')
-            isSendedAutoCapture = false
-            return {
-              playData: {
-                isVerified: false,
-              },
-            }
-          }
-        }
-      }
-    } else {
-      console.log('Waiting for Result Screen...')
-      isSendedAutoCapture = false
-      return {
-        playData: {
-          isVerified: null,
-        },
-      }
-    }
-  } catch (error) {
-    console.error('Error processing capture:', error)
-  }
 }
 
 app.on('will-quit', () => {

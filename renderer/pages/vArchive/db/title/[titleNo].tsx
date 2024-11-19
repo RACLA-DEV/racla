@@ -623,7 +623,7 @@ export default function VArchiveDbTitlePage({ fontFamily, userData, songData, ad
                                     >
                                       <div className="tw-flex tw-flex-col tw-justify-center tw-items-center">
                                         <div className="tw-flex tw-justify-center tw-items-center">
-                                          <span className="tw-ms-2 tw-text-xs tw-font-extrabold">MAX COMBO</span>
+                                          <Image src="/images/maxcombo.png" width={30} height={24} alt="" />
                                           <button
                                             className={`tw-scale-50 tw-relative tw-inline-flex tw-items-center tw-h-8 tw-w-16 tw-rounded-full tw-transition-colors tw-duration-300 ${
                                               patternMaxCombo ? 'tw-bg-blue-600' : 'tw-bg-gray-600'
@@ -642,6 +642,7 @@ export default function VArchiveDbTitlePage({ fontFamily, userData, songData, ad
                                         <input
                                           className="form-control tw-text-sm tw-bg-gray-900 tw-bg-opacity-20 tw-text-center tw-font-extrabold tw-ps-7"
                                           type="number"
+                                          min="0"
                                           max="100"
                                           value={updateScore !== undefined && updateScore !== null ? Number(updateScore) : 0}
                                           onChange={(e) => setUpdateScore(Number(e.currentTarget.value))}
@@ -785,6 +786,7 @@ export default function VArchiveDbTitlePage({ fontFamily, userData, songData, ad
                           className="form-control tw-resize-none tw-text-sm tw-font-light tw-bg-gray-900 tw-bg-opacity-20"
                           placeholder="감상, 팁, 남기고 싶은 말을 자유롭게 입력해주세요"
                           onChange={(e) => setCommentContent(e.currentTarget.value)}
+                          value={commentData.filter((commentItem) => commentItem.nickname === userData.userName)[0].comment}
                         />
                         <button
                           onClick={(e) => fetchCommentContent(commentContent, 'POST')}

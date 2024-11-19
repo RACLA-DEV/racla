@@ -15,6 +15,9 @@ dist
 /renderer/public/images/djmax_respect_v/sprite/*
 /renderer/public/images/djmax_respect_v/texture/*
 /renderer/public/videos/djmax_respect_v/preview/*
+/renderer/public/images/djmax_respect_v/jackets/*
+
+/images/jackets/*
 
 # next-video
 videos/*

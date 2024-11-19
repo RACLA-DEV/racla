@@ -71,26 +71,26 @@ export default function VArchiveRegScorePage({
         window.ipc.send('screenshot-upload', buffer)
       }
       reader.readAsArrayBuffer(screenShotFile)
-      addNotificationCallback('성과 기록 이미지를 처리 중에 있습니다. 잠시만 기다려주세요.', 'tw-bg-orange-600')
+      addNotificationCallback('성과 기록 이미지를 처리 중에 있습니다. 잠시만 기다려주세요.', 'tw-bg-blue-600')
       setIsUploading(true)
     }
   }
 
-  useEffect(() => {
-    window.ipc.send('getDisplayList')
-  }, [])
+  // useEffect(() => {
+  //   window.ipc.send('getDisplayList')
+  // }, [])
 
-  useEffect(() => {
-    window.ipc.on('getDisplayListResponse', (data) => {
-      setDisplayList(data)
-    })
+  // useEffect(() => {
+  //   window.ipc.on('getDisplayListResponse', (data) => {
+  //     setDisplayList(data)
+  //   })
 
-    return () => {
-      window.ipc.removeListener('getDisplayListResponse', (data) => {
-        setDisplayList(data)
-      })
-    }
-  }, [])
+  //   return () => {
+  //     window.ipc.removeListener('getDisplayListResponse', (data) => {
+  //       setDisplayList(data)
+  //     })
+  //   }
+  // }, [])
 
   const [pattern, setPattern] = useState<string>('')
 
@@ -158,7 +158,7 @@ export default function VArchiveRegScorePage({
                 setBackupData(backupData.data)
                 setIsCanRollback(true)
               } else if (data.data.success && !data.data.update) {
-                addNotificationCallback('더 좋은 성과 기록이 존재하여 V-ARCHIVE에 갱신되지 않았습니다.', 'tw-bg-orange-600')
+                addNotificationCallback('기존의 성과 기록과 동일하거나 더 좋은 성과 기록이 존재하여 V-ARCHIVE에 갱신되지 않았습니다.', 'tw-bg-orange-600')
                 setBackupData(backupData.data)
               } else {
                 addNotificationCallback('알 수 없는 오류가 발생하여 성과 기록 갱신에 실패하였습니다. 다시 시도해주시길 바랍니다.', 'tw-bg-red-600')
@@ -305,14 +305,18 @@ export default function VArchiveRegScorePage({
                 }}
                 defaultValue={settingData.autoCaptureApi}
               >
-                <option value="napi">Native API(추천, 빠른 디스플레이 기반 캡쳐)</option>
-                <option value="eapi">Electron API(고사양, 정확한 게임 화면 캡쳐)</option>
+                <option value="xcap-api">XCap API(추천, Rust로 작성된 게임 화면 캡쳐 API)</option>
+                <option value="xcap-lapi" disabled>XCap API + LunaOCR API(실험, XCap API로 캡쳐 후 서버에서 캡쳐 이미지에 대해 텍스트 인식)</option>
+                <option value="eapi">Electron API(Node.js로 작성된 게임 화면 캡쳐 API)</option>
+                <option value="napi" disabled>
+                  LunaCap API(Deprecated, Rust로 작성된 디스플레이(화면) 캡쳐 API)
+                </option>
               </select>
 
               <span className="tw-font-semibold tw-text-base">캡쳐 주기</span>
               <select
                 className="form-select tw-text-sm tw-bg-gray-900 tw-bg-opacity-20 tw-text-light"
-                onClick={(e) => {
+                onChange={(e) => {
                   setSettingData({ ...settingData, autoCaputreIntervalTime: Number(e.currentTarget.value) })
                   window.ipc.send('changeAutoCaptureIntervalTime', { autoCaptureIntervalTime: Number(e.currentTarget.value) })
                 }}
@@ -347,7 +351,7 @@ export default function VArchiveRegScorePage({
                     )}
                   </select>
                 </>
-              ) : displayList === null ? (
+              ) : false ? (
                 <div className="tw-flex tw-items-center tw-justify-center">
                   <div className="tw-relative tw-text-center tw-animate-spin">
                     <IconContext.Provider value={{ className: '' }}>
@@ -421,28 +425,25 @@ export default function VArchiveRegScorePage({
                       <div className="tw-animate-fadeInLeft tw-rounded-md p-1 tw-bg-gray-950 tw-bg-opacity-75 px-3 tw-flex tw-items-center tw-gap-2 tw-me-2">
                         <span
                           className={
-                            uploadedPageData.songData.patterns[`${uploadedPageData.button}B`][uploadedPageData.pattern].level <= 5
-                              ? 'tw-text-base text-stroke-100 tw-font-extrabold ' +
-                                (uploadedPageData.pattern === 'SC' ? ' tw-text-respect-sc-5' : ' tw-text-respect-nm-5')
-                              : uploadedPageData.songData.patterns[`${uploadedPageData.button}B`][uploadedPageData.pattern].level <= 10
-                              ? 'tw-text-base text-stroke-100 tw-font-extrabold ' +
-                                (uploadedPageData.pattern === 'SC' ? ' tw-text-respect-sc-10' : ' tw-text-respect-nm-10')
-                              : 'tw-text-base text-stroke-100 tw-font-extrabold ' +
-                                (uploadedPageData.pattern === 'SC' ? ' tw-text-respect-sc-15' : ' tw-text-respect-nm-15')
+                            uploadedPageData.songData.patterns[`${uploadedPageData.button}B`][pattern].level <= 5
+                              ? 'tw-text-base text-stroke-100 tw-font-extrabold ' + (pattern === 'SC' ? ' tw-text-respect-sc-5' : ' tw-text-respect-nm-5')
+                              : uploadedPageData.songData.patterns[`${uploadedPageData.button}B`][pattern].level <= 10
+                              ? 'tw-text-base text-stroke-100 tw-font-extrabold ' + (pattern === 'SC' ? ' tw-text-respect-sc-10' : ' tw-text-respect-nm-10')
+                              : 'tw-text-base text-stroke-100 tw-font-extrabold ' + (pattern === 'SC' ? ' tw-text-respect-sc-15' : ' tw-text-respect-nm-15')
                           }
                         >
-                          {uploadedPageData.pattern}
+                          {pattern}
                         </span>
                       </div>
                       <div className="tw-animate-fadeInLeft tw-rounded-md p-1 tw-bg-gray-950 tw-bg-opacity-75 px-3 tw-flex tw-items-center tw-gap-2">
                         <div>
                           <Image
                             src={
-                              uploadedPageData.songData.patterns[`${uploadedPageData.button}B`][uploadedPageData.pattern].level <= 5
-                                ? `/images/djmax_respect_v/${uploadedPageData.pattern === 'SC' ? 'sc' : 'nm'}_5_star.png`
-                                : uploadedPageData.songData.patterns[`${uploadedPageData.button}B`][uploadedPageData.pattern].level <= 10
-                                ? `/images/djmax_respect_v/${uploadedPageData.pattern === 'SC' ? 'sc' : 'nm'}_10_star.png`
-                                : `/images/djmax_respect_v/${uploadedPageData.pattern === 'SC' ? 'sc' : 'nm'}_15_star.png`
+                              uploadedPageData.songData.patterns[`${uploadedPageData.button}B`][pattern].level <= 5
+                                ? `/images/djmax_respect_v/${pattern === 'SC' ? 'sc' : 'nm'}_5_star.png`
+                                : uploadedPageData.songData.patterns[`${uploadedPageData.button}B`][pattern].level <= 10
+                                ? `/images/djmax_respect_v/${pattern === 'SC' ? 'sc' : 'nm'}_10_star.png`
+                                : `/images/djmax_respect_v/${pattern === 'SC' ? 'sc' : 'nm'}_15_star.png`
                             }
                             height={14}
                             width={14}
@@ -451,17 +452,14 @@ export default function VArchiveRegScorePage({
                         </div>
                         <span
                           className={
-                            uploadedPageData.songData.patterns[`${uploadedPageData.button}B`][uploadedPageData.pattern].level <= 5
-                              ? 'tw-text-base text-stroke-100 tw-font-extrabold ' +
-                                (uploadedPageData.pattern === 'SC' ? ' tw-text-respect-sc-5' : ' tw-text-respect-nm-5')
-                              : uploadedPageData.songData.patterns[`${uploadedPageData.button}B`][uploadedPageData.pattern].level <= 10
-                              ? 'tw-text-base text-stroke-100 tw-font-extrabold ' +
-                                (uploadedPageData.pattern === 'SC' ? ' tw-text-respect-sc-10' : ' tw-text-respect-nm-10')
-                              : 'tw-text-base text-stroke-100 tw-font-extrabold ' +
-                                (uploadedPageData.pattern === 'SC' ? ' tw-text-respect-sc-15' : ' tw-text-respect-nm-15')
+                            uploadedPageData.songData.patterns[`${uploadedPageData.button}B`][pattern].level <= 5
+                              ? 'tw-text-base text-stroke-100 tw-font-extrabold ' + (pattern === 'SC' ? ' tw-text-respect-sc-5' : ' tw-text-respect-nm-5')
+                              : uploadedPageData.songData.patterns[`${uploadedPageData.button}B`][pattern].level <= 10
+                              ? 'tw-text-base text-stroke-100 tw-font-extrabold ' + (pattern === 'SC' ? ' tw-text-respect-sc-10' : ' tw-text-respect-nm-10')
+                              : 'tw-text-base text-stroke-100 tw-font-extrabold ' + (pattern === 'SC' ? ' tw-text-respect-sc-15' : ' tw-text-respect-nm-15')
                           }
                         >
-                          {uploadedPageData.songData.patterns[`${uploadedPageData.button}B`][uploadedPageData.pattern].level}
+                          {uploadedPageData.songData.patterns[`${uploadedPageData.button}B`][pattern].level}
                         </span>
                       </div>
                     </div>
@@ -821,7 +819,9 @@ export default function VArchiveRegScorePage({
                     ) : null}
                     <div className="tw-flex tw-flex-col tw-gap-2">
                       <span className="tw-text-base tw-font-light">CURRENT SCORE</span>
-                      <span className="tw-font-extrabold tw-text-4xl">{uploadedPageData.score}%</span>
+                      <span className="tw-font-extrabold tw-text-4xl">
+                        {String(uploadedPageData.score).includes('.') ? (String(uploadedPageData.score).split('.')[1].length === 1 ? String(uploadedPageData.score) + '0' : uploadedPageData.score) :  uploadedPageData.score + '.00'}%
+                      </span>
                     </div>
                     <div className="tw-flex tw-flex-col tw-gap-2">
                       <span className="tw-text-base tw-font-light">MAX COMBO</span>
@@ -831,7 +831,7 @@ export default function VArchiveRegScorePage({
                       <div className="tw-relative" style={{ width: 70, height: 70 }}>
                         <Image src={`/images/djmax_respect_v/effectors/SPEED_BG.png`} width={70} height={70} alt="" className="tw-shadow-sm tw-absolute" />
                         <div className="tw-absolute tw-flex tw-justify-center tw-items-center tw-bottom-0" style={{ width: 70, height: 60 }}>
-                          <span className="tw-font-extrabold tw-text-3xl">{String(uploadedPageData.speed)}</span>
+                          <span className="tw-font-extrabold tw-text-3xl">{String(uploadedPageData.speed).length === 1 ? String(uploadedPageData.speed) + '.0' : String(uploadedPageData.speed)}</span>
                         </div>
                       </div>
                       {uploadedPageData.note !== null ? (

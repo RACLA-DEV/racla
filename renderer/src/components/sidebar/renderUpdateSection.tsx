@@ -31,7 +31,7 @@ export const renderUpdateSection = (updateVersion: string | null, downloadProgre
             {updateVersion && downloadProgress && !isDownloaded ? '업데이트 다운로드 중' : isDownloaded ? '업데이트 가능(재시작 필요)' : '업데이트 준비 중'}
           </span>
           <span className="tw-text-xs tw-font-light tw-text-gray-200 tw-text-opacity-50">
-            {updateVersion ? `V${updateVersion}${downloadProgress ? `(${Math.floor(Number(downloadProgress.percent))})` : ``}` : null}
+            {updateVersion ? `V${updateVersion}${downloadProgress ? `(${Math.floor(Number(downloadProgress.percent))}%)` : ``}` : null}
           </span>
         </div>
         <div

@@ -265,6 +265,7 @@ export default function VArchiveDbPage({ fontFamily, userData, songData, addNoti
           <div className="tw-flex tw-flex-col tw-gap-1 tw-bg-gray-600 tw-bg-opacity-10 tw-rounded-md p-4 tw-h-full tw-overflow-y-auto tw-scroll-smooth">
             <div className="tw-flex">
               <div className={`tw-text-center tw-w-full tw-flex tw-gap-3 tw-flex-wrap tw-justify-center`}>
+                {console.log(songData)}
                 {songData
                   .filter((songItem) => {
                     if (searchName !== '') {

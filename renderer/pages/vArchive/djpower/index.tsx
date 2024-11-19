@@ -50,8 +50,9 @@ export default function VArchiveDjPowerPage({ fontFamily, userData, songData, se
           const dlcCode = R.path(['dlcCode'], item)
           const name = R.path(['name'], item)
           return (
-            (['5', '6'].includes(keyMode) && ['From Hell to Breakfast'].includes(name) ? true : false) ||
-            (!['FAL', 'VL', 'CP'].includes(dlcCode) && !['Kamui', 'BlueWhite'].includes(name))
+            (['6'].includes(keyMode) && ['Re:BIRTH'].includes(name) ? true : false) ||
+            (!['VL', 'CP', 'TEK'].includes(dlcCode))
+            // (!['FAL', 'VL', 'CP', 'TEK'].includes(dlcCode) && !['Kamui', 'BlueWhite'].includes(name))
           )
         }),
       )
@@ -79,7 +80,8 @@ export default function VArchiveDjPowerPage({ fontFamily, userData, songData, se
           R.pipe((item: any) => {
             const dlcCode = R.path(['dlcCode'], item)
             const name = R.path(['name'], item)
-            return (['FAL', 'VL', 'CP'].includes(dlcCode) || ['Kamui', 'BlueWhite'].includes(name)) && !['From Hell to Breakfast', 'SURVIVOR'].includes(name)
+            // return (['FAL', 'VL', 'CP', 'TEK'].includes(dlcCode) || ['Kamui', 'BlueWhite'].includes(name)) && !['From Hell to Breakfast', 'SURVIVOR'].includes(name)
+            return (['VL', 'CP', 'TEK'].includes(dlcCode)) && !['From Hell to Breakfast', 'SURVIVOR', 'Re:BIRTH'].includes(name)
           }),
           data,
         )
@@ -157,7 +159,6 @@ export default function VArchiveDjPowerPage({ fontFamily, userData, songData, se
       const filteredData = getFilteredData(songData, 70)
       setBaseSongData(filteredData)
 
-      // dlcCode가 FAL, VL, CP이거나 name이 Kamui, BlueWhite인 경우의 결과
       const specialData = getSpecialItems(songData, 30)
       setNewSongData(specialData)
 
@@ -280,7 +281,7 @@ export default function VArchiveDjPowerPage({ fontFamily, userData, songData, se
           <FaTriangleExclamation />
           <div className="tw-flex tw-flex-col">
             <span>
-              2024년 08월 17일 00시 00분 기준 V-ARCHIVE와 동기화됨 (
+              2024년 11월 18일 03시 45분 기준 V-ARCHIVE와 동기화됨 (
               <span
                 className="tw-inline-flex tw-gap-1 tw-items-center tw-cursor-pointer"
                 onClick={() => {

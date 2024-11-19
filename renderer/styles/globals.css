@@ -601,6 +601,13 @@
   /* color: transparent !important; */
 }
 
+.respect_dlc_logo_TEK {
+  color: white;
+}
+.respect_dlc_logo_BG_TEK {
+  background-color: gray;
+}
+
 .respect_dlc_title {
   font-size: 30px;
   width: 100%;
@@ -750,6 +757,10 @@
 
 .respect_dlc_code_FAL {
   background: linear-gradient(180deg, #b68870 10%, #ede472 10%, #ede472 50%, #73bca4 50%);
+}
+
+.respect_dlc_code_TEK {
+  background-color: white;
 }
 
 .tooltip {

@@ -1,12 +1,12 @@
 # 기본 URL의 앞부분
-$baseUrl = "/images/djmax_respect_v/jackets/"
+$baseUrl = "https://v-archive.net/static/images/jackets/"
 
 # 이미지 파일 이름을 저장할 폴더 경로
-$outputFolder = "C:\Users\Administrator\Desktop\images"
+$outputFolder = "E:\Personal\DJMAX\project-ra\images\jackets"
 
 # 다운로드할 이미지의 범위 (여기서는 1부터 640까지)
 $start = 1
-$end = 640
+$end = 660
 
 # 폴더가 존재하지 않으면 생성
 if (-not (Test-Path $outputFolder)) {

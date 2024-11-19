@@ -159,8 +159,8 @@ const HeaderComponent: React.FC<IHeaderComponentProps> = ({
       >
         {/* 게임 선택 버튼 */}
         {renderGameButtons('DJMAX_RESPECT_V', '/images/djmax_respect_v/logo.png', 'DJMAX RESPECT V', selectedGame, handleGameSelection)}
-        {renderGameButtons('WJMAX', '/images/wjmax/logo.png', 'WJMAX', selectedGame, handleGameSelection)}
-        {renderGameButtons('TJMAX', '/images/tjmax/logo.png', 'TJMAX', selectedGame, handleGameSelection)}
+        {/* {renderGameButtons('WJMAX', '/images/wjmax/logo.png', 'WJMAX', selectedGame, handleGameSelection)}
+        {renderGameButtons('TJMAX', '/images/tjmax/logo.png', 'TJMAX', selectedGame, handleGameSelection)} */}
 
         {/* 버튼 */}
         <OverlayTrigger
