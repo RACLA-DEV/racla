@@ -12,7 +12,9 @@ import screenshotDesktop from 'screenshot-desktop'
 import { Window } from 'node-screenshots'
 import { exec } from 'child_process'
 import 'moment/locale/ko'
-
+import FormData from 'form-data'
+import axios from 'axios'
+import { randomUUID } from 'crypto'
 const isProd = process.env.NODE_ENV === 'production'
 
 if (isProd) {
@@ -35,6 +37,7 @@ let isSendedAutoCapture = false
 let isLogined = false
 let displayName = ''
 let isLoaded = false
+let isUploaded = false
 ;(async () => {
   await app.whenReady()
 
@@ -251,14 +254,39 @@ let isLoaded = false
 
       console.log('Section(isResultScreen) KeyWord :', text.toUpperCase().trim(), '/ isResultScreen:', isResult.length >= 1)
 
-      if (isResult.length >= 1) {
+      if (isResult.length >= 1 && !isUploaded) {
         console.log('Result Screen Detected: Processing image data...')
+
+        // 서버 사이드 OCR
+        try {
+          const serverOcrStartTime = Date.now()
+
+          const formData = new FormData()
+          formData.append('file', imageBuffer, {
+            filename: randomUUID() + '.png',
+            contentType: 'image/png',
+          })
+
+          const response = await axios.post('http://luna.koreacentral.cloudapp.azure.com:8080/api/v1/ocr/upload', formData, {
+            headers: {
+              ...formData.getHeaders(),
+              // 'Authorization': 'Bearer your-token-here'
+            },
+          })
+
+          console.log('서버 사이드 OCR 요청 처리 시간:', Date.now() - serverOcrStartTime, 'ms')
+          console.log('서버 사이드 OCR 요청 결과:', response.data)
+        } catch (error) {
+          console.error('서버 사이드 OCR 요청 실패:', error)
+        }
 
         if (!isSendedAutoCapture && !isUpload) {
           mainWindow.webContents.send('isDetectedResultScreen', moment().utcOffset(9).format('YYYY-MM-DD-HH-mm-ss'))
         }
 
+        const clientOcrStartTime = Date.now()
         const ocrResult = await processImageAndOCR(imageBuffer)
+
         const { button, pattern, score, speed, ...judgement } = ocrResult
 
         const SongData: any[] = await getSongData()
@@ -284,8 +312,6 @@ let isLoaded = false
             : score.replaceAll('\n', '').replaceAll('\\', '')
         }
 
-        console.log('resizeScore :', resizeScore())
-
         const normalizedScore =
           resizeScore().length === 6
             ? resizeScore().startsWith('00')
@@ -307,6 +333,7 @@ let isLoaded = false
         // 수동 업로드 시 예외 처리
         if (isUpload) {
           isSendedAutoCapture = false
+          isUploaded = false
         }
 
         const data = {
@@ -334,7 +361,8 @@ let isLoaded = false
           },
         }
 
-        console.log(data)
+        console.log('클라이언트 사이드 OCR 처리 소요 시간:', Date.now() - clientOcrStartTime, 'ms')
+        console.log('클라이언트 사이드 OCR 처리 결과: ', data)
 
         if (isVerified && !isSendedAutoCapture && data !== lastAutoCaptureResultData) {
           isSendedAutoCapture = true
@@ -364,6 +392,7 @@ let isLoaded = false
             })
           }
 
+          isUploaded = true
           return data
         } else {
           if (isSendedAutoCapture) {
@@ -397,6 +426,7 @@ let isLoaded = false
       } else {
         console.log('Waiting for Result Screen...')
         isSendedAutoCapture = false
+        isUploaded = false
         return {
           playData: {
             isVerified: null,
@@ -425,9 +455,26 @@ let isLoaded = false
   })
 
   ipcMain.on('screenshot-upload', async (event, buffer) => {
-    const { playData } = await processAndCapture(buffer, true)
-    if (playData !== null && playData.isVerified !== undefined) {
-      mainWindow.webContents.send('screenshot-uploaded', playData)
+    const image = await sharp(buffer).resize(1920).toFormat('png').toBuffer()
+
+    const resizedImageMetadata = await sharp(image).metadata()
+
+    if (resizedImageMetadata.height !== (resizedImageMetadata.width / 16) * 9) {
+      console.log('Windowed Image Detected.')
+      const croppedBuffer = await sharp(image)
+        .extract({ width: 1920, height: 1080, left: 0, top: resizedImageMetadata.height - (resizedImageMetadata.width / 16) * 9 })
+        .toBuffer()
+
+      const { playData } = await processAndCapture(croppedBuffer, true)
+      if (playData !== null && playData.isVerified !== undefined) {
+        mainWindow.webContents.send('screenshot-uploaded', playData)
+      }
+    } else {
+      console.log('Full Screen Image Detected.')
+      const { playData } = await processAndCapture(image, true)
+      if (playData !== null && playData.isVerified !== undefined) {
+        mainWindow.webContents.send('screenshot-uploaded', playData)
+      }
     }
   })
 
@@ -671,21 +718,6 @@ async function findChaos(source, isUpload?) {
 
 async function captureScreen() {
   try {
-    // if (displayName !== '' && autoCaptureApi === 'napi') {
-    //   console.log('Native API : Display Captured.')
-    //   // 빠르고 저서양 모드
-    //   const displays = await screenshotDesktop.listDisplays()
-
-    //   // 모든 디스플레이에서 게임 창 검색
-    //   for (const display of displays) {
-    //     if (display.id === displayName) {
-    //       const screenshot = await screenshotDesktop({ screen: display.id, format: 'png' })
-
-    //       return screenshot // 캡처된 이미지를 버퍼로 반환
-    //     }
-    //   }
-    // }
-    // 느리고 고사양 모드(정확한 창 캡처)
     if (['napi', 'eapi', 'xcap-api'].includes(autoCaptureApi)) {
       console.log('Game Window Captured')
 
@@ -695,17 +727,6 @@ async function captureScreen() {
         // forEach 대신 find나 map을 사용하여 첫 번째 찾은 창의 이미지를 반환
         if (windows.length > 0) {
           const window = windows[0]
-          // console.log({
-          //   id: window.id,
-          //   x: window.x,
-          //   y: window.y,
-          //   width: window.width,
-          //   height: window.height,
-          //   appName: window.appName,
-          //   title: window.title,
-          //   isMinimized: window.isMinimized,
-          //   isMinimizied: window.isMinimized
-          // });
 
           if (![640, 720, 800, 1024, 1128, 1280, 1366, 1600, 1680, 1760, 1920, 2048, 2288, 2560, 3072, 3200, 3840, 5120].includes(window.width)) {
             const image = window.captureImageSync()

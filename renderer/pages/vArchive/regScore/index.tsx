@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import Head from 'next/head'
 import Image from 'next/image'
 import * as R from 'ramda'
-import { FaCircleInfo, FaHeart, FaO, FaRegHeart, FaRotate, FaTriangleExclamation, FaX } from 'react-icons/fa6'
+import { FaCircleInfo, FaHeart, FaO, FaRegFile, FaRegHeart, FaRotate, FaTriangleExclamation, FaX } from 'react-icons/fa6'
 import { OverlayTrigger, Tooltip } from 'react-bootstrap'
 import { globalDictionary } from '@/libs/server/globalDictionary'
 import { IconContext } from 'react-icons'
@@ -45,6 +45,53 @@ export default function VArchiveRegScorePage({
   const [backupData, setBackupData] = useState<any>(null)
   const [uploadedPageData, setUploadedPageData] = useState<any>(null)
 
+  const [isDragging, setIsDragging] = useState<boolean>(false)
+
+  const handleDragEnter = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+
+    if (!isDragging) {
+      setIsDragging(true)
+    }
+  }
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+
+    if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+      setIsDragging(false)
+    }
+  }
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+  }
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDragging(false)
+
+    const files = e.dataTransfer.files
+    if (files && files.length > 0) {
+      const file = files[0]
+      if (file.type.match('image.*')) {
+        setScreenShotFile(file)
+      } else {
+        addNotificationCallback('이미지 파일만 업로드 가능합니다.', 'tw-bg-red-600')
+      }
+    }
+  }
+
+  useEffect(() => {
+    if (screenShotFile) {
+      handleUploadButton()
+    }
+  }, [screenShotFile])
+
   const fetchSongItemData = async (title) => {
     try {
       if (userData.userName !== '') {
@@ -75,22 +122,6 @@ export default function VArchiveRegScorePage({
       setIsUploading(true)
     }
   }
-
-  // useEffect(() => {
-  //   window.ipc.send('getDisplayList')
-  // }, [])
-
-  // useEffect(() => {
-  //   window.ipc.on('getDisplayListResponse', (data) => {
-  //     setDisplayList(data)
-  //   })
-
-  //   return () => {
-  //     window.ipc.removeListener('getDisplayListResponse', (data) => {
-  //       setDisplayList(data)
-  //     })
-  //   }
-  // }, [])
 
   const [pattern, setPattern] = useState<string>('')
 
@@ -234,37 +265,25 @@ export default function VArchiveRegScorePage({
         <title>DJMAX RESPECT V 기록 등록(베타) - 프로젝트 RA</title>
       </Head>
       {userData.userName !== '' ? (
-        <div className="tw-flex tw-gap-4 vh-screen">
-          <div className="tw-flex tw-flex-col tw-w-4/12 tw-relative tw-gap-4">
-            <div className="tw-flex tw-flex-col tw-gap-2 tw-bg-gray-600 tw-bg-opacity-10 p-4 tw-rounded-md">
-              {/* 상단 */}
-              <div className="tw-flex tw-w-full tw-mb-2">
-                {/* 제목 */}
-                <span className="tw-text-lg tw-font-bold me-auto">수동 업로드</span>
-              </div>
-              {/* 내용 */}
-              <div className="tw-flex tw-flex-col tw-gap-2 tw-items-center">
-                <input
-                  className="form-control tw-text-sm tw-bg-gray-900 tw-bg-opacity-20 tw-text-light"
-                  onChange={(e) => setScreenShotFile(e.currentTarget.files[0])}
-                  type="file"
-                  accept=".png,.jpg,.jpeg"
-                  placeholder=""
-                  disabled={isUploading}
-                />
-                <button
-                  type="button"
-                  onClick={() => {
-                    handleUploadButton()
-                  }}
-                  className="tw-flex tw-justify-center tw-items-center tw-w-full tw-h-8 tw-gap-1 btn-reg tw-rounded-md tw-text-md tw-bg-gray-950 tw-bg-opacity-50"
-                  disabled={isUploading}
-                >
-                  업로드
-                </button>
+        <div
+          className={`tw-flex tw-gap-4 vh-screen tw-relative`}
+          onDragEnter={handleDragEnter}
+          onDragLeave={handleDragLeave}
+          onDragOver={handleDragOver}
+          onDrop={handleDrop}
+        >
+          {isDragging && (
+            <div className="tw-absolute tw-inset-0 tw-bg-gray-900 tw-bg-opacity-70 tw-z-50 tw-flex tw-flex-col tw-gap-4 tw-items-center tw-justify-center tw-transition-all tw-border-2 tw-border-dashed tw-border-white tw-rounded-md">
+              <IconContext.Provider value={{ size: '36', className: 'tw-animate-pulse' }}>
+                <FaRegFile />
+              </IconContext.Provider>
+              <div className="tw-text-xl tw-font-bold tw-text-white tw-animate-pulse">리절트(결과) 화면의 이미지를 업로드해주세요.</div>
+              <div className="tw-text-base tw-text-white tw-animate-pulse">
+                지금은 프리스타일 리절트만 지원합니다. 추후 래더/버서스 리절트 이미지 업로드 기능을 추가할 예정입니다.
               </div>
             </div>
-
+          )}
+          <div className="tw-flex tw-flex-col tw-w-4/12 tw-relative tw-gap-4">
             <div className="tw-flex tw-flex-col tw-gap-2 tw-bg-gray-600 tw-bg-opacity-10 p-4 tw-rounded-md flex-equal">
               {/* 상단 */}
               <div className="tw-flex tw-w-full tw-mb-2 tw-items-center">
@@ -306,11 +325,23 @@ export default function VArchiveRegScorePage({
                 defaultValue={settingData.autoCaptureApi}
               >
                 <option value="xcap-api">XCap API(추천, Rust로 작성된 게임 화면 캡쳐 API)</option>
-                <option value="xcap-lapi" disabled>XCap API + LunaOCR API(실험, XCap API로 캡쳐 후 서버에서 캡쳐 이미지에 대해 텍스트 인식)</option>
                 <option value="eapi">Electron API(Node.js로 작성된 게임 화면 캡쳐 API)</option>
                 <option value="napi" disabled>
                   LunaCap API(Deprecated, Rust로 작성된 디스플레이(화면) 캡쳐 API)
                 </option>
+              </select>
+
+              <span className="tw-font-semibold tw-text-base">텍스트 인식 API</span>
+              <select
+                className="form-select tw-text-sm tw-bg-gray-900 tw-bg-opacity-20 tw-text-light"
+                onChange={(e) => {
+                  // setSettingData({ ...settingData, autoCaptureApi: e.currentTarget.value })
+                  // window.ipc.send('changeAutoCaptureApi', { autoCaptureApi: e.currentTarget.value })
+                }}
+                defaultValue={settingData.autoCaptureApi}
+              >
+                <option value="tesseract-client">Tesseract.js + Sharp(클라이언트 사이드 텍스트 인식)</option>
+                <option value="tesseract-server">Tess4j + OpenCV(서버 사이드 텍스트 인식)</option>
               </select>
 
               <span className="tw-font-semibold tw-text-base">캡쳐 주기</span>
@@ -421,6 +452,9 @@ export default function VArchiveRegScorePage({
                         <span className="respect_dlc_code_wrap ">
                           <span className={`respect_dlc_code respect_dlc_code_${uploadedPageData.songData.dlcCode}`}>{uploadedPageData.songData.dlc}</span>
                         </span>
+                      </div>
+                      <div className="tw-animate-fadeInLeft tw-rounded-md p-1 tw-bg-gray-950 tw-bg-opacity-75 px-3 tw-flex tw-items-center tw-gap-2 tw-me-2">
+                        <span className={'tw-text-base text-stroke-100 tw-font-extrabold tw-text-gray-50'}>{uploadedPageData.button}B</span>
                       </div>
                       <div className="tw-animate-fadeInLeft tw-rounded-md p-1 tw-bg-gray-950 tw-bg-opacity-75 px-3 tw-flex tw-items-center tw-gap-2 tw-me-2">
                         <span
@@ -820,7 +854,12 @@ export default function VArchiveRegScorePage({
                     <div className="tw-flex tw-flex-col tw-gap-2">
                       <span className="tw-text-base tw-font-light">CURRENT SCORE</span>
                       <span className="tw-font-extrabold tw-text-4xl">
-                        {String(uploadedPageData.score).includes('.') ? (String(uploadedPageData.score).split('.')[1].length === 1 ? String(uploadedPageData.score) + '0' : uploadedPageData.score) :  uploadedPageData.score + '.00'}%
+                        {String(uploadedPageData.score).includes('.')
+                          ? String(uploadedPageData.score).split('.')[1].length === 1
+                            ? String(uploadedPageData.score) + '0'
+                            : uploadedPageData.score
+                          : uploadedPageData.score + '.00'}
+                        %
                       </span>
                     </div>
                     <div className="tw-flex tw-flex-col tw-gap-2">
@@ -831,7 +870,9 @@ export default function VArchiveRegScorePage({
                       <div className="tw-relative" style={{ width: 70, height: 70 }}>
                         <Image src={`/images/djmax_respect_v/effectors/SPEED_BG.png`} width={70} height={70} alt="" className="tw-shadow-sm tw-absolute" />
                         <div className="tw-absolute tw-flex tw-justify-center tw-items-center tw-bottom-0" style={{ width: 70, height: 60 }}>
-                          <span className="tw-font-extrabold tw-text-3xl">{String(uploadedPageData.speed).length === 1 ? String(uploadedPageData.speed) + '.0' : String(uploadedPageData.speed)}</span>
+                          <span className="tw-font-extrabold tw-text-3xl">
+                            {String(uploadedPageData.speed).length === 1 ? String(uploadedPageData.speed) + '.0' : String(uploadedPageData.speed)}
+                          </span>
                         </div>
                       </div>
                       {uploadedPageData.note !== null ? (
