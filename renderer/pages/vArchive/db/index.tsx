@@ -12,8 +12,12 @@ import { randomUUID } from 'crypto'
 import 'moment/locale/ko'
 import axios from 'axios'
 import Link from 'next/link'
+import { useSelector } from 'react-redux'
+import { RootState } from 'store'
 
-export default function VArchiveDbPage({ fontFamily, userData, songData, addNotificationCallback, setBackgroundBgaName }) {
+export default function VArchiveDbPage({ userData, songData, addNotificationCallback, setBackgroundBgaName }) {
+  const fontFamily = useSelector((state: RootState) => state.ui.fontFamily)
+
   const [keyMode, setKeyMode] = useState<string>('4')
   const [baseSongData, setBaseSongData] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(false)

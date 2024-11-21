@@ -13,8 +13,12 @@ import 'moment/locale/ko'
 import axios from 'axios'
 import { useParams } from 'next/navigation'
 import { useRouter } from 'next/router'
+import { useSelector } from 'react-redux'
+import { RootState } from 'store'
 
-export default function VArchiveDbTitlePage({ fontFamily, userData, songData, addNotificationCallback, setBackgroundBgaName }) {
+export default function VArchiveDbTitlePage({ userData, songData, addNotificationCallback, setBackgroundBgaName }) {
+  const fontFamily = useSelector((state: RootState) => state.ui.fontFamily)
+
   const params = useParams()
   const router = useRouter()
 

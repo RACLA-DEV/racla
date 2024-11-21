@@ -19,6 +19,9 @@ import { FaGear, FaRotate, FaX } from 'react-icons/fa6'
 import { FiX } from 'react-icons/fi'
 import SettingComponent from '@/components/layout/SettingComponent'
 import { IconContext } from 'react-icons'
+import { setFontFamily } from 'store/slices/uiSlice'
+import { store } from 'store'
+import { Provider } from 'react-redux'
 
 const noto = Noto_Sans_KR({
   subsets: ['latin'], // 또는 preload: false
@@ -30,17 +33,60 @@ function MyApp({ Component, pageProps }: AppProps) {
   const { asPath } = useRouter()
 
   useEffect(() => {
-    // Bootstrap
+    // Bootstrap 로드
     require('bootstrap/dist/js/bootstrap.bundle.min.js')
-    // preload.ts 에서 정의된 ipc 로드
+
+    // 설정 데이터 요청
     setTimeout(() => window.ipc.send('getSettingData'), 3000)
+
+    // 세션 데이터 요청
+    const fetchSessionData = () => {
+      window.ipc.getSession()
+
+      console.log('Session Requested.')
+      window.ipc.on('IPC_RENDERER_GET_SESSION', (data: any) => {
+        if (data.userNo !== '' && data.userToken !== '') {
+          setUserNo(data.userNo)
+          setUserToken(data.userToken)
+        }
+      })
+    }
+    setTimeout(fetchSessionData, 3000)
+
+    // 캐시 시작 및 이벤트 리스너 설정
+    window.ipc.send('startCache')
+
+    window.ipc.on('isDetectedGame', (data: boolean) => {
+      setIsDetectedGame(data)
+    })
+
+    window.ipc.on('IPC_RENDERER_GET_SETTING_DATA', (data) => {
+      setSettingData(data)
+    })
+
+    window.ipc.on('pushNotification', (data: any) => {
+      addNotification(data.message, data.color)
+    })
+
+    // 클린업 함수
+    return () => {
+      window.ipc.removeListener('isDetectedGame', (data: boolean) => {
+        setIsDetectedGame(data)
+      })
+
+      window.ipc.removeListener('IPC_RENDERER_GET_SETTING_DATA', (data) => {
+        setSettingData(data)
+      })
+
+      window.ipc.removeListener('isDetectedResultScreen', (data: string) => {
+        addNotification('DJMAX RESPECT V(게임)의 게임 결과창이 자동 인식되어 성과 기록 이미지를 처리 중에 있습니다. 잠시만 기다려주세요.', 'tw-bg-blue-600')
+      })
+    }
   }, [])
 
   const [userNo, setUserNo] = useState<string>('')
   const [userToken, setUserToken] = useState<string>('')
-  const [userError, setUserError] = useState<string>('')
   const [userName, setUserName] = useState<string>('')
-  const [userLoading, setUserLoading] = useState<boolean>(false)
   const [randomTitle, setRandomTitle] = useState<string>('0')
   const [vArchiveSongData, setVArchiveSongData] = useState<any[]>([])
 
@@ -53,12 +99,8 @@ function MyApp({ Component, pageProps }: AppProps) {
   const [isSetting, setIsSetting] = useState<boolean>(false)
   const [settingData, setSettingData] = useState<any>(null)
 
-  const cookies = new Cookies()
-
   const [uploadedData, setUploadedData] = useState<any>(null)
   const [isDetectedGame, setIsDetectedGame] = useState<boolean>(false)
-
-  const [cached, setCached] = useState<boolean>(false)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -128,42 +170,6 @@ function MyApp({ Component, pageProps }: AppProps) {
   }, [])
 
   useEffect(() => {
-    window.ipc.send('startCache')
-
-    window.ipc.on('isDetectedGame', (data: boolean) => {
-      setIsDetectedGame(data)
-    })
-
-    window.ipc.on('IPC_RENDERER_GET_SETTING_DATA', (data) => {
-      setSettingData(data)
-    })
-
-    window.ipc.on('cacheResponse', (data: any) => {
-      setCached(data)
-    })
-
-    window.ipc.on('isDetectedResultScreen', (data: string) => {
-      addNotification('DJMAX RESPECT V(게임)의 게임 결과창이 자동 인식되어 성과 기록 이미지를 처리 중에 있습니다. 잠시만 기다려주세요.', 'tw-bg-blue-600')
-    })
-
-    return () => {
-      window.ipc.removeListener('isDetectedGame', (data: boolean) => {
-        setIsDetectedGame(data)
-      })
-
-      window.ipc.removeListener('IPC_RENDERER_GET_SETTING_DATA', (data) => {
-        setSettingData(data)
-      })
-
-      window.ipc.on('cacheResponse', (data: any) => {
-        if (data) {
-          setCached(true)
-        }
-      })
-    }
-  }, [])
-
-  useEffect(() => {
     if (isDetectedGame) {
       addNotification(
         isDetectedGame
@@ -175,24 +181,6 @@ function MyApp({ Component, pageProps }: AppProps) {
   }, [isDetectedGame])
 
   useEffect(() => {
-    const fetchSessionData = () => {
-      setUserLoading(true)
-      window.ipc.getSession()
-
-      console.log('Session Requested.')
-      window.ipc.on('IPC_RENDERER_GET_SESSION', (data: any) => {
-        if (data.userNo !== '' && data.userToken !== '') {
-          setUserNo(data.userNo)
-          setUserToken(data.userToken)
-        } else {
-          setUserLoading(false)
-        }
-      })
-    }
-    setTimeout(fetchSessionData, 3000)
-  }, [])
-
-  useEffect(() => {
     const handleLogined = (value) => {
       if (value !== undefined && Boolean(value)) {
         window.ipc.getSession()
@@ -201,8 +189,6 @@ function MyApp({ Component, pageProps }: AppProps) {
           if (data.userNo !== '' && data.userToken !== '') {
             setUserNo(data.userNo)
             setUserToken(data.userToken)
-          } else {
-            setUserLoading(false)
           }
         })
       }
@@ -237,8 +223,6 @@ function MyApp({ Component, pageProps }: AppProps) {
         } catch (error) {
           window.ipc.logout()
           addNotification(`알 수 없는 오류로 인해 사용자 정보 조회에 실패하였습니다. ${String(error)}`, 'tw-bg-red-600')
-        } finally {
-          setUserLoading(false)
         }
       }
     }
@@ -257,107 +241,130 @@ function MyApp({ Component, pageProps }: AppProps) {
   }, [router])
 
   useEffect(() => {
-    if (settingData !== null && cached) {
+    if (settingData !== null) {
       window.ipc.send('PROGRAM_LOADED')
     }
-  }, [settingData, cached])
+  }, [settingData])
 
-  return settingData !== null && cached ? (
-    <div className={`tw-w-full tw-transition-all tw-h-full ${noto.className}`}>
-      {/* 배경 이미지 레이어 */}
-      <div className="background-image-base" />
-      <div className={'background-image tw-transition-all tw-duration-1000 tw-animate-fadeInLeft'} />
-      {/* <div className={'background-image tw-transition-all tw-duration-1000 ' + (selectedGame === 'DJMAX_RESPECT_V' ? 'tw-opacity-100' : 'tw-opacity-0')} /> */}
-      {backgroundVideoName !== '' && !isDetectedGame && settingData.visibleBga ? (
-        <video
-          src={`https://project-ra.lunatica.kr/${selectedGame.toLowerCase()}/${backgroundVideoName}.mp4`}
-          autoPlay={true}
-          muted={true}
-          loop={true}
-          className={'background-video tw-transition-all tw-h-screen tw-duration-1000 ' + (backgroundBgaName !== '' ? ' tw-opacity-0' : ' tw-opacity-100')}
-        />
-      ) : selectedGame === 'DJMAX_RESPECT_V' ? (
-        null
-      ) : (
-        <div className={'tw-bg-gray-950 tw-transition-all tw-duration-1000 tw-animate-fadeInLeft'} />
-      )}
+  useEffect(() => {
+    if (router.pathname.includes('/overlay')) {
+      document.body.style.background = 'transparent'
+      document.body.style.backgroundColor = 'transparent'
+    } else {
+      document.body.style.background = ''
+      document.body.style.backgroundColor = ''
+    }
 
-      {backgroundBgaName !== '' && settingData.visibleBga ? (
-        <video
-          src={`https://project-ra.lunatica.kr/${selectedGame.toLowerCase()}/preview/title/${backgroundBgaName}.webm`}
-          autoPlay={true}
-          muted={true}
-          loop={true}
-          className={
-            'background-video tw-transition-all tw-h-screen tw-duration-1000 tw-animate-fadeInLeft ' +
-            (backgroundBgaName === '' ? ' tw-opacity-0' : ' tw-opacity-100')
-          }
-        />
-      ) : null}
+    // 컴포넌트 언마운트 시 스타일 제거
+    return () => {
+      document.body.style.background = ''
+      document.body.style.backgroundColor = ''
+    }
+  }, [router.pathname])
 
-      {/* 배경 색상 레이어 */}
-      <div className="background-image-color" />
+  // noto font 설정 후
+  useEffect(() => {
+    store.dispatch(setFontFamily(noto.className))
+  }, [noto.className])
 
-      {/* 메인 콘텐츠 */}
-      <main className="tw-mx-5 tw-text-sm" style={{ marginLeft: '14.25rem', marginBottom: '3rem', marginTop: '4rem' }} data-bs-theme="dark">
-        <AnimatePresence initial={false} mode="wait">
-          <motion.div
-            key={asPath} // 페이지가 변경될 때마다 새 key로 애니메이션을 트리거
-            initial={{ x: 10, opacity: 0.5 }}
-            animate={{ x: 0, opacity: 1 }}
-            exit={{ x: -10, opacity: 0 }}
-            transition={{ duration: 0.3 }} // 애니메이션 지속 시간
-            style={{ width: '100%' }} // 위치와 너비를 설정
-          >
-            <div id="ContentHeader" />
-            <Component
-              {...pageProps}
-              songData={vArchiveSongData}
-              addNotificationCallback={addNotification}
-              fontFamily={noto.className}
-              userData={{ userName, userNo, userToken }}
-              setBackgroundBgaName={setBackgroundBgaName}
-              uploadedData={uploadedData}
-              settingData={settingData}
-              setSettingData={setSettingData}
+  return (
+    <Provider store={store}>
+      {settingData !== null && !router.pathname.includes('/overlay') ? (
+        <div className={`tw-w-full tw-transition-all tw-h-full ${noto.className}`}>
+          {/* 배경 이미지 레이어 */}
+          <div className="background-image-base" />
+          <div className={'background-image tw-transition-all tw-duration-1000 tw-animate-fadeInLeft'} />
+          {/* <div className={'background-image tw-transition-all tw-duration-1000 ' + (selectedGame === 'DJMAX_RESPECT_V' ? 'tw-opacity-100' : 'tw-opacity-0')} /> */}
+          {backgroundVideoName !== '' && !isDetectedGame && settingData.visibleBga ? (
+            <video
+              src={`https://project-ra.lunatica.kr/${selectedGame.toLowerCase()}/${backgroundVideoName}.mp4`}
+              autoPlay={true}
+              muted={true}
+              loop={true}
+              className={'background-video tw-transition-all tw-h-screen tw-duration-1000 ' + (backgroundBgaName !== '' ? ' tw-opacity-0' : ' tw-opacity-100')}
             />
-            <div id="ContentFooter" />
-          </motion.div>
-        </AnimatePresence>
-        <HeaderComponent
-          className={noto.className}
-          user={{ userNo, userToken, userName, randomTitle }}
-          logoutCallback={() => {
-            setUserNo('')
-            setUserToken('')
-            setUserName('')
-            setUploadedData(null)
-          }}
-          selectedGame={selectedGame}
-          selectedGameCallback={setSelectedGame}
-          addNotificationCallback={addNotification}
-          settingData={settingData}
-        />
-        <SidebarComponent addNotificationCallback={addNotification} toggleSettingCallback={setIsSetting} selectedGame={selectedGame} />
-        <FooterComponent className={noto.className} selectedGame={selectedGame} />
-      </main>
+          ) : selectedGame === 'DJMAX_RESPECT_V' ? null : (
+            <div className={'tw-bg-gray-950 tw-transition-all tw-duration-1000 tw-animate-fadeInLeft'} />
+          )}
 
-      {/* 알림 컴포넌트(우측 하단) */}
-      <NotificationComponent notifications={notifications} removeNotificationCallback={removeNotification} />
+          {backgroundBgaName !== '' && settingData.visibleBga ? (
+            <video
+              src={`https://project-ra.lunatica.kr/${selectedGame.toLowerCase()}/preview/title/${backgroundBgaName}.webm`}
+              autoPlay={true}
+              muted={true}
+              loop={true}
+              className={
+                'background-video tw-transition-all tw-h-screen tw-duration-1000 tw-animate-fadeInLeft ' +
+                (backgroundBgaName === '' ? ' tw-opacity-0' : ' tw-opacity-100')
+              }
+            />
+          ) : null}
 
-      {/* 설정 모달 */}
-      <SettingComponent isSetting={isSetting} toggleSettingCallback={setIsSetting} settingData={settingData} settingDataCallback={setSettingData} />
-    </div>
-  ) : (
-    <div className={`tw-flex tw-w-screen tw-h-screen flex-equal tw-flex-col tw-gap-10 tw-items-center tw-justify-center ${noto.className}`}>
-      <Image src="/images/logo.svg" height={240} width={240} alt="Logo" />
-      <span className="tw-text-xs tw-font-bold">프로젝트 RA 실행에 필요한 데이터를 불러오고 있습니다. 잠시만 기다려주세요.</span>
-      <div className="tw-relative tw-text-center tw-animate-spin">
-        <IconContext.Provider value={{ className: '' }}>
-          <FaRotate />
-        </IconContext.Provider>
-      </div>
-    </div>
+          {/* 배경 색상 레이어 */}
+          <div className="background-image-color" />
+
+          {/* 메인 콘텐츠 */}
+          <main className="tw-mx-5 tw-text-sm" style={{ marginLeft: '14.25rem', marginBottom: '3rem', marginTop: '4rem' }} data-bs-theme="dark">
+            <AnimatePresence initial={false} mode="wait">
+              <motion.div
+                key={asPath} // 페이지가 변경될 때마다 새 key로 애니메이션을 트리거
+                initial={{ x: 10, opacity: 0.5 }}
+                animate={{ x: 0, opacity: 1 }}
+                exit={{ x: -10, opacity: 0 }}
+                transition={{ duration: 0.3 }} // 애니메이션 지속 시간
+                style={{ width: '100%' }} // 위치와 너비를 설정
+              >
+                <div id="ContentHeader" />
+                <Component
+                  {...pageProps}
+                  songData={vArchiveSongData}
+                  addNotificationCallback={addNotification}
+                  userData={{ userName, userNo, userToken }}
+                  setBackgroundBgaName={setBackgroundBgaName}
+                  uploadedData={uploadedData}
+                  settingData={settingData}
+                  setSettingData={setSettingData}
+                />
+                <div id="ContentFooter" />
+              </motion.div>
+            </AnimatePresence>
+            <HeaderComponent
+              user={{ userNo, userToken, userName, randomTitle }}
+              logoutCallback={() => {
+                setUserNo('')
+                setUserToken('')
+                setUserName('')
+                setUploadedData(null)
+              }}
+              selectedGame={selectedGame}
+              selectedGameCallback={setSelectedGame}
+              addNotificationCallback={addNotification}
+              settingData={settingData}
+            />
+            <SidebarComponent addNotificationCallback={addNotification} toggleSettingCallback={setIsSetting} selectedGame={selectedGame} />
+            <FooterComponent selectedGame={selectedGame} />
+          </main>
+
+          {/* 알림 컴포넌트(우측 하단) */}
+          <NotificationComponent notifications={notifications} removeNotificationCallback={removeNotification} />
+
+          {/* 설정 모달 */}
+          <SettingComponent isSetting={isSetting} toggleSettingCallback={setIsSetting} settingData={settingData} settingDataCallback={setSettingData} />
+        </div>
+      ) : router.pathname.includes('/overlay') ? (
+        <Component {...pageProps} />
+      ) : (
+        <div className={`tw-flex tw-w-screen tw-h-screen flex-equal tw-flex-col tw-gap-10 tw-items-center tw-justify-center ${noto.className}`}>
+          <Image src="/images/logo.svg" height={240} width={240} alt="Logo" />
+          <span className="tw-text-xs tw-font-bold">프로젝트 RA 실행에 필요한 데이터를 불러오고 있습니다. 잠시만 기다려주세요.</span>
+          <div className="tw-relative tw-text-center tw-animate-spin">
+            <IconContext.Provider value={{ className: '' }}>
+              <FaRotate />
+            </IconContext.Provider>
+          </div>
+        </div>
+      )}
+    </Provider>
   )
 }
 

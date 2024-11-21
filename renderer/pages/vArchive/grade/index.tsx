@@ -15,6 +15,8 @@ import axios from 'axios'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { useParams } from 'next/navigation'
+import { RootState } from 'store'
+import { useSelector } from 'react-redux'
 
 interface SongItem {
   title: number
@@ -28,7 +30,9 @@ interface SongItem {
   rating: number | null
 }
 
-export default function VArchiveDbPage({ fontFamily, userData, songData, addNotificationCallback, setBackgroundBgaName }) {
+export default function VArchiveDbPage({ userData, songData, addNotificationCallback, setBackgroundBgaName }) {
+  const fontFamily = useSelector((state: RootState) => state.ui.fontFamily)
+
   const router = useRouter()
   const params = useParams()
 

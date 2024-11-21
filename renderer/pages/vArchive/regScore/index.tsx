@@ -13,33 +13,23 @@ import 'moment/locale/ko'
 import axios from 'axios'
 import Link from 'next/link'
 import { FiCircle, FiX } from 'react-icons/fi'
+import { useSelector } from 'react-redux'
+import { RootState } from 'store'
 
-export default function VArchiveRegScorePage({
-  fontFamily,
-  userData,
-  songData,
-  addNotificationCallback,
-  setBackgroundBgaName,
-  uploadedData,
-  settingData,
-  setSettingData,
-}) {
-  const [keyMode, setKeyMode] = useState<string>('4')
-  const [baseSongData, setBaseSongData] = useState<any[]>([])
+export default function VArchiveRegScorePage({ userData, songData, addNotificationCallback, setBackgroundBgaName, uploadedData, settingData, setSettingData }) {
+  const fontFamily = useSelector((state: RootState) => state.ui.fontFamily)
+
+  const [keyMode] = useState<string>('4')
   const [isLoading, setIsLoading] = useState<boolean>(true)
 
   const [hoveredTitle, setHoveredTitle] = useState<string>(null)
   const [songItemData, setSongItemData] = useState<any>(null)
-
-  const [searchName, setSearchName] = useState<string>('')
 
   const [commentRivalName, setCommentRivalName] = useState<string>('')
   const [commentRivalSongItemData, setCommentRivalSongItemData] = useState<any>(null)
 
   const [screenShotFile, setScreenShotFile] = useState<any>(null)
   const [isUploading, setIsUploading] = useState<boolean>(false)
-
-  const [displayList, setDisplayList] = useState<any>(null)
 
   const [isCanRollback, setIsCanRollback] = useState<boolean>(false)
   const [backupData, setBackupData] = useState<any>(null)
@@ -74,6 +64,11 @@ export default function VArchiveRegScorePage({
     e.preventDefault()
     e.stopPropagation()
     setIsDragging(false)
+
+    if (isUploading) {
+      addNotificationCallback('이미 업로드가 진행 중입니다. 완료될 때까지 기다려주세요.', 'tw-bg-orange-600')
+      return
+    }
 
     const files = e.dataTransfer.files
     if (files && files.length > 0) {
@@ -184,6 +179,9 @@ export default function VArchiveRegScorePage({
               },
             )
             .then((data) => {
+              if (uploadedData.filePath) {
+                addNotificationCallback(`${uploadedData.filePath} 경로에 성과 기록 이미지가 저장되었습니다.`, 'tw-bg-lime-600')
+              }
               if (data.data.success && data.data.update) {
                 addNotificationCallback('성과 기록을 V-ARCHIVE에 정상적으로 갱신하였습니다.', 'tw-bg-lime-600')
                 setBackupData(backupData.data)
@@ -248,10 +246,13 @@ export default function VArchiveRegScorePage({
 
   useEffect(() => {
     if (!isLoading) {
-      if (uploadedPageData !== null && !uploadedPageData.isVerified) {
+      if (uploadedPageData !== null && !uploadedPageData.isVerified && uploadedPageData.error) {
         addNotificationCallback('마지막으로 업로드한 성과 기록 이미지의 데이터 유효성 검증에 실패하였습니다. 다시 캡쳐한 후 재시도해주세요.', 'tw-bg-red-600')
       } else if (uploadedPageData !== null && uploadedPageData.isVerified) {
-        addNotificationCallback('성과 기록 이미지 업로드에 성공하였습니다. V-ARCHIVE, 프로젝트 RA 서비스로 점수 갱신을 요청합니다.', 'tw-bg-lime-600')
+        addNotificationCallback(
+          '성과 기록 이미지의 데이터 유효성 검증에 성공하였습니다. V-ARCHIVE, 프로젝트 RA 서비스로 점수 갱신을 요청합니다.',
+          'tw-bg-lime-600',
+        )
         fetchUpdateScore(uploadedPageData)
       }
     }
@@ -331,17 +332,22 @@ export default function VArchiveRegScorePage({
                 </option>
               </select>
 
-              <span className="tw-font-semibold tw-text-base">텍스트 인식 API</span>
+              <span className="tw-font-semibold tw-text-base">텍스트 인식(OCR) API</span>
               <select
                 className="form-select tw-text-sm tw-bg-gray-900 tw-bg-opacity-20 tw-text-light"
                 onChange={(e) => {
                   // setSettingData({ ...settingData, autoCaptureApi: e.currentTarget.value })
                   // window.ipc.send('changeAutoCaptureApi', { autoCaptureApi: e.currentTarget.value })
                 }}
-                defaultValue={settingData.autoCaptureApi}
+                defaultValue={'tesseract-server'}
               >
-                <option value="tesseract-client">Tesseract.js + Sharp(클라이언트 사이드 텍스트 인식)</option>
-                <option value="tesseract-server">Tess4j + OpenCV(서버 사이드 텍스트 인식)</option>
+                <option value="tesseract-server">Project RA Server API(서버 사이드 텍스트 인식 API)</option>
+                <option value="tesseract-client" disabled>
+                  Project RA Client API(Deprecated, 클라이언트 사이드 텍스트 인식 API)
+                </option>
+                <option value="google-vision" disabled>
+                  Google Vision AI API(Deprecated, AI 기반 외부 텍스트 인식 API)
+                </option>
               </select>
 
               <span className="tw-font-semibold tw-text-base">캡쳐 주기</span>
@@ -359,38 +365,6 @@ export default function VArchiveRegScorePage({
                 <option value="5000">5초</option>
                 <option value="10000">10초</option>
               </select>
-
-              {displayList !== null && settingData.autoCaptureApi !== 'eapi' ? (
-                <>
-                  <span className="tw-font-semibold tw-text-base">캡쳐 대상 디스플레이</span>
-                  <select
-                    className="form-select tw-text-sm tw-bg-gray-900 tw-bg-opacity-20 tw-text-light"
-                    onChange={(e) => {
-                      setSettingData({ ...settingData, displayName: e.currentTarget.value })
-                      window.ipc.send('changeDisplay', { displayName: e.currentTarget.value })
-                    }}
-                    defaultValue={settingData.displayName}
-                  >
-                    {displayList !== null ? (
-                      displayList.map((value, index) => (
-                        <option key={value.id} value={value.id}>
-                          {value.id}({value.width}x{value.height}, 배율 : {parseFloat(String(value.dpiScale)) * 100}%)
-                        </option>
-                      ))
-                    ) : (
-                      <option disabled>감지된 디스플레이가 존재하지 않습니다.</option>
-                    )}
-                  </select>
-                </>
-              ) : false ? (
-                <div className="tw-flex tw-items-center tw-justify-center">
-                  <div className="tw-relative tw-text-center tw-animate-spin">
-                    <IconContext.Provider value={{ className: '' }}>
-                      <FaRotate />
-                    </IconContext.Provider>
-                  </div>
-                </div>
-              ) : null}
             </div>
 
             <div className="tw-flex tw-flex-col tw-gap-2 tw-bg-gray-600 tw-bg-opacity-10 p-4 tw-rounded-md">
@@ -443,7 +417,7 @@ export default function VArchiveRegScorePage({
                 <div
                   className={
                     'tw-flex tw-flex-col tw-gap-1 tw-bg-opacity-10 tw-rounded-md p-0 tw-mb-4 tw-h-60 ' +
-                    ` respect_dlc_${uploadedPageData.songData.dlcCode}} respect_dlc_logo_${uploadedPageData.songData.dlcCode} respect_dlc_logo_BG_${uploadedPageData.songData.dlcCode}`
+                    ` respect_dlc_${uploadedPageData.songData.dlcCode} respect_dlc_logo_${uploadedPageData.songData.dlcCode} respect_dlc_logo_BG_${uploadedPageData.songData.dlcCode}`
                   }
                 >
                   <div className="tw-flex tw-flex-col tw-animate-fadeInLeft p-4 flex-equal tw-bg-gray-900 tw-bg-opacity-30 tw-rounded-md">
