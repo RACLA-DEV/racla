@@ -7,18 +7,20 @@ import { globalDictionary } from '@/libs/server/globalDictionary'
 import { IconContext } from 'react-icons'
 import { renderNavigation } from './renderNavigation'
 import { renderUpdateSection } from './renderUpdateSection'
+import { useSelector } from 'react-redux'
+import type { RootState } from 'store'
+import { useDispatch } from 'react-redux'
+import { setIsSetting } from 'store/slices/appSlice'
+import { useNotificationSystem } from '@/libs/client/useNotifications'
 
-interface SidebarProps {
-  addNotificationCallback: (message: string, color?: string) => void
-  toggleSettingCallback: (isOpen: boolean) => void
-  selectedGame: string
-}
-
-const SidebarComponent: React.FC<SidebarProps> = ({ addNotificationCallback, toggleSettingCallback, selectedGame }) => {
+const SidebarComponent: React.FC = () => {
+  const { showNotification } = useNotificationSystem()
   const router = useRouter()
   const [updateVersion, setUpdateVersion] = useState<string | null>(null)
   const [downloadProgress, setDownloadProgress] = useState<{ percent: string } | null>(null)
   const [isDownloaded, setIsDownloaded] = useState(false)
+  const { selectedGame } = useSelector((state: RootState) => state.app)
+  const dispatch = useDispatch()
 
   useEffect(() => {
     const handleUpdateAvailable = (info: string) => {
@@ -50,9 +52,9 @@ const SidebarComponent: React.FC<SidebarProps> = ({ addNotificationCallback, tog
   useEffect(() => {
     if (updateVersion) {
       console.log('updateVersion', updateVersion)
-      addNotificationCallback(`프로젝트 RA의 업데이트(${updateVersion})가 존재합니다. 자동 업데이트를 준비합니다.`, 'tw-bg-blue-600')
+      showNotification(`프로젝트 RA의 업데이트(${updateVersion})가 존재합니다. 자동 업데이트를 준비합니다.`, 'tw-bg-blue-600')
     }
-  }, [updateVersion, addNotificationCallback])
+  }, [updateVersion, showNotification])
 
   return (
     <>
@@ -67,7 +69,11 @@ const SidebarComponent: React.FC<SidebarProps> = ({ addNotificationCallback, tog
         <div className="tw-flex tw-flex-col tw-gap-1 tw-mt-auto">
           <span className="tw-text-xs tw-text-gray-400 tw-font-bold tw-flex tw-items-center tw-gap-2 btn-sidebar">
             <FaBug />
-            <button type="button" className="tw-flex tw-gap-1 tw-w-full tw-items-center" onClick={() => window.ipc.send('openBrowser', 'https://open.kakao.com/me/LunaticaLuna')}>
+            <button
+              type="button"
+              className="tw-flex tw-gap-1 tw-w-full tw-items-center"
+              onClick={() => window.ipc.send('openBrowser', 'https://open.kakao.com/me/LunaticaLuna')}
+            >
               버그 신고{' '}
               {/* <span className="tw-ms-auto tw-text-xs tw-font-light tw-bg-gray-600 tw-rounded-full tw-px-2" style={{ padding: '2px 8px' }}>
                 공사중
@@ -83,7 +89,7 @@ const SidebarComponent: React.FC<SidebarProps> = ({ addNotificationCallback, tog
               </span>
             </span>
           </span>
-          <span className=" tw-text-xs tw-text-gray-400 tw-font-bold tw-flex tw-items-center tw-gap-2 btn-sidebar" onClick={() => toggleSettingCallback(true)}>
+          <span className=" tw-text-xs tw-text-gray-400 tw-font-bold tw-flex tw-items-center tw-gap-2 btn-sidebar" onClick={() => dispatch(setIsSetting(true))}>
             <FaGear />
             <span>설정</span>
           </span>

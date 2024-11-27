@@ -15,9 +15,11 @@ export const uiSlice = createSlice({
   initialState,
   reducers: {
     setFontFamily: (state, action: PayloadAction<string>) => {
+      if (state.fontFamily === action.payload) return
       state.fontFamily = action.payload
     },
     setBackgroundBgaName: (state, action: PayloadAction<string>) => {
+      if (state.backgroundBgaName === action.payload) return
       state.backgroundBgaName = action.payload
     },
   },

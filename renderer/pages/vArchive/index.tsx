@@ -14,7 +14,7 @@ export default function VArchiveIndexPage({ userData }) {
     if (router.query.url) {
       router.push(`${String(router.query.url)}`)
     } else {
-      router.push('/')
+      router.push('/projectRa/home')
     }
   }, [])
 

@@ -99,12 +99,17 @@ if (getSettingData() === undefined || getSettingData() === null) {
   storeSettingData({
     hardwareAcceleration: true,
     homeButtonAlignRight: false,
-    autoCaptureMode: false,
-    autoCaptureIntervalTime: 3000,
-    autoCaptureDisplayName: '',
-    autoCaptureApi: 'eapi',
     visibleBga: true,
+    autoCaptureMode: true,
+    autoCaptureIntervalTime: 3000,
     language: 'ko',
-    rivalName: '',
+    autoCaptureApi: 'xcap-api',
+    visibleAnimation: true,
+    captureOnlyFocused: true,
+    autoUpdate: true,
+    autoRemoveBlackPixel: true,
+    removeBlackPixelPx: 8,
+    saveImageWhenCapture: true,
+    resultOverlay: true,
   })
 }

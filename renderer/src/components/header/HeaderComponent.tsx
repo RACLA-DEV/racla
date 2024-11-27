@@ -1,7 +1,7 @@
 // HeaderComponent.tsx
 import Image from 'next/image'
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/router'
 import * as R from 'ramda'
 import { renderGameButtons } from './renderGameButtons'
@@ -9,34 +9,23 @@ import { renderUserDropdown } from './renderUserDropdown'
 import { renderUtilityButtons } from './renderUtilityButtons'
 import { OverlayTrigger, Tooltip } from 'react-bootstrap'
 import { FaArrowDown, FaArrowDownUpAcrossLine, FaArrowLeft, FaArrowUp, FaConnectdevelop, FaRotate } from 'react-icons/fa6'
+import { useSelector, useDispatch } from 'react-redux'
+import { setSelectedGame, setUploadedData, setUserData } from 'store/slices/appSlice'
+import type { RootState } from 'store'
+import { useNotificationSystem } from '@/libs/client/useNotifications'
+import { globalDictionary } from '@/libs/server/globalDictionary'
 
 interface IHeaderComponentProps {
   className?: string
-  user?: User
-  logoutCallback: () => void
-  addNotificationCallback: (message: string, color?: string) => void
-  selectedGame: string
-  selectedGameCallback: (game: string) => void
-  settingData: any
+  callback: () => void
+  refreshKeyHandle: any
 }
 
-interface User {
-  userNo: string
-  userToken: string
-  userName: string
-  randomTitle: string
-}
-
-const HeaderComponent: React.FC<IHeaderComponentProps> = ({
-  className,
-  user,
-  logoutCallback,
-  addNotificationCallback,
-  selectedGame,
-  selectedGameCallback,
-  settingData,
-}) => {
+const HeaderComponent: React.FC<IHeaderComponentProps> = ({ refreshKeyHandle, className, callback }) => {
+  const { showNotification } = useNotificationSystem()
   const router = useRouter()
+  const dispatch = useDispatch()
+  const { selectedGame, settingData, userData } = useSelector((state: RootState) => state.app)
   const [isMaximized, setIsMaximized] = useState(false)
   const [ipcRenderer, setIpcRenderer] = useState(null)
 
@@ -56,12 +45,20 @@ const HeaderComponent: React.FC<IHeaderComponentProps> = ({
 
   const handleGameSelection = (game: string) => {
     if (selectedGame !== game) {
-      selectedGameCallback(game)
+      dispatch(setSelectedGame(game))
       if (!router.pathname.startsWith('/vArchive') || router.pathname !== '/') {
-        router.push('/')
+        router.push('/projectRa/home')
       }
     }
   }
+
+  const handleBack = () => {
+    router.back()
+  }
+
+  const refreshComponent = useCallback(() => {
+    refreshKeyHandle((prev) => prev + 1)
+  }, [])
 
   return (
     <div className="tw-flex tw-fixed tw-w-full tw-bg-gray-900 tw-items-center tw-top-0 tw-h-12 tw-items-center tw-left-0 tw-bg-opacity-50 tw-px-2 tw-border-b tw-border-opacity-50 tw-border-gray-600">
@@ -75,7 +72,7 @@ const HeaderComponent: React.FC<IHeaderComponentProps> = ({
             </Tooltip>
           }
         >
-          <Link href="/" className="tw-px-2 tw-py-2 btn-ipc tw-mr-2">
+          <Link href="/projectRa/home" className="tw-px-2 tw-py-2 btn-ipc tw-mr-2">
             <Image src="/images/logo.svg" height={24} width={24} alt="Logo" />
           </Link>
         </OverlayTrigger>
@@ -90,7 +87,7 @@ const HeaderComponent: React.FC<IHeaderComponentProps> = ({
           </Tooltip>
         }
       >
-        <button type="button" className="tw-px-2 tw-py-2 btn-ipc tw-mr-2" onClick={() => router.back()}>
+        <button type="button" className="tw-px-2 tw-py-2 btn-ipc tw-mr-2" onClick={handleBack}>
           <FaArrowLeft />
         </button>
       </OverlayTrigger>
@@ -104,7 +101,7 @@ const HeaderComponent: React.FC<IHeaderComponentProps> = ({
           </Tooltip>
         }
       >
-        <button type="button" className="tw-px-2 tw-py-2 btn-ipc tw-mr-2" onClick={() => router.push(`/refresh?url=${router.asPath}`)}>
+        <button type="button" className="tw-px-2 tw-py-2 btn-ipc tw-mr-2" onClick={refreshComponent}>
           <FaRotate />
         </button>
       </OverlayTrigger>
@@ -186,16 +183,24 @@ const HeaderComponent: React.FC<IHeaderComponentProps> = ({
         data-bs-toggle="dropdown"
         aria-expanded="false"
       >
-        {user.userNo !== '' && user.userToken !== '' && user.userName !== '' ? (
+        {userData.userNo !== '' && userData.userToken !== '' && userData.userName !== '' ? (
           <>
-            <Image src={`/images/djmax_respect_v/jackets/${user.randomTitle}.jpg`} height="24" width="24" className="tw-rounded-full" alt="Profile Image" />
-            {user.userName}
+            <Image
+              loading="lazy" // "lazy" | "eager"
+              blurDataURL={globalDictionary.blurDataURL}
+              src={`/images/djmax_respect_v/jackets/${userData.randomTitle}.jpg`}
+              height="24"
+              width="24"
+              className="tw-rounded-full"
+              alt="Profile Image"
+            />
+            {userData.userName}
           </>
         ) : (
           '로그인해주세요'
         )}
       </button>
-      {renderUserDropdown(user, logoutCallback, addNotificationCallback, ipcRenderer, router)}
+      {renderUserDropdown(userData, ipcRenderer, router, callback, refreshKeyHandle)}
 
       {/* 우측 유틸리티 버튼 */}
       {renderUtilityButtons(ipcRenderer, isMaximized, setIsMaximized)}

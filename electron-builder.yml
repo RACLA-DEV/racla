@@ -1,5 +1,5 @@
 appId: kr.lunatica.projectra
-productName: Project RA
+productName: PROJECT RA
 copyright: Copyright © 2024 Lunatica Luna
 directories:
   output: dist
@@ -10,9 +10,9 @@ files:
       - package.json
       - app
 
-extraResources:
-  - from: ./images/
-    to: ./images/
+# extraResources:
+#   - from: ./images/
+#     to: ./images/
 
 publish:
   provider: github

@@ -47,6 +47,8 @@ module.exports = {
         notificationProgress: 'notificationProgress 10s linear forwards',
         scaleUpAndScaleDown: 'scaleUpAndScaleDown 0.5s forwards',
         scaleDownAndScaleUp: 'scaleDownAndScaleUp 0.5s forwards',
+        fadeInSlideRight: 'fadeInSlideRight 0.4s ease-out',
+        fadeOutSlideRight: 'fadeOutSlideRight 0.4s ease-in forwards',
       },
       keyframes: {
         fadeInOut: {
@@ -83,6 +85,29 @@ module.exports = {
           '50%': { transform: 'scale(0.6)' },
           '100%': { transform: 'scale(1.0)' },
         },
+        fadeInSlideRight: {
+          '0%': {
+            transform: 'translateX(100%)',
+            opacity: '0',
+          },
+          '100%': {
+            transform: 'translateX(0)',
+            opacity: '1',
+          },
+        },
+        fadeOutSlideRight: {
+          '0%': {
+            transform: 'translateX(0)',
+            opacity: '1',
+          },
+          '100%': {
+            transform: 'translateX(100%)',
+            opacity: '0',
+          },
+        },
+      },
+      scale: {
+        102: '1.02',
       },
     },
   },

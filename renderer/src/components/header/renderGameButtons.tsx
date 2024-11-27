@@ -1,4 +1,5 @@
 // renderGameButton.tsx
+import { globalDictionary } from '@/libs/server/globalDictionary'
 import Image from 'next/image'
 import { OverlayTrigger, Tooltip } from 'react-bootstrap'
 
@@ -8,7 +9,7 @@ export const renderGameButtons = (game, logoPath, gameName, selectedGame, handle
       placement="bottom"
       overlay={
         <Tooltip id={`btn-select-game-${game}`} className="tw-text-xs">
-          {game === 'DJMAX_RESPECT_V' ? 'V-ARCHIVE에 기록된 정보를 바탕으로 제공되는 서비스' : '프로젝트 RA 제공 서비스'}
+          {game === 'DJMAX_RESPECT_V' ? 'V-ARCHIVE에 저장된 성과 기록을 바탕으로 제공되는 서비스' : '프로젝트 RA 제공 서비스'}
         </Tooltip>
       }
     >
@@ -20,7 +21,14 @@ export const renderGameButtons = (game, logoPath, gameName, selectedGame, handle
           (selectedGame === game ? 'active' : '')
         }
       >
-        <Image src={logoPath} height={16} width={16} alt={gameName} />
+        <Image
+          loading="lazy" // "lazy" | "eager"
+          blurDataURL={globalDictionary.blurDataURL}
+          src={logoPath}
+          height={16}
+          width={16}
+          alt={gameName}
+        />
         <span className="tw-text-xs">{gameName}</span>
       </button>
     </OverlayTrigger>

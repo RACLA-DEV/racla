@@ -1,6 +1,6 @@
 import path from 'path'
 import fs from 'fs'
-import { app, BrowserWindow, desktopCapturer, ipcMain, screen, session, shell } from 'electron'
+import { app, BrowserWindow, desktopCapturer, ipcMain, screen, session, shell, globalShortcut } from 'electron'
 import serve from 'electron-serve'
 import { createWindow } from './helpers'
 import { clearSession, getSession, getSettingData, getSongData, storeSession, storeSettingData, storeSongData } from './fsManager'
@@ -14,6 +14,7 @@ import 'moment/locale/ko'
 import FormData from 'form-data'
 import axios from 'axios'
 import { randomUUID } from 'crypto'
+import { settingsManager } from './settingsManager'
 const isProd = process.env.NODE_ENV === 'production'
 
 if (isProd) {
@@ -27,16 +28,43 @@ const baseDir = !isProd ? path.join(__dirname, '/../') : app.getAppPath().replac
 let isLogined = false
 let isLoaded = false
 
-let autoCaptureMode = false
-let autoCaptureIntervalId
-let autoCaptureApi = 'eapi'
-let autoCaptureIntervalTime = 3000
+let settingData: any = {
+  hardwareAcceleration: true,
+  homeButtonAlignRight: false,
+  autoCaptureMode: false,
+  autoCaptureIntervalTime: 3000,
+  autoCaptureApi: 'xcap-api',
+  visibleBga: true,
+  language: 'ko',
+  rivalName: '',
+  visibleAnimation: true,
+  captureOnlyFocused: true,
+  autoUpdate: false,
+  autoRemoveBlackPixel: true,
+  removeBlackPixelPx: 8,
+  saveImageWhenCapture: true,
+}
 let isUploaded = false
 let overlayWindow: BrowserWindow | null = null
 let removedPixels = 0
+let isFullscreen = false
 
 ;(async () => {
   await app.whenReady()
+
+  const isRegistered = globalShortcut.register('Ctrl+Alt+Insert', () => {
+    pressAltInsert()
+  })
+
+  if (!isRegistered) {
+    console.error('Global shortcut registration failed')
+  } else {
+    console.log('Global shortcut registered successfully')
+  }
+
+  app.on('will-quit', () => {
+    globalShortcut.unregisterAll()
+  })
 
   const mainWindow = createWindow('main', {
     width: 1440,
@@ -48,8 +76,7 @@ let removedPixels = 0
     icon: path.join(__dirname + '/../resources/', 'icon.ico'),
     webPreferences: {
       nodeIntegration: true,
-      // devTools: !isProd,
-      devTools: true,
+      devTools: !isProd,
       preload: path.join(__dirname, 'preload.js'),
     },
   })
@@ -60,27 +87,32 @@ let removedPixels = 0
     frame: false,
     transparent: true,
     backgroundColor: '#00000000',
-    alwaysOnTop: true,
-    focusable: false,
-    show: false,
+    alwaysOnTop: true, // 항상 위에 표시
+    focusable: false, // 포커스를 받을 수 없음
+    skipTaskbar: true,
+    hasShadow: false,
     webPreferences: {
       nodeIntegration: true,
-      devTools: !isProd,
+      devTools: false,
       preload: path.join(__dirname, 'preload.js'),
     },
     autoHideMenuBar: true,
     useContentSize: true,
+    type: 'toolbar', // 창 유형을 'toolbar'로 설정
   })
 
+  // 오버레이 창 설정
   overlayWindow.setIgnoreMouseEvents(true, { forward: true })
+  overlayWindow.setAlwaysOnTop(true, 'screen-saver')
+  overlayWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true })
 
   if (isProd) {
-    await mainWindow.loadURL('app://./')
-    await overlayWindow.loadURL('app://./overlay')
+    await mainWindow.loadURL('app://./projectRa/home')
+    await overlayWindow.loadURL('app://./projectRa/overlay/widget')
   } else {
     const port = process.argv[2]
-    await mainWindow.loadURL(`http://localhost:${port}/`)
-    await overlayWindow.loadURL(`http://localhost:${port}/overlay`)
+    await mainWindow.loadURL(`http://localhost:${port}/projectRa/home`)
+    await overlayWindow.loadURL(`http://localhost:${port}/projectRa/overlay/widget`)
     mainWindow.webContents.openDevTools()
     overlayWindow.webContents.openDevTools()
   }
@@ -115,34 +147,39 @@ let removedPixels = 0
   // checkGameAndUpdateOverlay 함수 수정
   async function checkGameAndUpdateOverlay() {
     try {
-      const gamePos: any = await findGameWindow()
-
-      // 게임 프로세스가 실행 중인지 확인
       const isGameRunning = await isDjmaxRunning()
 
-      // 현재 포커스된 윈도우의 제목 가져오기
-      const focusedWindow = await new Promise<string>((resolve) => {
-        exec(
-          'powershell -command "Add-Type -TypeDefinition \'using System; using System.Runtime.InteropServices; public class Window { [DllImport(\\"user32.dll\\")] public static extern IntPtr GetForegroundWindow(); [DllImport(\\"user32.dll\\")] public static extern int GetWindowText(IntPtr hWnd, System.Text.StringBuilder text, int count); }\' ; $window = [Window]::GetForegroundWindow(); $buffer = New-Object System.Text.StringBuilder(256); [Window]::GetWindowText($window, $buffer, 256) > $null; $buffer.ToString()"',
-          (err, stdout) => {
-            resolve(stdout.trim())
-          },
-        )
-      })
+      // 게임이 실행중이지 않으면 오버레이 숨기고 early return
+      if (!isGameRunning) {
+        if (overlayWindow.isVisible()) {
+          overlayWindow.hide()
+        }
+        mainWindow.webContents.send('isDetectedGame', false)
+        return
+      }
 
-      const isGameFocused = focusedWindow == 'DJMAX RESPECT V'
+      const gamePos: any = await findGameWindow()
+      const focusedWindow = await getFocusedWindow()
+      const isGameFocused = focusedWindow === 'DJMAX RESPECT V'
 
-      if (gamePos && isGameRunning) {
-        // 게임이 포커스되어 있을 때만 오버레이 표시
-        if (isGameFocused) {
-          if (!overlayWindow.isVisible()) {
-            overlayWindow.show()
+      if (gamePos) {
+        const display = screen.getDisplayNearestPoint({ x: gamePos.x, y: gamePos.y })
+        const scaleFactor = display.scaleFactor
+
+        let newBounds
+        if (isFullscreen) {
+          const aspectRatio = 16 / 9
+          const targetHeight = gamePos.width / aspectRatio
+          const blackBarHeight = (gamePos.height - targetHeight) / 2
+
+          newBounds = {
+            x: Math.round(gamePos.x / scaleFactor),
+            y: Math.round((gamePos.y + blackBarHeight) / scaleFactor),
+            width: Math.round(gamePos.width / scaleFactor),
+            height: Math.round(targetHeight / scaleFactor),
           }
-
-          const display = screen.getDisplayNearestPoint({ x: gamePos.x, y: gamePos.y })
-          const scaleFactor = display.scaleFactor
-
-          overlayWindow.setBounds({
+        } else {
+          newBounds = {
             x: (gamePos.width / 16) * 9 !== gamePos.height ? Math.round(gamePos.x / scaleFactor) + removedPixels : Math.round(gamePos.x / scaleFactor),
             y:
               Math.round(gamePos.y / scaleFactor) +
@@ -150,15 +187,15 @@ let removedPixels = 0
             width: (gamePos.width / 16) * 9 !== gamePos.height ? gamePos.width / scaleFactor - removedPixels * 2 : gamePos.width / scaleFactor,
             height:
               (gamePos.width / 16) * 9 !== gamePos.height
-                ? gamePos.height - (gamePos.height - (gamePos.width / 16) * 9) / scaleFactor
+                ? (gamePos.height - (gamePos.height - (gamePos.width / 16) * 9)) / scaleFactor - removedPixels
                 : gamePos.height / scaleFactor,
-          })
-        } else {
-          // 게임이 포커스되지 않았을 때는 오버레이 숨김
-          if (overlayWindow.isVisible()) {
-            overlayWindow.hide()
           }
         }
+
+        if (!overlayWindow.isVisible()) {
+          overlayWindow.show()
+        }
+        overlayWindow.setBounds(newBounds)
 
         mainWindow.webContents.send('isDetectedGame', true)
       } else {
@@ -172,15 +209,27 @@ let removedPixels = 0
     }
   }
 
-  // 비동기 게임 체크 함수로 수정
+  // getFocusedWindow 함수 추가 - PowerShell 명령어를 별도 함수로 분리
+  async function getFocusedWindow(): Promise<string> {
+    return new Promise((resolve) => {
+      exec(
+        'powershell -command "Add-Type -TypeDefinition \'using System; using System.Runtime.InteropServices; public class Window { [DllImport(\\"user32.dll\\")] public static extern IntPtr GetForegroundWindow(); [DllImport(\\"user32.dll\\")] public static extern int GetWindowText(IntPtr hWnd, System.Text.StringBuilder text, int count); }\' ; $window = [Window]::GetForegroundWindow(); $buffer = New-Object System.Text.StringBuilder(256); [Window]::GetWindowText($window, $buffer, 256) > $null; $buffer.ToString()"',
+        (err, stdout) => {
+          resolve(stdout.trim())
+        },
+      )
+    })
+  }
+
+  // checkGameOverlayLoop 함수 수정 - 체크 간격 조가
   const checkGameOverlayLoop = async () => {
     try {
       await checkGameAndUpdateOverlay()
     } catch (error) {
       console.error('Error in game check loop:', error)
     } finally {
-      // 재귀적으로 다음 체크 예약 (1초 후)
-      setTimeout(checkGameOverlayLoop, 1000)
+      // 체크 간격을 100ms로 증가 (초당 10회)
+      setTimeout(checkGameOverlayLoop, 100)
     }
   }
 
@@ -188,7 +237,15 @@ let removedPixels = 0
   checkGameOverlayLoop()
 
   ipcMain.on('closeApp', () => {
+    // 오버레이 윈도우 먼저 제거
+    if (overlayWindow) {
+      overlayWindow.destroy()
+      overlayWindow = null
+    }
+    // 메인 윈도우 종료
     mainWindow.close()
+    // 앱 종료 강제 실행
+    app.quit()
   })
 
   // 창 최대화 버튼 감지
@@ -261,7 +318,7 @@ let removedPixels = 0
 
   ipcMain.on('openBrowser', (event, url) => {
     event.preventDefault()
-    shell.openExternal(url)
+    mainWindow.webContents.send('confirm-external-link', url)
   })
 
   ipcMain.on('setAuthorization', async (event, { userNo, userToken }) => {
@@ -287,47 +344,31 @@ let removedPixels = 0
   })
 
   ipcMain.on('getSettingData', async (event) => {
+    await settingsManager.initializeSettings()
     const settingData = await getSettingData()
-    mainWindow.webContents.send('IPC_RENDERER_GET_SETTING_DATA', settingData ? { ...settingData } : null)
+    mainWindow.webContents.send('IPC_RENDERER_GET_SETTING_DATA', settingData)
   })
 
   ipcMain.on('changeSettingData', async (event, data) => {
-    const settingData = await getSettingData()
-    storeSettingData({ ...settingData, ...data })
-  })
+    const updatedSettings = await settingsManager.updateSettings(data)
+    settingData = updatedSettings
 
-  ipcMain.on('changeAutoCaptureMode', async (event, data) => {
-    autoCaptureMode = data.autoCaptureMode
-    const settingData = await getSettingData()
-    storeSettingData({ ...settingData, ...data })
-  })
+    // 재시작이 필요한 설정이 변경되었는지 확인
+    if (settingsManager.requiresRestart(Object.keys(data))) {
+      app.relaunch()
+      app.exit()
+    }
 
-  ipcMain.on('changeAutoCaptureMode', async (event, data) => {
-    autoCaptureMode = data.autoCaptureMode
-    const settingData = await getSettingData()
-    storeSettingData({ ...settingData, ...data })
-  })
-
-  ipcMain.on('changeAutoCaptureApi', async (event, data) => {
-    autoCaptureApi = data.autoCaptureApi
-    const settingData = await getSettingData()
-    storeSettingData({ ...settingData, ...data })
-  })
-
-  ipcMain.on('changeAutoCaptureIntervalTime', async (event, data) => {
-    autoCaptureIntervalTime = data.autoCaptureIntervalTime
-    const settingData = await getSettingData()
-    storeSettingData({ ...settingData, ...data })
+    mainWindow.webContents.send('IPC_RENDERER_GET_SETTING_DATA', updatedSettings)
   })
 
   ipcMain.on('PROGRAM_LOADED', async () => {
     if (!isLoaded) {
       // 자동 업데이트 체크
-      autoUpdater.checkForUpdatesAndNotify()
-      const settingData = await getSettingData()
-      autoCaptureMode = settingData.autoCaptureMode
-      autoCaptureApi = settingData.autoCaptureApi
-      autoCaptureIntervalTime = settingData.autoCaptureIntervalTime
+      settingData = await getSettingData()
+      if (settingData.autoUpdate) {
+        autoUpdater.checkForUpdatesAndNotify()
+      }
       startCapturing()
       isLoaded = true
     }
@@ -355,7 +396,7 @@ let removedPixels = 0
     mainWindow.webContents.send('update-downloaded', info.version)
   })
 
-  async function processResultScreen(imageBuffer, isMenualUpload?) {
+  async function processResultScreen(imageBuffer, isMenualUpload?, isNotSaveImage?) {
     try {
       console.log('Client Side OCR isResultScreen Requested. Processing image data...')
       let processedBuffer = await sharp(imageBuffer).extract({ width: 230, height: 24, left: 100, top: 236 }).grayscale().linear(1.5, 0).toBuffer()
@@ -372,6 +413,12 @@ let removedPixels = 0
             message: 'DJMAX RESPECT V(게임)의 게임 결과창이 자동 인식되어 성과 기록 이미지를 처리 중에 있습니다. 잠시만 기다려주세요.',
             color: 'tw-bg-blue-600',
           })
+          if (settingData.resultOverlay) {
+            overlayWindow.webContents.send('IPC_RENDERER_GET_NOTIFICATION_DATA', {
+              message: 'DJMAX RESPECT V(게임)의 게임 결과창이 자동 인식되어 성과 기록 이미지를 처리 중에 있니다. 잠시만 기다려주세요.',
+              color: 'tw-bg-blue-600',
+            })
+          }
         }
         console.log('Server Side OCR PlayData Requested. Processing image data...')
         try {
@@ -381,29 +428,35 @@ let removedPixels = 0
             filename: randomUUID() + '.png',
             contentType: 'image/png',
           })
-          const response = await axios.post('http://luna.koreacentral.cloudapp.azure.com:8080/api/v1/ocr/upload', formData, {
-            headers: {
-              ...formData.getHeaders(),
-              // 'Authorization': 'Bearer your-token-here'
+          const session = await getSession()
+          const response = await axios.post(
+            `${isProd ? 'https://project-ra-app.lunatica.kr/api/v1' : 'https://project-ra-dev.lunatica.kr/api/v1'}/ocr/upload`,
+            formData,
+            {
+              headers: {
+                ...formData.getHeaders(),
+                Authorization: isLogined ? `${session.userNo}|${session.userToken}` : '',
+              },
+              withCredentials: true,
             },
-          })
+          )
           console.log('Server Side OCR PlayData Result:', { ...response.data, processedTime: Date.now() - serverOcrStartTime + 'ms' })
 
           const { playData } = response.data
 
           if (playData.isVerified) {
-            if (!isMenualUpload) {
-              const filePath = path.join(
-                app.getPath('pictures'),
-                'PROJECT-RA',
-                String(playData.songData.name).replaceAll(':', '-') +
-                  '-' +
-                  String(playData.score) +
-                  '-' +
-                  moment().utcOffset(9).format('YYYY-MM-DD-HH-mm-ss') +
-                  '.png',
-              )
+            const filePath = path.join(
+              app.getPath('pictures'),
+              'PROJECT-RA',
+              String(playData.songData.name).replaceAll(':', '-') +
+                '-' +
+                String(playData.score) +
+                '-' +
+                moment().utcOffset(9).format('YYYY-MM-DD-HH-mm-ss') +
+                '.png',
+            )
 
+            if (settingData.saveImageWhenCapture && !isNotSaveImage) {
               fs.writeFile(filePath, Buffer.from(imageBuffer), (err) => {
                 if (err) {
                   console.error('Failed to save file:', err)
@@ -411,14 +464,11 @@ let removedPixels = 0
                   console.log('File saved to', filePath)
                 }
               })
-              isUploaded = true
-              overlayWindow.webContents.send('IPC_RENDERER_GET_PLAY_DATA', { ...response.data.playData })
-              return { ...response.data, filePath }
-            } else {
-              isUploaded = true
-              !isProd && overlayWindow.webContents.send('IPC_RENDERER_GET_PLAY_DATA', { ...response.data.playData })
-              return { ...response.data }
             }
+
+            isUploaded = true
+            settingData.resultOverlay && overlayWindow.webContents.send('IPC_RENDERER_GET_NOTIFICATION_DATA', { ...response.data.playData })
+            return { ...response.data, filePath: settingData.saveImageWhenCapture ? filePath : null }
           } else {
             return {
               playData: {
@@ -456,6 +506,17 @@ let removedPixels = 0
     }
   }
 
+  ipcMain.on('canvas-screenshot-upload', async (event, data) => {
+    const { buffer, fileName } = data
+    const imageBuffer = Buffer.from(buffer, 'base64')
+    const filePath = path.join(app.getPath('pictures'), 'PROJECT-RA', fileName)
+    fs.writeFile(filePath, imageBuffer, (err) => {
+      if (err) {
+        console.error('Failed to save file:', err)
+      }
+    })
+  })
+
   ipcMain.on('captureTest', async (event, data) => {
     const imageBuffer = await captureScreen()
 
@@ -468,6 +529,7 @@ let removedPixels = 0
         console.error('Failed to save file:', err)
       } else {
         console.log('File saved to', filePath)
+        shell.showItemInFolder(filePath)
       }
     })
   })
@@ -483,13 +545,13 @@ let removedPixels = 0
         .extract({ width: 1920, height: 1080, left: 0, top: resizedImageMetadata.height - (resizedImageMetadata.width / 16) * 9 })
         .toBuffer()
 
-      const { playData } = await processResultScreen(croppedBuffer, true)
+      const { playData } = await processResultScreen(croppedBuffer, true, true)
       if (playData !== null && playData.isVerified !== undefined) {
         mainWindow.webContents.send('screenshot-uploaded', playData)
       }
     } else {
       console.log('Full Screen Image Detected.')
-      const { playData } = await processResultScreen(image, true)
+      const { playData } = await processResultScreen(image, true, true)
       if (playData !== null && playData.isVerified !== undefined) {
         mainWindow.webContents.send('screenshot-uploaded', playData)
       }
@@ -506,7 +568,7 @@ let removedPixels = 0
         }
         mainWindow.webContents.send('isDetectedGame', true)
 
-        if (isLogined && autoCaptureMode) {
+        if (isLogined && settingData.autoCaptureMode) {
           const focusedWindow = await new Promise<string>((resolve) => {
             exec(
               'powershell -command "Add-Type -TypeDefinition \'using System; using System.Runtime.InteropServices; public class Window { [DllImport(\\"user32.dll\\")] public static extern IntPtr GetForegroundWindow(); [DllImport(\\"user32.dll\\")] public static extern int GetWindowText(IntPtr hWnd, System.Text.StringBuilder text, int count); }\' ; $window = [Window]::GetForegroundWindow(); $buffer = New-Object System.Text.StringBuilder(256); [Window]::GetWindowText($window, $buffer, 256) > $null; $buffer.ToString()"',
@@ -518,7 +580,7 @@ let removedPixels = 0
 
           const isGameFocused = focusedWindow == 'DJMAX RESPECT V'
 
-          if (isGameFocused) {
+          if (isGameFocused || !settingData.captureOnlyFocused) {
             console.log('Powershell isGameFocused Result : Game is focused. Capturing...', `(${focusedWindow})`)
             const gameSource = await captureScreen()
             const data = await processResultScreen(gameSource) // gameSource를 버퍼로 전달
@@ -533,16 +595,49 @@ let removedPixels = 0
         console.error('Error processing capture:', error)
       } finally {
         // 작업이 완료된 후 2초 후에 다음 작업 예약
-        clearTimeout(autoCaptureIntervalId)
-        autoCaptureIntervalId = setTimeout(
+        clearTimeout(settingData.autoCaptureIntervalId)
+        settingData.autoCaptureIntervalId = setTimeout(
           captureAndProcess,
-          [1000, 2000, 3000, 5000, 10000].includes(autoCaptureIntervalTime) ? autoCaptureIntervalTime : 3000,
+          [1000, 2000, 3000, 5000, 10000].includes(settingData.autoCaptureIntervalTime) ? settingData.autoCaptureIntervalTime : 3000,
         )
       }
     }
 
     captureAndProcess() // 초기 호출
   }
+  const pressAltInsert = async () => {
+    try {
+      console.log('Pressed Ctrl+Alt+Insert Key')
+      if (settingData.resultOverlay) {
+        overlayWindow.webContents.send('IPC_RENDERER_GET_NOTIFICATION_DATA', {
+          message: '게임 결과창 인식을 시작합니다. 잠시만 기다려주세요.',
+          color: 'tw-bg-lime-600',
+        })
+      }
+      const isRunning = await isDjmaxRunning()
+      console.log('isRunning:', isRunning)
+      if (isRunning && isLogined) {
+        const gameSource = await captureScreen()
+        const data = await processResultScreen(gameSource, true) // gameSource를 버퍼로 전달
+        if (data !== null && data !== undefined && data.playData && data.playData.isVerified !== null) {
+          mainWindow.webContents.send('screenshot-uploaded', { ...data.playData, filePath: data.filePath })
+        } else {
+          if (settingData.resultOverlay) {
+            overlayWindow.webContents.send('IPC_RENDERER_GET_NOTIFICATION_DATA', {
+              message: '게임 결과창이 아니거나 성과 기록 이미지를 처리 중에 오류가 발생하였습니다. 다시 시도해주시길 바랍니다.',
+              color: 'tw-bg-red-600',
+            })
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error processing capture:', error)
+    }
+  }
+
+  ipcMain.on('open-external-link', (event, url) => {
+    shell.openExternal(url)
+  })
 })()
 
 const isDjmaxRunning = () => {
@@ -562,114 +657,73 @@ const isDjmaxRunning = () => {
 
 async function captureScreen() {
   try {
-    if (['eapi', 'xcap-api'].includes(autoCaptureApi)) {
-      console.log(autoCaptureApi.toUpperCase() + ': Game Window Captured')
+    if (['eapi', 'xcap-api', 'napi'].includes(settingData.autoCaptureApi)) {
+      console.log(settingData.autoCaptureApi.toUpperCase() + ': Game Window Captured')
 
-      if (autoCaptureApi === 'xcap-api') {
-        const windows = Window.all().filter((value) => value.title.includes('DJMAX RESPECT V'))
+      const windows = Window.all().filter((value) => value.title.includes('DJMAX RESPECT V'))
 
-        if (windows.length > 0) {
-          const window = windows[0]
+      if (windows.length > 0) {
+        const window = windows[0]
 
-          if (!isProd) {
-            const filePath = path.join(
-              app.getPath('pictures'),
-              'PROJECT-RA',
-              '화면 캡쳐 원본' + '-' + moment().utcOffset(9).format('YYYY-MM-DD-HH-mm-ss') + '.png',
-            )
+        isFullscreen = window.isMaximized
 
-            fs.writeFile(filePath, Buffer.from(window.captureImageSync().toPngSync()), (err) => {
-              if (err) {
-                console.error('Failed to save file:', err)
-              } else {
-                console.log('File saved to', filePath)
-              }
-            })
-          }
+        if (![640, 720, 800, 1024, 1128, 1280, 1366, 1600, 1680, 1760, 1920, 2048, 2288, 2560, 3072, 3200, 3840, 5120].includes(window.width)) {
+          // ... existing code ...
+          const image = window.captureImageSync()
+          const pngImage = await sharp(image.toPngSync()).toBuffer()
+          const metadata = await sharp(pngImage).metadata()
 
-          if (![640, 720, 800, 1024, 1128, 1280, 1366, 1600, 1680, 1760, 1920, 2048, 2288, 2560, 3072, 3200, 3840, 5120].includes(window.width)) {
-            // ... existing code ...
-            const image = window.captureImageSync()
-            const pngImage = await sharp(image.toPngSync()).toBuffer()
-            const metadata = await sharp(pngImage).metadata()
+          // 이미지의 실제 컨텐츠 영역을 찾기 위한 분석
+          const { data, info } = await sharp(pngImage).raw().toBuffer({ resolveWithObject: true })
 
-            // 이미지의 실제 컨텐츠 영역을 찾기 위한 분석
-            const { data, info } = await sharp(pngImage).raw().toBuffer({ resolveWithObject: true })
-
-            // 아래에서부터 검은색 픽셀(RGB: 0,0,0)이 아닌 첫 번째 행을 찾음
-            let actualHeight = metadata.height
-            for (let y = metadata.height - 1; y >= 0; y--) {
-              let isNonBlackRow = false
-              for (let x = 0; x < metadata.width; x++) {
-                const idx = (y * metadata.width + x) * info.channels
-                // RGB 값이 모두 0인지 확인
-                if (data[idx] !== 0 || data[idx + 1] !== 0 || data[idx + 2] !== 0) {
-                  isNonBlackRow = true
-                  break
-                }
-              }
-              if (isNonBlackRow) {
-                actualHeight = y + 1
+          // 아래에서부터 검은색 픽셀(RGB: 0,0,0)이 아닌 첫 번째 행을 찾음
+          let actualHeight = metadata.height
+          for (let y = metadata.height - 1; y >= 0; y--) {
+            let isNonBlackRow = false
+            for (let x = 0; x < metadata.width; x++) {
+              const idx = (y * metadata.width + x) * info.channels
+              // RGB 값이 모두 0인지 확인
+              if (data[idx] !== 0 || data[idx + 1] !== 0 || data[idx + 2] !== 0) {
+                isNonBlackRow = true
                 break
               }
             }
-
-            if (!isUploaded) {
-              removedPixels = metadata.height - actualHeight
-            }
-            console.log(`Removed Black Pixels: ${removedPixels}px`)
-
-            // 검은색 여백을 제거한 이미지 생성
-            const croppedImage = await sharp(pngImage)
-              .extract({
-                left: removedPixels,
-                top: 0,
-                width: metadata.width - removedPixels * 2,
-                height: actualHeight,
-              })
-              .resize(1920)
-              .toBuffer()
-
-            const croppedImageMetadata = await sharp(croppedImage).metadata()
-
-            const resizedImage = await sharp(croppedImage)
-              .extract({
-                left: 0,
-                top: croppedImageMetadata.height - 1080,
-                width: croppedImageMetadata.width,
-                height: 1080,
-              })
-              .toBuffer()
-
-            return resizedImage
-          } else {
-            return await sharp(window.captureImageSync().toPngSync()).resize(1920, 1080).toBuffer()
-          }
-        }
-        return null
-      } else if (autoCaptureApi === 'eapi') {
-        const screenshot = (await desktopCapturer.getSources({ types: ['window'], thumbnailSize: { width: 1920, height: 1080 } })).filter((value) =>
-          value.name.includes('DJMAX RESPECT V'),
-        )
-
-        if (screenshot.length > 0) {
-          if (Number(screenshot[0].thumbnail.getSize().width) === 1920) {
-            return screenshot[0].thumbnail.toPNG()
-          } else {
-            // 1080p 이상 창모드
-            if (Number(screenshot[0].thumbnail.getSize().width) <= 1861) {
-              if (Number(screenshot[0].thumbnail.getSize().width) <= 1848) {
-                return sharp(screenshot[0].thumbnail.toPNG()).extract({ left: 9, top: 36, width: 1830, height: 1035 }).resize(1920, 1080).toBuffer()
-              } else {
-                return sharp(screenshot[0].thumbnail.toPNG()).extract({ left: 9, top: 36, width: 1841, height: 1035 }).resize(1920, 1080).toBuffer()
-              }
-            }
-            // 900p 창모드
-            else {
-              console.log('900p')
-              return sharp(screenshot[0].thumbnail.toPNG()).extract({ left: 8, top: 30, width: 1853, height: 1042 }).resize(1920, 1080).toBuffer()
+            if (isNonBlackRow) {
+              actualHeight = y + 1
+              break
             }
           }
+
+          if (!isUploaded) {
+            removedPixels = metadata.height - actualHeight
+          }
+          console.log(`Removed Black Pixels: ${removedPixels}px`)
+
+          // 검은색 여백을 제거한 이미지 생성
+          const croppedImage = await sharp(pngImage)
+            .extract({
+              left: removedPixels,
+              top: 0,
+              width: metadata.width - removedPixels * 2,
+              height: actualHeight,
+            })
+            .resize(1920)
+            .toBuffer()
+
+          const croppedImageMetadata = await sharp(croppedImage).metadata()
+
+          const resizedImage = await sharp(croppedImage)
+            .extract({
+              left: 0,
+              top: croppedImageMetadata.height - 1080,
+              width: croppedImageMetadata.width,
+              height: 1080,
+            })
+            .toBuffer()
+
+          return resizedImage
+        } else {
+          return await sharp(window.captureImageSync().toPngSync()).resize(1920, 1080).toBuffer()
         }
       } else {
         return null
@@ -705,7 +759,7 @@ async function recognizeText(imageBuffer, lang = 'eng') {
 }
 
 app.on('will-quit', () => {
-  clearInterval(autoCaptureIntervalId) // Clear the interval when the app is about to quit
+  clearInterval(settingData.autoCaptureIntervalId) // Clear the interval when the app is about to quit
 })
 
 app.on('window-all-closed', () => {
@@ -727,6 +781,15 @@ ipcMain.on('update-app', () => {
 })
 
 app.on('before-quit', () => {
+  // 전역 단축키 해제
+  globalShortcut.unregisterAll()
+
+  // 자동 캡처 인터벌 정리
+  if (settingData.autoCaptureIntervalId) {
+    clearTimeout(settingData.autoCaptureIntervalId)
+  }
+
+  // 오버레이 윈도우 정리
   if (overlayWindow) {
     overlayWindow.destroy()
     overlayWindow = null

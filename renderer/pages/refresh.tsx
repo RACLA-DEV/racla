@@ -7,14 +7,14 @@ import { IUserNameRequest, IUserNameResponse } from '@/types/IUserName'
 import { useRouter } from 'next/router'
 import { useParams } from 'next/navigation'
 
-export default function LoginPage({ userData }) {
+export default function LoginPage() {
   const router = useRouter()
 
   useEffect(() => {
     if (router.query.url) {
       router.push(`${String(router.query.url)}`)
     } else {
-      router.push('/')
+      router.push('/projectRa/home')
     }
   }, [])
 

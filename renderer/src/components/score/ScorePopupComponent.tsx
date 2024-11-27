@@ -1,178 +1,355 @@
 import { globalDictionary } from '@/libs/server/globalDictionary'
+import {
+  getDifficultyClassName,
+  getDifficultyScoreBarClassName,
+  getDifficultyStarImage,
+  getDifficultyTextClassName,
+  getScoreDisplayText,
+  getSCPatternScoreDisplayText,
+} from '@/libs/client/respectUtils'
 import Image from 'next/image'
 import Link from 'next/link'
 import { OverlayTrigger, Tooltip } from 'react-bootstrap'
-import { useSelector } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
 import { RootState } from 'store'
+import { useState, useEffect, useCallback } from 'react'
+import { setBackgroundBgaName } from 'store/slices/uiSlice'
 
 interface ScorePopupComponentProps {
-  songItem: any
+  songItem?: any
+  songItemTitle?: string
   keyMode: string
-  userData: any
+  isScored?: boolean
+  isVisibleCode?: boolean
+  rivalName?: string
   songDataPackIndex?: number
-  isScored?: any
-  setBackgroundBgaName: any
+  isFlatten?: boolean
+  delay?: { show: number; hide: number }
+  onMouseEnter?: () => void
+  onMouseLeave?: () => void
 }
 
-const ScorePopupComponent = ({ songItem, keyMode, userData, songDataPackIndex, isScored, setBackgroundBgaName }: ScorePopupComponentProps) => {
+const ScorePopupComponent = ({
+  songItem,
+  songItemTitle,
+  keyMode,
+  isScored = false,
+  isVisibleCode = false,
+  rivalName = '',
+  songDataPackIndex,
+  delay = { show: 500, hide: 0 },
+  onMouseEnter,
+  onMouseLeave,
+}: ScorePopupComponentProps) => {
+  const dispatch = useDispatch()
   const fontFamily = useSelector((state: RootState) => state.ui.fontFamily)
+  const userData = useSelector((state: RootState) => state.app.userData)
+  const songDataList = useSelector((state: RootState) => state.app.songData)
+  const [songData, setSongData] = useState<any>(null)
+  const [rivalSongData, setRivalSongData] = useState<any>(null)
+  const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [isHovered, setIsHovered] = useState<boolean>(false)
+  const [showScore, setShowScore] = useState<boolean>(false)
+  const [mounted, setMounted] = useState<boolean>(false)
+
+  useEffect(() => {
+    let isMounted = true
+
+    const fetchData = async () => {
+      if (!userData.userName && !songItem && songItemTitle) {
+        const foundSong = songDataList.find((song) => song.title === songItemTitle)
+        if (foundSong) {
+          setSongData(foundSong)
+        }
+        return
+      }
+
+      if (userData.userName && isHovered && !isScored) {
+        setIsLoading(true)
+        try {
+          const response = await fetch(
+            `${process.env.NEXT_PUBLIC_PROXY_API_URL}?url=https://v-archive.net/api/archive/${userData.userName}/title/${songItem?.title || songItemTitle}`,
+          )
+          if (response.ok && isMounted) {
+            const data = await response.json()
+            if (songItem) {
+              setSongData({ ...songItem, patterns: data.patterns })
+            } else {
+              setSongData(data)
+            }
+          }
+        } catch (error) {
+          console.error('Error fetching song data:', error)
+        }
+
+        if (rivalName && rivalName !== userData.userName) {
+          try {
+            const response = await fetch(
+              `${process.env.NEXT_PUBLIC_PROXY_API_URL}?url=https://v-archive.net/api/archive/${rivalName}/title/${songItem?.title || songItemTitle}`,
+            )
+            if (response.ok && isMounted) {
+              const data = await response.json()
+              setRivalSongData(data)
+            }
+          } catch (error) {
+            console.error('Error fetching rival data:', error)
+          }
+        }
+
+        if (isMounted) {
+          setIsLoading(false)
+        }
+      }
+    }
+
+    fetchData()
+    return () => {
+      isMounted = false
+    }
+  }, [songItem, songItemTitle, userData.userName, rivalName, isHovered, isScored, songDataList])
+
+  useEffect(() => {
+    if (isHovered && !isLoading && displayData !== null) {
+      const timer = setTimeout(() => {
+        setMounted(true)
+      }, 100)
+      return () => clearTimeout(timer)
+    } else {
+      setMounted(false)
+    }
+  }, [isHovered, isLoading])
+
+  const handleMouseEnter = () => {
+    setIsHovered(true)
+    onMouseEnter?.()
+    if (songItem) {
+      dispatch(setBackgroundBgaName(String(songItem.title)))
+    }
+  }
+
+  const handleMouseLeave = () => {
+    setIsHovered(false)
+    onMouseLeave?.()
+    dispatch(setBackgroundBgaName(''))
+  }
+
+  const displayData = isScored ? songItem : songData || songItem
 
   return (
     <OverlayTrigger
-      key={'songDataPack' + songDataPackIndex + '_item' + songItem.title}
+      key={'songDataPack_item' + (displayData?.title ?? songItemTitle)}
       placement="auto"
+      delay={delay}
+      show={isHovered && !isLoading && displayData !== null}
       overlay={
-        <Tooltip id="btn-nav-home" className={`tw-text-xs tw-min-h-48 ${fontFamily}`}>
-          {songItem !== null ? (
+        <Tooltip id="btn-nav-home" className={`tw-bg-gray-950 tw-bg-opacity-100 tw-text-xs tw-min-h-48 ${fontFamily}`}>
+          <div className="tw-flex tw-gap-2">
+            <style jsx global>{`
+              .tooltip-inner {
+                background-color: rgb(3 7 18) !important;
+                opacity: 1 !important;
+              }
+              .tooltip.show {
+                opacity: 1 !important;
+              }
+            `}</style>
             <div className="tw-flex tw-flex-col">
-              <div
-                className="tw-flex tw-flex-col tw-w-80 tw-h-32 tw-relative tw-mb-2 tw-mt-1 tw-bg-gray-900 tw-overflow-hidden tw-rounded-md "
-                style={{ opacity: 1 }}
-              >
+              <div className="tw-flex tw-flex-col tw-w-80 tw-h-32 tw-relative tw-mb-2 tw-mt-1 tw-bg-gray-900 tw-bg-opacity-100 tw-overflow-hidden tw-rounded-md">
                 <Image
-                  src={`/images/djmax_respect_v/jackets/${songItem.title}.jpg`}
+                  loading="lazy" // "lazy" | "eager"
+                  blurDataURL={globalDictionary.blurDataURL}
+                  src={`/images/djmax_respect_v/jackets/${displayData?.title ?? songItemTitle}.jpg`}
                   className="tw-absolute tw-animate-fadeInLeft tw-rounded-md tw-blur tw-brightness-50 tw-bg-opacity-90"
                   fill
                   alt=""
                   style={{ objectFit: 'cover' }}
                 />
                 <span className="tw-absolute tw-left-0 tw-bottom-0 tw-px-2 tw-font-bold tw-text-left tw-break-keep">
-                  <span className="tw-font-medium tw-text-md">{songItem.composer}</span>
+                  <span className="tw-font-medium tw-text-md">{displayData?.composer}</span>
                   <br />
-                  <span className=" tw-text-xl">{songItem.name}</span>
+                  <span className="tw-text-xl">{displayData?.name}</span>
                 </span>
                 <span className="tw-absolute tw-top-1 tw-right-1 respect_dlc_code_wrap tw-animate-fadeInLeft tw-rounded-md p-1 tw-bg-gray-950">
-                  <span className={`respect_dlc_code respect_dlc_code_${songItem.dlcCode}`}>{songItem.dlc}</span>
+                  <span className={`respect_dlc_code respect_dlc_code_${displayData?.dlcCode ?? ''}`}>{displayData?.dlc ?? ''}</span>
                 </span>
               </div>
-              <div className="tw-flex tw-flex-col tw-gap-2 tw-w-80 tw-p-2 tw-rounded-md tw-mb-1 tw-bg-gray-900 tw-bg-opacity-100">
-                {['NM', 'HD', 'MX', 'SC'].map((value, difficultyIndex) =>
-                  songItem.patterns[`${keyMode}B`][value] !== undefined && songItem.patterns[`${keyMode}B`][value] !== null ? (
-                    <div
-                      className="tw-flex tw-flex-col tw-gap-2"
-                      key={'songDataPack' + (songDataPackIndex ? String(songDataPackIndex) : '0') + '_item' + songItem.title + '_hover' + value}
-                    >
-                      <div className="tw-flex tw-items-center tw-gap-1">
-                        <span
-                          className={
-                            `tw-text-base tw-font-extrabold tw-text-left tw-z-50 text-stroke-100 tw-me-auto ` +
-                            (value === 'NM'
-                              ? 'tw-text-respect-nm-5'
-                              : value === 'HD'
-                              ? 'tw-text-respect-nm-10'
-                              : value === 'MX'
-                              ? 'tw-text-respect-nm-15'
-                              : 'tw-text-respect-sc-15')
-                          }
-                        >
-                          {globalDictionary.respect.difficulty[value].fullName}
-                        </span>
-                        <Image
-                          src={
-                            songItem.patterns[`${keyMode}B`][value].level <= 5
-                              ? `/images/djmax_respect_v/${value === 'SC' ? 'sc' : 'nm'}_5_star.png`
-                              : songItem.patterns[`${keyMode}B`][value].level <= 10
-                              ? `/images/djmax_respect_v/${value === 'SC' ? 'sc' : 'nm'}_10_star.png`
-                              : `/images/djmax_respect_v/${value === 'SC' ? 'sc' : 'nm'}_15_star.png`
-                          }
-                          height={14}
-                          width={14}
-                          alt=""
-                        />
-                        <span
-                          className={
-                            songItem.patterns[`${keyMode}B`][value].level <= 5
-                              ? `tw-text-base text-stroke-100 tw-text-respect-${value === 'SC' ? 'sc' : 'nm'}-5`
-                              : songItem.patterns[`${keyMode}B`][value].level <= 10
-                              ? `tw-text-base text-stroke-100 tw-text-respect-${value === 'SC' ? 'sc' : 'nm'}-10`
-                              : `tw-text-base text-stroke-100 tw-text-respect-${value === 'SC' ? 'sc' : 'nm'}-15`
-                          }
-                        >
-                          {songItem.patterns[`${keyMode}B`][value].level}{' '}
-                          <sup className="tw-text-xs">
-                            {songItem.patterns[`${keyMode}B`][value].floor !== undefined && songItem.patterns[`${keyMode}B`][value].floor !== null
-                              ? `(${songItem.patterns[`${keyMode}B`][value].floor}F)`
-                              : null}
-                          </sup>
-                        </span>
-                      </div>
-                      {userData.userName !== '' ? (
-                        <div className="tw-relative tw-w-full tw-bg-gray-950 tw-rounded-sm tw-overflow-hidden tw-animate-fadeInDown">
-                          <div
-                            className={
-                              `tw-h-6 tw-transition-all tw-duration-500 tw-ease-in-out ` +
-                              (value === 'NM'
-                                ? 'tw-bg-respect-nm-5'
-                                : value === 'HD'
-                                ? 'tw-bg-respect-nm-10'
-                                : value === 'MX'
-                                ? 'tw-bg-respect-nm-15'
-                                : 'tw-bg-respect-sc-15')
-                            }
-                            style={{
-                              width: `${
-                                songItem.patterns[`${keyMode}B`][value].score !== undefined && songItem.patterns[`${keyMode}B`][value].score !== null
-                                  ? String(Math.floor(Number(songItem.patterns[`${keyMode}B`][value].score)))
-                                  : '0'
-                              }%`,
-                            }}
+              <div className="tw-flex tw-flex-col tw-gap-2 tw-w-80 tw-p-2 tw-rounded-md tw-mb-1 tw-bg-gray-700 tw-bg-opacity-20">
+                {['NM', 'HD', 'MX', 'SC'].map(
+                  (value, difficultyIndex) =>
+                    displayData?.patterns[`${keyMode}B`]?.[value] !== undefined &&
+                    displayData?.patterns[`${keyMode}B`]?.[value] !== null && (
+                      <div className="tw-flex tw-flex-col tw-gap-2" key={'songDataPack_item' + displayData.title + '_hover' + value}>
+                        <div className="tw-flex tw-items-center tw-gap-1">
+                          <span className={getDifficultyTextClassName(value)}>{globalDictionary.respect.difficulty[value].fullName}</span>
+                          <Image
+                            loading="lazy" // "lazy" | "eager"
+                            blurDataURL={globalDictionary.blurDataURL}
+                            src={getDifficultyStarImage(displayData.patterns[`${keyMode}B`][value].level, value)}
+                            height={14}
+                            width={14}
+                            alt=""
                           />
-                          <div className={'tw-absolute tw-inset-0 tw-flex tw-items-center tw-justify-center tw-font-extrabold tw-text-white'}>
-                            {songItem.patterns[`${keyMode}B`][value].score !== undefined && songItem.patterns[`${keyMode}B`][value].score !== null
-                              ? songItem.patterns[`${keyMode}B`][value].score === '100.00'
-                                ? `PERFECT`
-                                : `${songItem.patterns[`${keyMode}B`][value].score}%${songItem.patterns[`${keyMode}B`][value].maxCombo ? `(MAX COMBO)` : ''}`
-                              : '0%(기록 미존재)'}
-                          </div>
+                          <span className={getDifficultyClassName(displayData.patterns[`${keyMode}B`][value].level, value)}>
+                            {displayData.patterns[`${keyMode}B`][value].level}{' '}
+                            <sup className="tw-text-xs">
+                              {displayData.patterns[`${keyMode}B`][value].floor !== undefined && displayData.patterns[`${keyMode}B`][value].floor !== null
+                                ? `(${displayData.patterns[`${keyMode}B`][value].floor}F)`
+                                : null}
+                            </sup>
+                          </span>
                         </div>
-                      ) : null}
-                    </div>
-                  ) : null,
+                        {userData.userName !== '' && (displayData.patterns[`${keyMode}B`][value] !== undefined || isScored) ? (
+                          <div className="tw-relative tw-w-full tw-h-6 tw-bg-gray-900 tw-rounded-sm tw-overflow-hidden">
+                            <div
+                              className="tw-h-full tw-transition-all tw-duration-1000 tw-ease-out"
+                              style={{
+                                width: mounted
+                                  ? `${displayData.patterns[`${keyMode}B`][value]?.score ? Number(displayData.patterns[`${keyMode}B`][value].score) : 0}%`
+                                  : '0%',
+                                backgroundColor:
+                                  value === 'NM'
+                                    ? '#f5bb01' // respect-nm-5
+                                    : value === 'HD'
+                                    ? '#f95b08aa' // respect-nm-10
+                                    : value === 'MX'
+                                    ? '#f30253aa' // respect-nm-15
+                                    : value === 'SC'
+                                    ? '#3d66ff'
+                                    : '', // respect-sc-15
+                              }}
+                            />
+                            <div className="tw-absolute tw-inset-0 tw-flex tw-items-center tw-justify-center tw-font-bold tw-text-white">
+                              {getScoreDisplayText(displayData.patterns[`${keyMode}B`][value])}
+                            </div>
+                          </div>
+                        ) : null}
+                      </div>
+                    ),
                 )}
               </div>
+              {userData.userName !== '' && (
+                <span className="tw-text-xs tw-font-light tw-text-gray-300 tw-my-2">
+                  <span className="">{userData.userName}</span>님의 성과 기록
+                </span>
+              )}
             </div>
-          ) : null}
+
+            {rivalName && rivalName !== userData.userName && rivalSongData && (
+              <div className="tw-flex tw-flex-col">
+                <div className="tw-flex tw-flex-col tw-w-80 tw-h-32 tw-relative tw-mb-2 tw-mt-1 tw-bg-gray-900 tw-bg-opacity-100 tw-overflow-hidden tw-rounded-md">
+                  <Image
+                    loading="lazy" // "lazy" | "eager"
+                    blurDataURL={globalDictionary.blurDataURL}
+                    src={`/images/djmax_respect_v/jackets/${rivalSongData.title}.jpg`}
+                    className="tw-absolute tw-animate-fadeInLeft tw-rounded-md tw-blur tw-brightness-50 tw-bg-opacity-90"
+                    fill
+                    alt=""
+                    style={{ objectFit: 'cover' }}
+                  />
+                  <span className="tw-absolute tw-left-0 tw-bottom-0 tw-px-2 tw-font-bold tw-text-left tw-break-keep">
+                    <span className="tw-font-medium tw-text-md">{rivalSongData.composer}</span>
+                    <br />
+                    <span className="tw-text-xl">{rivalSongData.name}</span>
+                  </span>
+                  <span className="tw-absolute tw-top-1 tw-right-1 respect_dlc_code_wrap tw-animate-fadeInLeft tw-rounded-md p-1 tw-bg-gray-950">
+                    <span className={`respect_dlc_code respect_dlc_code_${rivalSongData.dlcCode}`}>{rivalSongData.dlc}</span>
+                  </span>
+                </div>
+                <div className="tw-flex tw-flex-col tw-gap-2 tw-w-80 tw-p-2 tw-rounded-md tw-mb-1 tw-bg-gray-700 tw-bg-opacity-20">
+                  {['NM', 'HD', 'MX', 'SC'].map(
+                    (value, difficultyIndex) =>
+                      rivalSongData.patterns[`${keyMode}B`][value] !== undefined &&
+                      rivalSongData.patterns[`${keyMode}B`][value] !== null && (
+                        <div className="tw-flex tw-flex-col tw-gap-2" key={'songDataPack_item' + rivalSongData.title + '_hover' + value}>
+                          <div className="tw-flex tw-items-center tw-gap-1">
+                            <span className={getDifficultyTextClassName(value)}>{globalDictionary.respect.difficulty[value].fullName}</span>
+                            <Image
+                              loading="lazy" // "lazy" | "eager"
+                              blurDataURL={globalDictionary.blurDataURL}
+                              src={getDifficultyStarImage(rivalSongData.patterns[`${keyMode}B`][value].level, value)}
+                              height={14}
+                              width={14}
+                              alt=""
+                            />
+                            <span className={getDifficultyClassName(rivalSongData.patterns[`${keyMode}B`][value].level, value)}>
+                              {rivalSongData.patterns[`${keyMode}B`][value].level}{' '}
+                              <sup className="tw-text-xs">
+                                {rivalSongData.patterns[`${keyMode}B`][value].floor !== undefined && rivalSongData.patterns[`${keyMode}B`][value].floor !== null
+                                  ? `(${rivalSongData.patterns[`${keyMode}B`][value].floor}F)`
+                                  : null}
+                              </sup>
+                            </span>
+                          </div>
+                          {userData.userName !== '' && (rivalSongData.patterns[`${keyMode}B`][value] !== undefined || isScored) ? (
+                            <div className="tw-relative tw-w-full tw-h-6 tw-bg-gray-900 tw-rounded-sm tw-overflow-hidden">
+                              <div
+                                className="tw-h-full tw-transition-all tw-duration-1000 tw-ease-out"
+                                style={{
+                                  width: mounted
+                                    ? `${rivalSongData.patterns[`${keyMode}B`][value]?.score ? Number(rivalSongData.patterns[`${keyMode}B`][value].score) : 0}%`
+                                    : '0%',
+                                  backgroundColor:
+                                    value === 'NM'
+                                      ? '#f5bb01' // respect-nm-5
+                                      : value === 'HD'
+                                      ? '#f95b08aa' // respect-nm-10
+                                      : value === 'MX'
+                                      ? '#f30253aa' // respect-nm-15
+                                      : value === 'SC'
+                                      ? '#3d66ff'
+                                      : '', // respect-sc-15
+                                }}
+                              />
+                              <div className="tw-absolute tw-inset-0 tw-flex tw-items-center tw-justify-center tw-font-bold tw-text-white">
+                                {getScoreDisplayText(rivalSongData.patterns[`${keyMode}B`][value])}
+                              </div>
+                            </div>
+                          ) : null}
+                        </div>
+                      ),
+                  )}
+                </div>
+                {rivalName !== '' && (
+                  <span className="tw-text-xs tw-font-light tw-text-gray-300 tw-my-2">
+                    <span className="">{rivalName}</span>님의 성과 기록
+                  </span>
+                )}
+              </div>
+            )}
+          </div>
         </Tooltip>
       }
     >
-      <div className="tw-inline-flex tw-flex-col tw-h-26 tw-w-20 tw-transition-all tw-me-3 tw-mb-3">
+      <div className="tw-inline-flex tw-flex-col tw-transition-all" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
         <Link
-          href={`/vArchive/db/title/${songItem.title}`}
-          className="tw-relative tw-h-20 tw-w-20 tw-rounded-md hover-scale-110 respect_record tw-shadow-lg tw-cursor-pointer"
-          onMouseEnter={() => setBackgroundBgaName(String(songItem.title))}
-          onMouseLeave={() => setBackgroundBgaName('')}
+          href={`/vArchive/db/title/${displayData?.title ?? songItemTitle}`}
+          className="tw-relative tw-h-20 tw-w-20 tw-rounded-md hover-scale-110 respect_record  tw-cursor-pointer"
         >
           <Image
-            src={`/images/djmax_respect_v/jackets/${songItem.title}.jpg`}
-            className="tw-absolute tw-animate-fadeInLeft tw-rounded-md"
-            height={80}
-            width={80}
+            loading="lazy" // "lazy" | "eager"
+            blurDataURL={globalDictionary.blurDataURL}
+            src={`/images/djmax_respect_v/jackets/${displayData?.title ?? songItemTitle}.jpg`}
+            className="tw-absolute tw-rounded-md tw-shadow-lg"
+            height={rivalName ? 70 : 80}
+            width={rivalName ? 70 : 80}
             alt=""
           />
-          <span className="tw-absolute tw-top-0 tw-left-0 respect_dlc_code_wrap tw-animate-fadeInLeft tw-rounded-tl-md">
-            <span className={`respect_dlc_code respect_dlc_code_${songItem.dlcCode}`}>{songItem.dlcCode}</span>
-          </span>
-          <span
-            className={`tw-absolute tw-right-0 tw-bottom-0 pattern tw-animate-fadeInLeft tw-rounded-br-md ${
-              String(songItem.patterns[`${keyMode}B`].SC.level).includes('.5') ? 'MX' : 'SC'
-            }`}
-          >
-            <span className={`tw-text-white`}>{String(songItem.patterns[`${keyMode}B`].SC.level).includes('.5') ? 'MX' : 'SC'}</span>
-          </span>
+          {isVisibleCode ? (
+            <span className="tw-absolute tw-top-0 tw-left-0 respect_dlc_code_wrap tw-rounded-tl-md">
+              <span className={`respect_dlc_code respect_dlc_code_${displayData?.dlcCode ?? ''}`}>{displayData?.dlcCode ?? ''}</span>
+            </span>
+          ) : null}
+          {displayData?.pattern && (
+            <span className={`tw-absolute tw-right-0 tw-bottom-0 pattern tw-rounded-br-md ${displayData.pattern}`}>
+              <span className={`tw-text-white`}>
+                {String(displayData.pattern)} {String(displayData.level).replace('.5', '')}
+              </span>
+            </span>
+          )}
         </Link>
-        {userData.userName !== '' && isScored ? (
-          <span className={'mt-2 tw-w-full tw-bg-gray-950 tw-text-center tw-rounded-md tw-text-sm tw-font-bold tw-animate-fadeInDown'}>
-            {String(songItem.patterns[`${keyMode}B`].SC.level).includes('.5')
-              ? songItem.patterns[`${keyMode}B`].MX.score
-                ? songItem.patterns[`${keyMode}B`].MX.score === '100.00'
-                  ? 'PERFECT'
-                  : songItem.patterns[`${keyMode}B`].MX.score
-                : '0.00'
-              : songItem.patterns[`${keyMode}B`].SC.score
-              ? songItem.patterns[`${keyMode}B`].SC.score === '100.00'
-                ? 'PERFECT'
-                : songItem.patterns[`${keyMode}B`].SC.score
-              : '0.00'}
+        {userData.userName !== '' && isScored && displayData ? (
+          <span className={'mt-2 tw-w-full tw-bg-gray-950 tw-text-center tw-rounded-md tw-text-sm tw-font-bold'}>
+            {getSCPatternScoreDisplayText(displayData.patterns, keyMode)}
           </span>
         ) : null}
       </div>

@@ -1,8 +1,8 @@
 # 기본 URL의 앞부분
-$baseUrl = "/images/jackets/"
+$baseUrl = "https://v-archive.net/static/images/bg/header_bg"
 
 # 이미지 파일 이름을 저장할 폴더 경로
-$outputFolder = "C:\Users\Administrator\Desktop\images"
+$outputFolder = "C:\Users\Administrator\Desktop\"
 
 # 다운로드할 이미지의 범위 (여기서는 1부터 640까지)
 $start = 1
@@ -22,7 +22,7 @@ for ($i = $start; $i -le $end; $i++) {
     $imageUrl = "$baseUrl$title.jpg"
     
     # 저장할 파일 경로
-    $outputPath = Join-Path -Path $outputFolder -ChildPath "$title.jpg"
+    $outputPath = Join-Path -Path $outputFolder -ChildPath "header_bg$title.jpg"
     
     # 이미지 다운로드
     try {

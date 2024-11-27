@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import Head from 'next/head'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -6,10 +6,28 @@ import axios, { AxiosResponse } from 'axios'
 import { IUserNameRequest, IUserNameResponse } from '@/types/IUserName'
 import { useRouter } from 'next/router'
 import { useParams } from 'next/navigation'
-import { FaCircleInfo, FaLink, FaTriangleExclamation } from 'react-icons/fa6'
+import { FaCircleInfo, FaLink, FaTriangleExclamation, FaUpload } from 'react-icons/fa6'
+import { useSelector } from 'react-redux'
+import { RootState } from 'store'
+import { useNotificationSystem } from '@/libs/client/useNotifications'
 
-export default function VArchiveLoginPage({ addNotificationCallback, userData }) {
+export default function VArchiveLoginPage() {
+  const { showNotification } = useNotificationSystem()
   const router = useRouter()
+  const userData = useSelector((state: RootState) => state.app.userData)
+  const [isLogin, setIsLogin] = useState<boolean>(false)
+
+  useEffect(() => {
+    if (isLogin) {
+      router.push(`${String(router.query.url)}`)
+    }
+  }, [isLogin])
+
+  useEffect(() => {
+    if (userData.userName !== '') {
+      router.push('/projectRa/home')
+    }
+  }, [])
 
   const getUserName = async <T = IUserNameResponse, R = IUserNameRequest>(body: R): Promise<T> => {
     const { data } = await axios.post<T, AxiosResponse<T>, R>(`${process.env.NEXT_PUBLIC_PROXY_API_URL}?url=https://v-archive.net/client/login`, body, {
@@ -19,10 +37,7 @@ export default function VArchiveLoginPage({ addNotificationCallback, userData })
   }
 
   const handleError = (error?: string) => {
-    addNotificationCallback(
-      '유효하지 않은 사용자 정보입니다. V-ARCHIVE 공식 클라이언트 실행 파일이 위치한 폴더의 account.txt 파일을 선택해주세요.',
-      'tw-bg-red-600',
-    )
+    showNotification('유효하지 않은 사용자 정보입니다. V-ARCHIVE 공식 클라이언트로 생성한 로그인 데이터(account.txt) 파일을 선택해주세요.', 'tw-bg-red-600')
     const ipcResult = window.ipc.logout()
   }
 
@@ -57,7 +72,7 @@ export default function VArchiveLoginPage({ addNotificationCallback, userData })
           data.then((result) => {
             if (result.success) {
               const ipcResult = window.ipc.login({ userNo: text.split(' ')[0], userToken: text.split(' ')[1] })
-              router.push(`${String(router.query.url)}`)
+              setIsLogin(true)
             } else {
               handleError()
             }
@@ -76,51 +91,70 @@ export default function VArchiveLoginPage({ addNotificationCallback, userData })
     }
   }
 
-  if (userData.userName !== '') {
-    if (router.query.url !== undefined) {
-      router.push(`${String(router.query.url)}`)
-    } else {
-      router.push('/')
-    }
-  } else {
-    return (
-      <React.Fragment>
-        <Head>
-          <title>DJMAX REPSECT V(V-ARCHIVE) 로그인 - 프로젝트 RA</title>
-        </Head>
-        <div className="tw-flex tw-flex-col tw-gap-1 tw-bg-gray-600 tw-bg-opacity-10 tw-rounded-md p-4 tw-mb-4">
-          {/* 상단 */}
-          <div className="tw-flex tw-w-full">
-            {/* 제목 */}
-            <span className="tw-text-lg tw-font-bold me-auto">로그인</span>
-            <div className="tw-flex tw-gap-2"></div>
-          </div>
+  // useRef 추가
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
-          {/* 내용 */}
-          <span>프로젝트 RA는 V-ARCHIVE과 동일한 포맷의 사용자 데이터를 수집 및 사용하고 있습니다.</span>
-          <span>V-ARCHIVE 공식 클라이언트 실행 파일이 위치한 폴더의 account.txt 파일 또는 프로젝트 RA로 생성한 account.txt 파일을 선택해주세요.</span>
-          <input
-            className="form-control tw-mt-2 tw-text-sm tw-bg-gray-900 tw-bg-opacity-20 tw-font-light"
-            placeholder="account.txt"
-            type="file"
-            accept=".txt"
-            onChange={onFileChange}
-          />
-          <br />
-
-          <span className="tw-flex tw-justify-end tw-gap-2 tw-items-center tw-text-xs tw-font-semibold tw-mt-4">
-            <FaCircleInfo />
-            <div className="tw-flex tw-flex-col">
-              <span>현재 회원가입은 V-ARCHIVE 공식 클라이언트에서만 가능합니다.</span>
-              <span>추후 V-ARCHIVE와 연동된 회원가입이 제공될 예정입니다.</span>
-              <span className="tw-flex tw-items-center tw-cursor-pointer" onClick={() => window.ipc.send('openBrowser', 'https://v-archive.net/downloads')}>
-                V-ARCHIVE 공식 클라이언트 다운로드 바로가기(
-                <FaLink />)
-              </span>
-            </div>
-          </span>
-        </div>
-      </React.Fragment>
-    )
+  // 파일 선택 핸들러 추가
+  const handleFileSelect = () => {
+    fileInputRef.current?.click()
   }
+
+  return (
+    <React.Fragment>
+      <Head>
+        <title>DJMAX REPSECT V(V-ARCHIVE) 로그인 - 프로젝트 RA</title>
+      </Head>
+      <div className="tw-h-[calc(100vh-7rem)] tw-flex tw-items-center tw-justify-center tw-py-12 tw-px-4">
+        <div className="tw-w-full tw-max-w-md">
+          <div className="tw-flex tw-flex-col tw-gap-1 tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-shadow-lg tw-p-8">
+            {/* 상단 */}
+            <div className="tw-flex tw-w-full tw-mb-6">
+              {/* 제목 */}
+              <span className="tw-text-2xl tw-font-bold tw-text-white tw-me-auto">로그인</span>
+              <div className="tw-flex tw-gap-2"></div>
+            </div>
+
+            {/* 내용 */}
+            <div className="tw-space-y-4">
+              <div className="tw-flex tw-flex-col tw-gap-4">
+                <div className="tw-bg-gray-700 tw-bg-opacity-30 tw-p-4 tw-rounded">
+                  <p>V-ARCHIVE 공식 클라이언트로 생성한 로그인 데이터 파일을 선택해주세요.</p>
+                </div>
+
+                {/* 숨겨진 파일 input */}
+                <input ref={fileInputRef} type="file" accept=".txt" onChange={onFileChange} className="tw-hidden" />
+
+                {/* 커스텀 버튼 */}
+                <button
+                  onClick={handleFileSelect}
+                  className="tw-w-full tw-flex tw-items-center tw-justify-center tw-gap-2 tw-px-4 tw-py-3 tw-rounded-md tw-bg-blue-600 hover:tw-bg-blue-700 tw-text-white tw-transition-colors"
+                >
+                  <FaUpload className="tw-text-lg" />
+                  파일 선택(account.txt)
+                </button>
+
+                <div className="tw-bg-blue-900 tw-bg-opacity-20 tw-p-4 tw-rounded tw-border-l-4 tw-border-blue-500">
+                  <p className="tw-mb-2">프로젝트 RA는 V-ARCHIVE의 사용자 데이터를 수집 및 사용하고 있습니다.</p>
+                </div>
+              </div>
+
+              <div className="tw-flex tw-justify-center tw-gap-3 tw-items-start tw-text-xs tw-text-gray-300 tw-mt-6 tw-pt-4 tw-border-t tw-border-gray-700">
+                <FaCircleInfo className="tw-mt-1 tw-text-blue-400" />
+                <div className="tw-flex tw-flex-col tw-gap-1">
+                  <span>현재 회원가입은 V-ARCHIVE 공식 클라이언트에서만 가능합니다.</span>
+                  <span>추후 V-ARCHIVE와 연동된 회원가입이 제공될 예정입니다.</span>
+                  <span
+                    className="tw-flex tw-items-center tw-gap-1 tw-text-blue-400 hover:tw-text-blue-300 tw-cursor-pointer tw-transition-colors"
+                    onClick={() => window.ipc.send('openBrowser', 'https://v-archive.net/downloads')}
+                  >
+                    V-ARCHIVE 공식 클라이언트 다운로드 바로가기 <FaLink />
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </React.Fragment>
+  )
 }

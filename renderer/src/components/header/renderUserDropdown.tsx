@@ -1,9 +1,21 @@
 // renderUserDropdown.tsx
+import { useNotificationSystem } from '@/libs/client/useNotifications'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
+import { useDispatch } from 'react-redux'
+import { setUploadedData, setUserData } from 'store/slices/appSlice'
 
-export const renderUserDropdown = (user, logoutCallback, addNotificationCallback, ipcRenderer, router) => {
+export const renderUserDropdown = (user, ipcRenderer, router, callback, refreshKeyHandle) => {
+  const { showNotification } = useNotificationSystem()
+  const dispatch = useDispatch()
+
+  const logoutCallback = () => {
+    dispatch(setUserData({ userToken: '', userName: '', userNo: '' }))
+    dispatch(setUploadedData(null))
+    callback()
+  }
+
   return (
     <ul className="dropdown-menu tw-text-xs tw-bg-gray-900 tw-bg-opacity-90 tw-p-0" aria-labelledby="btn-nav-user">
       <li>
@@ -39,8 +51,8 @@ export const renderUserDropdown = (user, logoutCallback, addNotificationCallback
               logoutCallback()
               ipcRenderer.logout()
               ipcRenderer.setAuthorization({ userNo: '', userToken: '' })
-              addNotificationCallback('정상적으로 로그아웃 되었습니다.', 'tw-bg-lime-600')
-              router.push(`/refresh?url=${router.asPath}`)
+              showNotification('정상적으로 로그아웃 되었습니다.', 'tw-bg-lime-600')
+              refreshKeyHandle((prev) => prev + 1)
             }}
           >
             로그아웃

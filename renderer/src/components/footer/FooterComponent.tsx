@@ -4,14 +4,17 @@ import { useRouter } from 'next/router'
 import FooterLicenseDjmaxRespectV from './license/DjmaxRespectV'
 import FooterLicenseTjmax from './license/Tjmax'
 import FooterLicenseWjmax from './license/Wjmax'
+import { useSelector } from 'react-redux'
+import type { RootState } from 'store'
+import { globalDictionary } from '@/libs/server/globalDictionary'
 
 interface IFooterComponent {
   className?: string
-  selectedGame?: string
 }
 
-const FooterComponent = ({ className, selectedGame }: IFooterComponent) => {
+const FooterComponent = ({ className }: IFooterComponent) => {
   const router = useRouter()
+  const { selectedGame } = useSelector((state: RootState) => state.app)
 
   const renderGameSpecificContent = (game: string) => {
     switch (game) {
@@ -37,25 +40,30 @@ const FooterComponent = ({ className, selectedGame }: IFooterComponent) => {
                 window.ipc.openBrowser('https://github.com/Lunatica-Luna/project-ra/releases')
               }}
             >
-              프로젝트 RA · V0.5.0.20240000 0000
+              프로젝트 RA · {globalDictionary.version}
             </span>
             - <FaTriangleExclamation /> 해당 버전은 개발 중인 화면으로 최종적인 버전이 아닙니다.
+            {/* - <FaTriangleExclamation /> 개발자 빌드 */}
           </span>
         </span>
       </div>
       <div className="tw-flex tw-justify-center tw-items-center tw-gap-1 tw-h-8 tw-pr-2">
-        {selectedGame && renderGameSpecificContent(selectedGame)}
-        <span> · </span>
-        <button
-          className="tw-text-xs"
-          type="button"
-          onClick={() => {
-            window.ipc.send('openBrowser', 'https://github.com/djmax-in/openapi?tab=readme-ov-file')
-          }}
-        >
-          Powered by V-ARCHIVE Open API
-        </button>
-        <span> · </span>
+        {router.pathname !== '/projectRa/home' && (
+          <>
+            <button
+              className="tw-text-xs"
+              type="button"
+              onClick={() => {
+                window.ipc.send('openBrowser', 'https://github.com/djmax-in/openapi?tab=readme-ov-file')
+              }}
+            >
+              Powered by V-ARCHIVE Open API
+            </button>
+            <span> · </span>
+            {selectedGame && renderGameSpecificContent(selectedGame)}
+            <span> · </span>
+          </>
+        )}
         <Link href="/license" className="tw-text-xs">
           라이선스
         </Link>

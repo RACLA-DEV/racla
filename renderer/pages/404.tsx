@@ -11,7 +11,7 @@ export default function NotFoundPage({ userData }) {
   const router = useRouter()
 
   useEffect(() => {
-    router.push('/')
+    router.push('/projectRa/home')
   }, [])
 
   return <></>

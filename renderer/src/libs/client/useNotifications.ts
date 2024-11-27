@@ -1,37 +1,37 @@
-import { useState, useCallback } from 'react'
-import { v4 as uuidv4 } from 'uuid'
+import { useCallback } from 'react'
+import { useDispatch } from 'react-redux'
+import { addNotification, setNotificationFadeOut, removeNotification } from 'store/slices/notificationSlice'
+import { v4 as uuidv4 } from 'uuid' // uuid 패키지 추가 필요
 
-export const useNotifications = () => {
-  const [notifications, setNotifications] = useState([])
+export const useNotificationSystem = () => {
+  const dispatch = useDispatch()
 
-  const addNotification = useCallback((message, color?) => {
-    const id = uuidv4()
-    setNotifications((prevNotifications) => [...prevNotifications, { id, message, fadeOut: false, color }])
-
-    setTimeout(() => {
-      setNotifications((prevNotifications) =>
-        prevNotifications.map((notification) => (notification.id === id ? { ...notification, fadeOut: true } : notification)),
-      )
+  const showNotification = useCallback(
+    (message: string, color?: string) => {
+      const notificationId = uuidv4() // 고유한 ID 생성
+      dispatch(addNotification({ id: notificationId, message, color }))
 
       setTimeout(() => {
-        setNotifications((prevNotifications) => prevNotifications.filter((notification) => notification.id !== id))
-      }, 500) // fadeOut duration
-    }, 10000) // display duration
-  }, [])
+        dispatch(setNotificationFadeOut(notificationId))
 
-  const removeNotification = useCallback((id) => {
-    setNotifications((prevNotifications) =>
-      prevNotifications.map((notification) => (notification.id === id ? { ...notification, fadeOut: true } : notification)),
-    )
+        setTimeout(() => {
+          dispatch(removeNotification(notificationId))
+        }, 500) // fadeOut duration
+      }, 10000) // display duration
+    },
+    [dispatch],
+  )
 
-    setTimeout(() => {
-      setNotifications((prevNotifications) => prevNotifications.filter((notification) => notification.id !== id))
-    }, 500) // fadeOut duration
-  }, [])
+  const removeNotificationWithFade = useCallback(
+    (id: string) => {
+      dispatch(setNotificationFadeOut(id))
 
-  return {
-    notifications,
-    addNotification,
-    removeNotification,
-  }
+      setTimeout(() => {
+        dispatch(removeNotification(id))
+      }, 500)
+    },
+    [dispatch],
+  )
+
+  return { showNotification, removeNotification: removeNotificationWithFade }
 }
