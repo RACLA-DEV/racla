@@ -23,7 +23,7 @@ import { RootState, store } from 'store'
 // import { setIsDetectedGame, setSettingData, setUserData, setUploadedData, setVArchiveSongData } from 'store/slices/appSlice'
 import { Provider } from 'react-redux'
 import BackgroundVideoComponent from '@/components/layout/BackgroundVideoComponent'
-import { setIsDetectedGame, setSettingData, setSongData, setUploadedData, setUserData } from 'store/slices/appSlice'
+import { setIsDetectedGame, setIsUploading, setSettingData, setSongData, setUploadedData, setUserData } from 'store/slices/appSlice'
 import { addNotification, setNotificationFadeOut, removeNotification } from 'store/slices/notificationSlice'
 import { v4 as uuidv4 } from 'uuid'
 import { SyncLoader } from 'react-spinners'
@@ -194,7 +194,7 @@ function MyApp({ Component, pageProps }: AppProps) {
   }
 
   useEffect(() => {
-    window.ipc.on('screenshot-uploaded', (data: any) => {
+    const handleScreenshotUploaded = (data: any) => {
       if (data.isVerified) {
         store.dispatch(setUploadedData(data))
         if (!router.asPath.includes('/vArchive/regScore')) {
@@ -202,20 +202,17 @@ function MyApp({ Component, pageProps }: AppProps) {
             router.push('/vArchive/regScore')
           }, 300)
         }
+      } else {
+        store.dispatch(setUploadedData(null))
+        showNotification('성과 기록 이미지를 처리 중에 오류가 발생하였습니다. 다시 시도해주시길 바랍니다.', 'tw-bg-red-600')
+        store.dispatch(setIsUploading(false))
       }
-    })
+    }
+
+    window.ipc.on('screenshot-uploaded', handleScreenshotUploaded)
 
     return () => {
-      window.ipc.removeListener('screenshot-uploaded', (data: any) => {
-        if (data.isVerified) {
-          store.dispatch(setUploadedData(data))
-          if (!router.asPath.includes('/vArchive/regScore')) {
-            setTimeout(() => {
-              router.push('/vArchive/regScore')
-            }, 300)
-          }
-        }
-      })
+      window.ipc.removeListener('screenshot-uploaded', handleScreenshotUploaded)
     }
   }, [])
 

@@ -607,12 +607,12 @@ export default function HomePage() {
               </span>
               <div className="tw-flex tw-justify-center tw-my-4">
                 <Image
-                  src="https://project-ra.lunatica.kr/project_ra/0cfbbb11-2078-439b-9b6c-0edc135cd9dd.png"
+                  src="https://cdn.lunatica.kr/project_ra/0cfbbb11-2078-439b-9b6c-0edc135cd9dd.png"
                   alt="overlay"
                   className="tw-cursor-pointer tw-w-1/2 tw-h-auto"
                   width={500}
                   height={500}
-                  onClick={() => setSelectedImage('https://project-ra.lunatica.kr/project_ra/0cfbbb11-2078-439b-9b6c-0edc135cd9dd.png')}
+                  onClick={() => setSelectedImage('https://cdn.lunatica.kr/project_ra/0cfbbb11-2078-439b-9b6c-0edc135cd9dd.png')}
                 />
               </div>
             </div>
@@ -621,12 +621,12 @@ export default function HomePage() {
               <span>성과표 화면 추가 - V-ARCHIVE의 성과표를 포팅하였습니다. 일부 존재하지 않는 기능은 추후 마이너 업데이트를 통해 제공될 예정입니다.</span>
               <div className="tw-flex tw-justify-center tw-my-4">
                 <Image
-                  src="https://project-ra.lunatica.kr/project_ra/c3c2dd77-183b-4ba1-8f74-3cce4b475653.png"
+                  src="https://cdn.lunatica.kr/project_ra/c3c2dd77-183b-4ba1-8f74-3cce4b475653.png"
                   alt="overlay"
                   className="tw-cursor-pointer tw-w-1/2 tw-h-auto"
                   width={500}
                   height={500}
-                  onClick={() => setSelectedImage('https://project-ra.lunatica.kr/project_ra/c3c2dd77-183b-4ba1-8f74-3cce4b475653.png')}
+                  onClick={() => setSelectedImage('https://cdn.lunatica.kr/project_ra/c3c2dd77-183b-4ba1-8f74-3cce4b475653.png')}
                 />
               </div>
             </div>
@@ -635,12 +635,12 @@ export default function HomePage() {
               <span>홈 화면 추가 - V-ARCHIVE의 사용자 성과표 메인 화면을 기반으로한 홈 화면이 추가되었습니다.</span>
               <div className="tw-flex tw-justify-center tw-my-4">
                 <Image
-                  src="https://project-ra.lunatica.kr/project_ra/66c7c48d-45e6-474e-926e-e6493de33da2.png"
+                  src="https://cdn.lunatica.kr/project_ra/66c7c48d-45e6-474e-926e-e6493de33da2.png"
                   alt="overlay"
                   className="tw-cursor-pointer tw-w-1/2 tw-h-auto"
                   width={500}
                   height={500}
-                  onClick={() => setSelectedImage('https://project-ra.lunatica.kr/project_ra/66c7c48d-45e6-474e-926e-e6493de33da2.png')}
+                  onClick={() => setSelectedImage('https://cdn.lunatica.kr/project_ra/66c7c48d-45e6-474e-926e-e6493de33da2.png')}
                 />
               </div>
             </div>
@@ -649,12 +649,12 @@ export default function HomePage() {
               <span>설정 창 개편 및 기능 추가 - 저사양 모드, 다양한 캡쳐 설정 등이 추가되었습니다.</span>
               <div className="tw-flex tw-justify-center tw-my-4">
                 <Image
-                  src="https://project-ra.lunatica.kr/project_ra/688ef865-7247-45db-bfd4-697070752b98.png"
+                  src="https://cdn.lunatica.kr/project_ra/688ef865-7247-45db-bfd4-697070752b98.png"
                   alt="overlay"
                   className="tw-cursor-pointer tw-w-1/2 tw-h-auto"
                   width={500}
                   height={500}
-                  onClick={() => setSelectedImage('https://project-ra.lunatica.kr/project_ra/688ef865-7247-45db-bfd4-697070752b98.png')}
+                  onClick={() => setSelectedImage('https://cdn.lunatica.kr/project_ra/688ef865-7247-45db-bfd4-697070752b98.png')}
                 />
               </div>
             </div>

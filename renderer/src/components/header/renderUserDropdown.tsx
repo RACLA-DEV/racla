@@ -4,7 +4,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { useDispatch } from 'react-redux'
-import { setUploadedData, setUserData } from 'store/slices/appSlice'
+import { setBackupData, setUploadedData, setUserData } from 'store/slices/appSlice'
 
 export const renderUserDropdown = (user, ipcRenderer, router, callback, refreshKeyHandle) => {
   const { showNotification } = useNotificationSystem()
@@ -53,6 +53,8 @@ export const renderUserDropdown = (user, ipcRenderer, router, callback, refreshK
               ipcRenderer.setAuthorization({ userNo: '', userToken: '' })
               showNotification('정상적으로 로그아웃 되었습니다.', 'tw-bg-lime-600')
               refreshKeyHandle((prev) => prev + 1)
+              dispatch(setUploadedData(null))
+              dispatch(setBackupData(null))
             }}
           >
             로그아웃

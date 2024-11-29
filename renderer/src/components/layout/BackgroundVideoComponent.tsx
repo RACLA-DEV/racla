@@ -7,7 +7,7 @@ const BackgroundVideoComponent = React.memo(() => {
   const backgroundBgaName = useSelector((state: RootState) => state.ui.backgroundBgaName)
   const { selectedGame, isDetectedGame, settingData } = useSelector((state: RootState) => state.app)
 
-  const baseUrl = `https://project-ra.lunatica.kr/${selectedGame.toLowerCase()}`
+  const baseUrl = `https://cdn.lunatica.kr/${selectedGame.toLowerCase()}`
   const videoSrc = backgroundBgaName ? `${baseUrl}/preview/title/${backgroundBgaName}.webm` : `${baseUrl}/bg_title.mp4`
 
   if (isDetectedGame || !settingData?.visibleBga) {

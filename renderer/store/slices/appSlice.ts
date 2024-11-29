@@ -18,6 +18,7 @@ interface AppState {
   uploadedPageData: any | null
   pattern: string
   backupData: any | null
+  isUploading: boolean
 }
 
 const initialState: AppState = {
@@ -38,6 +39,7 @@ const initialState: AppState = {
   uploadedPageData: null,
   pattern: '',
   backupData: null,
+  isUploading: false,
 }
 
 export const appSlice = createSlice({
@@ -81,6 +83,9 @@ export const appSlice = createSlice({
     setBackupData: (state, action: PayloadAction<any>) => {
       state.backupData = action.payload
     },
+    setIsUploading: (state, action: PayloadAction<boolean>) => {
+      state.isUploading = action.payload
+    },
   },
 })
 
@@ -97,5 +102,6 @@ export const {
   setUploadedPageData,
   setPattern,
   setBackupData,
+  setIsUploading,
 } = appSlice.actions
 export default appSlice.reducer

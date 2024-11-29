@@ -154,7 +154,6 @@ let isFullscreen = false
         if (overlayWindow.isVisible()) {
           overlayWindow.hide()
         }
-        mainWindow.webContents.send('isDetectedGame', false)
         return
       }
 
@@ -162,7 +161,7 @@ let isFullscreen = false
       const focusedWindow = await getFocusedWindow()
       const isGameFocused = focusedWindow === 'DJMAX RESPECT V'
 
-      if (gamePos) {
+      if (gamePos && isGameFocused) {
         const display = screen.getDisplayNearestPoint({ x: gamePos.x, y: gamePos.y })
         const scaleFactor = display.scaleFactor
 
@@ -196,13 +195,10 @@ let isFullscreen = false
           overlayWindow.show()
         }
         overlayWindow.setBounds(newBounds)
-
-        mainWindow.webContents.send('isDetectedGame', true)
       } else {
         if (overlayWindow.isVisible()) {
           overlayWindow.hide()
         }
-        mainWindow.webContents.send('isDetectedGame', false)
       }
     } catch (error) {
       console.error('Error checking game status:', error)
@@ -326,7 +322,7 @@ let isFullscreen = false
     if (userNo !== '' && userToken !== '') {
       session.defaultSession.cookies
         .set({
-          url: isProd ? 'https://app-proxy.lunatica.kr' : 'https://dev-proxy.lunatica.kr',
+          url: isProd ? 'https://papi.lunatica.kr/' : 'https://dev-papi.lunatica.kr/',
           name: 'Authorization',
           value: `${userNo}|${userToken}`,
           secure: true,
@@ -337,7 +333,7 @@ let isFullscreen = false
           console.log('Authorization Cookie Saved : ', userNo, userToken)
         })
     } else {
-      session.defaultSession.cookies.remove(isProd ? 'https://app-proxy.lunatica.kr' : 'https://dev-proxy.lunatica.kr', 'Authorization').then(() => {
+      session.defaultSession.cookies.remove(isProd ? 'https://papi.lunatica.kr/' : 'https://dev-papi.lunatica.kr/', 'Authorization').then(() => {
         console.log('Authorization Cookie Removed.')
       })
     }
@@ -399,12 +395,12 @@ let isFullscreen = false
   async function processResultScreen(imageBuffer, isMenualUpload?, isNotSaveImage?) {
     try {
       console.log('Client Side OCR isResultScreen Requested. Processing image data...')
-      let processedBuffer = await sharp(imageBuffer).extract({ width: 230, height: 24, left: 100, top: 236 }).grayscale().linear(1.5, 0).toBuffer()
-      const text = await recognizeText(processedBuffer, 'eng')
-      const isResult = ['JUDGEMENT', 'DETAILS', 'DETAIL', 'JUDGE', 'JUDGEMENT DETAILS'].filter((value) => {
-        return text.toUpperCase().trim().includes(value) && text.length !== 0
-      })
-      console.log('Client Side OCR isResultScreen:', isResult.length >= 1, `(${text.toUpperCase().trim()})`)
+
+      const isResult = ['server']
+      const text = 'server'
+      const where = 'server'
+
+      console.log('Client Side OCR isResultScreen:', isResult.length >= 1, `(${text.toUpperCase().trim()})`, `(Result Type: ${where})`)
 
       if (isResult.length >= 1 && (!isUploaded || isMenualUpload)) {
         if (!isMenualUpload) {
@@ -428,18 +424,15 @@ let isFullscreen = false
             filename: randomUUID() + '.png',
             contentType: 'image/png',
           })
+          formData.append('where', where)
           const session = await getSession()
-          const response = await axios.post(
-            `${isProd ? 'https://project-ra-app.lunatica.kr/api/v1' : 'https://project-ra-dev.lunatica.kr/api/v1'}/ocr/upload`,
-            formData,
-            {
-              headers: {
-                ...formData.getHeaders(),
-                Authorization: isLogined ? `${session.userNo}|${session.userToken}` : '',
-              },
-              withCredentials: true,
+          const response = await axios.post(`${isProd ? 'https://rapi.lunatica.kr/api' : 'https://dev-rapi.lunatica.kr/api'}/v1/ocr/upload`, formData, {
+            headers: {
+              ...formData.getHeaders(),
+              Authorization: isLogined ? `${session.userNo}|${session.userToken}` : '',
             },
-          )
+            withCredentials: true,
+          })
           console.log('Server Side OCR PlayData Result:', { ...response.data, processedTime: Date.now() - serverOcrStartTime + 'ms' })
 
           const { playData } = response.data
