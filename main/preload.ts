@@ -13,12 +13,12 @@ const handler = {
       ipcRenderer.removeListener(channel, subscription)
     }
   },
-  login: (credentials: { userNo: string; userToken: string }) => ipcRenderer.send('login', credentials),
+  login: (credentials: { userNo?: string; userToken?: string; vArchiveUserNo?: string; vArchiveUserToken?: string }) => ipcRenderer.send('login', credentials),
   logout: () => ipcRenderer.send('logout'),
   getSetting: () => ipcRenderer.send('getSetting'),
   getSession: () => ipcRenderer.send('getSession'),
-  putSongData: (songData: any) => ipcRenderer.send('putSongData', songData),
-  getSongData: () => ipcRenderer.send('getSongData'),
+  putSongData: (songData: any, gameCode: string) => ipcRenderer.send('putSongData', { songData, gameCode }),
+  getSongData: (gameCode: string) => ipcRenderer.send('getSongData', gameCode),
   openBrowser: (url: string) => ipcRenderer.send('openBrowser', url),
   setAuthorization: (userData: { userNo: string; userToken: string }) => ipcRenderer.send('setAuthorization', userData),
   desktopCapturer: (options) => desktopCapturer.getSources(options),

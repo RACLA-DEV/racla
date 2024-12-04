@@ -1,18 +1,12 @@
 import { useEffect, useState, useRef, MouseEvent, WheelEvent } from 'react'
 import { createPortal } from 'react-dom'
 import { FaMinus, FaPlus, FaXmark, FaPalette, FaArrowsRotate, FaArrowRightArrowLeft, FaDice, FaHouse, FaTrashCan } from 'react-icons/fa6'
+import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch'
 
 // constants/chart.js
 export const DEFAULT_BPM = 206
-export const BEATS_PER_SECTION = 16 // 한 섹션에 표시할 비트 수
 
 // utils/timing.js
-export const calculateSectionDuration = (bpm) => {
-  // 한 비트당 시간(ms) = (60초 * 1000ms) / BPM
-  const msPerBeat = (60 * 1000) / bpm
-  // 섹션 전체 시간 = 비트당 시간 * 섹션당 비트수
-  return msPerBeat * BEATS_PER_SECTION
-}
 
 // types/chart.ts
 interface Note {
@@ -55,7 +49,6 @@ interface WjmaxChartProps {
 
 export default function WjmaxChartComponent({ chartData, bpm = DEFAULT_BPM, onClose }: WjmaxChartProps) {
   const [sections, setSections] = useState<ChartSection>({})
-  const SECTIONS_PER_COLUMN = 3 // 한 컬럼당 섹션 수
   const [scale, setScale] = useState(0.5) // 기본 0.5배 크기로 시작
   const [isVisible, setIsVisible] = useState(false)
   const [position, setPosition] = useState({ x: 0, y: 0 })
@@ -63,14 +56,22 @@ export default function WjmaxChartComponent({ chartData, bpm = DEFAULT_BPM, onCl
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
   const [chartSize, setChartSize] = useState({ width: 0, height: 0 })
   const [theme, setTheme] = useState('blue') // 테마 상태 추가
-  const [sectionHeight, setSectionHeight] = useState(1360) // 섹션 높이 상태 추가
+  const [sectionHeight, setSectionHeight] = useState(1800) // 섹션 높이 상태 추가
   const [isThemeDropdownOpen, setIsThemeDropdownOpen] = useState(false)
   const [laneOrder, setLaneOrder] = useState<string>('')
   const [isLaneOrderValid, setIsLaneOrderValid] = useState(true)
+  const [BEATS_PER_SECTION, setBEATS_PER_SECTION] = useState(4)
+  const [SECTIONS_PER_COLUMN, setSECTIONS_PER_COLUMN] = useState(1)
 
   const chartRef = useRef<HTMLDivElement>(null)
   const frameRef = useRef<number>()
 
+  const calculateSectionDuration = (bpm) => {
+    // 한 비트당 시간(ms) = (60초 * 1000ms) / BPM
+    const msPerBeat = (60 * 1000) / bpm
+    // 섹션 전체 시간 = 비트당 시간 * 섹션당 비트수
+    return msPerBeat * BEATS_PER_SECTION
+  }
   useEffect(() => {
     const sectionDuration = calculateSectionDuration(bpm)
     const groupedNotes: ChartSection = {}
@@ -105,37 +106,57 @@ export default function WjmaxChartComponent({ chartData, bpm = DEFAULT_BPM, onCl
     })
 
     setSections(groupedNotes)
-  }, [chartData, bpm])
+  }, [chartData, bpm, BEATS_PER_SECTION])
 
   useEffect(() => {
     const updateChartPosition = () => {
       if (chartRef.current) {
         const chartRect = chartRef.current.getBoundingClientRect()
+
+        // 실제 스케일이 적용된 차트의 크기 계산
+        const scaledWidth = chartRect.width * scale
+        const scaledHeight = chartRect.height * scale
+
+        // transformOrigin이 '0 0'이므로, 이를 고려한 위치 계산
+        const centerX = (window.innerWidth - scaledWidth) / 2
+        const centerY = (window.innerHeight - scaledHeight) / 2
+
         setChartSize({ width: chartRect.width, height: chartRect.height })
 
+        // isVisible이 false일 때만 중앙 정렬 (초기 렌더링 시)
         if (!isVisible) {
-          const centerX = (window.innerWidth - chartRect.width * scale) / 2
-          const centerY = (window.innerHeight - chartRect.height * scale) / 2
-          setPosition({ x: centerX, y: centerY })
+          requestAnimationFrame(() => {
+            setPosition({
+              x: Math.max(0, centerX),
+              y: Math.max(0, centerY),
+            })
+            setIsVisible(true)
+          })
         }
       }
     }
 
-    requestAnimationFrame(() => {
-      updateChartPosition()
-      setIsVisible(true)
-    })
+    // 컴포넌트 마운트 후 약간의 지연을 두고 위치 계산
+    const timer = setTimeout(updateChartPosition, 200)
 
-    window.addEventListener('resize', updateChartPosition)
+    // 윈도우 리사이즈 시 위치 재계산
+    const handleResize = () => {
+      if (isVisible) {
+        updateChartPosition()
+      }
+    }
+
+    window.addEventListener('resize', handleResize)
 
     return () => {
-      window.removeEventListener('resize', updateChartPosition)
+      clearTimeout(timer)
+      window.removeEventListener('resize', handleResize)
     }
-  }, [])
+  }, [scale, isVisible]) // isVisible도 의존성 배열에 추가
 
   const handleZoomIn = () => {
     setScale((prev) => {
-      const newScale = Math.min(prev + 0.25, 3)
+      const newScale = Math.min(prev + 0.1, 3)
       const scaleFactor = newScale / prev
       setPosition((prevPos) => ({
         x: prevPos.x - (chartSize.width * (scaleFactor - 1)) / 2,
@@ -147,7 +168,7 @@ export default function WjmaxChartComponent({ chartData, bpm = DEFAULT_BPM, onCl
 
   const handleZoomOut = () => {
     setScale((prev) => {
-      const newScale = Math.max(prev - 0.25, 0.5)
+      const newScale = Math.max(prev - 0.1, 0.5)
       const scaleFactor = newScale / prev
       setPosition((prevPos) => ({
         x: prevPos.x - (chartSize.width * (scaleFactor - 1)) / 2,
@@ -188,10 +209,18 @@ export default function WjmaxChartComponent({ chartData, bpm = DEFAULT_BPM, onCl
   }
 
   const handleClose = () => {
+    // 애니메이션 시작 전에 transition 효과 제거
+    if (chartRef.current) {
+      chartRef.current.style.transition = 'none'
+    }
+
+    // opacity 애니메이션을 위한 상태 변경
     setIsVisible(false)
+
+    // 애니메이션이 완료된 후에 컴포넌트 제거
     setTimeout(() => {
       onClose()
-    }, 300)
+    }, 200) // 200ms로 줄임 (기존 300ms)
   }
 
   useEffect(() => {
@@ -309,20 +338,20 @@ export default function WjmaxChartComponent({ chartData, bpm = DEFAULT_BPM, onCl
 
           return (
             <div key={sectionIndex} className="chart-section" style={{ height: `${sectionHeight}px` }}>
-              <div className="section-header">
-                <div className="section-info">
-                  <span className={`section-number tw-text-${theme}-500`}>#{sectionIndex + 1}</span>
-                  <span className="section-time">{sectionTime}</span>
+              <div className="section-header tw-relative">
+                <div className="tw-flex tw-gap-16 tw-absolute tw-w-[800px] tw-h-32 tw-left-[-338px] tw-bottom-[360px] tw-transform tw-rotate-[-90deg]">
+                  <span className={`section-number ${`tw-text-${theme}-500`}`}>#{sectionIndex + 1}</span>
+                  <span className="section-time tw-font-bold">{sectionTime}</span>
                   <span className={`bpm-indicator tw-font-bold`}>BPM: {bpm}</span>
                 </div>
               </div>
               <div className="lanes-container">
                 <div className="measure-lines">
                   {Array.from({ length: BEATS_PER_SECTION / 4 }).map((_, i) => (
-                    <div key={`major-${i}`} className="measure-line major" style={{ bottom: `${i * 25}%` }} />
+                    <div key={`major-${i}`} className={`measure-line major ${theme}-theme`} style={{ bottom: `${i * 25}%` }} />
                   ))}
                   {Array.from({ length: BEATS_PER_SECTION }).map((_, i) => (
-                    <div key={`minor-${i}`} className="measure-line minor" style={{ bottom: `${i * (100 / BEATS_PER_SECTION)}%` }} />
+                    <div key={`minor-${i}`} className={`measure-line minor ${theme}-theme`} style={{ bottom: `${i * (100 / BEATS_PER_SECTION)}%` }} />
                   ))}
                 </div>
                 {getLaneOrder().map((lane) => (
@@ -355,28 +384,25 @@ export default function WjmaxChartComponent({ chartData, bpm = DEFAULT_BPM, onCl
   const maxSectionIndex = Math.max(...Object.keys(sections).map(Number))
   const columnCount = Math.ceil((maxSectionIndex + 1) / SECTIONS_PER_COLUMN)
 
-  // 성능 최적화를 위한 throttle 함수
+  // 성능 최적화를 위한 throttle 함수 수정
   const handleMouseMoveThrottled = (e: MouseEvent) => {
     if (isDragging && !frameRef.current) {
       frameRef.current = requestAnimationFrame(() => {
-        setPosition({
-          x: e.clientX - dragStart.x,
-          y: e.clientY - dragStart.y,
-        })
+        handleMouseMove(e)
         frameRef.current = undefined
       })
     }
   }
 
-  // 휠 이벤트 throttle
+  // 휠 이벤트 throttle 수정
   const handleWheelThrottled = (e: WheelEvent) => {
     e.preventDefault()
     if (!frameRef.current) {
       frameRef.current = requestAnimationFrame(() => {
         if (e.deltaY < 0) {
-          setScale((prev) => Math.min(prev + 0.1, 3))
+          handleZoomIn()
         } else {
-          setScale((prev) => Math.max(prev - 0.1, 0.5))
+          handleZoomOut()
         }
         frameRef.current = undefined
       })
@@ -400,7 +426,7 @@ export default function WjmaxChartComponent({ chartData, bpm = DEFAULT_BPM, onCl
   // 높이 변경 핸들러
   const handleHeightChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseInt(e.target.value)
-    if (!isNaN(value) && value >= 500 && value <= 2000) {
+    if (!isNaN(value) && value >= 900 && value <= 6000) {
       setSectionHeight(value)
     }
   }
@@ -423,11 +449,28 @@ export default function WjmaxChartComponent({ chartData, bpm = DEFAULT_BPM, onCl
   return createPortal(
     <div className={`chart-viewer ${isVisible ? 'visible' : ''}`} style={{ zIndex: 99999 }}>
       {/* 배경 */}
-      <div className="chart-backdrop" style={{ zIndex: -1 }} />
+      <div
+        className="chart-backdrop"
+        style={{
+          zIndex: -1,
+          opacity: isVisible ? 1 : 0,
+          transition: 'opacity 0.2s ease-out',
+        }}
+      />
 
       {/* 메인 컨테이너 */}
       <div
-        className={`chart-main-container ${isVisible ? 'visible' : 'hidden'}`}
+        className={`chart-main-container`}
+        style={{
+          opacity: isVisible ? 1 : 0,
+          transition: 'opacity 0.2s ease-out',
+          visibility: isVisible ? 'visible' : 'hidden',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+        }}
         onMouseDown={handleMouseDown}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
@@ -436,19 +479,9 @@ export default function WjmaxChartComponent({ chartData, bpm = DEFAULT_BPM, onCl
       >
         {/* 컨트롤 버튼 */}
         <div
-          className="tw-absolute tw-bottom-20 tw-flex tw-items-center tw-gap-4 tw-bg-gray-900 tw-shadow-lg tw-border tw-border-gray-800 tw-rounded-md tw-p-2"
+          className="tw-absolute tw-bottom-4 tw-flex tw-items-center tw-gap-4 tw-bg-gray-900 tw-shadow-lg tw-border tw-border-gray-800 tw-rounded-md tw-p-2"
           style={{ zIndex: 100000 }}
         >
-          <div className="tw-flex tw-items-center tw-gap-2">
-            <button onClick={handleZoomOut} className="tw-p-2 tw-rounded-md tw-bg-gray-800 hover:tw-bg-gray-700 tw-text-white">
-              <FaMinus className="tw-w-4 tw-h-4" />
-            </button>
-            <span className="tw-text-white tw-text-sm">{Math.round(scale * 100)}%</span>
-            <button onClick={handleZoomIn} className="tw-p-2 tw-rounded-md tw-bg-gray-800 hover:tw-bg-gray-700 tw-text-white">
-              <FaPlus className="tw-w-4 tw-h-4" />
-            </button>
-          </div>
-
           {/* 테마 선택 드롭다운 수정 */}
           <div ref={themeDropdownRef} className="tw-relative">
             <button
@@ -458,40 +491,76 @@ export default function WjmaxChartComponent({ chartData, bpm = DEFAULT_BPM, onCl
               <FaPalette className="tw-w-4 tw-h-4" />
             </button>
             {isThemeDropdownOpen && (
-              <div className="tw-absolute tw-w-36 tw-left-[-56px] tw-bottom-10 tw-text-sm tw-flex tw-gap-2 tw-mb-2 tw-bg-gray-900 tw-rounded-md tw-shadow-lg tw-border tw-border-gray-800">
+              <div className="tw-absolute tw-w-24 tw-left-[-42px] tw-bottom-10 tw-text-sm tw-flex tw-gap-2 tw-mb-2 tw-bg-gray-900 tw-rounded-md tw-shadow-lg tw-border tw-border-gray-800">
                 <button
                   onClick={() => handleThemeChange('blue')}
-                  className="tw-block tw-w-full tw-text-left tw-h-10 tw-px-4 tw-py-2 tw-rounded-md tw-bg-blue-500 hover:tw-bg-blue-800 tw-text-white"
+                  className="tw-block tw-w-full tw-text-left tw-h-8 tw-px-4 tw-py-2 tw-rounded-md tw-bg-blue-500 hover:tw-bg-blue-800 tw-text-white"
                 ></button>
                 <button
                   onClick={() => handleThemeChange('orange')}
-                  className="tw-block tw-w-full tw-text-left tw-h-10 tw-px-4 tw-py-2 tw-rounded-md tw-bg-orange-500 hover:tw-bg-orange-800 tw-text-white"
+                  className="tw-block tw-w-full tw-text-left tw-h-8 tw-px-4 tw-py-2 tw-rounded-md tw-bg-orange-500 hover:tw-bg-orange-800 tw-text-white"
                 ></button>
                 <button
                   onClick={() => handleThemeChange('red')}
-                  className="tw-block tw-w-full tw-text-left tw-h-10 tw-px-4 tw-py-2 tw-rounded-md tw-bg-red-500 hover:tw-bg-red-800 tw-text-white"
+                  className="tw-block tw-w-full tw-text-left tw-h-8 tw-px-4 tw-py-2 tw-rounded-md tw-bg-red-500 hover:tw-bg-red-800 tw-text-white"
                 ></button>
               </div>
             )}
           </div>
 
+          <div className="tw-flex tw-items-center tw-gap-2">
+            <span className="tw-text-white tw-text-xs tw-font-bold">1열당 섹션</span>
+            <input
+              type="number"
+              value={SECTIONS_PER_COLUMN}
+              onChange={(e) => {
+                const value = parseInt(e.target.value)
+                if (!isNaN(value) && value >= 1 && value <= 4) {
+                  setSECTIONS_PER_COLUMN(value)
+                }
+              }}
+              className="tw-w-20 tw-px-2 tw-pl-5 tw-py-1 tw-rounded-md tw-bg-gray-800 tw-text-white tw-border tw-text-center tw-border-gray-700 tw-text-sm"
+              min="1"
+              max="4"
+              step="1"
+            />
+          </div>
+
+          <div className="tw-flex tw-items-center tw-gap-2">
+            <span className="tw-text-white tw-text-xs tw-font-bold">1섹션당 비트</span>
+            <input
+              type="number"
+              value={BEATS_PER_SECTION}
+              onChange={(e) => {
+                const value = parseInt(e.target.value)
+                if (!isNaN(value) && value >= 1 && value <= 16) {
+                  setBEATS_PER_SECTION(value)
+                }
+              }}
+              className="tw-w-20 tw-px-2 tw-pl-5 tw-py-1 tw-rounded-md tw-bg-gray-800 tw-text-white tw-border tw-text-center tw-border-gray-700 tw-text-sm"
+              min="4"
+              max="16"
+              step="1"
+            />
+          </div>
+
           {/* 높이 조절 입력 */}
           <div className="tw-flex tw-items-center tw-gap-2">
-            <span className="tw-text-white tw-text-xs tw-font-bold">높이 설정</span>
+            <span className="tw-text-white tw-text-xs tw-font-bold">높이</span>
             <input
               type="number"
               value={sectionHeight}
               onChange={handleHeightChange}
               className="tw-w-20 tw-px-2 tw-pl-5 tw-py-1 tw-rounded-md tw-bg-gray-800 tw-text-white tw-border tw-text-center tw-border-gray-700 tw-text-sm"
-              min="640"
-              max="2000"
+              min="900"
+              max="6000"
               step="60"
             />
           </div>
 
           {/* 레인 순서 입력 및 버튼들 */}
           <div className="tw-flex tw-items-center tw-gap-2">
-            <span className="tw-text-white tw-text-xs tw-font-bold">레인 설정</span>
+            <span className="tw-text-white tw-text-xs tw-font-bold">레인 배치</span>
             <input
               type="text"
               value={laneOrder}
@@ -502,7 +571,7 @@ export default function WjmaxChartComponent({ chartData, bpm = DEFAULT_BPM, onCl
               } tw-text-sm tw-text-center`}
             />
             <button onClick={handleOriginal} title="정배치로 초기화" className="tw-p-2 tw-rounded-md tw-bg-gray-800 hover:tw-bg-gray-700 tw-text-white">
-              <FaTrashCan className="tw-w-4 tw-h-4" />
+              <FaArrowsRotate className="tw-w-4 tw-h-4" />
             </button>
             <button onClick={handleMirror} title="미러" className="tw-p-2 tw-rounded-md tw-bg-gray-800 hover:tw-bg-gray-700 tw-text-white">
               <FaArrowRightArrowLeft className="tw-w-4 tw-h-4" />
@@ -517,38 +586,26 @@ export default function WjmaxChartComponent({ chartData, bpm = DEFAULT_BPM, onCl
           </button>
         </div>
 
-        <div
-          className="chart-wrapper"
-          style={{
-            width: '100vw',
-            height: '100vh',
-            overflow: 'hidden',
-            position: 'relative',
-          }}
-        >
-          <div
-            ref={chartRef}
-            className={`chart-content ${isDragging ? 'grabbing' : 'grab'}`}
-            style={{
-              transform: `translate3d(${position.x}px, ${position.y}px, 0)`,
-              transition: isVisible ? 'transform 0.3s ease' : 'none',
-            }}
+        <div className="chart-wrapper" style={{ width: '100vw', height: '100vh', overflow: 'hidden', position: 'relative' }}>
+          <TransformWrapper
+            key={`chart-${BEATS_PER_SECTION}-${SECTIONS_PER_COLUMN}`}
+            initialScale={0.2}
+            minScale={0.2}
+            maxScale={2}
+            onPanning={(position) => console.log('Position:', position)}
+            onInit={(init) => console.log(init)}
+            initialPositionX={0}
           >
-            <div
-              className="chart-scale-container"
-              style={{
-                transform: `scale(${scale})`,
-                transformOrigin: '0 0',
-                transition: 'transform 0.2s ease',
-              }}
-            >
-              {Array.from({ length: columnCount }).map((_, i) => (
-                <div key={i} className="chart-column">
-                  {renderColumn(i * SECTIONS_PER_COLUMN)}
-                </div>
-              ))}
-            </div>
-          </div>
+            <TransformComponent wrapperStyle={{ width: '100%', height: '100%' }} contentStyle={{ opacity: isVisible ? 1 : 0 }}>
+              <div ref={chartRef} className="chart-scale-container">
+                {Array.from({ length: columnCount }).map((_, i) => (
+                  <div key={i} className="chart-column">
+                    {renderColumn(i * SECTIONS_PER_COLUMN)}
+                  </div>
+                ))}
+              </div>
+            </TransformComponent>
+          </TransformWrapper>
         </div>
       </div>
     </div>,

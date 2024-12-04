@@ -40,7 +40,7 @@ export default function VArchiveDbPage() {
   const router = useRouter()
   const params = useParams()
   const dispatch = useDispatch()
-  const { songData, userData } = useSelector((state: RootState) => state.app)
+  const { songData, userData, vArchiveUserData } = useSelector((state: RootState) => state.app)
 
   const [keyMode, setKeyMode] = useState<string>('4')
   const [keyPattern, setKeyPattern] = useState<string>('SC')
@@ -58,9 +58,9 @@ export default function VArchiveDbPage() {
 
   const fetchSongItemData = async (title) => {
     try {
-      if (userData.userName !== '') {
+      if (vArchiveUserData.userName !== '') {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_PROXY_API_URL}?url=https://v-archive.net/api/archive/${userData.userName}/title/${hoveredTitle}`,
+          `${process.env.NEXT_PUBLIC_PROXY_API_URL}?url=https://v-archive.net/api/archive/${vArchiveUserData.userName}/title/${hoveredTitle}`,
         )
         const result = await response.json()
         setSongItemData(result)
@@ -245,6 +245,8 @@ export default function VArchiveDbPage() {
     }
   }, [hoveredTitle])
 
+  const { selectedGame } = useSelector((state: RootState) => state.app)
+
   return (
     <React.Fragment>
       <Head>
@@ -274,20 +276,18 @@ export default function VArchiveDbPage() {
               </div>
 
               {/* 하단 정보 */}
-              <div className="tw-flex tw-justify-end tw-gap-2 tw-items-start tw-text-xs tw-font-semibold">
-                <FaCircleCheck className="tw-mt-1 tw-text-green-500" />
-                <div className="tw-flex tw-flex-col tw-gap-1 tw-text-gray-300">
-                  <span>
-                    V-ARCHIVE와 실시간으로 동기화됨 (
-                    <span
-                      className="tw-inline-flex tw-items-center tw-gap-1 tw-text-blue-400 hover:tw-text-blue-300 tw-cursor-pointer tw-transition-colors"
-                      onClick={() => window.ipc.send('openBrowser', 'https://v-archive.net/grade')}
-                    >
-                      <FaLink className="tw-text-sm" />
-                      V-ARCHIVE 서열표 바로가기
-                    </span>
-                    )
+              <div className="tw-flex tw-justify-end tw-gap-2 tw-items-center tw-text-xs tw-font-semibold">
+                <FaCircleCheck className=" tw-text-green-500" />
+                <div className="tw-flex tw-gap-1 tw-text-gray-300">
+                  V-ARCHIVE와 실시간으로 동기화됨 (
+                  <span
+                    className="tw-inline-flex tw-items-center tw-gap-1 tw-text-blue-400 hover:tw-text-blue-300 tw-cursor-pointer tw-transition-colors"
+                    onClick={() => window.ipc.send('openBrowser', 'https://v-archive.net/grade')}
+                  >
+                    <FaLink className="tw-text-sm" />
+                    V-ARCHIVE 서열표 바로가기
                   </span>
+                  )
                 </div>
               </div>
             </div>
@@ -311,17 +311,19 @@ export default function VArchiveDbPage() {
                   }}
                   className={
                     'tw-flex tw-items-center tw-justify-center tw-relative tw-h-16 tw-border tw-border-opacity-50 tw-transition-all tw-duration-500 tw-border-gray-600 tw-rounded-sm hover:tw-border-purple-400 ' +
-                    (keyDjPower ? 'tw-brightness-200 tw-border-purple-500 tw-bg-purple-900 tw-bg-opacity-20' : 'hover:tw-bg-gray-700 hover:tw-bg-opacity-30')
+                    (keyDjPower
+                      ? 'tw-brightness-150 tw-border-purple-500 tw-bg-purple-900 tw-bg-opacity-20'
+                      : 'tw-border-gray-600 tw-opacity-50 hover:tw-border-blue-400 hover:tw-bg-gray-700 hover:tw-bg-opacity-30 hover:tw-opacity-100')
                   }
                   disabled={isLoading}
                 >
                   <div className={`tw-absolute tw-w-full tw-h-full tw-opacity-30 respect_bg_b` + String('DJPOWER')} />
                   <div className="tw-relative tw-flex tw-flex-col tw-items-center tw-gap-1">
-                    <span className="tw-text-xs tw-font-extrabold">DJ POWER</span>
-                    <span className="tw-text-xs tw-text-gray-300">{keyDjPower ? 'ON' : 'OFF'}</span>
+                    <span className="tw-text-sm tw-font-extrabold">DJ POWER</span>
+                    <span className="tw-text-sm tw-text-gray-300">{keyDjPower ? 'ON' : 'OFF'}</span>
                   </div>
                 </button>
-                {globalDictionary.respect.keyModeList.map((value) => (
+                {globalDictionary[selectedGame].keyModeList.map((value) => (
                   <button
                     key={`keyModeSelector_${value}`}
                     onClick={() => {
@@ -333,8 +335,8 @@ export default function VArchiveDbPage() {
                     className={
                       'tw-flex tw-items-center tw-justify-center tw-relative tw-h-16 tw-border tw-border-opacity-50 tw-transition-all tw-duration-500 tw-border-gray-600 tw-rounded-sm hover:tw-border-blue-400 ' +
                       (keyMode === String(value)
-                        ? 'tw-brightness-200 tw-border-blue-500 tw-bg-blue-900 tw-bg-opacity-20'
-                        : 'hover:tw-bg-gray-700 hover:tw-bg-opacity-30')
+                        ? 'tw-border-blue-500 tw-bg-blue-900 tw-bg-opacity-20 tw-brightness-150'
+                        : 'tw-border-gray-600 tw-opacity-50 hover:tw-border-blue-400 hover:tw-bg-gray-700 hover:tw-bg-opacity-30 hover:tw-opacity-100')
                     }
                     disabled={isLoading || keyMode === String(value)}
                   >
@@ -347,7 +349,7 @@ export default function VArchiveDbPage() {
               </div>
 
               {/* 패턴/레벨 선택 */}
-              <div className="tw-grid tw-grid-cols-6 tw-gap-2 tw-mt-2">
+              <div className="tw-flex tw-gap-2 tw-mt-2">
                 {['ALL', 'SC', '15', '14', '13', '12'].map((value) => (
                   <button
                     key={`keyModeSelector_${value}`}
@@ -355,11 +357,11 @@ export default function VArchiveDbPage() {
                       setKeyPattern(String(value))
                     }}
                     className={
-                      'tw-flex tw-items-center tw-justify-center tw-relative tw-h-12 tw-border tw-border-opacity-50 tw-transition-all tw-duration-500 tw-border-gray-600 tw-rounded-sm hover:tw-border-blue-400 ' +
+                      'tw-flex tw-flex-1 tw-items-center tw-justify-center tw-relative tw-h-12 tw-border tw-border-opacity-50 tw-transition-all tw-duration-500 tw-border-gray-600 tw-rounded-sm hover:tw-border-blue-400 ' +
                       (keyPattern === String(value)
-                        ? 'tw-brightness-200 tw-border-blue-500 tw-bg-blue-900 tw-bg-opacity-20'
-                        : 'hover:tw-bg-gray-700 hover:tw-bg-opacity-30') +
-                      (keyDjPower && !isNaN(Number(String(value))) ? ' tw-opacity-20' : '')
+                        ? 'tw-border-blue-500 tw-bg-blue-900 tw-bg-opacity-20 tw-brightness-150'
+                        : 'tw-border-gray-600 tw-opacity-50 hover:tw-border-blue-400 hover:tw-bg-gray-700 hover:tw-bg-opacity-30 hover:tw-opacity-100') +
+                      (keyDjPower && !isNaN(Number(String(value))) ? ' tw-opacity-0 tw-hidden' : '')
                     }
                     disabled={isLoading || keyPattern === String(value) || (keyDjPower && !isNaN(Number(String(value))))}
                   >
@@ -404,7 +406,7 @@ export default function VArchiveDbPage() {
                 </div>
               ))
             ) : (
-              <div className="tw-flex tw-justify-center">
+              <div className="tw-flex tw-justify-center tw-h-[calc(100vh-400px)] tw-items-center">
                 <SyncLoader color="#ffffff" size={8} />
               </div>
             )}

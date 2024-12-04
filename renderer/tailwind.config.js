@@ -29,13 +29,22 @@ module.exports = {
       fuchsia: colors.fuchsia,
       pink: colors.pink,
       rose: colors.rose,
+      'respect-nm-0': '#f5bb01',
       'respect-nm-5': '#f5bb01',
       'respect-nm-10': '#f95b08aa',
       'respect-nm-15': '#f30253aa',
+      'respect-nm-20': '#f30253aa',
+      'respect-sc-0': '#df0074',
       'respect-sc-5': '#df0074',
       'respect-sc-10': '#c604e4',
       'respect-sc-15': '#3d66ff',
+      'respect-sc-20': '#3d66ff',
+      'wjmax-nm': '#ffb401',
+      'wjmax-hd': '#9696ff',
+      'wjmax-mx': '#78ff91',
+      'wjmax-sc': '#ff4c4c',
     },
+    safelist: ['tw-text-wjmax-nm', 'tw-text-wjmax-hd', 'tw-text-wjmax-mx', 'tw-text-wjmax-sc'],
     extend: {
       animation: {
         fadeInDown: 'fadeInDown 0.5s ease-out forwards',
@@ -49,8 +58,13 @@ module.exports = {
         scaleDownAndScaleUp: 'scaleDownAndScaleUp 0.5s forwards',
         fadeInSlideRight: 'fadeInSlideRight 0.4s ease-out',
         fadeOutSlideRight: 'fadeOutSlideRight 0.4s ease-in forwards',
+        gradientSlide: 'gradientSlide 10s ease infinite',
       },
       keyframes: {
+        gradientSlide: {
+          '0%': { backgroundPosition: '200% 50%' },
+          '100%': { backgroundPosition: '0% 50%' },
+        },
         fadeInOut: {
           '0%': { opacity: '0.25' },
           '100%': { opacity: '1' },
@@ -111,5 +125,22 @@ module.exports = {
       },
     },
   },
-  plugins: [],
+  plugins: [
+    // ... other plugins
+    function ({ addUtilities }) {
+      const newUtilities = {
+        '.tw-scrollbar-hide': {
+          /* IE and Edge */
+          '-ms-overflow-style': 'none',
+          /* Firefox */
+          'scrollbar-width': 'none',
+          /* Chrome, Safari and Opera */
+          '&::-webkit-scrollbar': {
+            display: 'none',
+          },
+        },
+      }
+      addUtilities(newUtilities)
+    },
+  ],
 }

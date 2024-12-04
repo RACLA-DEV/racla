@@ -4,65 +4,125 @@ import { useRouter } from 'next/router'
 import React from 'react'
 import * as R from 'ramda'
 import { globalDictionary } from '@/libs/server/globalDictionary'
+import { useDispatch } from 'react-redux'
+import { useSelector } from 'react-redux'
+import type { RootState } from 'store'
+import { OverlayTrigger, Tooltip } from 'react-bootstrap'
 
 export const renderNavigation = (selectedGame: string, router: any) => {
+  const dispatch = useDispatch()
+  const isMiniMode = useSelector((state: RootState) => state.app.isMiniMode)
+
   if (selectedGame && selectedGame !== '') {
     return R.keys(globalDictionary.navDictionary[selectedGame]).map((value) => {
       const navItem = globalDictionary.navDictionary[selectedGame][value]
-      if (navItem.isDisplay) {
+      if (navItem.isDisplay && (!isMiniMode || navItem.id !== 'utilityNavTitle')) {
         return (
-          <div key={navItem.id + 'Main'} className="tw-flex tw-flex-col tw-animate-fadeInLeft">
-            <span key={navItem.id + 'Head'} className="tw-font-semibold tw-text-xs tw-mb-4">
-              {navItem.name}
-            </span>
-            <div key={navItem.id + 'Body'} className="tw-flex tw-flex-col tw-gap-1 tw-mb-4">
+          <div key={navItem.id + 'Main'} className="tw-flex tw-flex-col">
+            {!isMiniMode && (
+              <span key={navItem.id + 'Head'} className="tw-font-semibold tw-text-xs tw-mb-2">
+                {navItem.name}
+              </span>
+            )}
+            <div key={navItem.id + 'Body'} className="tw-flex tw-flex-col tw-gap-0.5 tw-mb-3">
               {navItem.pages.map((page) =>
                 page.isDisplay && ['stable', 'beta'].includes(page.status) ? (
                   !page.isOpenBrowser ? (
-                    // 클라이언트 내 이동
-                    <Link
-                      key={page.id}
-                      href={navItem.link + page.link}
-                      className={`tw-text-sm tw-text-gray-400 tw-font-light tw-flex tw-items-center tw-gap-2 btn-sidebar ${
-                        router.pathname.includes(navItem.link + '/' + String(String(page.link).split('/')[1])) ? 'active' : ''
-                      }`}
+                    <OverlayTrigger
+                      placement="right"
+                      overlay={
+                        <Tooltip id={`tooltip-${page.id}`} className="tw-text-xs">
+                          {page.name.startWithSup} {page.name.base}
+                        </Tooltip>
+                      }
                     >
-                      {React.createElement(page.icon)}
-                      <span className="tw-flex tw-items-center flex-equal">
-                        {page.name.startWithSup ? <sup>{page.name.startWithSup}</sup> : null}
-                        <span className="tw-me-auto">{page.name.base}</span>
-                        {page.status === 'beta' ? (
-                          <span className="tw-text-xs tw-bg-blue-600 tw-rounded-full tw-px-2" style={{ padding: '2px 8px' }}>
-                            베타
+                      <Link
+                        key={page.id}
+                        href={navItem.link + page.link}
+                        className={`tw-text-sm tw-text-gray-400 tw-font-light tw-flex tw-items-center tw-gap-2 btn-sidebar group relative ${
+                          (router.asPath.includes(navItem.link + page.link) && navItem.link + page.link !== '/') || router.pathname === navItem.link + page.link
+                            ? 'active'
+                            : ''
+                        }  tw-rounded ${isMiniMode ? 'tw-my-1.5' : 'tw-py-1.5 tw-px-1 hover:tw-bg-gray-700 hover:tw-bg-opacity-30'} `}
+                      >
+                        <div className={`${isMiniMode ? 'tw-bg-gray-700 tw-bg-opacity-30 tw-p-2 tw-rounded-md' : ''}`}>
+                          {React.createElement(page.icon, { size: isMiniMode ? 16 : 14 })}
+                        </div>
+                        {!isMiniMode ? (
+                          <span className="tw-flex tw-items-center flex-equal">
+                            {page.name.startWithSup ? <sup className="tw-text-[10px]">{page.name.startWithSup}</sup> : null}
+                            <span className="tw-me-auto">{page.name.base}</span>
+                            {page.status === 'beta' ? <span className="tw-text-[10px] tw-bg-blue-600 tw-rounded-full tw-px-2">베타</span> : null}
                           </span>
-                        ) : null}
-                      </span>
-                    </Link>
+                        ) : (
+                          <div className="tw-invisible group-hover:tw-visible tw-absolute tw-left-12 tw-bg-gray-800 tw-text-white tw-px-2 tw-py-1 tw-rounded tw-whitespace-nowrap tw-text-sm tw-z-50">
+                            {page.name.base}
+                            {page.status === 'beta' && <span className="tw-ml-1 tw-text-[10px] tw-bg-blue-600 tw-rounded-full tw-px-2">베타</span>}
+                          </div>
+                        )}
+                      </Link>
+                    </OverlayTrigger>
                   ) : (
-                    // 외부 브라우저 오픈
-                    <button
-                      key={page.id}
-                      onClick={() => window.ipc.send('openBrowser', page.link)}
-                      className={`tw-text-sm tw-text-gray-400 tw-font-light tw-flex tw-items-center tw-gap-2 btn-sidebar`}
+                    <OverlayTrigger
+                      placement="right"
+                      overlay={
+                        <Tooltip id={`tooltip-${page.id}`} className="tw-text-xs">
+                          {page.name.startWithSup} {page.name.base}
+                        </Tooltip>
+                      }
                     >
-                      {React.createElement(page.icon)}
-                      <span>
-                        {page.name.startWithSup ? <sup>{page.name.startWithSup}</sup> : null}
-                        {page.name.base}
-                      </span>
-                    </button>
+                      <button
+                        key={page.id}
+                        onClick={() => window.ipc.send('openBrowser', page.link)}
+                        className={`tw-text-sm tw-text-gray-400 tw-font-light tw-flex tw-items-center tw-gap-2 btn-sidebar group relative tw-rounded ${
+                          isMiniMode ? 'tw-my-1.5' : 'tw-py-1.5 tw-px-1 hover:tw-bg-gray-700 hover:tw-bg-opacity-30'
+                        } `}
+                      >
+                        <div className={`${isMiniMode ? 'tw-bg-gray-700 tw-bg-opacity-30 tw-p-2 tw-rounded-md' : ''}`}>
+                          {React.createElement(page.icon, { size: isMiniMode ? 16 : 14 })}
+                        </div>
+                        {!isMiniMode ? (
+                          <span className="tw-flex tw-items-center flex-equal">
+                            {page.name.startWithSup ? <sup className="tw-text-[10px]">{page.name.startWithSup}</sup> : null}
+                            <span className="tw-me-auto">{page.name.base}</span>
+                            {page.status === 'beta' ? <span className="tw-text-[10px] tw-bg-blue-600 tw-rounded-full tw-px-2">베타</span> : null}
+                          </span>
+                        ) : (
+                          <div className="tw-invisible group-hover:tw-visible tw-absolute tw-left-12 tw-bg-gray-800 tw-text-white tw-px-2 tw-py-1 tw-rounded tw-whitespace-nowrap tw-text-sm tw-z-50">
+                            {page.name.base}
+                            {page.status === 'beta' && <span className="tw-ml-1 tw-text-[10px] tw-bg-blue-600 tw-rounded-full tw-px-2">베타</span>}
+                          </div>
+                        )}
+                      </button>
+                    </OverlayTrigger>
                   )
                 ) : page.isDisplay && page.status === 'dev' ? (
-                  <button key={page.id} className={`tw-text-sm tw-text-gray-400 tw-font-light tw-flex tw-items-center tw-gap-2 btn-sidebar`}>
-                    {React.createElement(page.icon)}
-                    <span className="tw-flex tw-items-center flex-equal">
-                      {page.name.startWithSup ? <sup>{page.name.startWithSup}</sup> : null}
-                      <span className="tw-me-auto">{page.name.base}</span>
-                      <span className="tw-text-xs tw-bg-gray-600 tw-rounded-full tw-px-2" style={{ padding: '2px 8px' }}>
-                        공사중
-                      </span>
-                    </span>
-                  </button>
+                  <OverlayTrigger
+                    placement="right"
+                    overlay={
+                      <Tooltip id={`tooltip-${page.id}`} className="tw-text-xs">
+                        {page.name.startWithSup} {page.name.base}
+                      </Tooltip>
+                    }
+                  >
+                    <button
+                      key={page.id}
+                      className={`tw-text-sm tw-text-gray-400 tw-font-light tw-flex tw-items-center tw-gap-2 btn-sidebar group relative tw-rounded ${
+                        isMiniMode ? 'tw-my-1.5' : 'tw-py-1.5 tw-px-1 hover:tw-bg-gray-700 hover:tw-bg-opacity-30'
+                      } `}
+                    >
+                      <div className={`${isMiniMode ? 'tw-bg-gray-700 tw-bg-opacity-30 tw-p-2 tw-rounded-md' : ''}`}>
+                        {React.createElement(page.icon, { size: isMiniMode ? 16 : 14 })}
+                      </div>
+                      {!isMiniMode && (
+                        <span className="tw-flex tw-items-center flex-equal">
+                          {page.name.startWithSup ? <sup className="tw-text-[10px]">{page.name.startWithSup}</sup> : null}
+                          <span className="tw-me-auto">{page.name.base}</span>
+                          <span className="tw-text-sm tw-bg-gray-600 tw-rounded-full tw-px-2">공사중</span>
+                        </span>
+                      )}
+                    </button>
+                  </OverlayTrigger>
                 ) : null,
               )}
             </div>

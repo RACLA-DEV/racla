@@ -6,6 +6,8 @@ interface Notification {
   message: string
   color?: string
   fadeOut: boolean
+  updateKey?: string
+  isFinal?: boolean
 }
 
 interface NotificationState {
@@ -20,12 +22,14 @@ export const notificationSlice = createSlice({
   name: 'notification',
   initialState,
   reducers: {
-    addNotification: (state, action: PayloadAction<{ id: string; message: string; color?: string }>) => {
+    addNotification: (state, action: PayloadAction<{ id: string; message: string; color?: string; updateKey?: string; isFinal?: boolean }>) => {
       state.notifications.push({
         id: action.payload.id,
         message: action.payload.message,
         color: action.payload.color,
         fadeOut: false,
+        updateKey: action.payload.updateKey,
+        isFinal: action.payload.isFinal,
       })
     },
     setNotificationFadeOut: (state, action: PayloadAction<string>) => {

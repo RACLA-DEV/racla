@@ -3,7 +3,17 @@ import fs from 'fs'
 import { app, BrowserWindow, desktopCapturer, ipcMain, screen, session, shell, globalShortcut } from 'electron'
 import serve from 'electron-serve'
 import { createWindow } from './helpers'
-import { clearSession, getSession, getSettingData, getSongData, storeSession, storeSettingData, storeSongData } from './fsManager'
+import {
+  clearSession,
+  getSession,
+  getSettingData,
+  getSongData,
+  getWjmaxSongData,
+  storeSession,
+  storeSettingData,
+  storeSongData,
+  storeWjmaxSongData,
+} from './fsManager'
 import { autoUpdater } from 'electron-updater'
 import sharp from 'sharp'
 import Tesseract from 'tesseract.js'
@@ -49,6 +59,8 @@ let overlayWindow: BrowserWindow | null = null
 let removedPixels = 0
 let isFullscreen = false
 
+const gameList = { djmax_respect_v: 'DJMAX RESPECT V', wjmax: 'WJMAX' }
+
 ;(async () => {
   await app.whenReady()
 
@@ -67,14 +79,15 @@ let isFullscreen = false
   })
 
   const mainWindow = createWindow('main', {
-    width: 1440,
-    height: 810,
-    minWidth: 1440,
-    minHeight: 810,
+    width: 1280,
+    height: 720,
+    minWidth: 1280,
+    minHeight: 720,
     frame: false,
     center: true,
     icon: path.join(__dirname + '/../resources/', 'icon.ico'),
     webPreferences: {
+      webviewTag: true,
       nodeIntegration: true,
       devTools: !isProd,
       preload: path.join(__dirname, 'preload.js'),
@@ -107,59 +120,80 @@ let isFullscreen = false
   overlayWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true })
 
   if (isProd) {
-    await mainWindow.loadURL('app://./projectRa/home')
-    await overlayWindow.loadURL('app://./projectRa/overlay/widget')
+    await mainWindow.loadURL('app://./home')
+    await overlayWindow.loadURL('app://./overlay/widget')
   } else {
     const port = process.argv[2]
-    await mainWindow.loadURL(`http://localhost:${port}/projectRa/home`)
-    await overlayWindow.loadURL(`http://localhost:${port}/projectRa/overlay/widget`)
+    await mainWindow.loadURL(`http://localhost:${port}/`)
+    await overlayWindow.loadURL(`http://localhost:${port}/overlay/widget`)
     mainWindow.webContents.openDevTools()
     overlayWindow.webContents.openDevTools()
   }
 
   // findGameWindow 함수 수정
-  async function findGameWindow() {
+  async function findGameWindow(gameCode) {
     return new Promise((resolve, reject) => {
-      exec('tasklist /FI "IMAGENAME eq DJMAX*" /FO CSV', (err, stdout, stderr) => {
-        if (err) return reject(err)
+      if (gameCode === 'djmax_respect_v') {
+        exec('tasklist /FI "IMAGENAME eq DJMAX*" /FO CSV', (err, stdout, stderr) => {
+          if (err) return reject(err)
 
-        if (stdout.toLowerCase().includes('djmax')) {
-          const windows = Window.all().filter((w) => w.title.includes('DJMAX RESPECT V'))
-          if (windows.length > 0) {
-            const gameWindow = windows[0]
-
-            // 원래 윈도우의 실제 좌표와 크기를 그대로 반환
-            const bounds = {
-              x: gameWindow.x,
-              y: gameWindow.y,
-              width: gameWindow.width,
-              height: gameWindow.height,
+          if (stdout.toLowerCase().includes('djmax')) {
+            const windows = Window.all().filter((w) => w.title.includes(gameList[gameCode]))
+            if (windows.length > 0) {
+              const gameWindow = windows[0]
+              const bounds = {
+                x: gameWindow.x,
+                y: gameWindow.y,
+                width: gameWindow.width,
+                height: gameWindow.height,
+              }
+              resolve(bounds)
             }
-
-            resolve(bounds)
           }
-        }
-        resolve(null)
-      })
+          resolve(null)
+        })
+      } else if (gameCode === 'wjmax') {
+        exec('tasklist /FI "IMAGENAME eq WJMAX*" /FO CSV', (err, stdout, stderr) => {
+          if (err) return reject(err)
+
+          if (stdout.toLowerCase().includes('wjmax')) {
+            const windows = Window.all().filter((w) => w.title.includes(gameList[gameCode]))
+            if (windows.length > 0) {
+              const gameWindow = windows[0]
+              const bounds = {
+                x: gameWindow.x,
+                y: gameWindow.y,
+                width: gameWindow.width,
+                height: gameWindow.height,
+              }
+              resolve(bounds)
+            }
+          }
+          resolve(null)
+        })
+      }
     })
   }
 
   // checkGameAndUpdateOverlay 함수 수정
   async function checkGameAndUpdateOverlay() {
     try {
-      const isGameRunning = await isDjmaxRunning()
+      const isGameRunning = await isDjmaxRunning('djmax_respect_v')
+      const isWjmaxRunning = await isDjmaxRunning('wjmax')
 
       // 게임이 실행중이지 않으면 오버레이 숨기고 early return
-      if (!isGameRunning) {
+      if (!isGameRunning && !isWjmaxRunning) {
         if (overlayWindow.isVisible()) {
           overlayWindow.hide()
         }
         return
       }
 
-      const gamePos: any = await findGameWindow()
+      const gamePos: any = await findGameWindow(isGameRunning ? 'djmax_respect_v' : 'wjmax')
       const focusedWindow = await getFocusedWindow()
-      const isGameFocused = focusedWindow === 'DJMAX RESPECT V'
+
+      // 선택된 게임에 따라 게임 포커스 확인
+      let isGameFocused = (isGameRunning && focusedWindow === 'DJMAX RESPECT V') || (isWjmaxRunning && focusedWindow === 'WJMAX')
 
       if (gamePos && isGameFocused) {
         const display = screen.getDisplayNearestPoint({ x: gamePos.x, y: gamePos.y })
@@ -205,7 +239,7 @@ let isFullscreen = false
     }
   }
 
-  // getFocusedWindow 함수 추가 - PowerShell 명령어를 별도 함수로 분리
+  // getFocusedWindow 함수 수정
   async function getFocusedWindow(): Promise<string> {
     return new Promise((resolve) => {
       exec(
@@ -225,7 +259,7 @@ let isFullscreen = false
       console.error('Error in game check loop:', error)
     } finally {
       // 체크 간격을 100ms로 증가 (초당 10회)
-      setTimeout(checkGameOverlayLoop, 100)
+      setTimeout(() => checkGameOverlayLoop(), 100)
     }
   }
 
@@ -273,14 +307,27 @@ let isFullscreen = false
   })
 
   // 세션 저장 처리
-  ipcMain.on('login', async (event, { userNo, userToken }) => {
-    try {
-      isLogined = true
-      storeSession({ userNo, userToken })
-      mainWindow.webContents.send('IPC_RENDERER_IS_LOGINED', true)
-    } catch (e) {
-      mainWindow.webContents.send('IPC_RENDERER_IS_LOGINED', false)
+  ipcMain.on('login', async (event, { userNo, userToken, vArchiveUserNo, vArchiveUserToken }) => {
+    if (vArchiveUserNo && vArchiveUserToken) {
+      try {
+        storeSession({ vArchiveUserNo, vArchiveUserToken, userNo: '', userToken: '' })
+        mainWindow.webContents.send('IPC_RENDERER_IS_LOGINED', true)
+      } catch (e) {
+        mainWindow.webContents.send('IPC_RENDERER_IS_LOGINED', false)
+      }
     }
+    if (userNo && userToken) {
+      try {
+        storeSession({ vArchiveUserNo: '', vArchiveUserToken: '', userNo, userToken })
+        mainWindow.webContents.send('IPC_RENDERER_IS_LOGINED', true)
+      } catch (e) {
+        mainWindow.webContents.send('IPC_RENDERER_IS_LOGINED', false)
+      }
+    }
+  })
+
+  ipcMain.on('storeSession', async (event, value) => {
+    storeSession(value)
   })
 
   // 로그아웃 요청 처리
@@ -297,9 +344,13 @@ let isFullscreen = false
   })
 
   // 곡 데이터 저장 처리
-  ipcMain.on('putSongData', async (event, songData) => {
+  ipcMain.on('putSongData', async (event, { songData, gameCode }) => {
     try {
-      storeSongData(songData)
+      if (gameCode === 'djmax_respect_v') {
+        storeSongData(songData)
+      } else if (gameCode === 'wjmax') {
+        storeWjmaxSongData(songData)
+      }
       mainWindow.webContents.send('IPC_RENDERER_IS_LOADED_SONG_DATA', true)
     } catch (e) {
       mainWindow.webContents.send('IPC_RENDERER_IS_LOADED_SONG_DATA', false)
@@ -307,9 +358,14 @@ let isFullscreen = false
   })
 
   // 세션 정보 요청 처리
-  ipcMain.on('getSongData', async (event) => {
-    const songData = await getSongData()
-    mainWindow.webContents.send('IPC_RENDERER_GET_SONG_DATA', songData ? songData : null)
+  ipcMain.on('getSongData', async (event, gameCode) => {
+    let songData
+    if (gameCode === 'djmax_respect_v') {
+      songData = await getSongData()
+    } else if (gameCode === 'wjmax') {
+      songData = await getWjmaxSongData()
+    }
+    mainWindow.webContents.send('IPC_RENDERER_GET_SONG_DATA', songData ? { songData, gameCode } : null)
   })
 
   ipcMain.on('openBrowser', (event, url) => {
@@ -322,7 +378,7 @@ let isFullscreen = false
     if (userNo !== '' && userToken !== '') {
       session.defaultSession.cookies
         .set({
-          url: isProd ? 'https://papi.lunatica.kr/' : 'https://dev-papi.lunatica.kr/',
+          url: isProd ? 'https://papi.lunatica.kr/' : 'https://papi.kotaro.wtf/',
           name: 'Authorization',
           value: `${userNo}|${userToken}`,
           secure: true,
@@ -333,7 +389,7 @@ let isFullscreen = false
           console.log('Authorization Cookie Saved : ', userNo, userToken)
         })
     } else {
-      session.defaultSession.cookies.remove(isProd ? 'https://papi.lunatica.kr/' : 'https://dev-papi.lunatica.kr/', 'Authorization').then(() => {
+      session.defaultSession.cookies.remove(isProd ? 'https://papi.lunatica.kr/' : 'https://papi.kotaro.wtf/', 'Authorization').then(() => {
         console.log('Authorization Cookie Removed.')
       })
     }
@@ -367,7 +423,47 @@ let isFullscreen = false
       }
       startCapturing()
       isLoaded = true
+      if (settingData.autoStartGame) {
+        const isRunning = await isDjmaxRunning('djmax_respect_v')
+        if (settingData.autoStartGameDjmaxRespectV && !isRunning) {
+          shell.openExternal('steam://run/960170')
+          mainWindow.webContents.send('pushNotification', {
+            message: '자동 시작 옵션이 활성화되어 DJMAX RESPECT V(게임)을 실행 중에 있습니다. 잠시만 기다려주세요.',
+            color: 'tw-bg-blue-600',
+          })
+        }
+      }
     }
+  })
+
+  ipcMain.on('startGameDjmaxRespectV', async () => {
+    const isRunning = await isDjmaxRunning('djmax_respect_v')
+    if (!isRunning) {
+      shell.openExternal('steam://run/960170')
+      mainWindow.webContents.send('pushNotification', {
+        message: `DJMAX RESPECT V(게임)을 실행 중에 있습니다. 잠시만 기다려주세요.`,
+        color: 'tw-bg-blue-600',
+      })
+    }
+  })
+
+  ipcMain.on('startGameWjmax', async () => {
+    const isRunning = await isDjmaxRunning('wjmax')
+    if (!isRunning) {
+      shell.openExternal('D:\\Games\\WJMAX_Release\\WJMAX.exe')
+      mainWindow.webContents.send('pushNotification', {
+        message: `WJMAX(게임)을 실행 중에 있습니다. 잠시만 기다려주세요.`,
+        color: 'tw-bg-blue-600',
+      })
+    }
+  })
+
+  ipcMain.on('top50-updated', (event, data) => {
+    overlayWindow.webContents.send('IPC_RENDERER_GET_NOTIFICATION_DATA', {
+      title: data.title,
+      message: `방금 전에 업로드된 ${data.name} 곡의 성과로 TOP50이 ${data.previousCutoff}TP에서 ${data.currentCutoff}TP로 갱신하였습니다.`,
+      color: 'tw-bg-yellow-700',
+    })
   })
 
   // 업데이트 가용 시 버전 정보를 렌더러 프로세스로 전송
@@ -392,126 +488,343 @@ let isFullscreen = false
     mainWindow.webContents.send('update-downloaded', info.version)
   })
 
-  async function processResultScreen(imageBuffer, isMenualUpload?, isNotSaveImage?) {
-    try {
-      console.log('Client Side OCR isResultScreen Requested. Processing image data...')
+  const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
-      const isResult = ['server']
-      const text = 'server'
-      const where = 'server'
+  async function processResultScreen(imageBuffer, isMenualUpload?, isNotSaveImage?, gameCode?) {
+    if (gameCode == 'djmax_respect_v') {
+      try {
+        console.log('Client Side OCR isResultScreen Requested. Processing image data...')
 
-      console.log('Client Side OCR isResultScreen:', isResult.length >= 1, `(${text.toUpperCase().trim()})`, `(Result Type: ${where})`)
+        let isResult = []
+        let text = ''
+        let where = ''
 
-      if (isResult.length >= 1 && (!isUploaded || isMenualUpload)) {
-        if (!isMenualUpload) {
-          mainWindow.webContents.send('push', {
-            time: moment().utcOffset(9).format('YYYY-MM-DD-HH-mm-ss'),
-            message: 'DJMAX RESPECT V(게임)의 게임 결과창이 자동 인식되어 성과 기록 이미지를 처리 중에 있습니다. 잠시만 기다려주세요.',
-            color: 'tw-bg-blue-600',
-          })
-          if (settingData.resultOverlay) {
-            overlayWindow.webContents.send('IPC_RENDERER_GET_NOTIFICATION_DATA', {
-              message: 'DJMAX RESPECT V(게임)의 게임 결과창이 자동 인식되어 성과 기록 이미지를 처리 중에 있니다. 잠시만 기다려주세요.',
-              color: 'tw-bg-blue-600',
-            })
+        if (isMenualUpload) {
+          isResult = ['server']
+          text = 'server'
+          where = 'server'
+        } else {
+          // 각 영역별 OCR 검사
+          const regions: { [key: string]: Buffer } = {}
+          const texts: { [key: string]: string } = {}
+
+          // 설정에 따라 필요한 영역만 검사
+          if (settingData.autoCaptureOcrResultRegion) {
+            regions.result = await sharp(imageBuffer).extract({ width: 230, height: 24, left: 100, top: 236 }).grayscale().linear(1.5, 0).toBuffer()
+            texts.result = await recognizeText(regions.result, 'eng')
+          }
+
+          if (settingData.autoCaptureOcrOpen3Region) {
+            regions.open3 = await sharp(imageBuffer).extract({ width: 62, height: 20, left: 266, top: 845 }).grayscale().linear(1.5, 0).toBuffer()
+            texts.open3 = await recognizeText(regions.open3, 'eng')
+          }
+
+          if (settingData.autoCaptureOcrOpen2Region) {
+            regions.open2 = await sharp(imageBuffer).extract({ width: 61, height: 17, left: 366, top: 846 }).grayscale().linear(1.5, 0).toBuffer()
+            texts.open2 = await recognizeText(regions.open2, 'eng')
+          }
+
+          if (settingData.autoCaptureOcrVersusRegion) {
+            regions.versus = await sharp(imageBuffer).extract({ width: 70, height: 104, left: 829, top: 48 }).grayscale().toBuffer()
+            texts.versus = await recognizeText(regions.versus, 'eng')
+          }
+
+          // 결과 검사
+          const resultKeywords = ['JUDGEMENT', 'DETAILS', 'DETAIL', 'JUDGE', 'JUDGEMENT DETAILS']
+
+          if (settingData.autoCaptureOcrResultRegion && texts.result) {
+            isResult = resultKeywords.filter((value) => texts.result.toUpperCase().trim().includes(value) && texts.result.length !== 0)
+            if (isResult.length > 0) {
+              where = 'result'
+              text = texts.result
+            }
+          }
+
+          if (!where && settingData.autoCaptureOcrOpen3Region && texts.open3) {
+            if (texts.open3.toUpperCase().includes('TUNE') || texts.open3.toUpperCase().includes('TUNES')) {
+              where = 'open3'
+              isResult = ['open3']
+              text = texts.open3
+            }
+          }
+
+          if (!where && settingData.autoCaptureOcrOpen2Region && texts.open2) {
+            if (texts.open2.toUpperCase().includes('TUNE') || texts.open2.toUpperCase().includes('TUNES')) {
+              where = 'open2'
+              isResult = ['open2']
+              text = texts.open2
+            }
+          }
+
+          if (!where && settingData.autoCaptureOcrVersusRegion && texts.versus) {
+            if (texts.versus == 'E') {
+              where = 'versus'
+              isResult = ['versus']
+              text = texts.versus
+            }
           }
         }
-        console.log('Server Side OCR PlayData Requested. Processing image data...')
-        try {
-          const serverOcrStartTime = Date.now()
-          const formData = new FormData()
-          formData.append('file', imageBuffer, {
-            filename: randomUUID() + '.png',
-            contentType: 'image/png',
-          })
-          formData.append('where', where)
-          const session = await getSession()
-          const response = await axios.post(`${isProd ? 'https://rapi.lunatica.kr/api' : 'https://dev-rapi.lunatica.kr/api'}/v1/ocr/upload`, formData, {
-            headers: {
-              ...formData.getHeaders(),
-              Authorization: isLogined ? `${session.userNo}|${session.userToken}` : '',
-            },
-            withCredentials: true,
-          })
-          console.log('Server Side OCR PlayData Result:', { ...response.data, processedTime: Date.now() - serverOcrStartTime + 'ms' })
 
-          const { playData } = response.data
+        console.log('Client Side OCR isResultScreen:', isResult.length >= 1, `(${text.toUpperCase().trim()})`, `(Result Type: ${where})`)
 
-          if (playData.isVerified) {
-            const filePath = path.join(
-              app.getPath('pictures'),
-              'PROJECT-RA',
-              String(playData.songData.name).replaceAll(':', '-') +
-                '-' +
-                String(playData.score) +
-                '-' +
-                moment().utcOffset(9).format('YYYY-MM-DD-HH-mm-ss') +
-                '.png',
-            )
-
-            if (settingData.saveImageWhenCapture && !isNotSaveImage) {
-              fs.writeFile(filePath, Buffer.from(imageBuffer), (err) => {
-                if (err) {
-                  console.error('Failed to save file:', err)
-                } else {
-                  console.log('File saved to', filePath)
-                }
+        if (isResult.length >= 1 && (!isUploaded || isMenualUpload)) {
+          if (!isMenualUpload) {
+            mainWindow.webContents.send('pushNotification', {
+              time: moment().utcOffset(9).format('YYYY-MM-DD-HH-mm-ss'),
+              message: 'DJMAX RESPECT V(게임)의 게임 결과창이 자동 인식되어 성과 기록 이미지를 처리 중에 있습니다. 잠시만 기다려주세요.',
+              color: 'tw-bg-blue-600',
+            })
+            if (settingData.resultOverlay) {
+              overlayWindow.webContents.send('IPC_RENDERER_GET_NOTIFICATION_DATA', {
+                message: 'DJMAX RESPECT V(게임)의 게임 결과창이 자동 인식되어 성과 기록 이미지를 처리 중에 있니다. 잠시만 기다려주세요.',
+                color: 'tw-bg-blue-600',
               })
             }
+          }
+          console.log('Server Side OCR PlayData Requested. Processing image data...')
+          try {
+            const serverOcrStartTime = Date.now()
+            const formData = new FormData()
+            const fuckBuffer = where == 'open2' || where == 'open3' ? await delay(3000).then(() => captureScreen('djmax_respect_v')) : imageBuffer
+            formData.append('file', fuckBuffer, {
+              filename: randomUUID() + '.png',
+              contentType: 'image/png',
+            })
+            formData.append('where', where)
+            const session = await getSession()
+            const response = await axios.post(`${isProd ? 'https://rapi.lunatica.kr/api' : 'https://rapi.kotaro.wtf/api'}/v1/ocr/upload`, formData, {
+              headers: {
+                ...formData.getHeaders(),
+                Authorization: isLogined ? `${session.vArchiveUserNo}|${session.vArchiveUserToken}` : '',
+              },
+              withCredentials: true,
+            })
+            console.log('Server Side OCR PlayData Result:', { ...response.data, processedTime: Date.now() - serverOcrStartTime + 'ms' })
 
-            isUploaded = true
-            settingData.resultOverlay && overlayWindow.webContents.send('IPC_RENDERER_GET_NOTIFICATION_DATA', { ...response.data.playData })
-            return { ...response.data, filePath: settingData.saveImageWhenCapture ? filePath : null }
-          } else {
+            const { playData } = response.data
+
+            if (playData.isVerified || playData.screenType == 'versus') {
+              const filePath = path.join(
+                app.getPath('pictures'),
+                'PROJECT-RA',
+                gameCode.toUpperCase().replaceAll('_', ' ') +
+                  '-' +
+                  (playData.screenType == 'versus' ? 'Versus' : String(playData.songData.name).replaceAll(':', '-')) +
+                  '-' +
+                  (playData.screenType == 'versus' ? 'Match' : String(playData.score)) +
+                  '-' +
+                  moment().utcOffset(9).format('YYYY-MM-DD-HH-mm-ss') +
+                  '.png',
+              )
+
+              if (settingData.saveImageWhenCapture && !isNotSaveImage) {
+                fs.writeFile(filePath, Buffer.from(imageBuffer), (err) => {
+                  if (err) {
+                    console.error('Failed to save file:', err)
+                  } else {
+                    console.log('File saved to', filePath)
+                  }
+                })
+              }
+
+              isUploaded = true
+              if (where !== 'versus' && playData.screenType !== 'versus') {
+                settingData.resultOverlay && overlayWindow.webContents.send('IPC_RENDERER_GET_NOTIFICATION_DATA', { ...response.data.playData })
+              }
+              return { ...response.data, filePath: settingData.saveImageWhenCapture ? filePath : null }
+            } else {
+              return {
+                playData: {
+                  isVerified: null,
+                },
+              }
+            }
+          } catch (error) {
+            console.error('서버 사이드 OCR 요청 실패:', error)
             return {
               playData: {
-                isVerified: null,
+                isVerified: false,
+                error: '서버 사이드 OCR 요청 실패',
               },
             }
           }
-        } catch (error) {
-          console.error('서버 사이드 OCR 요청 실패:', error)
+        } else if (isResult.length >= 1 && isUploaded) {
+          console.log('Waiting for Exit Result Screen...')
           return {
             playData: {
-              isVerified: false,
-              error: '서버 사이드 OCR 요청 실패',
+              isVerified: null,
+            },
+          }
+        } else {
+          console.log('Waiting for Result Screen...')
+          isUploaded = false
+          return {
+            playData: {
+              isVerified: null,
             },
           }
         }
-      } else if (isResult.length >= 1 && isUploaded) {
-        console.log('Waiting for Exit Result Screen...')
-        return {
-          playData: {
-            isVerified: null,
-          },
-        }
-      } else {
-        console.log('Waiting for Result Screen...')
-        isUploaded = false
-        return {
-          playData: {
-            isVerified: null,
-          },
-        }
+      } catch (error) {
+        console.error('Error processing capture:', error)
       }
-    } catch (error) {
-      console.error('Error processing capture:', error)
+    } else if (gameCode == 'wjmax') {
+      try {
+        console.log('Client Side OCR isResultScreen Requested. Processing image data...')
+
+        let isResult = []
+        let text = ''
+        let where = ''
+
+        if (isMenualUpload) {
+          isResult = ['server']
+          text = 'server'
+          where = 'server'
+        } else {
+          // 각 영역별 OCR 검사
+          const regions: { [key: string]: Buffer } = {}
+          const texts: { [key: string]: string } = {}
+
+          // 설정에 따라 필요한 영역만 검사
+          if (settingData.autoCaptureWjmaxOcrResultRegion) {
+            regions.result = await sharp(imageBuffer).extract({ width: 135, height: 21, left: 1038, top: 307 }).linear(1, 0).toBuffer()
+            texts.result = await recognizeText(regions.result, 'eng')
+          }
+
+          // 결과 검사
+          const resultKeywords = ['JUDGEMENT', 'JUDGE', 'MENT', 'MENTS', 'JUDGEMENTS']
+
+          if (settingData.autoCaptureWjmaxOcrResultRegion && texts.result) {
+            isResult = resultKeywords.filter((value) => texts.result.toUpperCase().trim().includes(value) && texts.result.length !== 0)
+            if (isResult.length > 0) {
+              where = 'result'
+              text = texts.result
+            }
+          }
+        }
+
+        console.log('Client Side OCR isResultScreen:', isResult.length >= 1, `(${text.toUpperCase().trim()})`, `(Result Type: ${where})`)
+
+        if (isResult.length >= 1 && (!isUploaded || isMenualUpload)) {
+          if (!isMenualUpload) {
+            mainWindow.webContents.send('pushNotification', {
+              time: moment().utcOffset(9).format('YYYY-MM-DD-HH-mm-ss'),
+              message: 'WJMAX(게임)의 게임 결과창이 자동 인식되어 성과 기록 이미지를 처리 중에 있습니다. 잠시만 기다려주세요.',
+              color: 'tw-bg-blue-600',
+            })
+            if (settingData.resultOverlay) {
+              overlayWindow.webContents.send('IPC_RENDERER_GET_NOTIFICATION_DATA', {
+                message: 'WJMAX(게임)의 게임 결과창이 자동 인식되어 성과 기록 이미지를 처리 중에 있니다. 잠시만 기다려주세요.',
+                color: 'tw-bg-blue-600',
+              })
+            }
+          }
+          console.log('Server Side OCR PlayData Requested. Processing image data...')
+          try {
+            const serverOcrStartTime = Date.now()
+            const formData = new FormData()
+            formData.append('file', imageBuffer, {
+              filename: randomUUID() + '.png',
+              contentType: 'image/png',
+            })
+            formData.append('where', where)
+            const session = await getSession()
+            console.log(session)
+            const response = await axios.post(`${isProd ? 'https://rapi.lunatica.kr/api' : 'https://rapi.kotaro.wtf/api'}/v1/ocr/upload/wjmax`, formData, {
+              headers: {
+                ...formData.getHeaders(),
+                Authorization: isLogined ? `${session.userNo}|${session.userToken}` : '',
+              },
+              withCredentials: true,
+            })
+            console.log('Server Side OCR PlayData Result:', { ...response.data, processedTime: Date.now() - serverOcrStartTime + 'ms' })
+
+            const { playData } = response.data
+
+            if (playData.isVerified || playData.screenType == 'versus') {
+              const filePath = path.join(
+                app.getPath('pictures'),
+                'PROJECT-RA',
+                gameCode.toUpperCase().replaceAll('_', ' ') +
+                  '-' +
+                  (playData.screenType == 'versus' ? 'Versus' : String(playData.songData.name).replaceAll(':', '-')) +
+                  '-' +
+                  (playData.screenType == 'versus' ? 'Match' : String(playData.score)) +
+                  '-' +
+                  moment().utcOffset(9).format('YYYY-MM-DD-HH-mm-ss') +
+                  '.png',
+              )
+
+              if (settingData.saveImageWhenCapture && !isNotSaveImage) {
+                fs.writeFile(filePath, Buffer.from(imageBuffer), (err) => {
+                  if (err) {
+                    console.error('Failed to save file:', err)
+                  } else {
+                    console.log('File saved to', filePath)
+                  }
+                })
+              }
+
+              isUploaded = true
+              if (where !== 'versus' && playData.screenType !== 'versus') {
+                settingData.resultOverlay && overlayWindow.webContents.send('IPC_RENDERER_GET_NOTIFICATION_DATA', { ...response.data.playData })
+              }
+              return { ...response.data, filePath: settingData.saveImageWhenCapture ? filePath : null }
+            } else {
+              return {
+                playData: {
+                  isVerified: null,
+                },
+              }
+            }
+          } catch (error) {
+            console.error('서버 사이드 OCR 요청 실패:', error)
+            return {
+              playData: {
+                isVerified: false,
+                error: '서버 사이드 OCR 요청 실패',
+              },
+            }
+          }
+        } else if (isResult.length >= 1 && isUploaded) {
+          console.log('Waiting for Exit Result Screen...')
+          return {
+            playData: {
+              isVerified: null,
+            },
+          }
+        } else {
+          console.log('Waiting for Result Screen...')
+          isUploaded = false
+          return {
+            playData: {
+              isVerified: null,
+            },
+          }
+        }
+      } catch (error) {
+        console.error('Error processing capture:', error)
+      }
     }
   }
 
-  ipcMain.on('canvas-screenshot-upload', async (event, data) => {
-    const { buffer, fileName } = data
-    const imageBuffer = Buffer.from(buffer, 'base64')
-    const filePath = path.join(app.getPath('pictures'), 'PROJECT-RA', fileName)
-    fs.writeFile(filePath, imageBuffer, (err) => {
+  ipcMain.on('create-player-file', async (event, data) => {
+    const { userNo, userToken } = data
+
+    const filePath = path.join(app.getPath('userData'), 'User', 'player.txt')
+
+    fs.writeFile(filePath, `${userNo}|${userToken}`, (err) => {
       if (err) {
         console.error('Failed to save file:', err)
+      } else {
+        shell.showItemInFolder(filePath)
       }
     })
   })
 
   ipcMain.on('captureTest', async (event, data) => {
-    const imageBuffer = await captureScreen()
+    const isRunning = await isDjmaxRunning('djmax_respect_v')
+
+    const imageBuffer = await captureScreen(isRunning ? 'djmax_respect_v' : 'wjmax')
 
     console.log(imageBuffer)
 
@@ -527,7 +840,7 @@ let isFullscreen = false
     })
   })
 
-  ipcMain.on('screenshot-upload', async (event, buffer) => {
+  ipcMain.on('screenshot-upload', async (event, { buffer, gameCode }) => {
     const image = await sharp(buffer).resize(1920).toFormat('png').toBuffer()
 
     const resizedImageMetadata = await sharp(image).metadata()
@@ -538,14 +851,14 @@ let isFullscreen = false
         .extract({ width: 1920, height: 1080, left: 0, top: resizedImageMetadata.height - (resizedImageMetadata.width / 16) * 9 })
         .toBuffer()
 
-      const { playData } = await processResultScreen(croppedBuffer, true, true)
-      if (playData !== null && playData.isVerified !== undefined) {
+      const { playData } = await processResultScreen(croppedBuffer, true, true, gameCode)
+      if (playData !== null && (playData.isVerified !== undefined || playData.screenType == 'versus')) {
         mainWindow.webContents.send('screenshot-uploaded', playData)
       }
     } else {
       console.log('Full Screen Image Detected.')
-      const { playData } = await processResultScreen(image, true, true)
-      if (playData !== null && playData.isVerified !== undefined) {
+      const { playData } = await processResultScreen(image, true, true, gameCode)
+      if (playData !== null && (playData.isVerified !== undefined || playData.screenType == 'versus')) {
         mainWindow.webContents.send('screenshot-uploaded', playData)
       }
     }
@@ -554,12 +867,13 @@ let isFullscreen = false
   async function startCapturing() {
     const captureAndProcess = async () => {
       try {
-        const isRunning = await isDjmaxRunning()
-        if (!isRunning) {
-          mainWindow.webContents.send('isDetectedGame', false)
+        const isRunning = await isDjmaxRunning('djmax_respect_v')
+        const isRunningWjmax = await isDjmaxRunning('wjmax')
+        if (!isRunning && !isRunningWjmax) {
+          mainWindow.webContents.send('isDetectedGame', { status: false, game: '' })
           return
         }
-        mainWindow.webContents.send('isDetectedGame', true)
+        mainWindow.webContents.send('isDetectedGame', { status: true, game: isRunning ? 'DJMAX RESPECT V' : 'WJMAX' })
 
         if (isLogined && settingData.autoCaptureMode) {
           const focusedWindow = await new Promise<string>((resolve) => {
@@ -571,13 +885,13 @@ let isFullscreen = false
             )
           })
 
-          const isGameFocused = focusedWindow == 'DJMAX RESPECT V'
+          const isGameFocused = (focusedWindow === 'DJMAX RESPECT V' && isRunning) || (focusedWindow === 'WJMAX' && isRunningWjmax)
 
           if (isGameFocused || !settingData.captureOnlyFocused) {
             console.log('Powershell isGameFocused Result : Game is focused. Capturing...', `(${focusedWindow})`)
-            const gameSource = await captureScreen()
-            const data = await processResultScreen(gameSource) // gameSource를 버퍼로 전달
-            if (data !== null && data !== undefined && data.playData && data.playData.isVerified !== null) {
+            const gameSource = await captureScreen(isRunning ? 'djmax_respect_v' : 'wjmax')
+            const data = await processResultScreen(gameSource, false, false, isRunning ? 'djmax_respect_v' : 'wjmax') // gameSource를 버퍼로 전달
+            if (data !== null && data !== undefined && data.playData && (data.playData.isVerified !== null || data.playData.screenType == 'versus')) {
               mainWindow.webContents.send('screenshot-uploaded', { ...data.playData, filePath: data.filePath })
             }
           } else {
@@ -607,12 +921,19 @@ let isFullscreen = false
           color: 'tw-bg-lime-600',
         })
       }
-      const isRunning = await isDjmaxRunning()
-      console.log('isRunning:', isRunning)
-      if (isRunning && isLogined) {
-        const gameSource = await captureScreen()
+      const isRunning = await isDjmaxRunning('djmax_respect_v')
+      const isRunningWjmax = await isDjmaxRunning('wjmax')
+      console.log('isRunning:', isRunning, 'isRunningWjmax:', isRunningWjmax)
+      if ((isRunning || isRunningWjmax) && isLogined) {
+        const gameSource = await captureScreen(isRunning ? 'djmax_respect_v' : 'wjmax')
         const data = await processResultScreen(gameSource, true) // gameSource를 버퍼로 전달
-        if (data !== null && data !== undefined && data.playData && data.playData.isVerified !== null) {
+        if (
+          data !== null &&
+          data !== undefined &&
+          data !== '' &&
+          data.playData &&
+          (data.playData.isVerified !== null || data.playData.screenType == 'versus')
+        ) {
           mainWindow.webContents.send('screenshot-uploaded', { ...data.playData, filePath: data.filePath })
         } else {
           if (settingData.resultOverlay) {
@@ -633,27 +954,32 @@ let isFullscreen = false
   })
 })()
 
-const isDjmaxRunning = () => {
+// isDjmaxRunning 함수 수정
+const isDjmaxRunning = (gameCode) => {
   return new Promise((resolve, reject) => {
-    // 'tasklist' 명령어를 사용하여 'DJMAX RESPECT V'가 실행 중인지 확인
-    exec('tasklist /FI "IMAGENAME eq DJMAX*" /FO CSV', (err, stdout, stderr) => {
-      if (err) {
-        return reject(err)
-      }
-
-      // stdout에 'DJMAX'가 포함된 프로세스가 있는지 확인
-      const isRunning = stdout.toLowerCase().includes('djmax')
-      resolve(isRunning)
-    })
+    if (gameCode === 'djmax_respect_v') {
+      exec('tasklist /FI "IMAGENAME eq DJMAX*" /FO CSV', (err, stdout, stderr) => {
+        if (err) return reject(err)
+        const isRunning = stdout.toLowerCase().includes('djmax')
+        resolve(isRunning)
+      })
+    } else if (gameCode === 'wjmax') {
+      exec('tasklist /FI "IMAGENAME eq WJMAX*" /FO CSV', (err, stdout, stderr) => {
+        if (err) return reject(err)
+        const isRunning = stdout.toLowerCase().includes('wjmax')
+        resolve(isRunning)
+      })
+    }
   })
 }
 
-async function captureScreen() {
+// captureScreen 함수 수정
+async function captureScreen(gameCode) {
   try {
     if (['eapi', 'xcap-api', 'napi'].includes(settingData.autoCaptureApi)) {
       console.log(settingData.autoCaptureApi.toUpperCase() + ': Game Window Captured')
 
-      const windows = Window.all().filter((value) => value.title.includes('DJMAX RESPECT V'))
+      let windows = Window.all().filter((value) => value.title.includes(gameList[gameCode]))
 
       if (windows.length > 0) {
         const window = windows[0]
@@ -770,6 +1096,21 @@ ipcMain.on('reload-app', () => {
 
 // 렌더러 프로세스에서 업데이트 승인 시 설치 및 앱 종료
 ipcMain.on('update-app', () => {
+  // 오버레이 윈도우 정리
+  if (overlayWindow) {
+    overlayWindow.destroy()
+    overlayWindow = null
+  }
+
+  // 자동 캡처 인터벌 정리
+  if (settingData.autoCaptureIntervalId) {
+    clearTimeout(settingData.autoCaptureIntervalId)
+  }
+
+  // 전역 단축키 해제
+  globalShortcut.unregisterAll()
+
+  // 업데이트 설치 및 앱 재시작
   autoUpdater.quitAndInstall()
 })
 

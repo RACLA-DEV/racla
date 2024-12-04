@@ -12,8 +12,10 @@ import Link from 'next/link'
 import { OverlayTrigger, Tooltip } from 'react-bootstrap'
 import { useSelector, useDispatch } from 'react-redux'
 import { RootState } from 'store'
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { setBackgroundBgaName } from 'store/slices/uiSlice'
+import axios from 'axios'
+import { useInView } from 'react-intersection-observer'
 
 interface ScorePopupComponentProps {
   songItem?: any
@@ -27,6 +29,7 @@ interface ScorePopupComponentProps {
   delay?: { show: number; hide: number }
   onMouseEnter?: () => void
   onMouseLeave?: () => void
+  size?: number
 }
 
 const ScorePopupComponent = ({
@@ -40,17 +43,28 @@ const ScorePopupComponent = ({
   delay = { show: 500, hide: 0 },
   onMouseEnter,
   onMouseLeave,
+  size = 80,
 }: ScorePopupComponentProps) => {
   const dispatch = useDispatch()
   const fontFamily = useSelector((state: RootState) => state.ui.fontFamily)
   const userData = useSelector((state: RootState) => state.app.userData)
+  const vArchiveUserData = useSelector((state: RootState) => state.app.vArchiveUserData)
   const songDataList = useSelector((state: RootState) => state.app.songData)
+  const selectedGame = useSelector((state: RootState) => state.app.selectedGame)
   const [songData, setSongData] = useState<any>(null)
   const [rivalSongData, setRivalSongData] = useState<any>(null)
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [isHovered, setIsHovered] = useState<boolean>(false)
   const [showScore, setShowScore] = useState<boolean>(false)
   const [mounted, setMounted] = useState<boolean>(false)
+  const [imageLoaded, setImageLoaded] = useState(false)
+  const { ref, inView } = useInView({
+    threshold: 0,
+    triggerOnce: true,
+  })
+  const handleImageLoad = useCallback(() => {
+    setImageLoaded(true)
+  }, [])
 
   useEffect(() => {
     let isMounted = true
@@ -125,6 +139,9 @@ const ScorePopupComponent = ({
     if (songItem) {
       dispatch(setBackgroundBgaName(String(songItem.title)))
     }
+    if (songItemTitle) {
+      dispatch(setBackgroundBgaName(String(songItemTitle)))
+    }
   }
 
   const handleMouseLeave = () => {
@@ -134,6 +151,11 @@ const ScorePopupComponent = ({
   }
 
   const displayData = isScored ? songItem : songData || songItem
+
+  const imageUrl = useMemo(() => {
+    if (!songItem && !songItemTitle) return ''
+    return `/images/djmax_respect_v/jackets/${displayData?.title ?? songItemTitle}.jpg`
+  }, [songItem, displayData?.title, songItemTitle])
 
   return (
     <OverlayTrigger
@@ -155,15 +177,19 @@ const ScorePopupComponent = ({
             `}</style>
             <div className="tw-flex tw-flex-col">
               <div className="tw-flex tw-flex-col tw-w-80 tw-h-32 tw-relative tw-mb-2 tw-mt-1 tw-bg-gray-900 tw-bg-opacity-100 tw-overflow-hidden tw-rounded-md">
-                <Image
-                  loading="lazy" // "lazy" | "eager"
-                  blurDataURL={globalDictionary.blurDataURL}
-                  src={`/images/djmax_respect_v/jackets/${displayData?.title ?? songItemTitle}.jpg`}
-                  className="tw-absolute tw-animate-fadeInLeft tw-rounded-md tw-blur tw-brightness-50 tw-bg-opacity-90"
-                  fill
-                  alt=""
-                  style={{ objectFit: 'cover' }}
-                />
+                {inView && (
+                  <Image
+                    loading="lazy"
+                    blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDABQODxIPDRQSEBIXFRQdHx4eHRoaHSQtJSEkLzYvLy02Mi45OEA6PTo4OTZCRk1RUVdaWHJ4jZeGnJ2krbS/v7v/2wBDARUXFx4aHR4eHb+7pqC7v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7//wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAb/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
+                    placeholder="blur"
+                    src={imageUrl}
+                    className="tw-absolute tw-animate-fadeInLeft tw-rounded-md tw-blur tw-brightness-50 tw-bg-opacity-90"
+                    fill
+                    alt=""
+                    onLoad={handleImageLoad}
+                    style={{ objectFit: 'cover' }}
+                  />
+                )}
                 <span className="tw-absolute tw-left-0 tw-bottom-0 tw-px-2 tw-font-bold tw-text-left tw-break-keep">
                   <span className="tw-font-medium tw-text-md">{displayData?.composer}</span>
                   <br />
@@ -180,7 +206,7 @@ const ScorePopupComponent = ({
                     displayData?.patterns[`${keyMode}B`]?.[value] !== null && (
                       <div className="tw-flex tw-flex-col tw-gap-2" key={'songDataPack_item' + displayData.title + '_hover' + value}>
                         <div className="tw-flex tw-items-center tw-gap-1">
-                          <span className={getDifficultyTextClassName(value)}>{globalDictionary.respect.difficulty[value].fullName}</span>
+                          <span className={getDifficultyTextClassName(value)}>{globalDictionary[selectedGame].difficulty[value].fullName}</span>
                           <Image
                             loading="lazy" // "lazy" | "eager"
                             blurDataURL={globalDictionary.blurDataURL}
@@ -198,7 +224,7 @@ const ScorePopupComponent = ({
                             </sup>
                           </span>
                         </div>
-                        {userData.userName !== '' && (displayData.patterns[`${keyMode}B`][value] !== undefined || isScored) ? (
+                        {vArchiveUserData.userName !== '' && (displayData.patterns[`${keyMode}B`][value] !== undefined || isScored) ? (
                           <div className="tw-relative tw-w-full tw-h-6 tw-bg-gray-900 tw-rounded-sm tw-overflow-hidden">
                             <div
                               className="tw-h-full tw-transition-all tw-duration-1000 tw-ease-out"
@@ -227,25 +253,29 @@ const ScorePopupComponent = ({
                     ),
                 )}
               </div>
-              {userData.userName !== '' && (
+              {vArchiveUserData.userName !== '' && (
                 <span className="tw-text-xs tw-font-light tw-text-gray-300 tw-my-2">
-                  <span className="">{userData.userName}</span>님의 성과 기록
+                  <span className="">{vArchiveUserData.userName}</span>님의 성과 기록
                 </span>
               )}
             </div>
 
-            {rivalName && rivalName !== userData.userName && rivalSongData && (
+            {rivalName && rivalName !== vArchiveUserData.userName && rivalSongData && (
               <div className="tw-flex tw-flex-col">
                 <div className="tw-flex tw-flex-col tw-w-80 tw-h-32 tw-relative tw-mb-2 tw-mt-1 tw-bg-gray-900 tw-bg-opacity-100 tw-overflow-hidden tw-rounded-md">
-                  <Image
-                    loading="lazy" // "lazy" | "eager"
-                    blurDataURL={globalDictionary.blurDataURL}
-                    src={`/images/djmax_respect_v/jackets/${rivalSongData.title}.jpg`}
-                    className="tw-absolute tw-animate-fadeInLeft tw-rounded-md tw-blur tw-brightness-50 tw-bg-opacity-90"
-                    fill
-                    alt=""
-                    style={{ objectFit: 'cover' }}
-                  />
+                  {inView && (
+                    <Image
+                      loading="lazy"
+                      blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDABQODxIPDRQSEBIXFRQdHx4eHRoaHSQtJSEkLzYvLy02Mi45OEA6PTo4OTZCRk1RUVdaWHJ4jZeGnJ2krbS/v7v/2wBDARUXFx4aHR4eHb+7pqC7v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7//wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAb/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
+                      placeholder="blur"
+                      src={imageUrl}
+                      className="tw-absolute tw-animate-fadeInLeft tw-rounded-md tw-blur tw-brightness-50 tw-bg-opacity-90"
+                      fill
+                      alt=""
+                      onLoad={handleImageLoad}
+                      style={{ objectFit: 'cover' }}
+                    />
+                  )}
                   <span className="tw-absolute tw-left-0 tw-bottom-0 tw-px-2 tw-font-bold tw-text-left tw-break-keep">
                     <span className="tw-font-medium tw-text-md">{rivalSongData.composer}</span>
                     <br />
@@ -262,7 +292,7 @@ const ScorePopupComponent = ({
                       rivalSongData.patterns[`${keyMode}B`][value] !== null && (
                         <div className="tw-flex tw-flex-col tw-gap-2" key={'songDataPack_item' + rivalSongData.title + '_hover' + value}>
                           <div className="tw-flex tw-items-center tw-gap-1">
-                            <span className={getDifficultyTextClassName(value)}>{globalDictionary.respect.difficulty[value].fullName}</span>
+                            <span className={getDifficultyTextClassName(value)}>{globalDictionary[selectedGame].difficulty[value].fullName}</span>
                             <Image
                               loading="lazy" // "lazy" | "eager"
                               blurDataURL={globalDictionary.blurDataURL}
@@ -280,7 +310,7 @@ const ScorePopupComponent = ({
                               </sup>
                             </span>
                           </div>
-                          {userData.userName !== '' && (rivalSongData.patterns[`${keyMode}B`][value] !== undefined || isScored) ? (
+                          {vArchiveUserData.userName !== '' && (rivalSongData.patterns[`${keyMode}B`][value] !== undefined || isScored) ? (
                             <div className="tw-relative tw-w-full tw-h-6 tw-bg-gray-900 tw-rounded-sm tw-overflow-hidden">
                               <div
                                 className="tw-h-full tw-transition-all tw-duration-1000 tw-ease-out"
@@ -320,20 +350,28 @@ const ScorePopupComponent = ({
         </Tooltip>
       }
     >
-      <div className="tw-inline-flex tw-flex-col tw-transition-all" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+      <div ref={ref} className="tw-inline-flex tw-flex-col tw-transition-all" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
         <Link
           href={`/vArchive/db/title/${displayData?.title ?? songItemTitle}`}
-          className="tw-relative tw-h-20 tw-w-20 tw-rounded-md hover-scale-110 respect_record  tw-cursor-pointer"
+          className="tw-relative tw-rounded-md hover-scale-110 respect_record tw-cursor-pointer"
+          style={{ width: size, height: size }}
         >
-          <Image
-            loading="lazy" // "lazy" | "eager"
-            blurDataURL={globalDictionary.blurDataURL}
-            src={`/images/djmax_respect_v/jackets/${displayData?.title ?? songItemTitle}.jpg`}
-            className="tw-absolute tw-rounded-md tw-shadow-lg"
-            height={rivalName ? 70 : 80}
-            width={rivalName ? 70 : 80}
-            alt=""
-          />
+          {inView && (
+            <>
+              <Image
+                loading="lazy"
+                blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDABQODxIPDRQSEBIXFRQdHx4eHRoaHSQtJSEkLzYvLy02Mi45OEA6PTo4OTZCRk1RUVdaWHJ4jZeGnJ2krbS/v7v/2wBDARUXFx4aHR4eHb+7pqC7v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7//wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAb/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
+                placeholder="blur"
+                src={imageUrl}
+                className={`tw-absolute tw-rounded-md tw-shadow-lg tw-transition-opacity ${!imageLoaded ? 'tw-bg-gray-700 tw-blur-sm' : ''}`}
+                width={rivalName ? 70 : size}
+                height={rivalName ? 70 : size}
+                alt=""
+                onLoad={handleImageLoad}
+                style={{ objectFit: 'cover' }}
+              />
+            </>
+          )}
           {isVisibleCode ? (
             <span className="tw-absolute tw-top-0 tw-left-0 respect_dlc_code_wrap tw-rounded-tl-md">
               <span className={`respect_dlc_code respect_dlc_code_${displayData?.dlcCode ?? ''}`}>{displayData?.dlcCode ?? ''}</span>
@@ -347,8 +385,8 @@ const ScorePopupComponent = ({
             </span>
           )}
         </Link>
-        {userData.userName !== '' && isScored && displayData ? (
-          <span className={'mt-2 tw-w-full tw-bg-gray-950 tw-text-center tw-rounded-md tw-text-sm tw-font-bold'}>
+        {vArchiveUserData.userName !== '' && isScored && displayData ? (
+          <span className={'mt-2 tw-w-full tw-bg-gray-950 tw-text-center tw-rounded-md tw-text-xs tw-font-bold'}>
             {getSCPatternScoreDisplayText(displayData.patterns, keyMode)}
           </span>
         ) : null}

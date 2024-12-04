@@ -25,11 +25,12 @@ function ensureDirectoryExists(dirPath) {
 const picturePath = path.join(app.getPath('pictures'), 'PROJECT-RA')
 ensureDirectoryExists(picturePath)
 
-const documentPath = path.join(app.getPath('documents'), 'PROJECT-RA')
+const documentPath = path.join(app.getPath('userData'), 'User')
 ensureDirectoryExists(documentPath)
 
 const sessionFile = path.join(documentPath, 'session.json')
 const songDataFile = path.join(documentPath, 'songData.json')
+const wjmaxSongDataFile = path.join(documentPath, 'wjmaxSongData.json')
 const settingDataFile = path.join(documentPath, 'settings.json')
 
 // 세션 저장
@@ -50,7 +51,7 @@ export function getSession() {
 // 세션 삭제
 export function clearSession() {
   if (fs.existsSync(sessionFile)) {
-    fs.writeFileSync(sessionFile, JSON.stringify({ userNo: '', userToken: '' }), 'utf-8')
+    fs.writeFileSync(sessionFile, JSON.stringify({ userNo: '', userToken: '', vArchiveUserNo: '', vArchiveUserToken: '' }), 'utf-8')
   }
 }
 
@@ -64,6 +65,21 @@ export function storeSongData(songData) {
 export function getSongData() {
   if (fs.existsSync(songDataFile)) {
     const data = fs.readFileSync(songDataFile, 'utf-8')
+    return JSON.parse(data)
+  }
+  return null
+}
+
+// wjmax 곡 데이터 저장
+export function storeWjmaxSongData(wjmaxSongData) {
+  console.log('wjmaxSongData Saved:', wjmaxSongDataFile)
+  fs.writeFileSync(wjmaxSongDataFile, JSON.stringify(wjmaxSongData), 'utf-8')
+}
+
+// wjmax 곡 데이터 읽기
+export function getWjmaxSongData() {
+  if (fs.existsSync(wjmaxSongDataFile)) {
+    const data = fs.readFileSync(wjmaxSongDataFile, 'utf-8')
     return JSON.parse(data)
   }
   return null
@@ -92,6 +108,11 @@ if (getSession() === undefined || getSession() === null) {
 if (getSongData() === undefined || getSongData() === null) {
   console.log('File Created: ', songDataFile)
   storeSongData([{}])
+}
+
+if (getWjmaxSongData() === undefined || getWjmaxSongData() === null) {
+  console.log('File Created: ', wjmaxSongDataFile)
+  storeWjmaxSongData([{}])
 }
 
 if (getSettingData() === undefined || getSettingData() === null) {

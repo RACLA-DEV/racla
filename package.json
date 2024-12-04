@@ -2,7 +2,7 @@
   "private": true,
   "name": "project-ra",
   "description": "프로젝트 RA",
-  "version": "0.5.0",
+  "version": "0.5.2",
   "author": "Lunatica Luna <luna@lunatica.kr>",
   "main": "app/background.js",
   "scripts": {
@@ -52,6 +52,9 @@
     "react-loading-skeleton": "^3.4.0",
     "react-redux": "^9.1.2",
     "react-spinners": "^0.14.1",
+    "react-window": "^1.8.10",
+    "react-window-infinite-loader": "^1.0.9",
+    "react-zoom-pan-pinch": "^3.6.1",
     "sass": "^1.77.8",
     "sharp": "^0.33.5",
     "swr": "^2.2.5",

@@ -23,7 +23,7 @@ import {
 } from 'react-icons/fa6'
 
 export const globalDictionary = {
-  version: 'V0.6.0.20240000 0000',
+  version: 'V0.6.0.20241201 1135-Canary',
   blurDataURL:
     'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDABQODxIPDRQSEBIXFRQdHx0fHRsdHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR3/2wBDAR0XFyAeIRshGxsdIR0hHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR3/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAb/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k=',
   settings: {
@@ -141,9 +141,74 @@ export const globalDictionary = {
         isEditable: true,
         requiresRestart: false,
       },
+      autoCaptureOcrResultRegion: {
+        id: 'autoCaptureOcrResultRegion',
+        name: 'OCR 결과창 검사',
+        description: '결과창 영역의 OCR 검사를 활성화/비활성화 합니다.',
+        defaultValue: true,
+        isEditable: true,
+        requiresRestart: false,
+      },
+      autoCaptureOcrOpen3Region: {
+        id: 'autoCaptureOcrOpen3Region',
+        name: 'OCR OPEN3 검사',
+        description: 'OPEN3 영역의 OCR 검사를 활성화/비활성화 합니다.',
+        defaultValue: false,
+        isEditable: true,
+        requiresRestart: false,
+      },
+      autoCaptureOcrOpen2Region: {
+        id: 'autoCaptureOcrOpen2Region',
+        name: 'OCR OPEN2 검사',
+        description: 'OPEN2 영역의 OCR 검사를 활성화/비활성화 합니다.',
+        defaultValue: false,
+        isEditable: true,
+        requiresRestart: false,
+      },
+      autoCaptureOcrVersusRegion: {
+        id: 'autoCaptureOcrVersusRegion',
+        name: 'OCR 대전모드 검사',
+        description: '대전모드 영역의 OCR 검사를 활성화/비활성화 합니다.',
+        defaultValue: false,
+        isEditable: true,
+        requiresRestart: false,
+      },
+      autoCaptureWjmaxOcrResultRegion: {
+        id: 'autoCaptureWjmaxOcrResultRegion',
+        name: 'WJMAX OCR 결과창 검사',
+        description: 'WJMAX 검사 시 결과창 영역의 OCR 검사를 활성화/비활성화 합니다.',
+        defaultValue: true,
+        isEditable: true,
+        requiresRestart: false,
+      },
+      autoStartGame: {
+        id: 'autoStartGame',
+        name: '게임 자동 실행',
+        description: '프로젝트 RA 실행 시 선택한 게임을 자동으로 실행합니다.',
+        defaultValue: false,
+        isEditable: true,
+        requiresRestart: false,
+      },
+      autoStartGameDjmaxRespectV: {
+        id: 'autoStartGameDjmaxRespectV',
+        name: 'DJMAX RESPECT V 자동 실행',
+        description:
+          '프로젝트 RA 실행 시 DJMAX RESPECT V를 자동으로 실행합니다. 해당 기능은 Steam과 DJMAX RESPECT V(Steam)가 설치되어 있을 경우에만 작동합니다.',
+        defaultValue: false,
+        isEditable: true,
+        requiresRestart: false,
+      },
+      isMiniMode: {
+        id: 'isMiniMode',
+        name: '미니 모드',
+        description: '미니 모드를 활성화/비활성화 합니다.',
+        defaultValue: false,
+        isEditable: true,
+        requiresRestart: false,
+      },
     },
   },
-  respect: {
+  djmax_respect_v: {
     keyModeList: [4, 5, 6, 8],
     levelList: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
     difficulty: {
@@ -166,29 +231,38 @@ export const globalDictionary = {
     },
     dlcList: [],
   },
+  wjmax: {
+    keyModeList: ['4', '4P', '6', '6P'],
+    levelList: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
+    difficulty: {
+      NM: {
+        name: 'NM',
+        fullName: '메시',
+      },
+      HD: {
+        name: 'HD',
+        fullName: '엔젤',
+      },
+      MX: {
+        name: 'MX',
+        fullName: '왁굳',
+      },
+      SC: {
+        name: 'SC',
+        fullName: '민수',
+      },
+    },
+    dlcList: [],
+  },
   navDictionary: {
-    DJMAX_RESPECT_V: {
+    projectRa: {
       projectRa: {
         id: 'projectRaNavTitle',
         name: '프로젝트 RA',
         isDisplay: true,
-        link: '/projectRa',
+        link: '/',
         userLevel: [],
         pages: [
-          {
-            id: 'projectRaNavItemsTest',
-            name: {
-              startWithSup: '',
-              base: '테스트',
-              lastWithSup: '',
-            },
-            icon: FaTextSlash,
-            isDisplay: true,
-            isOpenBrowser: false,
-            link: '/test',
-            userLevel: [],
-            status: 'stable',
-          },
           {
             id: 'projectRaHome',
             name: {
@@ -199,37 +273,9 @@ export const globalDictionary = {
             icon: FaHouse,
             isDisplay: true,
             isOpenBrowser: false,
-            link: '/home',
+            link: '',
             userLevel: [],
             status: 'stable',
-          },
-          {
-            id: 'projectRaNavItemsLeaderboard',
-            name: {
-              startWithSup: '',
-              base: '리더보드(랭킹)',
-              lastWithSup: '',
-            },
-            icon: FaRankingStar,
-            isDisplay: false,
-            isOpenBrowser: false,
-            link: '/leaderboard',
-            userLevel: [],
-            status: 'dev',
-          },
-          {
-            id: 'projectRaNavItemsCourse',
-            name: {
-              startWithSup: '',
-              base: '코스 메이커',
-              lastWithSup: '',
-            },
-            icon: FaWandMagicSparkles,
-            isDisplay: false,
-            isOpenBrowser: false,
-            link: '/course',
-            userLevel: [],
-            status: 'dev',
           },
           {
             id: 'projectRaNavItemsOverlay',
@@ -241,7 +287,7 @@ export const globalDictionary = {
             icon: FaWindowMaximize,
             isDisplay: true,
             isOpenBrowser: false,
-            link: '/overlay/setting',
+            link: 'overlay/setting',
             userLevel: [],
             status: 'stable',
           },
@@ -261,6 +307,8 @@ export const globalDictionary = {
           // },
         ],
       },
+    },
+    djmax_respect_v: {
       vArchive: {
         id: 'vArchiveNavTitle',
         name: 'V-ARCHIVE',
@@ -281,6 +329,20 @@ export const globalDictionary = {
             link: '/regScore',
             userLevel: [],
             status: 'beta',
+          },
+          {
+            id: 'vArchiveNavItemsArchiveMyBoard',
+            name: {
+              startWithSup: '',
+              base: '성과표',
+              lastWithSup: '',
+            },
+            icon: FaTrophy,
+            isDisplay: true,
+            isOpenBrowser: false,
+            link: '/board',
+            userLevel: [],
+            status: 'stable',
           },
           {
             id: 'vArchiveNavItemsDjpower',
@@ -321,20 +383,6 @@ export const globalDictionary = {
             isDisplay: true,
             isOpenBrowser: false,
             link: '/db',
-            userLevel: [],
-            status: 'stable',
-          },
-          {
-            id: 'vArchiveNavItemsArchiveMyBoard',
-            name: {
-              startWithSup: '',
-              base: '성과표',
-              lastWithSup: '',
-            },
-            icon: FaTrophy,
-            isDisplay: true,
-            isOpenBrowser: false,
-            link: '/board',
             userLevel: [],
             status: 'stable',
           },
@@ -462,73 +510,73 @@ export const globalDictionary = {
         ],
       },
     },
-    // WJMAX: {
-    //   projectRa: {
-    //     id: 'projectRaNavTitle',
-    //     name: '프로젝트 RA',
-    //     isDisplay: true,
-    //     link: '/projectRa',
-    //     userLevel: [],
-    //     pages: [
-    //       {
-    //         id: 'vArchiveNavItemsRegScore',
-    //         name: {
-    //           startWithSup: '',
-    //           base: '기록 등록',
-    //           lastWithSup: '',
-    //         },
-    //         icon: FaUpload,
-    //         isDisplay: false,
-    //         isOpenBrowser: false,
-    //         link: '/regScore',
-    //         userLevel: [],
-    //         status: 'dev',
-    //       },
-    //       {
-    //         id: 'vArchiveNavItemsDb',
-    //         name: {
-    //           startWithSup: '',
-    //           base: '데이터베이스',
-    //           lastWithSup: '',
-    //         },
-    //         icon: FaDatabase,
-    //         isDisplay: true,
-    //         isOpenBrowser: false,
-    //         link: '/db',
-    //         userLevel: [],
-    //         status: 'dev',
-    //       },
-    //       {
-    //         id: 'projectRaNavItemsLeaderboard',
-    //         name: {
-    //           startWithSup: '',
-    //           base: '리더보드(랭킹)',
-    //           lastWithSup: '',
-    //         },
-    //         icon: FaRankingStar,
-    //         isDisplay: false,
-    //         isOpenBrowser: false,
-    //         link: '/leaderboard',
-    //         userLevel: [],
-    //         status: 'dev',
-    //       },
-    //       {
-    //         id: 'projectRaNavItemsCourse',
-    //         name: {
-    //           startWithSup: '',
-    //           base: '코스 메이커',
-    //           lastWithSup: '',
-    //         },
-    //         icon: FaWandMagicSparkles,
-    //         isDisplay: false,
-    //         isOpenBrowser: false,
-    //         link: '/course',
-    //         userLevel: [],
-    //         status: 'dev',
-    //       },
-    //     ],
-    //   },
-    // },
+    wjmax: {
+      wjmax: {
+        id: 'wjmaxNavTitle',
+        name: 'WJMAX',
+        isDisplay: true,
+        link: '/projectRa',
+        userLevel: [],
+        pages: [
+          {
+            id: 'wjmaxNavItemsRegScore',
+            name: {
+              startWithSup: '',
+              base: '기록 등록',
+              lastWithSup: '',
+            },
+            icon: FaUpload,
+            isDisplay: true,
+            isOpenBrowser: false,
+            link: '/wjmax/regScore',
+            userLevel: [],
+            status: 'beta',
+          },
+          {
+            id: 'wjmaxNavItemsDb',
+            name: {
+              startWithSup: '',
+              base: '데이터베이스',
+              lastWithSup: '',
+            },
+            icon: FaDatabase,
+            isDisplay: true,
+            isOpenBrowser: false,
+            link: '/wjmax/db',
+            userLevel: [],
+            status: 'stable',
+          },
+          {
+            id: 'wjmaxNavItemsLeaderboard',
+            name: {
+              startWithSup: '',
+              base: '리더보드(랭킹)',
+              lastWithSup: '',
+            },
+            icon: FaRankingStar,
+            isDisplay: false,
+            isOpenBrowser: false,
+            link: '/leaderboard',
+            userLevel: [],
+            status: 'dev',
+          },
+          {
+            id: 'wjamxNavItemsCourse',
+            name: {
+              startWithSup: '',
+              base: '코스 메이커',
+              lastWithSup: '',
+            },
+            icon: FaWandMagicSparkles,
+            isDisplay: false,
+            isOpenBrowser: false,
+            link: '/course',
+            userLevel: [],
+            status: 'dev',
+          },
+        ],
+      },
+    },
     // TJMAX: {
     //   projectRa: {
     //     id: 'projectRaNavTitle',

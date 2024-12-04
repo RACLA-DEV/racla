@@ -1,48 +1,111 @@
 // renderUpdateSection.tsx
-import React from 'react'
-import { FaDownload, FaRotate } from 'react-icons/fa6'
-import { IconContext } from 'react-icons'
+import React, { useEffect, useState } from 'react'
+import { FaDownload, FaRotate, FaCheck } from 'react-icons/fa6'
+import { useNotificationSystem } from '@/libs/client/useNotifications'
 
-export const renderUpdateSection = (updateVersion: string | null, downloadProgress: { percent: string } | null, isDownloaded: boolean) => {
-  if (updateVersion) {
-    return (
-      <div
-        className={`tw-flex tw-fixed tw-px-4 tw-py-5 tw-items-center tw-gap-3 tw-bg-gray-400 tw-bg-opacity-10 tw-w-52 tw-left-0 tw-h-20 tw-bottom-8 tw-z-40 tw-transition-all ${
-          updateVersion ? 'tw-opacity-100' : 'tw-opacity-0'
-        } ${isDownloaded ? 'tw-animate-fadeInOut tw-cursor-pointer' : ''}`}
-        onClick={() => {
-          if (isDownloaded) {
-            window.ipc.send('update-app')
-          }
-        }}
-      >
-        <div className="tw-flex tw-items-center tw-justify-center tw-relative tw-h-3 tw-w-3">
-          {updateVersion && downloadProgress && !isDownloaded ? (
-            <IconContext.Provider value={{ className: 'tw-relative tw-text-center tw-animate-spin tw-absolute' }}>
-              <FaRotate />
-            </IconContext.Provider>
-          ) : (
-            <FaDownload />
-          )}
-        </div>
+const RenderUpdateSection: React.FC = () => {
+  const [updateVersion, setUpdateVersion] = useState<string | null>(null)
+  const [downloadProgress, setDownloadProgress] = useState<{ percent: string } | null>(null)
+  const [isDownloaded, setIsDownloaded] = useState(false)
+  const { showNotification } = useNotificationSystem()
 
-        <div className="tw-flex tw-flex-col">
-          <span className="tw-text-xs tw-font-bold">
-            {updateVersion && downloadProgress && !isDownloaded ? '업데이트 다운로드 중' : isDownloaded ? '업데이트 가능(재시작 필요)' : '업데이트 준비 중'}
-          </span>
-          <span className="tw-text-xs tw-font-light tw-text-gray-200 tw-text-opacity-50">
-            {updateVersion ? `V${updateVersion}${downloadProgress ? `(${Math.floor(Number(downloadProgress.percent))}%)` : ``}` : null}
-          </span>
+  useEffect(() => {
+    const handleUpdateAvailable = (info: string) => {
+      console.log('update-available', info)
+      setUpdateVersion(info)
+    }
+
+    const handleDownloadProgress = (info: { percent: string }) => {
+      console.log('download-progress', info)
+      setDownloadProgress(info)
+    }
+
+    const handleUpdateDownloaded = () => {
+      console.log('update-downloaded')
+      setIsDownloaded(true)
+    }
+
+    window.ipc.on('update-available', handleUpdateAvailable)
+    window.ipc.on('download-progress', handleDownloadProgress)
+    window.ipc.on('update-downloaded', handleUpdateDownloaded)
+
+    return () => {
+      window.ipc.removeListener('update-available', handleUpdateAvailable)
+      window.ipc.removeListener('download-progress', handleDownloadProgress)
+      window.ipc.removeListener('update-downloaded', handleUpdateDownloaded)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (updateVersion) {
+      showNotification(`프로젝트 RA의 업데이트(${updateVersion})가 존재합니다. 자동 업데이트를 준비합니다.`, 'tw-bg-blue-600')
+    }
+  }, [updateVersion, showNotification])
+
+  if (!updateVersion) return null
+
+  return (
+    <div
+      className={`
+        tw-cursor-pointer 
+        tw-text-sc
+        tw-relative 
+        tw-text-white 
+        tw-pt-4
+        tw-pb-4 
+        tw-px-4 
+        tw-mb-3 
+        tw-rounded-md 
+        tw-overflow-hidden 
+        tw-shadow-md
+        tw-backdrop-blur-sm
+        tw-bg-gray-950/95
+        tw-border
+        tw-border-white/10
+        tw-transform
+        tw-animate-fadeInSlideRight
+        hover:tw-scale-102
+        hover:tw-brightness-110
+        tw-transition-all
+        tw-duration-200
+        tw-text-xs
+      `}
+      onClick={() => {
+        if (isDownloaded) {
+          window.ipc.send('update-app')
+        }
+      }}
+    >
+      <div className="tw-flex tw-items-center tw-gap-3">
+        <div className={`tw-text-sm tw-p-1 tw-rounded-sm tw-bg-white/10 ${isDownloaded ? 'tw-animate-pulse' : ''}`}>
+          {isDownloaded ? <FaCheck /> : downloadProgress ? <FaRotate className="tw-animate-spin" /> : <FaDownload />}
         </div>
-        <div
-          className={`tw-absolute tw-bottom-0 tw-left-0 tw-h-1 tw-w-full tw-bg-white tw-bg-opacity-50
-            tw-transition-all tw-duration-1000`}
-          style={{
-            width: downloadProgress ? `${Math.floor(Number(downloadProgress.percent))}%` : `${isDownloaded ? 100 : 0}%`,
-          }}
-        />
+        <div className="tw-flex-1">
+          {isDownloaded ? 'V' + updateVersion + ' 업데이트 준비가 완료 되었습니다.' : downloadProgress ? '업데이트 다운로드 중' : '업데이트 준비 중'}
+          <div className="tw-text-xs tw-font-light tw-text-gray-200 tw-text-opacity-50">
+            {isDownloaded
+              ? '업데이트 적용을 위해 프로그램 재시작이 필요합니다. 클릭 시 프로그램을 재시작합니다.'
+              : updateVersion && `V${updateVersion}${downloadProgress ? ` (${Math.floor(Number(downloadProgress.percent))}%)` : ''}`}
+          </div>
+        </div>
       </div>
-    )
-  }
-  return null
+      <div
+        className={`
+          tw-absolute 
+          tw-bottom-0 
+          tw-left-0 
+          tw-h-1 
+          tw-w-full 
+          tw-bg-blue-600
+          ${isDownloaded ? 'tw-animate-fadeOut' : ''}
+        `}
+        style={{
+          transform: downloadProgress ? `translateX(-${100 - Math.floor(Number(downloadProgress.percent))}%)` : 'translateX(-100%)',
+          transition: 'transform 0.3s ease-in-out'
+        }}
+      />
+    </div>
+  )
 }
+
+export default RenderUpdateSection

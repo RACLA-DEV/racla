@@ -94,7 +94,7 @@ const tierPointMap = {
 const Board = () => {
   const router = useRouter()
   const { keyMode, board } = router.query
-  const { userData, songData } = useSelector((state: RootState) => state.app)
+  const { userData, songData, vArchiveUserData } = useSelector((state: RootState) => state.app)
 
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [floorData, setFloorData] = useState<Floor[]>([])
@@ -146,7 +146,7 @@ const Board = () => {
     setIsMounted(true)
 
     const fetchBoardData = async () => {
-      if (!userData.userName || !keyMode || !board) return
+      if (!vArchiveUserData.userName || !keyMode || !board) return
 
       setIsLoading(true)
       try {
@@ -155,7 +155,7 @@ const Board = () => {
 
         // V-ARCHIVE API에서 점수 데이터 가져오기
         const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_PROXY_API_URL}?url=https://v-archive.net/api/archive/${userData.userName}/board/${keyMode}/${board}`,
+          `${process.env.NEXT_PUBLIC_PROXY_API_URL}?url=https://v-archive.net/api/archive/${vArchiveUserData.userName}/board/${keyMode}/${board}`,
         )
 
         if (isMounted) {
@@ -196,11 +196,11 @@ const Board = () => {
       setIsMounted(false)
       setFloorData([])
     }
-  }, [userData.userName, keyMode, board, songData])
+  }, [vArchiveUserData.userName, keyMode, board, songData])
 
   useEffect(() => {
     const fetchAllBoardData = async () => {
-      if (!userData.userName || !keyMode) return
+      if (!vArchiveUserData.userName || !keyMode) return
 
       try {
         // 모든 보드의 데이터 가져오기
@@ -208,7 +208,7 @@ const Board = () => {
           boards.map(async (boardType) => {
             try {
               const response = await axios.get(
-                `${process.env.NEXT_PUBLIC_PROXY_API_URL}?url=https://v-archive.net/api/archive/${userData.userName}/board/${keyMode}/${boardType}`,
+                `${process.env.NEXT_PUBLIC_PROXY_API_URL}?url=https://v-archive.net/api/archive/${vArchiveUserData.userName}/board/${keyMode}/${boardType}`,
               )
               return response.data.floors?.flatMap((floor) => floor.patterns) || []
             } catch (error) {
@@ -254,7 +254,7 @@ const Board = () => {
     }
 
     fetchAllBoardData()
-  }, [userData.userName, keyMode])
+  }, [vArchiveUserData.userName, keyMode])
 
   if (!isMounted) return null
 
@@ -369,9 +369,9 @@ const Board = () => {
   const { showNotification } = useNotificationSystem()
 
   useEffect(() => {
-    if (userData.userName === '') {
-      router.push('/projectRa/home')
-      showNotification('성과표 조회 기능은 로그인이 필요합니다.', 'tw-bg-red-600')
+    if (vArchiveUserData.userName === '') {
+      router.push('/')
+      showNotification('성과표 조회 기능은 로그인 또는 V-ARCHIVE 계정 연동이 필요합니다.', 'tw-bg-red-600')
     }
   }, [])
 
@@ -419,63 +419,65 @@ const Board = () => {
                   src={`/images/djmax_respect_v/header_bg${randomHeaderBg}.jpg`}
                   alt="Background"
                   fill
-                  className="tw-object-cover tw-blur-md tw-brightness-50"
+                  className="tw-object-cover tw-blur-md tw-opacity-50 tw-brightness-50"
                 />
-                <div className="tw-absolute tw-inset-0 tw-p-4 tw-flex tw-flex-col tw-justify-between">
-                  <div className="tw-flex tw-justify-between tw-items-start">
-                    <span className="tw-flex tw-w-full tw-items-end tw-gap-1 tw-text-lg tw-font-bold [text-shadow:_2px_2px_2px_rgb(0_0_0_/_90%),_4px_4px_4px_rgb(0_0_0_/_60%)]">
-                      <span className="tw-text-4xl tw-font-bold">{keyMode}</span> <span className="tw-me-auto">Button</span>{' '}
-                      <span className="tw-text-2xl tw-font-bold">{String(keyBoardTitle[board as string]).replace('12~15', '12~15(a.k.a MX)')}</span>
-                    </span>
-                  </div>
+                {keyMode && (
+                  <div className="tw-absolute tw-inset-0 tw-p-4 tw-flex tw-flex-col tw-justify-between">
+                    <div className="tw-flex tw-justify-between tw-items-start">
+                      <span className="tw-flex tw-w-full tw-items-end tw-gap-1 tw-text-lg tw-font-bold [text-shadow:_2px_2px_2px_rgb(0_0_0_/_90%),_4px_4px_4px_rgb(0_0_0_/_60%)]">
+                        <span className="tw-text-4xl tw-font-bold">{keyMode}</span> <span className="tw-me-auto">Button</span>{' '}
+                        <span className="tw-text-2xl tw-font-bold">{String(keyBoardTitle[board as string]).replace('12~15', '12~15(a.k.a MX)')}</span>
+                      </span>
+                    </div>
 
-                  <div className="tw-space-y-2">
-                    {Object.entries(calculateStats(floorData.flatMap((f) => f.patterns))).map(([key, value], _, entries) => {
-                      if (key === 'total') return null
-                      const totalPatterns = entries.find(([k]) => k === 'total')?.[1] || 0
-                      const percentage = (value / totalPatterns) * 100
+                    <div className="tw-space-y-2">
+                      {Object.entries(calculateStats(floorData.flatMap((f) => f.patterns))).map(([key, value], _, entries) => {
+                        if (key === 'total') return null
+                        const totalPatterns = entries.find(([k]) => k === 'total')?.[1] || 0
+                        const percentage = (value / totalPatterns) * 100
 
-                      return (
-                        <div key={key} className="tw-flex tw-items-center tw-gap-2">
-                          <span className="tw-w-32 tw-text-sm">{keyTitle[key] || key.charAt(0).toUpperCase() + key.slice(1)}</span>
-                          <div
-                            className="tw-relative tw-flex-1 tw-h-6 tw-bg-gray-950 tw-rounded-sm tw-overflow-hidden tw-cursor-pointer"
-                            onClick={(e) => {
-                              const rect = e.currentTarget.getBoundingClientRect()
-                              const clickX = e.clientX - rect.left
-                              const isLeftSide = clickX < rect.width * (percentage / 100)
-
-                              // 같은 조건을 다시 클릭했을 때 하이라이트 해제
-                              if (highlightCondition === key && highlightInverse === !isLeftSide) {
-                                setHighlightCondition(null)
-                                setHighlightInverse(false)
-                              } else {
-                                setHighlightCondition(key)
-                                setHighlightInverse(!isLeftSide)
-                              }
-                            }}
-                          >
+                        return (
+                          <div key={key} className="tw-flex tw-items-center tw-gap-2">
+                            <span className="tw-w-32 tw-text-sm">{keyTitle[key] || key.charAt(0).toUpperCase() + key.slice(1)}</span>
                             <div
-                              className={`tw-absolute tw-h-full tw-transition-all tw-duration-300 ${
-                                key === 'maxCombo'
-                                  ? 'tw-bg-green-500'
-                                  : key === 'perfect'
-                                  ? 'tw-bg-red-500'
-                                  : key === 'clear'
-                                  ? 'tw-bg-blue-500'
-                                  : 'tw-bg-yellow-500'
-                              }`}
-                              style={{ width: `${percentage}%` }}
-                            />
-                            <div className="tw-absolute tw-inset-0 tw-flex tw-items-center tw-justify-end tw-px-2 tw-text-xs tw-font-bold">
-                              {value} / {totalPatterns}
+                              className="tw-relative tw-flex-1 tw-h-6 tw-bg-gray-950 tw-rounded-sm tw-overflow-hidden tw-cursor-pointer"
+                              onClick={(e) => {
+                                const rect = e.currentTarget.getBoundingClientRect()
+                                const clickX = e.clientX - rect.left
+                                const isLeftSide = clickX < rect.width * (percentage / 100)
+
+                                // 같은 조건을 다시 클릭했을 때 하이라이트 해제
+                                if (highlightCondition === key && highlightInverse === !isLeftSide) {
+                                  setHighlightCondition(null)
+                                  setHighlightInverse(false)
+                                } else {
+                                  setHighlightCondition(key)
+                                  setHighlightInverse(!isLeftSide)
+                                }
+                              }}
+                            >
+                              <div
+                                className={`tw-absolute tw-h-full tw-transition-all tw-duration-300 ${
+                                  key === 'maxCombo'
+                                    ? 'tw-bg-green-500'
+                                    : key === 'perfect'
+                                    ? 'tw-bg-red-500'
+                                    : key === 'clear'
+                                    ? 'tw-bg-blue-500'
+                                    : 'tw-bg-yellow-500'
+                                }`}
+                                style={{ width: `${percentage}%` }}
+                              />
+                              <div className="tw-absolute tw-inset-0 tw-flex tw-items-center tw-justify-end tw-px-2 tw-text-xs tw-font-bold">
+                                {value} / {totalPatterns}
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      )
-                    })}
+                        )
+                      })}
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
 
               {/* 키모드 & 레벨 선택 패널 */}
@@ -492,8 +494,8 @@ const Board = () => {
                       href={`/vArchive/board/${mode}/${board}`}
                       className={`tw-flex tw-items-center tw-justify-center tw-relative tw-px-4 tw-py-2 tw-border tw-border-opacity-50 tw-transition-all tw-duration-500 tw-rounded-md tw-flex-1 ${
                         mode === keyMode
-                          ? 'tw-border-blue-500 tw-bg-blue-900 tw-bg-opacity-20 tw-brightness-200'
-                          : 'tw-border-gray-600 hover:tw-border-blue-400 hover:tw-bg-gray-700 hover:tw-bg-opacity-30'
+                          ? 'tw-border-blue-500 tw-bg-blue-900 tw-bg-opacity-20 tw-brightness-150'
+                          : 'tw-border-gray-600 tw-opacity-50 hover:tw-border-blue-400 hover:tw-bg-gray-700 hover:tw-bg-opacity-30 hover:tw-opacity-100'
                       }`}
                     >
                       <div className={`tw-absolute tw-w-full tw-h-full tw-opacity-30 respect_bg_b${mode}`} />
@@ -510,8 +512,8 @@ const Board = () => {
                       href={`/vArchive/board/${keyMode}/${level}`}
                       className={`tw-flex tw-items-center tw-justify-center tw-relative tw-px-3 tw-py-1.5 tw-border tw-border-opacity-50 tw-transition-all tw-duration-500 tw-rounded-md ${
                         level === board
-                          ? 'tw-border-blue-500 tw-bg-blue-900 tw-bg-opacity-20 tw-brightness-200'
-                          : 'tw-border-gray-600 hover:tw-border-blue-400 hover:tw-bg-gray-700 hover:tw-bg-opacity-30'
+                          ? 'tw-border-blue-500 tw-bg-blue-900 tw-bg-opacity-20 tw-brightness-150'
+                          : 'tw-border-gray-600 tw-opacity-50 hover:tw-border-blue-400 hover:tw-bg-gray-700 hover:tw-bg-opacity-30 hover:tw-opacity-100'
                       }`}
                     >
                       <div className={`tw-absolute tw-w-full tw-h-full tw-opacity-30`} />
@@ -525,11 +527,11 @@ const Board = () => {
 
           {!isLoading && (
             <div className="tw-flex tw-items-center tw-justify-center tw-gap-1 tw-bg-gray-600 tw-bg-opacity-10 tw-rounded-md tw-text-xs tw-p-2 tw-w-full">
-              <span className="tw-p-1 tw-px-4 tw-bg-gray-950 tw-bg-opacity-50 tw-rounded-md tw-font-extrabold tw-text-green-700">NEW 30 CUT</span>
+              <span className="tw-p-1 tw-px-4 tw-bg-gray-950 tw-bg-opacity-50 tw-rounded-md tw-font-extrabold tw-text-green-700">NEW 30</span>
               <span className="tw-p-1 tw-px-4 tw-bg-gray-950 tw-bg-opacity-50 tw-rounded-md tw-text-white">{cutoffScores.new30.toFixed(3)} DP</span>
-              <span className="tw-p-1 tw-px-4 tw-bg-gray-950 tw-bg-opacity-50 tw-rounded-md tw-font-extrabold tw-text-yellow-500">BASIC 70 CUT</span>
+              <span className="tw-p-1 tw-px-4 tw-bg-gray-950 tw-bg-opacity-50 tw-rounded-md tw-font-extrabold tw-text-yellow-500">BASIC 70</span>
               <span className="tw-p-1 tw-px-4 tw-bg-gray-950 tw-bg-opacity-50 tw-rounded-md tw-text-white">{cutoffScores.basic70.toFixed(3)} DP</span>
-              <span className="tw-p-1 tw-px-4 tw-bg-gray-950 tw-bg-opacity-50 tw-rounded-md tw-font-extrabold tw-text-red-500">TOP 50 CUT</span>
+              <span className="tw-p-1 tw-px-4 tw-bg-gray-950 tw-bg-opacity-50 tw-rounded-md tw-font-extrabold tw-text-red-500">TOP 50</span>
               <span className="tw-p-1 tw-px-4 tw-bg-gray-950 tw-bg-opacity-50 tw-rounded-md tw-text-white">{cutoffScores.top50.toFixed(3)} TP</span>
             </div>
           )}
@@ -562,14 +564,14 @@ const Board = () => {
                           <div className="tw-flex tw-flex-col tw-items-end tw-gap-1">
                             {calculateScoreStats(floor.patterns) && (
                               <div className="tw-flex tw-flex-col tw-items-end">
-                                <span className="tw-text-xs tw-text-gray-400 tw-font-light">점수 평균</span>
-                                <div className="tw-text-xs tw-text-gray-200">{calculateScoreStats(floor.patterns)}%</div>
+                                <span className="tw-text-sm tw-text-gray-400 tw-font-light">점수 평균</span>
+                                <div className="tw-text-sm tw-text-gray-200">{calculateScoreStats(floor.patterns)}%</div>
                               </div>
                             )}
                             {floor.floorNumber !== 0 && calculateFloorStats(floor.patterns, floor.floorNumber) && (
                               <div className="tw-flex tw-flex-col tw-items-end">
-                                <span className="tw-text-xs tw-text-gray-400 tw-font-light">TP 평균</span>
-                                <div className="tw-text-xs tw-text-gray-200">
+                                <span className="tw-text-sm tw-text-gray-400 tw-font-light">TP 평균</span>
+                                <div className="tw-text-sm tw-text-gray-200">
                                   {calculateFloorStats(floor.patterns, floor.floorNumber).avgRating} / {tierPointMap[floor.floorNumber]}
                                 </div>
                               </div>
@@ -581,8 +583,8 @@ const Board = () => {
                           <div>미분류</div>
                           {calculateScoreStats(floor.patterns) && (
                             <div className="tw-flex tw-flex-col tw-items-end">
-                              <span className="tw-text-xs tw-text-gray-400 tw-font-light">점수 평균</span>
-                              <div className="tw-text-xs tw-text-gray-200">{calculateScoreStats(floor.patterns)}%</div>
+                              <span className="tw-text-sm tw-text-gray-400 tw-font-light">점수 평균</span>
+                              <div className="tw-text-sm tw-text-gray-200">{calculateScoreStats(floor.patterns)}%</div>
                             </div>
                           )}
                         </div>

@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import Head from 'next/head'
 import Image from 'next/image'
 import * as R from 'ramda'
-import { FaBackward, FaCircleInfo, FaHeart, FaO, FaRegFile, FaRegHeart, FaRotate, FaTriangleExclamation, FaX } from 'react-icons/fa6'
+import { FaBackward, FaCircleInfo, FaCloudArrowUp, FaHeart, FaO, FaRegFile, FaRegHeart, FaRotate, FaTriangleExclamation, FaX } from 'react-icons/fa6'
 import { OverlayTrigger, Tooltip } from 'react-bootstrap'
 import { globalDictionary } from '@/libs/server/globalDictionary'
 import { IconContext } from 'react-icons'
@@ -12,23 +12,25 @@ import { randomUUID } from 'crypto'
 import 'moment/locale/ko'
 import axios from 'axios'
 import Link from 'next/link'
-import { FiCircle, FiX } from 'react-icons/fi'
+import { FiCircle, FiTriangle, FiX } from 'react-icons/fi'
 import { useSelector } from 'react-redux'
 import { RootState } from 'store'
 import { setBackgroundBgaName } from 'store/slices/uiSlice'
 import { useDispatch } from 'react-redux'
-import { setPattern, setSettingData, setUploadedDataProcessed, setUploadedPageData, setBackupData, setIsUploading } from 'store/slices/appSlice'
+import { setSettingData, setUploadedDataProcessed, setBackupData, setIsUploading, setVArchiveUploadedPageData, setVArchivePattern } from 'store/slices/appSlice'
 import { useNotificationSystem } from '@/libs/client/useNotifications'
 import ScorePopupComponent from '@/components/score/ScorePopupComponent'
 import { SyncLoader } from 'react-spinners'
 import { useRouter } from 'next/router'
+import { useRecentHistory } from '@/libs/client/useRecentHistory'
 
 export default function VArchiveRegScorePage() {
   const { showNotification } = useNotificationSystem()
   const fontFamily = useSelector((state: RootState) => state.ui.fontFamily)
   const dispatch = useDispatch()
-  const { userData, songData, uploadedData, settingData, isUploadedDataProcessed, backupData } = useSelector((state: RootState) => state.app)
+  const { userData, songData, settingData, isUploadedDataProcessed, backupData, vArchiveUserData } = useSelector((state: RootState) => state.app)
   const backgroundBgaName = useSelector((state: RootState) => state.ui.backgroundBgaName)
+  const { vArchiveData } = useSelector((state: RootState) => state.uploadData)
 
   const [keyMode] = useState<string>('4')
   const [isLoading, setIsLoading] = useState<boolean>(false)
@@ -42,6 +44,8 @@ export default function VArchiveRegScorePage() {
   const [isCanRollback, setIsCanRollback] = useState<boolean>(false)
 
   const [isDragging, setIsDragging] = useState<boolean>(false)
+
+  const [versusBackupData, setVersusBackupData] = useState<any[]>([])
 
   const handleDragEnter = (e: React.DragEvent) => {
     e.preventDefault()
@@ -72,7 +76,7 @@ export default function VArchiveRegScorePage() {
     setIsDragging(false)
 
     if (isUploading) {
-      showNotification('이미 업로드가 진행 중입니다. 완료될 때까지 기다려주세요.', 'tw-bg-orange-600')
+      showNotification('이미 업로드가 진행 중입니다. 완료될 때까지 기다려주세요.', 'tw-bg-orange-600', 'upload-process', true)
       return
     }
 
@@ -82,7 +86,7 @@ export default function VArchiveRegScorePage() {
       if (file.type.match('image.*')) {
         setScreenShotFile(file)
       } else {
-        showNotification('이미지 파일만 업로드 가능합니다.', 'tw-bg-red-600')
+        showNotification('이미지 파일만 업로드 가능합니다.', 'tw-bg-red-600', 'upload-process', true)
       }
     }
   }
@@ -98,152 +102,316 @@ export default function VArchiveRegScorePage() {
       const reader = new FileReader()
       reader.onload = () => {
         const buffer = reader.result
-        window.ipc.send('screenshot-upload', buffer)
+        window.ipc.send('screenshot-upload', { buffer: buffer, gameCode: 'djmax_respect_v' })
       }
       reader.readAsArrayBuffer(screenShotFile)
-      showNotification('성과 기록 이미지를 처리 중에 있습니다. 잠시만 기다려주세요.', 'tw-bg-blue-600')
+      showNotification('성과 기록 이미지를 처리 중에 있습니다. 잠시만 기다려주세요.', 'tw-bg-blue-600', 'score-update')
       dispatch(setIsUploading(true))
     }
   }
 
-  const { uploadedPageData, pattern } = useSelector((state: RootState) => state.app)
+  const { vArchiveUploadedPageData, vArchivePattern } = useSelector((state: RootState) => state.app)
 
   useEffect(() => {
-    if (uploadedData && !isUploadedDataProcessed) {
+    if (vArchiveData && !isUploadedDataProcessed) {
       dispatch(setIsUploading(true))
+      dispatch(setVArchiveUploadedPageData(vArchiveData))
 
-      dispatch(setUploadedPageData(uploadedData))
+      if (vArchiveData.screenType === 'versus') {
+        // versus 데이터 처리
+        const processVersusData = async () => {
+          const backupDataArray = []
+          for (const playerData of vArchiveData.versusData) {
+            if (playerData.score > 0) {
+              try {
+                const backupResponse = await axios.get(
+                  `${process.env.NEXT_PUBLIC_PROXY_API_URL}?url=https://v-archive.net/api/archive/${vArchiveUserData.userName}/title/${playerData.songData.title}`,
+                )
+                backupDataArray.push(backupResponse.data)
 
-      if (uploadedData && uploadedData.pattern) {
-        let newPattern = 'NM'
-        switch (uploadedData.pattern) {
-          case 'SC':
-            newPattern = 'SC'
-            break
-          case 'MAXIMUM':
-          case 'MX':
-            newPattern = 'MX'
-            break
-          case 'HARD':
-          case 'HD':
-            newPattern = 'HD'
-            break
-          case 'NORMAL':
-          case 'NM':
-            newPattern = 'NM'
-            break
-          default:
-            newPattern = 'NM'
+                const response = await axios.post(
+                  `${process.env.NEXT_PUBLIC_PROXY_API_URL}?url=https://v-archive.net/client/open/${vArchiveUserData.userNo}/score`,
+                  {
+                    name: playerData.songData.name,
+                    composer: playerData.songData.composer,
+                    button: Number(playerData.button),
+                    pattern: playerData.pattern,
+                    score: parseFloat(String(playerData.score)),
+                    maxCombo: Number(playerData.maxCombo),
+                  },
+                  {
+                    headers: {
+                      Authorization: `${vArchiveUserData.userToken}`,
+                      'Content-Type': 'application/json',
+                    },
+                    withCredentials: true,
+                  },
+                )
+
+                if (response.data.success && response.data.update) {
+                  showNotification(
+                    `${playerData.songData.name} 곡의 성과 기록을 V-ARCHIVE에 정상적으로 갱신하였습니다.`,
+                    'tw-bg-lime-600',
+                    'score-update',
+                    true,
+                  )
+                  setIsCanRollback(true)
+                } else if (response.data.success && !response.data.update) {
+                  showNotification(
+                    `${playerData.songData.name} 곡은 기존의 성과 기록과 동일하거나 더 좋은 성과 기록이 존재하여 갱신되지 않았습니다.`,
+                    'tw-bg-orange-600',
+                    'score-update',
+                    true,
+                  )
+                }
+              } catch (error) {
+                backupDataArray.push(null)
+                showNotification(`${playerData.songData.name} 곡의 성과 기록 갱신 중 오류가 발생했습니다.`, 'tw-bg-red-600', 'score-update', true)
+              }
+            }
+          }
+          setVersusBackupData(backupDataArray)
         }
-        dispatch(setPattern(newPattern))
-      }
 
-      if (!uploadedData.isVerified && uploadedData.error) {
-        showNotification('마지막으로 업로드한 성과 기록 이미지의 데이터 유효성 검증에 실패하였습니다. 다시 캡쳐한 후 재시도해주세요.', 'tw-bg-red-600')
-      } else if (uploadedData.isVerified) {
-        showNotification('성과 기록 이미지의 데이터 유효성 검증에 성공하였습니다. V-ARCHIVE, 프로젝트 RA 서비스로 점수 갱신을 요청합니다.', 'tw-bg-lime-600')
-        fetchUpdateScore(uploadedData)
+        processVersusData()
+      } else {
+        // 기존 단일 플레이어 데이터 처리
+        if (vArchiveData.pattern) {
+          let newPattern = 'NM'
+          switch (vArchiveData.pattern) {
+            case 'SC':
+              newPattern = 'SC'
+              break
+            case 'MAXIMUM':
+            case 'MX':
+              newPattern = 'MX'
+              break
+            case 'HARD':
+            case 'HD':
+              newPattern = 'HD'
+              break
+            case 'NORMAL':
+            case 'NM':
+              newPattern = 'NM'
+              break
+            default:
+              newPattern = 'NM'
+          }
+          dispatch(setVArchivePattern(newPattern))
+        }
+
+        if (!vArchiveData.isVerified && vArchiveData.error) {
+          showNotification(
+            '마지막으로 업로드한 성과 기록 이미지의 데이터 유효성 검증에 실패하였습니다. 다시 캡쳐한 후 재시도해주세요.',
+            'tw-bg-red-600',
+            'score-update',
+            true,
+          )
+        } else if (vArchiveData.isVerified) {
+          showNotification(
+            '성과 기록 이미지의 데이터 유효성 검증에 성공하였습니다. V-ARCHIVE, 프로젝트 RA 서비스로 점수 갱신을 요청합니다.',
+            'tw-bg-lime-600',
+            'score-update',
+          )
+          fetchUpdateScore(vArchiveData)
+        }
       }
 
       dispatch(setUploadedDataProcessed(true))
+      setIsLoading(false)
+      dispatch(setIsUploading(false))
     }
-    setIsLoading(false)
-    dispatch(setIsUploading(false))
-  }, [uploadedData, isUploadedDataProcessed])
+  }, [vArchiveData, isUploadedDataProcessed])
 
   useEffect(() => {
-    if (uploadedPageData) {
-      setUploadedPageData(uploadedPageData)
+    if (vArchiveUploadedPageData) {
+      setVArchiveUploadedPageData(vArchiveUploadedPageData)
     }
-    if (pattern) {
-      setPattern(pattern)
+    if (vArchivePattern) {
+      setVArchivePattern(vArchivePattern)
     }
   }, [])
 
   const router = useRouter()
 
   useEffect(() => {
-    if (userData.userName === '') {
-      router.push('/projectRa/home')
-      showNotification('기록 등록(베타)는 로그인이 필요합니다.', 'tw-bg-red-600')
+    if (vArchiveUserData.userName === '') {
+      router.push('/')
+      showNotification('기록 등록(베타)는 로그인 또는 V-ARCHIVE 계정 연동이 필요합니다.', 'tw-bg-red-600', 'score-update', true)
     }
   }, [userData])
 
+  const patternToCode = (pattern: string) => {
+    switch (pattern) {
+      case 'SC':
+        return 'SC'
+      case 'MAXIMUM':
+      case 'MX':
+        return 'MX'
+      case 'HARD':
+      case 'HD':
+        return 'HD'
+      case 'NORMAL':
+      case 'NM':
+        return 'NM'
+    }
+  }
+
+  const codeToPattern = (code: string) => {
+    switch (code) {
+      case 'SC':
+        return 'SC'
+      case 'MX':
+        return 'MAXIMUM'
+      case 'HD':
+        return 'HARD'
+      case 'NM':
+        return 'NORMAL'
+      default:
+        return code
+    }
+  }
+
   const fetchUpdateScore = async (data) => {
     try {
-      const response = await axios
-        .get(`${process.env.NEXT_PUBLIC_PROXY_API_URL}?url=https://v-archive.net/api/archive/${userData.userName}/title/${data.songData.title}`)
-        .then(async (backupData) => {
-          dispatch(setBackupData(backupData.data))
+      const backupResponse = await axios.get(
+        `${process.env.NEXT_PUBLIC_PROXY_API_URL}?url=https://v-archive.net/api/archive/${vArchiveUserData.userName}/title/${data.songData.title}`,
+      )
+      dispatch(setBackupData(backupResponse.data))
 
-          if (data.score > 0) {
-            const response = await axios
-              .post(
-                `${process.env.NEXT_PUBLIC_PROXY_API_URL}?url=https://v-archive.net/client/open/${userData.userNo}/score`,
-                {
-                  name: data.songData.name,
-                  composer: data.songData.composer,
-                  button: Number(data.button),
-                  pattern: data.pattern,
-                  score: parseFloat(String(data.score)),
-                  maxCombo: Number(data.maxCombo),
-                },
-                {
-                  method: 'POST',
-                  headers: {
-                    Authorization: `${userData.userToken}`,
-                    'Content-Type': 'application/json',
-                  },
-                  withCredentials: true,
-                },
+      if (data.score > 0) {
+        const response = await axios.post(
+          `${process.env.NEXT_PUBLIC_PROXY_API_URL}?url=https://v-archive.net/client/open/${vArchiveUserData.userNo}/score`,
+          {
+            name: data.songData.name,
+            composer: data.songData.composer,
+            button: Number(data.button),
+            pattern: codeToPattern(data.pattern),
+            score: parseFloat(String(data.score)),
+            maxCombo: Number(data.maxCombo),
+          },
+          {
+            headers: {
+              Authorization: `${vArchiveUserData.userToken}`,
+              'Content-Type': 'application/json',
+            },
+            withCredentials: true,
+          },
+        )
+
+        if (data.filePath) {
+          showNotification(`${data.filePath} 경로에 성과 기록 이미지가 저장되었습니다.`, 'tw-bg-lime-600', 'file-save', true)
+        }
+
+        if (response.data.success && response.data.update) {
+          showNotification('성과 기록을 V-ARCHIVE에 정상적으로 갱신하였습니다.', 'tw-bg-lime-600', 'score-update', true)
+          setIsCanRollback(true)
+
+          setTimeout(async () => {
+            try {
+              // 갱신된 곡 데이터 다시 조회
+              const updatedSongResponse = await axios.get(
+                `${process.env.NEXT_PUBLIC_PROXY_API_URL}?url=https://v-archive.net/api/archive/${vArchiveUserData.userName}/title/${data.songData.title}`,
               )
-              .then((data) => {
-                if (uploadedData.filePath) {
-                  showNotification(`${uploadedData.filePath} 경로에 성과 기록 이미지가 저장되었습니다.`, 'tw-bg-lime-600')
-                }
-                if (data.data.success && data.data.update) {
-                  showNotification('성과 기록을 V-ARCHIVE, 프로젝트 RA에 정상적으로 갱신하였습니다.', 'tw-bg-lime-600')
-                  setIsCanRollback(true)
-                } else if (data.data.success && !data.data.update) {
-                  showNotification('기존의 성과 기록과 동일하거나 더 좋은 성과 기록이 존재하여 V-ARCHIVE에 갱신되지 않았습니다.', 'tw-bg-orange-600')
-                  setIsCanRollback(false)
-                } else {
-                  showNotification('알 수 없는 오류가 발생하여 성과 기록 갱신에 실패하였습니다. 다시 시도해주시길 바랍니다.', 'tw-bg-red-600')
-                  setIsCanRollback(false)
-                }
-              })
-              .catch((data) => {
-                showNotification('알 수 없는 오류가 발생하여 성과 기록 갱신에 실패하였습니다. 다시 시도해주시길 바랍니다.', 'tw-bg-red-600')
-                setIsCanRollback(false)
-              })
-          } else {
-            showNotification('성과 기록 점수가 0점으로 인식되어 점수 갱신 요청이 취소되었습니다.', 'tw-bg-red-600')
-            setIsCanRollback(false)
-          }
-        })
+
+              const newRating = updatedSongResponse.data?.patterns?.[`${data.button}B`]?.[data.pattern]?.rating || 0
+
+              // 모든 보드 타입에 대한 데이터 가져오기
+              const boards = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', 'MX', 'SC', 'SC5', 'SC10', 'SC15']
+              const allBoardResponses = await Promise.all(
+                boards.map(async (boardType) => {
+                  try {
+                    const response = await axios.get(
+                      `${process.env.NEXT_PUBLIC_PROXY_API_URL}?url=https://v-archive.net/api/archive/${vArchiveUserData.userName}/board/${data.button}/${boardType}`,
+                    )
+                    return (
+                      response.data.floors?.flatMap((floor) =>
+                        floor.patterns.map((pattern) => ({
+                          ...pattern,
+                          floor: floor.floorNumber,
+                        })),
+                      ) || []
+                    )
+                  } catch (error) {
+                    console.error(`Error fetching ${boardType}:`, error)
+                    return []
+                  }
+                }),
+              )
+
+              // 모든 패턴을 하나의 배열로 합치고 중복 제거
+              const allPatterns = allBoardResponses.flat()
+              const uniquePatterns = Object.values(
+                allPatterns.reduce((acc, pattern) => {
+                  const key = `${pattern.title}_${pattern.pattern}`
+                  if (!acc[key] || (pattern.rating && pattern.rating > (acc[key].rating || 0))) {
+                    acc[key] = pattern
+                  }
+                  return acc
+                }, {}),
+              )
+
+              // rating 기준으로 정렬하고 TOP50 확인
+              const sortedPatterns = uniquePatterns.sort((a: any, b: any) => (b.rating || 0) - (a.rating || 0))
+              const top50Cutoff = (sortedPatterns[49] as any)?.rating || 0
+              const top49Rating = (sortedPatterns[48] as any)?.rating || 0
+
+              if (newRating > top50Cutoff) {
+                showNotification(
+                  `${data.songData.name} 곡의 성과로 TOP50이 ${top50Cutoff}TP에서 ${top49Rating}TP로 갱신하였습니다.`,
+                  'tw-bg-yellow-700',
+                  'top50-updated',
+                  true,
+                )
+                window.ipc.send('top50-updated', {
+                  title: data.songData.title,
+                  name: data.songData.name,
+                  previousCutoff: top50Cutoff,
+                  currentCutoff: top49Rating,
+                })
+              }
+            } catch (error) {
+              console.error('Error checking TOP50:', error)
+            }
+          }, 1000)
+        } else if (response.data.success && !response.data.update) {
+          showNotification(
+            '기존의 성과 기록과 동일하거나 더 좋은 성과 기록이 존재하여 V-ARCHIVE에 갱신되지 않았습니다.',
+            'tw-bg-orange-600',
+            'score-update',
+            true,
+          )
+          setIsCanRollback(false)
+        }
+      } else {
+        showNotification('성과 기록 점수가 0점으로 인식되어 점수 갱신 요청이 취소되었습니다.', 'tw-bg-red-600', 'score-update', true)
+        setIsCanRollback(false)
+      }
     } catch (error) {
       console.error('Error fetching data:', error)
+      showNotification('알 수 없는 오류가 발생하여 성과 기록 갱신에 실패하였습니다. 다시 시도해주시길 바랍니다.', 'tw-bg-red-600', 'score-update', true)
+      setIsCanRollback(false)
     }
   }
 
   const handleRollback = async () => {
-    if (uploadedPageData.songData.title === backupData.title) {
+    if (vArchiveUploadedPageData.songData.title === backupData.title) {
       try {
         const response = await axios
           .post(
             `${process.env.NEXT_PUBLIC_PROXY_API_URL}?url=https://v-archive.net/api/archive/userRecord`,
             {
-              button: Number(uploadedPageData.button),
-              pattern: pattern,
+              button: Number(vArchiveUploadedPageData.button),
+              pattern: vArchivePattern,
               force: true,
-              maxCombo: Number(backupData.patterns[`${uploadedPageData.button}B`][pattern].maxCombo),
-              score: parseFloat(String(backupData.patterns[`${uploadedPageData.button}B`][pattern].score)),
-              title: uploadedPageData.songData.title,
+              maxCombo: Number(backupData.patterns[`${vArchiveUploadedPageData.button}B`][vArchivePattern].maxCombo),
+              score: parseFloat(String(backupData.patterns[`${vArchiveUploadedPageData.button}B`][vArchivePattern].score)),
+              title: vArchiveUploadedPageData.songData.title,
             },
             {
               method: 'POST',
               headers: {
-                Authorization: `${userData.userNo}|${userData.userToken}`,
+                Authorization: `${vArchiveUserData.userNo}|${vArchiveUserData.userToken}`,
                 'Content-Type': 'application/json',
               },
               withCredentials: true,
@@ -252,280 +420,595 @@ export default function VArchiveRegScorePage() {
           .then((data) => {
             if (data.data.success) {
               setBackupData(null)
-              setUploadedPageData(null)
+              dispatch(setVArchiveUploadedPageData(null))
               setIsCanRollback(false)
-              showNotification('성과 기록을 정상적으로 롤백하였습니다.', 'tw-bg-lime-600')
+              showNotification('성과 기록을 정상적으로 롤백하였습니다.', 'tw-bg-lime-600', 'score-rollback', true)
+              fetchRecentHistory()
             }
           })
           .catch((error) => {
-            // console.log(error)
+            showNotification('알 수 없는 오류가 발생하여 성과 기록 롤백에 실패하였습니다. 다시 시도해주시길 바랍니다.', 'tw-bg-red-600', 'score-rollback', true)
           })
       } catch (error) {
         console.error('Error fetching data:', error)
       }
     } else {
-      showNotification('알 수 없는 오류가 발생하여 성과 기록 롤백에 실패하였습니다. 다시 시도해주시길 바랍니다.', 'tw-bg-red-600')
+      showNotification('알 수 없는 오류가 발생하여 성과 기록 롤백에 실패하였습니다. 다시 시도해주시길 바랍니다.', 'tw-bg-red-600', 'score-rollback', true)
     }
   }
 
-  // uploadedPageData 변경 감지하여 배경 BGA 설정
+  // vArchiveUploadedPageData 변경 감지하여 배경 BGA 설정
   useEffect(() => {
-    if (uploadedPageData && uploadedPageData.songData) {
-      dispatch(setBackgroundBgaName(uploadedPageData.songData.title))
+    if (vArchiveUploadedPageData) {
+      if (vArchiveUploadedPageData.screenType === 'versus') {
+        // versus 모드일 때는 첫 번째 곡의 배경 사용
+        if (vArchiveUploadedPageData.versusData && vArchiveUploadedPageData.versusData[0]?.songData) {
+          dispatch(setBackgroundBgaName(vArchiveUploadedPageData.versusData[0].songData.title))
+        } else {
+          dispatch(setBackgroundBgaName(''))
+        }
+      } else {
+        // 기존 단일 플레이어 모드
+        if (vArchiveUploadedPageData.songData) {
+          dispatch(setBackgroundBgaName(vArchiveUploadedPageData.songData.title))
+        } else {
+          dispatch(setBackgroundBgaName(''))
+        }
+      }
     } else {
       dispatch(setBackgroundBgaName(''))
     }
-  }, [uploadedPageData])
+  }, [vArchiveUploadedPageData])
 
+  const { recentHistory, isLoadingRecentHistory, errorRecentHistory, fetchRecentHistory } = useRecentHistory()
+
+  // 컴포넌트가 마운트될 때 데이터 불러오기
   useEffect(() => {
-    if (!backgroundBgaName && uploadedPageData) {
-      dispatch(setBackgroundBgaName(uploadedPageData.songData.title))
-    }
-  }, [backgroundBgaName])
+    fetchRecentHistory()
+  }, [])
 
   return (
     <React.Fragment>
       <Head>
-        <title>DJMAX RESPECT V 기록 등록(베타) - 프로젝트 RA</title>
+        <title>기록 등록(베타) - 프로젝트 RA</title>
       </Head>
-      {userData.userName !== '' ? (
+      {vArchiveUserData.userName !== '' ? (
         <div
-          className={`tw-flex tw-gap-4 vh-screen tw-relative`}
+          className={`tw-flex tw-gap-4 tw-relative`}
           onDragEnter={handleDragEnter}
           onDragLeave={handleDragLeave}
           onDragOver={handleDragOver}
           onDrop={handleDrop}
         >
           {isDragging && (
-            <div className="tw-absolute tw-inset-0 tw-bg-gray-900 tw-bg-opacity-70 tw-z-50 tw-flex tw-flex-col tw-gap-4 tw-items-center tw-justify-center tw-transition-all tw-border-2 tw-border-dashed tw-border-white tw-rounded-md">
+            // ... existing code ...
+            <div className="tw-fixed tw-inset-0 tw-bg-gray-950 tw-bg-opacity-70 tw-flex tw-flex-col tw-gap-4 tw-items-center tw-justify-center tw-transition-all tw-border-2 tw-border-dashed tw-border-gray-400 tw-border-opacity-75 tw-rounded-md tw-z-[9999]">
               <IconContext.Provider value={{ size: '36', className: 'tw-animate-pulse' }}>
-                <FaRegFile />
+                <FaCloudArrowUp />
               </IconContext.Provider>
               <div className="tw-text-xl tw-font-bold tw-text-white tw-animate-pulse">리절트(결과) 화면의 이미지를 업로드해주세요.</div>
               <div className="tw-text-base tw-text-white tw-animate-pulse">
-                지금은 프리스타일 리절트만 지원합니다. 추후 래더/버서스 리절트 이미지 업로드 기능이 추가될 예정입니다.
+                DJMAX RESPECT V는 프리스타일 곡 선택, 프리스타일 결과, 오픈 매치 결과, 래더/버서스 매치 결과 창을 지원합니다.
               </div>
             </div>
+            // ... existing code ...
           )}
-          <div className="tw-flex tw-flex-col tw-w-full tw-relative tw-animate-fadeInLeft tw-transition-all ">
-            {uploadedPageData !== null && !isUploading && uploadedPageData.songData !== undefined ? (
+          <div
+            className={`tw-flex tw-w-full tw-h-[calc(100vh-112px)] tw-relative tw-animate-fadeInLeft tw-transition-all ${
+              vArchiveUploadedPageData !== null && vArchiveUploadedPageData.screenType === 'versus' ? '' : 'tw-flex-col'
+            }`}
+          >
+            {vArchiveUploadedPageData !== null && vArchiveUploadedPageData.gameCode == 'djmax_respect_v' && !isUploading ? (
               <>
-                <div
-                  className={
-                    'tw-flex tw-flex-col tw-gap-1 tw-bg-opacity-10 tw-rounded-md p-0 tw-mb-4 tw-h-60 ' +
-                    ` respect_dlc_${uploadedPageData.songData.dlcCode} respect_dlc_logo_${uploadedPageData.songData.dlcCode} respect_dlc_logo_BG_${uploadedPageData.songData.dlcCode}`
-                  }
-                >
-                  <div className="tw-flex tw-flex-col tw-animate-fadeInLeft p-4 flex-equal tw-bg-gray-900 tw-bg-opacity-30 tw-rounded-md">
-                    <div className="tw-flex">
-                      <div className="tw-animate-fadeInLeft tw-rounded-md p-1 tw-bg-gray-950 tw-bg-opacity-75 tw-me-auto">
-                        <span className="respect_dlc_code_wrap ">
-                          <span className={`respect_dlc_code respect_dlc_code_${uploadedPageData.songData.dlcCode}`}>{uploadedPageData.songData.dlc}</span>
-                        </span>
-                      </div>
-                      <div className="tw-animate-fadeInLeft tw-rounded-md p-1 tw-bg-gray-950 tw-bg-opacity-75 px-3 tw-flex tw-items-center tw-gap-2 tw-me-2">
-                        <span className={'tw-text-base text-stroke-100 tw-font-extrabold tw-text-gray-50'}>{uploadedPageData.button}B</span>
-                      </div>
-                      <div className="tw-animate-fadeInLeft tw-rounded-md p-1 tw-bg-gray-950 tw-bg-opacity-75 px-3 tw-flex tw-items-center tw-gap-2 tw-me-2">
-                        <span
+                {vArchiveUploadedPageData.screenType === 'versus' ? (
+                  // versus 화면 렌더링
+
+                  <div className="tw-flex tw-h-full tw-w-full tw-gap-4">
+                    {vArchiveUploadedPageData.versusData.map((playerData, index) => (
+                      <div className="tw-flex tw-flex-col tw-gap-4 tw-flex-1">
+                        <div
+                          key={index}
                           className={
-                            uploadedPageData.songData.patterns[`${uploadedPageData.button}B`][pattern].level <= 5
-                              ? 'tw-text-base text-stroke-100 tw-font-extrabold ' + (pattern === 'SC' ? ' tw-text-respect-sc-5' : ' tw-text-respect-nm-5')
-                              : uploadedPageData.songData.patterns[`${uploadedPageData.button}B`][pattern].level <= 10
-                              ? 'tw-text-base text-stroke-100 tw-font-extrabold ' + (pattern === 'SC' ? ' tw-text-respect-sc-10' : ' tw-text-respect-nm-10')
-                              : 'tw-text-base text-stroke-100 tw-font-extrabold ' + (pattern === 'SC' ? ' tw-text-respect-sc-15' : ' tw-text-respect-nm-15')
+                            'tw-flex tw-flex-col tw-gap-1 tw-bg-opacity-10 tw-rounded-md p-0 tw-h-60 ' +
+                            ` respect_dlc_${playerData.songData.dlcCode} respect_dlc_logo_${playerData.songData.dlcCode} respect_dlc_logo_BG_${playerData.songData.dlcCode}`
                           }
                         >
-                          {pattern}
-                        </span>
-                      </div>
-                      <div className="tw-animate-fadeInLeft tw-rounded-md p-1 tw-bg-gray-950 tw-bg-opacity-75 px-3 tw-flex tw-items-center tw-gap-2">
-                        <div>
-                          <Image
-                            loading="lazy" // "lazy" | "eager"
-                            blurDataURL={globalDictionary.blurDataURL}
-                            src={
-                              uploadedPageData.songData.patterns[`${uploadedPageData.button}B`][pattern].level <= 5
-                                ? `/images/djmax_respect_v/${pattern === 'SC' ? 'sc' : 'nm'}_5_star.png`
-                                : uploadedPageData.songData.patterns[`${uploadedPageData.button}B`][pattern].level <= 10
-                                ? `/images/djmax_respect_v/${pattern === 'SC' ? 'sc' : 'nm'}_10_star.png`
-                                : `/images/djmax_respect_v/${pattern === 'SC' ? 'sc' : 'nm'}_15_star.png`
-                            }
-                            height={14}
-                            width={14}
-                            alt=""
-                          />
+                          <div className="tw-flex tw-flex-col tw-animate-fadeInLeft p-4 flex-equal tw-bg-gray-900 tw-bg-opacity-30 tw-rounded-md">
+                            {/* 상단 정보 */}
+                            <div className="tw-flex tw-flex-col tw-gap-2">
+                              <div className="tw-animate-fadeInLeft tw-rounded-md p-1 tw-bg-gray-950 tw-bg-opacity-75 tw-h-8 tw-flex tw-items-center tw-me-auto">
+                                <span className="respect_dlc_code_wrap">
+                                  <span className={`respect_dlc_code respect_dlc_code_${playerData.songData.dlcCode}`}>{playerData.songData.dlc}</span>
+                                </span>
+                              </div>
+                            </div>
+
+                            {/* 하단 정보 */}
+                            <div className="tw-flex tw-gap-3 tw-mt-auto tw-items-end">
+                              <ScorePopupComponent songItemTitle={playerData.songData.title} keyMode={playerData.button + 'B'} />
+                              <div className="tw-flex tw-flex-col tw-w-full">
+                                <span className="tw-flex tw-font-light tw-text-gray-300">{playerData.songData.composer}</span>
+                                <div className="tw-flex">
+                                  <span className="tw-text-lg tw-font-bold me-auto">{playerData.songData.name}</span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
                         </div>
-                        <span
-                          className={
-                            uploadedPageData.songData.patterns[`${uploadedPageData.button}B`][pattern].level <= 5
-                              ? 'tw-text-base text-stroke-100 tw-font-extrabold ' + (pattern === 'SC' ? ' tw-text-respect-sc-5' : ' tw-text-respect-nm-5')
-                              : uploadedPageData.songData.patterns[`${uploadedPageData.button}B`][pattern].level <= 10
-                              ? 'tw-text-base text-stroke-100 tw-font-extrabold ' + (pattern === 'SC' ? ' tw-text-respect-sc-10' : ' tw-text-respect-nm-10')
-                              : 'tw-text-base text-stroke-100 tw-font-extrabold ' + (pattern === 'SC' ? ' tw-text-respect-sc-15' : ' tw-text-respect-nm-15')
-                          }
-                        >
-                          {uploadedPageData.songData.patterns[`${uploadedPageData.button}B`][pattern].level}
-                        </span>
+                        <div className="tw-flex tw-flex-col tw-w-full tw-flex-1 tw-relative tw-animate-fadeInLeft tw-bg-gray-600 tw-bg-opacity-10 tw-rounded-md p-4 tw-gap-2">
+                          <div className="tw-flex tw-flex-col tw-gap-4 tw-items-center tw-justify-center tw-h-12 tw-text-xl tw-font-bold">
+                            {index + 1 === vArchiveUploadedPageData.versusData.length ? 'FINAL ROUND' : `ROUND ${index + 1}`}
+                          </div>
+                          <div className="tw-flex tw-flex-col tw-gap-16 tw-items-center tw-justify-center tw-flex-1">
+                            <div className="tw-flex tw-flex-col tw-gap-16 tw-items-center tw-justify-center tw-flex-1">
+                              <div className="tw-flex tw-flex-col tw-gap-2">
+                                <span className="tw-text-base tw-font-light tw-text-center">PLAYED SCORE</span>
+                                <div className="tw-flex tw-flex-col tw-items-center tw-gap-4">
+                                  <span className="tw-font-extrabold tw-text-4xl">
+                                    {playerData.score
+                                      ? String(playerData.score).includes('.')
+                                        ? String(playerData.score).split('.')[1].length === 1
+                                          ? String(playerData.score) + '0'
+                                          : playerData.score
+                                        : playerData.score + '.00'
+                                      : '00.00'}
+                                    %
+                                  </span>
+                                  {versusBackupData[index] && (
+                                    <span
+                                      className={`tw-flex tw-items-center tw-gap-1 tw-text-lg ${
+                                        parseFloat(String(playerData.score)) >
+                                        parseFloat(String(versusBackupData[index].patterns[`${playerData.button}B`][patternToCode(playerData.pattern)].score))
+                                          ? 'tw-text-red-500'
+                                          : parseFloat(String(playerData.score)) <
+                                            parseFloat(
+                                              String(versusBackupData[index].patterns[`${playerData.button}B`][patternToCode(playerData.pattern)].score),
+                                            )
+                                          ? 'tw-text-blue-500'
+                                          : 'tw-text-gray-500'
+                                      }`}
+                                    >
+                                      {parseFloat(String(playerData.score)) >
+                                      parseFloat(String(versusBackupData[index].patterns[`${playerData.button}B`][patternToCode(playerData.pattern)].score)) ? (
+                                        <>
+                                          <IconContext.Provider value={{ size: '12', className: 'tw-inline tw-mt-0.5' }}>
+                                            <FiTriangle />
+                                          </IconContext.Provider>
+                                          {(
+                                            parseFloat(String(playerData.score)) -
+                                            parseFloat(
+                                              String(versusBackupData[index].patterns[`${playerData.button}B`][patternToCode(playerData.pattern)].score),
+                                            )
+                                          ).toFixed(2)}
+                                          %
+                                        </>
+                                      ) : parseFloat(String(playerData.score)) <
+                                        parseFloat(
+                                          String(versusBackupData[index].patterns[`${playerData.button}B`][patternToCode(playerData.pattern)].score),
+                                        ) ? (
+                                        <>
+                                          <IconContext.Provider value={{ size: '12', className: 'tw-inline tw-rotate-180 tw-mt-0.5' }}>
+                                            <FiTriangle />
+                                          </IconContext.Provider>
+                                          {(
+                                            parseFloat(
+                                              String(versusBackupData[index].patterns[`${playerData.button}B`][patternToCode(playerData.pattern)].score),
+                                            ) - parseFloat(String(playerData.score))
+                                          ).toFixed(2)}
+                                          %
+                                        </>
+                                      ) : (
+                                        '±0.00'
+                                      )}
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="tw-flex tw-gap-2 tw-justify-center">
+                            <div className="tw-animate-fadeInLeft tw-rounded-md p-1 tw-bg-gray-950 tw-bg-opacity-50 px-3 tw-flex tw-items-center tw-gap-2">
+                              <span className={'tw-text-base text-stroke-100 tw-font-extrabold tw-text-gray-50'}>{playerData.button}B</span>
+                            </div>
+                            <div className="tw-animate-fadeInLeft tw-rounded-md p-1 tw-bg-gray-950 tw-bg-opacity-50 px-3 tw-flex tw-items-center tw-gap-2">
+                              <span
+                                className={
+                                  playerData.songData.patterns[`${playerData.button}B`][patternToCode(playerData.pattern)].level <= 5
+                                    ? 'tw-text-base text-stroke-100 tw-font-extrabold ' +
+                                      (patternToCode(playerData.pattern) === 'SC' ? ' tw-text-respect-sc-5' : ' tw-text-respect-nm-5')
+                                    : playerData.songData.patterns[`${playerData.button}B`][patternToCode(playerData.pattern)].level <= 10
+                                    ? 'tw-text-base text-stroke-100 tw-font-extrabold ' +
+                                      (patternToCode(playerData.pattern) === 'SC' ? ' tw-text-respect-sc-10' : ' tw-text-respect-nm-10')
+                                    : 'tw-text-base text-stroke-100 tw-font-extrabold ' +
+                                      (patternToCode(playerData.pattern) === 'SC' ? ' tw-text-respect-sc-15' : ' tw-text-respect-nm-15')
+                                }
+                              >
+                                {playerData.pattern}
+                              </span>
+                            </div>
+                            <div className="tw-animate-fadeInLeft tw-rounded-md p-1 tw-bg-gray-950 tw-bg-opacity-50 px-3 tw-flex tw-items-center tw-gap-2">
+                              <div>
+                                <Image
+                                  loading="lazy" // "lazy" | "eager"
+                                  src={
+                                    playerData.songData.patterns[`${playerData.button}B`][patternToCode(playerData.pattern)].level <= 5
+                                      ? `/images/djmax_respect_v/${patternToCode(playerData.pattern) === 'SC' ? 'sc' : 'nm'}_5_star.png`
+                                      : playerData.songData.patterns[`${playerData.button}B`][patternToCode(playerData.pattern)].level <= 10
+                                      ? `/images/djmax_respect_v/${patternToCode(playerData.pattern) === 'SC' ? 'sc' : 'nm'}_10_star.png`
+                                      : `/images/djmax_respect_v/${patternToCode(playerData.pattern) === 'SC' ? 'sc' : 'nm'}_15_star.png`
+                                  }
+                                  height={14}
+                                  width={14}
+                                  alt=""
+                                />
+                              </div>
+                              <span
+                                className={
+                                  playerData.songData.patterns[`${playerData.button}B`][patternToCode(playerData.pattern)].level <= 5
+                                    ? 'tw-text-base text-stroke-100 tw-font-extrabold ' +
+                                      (patternToCode(playerData.pattern) === 'SC' ? ' tw-text-respect-sc-5' : ' tw-text-respect-nm-5')
+                                    : playerData.songData.patterns[`${playerData.button}B`][patternToCode(playerData.pattern)].level <= 10
+                                    ? 'tw-text-base text-stroke-100 tw-font-extrabold ' +
+                                      (patternToCode(playerData.pattern) === 'SC' ? ' tw-text-respect-sc-10' : ' tw-text-respect-nm-10')
+                                    : 'tw-text-base text-stroke-100 tw-font-extrabold ' +
+                                      (patternToCode(playerData.pattern) === 'SC' ? ' tw-text-respect-sc-15' : ' tw-text-respect-nm-15')
+                                }
+                              >
+                                {playerData.songData.patterns[`${playerData.button}B`][patternToCode(playerData.pattern)].level}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : // 기존 단일 플레이어 화면 렌더링
+                vArchiveUploadedPageData.songData !== undefined ? (
+                  <>
+                    <div
+                      className={
+                        'tw-flex tw-flex-col tw-gap-1 tw-bg-opacity-10 tw-rounded-md p-0 tw-mb-4 tw-h-auto ' +
+                        ` respect_dlc_${vArchiveUploadedPageData.songData.dlcCode} respect_dlc_logo_${vArchiveUploadedPageData.songData.dlcCode} respect_dlc_logo_BG_${vArchiveUploadedPageData.songData.dlcCode}`
+                      }
+                    >
+                      <div className="tw-flex tw-flex-col tw-animate-fadeInLeft p-4 flex-equal tw-bg-gray-900 tw-bg-opacity-30 tw-rounded-md">
+                        {/* 하단 */}
+                        <div className="tw-flex tw-justify-between">
+                          <div className="tw-flex tw-gap-3 tw-mt-auto tw-items-end">
+                            <ScorePopupComponent songItemTitle={vArchiveUploadedPageData.songData.title} keyMode={keyMode} />
+                            <div className="tw-flex tw-flex-col tw-w-full">
+                              {/* 제목 */}
+                              <span className="tw-flex tw-font-light tw-text-gray-300">{vArchiveUploadedPageData.songData.composer}</span>
+                              <div className="tw-flex">
+                                <span className="tw-text-lg tw-font-bold me-auto">
+                                  {vArchiveUploadedPageData.songData.name}
+                                  <sup className="tw-text-xs tw-font-light tw-text-gray-300">
+                                    {' '}
+                                    (V-ARCHIVE : {vArchiveUploadedPageData.songData.title} / 프로젝트 RA : {vArchiveUploadedPageData.songData.title})
+                                  </sup>
+                                </span>
+                                {/* {isCanRollback && backupData.patterns[`${vArchiveUploadedPageData.button}B`]?.[pattern]?.score && (
+                                  <button
+                                    type="button"
+                                    disabled={
+                                      !(backupData && vArchiveUploadedPageData && vArchiveUploadedPageData.songData) ||
+                                      backupData.title !== vArchiveUploadedPageData.songData.title ||
+                                      !backupData.patterns[`${vArchiveUploadedPageData.button}B`][pattern].score ||
+                                      !isCanRollback
+                                    }
+                                    onClick={() => {
+                                      handleRollback()
+                                      showNotification(
+                                        '주의 : 롤백이 요청 되었습니다. 마지막으로 업로드된 이미지의 성과 기록을 업로드되기 전으로 되돌립니다.',
+                                        'tw-bg-orange-600',
+                                      )
+                                    }}
+                                    className="tw-flex tw-justify-center tw-items-center tw-p-3 tw-h-8 tw-gap-1 tw-rounded-md tw-text-md tw-bg-red-600 tw-bg-opacity-100 tw-transition-all hover:tw-bg-red-900"
+                                  >
+                                    이전 성과 기록으로 롤백
+                                  </button>
+                                )} */}
+                              </div>
+                            </div>
+                          </div>
+                          <div>
+                            <div className="tw-flex tw-gap-2">
+                              {/* <div className="tw-animate-fadeInLeft tw-rounded-md p-1 tw-bg-gray-950 tw-bg-opacity-75 px-3 tw-flex tw-items-center tw-gap-2">
+                                <span className={'tw-text-sm text-stroke-100 tw-font-extrabold tw-text-gray-50'}>{vArchiveUploadedPageData.button}B</span>
+                              </div>
+                              <div className="tw-animate-fadeInLeft tw-rounded-md p-1 tw-bg-gray-950 tw-bg-opacity-75 px-3 tw-flex tw-items-center tw-gap-2">
+                                <span
+                                  className={
+                                    vArchiveUploadedPageData.songData.patterns[`${vArchiveUploadedPageData.button}B`][pattern].level <= 5
+                                      ? 'tw-text-sm text-stroke-100 tw-font-extrabold ' + (pattern === 'SC' ? ' tw-text-respect-sc-5' : ' tw-text-respect-nm-5')
+                                      : vArchiveUploadedPageData.songData.patterns[`${vArchiveUploadedPageData.button}B`][pattern].level <= 10
+                                      ? 'tw-text-sm text-stroke-100 tw-font-extrabold ' +
+                                        (pattern === 'SC' ? ' tw-text-respect-sc-10' : ' tw-text-respect-nm-10')
+                                      : 'tw-text-sm text-stroke-100 tw-font-extrabold ' +
+                                        (pattern === 'SC' ? ' tw-text-respect-sc-15' : ' tw-text-respect-nm-15')
+                                  }
+                                >
+                                  {pattern}
+                                </span>
+                              </div>
+                              <div className="tw-animate-fadeInLeft tw-rounded-md p-1 tw-bg-gray-950 tw-bg-opacity-75 px-3 tw-flex tw-items-center tw-gap-2">
+                                <div>
+                                  <Image
+                                    loading="lazy" // "lazy" | "eager"
+                                    blurDataURL={globalDictionary.blurDataURL}
+                                    src={
+                                      vArchiveUploadedPageData.songData.patterns[`${vArchiveUploadedPageData.button}B`][pattern].level <= 5
+                                        ? `/images/djmax_respect_v/${pattern === 'SC' ? 'sc' : 'nm'}_5_star.png`
+                                        : vArchiveUploadedPageData.songData.patterns[`${vArchiveUploadedPageData.button}B`][pattern].level <= 10
+                                        ? `/images/djmax_respect_v/${pattern === 'SC' ? 'sc' : 'nm'}_10_star.png`
+                                        : `/images/djmax_respect_v/${pattern === 'SC' ? 'sc' : 'nm'}_15_star.png`
+                                    }
+                                    height={14}
+                                    width={14}
+                                    alt=""
+                                  />
+                                </div>
+                                <span
+                                  className={
+                                    vArchiveUploadedPageData.songData.patterns[`${vArchiveUploadedPageData.button}B`][pattern].level <= 5
+                                      ? 'tw-flex tw-items-center tw-text-sm text-stroke-100 tw-font-extrabold ' +
+                                        (pattern === 'SC' ? ' tw-text-respect-sc-5' : ' tw-text-respect-nm-5')
+                                      : vArchiveUploadedPageData.songData.patterns[`${vArchiveUploadedPageData.button}B`][pattern].level <= 10
+                                      ? 'tw-flex tw-items-center tw-text-sm text-stroke-100 tw-font-extrabold ' +
+                                        (pattern === 'SC' ? ' tw-text-respect-sc-10' : ' tw-text-respect-nm-10')
+                                      : 'tw-flex tw-items-center tw-text-sm text-stroke-100 tw-font-extrabold ' +
+                                        (pattern === 'SC' ? ' tw-text-respect-sc-15' : ' tw-text-respect-nm-15')
+                                  }
+                                >
+                                  {vArchiveUploadedPageData.songData.patterns[`${vArchiveUploadedPageData.button}B`][pattern].level}
+                                </span>
+                              </div> */}
+                              <div className="tw-animate-fadeInLeft tw-rounded-md p-1 tw-bg-gray-950 tw-bg-opacity-75">
+                                <span className="respect_dlc_code_wrap ">
+                                  <span className={`respect_dlc_code respect_dlc_code_${vArchiveUploadedPageData.songData.dlcCode}`}>
+                                    {vArchiveUploadedPageData.songData.dlc}
+                                  </span>
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </div>
 
-                    {/* 하단 */}
-                    <div className="tw-flex tw-gap-3 tw-mt-auto tw-items-end">
-                      <ScorePopupComponent songItemTitle={uploadedPageData.songData.title} keyMode={keyMode} />
-                      <div className="tw-flex tw-flex-col tw-w-full">
-                        {/* 제목 */}
-                        <span className="tw-flex tw-font-light tw-text-gray-300">{uploadedPageData.songData.composer}</span>
-                        <div className="tw-flex">
-                          <span className="tw-text-lg tw-font-bold me-auto">
-                            {uploadedPageData.songData.name}
-                            <sup className="tw-text-xs tw-font-light tw-text-gray-300">
-                              {' '}
-                              (V-ARCHIVE : {uploadedPageData.songData.title} / 프로젝트 RA : {uploadedPageData.songData.title})
-                            </sup>
+                    <div className="tw-flex tw-flex-col tw-w-full tw-relative tw-animate-fadeInLeft tw-bg-gray-600 tw-bg-opacity-10 tw-rounded-md p-4 tw-gap-2 tw-mb-4">
+                      <div className="tw-flex tw-justify-between tw-items-center">
+                        <div className="tw-flex tw-flex-col tw-gap-2">
+                          <span className="tw-text-base tw-font-light">BUTTON</span>
+                          <span className="tw-font-extrabold tw-text-4xl">{vArchiveUploadedPageData.button}B</span>
+                        </div>
+                        <div className="tw-flex tw-flex-col tw-gap-2">
+                          <span className="tw-text-base tw-font-light">DIFFICULTY</span>
+                          <span className="tw-font-extrabold tw-text-4xl">
+                            {patternToCode(vArchiveUploadedPageData.pattern)}{' '}
+                            {vArchiveUploadedPageData.songData.patterns[`${vArchiveUploadedPageData.button}B`][vArchivePattern].level}
                           </span>
-                          {isCanRollback && backupData.patterns[`${uploadedPageData.button}B`][pattern].score && (
-                            <button
-                              type="button"
-                              disabled={
-                                !(backupData && uploadedPageData && uploadedPageData.songData) ||
-                                backupData.title !== uploadedPageData.songData.title ||
-                                !backupData.patterns[`${uploadedPageData.button}B`][pattern].score ||
-                                !isCanRollback
-                              }
-                              onClick={() => {
-                                handleRollback()
-                                showNotification(
-                                  '주의 : 롤백이 요청 되었습니다. 마지막으로 업로드된 이미지의 성과 기록을 업로드되기 전으로 되돌립니다.',
-                                  'tw-bg-orange-600',
-                                )
-                              }}
-                              className="tw-flex tw-justify-center tw-items-center tw-p-3 tw-h-8 tw-gap-1 tw-rounded-md tw-text-md tw-bg-red-600 tw-bg-opacity-100 tw-transition-all hover:tw-bg-red-900"
-                            >
-                              이전 성과 기록으로 롤백
-                            </button>
+                        </div>
+                        {backupData &&
+                        vArchiveUploadedPageData &&
+                        vArchiveUploadedPageData.songData &&
+                        backupData.title === vArchiveUploadedPageData.songData.title &&
+                        backupData ? (
+                          <div className="tw-flex tw-flex-col tw-gap-2">
+                            <span className="tw-text-base tw-font-light">
+                              {parseFloat(String(backupData.patterns[`${vArchiveUploadedPageData.button}B`][vArchivePattern].score)) >=
+                              parseFloat(String(vArchiveUploadedPageData.score))
+                                ? 'BEST'
+                                : 'LAST'}{' '}
+                              SCORE
+                            </span>
+                            <span className="tw-font-extrabold tw-text-4xl">
+                              {backupData.patterns[`${vArchiveUploadedPageData.button}B`][vArchivePattern].score
+                                ? backupData.patterns[`${vArchiveUploadedPageData.button}B`][vArchivePattern].score
+                                : '00.00'}
+                              %
+                            </span>
+                          </div>
+                        ) : null}
+                        <div className="tw-flex tw-flex-col tw-gap-2">
+                          <span className="tw-text-base tw-font-light">{backupData ? 'CURRENT SCORE' : 'LAST PLAYED SCORE'}</span>
+                          <div className="tw-flex tw-items-start tw-gap-2">
+                            <span className="tw-font-extrabold tw-text-4xl">
+                              {String(vArchiveUploadedPageData.score).includes('.')
+                                ? String(vArchiveUploadedPageData.score).split('.')[1].length === 1
+                                  ? String(vArchiveUploadedPageData.score) + '0'
+                                  : vArchiveUploadedPageData.score
+                                : vArchiveUploadedPageData.score + '.00'}
+                              %
+                            </span>
+                            {backupData &&
+                              vArchiveUploadedPageData &&
+                              vArchiveUploadedPageData.songData &&
+                              backupData.title === vArchiveUploadedPageData.songData.title && (
+                                <span
+                                  className={`tw-flex tw-items-center tw-gap-1 tw-text-lg ${
+                                    parseFloat(String(vArchiveUploadedPageData.score)) >
+                                    parseFloat(String(backupData.patterns[`${vArchiveUploadedPageData.button}B`][vArchivePattern].score))
+                                      ? 'tw-text-red-500'
+                                      : parseFloat(String(vArchiveUploadedPageData.score)) <
+                                        parseFloat(String(backupData.patterns[`${vArchiveUploadedPageData.button}B`][vArchivePattern].score))
+                                      ? 'tw-text-blue-500'
+                                      : 'tw-text-gray-500'
+                                  }`}
+                                >
+                                  {parseFloat(String(vArchiveUploadedPageData.score)) >
+                                  parseFloat(String(backupData.patterns[`${vArchiveUploadedPageData.button}B`][vArchivePattern].score)) ? (
+                                    <>
+                                      <IconContext.Provider value={{ size: '12', className: 'tw-inline tw-mt-0.5' }}>
+                                        <FiTriangle />
+                                      </IconContext.Provider>
+                                      {(
+                                        parseFloat(String(vArchiveUploadedPageData.score)) -
+                                        parseFloat(String(backupData.patterns[`${vArchiveUploadedPageData.button}B`][vArchivePattern].score))
+                                      ).toFixed(2)}
+                                      %
+                                    </>
+                                  ) : parseFloat(String(vArchiveUploadedPageData.score)) <
+                                    parseFloat(String(backupData.patterns[`${vArchiveUploadedPageData.button}B`][vArchivePattern].score)) ? (
+                                    <>
+                                      <IconContext.Provider value={{ size: '12', className: 'tw-inline tw-rotate-180 tw-mt-0.5' }}>
+                                        <FiTriangle />
+                                      </IconContext.Provider>
+                                      {(
+                                        parseFloat(String(backupData.patterns[`${vArchiveUploadedPageData.button}B`][vArchivePattern].score)) -
+                                        parseFloat(String(vArchiveUploadedPageData.score))
+                                      ).toFixed(2)}
+                                      %
+                                    </>
+                                  ) : (
+                                    '±0.00%'
+                                  )}
+                                </span>
+                              )}
+                            <span className="tw-text-lg tw-font-light tw-text-yellow-400">{vArchiveUploadedPageData.maxCombo == 1 ? 'MAX COMBO' : ''}</span>
+                          </div>
+                        </div>
+                        {/* <div className="tw-rounded-md tw-flex tw-gap-2">
+                          <div className="tw-relative" style={{ width: 70, height: 70 }}>
+                            <Image
+                              loading="lazy" // "lazy" | "eager"
+                              blurDataURL={globalDictionary.blurDataURL}
+                              src={`/images/djmax_respect_v/effectors/SPEED_BG.png`}
+                              width={70}
+                              height={70}
+                              alt=""
+                              className="tw-shadow-sm tw-absolute"
+                            />
+                            <div className="tw-absolute tw-flex tw-justify-center tw-items-center tw-bottom-0" style={{ width: 70, height: 60 }}>
+                              <span className="tw-font-extrabold tw-text-3xl">
+                                {String(vArchiveUploadedPageData.speed).length === 1 ? String(vArchiveUploadedPageData.speed) + '.0' : String(vArchiveUploadedPageData.speed)}
+                              </span>
+                            </div>
+                          </div>
+                          {vArchiveUploadedPageData.note !== null ? (
+                            <Image
+                              loading="lazy" // "lazy" | "eager"
+                              blurDataURL={globalDictionary.blurDataURL}
+                              src={`/images/djmax_respect_v/effectors/${vArchiveUploadedPageData.note}.png`}
+                              width={70}
+                              height={70}
+                              alt=""
+                            />
+                          ) : (
+                            <div className="tw-bg-gray-950 tw-bg-opacity-30 tw-shadow-sm tw-rounded-lg" style={{ width: 70, height: 70 }} />
                           )}
+                          {vArchiveUploadedPageData.fader !== null ? (
+                            <Image
+                              loading="lazy" // "lazy" | "eager"
+                              blurDataURL={globalDictionary.blurDataURL}
+                              src={`/images/djmax_respect_v/effectors/${vArchiveUploadedPageData.fader}.png`}
+                              width={70}
+                              height={70}
+                              alt=""
+                            />
+                          ) : (
+                            <div className="tw-bg-gray-950 tw-bg-opacity-30 tw-shadow-sm tw-rounded-lg" style={{ width: 70, height: 70 }} />
+                          )}
+                          {vArchiveUploadedPageData.chaos !== null ? (
+                            <Image
+                              loading="lazy" // "lazy" | "eager"
+                              blurDataURL={globalDictionary.blurDataURL}
+                              src={`/images/djmax_respect_v/effectors/${vArchiveUploadedPageData.chaos}.png`}
+                              width={70}
+                              height={70}
+                              alt=""
+                            />
+                          ) : (
+                            <div className="tw-bg-gray-950 tw-bg-opacity-30 tw-shadow-sm tw-rounded-lg" style={{ width: 70, height: 70 }} />
+                          )}
+                        </div> */}
+                      </div>
+                    </div>
+
+                    <div className="tw-flex tw-gap-4 tw-w-full tw-flex-1 tw-overflow-hidden">
+                      {/* 최근 기록 섹션 */}
+                      <div className="tw-flex tw-flex-col tw-w-1/2 tw-relative tw-animate-fadeInLeft tw-bg-gray-600 tw-bg-opacity-10 tw-rounded-md p-4 tw-gap-2">
+                        <div className="tw-flex tw-w-full tw-mb-2 tw-items-center tw-justify-between">
+                          <span className="tw-text-lg tw-font-bold me-auto">최근 기록</span>
+                          <span className="tw-text-sm tw-text-gray-400">*프로젝트 RA 기록</span>
+                        </div>
+
+                        <div className="tw-flex tw-flex-col tw-gap-2 tw-overflow-y-auto">
+                          {recentHistory.map((history) => (
+                            <div
+                              key={history.historyId}
+                              className="tw-flex tw-items-center tw-gap-3 tw-bg-gray-700 tw-bg-opacity-30 tw-rounded-lg tw-p-3 hover:tw-bg-opacity-40 tw-transition-all"
+                            >
+                              <div className="tw-relative hover:tw-scale-110 tw-transition-transform">
+                                <ScorePopupComponent
+                                  songItemTitle={history.songId.toString()}
+                                  keyMode={history.keyType.replace('B', '')}
+                                  rivalName=""
+                                  delay={{ show: 500, hide: 0 }}
+                                  size={54}
+                                />
+                              </div>
+
+                              <div className="tw-flex tw-flex-col tw-gap-2 tw-flex-1">
+                                <div className="tw-flex tw-items-center tw-gap-2 tw-justify-between">
+                                  <span className="tw-font-bold">{history.songName}</span>
+                                  <div className="tw-flex tw-items-center tw-gap-2">
+                                    <div
+                                      className={`tw-flex tw-items-center tw-gap-1 tw-px-2 tw-py-1 tw-rounded-md tw-bg-gray-900 tw-bg-opacity-75 tw-min-w-12 tw-justify-center`}
+                                    >
+                                      <span className="tw-text-sm">{history.keyType}</span>
+                                    </div>
+                                    <div
+                                      className={`tw-flex tw-items-center tw-gap-1 tw-px-2 tw-py-1 tw-rounded-md tw-bg-gray-900 tw-bg-opacity-75 tw-min-w-12 tw-justify-center`}
+                                    >
+                                      <span className="tw-text-sm">{history.difficultyType}</span>
+                                      <span className="tw-text-sm">{history.level}</span>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                <div className="tw-flex tw-items-center tw-gap-2">
+                                  <span className="tw-font-bold">
+                                    {history.score.toFixed(2)}%{history.maxCombo && <span className="tw-text-yellow-400 tw-font-light"> (MAX COMBO)</span>}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* 추천 옵션 섹션 */}
+                      <div className="tw-flex tw-flex-col tw-w-1/2 tw-relative tw-animate-fadeInRight tw-bg-gray-600 tw-bg-opacity-10 tw-rounded-md p-4 tw-gap-2">
+                        <div className="tw-flex tw-w-full tw-mb-2 tw-items-center">
+                          <span className="tw-text-lg tw-font-bold me-auto">팁 & 추천 옵션</span>
+                        </div>
+
+                        <div className="tw-flex tw-flex-col flex-equal tw-justify-center tw-items-center tw-text-base">
+                          <span>통계 데이터가 충분하지 않아 팁 & 추천 옵션을 제공할 수 없습니다.</span>
+                          <span>더 많은 사용자의 플레이 데이터가 수집될 때까지 기다려주세요.</span>
                         </div>
                       </div>
                     </div>
-                  </div>
-                </div>
-
-                <div className="tw-flex tw-flex-col tw-w-full tw-relative tw-animate-fadeInLeft tw-bg-gray-600 tw-bg-opacity-10 tw-rounded-md p-4 tw-gap-2 tw-mb-4">
-                  <div className="tw-flex tw-justify-between tw-items-center">
-                    {backupData && uploadedPageData && uploadedPageData.songData && backupData.title === uploadedPageData.songData.title && backupData ? (
-                      <div className="tw-flex tw-flex-col tw-gap-2">
-                        <span className="tw-text-base tw-font-light">
-                          {parseFloat(String(backupData.patterns[`${uploadedPageData.button}B`][pattern].score)) >= parseFloat(String(uploadedPageData.score))
-                            ? 'BEST'
-                            : 'LAST'}{' '}
-                          SCORE
-                        </span>
-                        <span className="tw-font-extrabold tw-text-4xl">
-                          {backupData.patterns[`${uploadedPageData.button}B`][pattern].score
-                            ? backupData.patterns[`${uploadedPageData.button}B`][pattern].score
-                            : '00.00'}
-                          %
-                        </span>
-                      </div>
-                    ) : null}
-                    <div className="tw-flex tw-flex-col tw-gap-2">
-                      <span className="tw-text-base tw-font-light">{backupData ? 'CURRENT SCORE' : 'LAST PLAYED SCORE'}</span>
-                      <span className="tw-font-extrabold tw-text-4xl">
-                        {String(uploadedPageData.score).includes('.')
-                          ? String(uploadedPageData.score).split('.')[1].length === 1
-                            ? String(uploadedPageData.score) + '0'
-                            : uploadedPageData.score
-                          : uploadedPageData.score + '.00'}
-                        %
-                      </span>
-                    </div>
-                    <div className="tw-flex tw-flex-col tw-gap-2">
-                      <span className="tw-text-base tw-font-light">MAX COMBO</span>
-                      <span className="tw-font-extrabold tw-text-4xl">{uploadedPageData.maxCombo === 1 ? <FiCircle /> : <FiX />}</span>
-                    </div>
-                    <div className="tw-rounded-md tw-flex tw-gap-2">
-                      <div className="tw-relative" style={{ width: 70, height: 70 }}>
-                        <Image
-                          loading="lazy" // "lazy" | "eager"
-                          blurDataURL={globalDictionary.blurDataURL}
-                          src={`/images/djmax_respect_v/effectors/SPEED_BG.png`}
-                          width={70}
-                          height={70}
-                          alt=""
-                          className="tw-shadow-sm tw-absolute"
-                        />
-                        <div className="tw-absolute tw-flex tw-justify-center tw-items-center tw-bottom-0" style={{ width: 70, height: 60 }}>
-                          <span className="tw-font-extrabold tw-text-3xl">
-                            {String(uploadedPageData.speed).length === 1 ? String(uploadedPageData.speed) + '.0' : String(uploadedPageData.speed)}
-                          </span>
-                        </div>
-                      </div>
-                      {uploadedPageData.note !== null ? (
-                        <Image
-                          loading="lazy" // "lazy" | "eager"
-                          blurDataURL={globalDictionary.blurDataURL}
-                          src={`/images/djmax_respect_v/effectors/${uploadedPageData.note}.png`}
-                          width={70}
-                          height={70}
-                          alt=""
-                        />
-                      ) : (
-                        <div className="tw-bg-gray-950 tw-bg-opacity-30 tw-shadow-sm tw-rounded-lg" style={{ width: 70, height: 70 }} />
-                      )}
-                      {uploadedPageData.fader !== null ? (
-                        <Image
-                          loading="lazy" // "lazy" | "eager"
-                          blurDataURL={globalDictionary.blurDataURL}
-                          src={`/images/djmax_respect_v/effectors/${uploadedPageData.fader}.png`}
-                          width={70}
-                          height={70}
-                          alt=""
-                        />
-                      ) : (
-                        <div className="tw-bg-gray-950 tw-bg-opacity-30 tw-shadow-sm tw-rounded-lg" style={{ width: 70, height: 70 }} />
-                      )}
-                      {uploadedPageData.chaos !== null ? (
-                        <Image
-                          loading="lazy" // "lazy" | "eager"
-                          blurDataURL={globalDictionary.blurDataURL}
-                          src={`/images/djmax_respect_v/effectors/${uploadedPageData.chaos}.png`}
-                          width={70}
-                          height={70}
-                          alt=""
-                        />
-                      ) : (
-                        <div className="tw-bg-gray-950 tw-bg-opacity-30 tw-shadow-sm tw-rounded-lg" style={{ width: 70, height: 70 }} />
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="tw-flex tw-flex-col tw-w-full tw-relative tw-animate-fadeInLeft flex-equal tw-bg-gray-600 tw-bg-opacity-10 tw-rounded-md p-4 tw-gap-2 tw-mb-auto">
-                  <div className="tw-flex tw-w-full tw-mb-2 tw-items-center">
-                    {/* 제목 */}
-                    <span className="tw-text-lg tw-font-bold me-auto">팁 & 추천 옵션</span>
-                  </div>
-                  <div className="tw-flex tw-flex-col flex-equal tw-justify-center tw-items-center">
-                    <span>해당 수록곡의 충분한 플레이 데이터가 생성되지 않아 팁 & 추천 옵션을 제공할 수 없습니다.</span>
-                    <span>더 많은 사용자의 플레이 데이터가 수집될 때까지 기다려주세요.</span>
-                  </div>
-                </div>
+                  </>
+                ) : null}
               </>
             ) : isUploading ? (
               <div className="tw-flex tw-flex-col tw-w-full tw-relative tw-animate-fadeInLeft tw-h-full tw-justify-center tw-items-center tw-bg-gray-600 tw-bg-opacity-10 tw-rounded-md">
                 <SyncLoader color="#ffffff" size={8} />
               </div>
             ) : (
-              <div className="tw-absolute tw-inset-0 tw-bg-gray-900 tw-bg-opacity-70 tw-z-50 tw-flex tw-flex-col tw-gap-4 tw-items-center tw-justify-center tw-transition-all tw-border-2 tw-border-dashed tw-border-white tw-rounded-md">
-                <IconContext.Provider value={{ size: '36', className: 'tw-animate-pulse' }}>
-                  <FaRegFile />
-                </IconContext.Provider>
-                <div className="tw-text-xl tw-font-bold tw-text-white tw-animate-pulse">리절트(결과) 화면의 이미지를 업로드해주세요.</div>
-                <div className="tw-text-base tw-text-white tw-animate-pulse">
-                  지금은 프리스타일 리절트만 지원합니다. 추후 래더/버서스 리절트 이미지 업로드 기능이 추가될 예정입니다.
+              !isDragging && (
+                <div className="tw-absolute tw-inset-0 tw-bg-gray-950 tw-bg-opacity-25 tw-z-50 tw-flex tw-flex-col tw-gap-4 tw-items-center tw-justify-center tw-transition-all tw-border-2 tw-border-dashed tw-border-gray-400 tw-border-opacity-75 tw-rounded-md">
+                  <IconContext.Provider value={{ size: '36', className: 'tw-animate-pulse' }}>
+                    <FaCloudArrowUp />
+                  </IconContext.Provider>
+                  <div className="tw-text-xl tw-font-bold tw-text-white tw-animate-pulse">리절트(결과) 화면의 이미지를 업로드해주세요.</div>
+                  <div className="tw-text-base tw-text-white tw-animate-pulse">
+                    DJMAX RESPECT V는 프리스타일 곡 선택, 프리스타일 결과, 오픈 매치 결과, 래더/버서스 매치 결과 창을 지원합니다.
+                  </div>
                 </div>
-              </div>
+              )
             )}
           </div>
         </div>

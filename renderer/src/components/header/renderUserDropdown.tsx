@@ -4,14 +4,15 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { useDispatch } from 'react-redux'
-import { setBackupData, setUploadedData, setUserData } from 'store/slices/appSlice'
+import { setBackupData, setUploadedData, setUserData, setVArchiveUserData } from 'store/slices/appSlice'
 
-export const renderUserDropdown = (user, ipcRenderer, router, callback, refreshKeyHandle) => {
+export const renderUserDropdown = (user, vArchiveUserData, ipcRenderer, router, callback, refreshKeyHandle) => {
   const { showNotification } = useNotificationSystem()
   const dispatch = useDispatch()
 
   const logoutCallback = () => {
     dispatch(setUserData({ userToken: '', userName: '', userNo: '' }))
+    dispatch(setVArchiveUserData({ userToken: '', userName: '', userNo: '' }))
     dispatch(setUploadedData(null))
     callback()
   }
@@ -22,18 +23,31 @@ export const renderUserDropdown = (user, ipcRenderer, router, callback, refreshK
         <button
           className="dropdown-item tw-py-2 tw-rounded-t-md"
           onClick={() => {
+            ipcRenderer.send('openBrowser', 'https://project-ra.lunatica.kr/')
+          }}
+        >
+          프로젝트 RA 바로가기
+        </button>
+      </li>
+      <li>
+        <hr className="dropdown-divider tw-m-0" />
+      </li>
+      <li>
+        <button
+          className="dropdown-item tw-py-2 tw-rounded-t-md"
+          onClick={() => {
             ipcRenderer.send('openBrowser', 'https://v-archive.net/')
           }}
         >
           V-ARCHIVE 바로가기
         </button>
       </li>
-      {user.userNo !== '' && user.userToken !== '' && user.userName !== '' ? (
+      {vArchiveUserData.userNo !== '' && vArchiveUserData.userToken !== '' && vArchiveUserData.userName !== '' ? (
         <li>
           <button
             className="dropdown-item tw-py-2"
             onClick={() => {
-              ipcRenderer.send('openBrowser', `https://v-archive.net/archive/${user.userName}/board`)
+              ipcRenderer.send('openBrowser', `https://v-archive.net/archive/${vArchiveUserData.userName}/board`)
             }}
           >
             성과표(V-ARCHIVE) 바로가기

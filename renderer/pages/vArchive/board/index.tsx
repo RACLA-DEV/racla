@@ -8,14 +8,15 @@ const BoardHome = () => {
   const router = useRouter()
 
   const userData = useSelector((state: RootState) => state.app.userData)
+  const vArchiveUserData = useSelector((state: RootState) => state.app.vArchiveUserData)
   const { showNotification } = useNotificationSystem()
 
   useEffect(() => {
-    if (userData.userName !== '') {
+    if (vArchiveUserData.userName !== '') {
       router.push('/vArchive/board/4/1')
     } else {
-      router.push('/projectRa/home')
-      showNotification('성과표 조회 기능은 로그인이 필요합니다.', 'tw-bg-red-600')
+      router.push('/')
+      showNotification('성과표 조회 기능은 로그인 또는 V-ARCHIVE 계정 연동이 필요합니다.', 'tw-bg-red-600')
     }
   }, [])
 

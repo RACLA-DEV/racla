@@ -1,14 +1,27 @@
-import React, { useRef } from 'react'
+import { useRouter } from 'next/router'
+import React, { useEffect, useRef, useState } from 'react'
+import { useDispatch } from 'react-redux'
 import { useSelector } from 'react-redux'
 import { RootState } from 'store'
+import { setBackgroundBgaName } from 'store/slices/uiSlice'
 
 const BackgroundVideoComponent = React.memo(() => {
   const videoRef = useRef<HTMLVideoElement>(null)
+  const dispatch = useDispatch()
+  const router = useRouter()
   const backgroundBgaName = useSelector((state: RootState) => state.ui.backgroundBgaName)
   const { selectedGame, isDetectedGame, settingData } = useSelector((state: RootState) => state.app)
 
+  useEffect(() => {
+    if (!router.pathname.includes('/db/title')) {
+      dispatch(setBackgroundBgaName(''))
+    }
+  }, [router.pathname, selectedGame, dispatch])
+
   const baseUrl = `https://cdn.lunatica.kr/${selectedGame.toLowerCase()}`
-  const videoSrc = backgroundBgaName ? `${baseUrl}/preview/title/${backgroundBgaName}.webm` : `${baseUrl}/bg_title.mp4`
+  const videoSrc = backgroundBgaName
+    ? `${baseUrl}/preview/title/${backgroundBgaName}.${selectedGame === 'djmax_respect_v' ? 'webm' : 'mp4'}`
+    : `${baseUrl}/bg_title.mp4`
 
   if (isDetectedGame || !settingData?.visibleBga) {
     return null

@@ -22,7 +22,7 @@ export default function VArchiveDjPowerPage() {
   const [isScoredBaseSongData, setIsScoredBaseSongData] = useState<boolean>(true)
   const [isScoredNewSongData, setIsScoredNewSongData] = useState<boolean>(true)
 
-  const { songData, userData } = useSelector((state: RootState) => state.app)
+  const { songData, userData, vArchiveUserData } = useSelector((state: RootState) => state.app)
 
   useEffect(() => {
     setBaseSongData([])
@@ -168,7 +168,7 @@ export default function VArchiveDjPowerPage() {
       const specialData = getSpecialItems(songData, 30)
       setNewSongData(specialData)
 
-      if (userData.userName !== '') {
+      if (vArchiveUserData.userName !== '') {
         setIsScoredBaseSongData(false)
         setIsScoredNewSongData(false)
       }
@@ -179,7 +179,7 @@ export default function VArchiveDjPowerPage() {
 
   const loadDataWithScore = async (title) => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_PROXY_API_URL}?url=https://v-archive.net/api/archive/${userData.userName}/title/${title}`)
+      const response = await fetch(`${process.env.NEXT_PUBLIC_PROXY_API_URL}?url=https://v-archive.net/api/archive/${vArchiveUserData.userName}/title/${title}`)
       if (!response) {
         throw new Error('Network response was not ok')
       }
@@ -271,10 +271,12 @@ export default function VArchiveDjPowerPage() {
     }
   }, [newSongData, isScoredNewSongData])
 
+  const { selectedGame } = useSelector((state: RootState) => state.app)
+
   return (
     <React.Fragment>
       <Head>
-        <title>DJMAX RESPECT V {keyMode}B MAX DJ POWER - 프로젝트 RA</title>
+        <title>{keyMode}B MAX DJ POWER - 프로젝트 RA</title>
       </Head>
 
       <div id="ContentHeader" />
@@ -285,63 +287,44 @@ export default function VArchiveDjPowerPage() {
           {/* 헤더 */}
           <div className="tw-flex tw-w-full tw-items-end tw-justify-between">
             <span className="tw-text-xl tw-font-bold tw-text-white">🙋‍♂️ MAX DJ POWER</span>
+            <div className="tw-flex tw-items-center tw-gap-2">
+              {globalDictionary[selectedGame].keyModeList.map((mode) => (
+                <button
+                  key={`mode_${mode}`}
+                  onClick={() => setKeyMode(String(mode))}
+                  className={`tw-flex tw-items-center tw-justify-center tw-relative tw-px-4 tw-py-0.5 tw-border tw-border-opacity-50 tw-transition-all tw-duration-500 tw-rounded-md tw-flex-1 ${
+                    String(mode) === keyMode
+                      ? 'tw-border-blue-500 tw-bg-blue-900 tw-bg-opacity-20 tw-brightness-150'
+                      : 'tw-border-gray-600 tw-opacity-50 hover:tw-border-blue-400 hover:tw-bg-gray-700 hover:tw-bg-opacity-30 hover:tw-opacity-100'
+                  }`}
+                >
+                  <div className={`tw-absolute tw-w-full tw-h-full tw-opacity-30 respect_bg_b${mode}`} />
+                  <span className="tw-relative tw-text-base tw-font-bold">{mode}B</span>
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* 설명 내용 */}
           <div className="tw-bg-gray-700 tw-bg-opacity-30 tw-p-4 tw-rounded tw-space-y-2 tw-mb-auto">
-            <p className="tw-leading-relaxed">전 패턴을 퍼펙트플레이를 하면 DJ CLASS 만점(이론치)을 달성할 수 있는 리스트입니다.</p>
+            <p className="tw-leading-relaxed">전 패턴을 퍼펙트 플레이를 하면 DJ CLASS 만점(이론치)을 달성할 수 있는 리스트입니다.</p>
             <p className="tw-leading-relaxed">DJ CLASS 최상위 랭커를 노린다면 최소 BASIC 70패턴, NEW 30패턴을 플레이 해야합니다.</p>
           </div>
 
           {/* 하단 정보 */}
-          <div className="tw-flex tw-justify-end tw-gap-2 tw-items-start tw-text-xs tw-font-semibold">
-            <FaTriangleExclamation className="tw-mt-1 tw-text-yellow-500" />
-            <div className="tw-flex tw-flex-col tw-gap-1 tw-text-gray-300">
-              <span>
-                2024년 11월 18일 03시 45분 기준 V-ARCHIVE와 동기화됨 (
-                <span
-                  className="tw-inline-flex tw-items-center tw-gap-1 tw-text-blue-400 hover:tw-text-blue-300 tw-cursor-pointer tw-transition-colors"
-                  onClick={() => window.ipc.openBrowser(`https://v-archive.net/djpower/${keyMode}`)}
-                >
-                  <FaLink className="tw-text-sm" />
-                  V-ARCHIVE MAX DJ POWER 바로가기
-                </span>
-                )
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* 필터 섹션 */}
-        <div className="tw-flex tw-flex-col  tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-shadow-lg tw-p-6 tw-gap-4 tw-mb-4" style={{ width: '520px' }}>
-          {/* 헤더 */}
-          <div className="tw-flex tw-w-full tw-items-end tw-mb-2">
-            <span className="tw-text-xl tw-font-bold tw-text-white">필터</span>
-          </div>
-
-          {/* keyMode 선택 */}
-          <div className="tw-grid tw-grid-cols-2 tw-gap-3 tw-flex-1">
-            {globalDictionary.respect.keyModeList.map((value) => (
-              <button
-                key={`keyModeSelector_${value}`}
-                onClick={() => {
-                  setKeyMode(String(value))
-                  setIsLoading(true)
-                }}
-                className={
-                  'tw-flex tw-items-center tw-justify-center tw-relative tw-h-16 tw-border tw-border-opacity-50 tw-transition-all tw-duration-500 tw-border-gray-600 tw-rounded-sm hover:tw-border-blue-400 ' +
-                  (keyMode === String(value)
-                    ? 'tw-brightness-200 tw-border-blue-500 tw-bg-blue-900 tw-bg-opacity-20'
-                    : 'hover:tw-bg-gray-700 hover:tw-bg-opacity-30')
-                }
-                disabled={keyMode === String(value) || (!isScoredBaseSongData && !isScoredNewSongData)}
+          <div className="tw-flex tw-justify-end tw-gap-2 tw-items-center tw-text-xs tw-font-semibold">
+            <FaTriangleExclamation className=" tw-text-yellow-500" />
+            <div className="tw-flex tw-items-center tw-gap-1 tw-text-gray-300">
+              2024년 11월 18일 03시 45분 기준 V-ARCHIVE와 동기화됨 (
+              <span
+                className="tw-inline-flex tw-items-center tw-gap-1 tw-text-blue-400 hover:tw-text-blue-300 tw-cursor-pointer tw-transition-colors"
+                onClick={() => window.ipc.openBrowser(`https://v-archive.net/djpower/${keyMode}`)}
               >
-                <div className={`tw-absolute tw-w-full tw-h-full tw-opacity-30 respect_bg_b` + String(value)} />
-                <div className="tw-relative tw-flex tw-flex-col tw-items-center tw-gap-1">
-                  <span className="tw-text-2xl tw-font-bold">{String(value)}B</span>
-                </div>
-              </button>
-            ))}
+                <FaLink className="tw-text-sm" />
+                V-ARCHIVE MAX DJ POWER 바로가기
+              </span>
+              )
+            </div>
           </div>
         </div>
       </div>
@@ -421,7 +404,7 @@ export default function VArchiveDjPowerPage() {
             </div>
           ))
         ) : (
-          <div className="tw-flex tw-justify-center">
+          <div className="tw-flex tw-justify-center tw-h-[calc(100vh-388px)] tw-items-center">
             <SyncLoader color="#ffffff" size={8} />
           </div>
         )}

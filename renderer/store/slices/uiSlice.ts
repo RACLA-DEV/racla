@@ -3,11 +3,13 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 interface UiState {
   fontFamily: string
   backgroundBgaName: string
+  isDjCommentOpen: boolean
 }
 
 const initialState: UiState = {
   fontFamily: '',
   backgroundBgaName: '',
+  isDjCommentOpen: false,
 }
 
 export const uiSlice = createSlice({
@@ -22,8 +24,11 @@ export const uiSlice = createSlice({
       if (state.backgroundBgaName === action.payload) return
       state.backgroundBgaName = action.payload
     },
+    setIsDjCommentOpen: (state, action: PayloadAction<boolean>) => {
+      state.isDjCommentOpen = action.payload
+    },
   },
 })
 
-export const { setFontFamily, setBackgroundBgaName } = uiSlice.actions
+export const { setFontFamily, setBackgroundBgaName, setIsDjCommentOpen } = uiSlice.actions
 export default uiSlice.reducer

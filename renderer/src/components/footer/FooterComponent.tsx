@@ -18,11 +18,11 @@ const FooterComponent = ({ className }: IFooterComponent) => {
 
   const renderGameSpecificContent = (game: string) => {
     switch (game) {
-      case 'DJMAX_RESPECT_V':
+      case 'djmax_respect_v':
         return <FooterLicenseDjmaxRespectV />
-      case 'WJMAX':
+      case 'wjmax':
         return <FooterLicenseWjmax />
-      case 'TJMAX':
+      case 'tjmax':
         return <FooterLicenseTjmax />
       default:
         return null
@@ -48,22 +48,25 @@ const FooterComponent = ({ className }: IFooterComponent) => {
         </span>
       </div>
       <div className="tw-flex tw-justify-center tw-items-center tw-gap-1 tw-h-8 tw-pr-2">
-        {router.pathname !== '/projectRa/home' && (
-          <>
-            <button
-              className="tw-text-xs"
-              type="button"
-              onClick={() => {
-                window.ipc.send('openBrowser', 'https://github.com/djmax-in/openapi?tab=readme-ov-file')
-              }}
-            >
-              Powered by V-ARCHIVE Open API
-            </button>
-            <span> · </span>
-            {selectedGame && renderGameSpecificContent(selectedGame)}
-            <span> · </span>
-          </>
-        )}
+        <>
+          {selectedGame === 'djmax_respect_v' && (
+            <>
+              <button
+                className="tw-text-xs"
+                type="button"
+                onClick={() => {
+                  window.ipc.send('openBrowser', 'https://github.com/djmax-in/openapi?tab=readme-ov-file')
+                }}
+              >
+                Powered by V-ARCHIVE
+                <span> · </span>
+              </button>
+            </>
+          )}
+
+          {selectedGame && renderGameSpecificContent(selectedGame)}
+          <span> · </span>
+        </>
         <Link href="/license" className="tw-text-xs">
           라이선스
         </Link>

@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
+import { set } from 'ramda'
 
 interface AppState {
   selectedGame: string
@@ -10,19 +11,27 @@ interface AppState {
     userToken: string
     randomTitle: string
   }
-  uploadedData: any
+  vArchiveUserData: {
+    userName: string
+    userNo: string
+    userToken: string
+  }
   songData: any[]
+  wjmaxSongData: any[]
   isSetting: boolean
   isUploadedDataProcessed: boolean
   isHomePanelOpen: boolean
-  uploadedPageData: any | null
-  pattern: string
   backupData: any | null
   isUploading: boolean
+  isMiniMode: boolean
+  vArchiveUploadedPageData: any | null
+  projectRaUploadedPageData: any | null
+  vArchivePattern: string
+  projectRaPattern: string
 }
 
 const initialState: AppState = {
-  selectedGame: 'DJMAX_RESPECT_V',
+  selectedGame: 'djmax_respect_v',
   isDetectedGame: false,
   settingData: null,
   userData: {
@@ -31,15 +40,23 @@ const initialState: AppState = {
     userToken: '',
     randomTitle: Math.floor(Math.random() * 652 + 1).toString(),
   },
-  uploadedData: null,
+  vArchiveUserData: {
+    userName: '',
+    userNo: '',
+    userToken: '',
+  },
   songData: [],
+  wjmaxSongData: [],
   isSetting: false,
   isUploadedDataProcessed: false,
   isHomePanelOpen: true,
-  uploadedPageData: null,
-  pattern: '',
   backupData: null,
   isUploading: false,
+  isMiniMode: true,
+  vArchiveUploadedPageData: null,
+  projectRaUploadedPageData: null,
+  vArchivePattern: '',
+  projectRaPattern: '',
 }
 
 export const appSlice = createSlice({
@@ -58,10 +75,6 @@ export const appSlice = createSlice({
     setUserData: (state, action: PayloadAction<{ userName?: string; userNo?: string; userToken?: string }>) => {
       state.userData = { ...state.userData, ...action.payload }
     },
-    setUploadedData: (state, action: PayloadAction<any>) => {
-      state.uploadedData = action.payload
-      state.isUploadedDataProcessed = false
-    },
     setSongData: (state, action: PayloadAction<any[]>) => {
       state.songData = action.payload
     },
@@ -74,17 +87,32 @@ export const appSlice = createSlice({
     setHomePanelOpen: (state, action: PayloadAction<boolean>) => {
       state.isHomePanelOpen = action.payload
     },
-    setUploadedPageData: (state, action: PayloadAction<any>) => {
-      state.uploadedPageData = action.payload
-    },
-    setPattern: (state, action: PayloadAction<string>) => {
-      state.pattern = action.payload
-    },
     setBackupData: (state, action: PayloadAction<any>) => {
       state.backupData = action.payload
     },
     setIsUploading: (state, action: PayloadAction<boolean>) => {
       state.isUploading = action.payload
+    },
+    setIsMiniMode: (state, action: PayloadAction<boolean>) => {
+      state.isMiniMode = action.payload
+    },
+    setVArchiveUserData: (state, action: PayloadAction<{ userName?: string; userNo?: string; userToken?: string }>) => {
+      state.vArchiveUserData = { ...state.vArchiveUserData, ...action.payload }
+    },
+    setWjmaxSongData: (state, action: PayloadAction<any[]>) => {
+      state.wjmaxSongData = action.payload
+    },
+    setVArchiveUploadedPageData: (state, action: PayloadAction<any>) => {
+      state.vArchiveUploadedPageData = action.payload
+    },
+    setProjectRaUploadedPageData: (state, action: PayloadAction<any>) => {
+      state.projectRaUploadedPageData = action.payload
+    },
+    setVArchivePattern: (state, action: PayloadAction<string>) => {
+      state.vArchivePattern = action.payload
+    },
+    setProjectRaPattern: (state, action: PayloadAction<string>) => {
+      state.projectRaPattern = action.payload
     },
   },
 })
@@ -94,14 +122,18 @@ export const {
   setIsDetectedGame,
   setSettingData,
   setUserData,
-  setUploadedData,
   setSongData,
   setIsSetting,
   setUploadedDataProcessed,
   setHomePanelOpen,
-  setUploadedPageData,
-  setPattern,
   setBackupData,
   setIsUploading,
+  setIsMiniMode,
+  setVArchiveUserData,
+  setWjmaxSongData,
+  setVArchiveUploadedPageData,
+  setProjectRaUploadedPageData,
+  setVArchivePattern,
+  setProjectRaPattern,
 } = appSlice.actions
 export default appSlice.reducer

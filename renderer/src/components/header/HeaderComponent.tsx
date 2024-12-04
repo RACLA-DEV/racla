@@ -8,12 +8,14 @@ import { renderGameButtons } from './renderGameButtons'
 import { renderUserDropdown } from './renderUserDropdown'
 import { renderUtilityButtons } from './renderUtilityButtons'
 import { OverlayTrigger, Tooltip } from 'react-bootstrap'
-import { FaArrowDown, FaArrowDownUpAcrossLine, FaArrowLeft, FaArrowUp, FaConnectdevelop, FaRotate } from 'react-icons/fa6'
+import { FaArrowDown, FaArrowDownUpAcrossLine, FaArrowLeft, FaArrowUp, FaConnectdevelop, FaGamepad, FaPlay, FaRotate } from 'react-icons/fa6'
 import { useSelector, useDispatch } from 'react-redux'
-import { setSelectedGame, setUploadedData, setUserData } from 'store/slices/appSlice'
+import { setSelectedGame, setUserData } from 'store/slices/appSlice'
 import type { RootState } from 'store'
 import { useNotificationSystem } from '@/libs/client/useNotifications'
 import { globalDictionary } from '@/libs/server/globalDictionary'
+import HomePanelButton from '../layout/HomePanelButton'
+import { setBackgroundBgaName } from 'store/slices/uiSlice'
 
 interface IHeaderComponentProps {
   className?: string
@@ -25,10 +27,10 @@ const HeaderComponent: React.FC<IHeaderComponentProps> = ({ refreshKeyHandle, cl
   const { showNotification } = useNotificationSystem()
   const router = useRouter()
   const dispatch = useDispatch()
-  const { selectedGame, settingData, userData } = useSelector((state: RootState) => state.app)
+  const { selectedGame, settingData, userData, isDetectedGame } = useSelector((state: RootState) => state.app)
   const [isMaximized, setIsMaximized] = useState(false)
   const [ipcRenderer, setIpcRenderer] = useState(null)
-
+  const vArchiveUserData = useSelector((state: RootState) => state.app.vArchiveUserData)
   useEffect(() => {
     setIpcRenderer(window.ipc)
 
@@ -44,12 +46,9 @@ const HeaderComponent: React.FC<IHeaderComponentProps> = ({ refreshKeyHandle, cl
   }, [])
 
   const handleGameSelection = (game: string) => {
-    if (selectedGame !== game) {
-      dispatch(setSelectedGame(game))
-      if (!router.pathname.startsWith('/vArchive') || router.pathname !== '/') {
-        router.push('/projectRa/home')
-      }
-    }
+    router.push(`/`)
+    dispatch(setSelectedGame(game))
+    dispatch(setBackgroundBgaName(''))
   }
 
   const handleBack = () => {
@@ -60,8 +59,12 @@ const HeaderComponent: React.FC<IHeaderComponentProps> = ({ refreshKeyHandle, cl
     refreshKeyHandle((prev) => prev + 1)
   }, [])
 
+  useEffect(() => {
+    console.log(selectedGame)
+  }, [selectedGame])
+
   return (
-    <div className="tw-flex tw-fixed tw-w-full tw-bg-gray-900 tw-items-center tw-top-0 tw-h-12 tw-items-center tw-left-0 tw-bg-opacity-50 tw-px-2 tw-border-b tw-border-opacity-50 tw-border-gray-600">
+    <div className="tw-flex tw-fixed tw-w-full tw-bg-gray-900 tw-items-center tw-top-0 tw-h-12 tw-left-0 tw-bg-opacity-50 tw-px-2 tw-border-b tw-border-opacity-50 tw-border-gray-600 tw-z-[1000]">
       {/* 홈 로고 */}
       {settingData.homeButtonAlignRight ? null : (
         <OverlayTrigger
@@ -72,7 +75,13 @@ const HeaderComponent: React.FC<IHeaderComponentProps> = ({ refreshKeyHandle, cl
             </Tooltip>
           }
         >
-          <Link href="/projectRa/home" className="tw-px-2 tw-py-2 btn-ipc tw-mr-2">
+          <Link
+            onClick={() => {
+              dispatch(setSelectedGame('djmax_respect_v'))
+            }}
+            href="/"
+            className="tw-px-2 tw-py-2 btn-ipc tw-mr-2"
+          >
             <Image src="/images/logo.svg" height={24} width={24} alt="Logo" />
           </Link>
         </OverlayTrigger>
@@ -155,16 +164,16 @@ const HeaderComponent: React.FC<IHeaderComponentProps> = ({ refreshKeyHandle, cl
         }}
       >
         {/* 게임 선택 버튼 */}
-        {renderGameButtons('DJMAX_RESPECT_V', '/images/djmax_respect_v/logo.png', 'DJMAX RESPECT V', selectedGame, handleGameSelection)}
-        {/* {renderGameButtons('WJMAX', '/images/wjmax/logo.png', 'WJMAX', selectedGame, handleGameSelection)}
-        {renderGameButtons('TJMAX', '/images/tjmax/logo.png', 'TJMAX', selectedGame, handleGameSelection)} */}
+        {renderGameButtons('djmax_respect_v', '/images/djmax_respect_v/logo.png', 'DJMAX RESPECT V', selectedGame, handleGameSelection)}
+        {renderGameButtons('wjmax', '/images/wjmax/logo.png', 'WJMAX', selectedGame, handleGameSelection)}
+        {/* {renderGameButtons('TJMAX', '/images/tjmax/logo.png', 'TJMAX', selectedGame, handleGameSelection)} */}
 
         {/* 버튼 */}
         <OverlayTrigger
           placement="bottom"
           overlay={
             <Tooltip id="btn-select-game-respect-v" className={className + ' tw-text-xs'}>
-              Life is too short, You need Project RA
+              Life is too short, You need PROJECT RA
             </Tooltip>
           }
         >
@@ -174,6 +183,40 @@ const HeaderComponent: React.FC<IHeaderComponentProps> = ({ refreshKeyHandle, cl
           </button>
         </OverlayTrigger>
       </div>
+      <HomePanelButton />
+      <OverlayTrigger
+        placement="bottom"
+        overlay={
+          <Tooltip id="btn-select-game-respect-v" className={className + ' tw-text-xs'}>
+            {selectedGame === 'djmax_respect_v' ? 'DJMAX RESPECT V(Steam) 게임을 실행합니다.' : 'WJMAX 게임을 실행합니다.'}
+          </Tooltip>
+        }
+      >
+        {!isDetectedGame ? (
+          <button
+            onClick={() => {
+              if (selectedGame === 'djmax_respect_v') {
+                window.ipc.send('startGameDjmaxRespectV')
+              } else if (selectedGame === 'wjmax') {
+                window.ipc.send('startGameWjmax')
+              }
+            }}
+            className={
+              'tw-px-3 tw-text-white tw-bg-blue-600 tw-bg-opacity-90 hover:tw-bg-opacity-100 hover:tw-bg-blue-800 tw-transition-colors tw-duration-300 tw-text-xs tw-mr-2 tw-flex tw-items-center tw-gap-1 tw-rounded-sm tw-border-0 tw-h-8'
+            }
+          >
+            <FaPlay /> 게임 시작
+          </button>
+        ) : (
+          <button
+            disabled
+            className={'btn btn-secondary btn-select-game active tw-text-xs tw-mr-2 tw-flex tw-items-center tw-gap-1 tw-rounded-sm tw-border-0 tw-h-8'}
+          >
+            <FaGamepad /> 게임 실행 중
+          </button>
+        )}
+      </OverlayTrigger>
+
       <button
         className={
           'btn btn-secondary btn-select-game active tw-text-xs tw-mr-2 tw-flex tw-items-center tw-gap-1 tw-rounded-sm tw-border-0 tw-h-8 dropdown-toggle'
@@ -195,12 +238,13 @@ const HeaderComponent: React.FC<IHeaderComponentProps> = ({ refreshKeyHandle, cl
               alt="Profile Image"
             />
             {userData.userName}
+            {vArchiveUserData.userName !== '' ? `(${vArchiveUserData.userName})` : ''}
           </>
         ) : (
           '로그인해주세요'
         )}
       </button>
-      {renderUserDropdown(userData, ipcRenderer, router, callback, refreshKeyHandle)}
+      {renderUserDropdown(userData, vArchiveUserData, ipcRenderer, router, callback, refreshKeyHandle)}
 
       {/* 우측 유틸리티 버튼 */}
       {renderUtilityButtons(ipcRenderer, isMaximized, setIsMaximized)}

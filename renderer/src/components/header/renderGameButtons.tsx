@@ -9,7 +9,7 @@ export const renderGameButtons = (game, logoPath, gameName, selectedGame, handle
       placement="bottom"
       overlay={
         <Tooltip id={`btn-select-game-${game}`} className="tw-text-xs">
-          {game === 'DJMAX_RESPECT_V' ? 'V-ARCHIVE에 저장된 성과 기록을 바탕으로 제공되는 서비스' : '프로젝트 RA 제공 서비스'}
+          {game === 'djmax_respect_v' ? 'V-ARCHIVE에 저장된 성과 기록을 바탕으로 제공되는 서비스' : '프로젝트 RA 제공 서비스'}
         </Tooltip>
       }
     >

@@ -2,101 +2,166 @@
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import React, { useEffect, useState } from 'react'
-import { FaBug, FaGear, FaNoteSticky } from 'react-icons/fa6'
+import { FaBug, FaGear, FaNoteSticky, FaChevronLeft, FaChevronRight } from 'react-icons/fa6'
 import { globalDictionary } from '@/libs/server/globalDictionary'
 import { IconContext } from 'react-icons'
 import { renderNavigation } from './renderNavigation'
-import { renderUpdateSection } from './renderUpdateSection'
+import RenderUpdateSection from './renderUpdateSection'
 import { useSelector } from 'react-redux'
 import type { RootState } from 'store'
 import { useDispatch } from 'react-redux'
-import { setIsSetting } from 'store/slices/appSlice'
+import { setIsSetting, setIsMiniMode, setSettingData } from 'store/slices/appSlice'
 import { useNotificationSystem } from '@/libs/client/useNotifications'
+import { OverlayTrigger, Tooltip } from 'react-bootstrap'
 
 const SidebarComponent: React.FC = () => {
   const { showNotification } = useNotificationSystem()
   const router = useRouter()
-  const [updateVersion, setUpdateVersion] = useState<string | null>(null)
-  const [downloadProgress, setDownloadProgress] = useState<{ percent: string } | null>(null)
-  const [isDownloaded, setIsDownloaded] = useState(false)
-  const { selectedGame } = useSelector((state: RootState) => state.app)
+  const { selectedGame, isMiniMode, settingData } = useSelector((state: RootState) => state.app)
   const dispatch = useDispatch()
 
-  useEffect(() => {
-    const handleUpdateAvailable = (info: string) => {
-      console.log('update-available', info)
-      setUpdateVersion(info)
-    }
+  const handleSettingChange = (newSettings: any) => {
+    window.ipc.send('changeSettingData', newSettings)
+    dispatch(setSettingData({ ...settingData, ...newSettings }))
+  }
 
-    const handleDownloadProgress = (info: { percent: string }) => {
-      console.log('download-progress', info)
-      setDownloadProgress(info)
-    }
+  // useEffect(() => {
+  //   const handleUpdateAvailable = (info: string) => {
+  //     console.log('update-available', info)
+  //     setUpdateVersion(info)
+  //   }
 
-    const handleUpdateDownloaded = () => {
-      console.log('update-downloaded')
-      setIsDownloaded(true)
-    }
+  //   const handleDownloadProgress = (info: { percent: string }) => {
+  //     console.log('download-progress', info)
+  //     setDownloadProgress(info)
+  //   }
 
-    window.ipc.on('update-available', handleUpdateAvailable)
-    window.ipc.on('download-progress', handleDownloadProgress)
-    window.ipc.on('update-downloaded', handleUpdateDownloaded)
+  //   const handleUpdateDownloaded = () => {
+  //     console.log('update-downloaded')
+  //     setIsDownloaded(true)
+  //   }
 
-    return () => {
-      window.ipc.removeListener('update-available', handleUpdateAvailable)
-      window.ipc.removeListener('download-progress', handleDownloadProgress)
-      window.ipc.removeListener('update-downloaded', handleUpdateDownloaded)
-    }
-  }, [])
+  //   window.ipc.on('update-available', handleUpdateAvailable)
+  //   window.ipc.on('download-progress', handleDownloadProgress)
+  //   window.ipc.on('update-downloaded', handleUpdateDownloaded)
 
-  useEffect(() => {
-    if (updateVersion) {
-      console.log('updateVersion', updateVersion)
-      showNotification(`프로젝트 RA의 업데이트(${updateVersion})가 존재합니다. 자동 업데이트를 준비합니다.`, 'tw-bg-blue-600')
-    }
-  }, [updateVersion, showNotification])
+  //   return () => {
+  //     window.ipc.removeListener('update-available', handleUpdateAvailable)
+  //     window.ipc.removeListener('download-progress', handleDownloadProgress)
+  //     window.ipc.removeListener('update-downloaded', handleUpdateDownloaded)
+  //   }
+  // }, [])
+
+  // useEffect(() => {
+  //   if (updateVersion) {
+  //     console.log('updateVersion', updateVersion)
+  //     showNotification(`프로젝트 RA의 업데이트(${updateVersion})가 존재합니다. 자동 업데이트를 준비합니다.`, 'tw-bg-blue-600')
+  //   }
+  // }, [updateVersion, showNotification])
 
   return (
     <>
       <div
-        className={`tw-flex tw-fixed tw-px-4 tw-py-5 tw-flex-col tw-bg-gray-600 tw-bg-opacity-10 tw-w-52 tw-left-0 tw-top-12 tw-z-50 tw-transition-all ${
-          updateVersion ? 'tw-bottom-28' : 'tw-bottom-8'
-        }`}
+        className={`tw-flex tw-fixed tw-animate-fadeInLeft tw-transition-all tw-flex-col tw-bg-gray-600 tw-bg-opacity-10 ${
+          isMiniMode ? 'tw-w-auto tw-px-2 tw-py-2' : 'tw-w-52 tw-p-4'
+        } tw-left-0 tw-top-12 tw-h-[calc(100vh-5.125rem)] tw-z-50 tw-ease-in-out`}
       >
+        <button
+          onClick={() => {
+            handleSettingChange({ isMiniMode: !isMiniMode })
+          }}
+          className="tw-absolute tw-right-[-10px] tw-top-0 tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-sm tw-p-1 tw-cursor-pointer hover:tw-bg-gray-600 tw-transition-colors"
+        >
+          {isMiniMode ? <FaChevronRight size={10} /> : <FaChevronLeft size={10} />}
+        </button>
+        {renderNavigation('projectRa', router)}
         {renderNavigation(selectedGame, router)}
 
         {/* 기타 */}
-        <div className="tw-flex tw-flex-col tw-gap-1 tw-mt-auto">
-          <span className="tw-text-xs tw-text-gray-400 tw-font-bold tw-flex tw-items-center tw-gap-2 btn-sidebar">
-            <FaBug />
-            <button
-              type="button"
-              className="tw-flex tw-gap-1 tw-w-full tw-items-center"
+        <div className="tw-flex tw-flex-col tw-gap-0.5 tw-mt-auto">
+          <OverlayTrigger
+            placement="right"
+            overlay={
+              <Tooltip id={`tooltip-bug-report`} className="tw-text-xs">
+                버그 신고
+              </Tooltip>
+            }
+          >
+            <span
               onClick={() => window.ipc.send('openBrowser', 'https://open.kakao.com/me/LunaticaLuna')}
+              className={`tw-text-sm tw-text-gray-400 tw-font-bold tw-flex tw-items-center tw-gap-2 tw-cursor-pointer group relative hover:tw-bg-gray-700 hover:tw-bg-opacity-30 tw-rounded   ${
+                !isMiniMode ? 'tw-p-1.5' : 'tw-my-1'
+              }`}
             >
-              버그 신고{' '}
-              {/* <span className="tw-ms-auto tw-text-xs tw-font-light tw-bg-gray-600 tw-rounded-full tw-px-2" style={{ padding: '2px 8px' }}>
-                공사중
-              </span> */}
-            </button>
-          </span>
-          <span className="tw-text-xs tw-font-bold tw-text-gray-400 tw-flex tw-items-center tw-gap-2 btn-sidebar">
-            <FaNoteSticky />
-            <span className="tw-flex tw-gap-1 tw-w-full  tw-items-center">
-              개발자 노트{' '}
-              <span className="tw-ms-auto tw-text-xs tw-font-light tw-bg-gray-600 tw-rounded-full tw-px-2" style={{ padding: '2px 8px' }}>
-                공사중
-              </span>
+              <div className={`${isMiniMode ? 'tw-bg-gray-700 tw-bg-opacity-30 tw-p-2 tw-rounded-md' : ''}`}>
+                <FaBug size={isMiniMode ? 16 : 12} />
+              </div>
+              {!isMiniMode ? (
+                <button type="button" className="tw-flex tw-gap-1 tw-w-full tw-items-center tw-text-xs">
+                  버그 신고
+                </button>
+              ) : (
+                <div className="tw-invisible group-hover:tw-visible tw-absolute tw-left-12 tw-bg-gray-800 tw-text-white tw-px-2 tw-py-1 tw-rounded tw-whitespace-nowrap tw-text-xs tw-z-50">
+                  버그 신고
+                </div>
+              )}
             </span>
-          </span>
-          <span className=" tw-text-xs tw-text-gray-400 tw-font-bold tw-flex tw-items-center tw-gap-2 btn-sidebar" onClick={() => dispatch(setIsSetting(true))}>
-            <FaGear />
-            <span>설정</span>
-          </span>
+          </OverlayTrigger>
+          <OverlayTrigger
+            placement="right"
+            overlay={
+              <Tooltip id={`tooltip-developer-note`} className="tw-text-xs">
+                개발자 노트
+              </Tooltip>
+            }
+          >
+            <span
+              className={`tw-text-sm tw-text-gray-400 tw-font-bold tw-flex tw-items-center tw-gap-2 tw-cursor-pointer group relative hover:tw-bg-gray-700 hover:tw-bg-opacity-30 tw-rounded   ${
+                !isMiniMode ? 'tw-p-1.5' : 'tw-my-1'
+              }`}
+            >
+              <div className={`${isMiniMode ? 'tw-bg-gray-700 tw-bg-opacity-30 tw-p-2 tw-rounded-md' : ''}`}>
+                <FaNoteSticky size={isMiniMode ? 16 : 12} />
+              </div>
+              {!isMiniMode ? (
+                <span className="tw-flex tw-gap-1 tw-w-full tw-items-center tw-text-xs">
+                  개발자 노트 <span className="tw-ms-auto tw-text-[10px] tw-font-light tw-bg-gray-600 tw-rounded-full tw-px-2">공사중</span>
+                </span>
+              ) : (
+                <div className="tw-invisible group-hover:tw-visible tw-absolute tw-left-12 tw-bg-gray-800 tw-text-white tw-px-2 tw-py-1 tw-rounded tw-whitespace-nowrap tw-text-xs tw-z-50">
+                  개발자 노트
+                </div>
+              )}
+            </span>
+          </OverlayTrigger>
+          <OverlayTrigger
+            placement="right"
+            overlay={
+              <Tooltip id={`tooltip-setting`} className="tw-text-xs">
+                설정
+              </Tooltip>
+            }
+          >
+            <span
+              className={`tw-text-sm tw-text-gray-400 tw-font-bold tw-flex tw-items-center tw-gap-2 tw-cursor-pointer group relative hover:tw-bg-gray-700 hover:tw-bg-opacity-30 tw-rounded   ${
+                !isMiniMode ? 'tw-p-1.5' : 'tw-my-1'
+              }`}
+              onClick={() => dispatch(setIsSetting(true))}
+            >
+              <div className={`${isMiniMode ? 'tw-bg-gray-700 tw-bg-opacity-30 tw-p-2 tw-rounded-md' : ''}`}>
+                <FaGear size={isMiniMode ? 16 : 12} />
+              </div>
+              {!isMiniMode ? (
+                <span className="tw-text-xs">설정</span>
+              ) : (
+                <div className="tw-invisible group-hover:tw-visible tw-absolute tw-left-12 tw-bg-gray-800 tw-text-white tw-px-2 tw-py-1 tw-rounded tw-whitespace-nowrap tw-text-xs tw-z-50">
+                  설정
+                </div>
+              )}
+            </span>
+          </OverlayTrigger>
         </div>
       </div>
-
-      {renderUpdateSection(updateVersion, downloadProgress, isDownloaded)}
     </>
   )
 }

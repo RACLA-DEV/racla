@@ -57,7 +57,7 @@ export default function ScoreEditComponent({ show, onHide, patternMaxCombo, setP
                   />
                 </button>
               </div>
-              <span className="tw-text-xs tw-font-light tw-text-gray-400 tw-text-center">패턴 MAX COMBO 달성 여부를 설정합니다</span>
+              <span className="tw-text-sm tw-font-light tw-text-gray-400 tw-text-center">패턴 MAX COMBO 달성 여부를 설정합니다</span>
             </div>
 
             <div className="tw-flex tw-flex-col tw-gap-1">
@@ -70,7 +70,7 @@ export default function ScoreEditComponent({ show, onHide, patternMaxCombo, setP
                 value={updateScore !== undefined && updateScore !== null ? Number(updateScore) : 0}
                 onChange={(e) => setUpdateScore(Number(e.currentTarget.value))}
               />
-              <span className="tw-text-xs tw-font-light tw-text-gray-400 tw-text-center">점수를 입력해주세요 (0-100)</span>
+              <span className="tw-text-sm tw-font-light tw-text-gray-400 tw-text-center">점수를 입력해주세요 (0-100)</span>
             </div>
 
             <div className="tw-flex tw-justify-end tw-gap-2">
