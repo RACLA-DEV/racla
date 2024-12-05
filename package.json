@@ -19,6 +19,7 @@
     "@popperjs/core": "^2.11.8",
     "@react-icons/all-files": "^4.1.0",
     "@reduxjs/toolkit": "^2.3.0",
+    "antd": "^5.22.3",
     "axios": "^1.7.3",
     "blockhash": "^0.2.0",
     "bootstrap": "^5.3.3",

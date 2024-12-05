@@ -290,7 +290,7 @@ export default function VArchiveLoginPage() {
                     <div className="tw-space-y-4">
                       <div className="tw-bg-gray-700 tw-bg-opacity-30 tw-p-4 tw-rounded">
                         <p className="tw-break-keep">
-                          계정 생성 시 자동으로 생성된 로그인 데이터가 담긴 player.txt 파일이 현재 사용하고 있는 운영체제의 사용자 계정 - 내 문서 폴더에 위치한
+                          계정 생성 시 자동으로 생성된 로그인 데이터가 담긴 player.txt 파일이 현재 사용하고 있는 운영체제의 사용자 계정의 내 문서 폴더에 위치한
                           PROJECT-RA에 저장됩니다.
                         </p>
                         <br />

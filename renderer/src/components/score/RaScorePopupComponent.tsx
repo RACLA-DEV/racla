@@ -168,6 +168,13 @@ const RaScorePopupComponent = ({
 
   const displayData = isScored ? songItem : songData || songItem
 
+  const patternToName = {
+    NM: '메시',
+    HD: '엔젤',
+    MX: '왁굳',
+    SC: '민수',
+  }
+
   return (
     <OverlayTrigger
       key={'songDataPack_item' + (displayData?.title ?? songItemTitle)}
@@ -489,10 +496,8 @@ const RaScorePopupComponent = ({
             </span>
           ) : null}
           {displayData?.pattern && (
-            <span className={`tw-absolute tw-right-0 tw-bottom-0 pattern tw-rounded-br-md ${displayData.pattern}`}>
-              <span className={`tw-text-white`}>
-                {String(displayData.pattern)} {String(displayData.level).replace('.5', '')}
-              </span>
+            <span className={`tw-absolute tw-right-0 tw-bottom-0 pattern wjmax tw-rounded-br-md ${displayData.pattern}`}>
+              <span className={`tw-text-white`}>{patternToName[String(displayData.pattern)]}</span>
             </span>
           )}
         </Link>
@@ -500,7 +505,7 @@ const RaScorePopupComponent = ({
           <span className={'mt-2 tw-w-full tw-bg-gray-950 tw-text-center tw-rounded-md tw-text-xs tw-font-bold'}>
             {getSCPatternScoreDisplayText(displayData.patterns, keyMode)}
           </span>
-        ) : null}
+        ) : null}{' '}
       </div>
     </OverlayTrigger>
   )

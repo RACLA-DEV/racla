@@ -8,6 +8,7 @@ import { globalDictionary } from '@/libs/server/globalDictionary'
 import { IconContext } from 'react-icons'
 import moment from 'moment'
 import { randomUUID } from 'crypto'
+import { v4 as uuidv4 } from 'uuid'
 
 import 'moment/locale/ko'
 import axios from 'axios'
@@ -181,7 +182,7 @@ export default function VArchiveRegScorePage() {
             true,
           )
         } else if (projectRaData.isVerified) {
-          showNotification('성과 기록을 프로젝트 RA에 정상적으로 갱신하였습니다.', 'tw-bg-lime-600', 'score-update')
+          showNotification('성과 기록을 프로젝트 RA에 정상적으로 갱신하였습니다.', 'tw-bg-lime-600', 'score-update' + uuidv4(), true)
           if (projectRaData.filePath) {
             showNotification(`${projectRaData.filePath} 경로에 성과 기록 이미지가 저장되었습니다.`, 'tw-bg-lime-600', 'file-save', true)
           }
@@ -263,7 +264,7 @@ export default function VArchiveRegScorePage() {
                 <FaCloudArrowUp />
               </IconContext.Provider>
               <div className="tw-text-xl tw-font-bold tw-text-white tw-animate-pulse">리절트(결과) 화면의 이미지를 업로드해주세요.</div>
-              <div className="tw-text-base tw-text-white tw-animate-pulse">WJMAX는 프리스타일 곡 선택, 프리스타일 결과 창을 지원합니다.</div>
+              <div className="tw-text-base tw-text-white tw-animate-pulse">WJMAX는 프리스타일 결과 창을 지원합니다.</div>
             </div>
             // ... existing code ...
           )}
@@ -483,7 +484,7 @@ export default function VArchiveRegScorePage() {
                     <FaCloudArrowUp />
                   </IconContext.Provider>
                   <div className="tw-text-xl tw-font-bold tw-text-white tw-animate-pulse">리절트(결과) 화면의 이미지를 업로드해주세요.</div>
-                  <div className="tw-text-base tw-text-white tw-animate-pulse">WJMAX는 프리스타일 곡 선택, 프리스타일 결과 창을 지원합니다.</div>
+                  <div className="tw-text-base tw-text-white tw-animate-pulse">WJMAX는 프리스타일 결과 창을 지원합니다.</div>
                 </div>
               )
             )}

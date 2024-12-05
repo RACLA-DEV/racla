@@ -266,16 +266,32 @@ const gameList = { djmax_respect_v: 'DJMAX RESPECT V', wjmax: 'WJMAX' }
   // 초기 체크 시작
   checkGameOverlayLoop()
 
-  ipcMain.on('closeApp', () => {
-    // 오버레이 윈도우 먼저 제거
-    if (overlayWindow) {
-      overlayWindow.destroy()
-      overlayWindow = null
+  ipcMain.on('closeApp', async () => {
+    try {
+      // 모든 IPC 리스너 제거
+      ipcMain.removeAllListeners()
+
+      // 오버레이 윈도우 정리
+      if (overlayWindow) {
+        overlayWindow.removeAllListeners()
+        overlayWindow.destroy()
+        overlayWindow = null
+      }
+
+      // 메인 윈도우 정리
+      if (mainWindow) {
+        mainWindow.removeAllListeners()
+        mainWindow.destroy()
+      }
+
+      // 잠시 대기 후 앱 종료
+      setTimeout(() => {
+        app.quit()
+      }, 100)
+    } catch (error) {
+      console.error('Error during app closure:', error)
+      app.exit(1) // 강제 종료
     }
-    // 메인 윈도우 종료
-    mainWindow.close()
-    // 앱 종료 강제 실행
-    app.quit()
   })
 
   // 창 최대화 버튼 감지
@@ -424,13 +440,24 @@ const gameList = { djmax_respect_v: 'DJMAX RESPECT V', wjmax: 'WJMAX' }
       startCapturing()
       isLoaded = true
       if (settingData.autoStartGame) {
-        const isRunning = await isDjmaxRunning('djmax_respect_v')
-        if (settingData.autoStartGameDjmaxRespectV && !isRunning) {
-          shell.openExternal('steam://run/960170')
-          mainWindow.webContents.send('pushNotification', {
-            message: '자동 시작 옵션이 활성화되어 DJMAX RESPECT V(게임)을 실행 중에 있습니다. 잠시만 기다려주세요.',
-            color: 'tw-bg-blue-600',
-          })
+        if (settingData.autoStartGameDjmaxRespectV) {
+          const isRunning = await isDjmaxRunning('djmax_respect_v')
+          if (!isRunning) {
+            shell.openExternal('steam://run/960170')
+            mainWindow.webContents.send('pushNotification', {
+              message: '자동 시작 옵션이 활성화되어 DJMAX RESPECT V(게임)을 실행 중에 있습니다. 잠시만 기다려주세요.',
+              color: 'tw-bg-blue-600',
+            })
+          }
+        } else if (settingData.autoStartGameWjmax) {
+          const isRunning = await isDjmaxRunning('wjmax')
+          if (!isRunning) {
+            shell.openExternal(settingData.autoStartGameWjmaxPath)
+            mainWindow.webContents.send('pushNotification', {
+              message: `자동 시작 옵션이 활성화되어 WJMAX(게임)을 실행 중에 있습니다. 잠시만 기다려주세요.`,
+              color: 'tw-bg-blue-600',
+            })
+          }
         }
       }
     }
@@ -450,7 +477,7 @@ const gameList = { djmax_respect_v: 'DJMAX RESPECT V', wjmax: 'WJMAX' }
   ipcMain.on('startGameWjmax', async () => {
     const isRunning = await isDjmaxRunning('wjmax')
     if (!isRunning) {
-      shell.openExternal('D:\\Games\\WJMAX_Release\\WJMAX.exe')
+      shell.openExternal(settingData.autoStartGameWjmaxPath)
       mainWindow.webContents.send('pushNotification', {
         message: `WJMAX(게임)을 실행 중에 있습니다. 잠시만 기다려주세요.`,
         color: 'tw-bg-blue-600',
@@ -810,7 +837,7 @@ const gameList = { djmax_respect_v: 'DJMAX RESPECT V', wjmax: 'WJMAX' }
   ipcMain.on('create-player-file', async (event, data) => {
     const { userNo, userToken } = data
 
-    const filePath = path.join(app.getPath('userData'), 'User', 'player.txt')
+    const filePath = path.join(app.getPath('documents'), 'PROJECT-RA', 'player.txt')
 
     fs.writeFile(filePath, `${userNo}|${userToken}`, (err) => {
       if (err) {
@@ -926,7 +953,7 @@ const gameList = { djmax_respect_v: 'DJMAX RESPECT V', wjmax: 'WJMAX' }
       console.log('isRunning:', isRunning, 'isRunningWjmax:', isRunningWjmax)
       if ((isRunning || isRunningWjmax) && isLogined) {
         const gameSource = await captureScreen(isRunning ? 'djmax_respect_v' : 'wjmax')
-        const data = await processResultScreen(gameSource, true) // gameSource를 버퍼로 전달
+        const data = await processResultScreen(gameSource, true, false, isRunning ? 'djmax_respect_v' : 'wjmax') // gameSource를 버퍼로 전달
         if (
           data !== null &&
           data !== undefined &&

@@ -8,6 +8,7 @@ import { useNotificationSystem } from '@/libs/client/useNotifications'
 import { globalDictionary } from '@/libs/server/globalDictionary'
 import { IUserNameRequest, IUserNameResponse } from '@/types/IUserName'
 import axios, { AxiosResponse } from 'axios'
+import { fileURLToPath } from 'url'
 
 const SettingComponent = () => {
   const dispatch = useDispatch()
@@ -40,6 +41,127 @@ const SettingComponent = () => {
   const handleBackdropClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
       dispatch(setIsSetting(false))
+    }
+  }
+
+  const [errorMessage, setErrorMessage] = useState<string>('')
+
+  const getUserName = async <T = IUserNameResponse, R = IUserNameRequest>(body: R): Promise<T> => {
+    const { data } = await axios.post<T, AxiosResponse<T>, R>(`${process.env.NEXT_PUBLIC_PROXY_API_URL}?url=https://v-archive.net/client/login`, body, {
+      withCredentials: false,
+    })
+    return data
+  }
+
+  const handleError = (error: string) => {
+    showNotification(error, 'tw-bg-red-600')
+    setErrorMessage(error)
+  }
+
+  const wjmaxFileInputRef = useRef<HTMLInputElement>(null)
+
+  const handleWjmaxFileSelect = () => {
+    wjmaxFileInputRef.current?.click()
+  }
+
+  const onWjmaxFileChange = async (e) => {
+    try {
+      const file = e.target.files[0]
+      console.log(file)
+      const filePath = file.path
+      if (filePath.includes('WJMAX.exe')) {
+        handleSettingChange({ autoStartGameWjmaxPath: filePath })
+        setErrorMessage('')
+      } else {
+        setErrorMessage('WJMAX.exe 파일만 지정할 수 있습니다. 확인 후 다시 지정해주세요.')
+      }
+    } finally {
+      wjmaxFileInputRef.current.value = ''
+    }
+  }
+
+  const vArchiveFileInputRef = useRef<HTMLInputElement>(null)
+
+  const handleVArchiveFileSelect = () => {
+    vArchiveFileInputRef.current?.click()
+  }
+
+  const onVArchiveFileChange = async (e) => {
+    const file = e.target.files[0]
+    const fileReader = new FileReader()
+    fileReader.onload = () => {
+      const text = fileReader.result.toString().trim()
+      try {
+        if (
+          // account.txt 유효성 검증
+          // 구분자(공백)이 존재하는지
+          text.includes(' ') &&
+          // 구분자(공백)으로 나눈 후 배열의 길이가 2 인지(userNo, token)
+          text.split(' ').length === 2 &&
+          // userNo로 추정되는 부분 인덱스(0)이 숫자로만 구성되어 있는지
+          !Number.isNaN(Number(text.split(' ')[0])) &&
+          // token(uuidv4)으로 추정되는 부분 인덱스(1)에 - 문자가 포함되는지
+          text.split(' ')[1].includes('-') &&
+          // uuid 구조상 첫 번째(time-low) 필드의 문자열 길이가 8인지
+          text.split(' ')[1].split('-')[0].length === 8 &&
+          // uuid 구조상 두 번째(time-mid) 필드의 문자열 길이가 4인지
+          text.split(' ')[1].split('-')[1].length === 4 &&
+          // uuid 구조상 세 번째(time-hight-and-version) 필드의 문자열 길이가 4인지
+          text.split(' ')[1].split('-')[2].length === 4 &&
+          // uuid 구조상 네 번째(clock-seq-hi-and-reserved & clock-seq-low) 필드의 문자열 길이가 4인지
+          text.split(' ')[1].split('-')[3].length === 4 &&
+          // uuid 구조상 다섯 번째(node) 필드의 문자열 길이가 12인지
+          text.split(' ')[1].split('-')[4].length === 12
+        ) {
+          const data = getUserName({ userNo: text.split(' ')[0], token: text.split(' ')[1] })
+          data.then(async (result) => {
+            if (result.success) {
+              const linkResult = await axios
+                .post(`${process.env.NEXT_PUBLIC_API_URL}/v1/user/link/oauth/vArchive`, {
+                  userNo: userData.userNo,
+                  userToken: userData.userToken,
+                  serviceUserNo: text.split(' ')[0],
+                  serviceUserToken: text.split(' ')[1],
+                  service: 'vArchive',
+                })
+                .then((data) => {
+                  if (data.data.ok && data.data.result == 'success') {
+                    showNotification('V-ARCHIVE 계정 연동이 완료되었습니다.', 'tw-bg-lime-600')
+                    dispatch(setVArchiveUserData({ userNo: text.split(' ')[0], userToken: text.split(' ')[1], userName: result.nickname }))
+                    window.ipc.send('storeSession', {
+                      userNo: userData.userNo,
+                      userToken: userData.userToken,
+                      vArchiveUserNo: text.split(' ')[0],
+                      vArchiveUserToken: text.split(' ')[1],
+                    })
+                  } else if (!data.data.ok && data.data.result === 'notfound') {
+                    handleError('V-ARCHIVE 계정 연동에 실패했습니다. V-ARCHIVE에 존재하지 않는 계정 정보입니다.')
+                  } else if (!data.data.ok && data.data.result === 'already') {
+                    handleError('V-ARCHIVE 계정 연동에 실패했습니다. 이미 연동된 계정 정보입니다.')
+                  } else {
+                    handleError('알 수 없는 오류가 발생했습니다. 다시 시도해주세요.')
+                  }
+                })
+                .catch((e) => {
+                  handleError('알 수 없는 오류가 발생했습니다. 다시 시도해주세요. ' + String(e))
+                })
+            } else {
+              handleError('V-ARCHIVE 계정 연동에 실패했습니다. V-ARCHIVE에 존재하지 않는 계정 정보입니다.')
+            }
+          })
+        } else {
+          handleError('유효하지 않은 사용자 정보입니다. V-ARCHIVE 공식 클라이언트로 생성한 로그인 데이터(account.txt) 파일을 선택해주세요.')
+        }
+      } catch (e) {
+        handleError('알 수 없는 오류가 발생했습니다. 다시 시도해주세요. ' + String(e))
+      }
+    }
+    try {
+      fileReader.readAsText(file)
+    } catch (error) {
+      handleError(String(error))
+    } finally {
+      vArchiveFileInputRef.current.value = ''
     }
   }
 
@@ -92,7 +214,7 @@ const SettingComponent = () => {
 
       <div className="tw-flex tw-flex-col tw-gap-1">
         <div className="tw-flex tw-items-center">
-          <span className="tw-text-sm">DJMAX RESPECT V 자동 실행</span>
+          <span className="tw-text-sm">WJMAX 자동 실행</span>
           <button
             className={`tw-scale-50 tw-relative tw-inline-flex tw-items-center tw-h-8 tw-w-16 tw-rounded-full tw-transition-colors tw-duration-300 ${
               settingData.autoStartGameWjmax ? 'tw-bg-blue-600' : 'tw-bg-gray-600'
@@ -103,16 +225,33 @@ const SettingComponent = () => {
             disabled={settingData.autoStartGameWjmaxPath == ''}
           >
             <span
-              className={`tw-inline-block autoStartGameWjmax-h-6 tw-w-6 tw-bg-white tw-rounded-full tw-absolute tw-shadow tw-transform tw-transition-all tw-duration-300 ${
+              className={`tw-inline-block tw-h-6 tw-w-6 tw-bg-white tw-rounded-full tw-absolute tw-shadow tw-transform tw-transition-all tw-duration-300 ${
                 settingData.autoStartGameWjmax ? 'tw-right-1' : 'tw-left-1'
               }`}
             />
           </button>
         </div>
         <span className="tw-text-sm tw-font-light tw-text-gray-400 tw-break-keep">
-          프로젝트 RA 실행 시 DJMAX RESPECT V를 자동으로 실행합니다. 해당 기능은 Steam과 DJMAX RESPECT V(Steam)가 설치되어 있을 경우에만 작동합니다. Microsoft
-          Stroe 버전은 지원하지 않습니다.
+          프로젝트 RA 실행 시 WJMAX 를 자동으로 실행합니다. 해당 기능 WJMAX의 실행 파일(WJMAX.exe)의 경로가 지정한 경우에만 작동합니다.
         </span>
+      </div>
+
+      <input ref={wjmaxFileInputRef} type="file" accept=".exe" onChange={onWjmaxFileChange} className="tw-hidden" />
+      <div className="tw-flex tw-flex-col tw-gap-1">
+        <div className="tw-flex tw-items-center">
+          <span className="tw-text-sm">WJMAX 실행 파일 경로</span>
+        </div>
+        <input
+          className="tw-border tw-rounded-md tw-px-3 tw-py-1.5 tw-my-1 tw-text-sm tw-bg-gray-900 tw-bg-opacity-20 tw-text-gray-300 tw-mr-2"
+          // onChange={(e) => handleSettingChange({ removeBlackPixelPx: Number(e.currentTarget.value) })}
+          value={settingData.autoStartGameWjmaxPath}
+          type="text"
+          disabled
+        />
+        <button onClick={handleWjmaxFileSelect} className="tw-px-3 tw-py-2 tw-bg-blue-600 tw-text-sm tw-shadow-sm tw-rounded-md tw-w-20 tw-mt-1 tw-mb-1">
+          파일 선택
+        </button>
+        <span className="tw-text-sm tw-font-light tw-text-red-500">{errorMessage}</span>
       </div>
     </div>
   )
@@ -599,105 +738,6 @@ const SettingComponent = () => {
     </div>
   )
 
-  const [errorMessage, setErrorMessage] = useState<string>('')
-
-  const getUserName = async <T = IUserNameResponse, R = IUserNameRequest>(body: R): Promise<T> => {
-    const { data } = await axios.post<T, AxiosResponse<T>, R>(`${process.env.NEXT_PUBLIC_PROXY_API_URL}?url=https://v-archive.net/client/login`, body, {
-      withCredentials: false,
-    })
-    return data
-  }
-
-  const handleError = (error: string) => {
-    showNotification(error, 'tw-bg-red-600')
-    setErrorMessage(error)
-  }
-
-  const vArchiveFileInputRef = useRef<HTMLInputElement>(null)
-
-  const handleVArchiveFileSelect = () => {
-    vArchiveFileInputRef.current?.click()
-  }
-
-  const onVArchiveFileChange = async (e) => {
-    const file = e.target.files[0]
-    const fileReader = new FileReader()
-    fileReader.onload = () => {
-      const text = fileReader.result.toString().trim()
-      try {
-        if (
-          // account.txt 유효성 검증
-          // 구분자(공백)이 존재하는지
-          text.includes(' ') &&
-          // 구분자(공백)으로 나눈 후 배열의 길이가 2 인지(userNo, token)
-          text.split(' ').length === 2 &&
-          // userNo로 추정되는 부분 인덱스(0)이 숫자로만 구성되어 있는지
-          !Number.isNaN(Number(text.split(' ')[0])) &&
-          // token(uuidv4)으로 추정되는 부분 인덱스(1)에 - 문자가 포함되는지
-          text.split(' ')[1].includes('-') &&
-          // uuid 구조상 첫 번째(time-low) 필드의 문자열 길이가 8인지
-          text.split(' ')[1].split('-')[0].length === 8 &&
-          // uuid 구조상 두 번째(time-mid) 필드의 문자열 길이가 4인지
-          text.split(' ')[1].split('-')[1].length === 4 &&
-          // uuid 구조상 세 번째(time-hight-and-version) 필드의 문자열 길이가 4인지
-          text.split(' ')[1].split('-')[2].length === 4 &&
-          // uuid 구조상 네 번째(clock-seq-hi-and-reserved & clock-seq-low) 필드의 문자열 길이가 4인지
-          text.split(' ')[1].split('-')[3].length === 4 &&
-          // uuid 구조상 다섯 번째(node) 필드의 문자열 길이가 12인지
-          text.split(' ')[1].split('-')[4].length === 12
-        ) {
-          const data = getUserName({ userNo: text.split(' ')[0], token: text.split(' ')[1] })
-          data.then(async (result) => {
-            if (result.success) {
-              const linkResult = await axios
-                .post(`${process.env.NEXT_PUBLIC_API_URL}/v1/user/link/oauth/vArchive`, {
-                  userNo: userData.userNo,
-                  userToken: userData.userToken,
-                  serviceUserNo: text.split(' ')[0],
-                  serviceUserToken: text.split(' ')[1],
-                  service: 'vArchive',
-                })
-                .then((data) => {
-                  if (data.data.ok && data.data.result == 'success') {
-                    showNotification('V-ARCHIVE 계정 연동이 완료되었습니다.', 'tw-bg-lime-600')
-                    dispatch(setVArchiveUserData({ userNo: text.split(' ')[0], userToken: text.split(' ')[1], userName: result.nickname }))
-                    window.ipc.send('storeSession', {
-                      userNo: userData.userNo,
-                      userToken: userData.userToken,
-                      vArchiveUserNo: text.split(' ')[0],
-                      vArchiveUserToken: text.split(' ')[1],
-                    })
-                  } else if (!data.data.ok && data.data.result === 'notfound') {
-                    handleError('V-ARCHIVE 계정 연동에 실패했습니다. V-ARCHIVE에 존재하지 않는 계정 정보입니다.')
-                  } else if (!data.data.ok && data.data.result === 'already') {
-                    handleError('V-ARCHIVE 계정 연동에 실패했습니다. 이미 연동된 계정 정보입니다.')
-                  } else {
-                    handleError('알 수 없는 오류가 발생했습니다. 다시 시도해주세요.')
-                  }
-                })
-                .catch((e) => {
-                  handleError('알 수 없는 오류가 발생했습니다. 다시 시도해주세요. ' + String(e))
-                })
-            } else {
-              handleError('V-ARCHIVE 계정 연동에 실패했습니다. V-ARCHIVE에 존재하지 않는 계정 정보입니다.')
-            }
-          })
-        } else {
-          handleError('유효하지 않은 사용자 정보입니다. V-ARCHIVE 공식 클라이언트로 생성한 로그인 데이터(account.txt) 파일을 선택해주세요.')
-        }
-      } catch (e) {
-        handleError('알 수 없는 오류가 발생했습니다. 다시 시도해주세요. ' + String(e))
-      }
-    }
-    try {
-      fileReader.readAsText(file)
-    } catch (error) {
-      handleError(String(error))
-    } finally {
-      vArchiveFileInputRef.current.value = ''
-    }
-  }
-
   const accountSection = userData.userNo && userData.userToken && (
     <div className="tw-flex tw-flex-col tw-gap-6">
       {/* <div className="tw-flex tw-flex-col tw-gap-1">
@@ -777,32 +817,47 @@ const SettingComponent = () => {
               {userData.userNo && userData.userToken && (
                 <button
                   className={`tw-text-left tw-px-3 tw-py-2 tw-rounded-md tw-text-sm ${category === 'account' ? 'tw-bg-gray-700' : 'hover:tw-bg-gray-800'}`}
-                  onClick={() => setCategory('account')}
+                  onClick={() => {
+                    setCategory('account')
+                    setErrorMessage('')
+                  }}
                 >
                   내 계정
                 </button>
               )}
               <button
                 className={`tw-text-left tw-px-3 tw-py-2 tw-rounded-md tw-text-sm ${category === 'app' ? 'tw-bg-gray-700' : 'hover:tw-bg-gray-800'}`}
-                onClick={() => setCategory('app')}
+                onClick={() => {
+                  setCategory('app')
+                  setErrorMessage('')
+                }}
               >
                 앱
               </button>
               <button
                 className={`tw-text-left tw-px-3 tw-py-2 tw-rounded-md tw-text-sm ${category === 'data' ? 'tw-bg-gray-700' : 'hover:tw-bg-gray-800'}`}
-                onClick={() => setCategory('data')}
+                onClick={() => {
+                  setCategory('data')
+                  setErrorMessage('')
+                }}
               >
                 저장 공간
               </button>
               <button
                 className={`tw-text-left tw-px-3 tw-py-2 tw-rounded-md tw-text-sm ${category === 'game' ? 'tw-bg-gray-700' : 'hover:tw-bg-gray-800'}`}
-                onClick={() => setCategory('game')}
+                onClick={() => {
+                  setCategory('game')
+                  setErrorMessage('')
+                }}
               >
                 게임
               </button>
               <button
                 className={`tw-text-left tw-px-3 tw-py-2 tw-rounded-md tw-text-sm ${category === 'shortcut' ? 'tw-bg-gray-700' : 'hover:tw-bg-gray-800'}`}
-                onClick={() => setCategory('shortcut')}
+                onClick={() => {
+                  setCategory('shortcut')
+                  setErrorMessage('')
+                }}
               >
                 단축키
               </button>
@@ -810,7 +865,10 @@ const SettingComponent = () => {
                 className={`tw-flex tw-justify-between tw-items-center tw-text-left tw-px-3 tw-py-2 tw-rounded-md tw-text-sm ${
                   category === 'overlay' ? 'tw-bg-gray-700' : 'hover:tw-bg-gray-800'
                 }`}
-                onClick={() => setCategory('overlay')}
+                onClick={() => {
+                  setCategory('overlay')
+                  setErrorMessage('')
+                }}
               >
                 <span>오버레이</span>
                 {/* <span className="tw-text-sm tw-bg-blue-600 tw-rounded-full tw-px-2" style={{ padding: '2px 8px' }}>
@@ -822,7 +880,10 @@ const SettingComponent = () => {
                 className={`tw-flex tw-justify-between tw-items-center tw-text-left tw-px-3 tw-py-2 tw-rounded-md tw-text-sm ${
                   category === 'capture' ? 'tw-bg-gray-700' : 'hover:tw-bg-gray-800'
                 }`}
-                onClick={() => setCategory('capture')}
+                onClick={() => {
+                  setCategory('capture')
+                  setErrorMessage('')
+                }}
               >
                 <span>자동 캡쳐 모드</span>
                 <span className="tw-text-xs tw-bg-blue-600 tw-rounded-full tw-px-2" style={{ padding: '2px 8px' }}>
@@ -833,7 +894,10 @@ const SettingComponent = () => {
                 className={`tw-flex tw-justify-between tw-items-center tw-text-left tw-px-3 tw-py-2 tw-rounded-md tw-text-sm ${
                   category === 'djmax_respect_v' ? 'tw-bg-gray-700' : 'hover:tw-bg-gray-800'
                 }`}
-                onClick={() => setCategory('djmax_respect_v')}
+                onClick={() => {
+                  setCategory('djmax_respect_v')
+                  setErrorMessage('')
+                }}
               >
                 <span>DJMAX RESPECT V</span>
               </button>
@@ -841,7 +905,10 @@ const SettingComponent = () => {
                 className={`tw-flex tw-justify-between tw-items-center tw-text-left tw-px-3 tw-py-2 tw-rounded-md tw-text-sm ${
                   category === 'wjmax' ? 'tw-bg-gray-700' : 'hover:tw-bg-gray-800'
                 }`}
-                onClick={() => setCategory('wjmax')}
+                onClick={() => {
+                  setCategory('wjmax')
+                  setErrorMessage('')
+                }}
               >
                 <span>WJMAX</span>
               </button>

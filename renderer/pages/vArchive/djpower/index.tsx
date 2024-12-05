@@ -371,7 +371,7 @@ export default function VArchiveDjPowerPage() {
                                 isFlatten={true}
                               />
                               <div className="tw-flex tw-flex-1 tw-flex-col tw-gap-2 tw-items-end tw-justify-center tw-bg-gray-950 tw-bg-opacity-50 tw-rounded-md tw-py-2 tw-px-3">
-                                {songItem.patterns[`${keyMode}B`].SC.score || songItem.patterns[`${keyMode}B`].MX.score ? (
+                                {songItem.patterns[`${keyMode}B`].SC?.score || songItem.patterns[`${keyMode}B`].MX?.score ? (
                                   <>
                                     <span className="tw-text-xs tw-text-gray-400">
                                       SCORE :{' '}

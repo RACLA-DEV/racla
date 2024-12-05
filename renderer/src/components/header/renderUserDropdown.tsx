@@ -4,7 +4,8 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { useDispatch } from 'react-redux'
-import { setBackupData, setUploadedData, setUserData, setVArchiveUserData } from 'store/slices/appSlice'
+import { setBackupData, setUserData, setVArchiveUserData } from 'store/slices/appSlice'
+import { setProjectRaData, setVArchiveData } from 'store/slices/uploadDataSlice'
 
 export const renderUserDropdown = (user, vArchiveUserData, ipcRenderer, router, callback, refreshKeyHandle) => {
   const { showNotification } = useNotificationSystem()
@@ -13,7 +14,8 @@ export const renderUserDropdown = (user, vArchiveUserData, ipcRenderer, router, 
   const logoutCallback = () => {
     dispatch(setUserData({ userToken: '', userName: '', userNo: '' }))
     dispatch(setVArchiveUserData({ userToken: '', userName: '', userNo: '' }))
-    dispatch(setUploadedData(null))
+    dispatch(setVArchiveData(null))
+    dispatch(setProjectRaData(null))
     callback()
   }
 
@@ -67,7 +69,8 @@ export const renderUserDropdown = (user, vArchiveUserData, ipcRenderer, router, 
               ipcRenderer.setAuthorization({ userNo: '', userToken: '' })
               showNotification('정상적으로 로그아웃 되었습니다.', 'tw-bg-lime-600')
               refreshKeyHandle((prev) => prev + 1)
-              dispatch(setUploadedData(null))
+              dispatch(setVArchiveData(null))
+              dispatch(setProjectRaData(null))
               dispatch(setBackupData(null))
             }}
           >

@@ -83,12 +83,12 @@ const SidebarComponent: React.FC = () => {
             placement="right"
             overlay={
               <Tooltip id={`tooltip-bug-report`} className="tw-text-xs">
-                버그 신고
+                피드백 센터
               </Tooltip>
             }
           >
-            <span
-              onClick={() => window.ipc.send('openBrowser', 'https://open.kakao.com/me/LunaticaLuna')}
+            <Link
+              href="/bug"
               className={`tw-text-sm tw-text-gray-400 tw-font-bold tw-flex tw-items-center tw-gap-2 tw-cursor-pointer group relative hover:tw-bg-gray-700 hover:tw-bg-opacity-30 tw-rounded   ${
                 !isMiniMode ? 'tw-p-1.5' : 'tw-my-1'
               }`}
@@ -98,14 +98,14 @@ const SidebarComponent: React.FC = () => {
               </div>
               {!isMiniMode ? (
                 <button type="button" className="tw-flex tw-gap-1 tw-w-full tw-items-center tw-text-xs">
-                  버그 신고
+                  피드백 센터
                 </button>
               ) : (
                 <div className="tw-invisible group-hover:tw-visible tw-absolute tw-left-12 tw-bg-gray-800 tw-text-white tw-px-2 tw-py-1 tw-rounded tw-whitespace-nowrap tw-text-xs tw-z-50">
-                  버그 신고
+                  피드백 센터
                 </div>
               )}
-            </span>
+            </Link>
           </OverlayTrigger>
           <OverlayTrigger
             placement="right"

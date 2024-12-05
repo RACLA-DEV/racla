@@ -25,7 +25,7 @@ function ensureDirectoryExists(dirPath) {
 const picturePath = path.join(app.getPath('pictures'), 'PROJECT-RA')
 ensureDirectoryExists(picturePath)
 
-const documentPath = path.join(app.getPath('userData'), 'User')
+const documentPath = path.join(app.getPath('documents'), 'PROJECT-RA')
 ensureDirectoryExists(documentPath)
 
 const sessionFile = path.join(documentPath, 'session.json')

@@ -680,7 +680,7 @@ export default function VArchiveDbTitlePage() {
                             baseSongData[0].patterns[patternName][difficultyCode] !== null ? (
                               <div className="tw-relative tw-h-full">
                                 <button
-                                  className="tw-absolute tw-right-2 tw-top-2 tw-flex-1 tw-px-2 tw-py-2 tw-bg-blue-600 tw-text-white tw-rounded-md hover:tw-bg-blue-500 tw-transition-all tw-text-sm"
+                                  className="tw-absolute tw-right-2 tw-z-[100] tw-top-2 tw-flex-1 tw-px-2 tw-py-2 tw-bg-blue-600 tw-text-white tw-rounded-md hover:tw-bg-blue-500 tw-transition-all tw-text-sm"
                                   onClick={() =>
                                     fetchPatternData(
                                       baseSongData[0].folderName,

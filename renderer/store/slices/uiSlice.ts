@@ -4,12 +4,20 @@ interface UiState {
   fontFamily: string
   backgroundBgaName: string
   isDjCommentOpen: boolean
+  isHomePanelOpen: boolean
+  homePanelCategory: string
+  updateIndex: number
+  slideDirection: number
 }
 
 const initialState: UiState = {
   fontFamily: '',
   backgroundBgaName: '',
   isDjCommentOpen: false,
+  isHomePanelOpen: true,
+  homePanelCategory: 'update',
+  updateIndex: 0,
+  slideDirection: 0,
 }
 
 export const uiSlice = createSlice({
@@ -27,8 +35,21 @@ export const uiSlice = createSlice({
     setIsDjCommentOpen: (state, action: PayloadAction<boolean>) => {
       state.isDjCommentOpen = action.payload
     },
+    setHomePanelOpen: (state, action: PayloadAction<boolean>) => {
+      state.isHomePanelOpen = action.payload
+    },
+    setHomePanelCategory: (state, action: PayloadAction<string>) => {
+      state.homePanelCategory = action.payload
+    },
+    setUpdateIndex: (state, action: PayloadAction<number>) => {
+      state.updateIndex = action.payload
+    },
+    setSlideDirection: (state, action: PayloadAction<number>) => {
+      state.slideDirection = action.payload
+    },
   },
 })
 
-export const { setFontFamily, setBackgroundBgaName, setIsDjCommentOpen } = uiSlice.actions
+export const { setFontFamily, setBackgroundBgaName, setIsDjCommentOpen, setHomePanelOpen, setHomePanelCategory, setUpdateIndex, setSlideDirection } =
+  uiSlice.actions
 export default uiSlice.reducer

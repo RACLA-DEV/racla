@@ -83,12 +83,19 @@ export default function VArchiveDbTitlePage() {
       // 로그인한 사용자의 경우 rating 정보를 포함한 데이터 가져오기
       if (vArchiveUserData.userName) {
         try {
-          const response = await fetch(
-            `${process.env.NEXT_PUBLIC_PROXY_API_URL}?url=https://v-archive.net/api/archive/${vArchiveUserData.userName}/title/${params?.titleNo}`,
-          )
-          const data = await response.json()
-          setBaseSongData([data])
+          const response = await axios
+            .get(`${process.env.NEXT_PUBLIC_PROXY_API_URL}?url=https://v-archive.net/api/archive/${vArchiveUserData.userName}/title/${params?.titleNo}`)
+            .then((response) => {
+              const data = response.data
+              setBaseSongData([data])
+            })
+            .catch((error) => {
+              showNotification('수록곡의 데이터베이스를 V-ARCHIVE에서 가져오는 중에 문제가 발생하였습니다.', 'tw-bg-rose-600')
+              console.error('Error fetching user song data:', error)
+              setBaseSongData(filteredData)
+            })
         } catch (error) {
+          showNotification('수록곡의 데이터베이스를 V-ARCHIVE에서 가져오는 중에 문제가 발생하였습니다.', 'tw-bg-rose-600')
           console.error('Error fetching user song data:', error)
           setBaseSongData(filteredData)
         }

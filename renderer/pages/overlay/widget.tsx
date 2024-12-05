@@ -105,7 +105,7 @@ const Overlay = () => {
               </IconContext.Provider>
               <div className="tw-flex tw-flex-col tw-gap-1">
                 <div className="tw-flex tw-gap-3">
-                  <span className="tw-text-sm tw-font-light tw-text-gray-200 tw-break-keep">{data.message}</span>
+                  <span className="tw-text-sm tw-font-bold tw-text-gray-200 tw-break-keep">{data.message}</span>
                 </div>
               </div>
             </div>
@@ -135,17 +135,17 @@ const Overlay = () => {
               <div className="tw-flex tw-flex-col tw-gap-1 tw-flex-1">
                 <span className="tw-text-lg tw-font-bold">{data.songData.name}</span>
                 <div className="tw-flex tw-gap-3 tw-flex-1">
-                  <span className="tw-text-sm tw-font-light tw-text-gray-200">{data.button}B</span>
-                  <span className="tw-text-sm tw-font-light tw-text-gray-200">{data.pattern}</span>
+                  <span className="tw-text-sm tw-font-bold tw-text-gray-200">{data.button}B</span>
+                  <span className="tw-text-sm tw-font-bold tw-text-gray-200">{data.pattern}</span>
                   {data.score === 100 ? (
-                    <span className="tw-text-sm tw-font-light tw-text-gray-200">PERFECT</span>
+                    <span className="tw-text-sm tw-font-bold tw-text-gray-200">PERFECT</span>
                   ) : (
                     <>
-                      <span className="tw-text-sm tw-font-light tw-text-gray-200">{Number(data.score).toFixed(String(data.score).includes('.') ? 2 : 2)}%</span>
-                      <span className="tw-text-sm tw-font-light tw-text-gray-200">{data.maxCombo === 1 ? 'MAX COMBO' : ''}</span>
+                      <span className="tw-text-sm tw-font-bold tw-text-gray-200">{Number(data.score).toFixed(String(data.score).includes('.') ? 2 : 2)}%</span>
+                      <span className="tw-text-sm tw-font-bold tw-text-gray-200">{data.maxCombo === 1 ? 'MAX COMBO' : ''}</span>
                     </>
                   )}
-                  <span className="tw-ms-auto tw-text-sm tw-font-light tw-text-gray-200">업로드 성공</span>
+                  <span className="tw-ms-auto tw-text-sm tw-font-bold tw-text-gray-200">업로드 성공</span>
                 </div>
               </div>
             </div>
@@ -184,32 +184,32 @@ const Overlay = () => {
               <div className="tw-flex tw-flex-col tw-gap-1 tw-flex-1">
                 <span className="tw-text-lg tw-font-bold">{data.songData.name}</span>
                 <div className="tw-flex tw-gap-3 tw-flex-1">
-                  <span className="tw-text-sm tw-font-light tw-text-gray-200">
+                  <span className="tw-text-sm tw-font-bold tw-text-gray-200">
                     {data.button}B{Number(data.judgementType) == 1 ? '+' : ''}
                   </span>
-                  <span className="tw-text-sm tw-font-light tw-text-gray-200">{codeToPatternName(patternToCode(data.pattern))}</span>
+                  <span className="tw-text-sm tw-font-bold tw-text-gray-200">{codeToPatternName(patternToCode(data.pattern))}</span>
                   {data.score === 100 ? (
-                    <span className="tw-text-sm tw-font-light tw-text-gray-200">PERFECT</span>
+                    <span className="tw-text-sm tw-font-bold tw-text-gray-200">PERFECT</span>
                   ) : (
                     <>
-                      <span className="tw-text-sm tw-font-light tw-text-gray-200">{Number(data.score).toFixed(String(data.score).includes('.') ? 2 : 2)}%</span>
-                      <span className="tw-text-sm tw-font-light tw-text-gray-200 tw-me-auto">{data.maxCombo === 1 ? 'MAX COMBO' : ''}</span>
+                      <span className="tw-text-sm tw-font-bold tw-text-gray-200">{Number(data.score).toFixed(String(data.score).includes('.') ? 2 : 2)}%</span>
+                      <span className="tw-text-sm tw-font-bold tw-text-gray-200 tw-me-auto">{data.maxCombo === 1 ? 'MAX COMBO' : ''}</span>
                     </>
                   )}
                   {data.lastScore ? (
                     parseFloat(data.lastScore) < parseFloat(data.score) ? (
-                      <span className="tw-text-sm tw-font-light tw-text-red-500">
+                      <span className="tw-text-sm tw-font-bold tw-text-red-500">
                         {Number(parseFloat(data.score) - parseFloat(data.lastScore)).toFixed(2)}% 상승
                       </span>
                     ) : parseFloat(data.lastScore) == parseFloat(data.score) ? (
-                      <span className="tw-text-sm tw-font-light tw-text-gray-200">점수 변동 없음</span>
+                      <span className="tw-text-sm tw-font-bold tw-text-gray-200">점수 변동 없음</span>
                     ) : (
-                      <span className="tw-text-sm tw-font-light tw-text-blue-600">
+                      <span className="tw-text-sm tw-font-bold tw-text-blue-600">
                         {Number(parseFloat(data.score) - parseFloat(data.lastScore)).toFixed(2)}% 하락
                       </span>
                     )
                   ) : (
-                    <span className="tw-text-sm tw-font-light tw-text-amber-500">신규 기록!</span>
+                    <span className="tw-text-sm tw-font-bold tw-text-amber-500">신규 기록!</span>
                   )}
                 </div>
               </div>

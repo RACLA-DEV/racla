@@ -121,7 +121,7 @@ function MyApp({ Component, pageProps }: AppProps) {
       showNotification(
         'DJMAX RESPECT V(게임)의 게임 결과창이 자동 인식되어 성과 기록 이미지를 처리 중에 있습니다. 잠시만 기다려주세요.',
         'tw-bg-blue-600',
-        'score-update',
+        'score-update-' + uuidv4(),
       )
     }
 
@@ -305,7 +305,7 @@ function MyApp({ Component, pageProps }: AppProps) {
   const router = useRouter()
 
   useEffect(() => {
-    if (router.pathname != '/' && !router.pathname.includes('/license') && !router.pathname.includes('/overlay')) {
+    if (router.pathname != '/' && !router.pathname.includes('/license') && !router.pathname.includes('/overlay') && !router.pathname.includes('/bug')) {
       if (params?.gameCode) {
         store.dispatch(setSelectedGame(params?.gameCode as string))
       } else {

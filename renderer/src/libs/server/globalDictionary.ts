@@ -23,7 +23,7 @@ import {
 } from 'react-icons/fa6'
 
 export const globalDictionary = {
-  version: 'V0.6.0.20241201 1135-Canary',
+  version: 'V0.6.0.20241205 1839-Main',
   blurDataURL:
     'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDABQODxIPDRQSEBIXFRQdHx0fHRsdHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR3/2wBDAR0XFyAeIRshGxsdIR0hHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR3/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAb/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k=',
   settings: {
@@ -195,6 +195,22 @@ export const globalDictionary = {
         description:
           '프로젝트 RA 실행 시 DJMAX RESPECT V를 자동으로 실행합니다. 해당 기능은 Steam과 DJMAX RESPECT V(Steam)가 설치되어 있을 경우에만 작동합니다.',
         defaultValue: false,
+        isEditable: true,
+        requiresRestart: false,
+      },
+      autoStartGameWjmax: {
+        id: 'autoStartGameWjmax',
+        name: 'WJMAX 자동 실행',
+        description: '프로젝트 RA 실행 시 WJMAX를 자동으로 실행합니다.',
+        defaultValue: false,
+        isEditable: true,
+        requiresRestart: false,
+      },
+      autoStartGameWjmaxPath: {
+        id: 'autoStartGameWjmaxPath',
+        name: 'WJMAX 경로',
+        description: 'WJMAX 경로를 지정합니다.',
+        defaultValue: '',
         isEditable: true,
         requiresRestart: false,
       },
@@ -531,6 +547,20 @@ export const globalDictionary = {
             link: '/wjmax/regScore',
             userLevel: [],
             status: 'beta',
+          },
+          {
+            id: 'wjmaxNavItemsArchiveMyBoard',
+            name: {
+              startWithSup: '',
+              base: '성과표',
+              lastWithSup: '',
+            },
+            icon: FaTrophy,
+            isDisplay: true,
+            isOpenBrowser: false,
+            link: '/wjmax/board',
+            userLevel: [],
+            status: 'stable',
           },
           {
             id: 'wjmaxNavItemsDb',

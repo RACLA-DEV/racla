@@ -6,6 +6,256 @@
   :root {
     --bs-body-font-family: var(--noto-sans-kr) !important;
     --bs-font-sans-serif: var(--noto-sans-kr) !important;
+
+    .ant-table {
+      @apply tw-bg-gray-900 !important;
+    }
+
+    .ant-table-cell {
+      @apply tw-bg-gray-900 tw-text-white !important;
+    }
+
+    .ant-table-row {
+      @apply tw-bg-gray-900 !important;
+    }
+
+    .ant-table-row:hover td {
+      @apply tw-bg-gray-800 tw-cursor-pointer !important;
+    }
+
+    .ant-table-thead > tr > th {
+      @apply tw-bg-gray-950 tw-text-white tw-border-b tw-border-gray-800 !important;
+    }
+
+    .ant-table-tbody > tr > td {
+      @apply tw-border-b tw-border-gray-800 !important;
+    }
+
+    .ant-table-tbody > tr.ant-table-row:hover > td {
+      @apply tw-bg-gray-800 !important;
+    }
+
+    /* 페이지네이션 스타일링 */
+    .ant-pagination-item {
+      @apply tw-bg-gray-900 tw-border-gray-800 !important;
+    }
+
+    .ant-pagination-item-link {
+      @apply tw-bg-gray-900 tw-border-gray-800 tw-text-white !important;
+    }
+
+    .ant-pagination-item a {
+      @apply tw-text-white !important;
+    }
+
+    .ant-pagination-item-active {
+      @apply tw-bg-blue-600 tw-border-blue-600 !important;
+    }
+
+    /* 모달 스타일링 */
+    .ant-modal-content {
+      @apply tw-bg-gray-900 tw-text-white !important;
+    }
+
+    .ant-modal-header {
+      @apply tw-bg-gray-900 tw-border-b tw-border-gray-800 !important;
+    }
+
+    .ant-modal-title {
+      @apply tw-text-white !important;
+    }
+
+    .ant-modal-close {
+      @apply tw-text-white !important;
+    }
+
+    .ant-modal-footer {
+      @apply tw-border-t tw-border-gray-800 !important;
+    }
+
+    /* 버튼 스타일링 */
+    .ant-btn {
+      @apply tw-bg-gray-800 tw-text-white tw-border-gray-700 hover:tw-bg-gray-700 hover:tw-border-gray-600 !important;
+    }
+
+    .ant-btn-primary {
+      @apply tw-bg-blue-600 tw-border-blue-600 hover:tw-bg-blue-700 hover:tw-border-blue-700 !important;
+    }
+
+    /* 입력 필드 스타일링 */
+    .ant-input {
+      @apply tw-bg-gray-800 tw-text-white tw-border-gray-700 focus:tw-border-blue-600 hover:tw-border-blue-600 !important;
+    }
+
+    .ant-input-affix-wrapper {
+      @apply tw-bg-gray-800 tw-text-white tw-border-gray-700 !important;
+    }
+
+    /* Select 스타일링 */
+    .ant-select-selector {
+      @apply tw-bg-gray-800 tw-text-white tw-border-gray-700 !important;
+    }
+
+    .ant-select-dropdown {
+      @apply tw-bg-gray-800 tw-border tw-border-gray-700 !important;
+    }
+
+    .ant-select-item {
+      @apply tw-text-white hover:tw-bg-gray-700 !important;
+    }
+
+    .ant-select-item-option-selected {
+      @apply tw-bg-blue-600 !important;
+    }
+
+    .ant-table {
+      @apply tw-bg-gray-800 !important;
+    }
+
+    .ant-table-cell {
+      @apply tw-bg-gray-800 tw-text-white !important;
+    }
+
+    .ant-table-row {
+      @apply tw-bg-gray-800 !important;
+    }
+
+    .ant-table-row:hover td {
+      @apply tw-bg-gray-700 tw-cursor-pointer !important;
+    }
+
+    .ant-table-thead > tr > th {
+      @apply tw-bg-gray-900 tw-text-white tw-border-b tw-border-gray-600 !important;
+    }
+
+    .ant-table-tbody > tr > td {
+      @apply tw-border-b tw-border-gray-600 !important;
+    }
+
+    .ant-table-tbody > tr.ant-table-row:hover > td {
+      @apply tw-bg-gray-700 !important;
+    }
+
+    /* 페이지네이션 스타일링 */
+    .ant-pagination-item {
+      @apply tw-bg-gray-800 tw-border-gray-600 !important;
+    }
+
+    .ant-pagination-item-link {
+      @apply tw-bg-gray-800 tw-border-gray-600 tw-text-white !important;
+    }
+
+    .ant-pagination-item a {
+      @apply tw-text-white !important;
+    }
+
+    .ant-pagination-item-active {
+      @apply tw-border-blue-500 !important;
+    }
+
+    /* 입력 필드 스타일링 */
+    .ant-input,
+    .ant-input-textarea textarea {
+      @apply tw-bg-gray-800 tw-border-gray-600 tw-text-white !important;
+    }
+
+    .ant-input:hover,
+    .ant-input-textarea textarea:hover {
+      @apply tw-bg-gray-800 tw-border-gray-500 !important;
+    }
+
+    .ant-input:focus,
+    .ant-input-textarea textarea:focus {
+      @apply tw-bg-gray-900 tw-border-blue-500 !important;
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2) !important;
+    }
+
+    .ant-input::placeholder,
+    .ant-input-textarea textarea::placeholder {
+      @apply tw-text-gray-200 !important;
+    }
+
+    .ant-input-textarea::placeholder {
+      @apply tw-text-gray-200 !important;
+    }
+
+    .ant-input-textarea textarea::placeholder {
+      @apply tw-text-gray-200 !important;
+    }
+
+    /* 버튼 스타일링 */
+    .ant-btn {
+      @apply tw-px-4 tw-py-1.5 tw-text-sm tw-rounded !important;
+    }
+
+    .ant-btn-default {
+      @apply tw-bg-gray-800 hover:tw-bg-gray-700 tw-border-0 tw-text-white !important;
+    }
+
+    .ant-btn-primary {
+      @apply tw-bg-blue-600 hover:tw-bg-blue-700 tw-border-0 !important;
+    }
+
+    /* 모달 스타일링 */
+    .ant-modal-wrap {
+      @apply tw-fixed tw-inset-0 tw-flex tw-items-center tw-justify-center !important;
+    }
+
+    .ant-modal {
+      @apply tw-max-w-md tw-w-full tw-mx-4 tw-transition-all tw-duration-300 !important;
+      top: 0 !important;
+      padding-bottom: 0 !important;
+    }
+
+    .ant-modal-mask {
+      @apply tw-bg-gray-950 tw-bg-opacity-90 tw-transition-opacity tw-duration-300 !important;
+    }
+
+    .ant-modal-content {
+      @apply tw-bg-gray-900 tw-p-6 tw-rounded-lg tw-shadow-lg !important;
+    }
+
+    .ant-modal-header {
+      @apply tw-bg-gray-900 tw-p-0 tw-border-0 !important;
+    }
+
+    .ant-modal-body {
+      @apply tw-p-0 tw-my-4 !important;
+    }
+
+    .ant-modal-footer {
+      @apply tw-p-0 tw-border-0 tw-flex tw-justify-end tw-gap-2 !important;
+    }
+
+    /* 모달 애니메이션 */
+    .ant-modal.ant-zoom-appear,
+    .ant-modal.ant-zoom-enter {
+      @apply tw-opacity-0 tw-translate-y-4 !important;
+    }
+
+    .ant-modal.ant-zoom-appear-active,
+    .ant-modal.ant-zoom-enter-active {
+      @apply tw-opacity-100 tw-translate-y-0 !important;
+    }
+
+    .ant-modal-mask.ant-fade-appear,
+    .ant-modal-mask.ant-fade-enter {
+      @apply tw-opacity-0 !important;
+    }
+
+    .ant-modal-mask.ant-fade-appear-active,
+    .ant-modal-mask.ant-fade-enter-active {
+      @apply tw-opacity-100 !important;
+    }
+
+    /* 컨테이너 스타일링 */
+    .page-container {
+      @apply tw-min-h-screen tw-bg-gray-900 tw-text-white tw-p-6;
+    }
+
+    .section-container {
+      @apply tw-bg-gray-800 tw-bg-opacity-50 tw-p-4 tw-rounded-lg tw-shadow-lg;
+    }
   }
 
   body {
@@ -1457,4 +1707,40 @@
 
 .section-time {
   font-size: 4rem;
+}
+
+.pattern.wjmax.SC {
+  background-color: #bf0c0cdd;
+  color: #fff;
+}
+.pattern.wjmax.MX {
+  background-color: #38bf51dd;
+  color: #fff;
+}
+.pattern.wjmax.HD {
+  background-color: #5656bfdd;
+  color: #fff;
+}
+.pattern.wjmax.NM {
+  background-color: #bf7500dd;
+  color: #fff;
+}
+
+/* 테이블 다크 모드 스타일링 */ /* 테이블 다크 모드 스타일링 */
+
+/* Input placeholder 스타일링 */
+.ant-input.ant-input::placeholder {
+  color: rgb(229 231 235) !important;
+  opacity: 0.7 !important;
+}
+
+.ant-input-textarea .ant-input::placeholder {
+  color: rgb(229 231 235) !important;
+  opacity: 0.7 !important;
+}
+
+/* TextArea placeholder 스타일링 */
+textarea.ant-input::placeholder {
+  color: rgb(229 231 235) !important;
+  opacity: 0.7 !important;
 }

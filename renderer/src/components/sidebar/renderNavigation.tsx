@@ -29,6 +29,7 @@ export const renderNavigation = (selectedGame: string, router: any) => {
                 page.isDisplay && ['stable', 'beta'].includes(page.status) ? (
                   !page.isOpenBrowser ? (
                     <OverlayTrigger
+                      key={page.id + 'isNotOpenBrowser'}
                       placement="right"
                       overlay={
                         <Tooltip id={`tooltip-${page.id}`} className="tw-text-xs">
@@ -64,6 +65,7 @@ export const renderNavigation = (selectedGame: string, router: any) => {
                     </OverlayTrigger>
                   ) : (
                     <OverlayTrigger
+                      key={page.id + 'isOpenBrowser'}
                       placement="right"
                       overlay={
                         <Tooltip id={`tooltip-${page.id}`} className="tw-text-xs">

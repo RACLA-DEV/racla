@@ -198,7 +198,11 @@ const HeaderComponent: React.FC<IHeaderComponentProps> = ({ refreshKeyHandle, cl
               if (selectedGame === 'djmax_respect_v') {
                 window.ipc.send('startGameDjmaxRespectV')
               } else if (selectedGame === 'wjmax') {
-                window.ipc.send('startGameWjmax')
+                if (settingData.autoStartGameWjmaxPath !== '') {
+                  window.ipc.send('startGameWjmax')
+                } else {
+                  showNotification('WJMAX 게임을 실행하는 경로를 설정(게임)에서 지정해주세요.', 'tw-bg-red-600')
+                }
               }
             }}
             className={
