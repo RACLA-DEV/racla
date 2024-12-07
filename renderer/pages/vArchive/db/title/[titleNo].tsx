@@ -90,12 +90,12 @@ export default function VArchiveDbTitlePage() {
               setBaseSongData([data])
             })
             .catch((error) => {
-              showNotification('수록곡의 데이터베이스를 V-ARCHIVE에서 가져오는 중에 문제가 발생하였습니다.', 'tw-bg-rose-600')
+              showNotification('수록곡의 데이터베이스를 V-ARCHIVE에서 가져오는 중에 문제가 발생하였습니다.', 'tw-bg-red-600')
               console.error('Error fetching user song data:', error)
               setBaseSongData(filteredData)
             })
         } catch (error) {
-          showNotification('수록곡의 데이터베이스를 V-ARCHIVE에서 가져오는 중에 문제가 발생하였습니다.', 'tw-bg-rose-600')
+          showNotification('수록곡의 데이터베이스를 V-ARCHIVE에서 가져오는 중에 문제가 발생하였습니다.', 'tw-bg-red-600')
           console.error('Error fetching user song data:', error)
           setBaseSongData(filteredData)
         }

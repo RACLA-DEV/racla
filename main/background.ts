@@ -23,9 +23,13 @@ import { exec } from 'child_process'
 import 'moment/locale/ko'
 import FormData from 'form-data'
 import axios from 'axios'
-import { randomUUID } from 'crypto'
+import { createDecipheriv, randomUUID } from 'crypto'
 import { settingsManager } from './settingsManager'
+import { promisify } from 'util'
+import { is, over } from 'ramda'
 const isProd = process.env.NODE_ENV === 'production'
+
+const execAsync = promisify(exec)
 
 if (isProd) {
   serve({ directory: 'app' })
@@ -58,6 +62,8 @@ let isUploaded = false
 let overlayWindow: BrowserWindow | null = null
 let removedPixels = 0
 let isFullscreen = false
+let isProcessing = false
+const WJMAX_ENCRYPTION_KEY = '99FLKWJFL;l99r7@!()f09sodkjfs;a;o9fU#@'
 
 const gameList = { djmax_respect_v: 'DJMAX RESPECT V', wjmax: 'WJMAX' }
 
@@ -89,9 +95,14 @@ const gameList = { djmax_respect_v: 'DJMAX RESPECT V', wjmax: 'WJMAX' }
     webPreferences: {
       webviewTag: true,
       nodeIntegration: true,
-      devTools: !isProd,
+      // devTools: !isProd,
+      devTools: true,
       preload: path.join(__dirname, 'preload.js'),
     },
+  })
+
+  mainWindow.on('closed', () => {
+    app.quit()
   })
 
   overlayWindow = createWindow('overlay', {
@@ -133,44 +144,48 @@ const gameList = { djmax_respect_v: 'DJMAX RESPECT V', wjmax: 'WJMAX' }
   // findGameWindow 함수 수정
   async function findGameWindow(gameCode) {
     return new Promise((resolve, reject) => {
-      if (gameCode === 'djmax_respect_v') {
-        exec('tasklist /FI "IMAGENAME eq DJMAX*" /FO CSV', (err, stdout, stderr) => {
-          if (err) return reject(err)
+      try {
+        const processName = gameCode === 'djmax_respect_v' ? 'DJMAX' : 'WJMAX'
 
-          if (stdout.toLowerCase().includes('djmax')) {
-            const windows = Window.all().filter((w) => w.title.includes(gameList[gameCode]))
-            if (windows.length > 0) {
-              const gameWindow = windows[0]
-              const bounds = {
-                x: gameWindow.x,
-                y: gameWindow.y,
-                width: gameWindow.width,
-                height: gameWindow.height,
-              }
-              resolve(bounds)
+        exec(`tasklist /FI "IMAGENAME eq ${processName}*" /FO CSV`, (err, stdout, stderr) => {
+          try {
+            if (err) {
+              console.error('Error checking game process:', err)
+              return resolve(null)
             }
-          }
-          resolve(null)
-        })
-      } else if (gameCode === 'wjmax') {
-        exec('tasklist /FI "IMAGENAME eq WJMAX*" /FO CSV', (err, stdout, stderr) => {
-          if (err) return reject(err)
 
-          if (stdout.toLowerCase().includes('wjmax')) {
-            const windows = Window.all().filter((w) => w.title.includes(gameList[gameCode]))
-            if (windows.length > 0) {
-              const gameWindow = windows[0]
-              const bounds = {
-                x: gameWindow.x,
-                y: gameWindow.y,
-                width: gameWindow.width,
-                height: gameWindow.height,
-              }
-              resolve(bounds)
+            if (!stdout.toLowerCase().includes(processName.toLowerCase())) {
+              console.log(`${processName} process not found`)
+              return resolve(null)
             }
+
+            const windows = Window.all()
+            if (!windows || windows.length === 0) {
+              console.log('No windows found')
+              return resolve(null)
+            }
+
+            const gameWindow = windows.find((w) => w.title.includes(gameList[gameCode]))
+            if (!gameWindow) {
+              console.log(`${gameList[gameCode]} window not found`)
+              return resolve(null)
+            }
+
+            const bounds = {
+              x: gameWindow.x,
+              y: gameWindow.y,
+              width: gameWindow.width,
+              height: gameWindow.height,
+            }
+            resolve(bounds)
+          } catch (innerError) {
+            console.error('Error processing window information:', innerError)
+            resolve(null)
           }
-          resolve(null)
         })
+      } catch (error) {
+        console.error('Error in findGameWindow:', error)
+        resolve(null)
       }
     })
   }
@@ -242,12 +257,22 @@ const gameList = { djmax_respect_v: 'DJMAX RESPECT V', wjmax: 'WJMAX' }
   // getFocusedWindow 함수 수정
   async function getFocusedWindow(): Promise<string> {
     return new Promise((resolve) => {
-      exec(
-        'powershell -command "Add-Type -TypeDefinition \'using System; using System.Runtime.InteropServices; public class Window { [DllImport(\\"user32.dll\\")] public static extern IntPtr GetForegroundWindow(); [DllImport(\\"user32.dll\\")] public static extern int GetWindowText(IntPtr hWnd, System.Text.StringBuilder text, int count); }\' ; $window = [Window]::GetForegroundWindow(); $buffer = New-Object System.Text.StringBuilder(256); [Window]::GetWindowText($window, $buffer, 256) > $null; $buffer.ToString()"',
-        (err, stdout) => {
-          resolve(stdout.trim())
-        },
-      )
+      try {
+        exec(
+          'powershell -command "Add-Type -TypeDefinition \'using System; using System.Runtime.InteropServices; public class Window { [DllImport(\\"user32.dll\\")] public static extern IntPtr GetForegroundWindow(); [DllImport(\\"user32.dll\\")] public static extern int GetWindowText(IntPtr hWnd, System.Text.StringBuilder text, int count); }\' ; $window = [Window]::GetForegroundWindow(); $buffer = New-Object System.Text.StringBuilder(256); [Window]::GetWindowText($window, $buffer, 256) > $null; $buffer.ToString()"',
+          (err, stdout) => {
+            if (err) {
+              console.error('Error getting focused window:', err)
+              resolve('')
+              return
+            }
+            resolve(stdout.trim())
+          },
+        )
+      } catch (error) {
+        console.error('Error in getFocusedWindow:', error)
+        resolve('')
+      }
     })
   }
 
@@ -658,8 +683,10 @@ const gameList = { djmax_respect_v: 'DJMAX RESPECT V', wjmax: 'WJMAX' }
               if (where !== 'versus' && playData.screenType !== 'versus') {
                 settingData.resultOverlay && overlayWindow.webContents.send('IPC_RENDERER_GET_NOTIFICATION_DATA', { ...response.data.playData })
               }
+              isProcessing = false
               return { ...response.data, filePath: settingData.saveImageWhenCapture ? filePath : null }
             } else {
+              isProcessing = false
               return {
                 playData: {
                   isVerified: null,
@@ -668,6 +695,7 @@ const gameList = { djmax_respect_v: 'DJMAX RESPECT V', wjmax: 'WJMAX' }
             }
           } catch (error) {
             console.error('서버 사이드 OCR 요청 실패:', error)
+            isProcessing = false
             return {
               playData: {
                 isVerified: false,
@@ -677,6 +705,7 @@ const gameList = { djmax_respect_v: 'DJMAX RESPECT V', wjmax: 'WJMAX' }
           }
         } else if (isResult.length >= 1 && isUploaded) {
           console.log('Waiting for Exit Result Screen...')
+          isProcessing = false
           return {
             playData: {
               isVerified: null,
@@ -684,6 +713,7 @@ const gameList = { djmax_respect_v: 'DJMAX RESPECT V', wjmax: 'WJMAX' }
           }
         } else {
           console.log('Waiting for Result Screen...')
+          isProcessing = false
           isUploaded = false
           return {
             playData: {
@@ -692,6 +722,7 @@ const gameList = { djmax_respect_v: 'DJMAX RESPECT V', wjmax: 'WJMAX' }
           }
         }
       } catch (error) {
+        isProcessing = false
         console.error('Error processing capture:', error)
       }
     } else if (gameCode == 'wjmax') {
@@ -795,8 +826,10 @@ const gameList = { djmax_respect_v: 'DJMAX RESPECT V', wjmax: 'WJMAX' }
               if (where !== 'versus' && playData.screenType !== 'versus') {
                 settingData.resultOverlay && overlayWindow.webContents.send('IPC_RENDERER_GET_NOTIFICATION_DATA', { ...response.data.playData })
               }
+              isProcessing = false
               return { ...response.data, filePath: settingData.saveImageWhenCapture ? filePath : null }
             } else {
+              isProcessing = false
               return {
                 playData: {
                   isVerified: null,
@@ -804,6 +837,7 @@ const gameList = { djmax_respect_v: 'DJMAX RESPECT V', wjmax: 'WJMAX' }
               }
             }
           } catch (error) {
+            isProcessing = false
             console.error('서버 사이드 OCR 요청 실패:', error)
             return {
               playData: {
@@ -813,6 +847,7 @@ const gameList = { djmax_respect_v: 'DJMAX RESPECT V', wjmax: 'WJMAX' }
             }
           }
         } else if (isResult.length >= 1 && isUploaded) {
+          isProcessing = false
           console.log('Waiting for Exit Result Screen...')
           return {
             playData: {
@@ -820,6 +855,7 @@ const gameList = { djmax_respect_v: 'DJMAX RESPECT V', wjmax: 'WJMAX' }
             },
           }
         } else {
+          isProcessing = false
           console.log('Waiting for Result Screen...')
           isUploaded = false
           return {
@@ -829,6 +865,7 @@ const gameList = { djmax_respect_v: 'DJMAX RESPECT V', wjmax: 'WJMAX' }
           }
         }
       } catch (error) {
+        isProcessing = false
         console.error('Error processing capture:', error)
       }
     }
@@ -874,19 +911,31 @@ const gameList = { djmax_respect_v: 'DJMAX RESPECT V', wjmax: 'WJMAX' }
 
     if (resizedImageMetadata.height !== (resizedImageMetadata.width / 16) * 9) {
       console.log('Windowed Image Detected.')
-      const croppedBuffer = await sharp(image)
-        .extract({ width: 1920, height: 1080, left: 0, top: resizedImageMetadata.height - (resizedImageMetadata.width / 16) * 9 })
-        .toBuffer()
+      try {
+        isProcessing = true
+        const croppedBuffer = await sharp(image)
+          .extract({ width: 1920, height: 1080, left: 0, top: resizedImageMetadata.height - (resizedImageMetadata.width / 16) * 9 })
+          .toBuffer()
 
-      const { playData } = await processResultScreen(croppedBuffer, true, true, gameCode)
-      if (playData !== null && (playData.isVerified !== undefined || playData.screenType == 'versus')) {
-        mainWindow.webContents.send('screenshot-uploaded', playData)
+        const { playData } = await processResultScreen(croppedBuffer, true, true, gameCode)
+        if (playData !== null && (playData.isVerified !== undefined || playData.screenType == 'versus')) {
+          mainWindow.webContents.send('screenshot-uploaded', playData)
+        }
+      } catch (error) {
+        console.error('Error processing capture:', error)
+        isProcessing = false
       }
     } else {
       console.log('Full Screen Image Detected.')
-      const { playData } = await processResultScreen(image, true, true, gameCode)
-      if (playData !== null && (playData.isVerified !== undefined || playData.screenType == 'versus')) {
-        mainWindow.webContents.send('screenshot-uploaded', playData)
+      try {
+        isProcessing = true
+        const { playData } = await processResultScreen(image, true, true, gameCode)
+        if (playData !== null && (playData.isVerified !== undefined || playData.screenType == 'versus')) {
+          mainWindow.webContents.send('screenshot-uploaded', playData)
+        }
+      } catch (error) {
+        console.error('Error processing capture:', error)
+        isProcessing = false
       }
     }
   })
@@ -903,41 +952,75 @@ const gameList = { djmax_respect_v: 'DJMAX RESPECT V', wjmax: 'WJMAX' }
         mainWindow.webContents.send('isDetectedGame', { status: true, game: isRunning ? 'DJMAX RESPECT V' : 'WJMAX' })
 
         if (isLogined && settingData.autoCaptureMode) {
-          const focusedWindow = await new Promise<string>((resolve) => {
-            exec(
-              'powershell -command "Add-Type -TypeDefinition \'using System; using System.Runtime.InteropServices; public class Window { [DllImport(\\"user32.dll\\")] public static extern IntPtr GetForegroundWindow(); [DllImport(\\"user32.dll\\")] public static extern int GetWindowText(IntPtr hWnd, System.Text.StringBuilder text, int count); }\' ; $window = [Window]::GetForegroundWindow(); $buffer = New-Object System.Text.StringBuilder(256); [Window]::GetWindowText($window, $buffer, 256) > $null; $buffer.ToString()"',
-              (err, stdout) => {
-                resolve(stdout.trim())
-              },
-            )
-          })
+          let focusedWindow = ''
+          try {
+            focusedWindow = await new Promise<string>((resolve, reject) => {
+              exec(
+                'powershell -command "Add-Type -TypeDefinition \'using System; using System.Runtime.InteropServices; public class Window { [DllImport(\\"user32.dll\\")] public static extern IntPtr GetForegroundWindow(); [DllImport(\\"user32.dll\\")] public static extern int GetWindowText(IntPtr hWnd, System.Text.StringBuilder text, int count); }\' ; $window = [Window]::GetForegroundWindow(); $buffer = New-Object System.Text.StringBuilder(256); [Window]::GetWindowText($window, $buffer, 256) > $null; $buffer.ToString()"',
+                (err, stdout) => {
+                  if (err) {
+                    console.error('Error getting focused window:', err)
+                    reject(err)
+                    return
+                  }
+                  resolve(stdout.trim())
+                },
+              )
+            })
+          } catch (error) {
+            console.error('Failed to get focused window:', error)
+            isProcessing = false
+            return
+          }
 
           const isGameFocused = (focusedWindow === 'DJMAX RESPECT V' && isRunning) || (focusedWindow === 'WJMAX' && isRunningWjmax)
 
           if (isGameFocused || !settingData.captureOnlyFocused) {
-            console.log('Powershell isGameFocused Result : Game is focused. Capturing...', `(${focusedWindow})`)
-            const gameSource = await captureScreen(isRunning ? 'djmax_respect_v' : 'wjmax')
-            const data = await processResultScreen(gameSource, false, false, isRunning ? 'djmax_respect_v' : 'wjmax') // gameSource를 버퍼로 전달
-            if (data !== null && data !== undefined && data.playData && (data.playData.isVerified !== null || data.playData.screenType == 'versus')) {
-              mainWindow.webContents.send('screenshot-uploaded', { ...data.playData, filePath: data.filePath })
+            if (!isProcessing) {
+              try {
+                isProcessing = true
+                console.log('Powershell isGameFocused Result : Game is focused. Capturing...', `(${focusedWindow})`)
+
+                const gameSource = await captureScreen(isRunning ? 'djmax_respect_v' : 'wjmax')
+                if (!gameSource) {
+                  console.error('Failed to capture game screen')
+                  isProcessing = false
+                  return
+                }
+
+                const data = await processResultScreen(gameSource, false, false, isRunning ? 'djmax_respect_v' : 'wjmax')
+                if (data?.playData && (data.playData.isVerified !== null || data.playData.screenType == 'versus')) {
+                  mainWindow.webContents.send('screenshot-uploaded', { ...data.playData, filePath: data.filePath })
+                }
+              } catch (error) {
+                console.error('Error in capture and process:', error)
+                isProcessing = false
+              }
+            } else {
+              console.log('startCapturing : isProcessing is true. Skipping...')
             }
           } else {
             console.log('Powershell isGameFocused Result : Game is not focused. Skipping...', `(${focusedWindow})`)
           }
         }
       } catch (error) {
-        console.error('Error processing capture:', error)
+        console.error('Error in captureAndProcess:', error)
+        isProcessing = false
       } finally {
-        // 작업이 완료된 후 2초 후에 다음 작업 예약
-        clearTimeout(settingData.autoCaptureIntervalId)
-        settingData.autoCaptureIntervalId = setTimeout(
-          captureAndProcess,
-          [1000, 2000, 3000, 5000, 10000].includes(settingData.autoCaptureIntervalTime) ? settingData.autoCaptureIntervalTime : 3000,
-        )
+        try {
+          clearTimeout(settingData.autoCaptureIntervalId)
+          settingData.autoCaptureIntervalId = setTimeout(
+            captureAndProcess,
+            [1000, 2000, 3000, 5000, 10000].includes(settingData.autoCaptureIntervalTime) ? settingData.autoCaptureIntervalTime : 3000,
+          )
+        } catch (error) {
+          console.error('Error setting next capture interval:', error)
+          isProcessing = false
+        }
       }
     }
 
-    captureAndProcess() // 초기 호출
+    captureAndProcess()
   }
   const pressAltInsert = async () => {
     try {
@@ -952,23 +1035,34 @@ const gameList = { djmax_respect_v: 'DJMAX RESPECT V', wjmax: 'WJMAX' }
       const isRunningWjmax = await isDjmaxRunning('wjmax')
       console.log('isRunning:', isRunning, 'isRunningWjmax:', isRunningWjmax)
       if ((isRunning || isRunningWjmax) && isLogined) {
-        const gameSource = await captureScreen(isRunning ? 'djmax_respect_v' : 'wjmax')
-        const data = await processResultScreen(gameSource, true, false, isRunning ? 'djmax_respect_v' : 'wjmax') // gameSource를 버퍼로 전달
-        if (
-          data !== null &&
-          data !== undefined &&
-          data !== '' &&
-          data.playData &&
-          (data.playData.isVerified !== null || data.playData.screenType == 'versus')
-        ) {
-          mainWindow.webContents.send('screenshot-uploaded', { ...data.playData, filePath: data.filePath })
-        } else {
-          if (settingData.resultOverlay) {
-            overlayWindow.webContents.send('IPC_RENDERER_GET_NOTIFICATION_DATA', {
-              message: '게임 결과창이 아니거나 성과 기록 이미지를 처리 중에 오류가 발생하였습니다. 다시 시도해주시길 바랍니다.',
-              color: 'tw-bg-red-600',
-            })
+        try {
+          const gameSource = await captureScreen(isRunning ? 'djmax_respect_v' : 'wjmax')
+          if (!gameSource) {
+            console.error('Failed to capture game screen')
+            isProcessing = false
+            return
           }
+
+          const data = await processResultScreen(gameSource, true, false, isRunning ? 'djmax_respect_v' : 'wjmax') // gameSource를 버퍼로 전달
+          if (
+            data !== null &&
+            data !== undefined &&
+            data !== '' &&
+            data.playData &&
+            (data.playData.isVerified !== undefined || data.playData.screenType == 'versus')
+          ) {
+            mainWindow.webContents.send('screenshot-uploaded', { ...data.playData, filePath: data.filePath })
+          } else {
+            if (settingData.resultOverlay) {
+              overlayWindow.webContents.send('IPC_RENDERER_GET_NOTIFICATION_DATA', {
+                message: '게임 결과창이 아니거나 성과 기록 이미지를 처리 중에 오류가 발생하였습니다. 다시 시도해주시길 바랍니다.',
+                color: 'tw-bg-red-600',
+              })
+            }
+          }
+        } catch (error) {
+          isProcessing = false
+          console.error('Error processing capture:', error)
         }
       }
     } catch (error) {
@@ -1010,98 +1104,129 @@ async function captureScreen(gameCode) {
 
       if (windows.length > 0) {
         const window = windows[0]
+        try {
+          isFullscreen = window.isMaximized
 
-        isFullscreen = window.isMaximized
+          if (![640, 720, 800, 1024, 1128, 1280, 1366, 1600, 1680, 1760, 1920, 2048, 2288, 2560, 3072, 3200, 3840, 5120].includes(window.width)) {
+            try {
+              const image = window.captureImageSync()
+              const pngImage = await sharp(image.toPngSync()).toBuffer()
+              const metadata = await sharp(pngImage).metadata()
 
-        if (![640, 720, 800, 1024, 1128, 1280, 1366, 1600, 1680, 1760, 1920, 2048, 2288, 2560, 3072, 3200, 3840, 5120].includes(window.width)) {
-          // ... existing code ...
-          const image = window.captureImageSync()
-          const pngImage = await sharp(image.toPngSync()).toBuffer()
-          const metadata = await sharp(pngImage).metadata()
+              // 이미지의 실제 컨텐츠 영역을 찾기 위한 분석
+              const { data, info } = await sharp(pngImage).raw().toBuffer({ resolveWithObject: true })
 
-          // 이미지의 실제 컨텐츠 영역을 찾기 위한 분석
-          const { data, info } = await sharp(pngImage).raw().toBuffer({ resolveWithObject: true })
-
-          // 아래에서부터 검은색 픽셀(RGB: 0,0,0)이 아닌 첫 번째 행을 찾음
-          let actualHeight = metadata.height
-          for (let y = metadata.height - 1; y >= 0; y--) {
-            let isNonBlackRow = false
-            for (let x = 0; x < metadata.width; x++) {
-              const idx = (y * metadata.width + x) * info.channels
-              // RGB 값이 모두 0인지 확인
-              if (data[idx] !== 0 || data[idx + 1] !== 0 || data[idx + 2] !== 0) {
-                isNonBlackRow = true
-                break
+              // 아래에서부터 검은색 픽셀(RGB: 0,0,0)이 아닌 첫 번째 행을 찾음
+              let actualHeight = metadata.height
+              for (let y = metadata.height - 1; y >= 0; y--) {
+                let isNonBlackRow = false
+                for (let x = 0; x < metadata.width; x++) {
+                  const idx = (y * metadata.width + x) * info.channels
+                  // RGB 값이 모두 0인지 확인
+                  if (data[idx] !== 0 || data[idx + 1] !== 0 || data[idx + 2] !== 0) {
+                    isNonBlackRow = true
+                    break
+                  }
+                }
+                if (isNonBlackRow) {
+                  actualHeight = y + 1
+                  break
+                }
               }
+
+              if (!isUploaded) {
+                removedPixels = metadata.height - actualHeight
+              }
+              console.log(`Removed Black Pixels: ${removedPixels}px`)
+
+              // 검은색 여백을 제거한 이미지 생성
+              try {
+                const croppedImage = await sharp(pngImage)
+                  .extract({
+                    left: removedPixels,
+                    top: 0,
+                    width: metadata.width - removedPixels * 2,
+                    height: actualHeight,
+                  })
+                  .resize(1920)
+                  .toBuffer()
+
+                const croppedImageMetadata = await sharp(croppedImage).metadata()
+
+                const resizedImage = await sharp(croppedImage)
+                  .extract({
+                    left: 0,
+                    top: croppedImageMetadata.height - 1080,
+                    width: croppedImageMetadata.width,
+                    height: 1080,
+                  })
+                  .toBuffer()
+
+                return resizedImage
+              } catch (error) {
+                console.error('Error processing image crop/resize:', error)
+                isProcessing = false
+                return null
+              }
+            } catch (error) {
+              console.error('Error capturing or processing initial image:', error)
+              isProcessing = false
+              return null
             }
-            if (isNonBlackRow) {
-              actualHeight = y + 1
-              break
+          } else {
+            try {
+              return await sharp(window.captureImageSync().toPngSync()).resize(1920, 1080).toBuffer()
+            } catch (error) {
+              console.error('Error capturing fullscreen image:', error)
+              isProcessing = false
+              return null
             }
           }
-
-          if (!isUploaded) {
-            removedPixels = metadata.height - actualHeight
-          }
-          console.log(`Removed Black Pixels: ${removedPixels}px`)
-
-          // 검은색 여백을 제거한 이미지 생성
-          const croppedImage = await sharp(pngImage)
-            .extract({
-              left: removedPixels,
-              top: 0,
-              width: metadata.width - removedPixels * 2,
-              height: actualHeight,
-            })
-            .resize(1920)
-            .toBuffer()
-
-          const croppedImageMetadata = await sharp(croppedImage).metadata()
-
-          const resizedImage = await sharp(croppedImage)
-            .extract({
-              left: 0,
-              top: croppedImageMetadata.height - 1080,
-              width: croppedImageMetadata.width,
-              height: 1080,
-            })
-            .toBuffer()
-
-          return resizedImage
-        } else {
-          return await sharp(window.captureImageSync().toPngSync()).resize(1920, 1080).toBuffer()
+        } catch (error) {
+          console.error('Error processing window capture:', error)
+          isProcessing = false
+          return null
         }
       } else {
+        console.log('No matching game window found')
         return null
       }
     }
-
-    return null // 게임 창을 찾지 못한 경우 null 반환
+    return null
   } catch (error) {
-    console.error('Error capturing screen:', error)
+    console.error('Critical error in captureScreen:', error)
+    isProcessing = false
     return null
   }
 }
 
 // OCR 실행 함수
 async function recognizeText(imageBuffer, lang = 'eng') {
-  const worker = await Tesseract.createWorker('eng')
+  let worker = null
+  try {
+    worker = await Tesseract.createWorker('eng')
 
-  const workingNumber = async () => {
     await worker.setParameters({
       tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ ',
     })
+
     const {
       data: { text },
     } = await worker.recognize(imageBuffer)
-    await worker.terminate()
 
-    return text
+    return text || ''
+  } catch (error) {
+    console.error('Error in OCR text recognition:', error)
+    return ''
+  } finally {
+    if (worker) {
+      try {
+        await worker.terminate()
+      } catch (terminateError) {
+        console.error('Error terminating Tesseract worker:', terminateError)
+      }
+    }
   }
-
-  const data = await workingNumber()
-
-  return data
 }
 
 app.on('will-quit', () => {

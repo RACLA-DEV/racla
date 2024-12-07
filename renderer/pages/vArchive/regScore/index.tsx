@@ -18,7 +18,15 @@ import { useSelector } from 'react-redux'
 import { RootState } from 'store'
 import { setBackgroundBgaName } from 'store/slices/uiSlice'
 import { useDispatch } from 'react-redux'
-import { setSettingData, setUploadedDataProcessed, setBackupData, setIsUploading, setVArchiveUploadedPageData, setVArchivePattern } from 'store/slices/appSlice'
+import {
+  setSettingData,
+  setUploadedDataProcessed,
+  setBackupData,
+  setIsUploading,
+  setVArchiveUploadedPageData,
+  setVArchivePattern,
+  clearVArchiveData,
+} from 'store/slices/appSlice'
 import { useNotificationSystem } from '@/libs/client/useNotifications'
 import ScorePopupComponent from '@/components/score/ScorePopupComponent'
 import { SyncLoader } from 'react-spinners'
@@ -31,7 +39,7 @@ export default function VArchiveRegScorePage() {
   const dispatch = useDispatch()
   const { userData, songData, settingData, isUploadedDataProcessed, backupData, vArchiveUserData } = useSelector((state: RootState) => state.app)
   const backgroundBgaName = useSelector((state: RootState) => state.ui.backgroundBgaName)
-  const { vArchiveData } = useSelector((state: RootState) => state.uploadData)
+  const { vArchiveData } = useSelector((state: RootState) => state.app)
 
   const [keyMode] = useState<string>('4')
   const [isLoading, setIsLoading] = useState<boolean>(false)
@@ -77,7 +85,7 @@ export default function VArchiveRegScorePage() {
     setIsDragging(false)
 
     if (isUploading) {
-      showNotification('이미 업로드가 진행 중입니다. 완료될 때까지 기다려주세요.', 'tw-bg-orange-600', 'upload-process', true)
+      showNotification('이미 업로드가 진행 중입니다. 완료될 때까지 기다려주세요.', 'tw-bg-orange-600')
       return
     }
 
@@ -87,7 +95,7 @@ export default function VArchiveRegScorePage() {
       if (file.type.match('image.*')) {
         setScreenShotFile(file)
       } else {
-        showNotification('이미지 파일만 업로드 가능합니다.', 'tw-bg-red-600', 'upload-process', true)
+        showNotification('이미지 파일만 업로드 가능합니다.', 'tw-bg-red-600')
       }
     }
   }
@@ -106,7 +114,7 @@ export default function VArchiveRegScorePage() {
         window.ipc.send('screenshot-upload', { buffer: buffer, gameCode: 'djmax_respect_v' })
       }
       reader.readAsArrayBuffer(screenShotFile)
-      showNotification('성과 기록 이미지를 처리 중에 있습니다. 잠시만 기다려주세요.', 'tw-bg-blue-600', 'score-update' + uuidv4())
+      showNotification('성과 기록 이미지를 처리 중에 있습니다. 잠시만 기다려주세요.', 'tw-bg-blue-600')
       dispatch(setIsUploading(true))
     }
   }
@@ -115,7 +123,6 @@ export default function VArchiveRegScorePage() {
 
   useEffect(() => {
     if (vArchiveData && !isUploadedDataProcessed) {
-      dispatch(setIsUploading(true))
       dispatch(setVArchiveUploadedPageData(vArchiveData))
 
       if (vArchiveData.screenType === 'versus') {
@@ -150,29 +157,17 @@ export default function VArchiveRegScorePage() {
                 )
 
                 if (response.data.success && response.data.update) {
-                  showNotification(
-                    `${playerData.songData.name} 곡의 성과 기록을 V-ARCHIVE에 정상적으로 갱신하였습니다.`,
-                    'tw-bg-lime-600',
-                    'score-update' + playerData.songData.title + playerData.button + playerData.pattern,
-                    true,
-                  )
+                  showNotification(`${playerData.songData.name} 곡의 성과 기록을 V-ARCHIVE에 정상적으로 갱신하였습니다.`, 'tw-bg-lime-600')
                   setIsCanRollback(true)
                 } else if (response.data.success && !response.data.update) {
                   showNotification(
                     `${playerData.songData.name} 곡은 기존의 성과 기록과 동일하거나 더 좋은 성과 기록이 존재하여 갱신되지 않았습니다.`,
                     'tw-bg-orange-600',
-                    'score-update' + playerData.songData.title + playerData.button + playerData.pattern,
-                    true,
                   )
                 }
               } catch (error) {
                 backupDataArray.push(null)
-                showNotification(
-                  `${playerData.songData.name} 곡의 성과 기록 갱신 중 오류가 발생했습니다.`,
-                  'tw-bg-red-600',
-                  'score-update' + playerData.songData.title + playerData.button + playerData.pattern,
-                  true,
-                )
+                showNotification(`${playerData.songData.name} 곡의 성과 기록 갱신 중 오류가 발생했습니다.`, 'tw-bg-red-600')
               }
             }
           }
@@ -207,25 +202,17 @@ export default function VArchiveRegScorePage() {
         }
 
         if (!vArchiveData.isVerified && vArchiveData.error) {
-          showNotification(
-            '마지막으로 업로드한 성과 기록 이미지의 데이터 유효성 검증에 실패하였습니다. 다시 캡쳐한 후 재시도해주세요.',
-            'tw-bg-red-600',
-            'score-update' + vArchiveData.songData.title + vArchiveData.button + vArchiveData.pattern,
-            true,
-          )
+          showNotification('마지막으로 업로드한 성과 기록 이미지의 데이터 유효성 검증에 실패하였습니다. 다시 캡쳐한 후 재시도해주세요.', 'tw-bg-red-600')
         } else if (vArchiveData.isVerified) {
-          showNotification(
-            '성과 기록 이미지의 데이터 유효성 검증에 성공하였습니다. V-ARCHIVE, 프로젝트 RA 서비스로 점수 갱신을 요청합니다.',
-            'tw-bg-lime-600',
-            'score-update' + vArchiveData.songData.title + vArchiveData.button + vArchiveData.pattern,
-          )
+          showNotification('성과 기록 이미지의 데이터 유효성 검증에 성공하였습니다. V-ARCHIVE, 프로젝트 RA 서비스로 점수 갱신을 요청합니다.', 'tw-bg-lime-600')
           fetchUpdateScore(vArchiveData)
+          fetchRecentHistory()
         }
       }
 
       dispatch(setUploadedDataProcessed(true))
-      setIsLoading(false)
       dispatch(setIsUploading(false))
+      dispatch(clearVArchiveData())
     }
   }, [vArchiveData, isUploadedDataProcessed])
 
@@ -243,7 +230,7 @@ export default function VArchiveRegScorePage() {
   useEffect(() => {
     if (vArchiveUserData.userName === '') {
       router.push('/')
-      showNotification('기록 등록(베타)는 로그인 또는 V-ARCHIVE 계정 연동이 필요합니다.', 'tw-bg-red-600', 'score-update' + uuidv4(), true)
+      showNotification('기록 등록(베타)는 로그인 또는 V-ARCHIVE 계정 연동이 필요합니다.', 'tw-bg-red-600')
     }
   }, [userData])
 
@@ -306,16 +293,11 @@ export default function VArchiveRegScorePage() {
         )
 
         if (data.filePath) {
-          showNotification(`${data.filePath} 경로에 성과 기록 이미지가 저장되었습니다.`, 'tw-bg-lime-600', 'file-save', true)
+          showNotification(`${data.filePath} 경로에 성과 기록 이미지가 저장되었습니다.`, 'tw-bg-lime-600')
         }
 
         if (response.data.success && response.data.update) {
-          showNotification(
-            '성과 기록을 V-ARCHIVE에 정상적으로 갱신하였습니다.',
-            'tw-bg-lime-600',
-            'score-update' + data.songData.title + data.button + data.pattern,
-            true,
-          )
+          showNotification('성과 기록을 V-ARCHIVE에 정상적으로 갱신하였습니다.', 'tw-bg-lime-600')
           setIsCanRollback(true)
 
           setTimeout(async () => {
@@ -386,31 +368,16 @@ export default function VArchiveRegScorePage() {
             }
           }, 1000)
         } else if (response.data.success && !response.data.update) {
-          showNotification(
-            '기존의 성과 기록과 동일하거나 더 좋은 성과 기록이 존재하여 V-ARCHIVE에 갱신되지 않았습니다.',
-            'tw-bg-orange-600',
-            'score-update',
-            true,
-          )
+          showNotification('기존의 성과 기록과 동일하거나 더 좋은 성과 기록이 존재하여 V-ARCHIVE에 갱신되지 않았습니다.', 'tw-bg-orange-600')
           setIsCanRollback(false)
         }
       } else {
-        showNotification(
-          '성과 기록 점수가 0점으로 인식되어 점수 갱신 요청이 취소되었습니다.',
-          'tw-bg-red-600',
-          'score-update' + data.songData.title + data.button + data.pattern,
-          true,
-        )
+        showNotification('성과 기록 점수가 0점으로 인식되어 점수 갱신 요청이 취소되었습니다.', 'tw-bg-red-600')
         setIsCanRollback(false)
       }
     } catch (error) {
       console.error('Error fetching data:', error)
-      showNotification(
-        '알 수 없는 오류가 발생하여 성과 기록 갱신에 실패하였습니다. 다시 시도해주시길 바랍니다.',
-        'tw-bg-red-600',
-        'score-update' + data.songData.title + data.button + data.pattern,
-        true,
-      )
+      showNotification('알 수 없는 오류가 발생하여 성과 기록 갱신에 실패하였습니다. 다시 시도해주시길 바랍니다.', 'tw-bg-red-600')
       setIsCanRollback(false)
     }
   }
@@ -444,7 +411,6 @@ export default function VArchiveRegScorePage() {
               dispatch(setVArchiveUploadedPageData(null))
               setIsCanRollback(false)
               showNotification('성과 기록을 정상적으로 롤백하였습니다.', 'tw-bg-lime-600', 'score-rollback', true)
-              fetchRecentHistory()
             }
           })
           .catch((error) => {

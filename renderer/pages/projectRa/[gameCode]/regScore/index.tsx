@@ -25,6 +25,7 @@ import {
   setIsUploading,
   setProjectRaUploadedPageData,
   setProjectRaPattern,
+  clearProjectRaData,
 } from 'store/slices/appSlice'
 import { useNotificationSystem } from '@/libs/client/useNotifications'
 import ScorePopupComponent from '@/components/score/ScorePopupComponent'
@@ -108,7 +109,7 @@ export default function VArchiveRegScorePage() {
     setIsDragging(false)
 
     if (isUploading) {
-      showNotification('이미 업로드가 진행 중입니다. 완료될 때까지 기다려주세요.', 'tw-bg-orange-600', 'upload-process', true)
+      showNotification('이미 업로드가 진행 중입니다. 완료될 때까지 기다려주세요.', 'tw-bg-orange-600')
       return
     }
 
@@ -118,7 +119,7 @@ export default function VArchiveRegScorePage() {
       if (file.type.match('image.*')) {
         setScreenShotFile(file)
       } else {
-        showNotification('이미지 파일만 업로드 가능합니다.', 'tw-bg-red-600', 'upload-process', true)
+        showNotification('이미지 파일만 업로드 가능합니다.', 'tw-bg-red-600')
       }
     }
   }
@@ -137,14 +138,14 @@ export default function VArchiveRegScorePage() {
         window.ipc.send('screenshot-upload', { buffer: buffer, gameCode: 'wjmax' })
       }
       reader.readAsArrayBuffer(screenShotFile)
-      showNotification('성과 기록 이미지를 처리 중에 있습니다. 잠시만 기다려주세요.', 'tw-bg-blue-600', 'score-update')
+      showNotification('성과 기록 이미지를 처리 중에 있습니다. 잠시만 기다려주세요.', 'tw-bg-blue-600')
       dispatch(setIsUploading(true))
     }
   }
 
   const { projectRaPattern } = useSelector((state: RootState) => state.app)
 
-  const { projectRaData } = useSelector((state: RootState) => state.uploadData)
+  const { projectRaData } = useSelector((state: RootState) => state.app)
 
   useEffect(() => {
     if (projectRaData && !isUploadedDataProcessed) {
@@ -175,16 +176,11 @@ export default function VArchiveRegScorePage() {
         dispatch(setProjectRaPattern(newPattern))
 
         if (!projectRaData.isVerified && projectRaData.error) {
-          showNotification(
-            '마지막으로 업로드한 성과 기록 이미지의 데이터 유효성 검증에 실패하였습니다. 다시 캡쳐한 후 재시도해주세요.',
-            'tw-bg-red-600',
-            'score-update',
-            true,
-          )
+          showNotification('마지막으로 업로드한 성과 기록 이미지의 데이터 유효성 검증에 실패하였습니다. 다시 캡쳐한 후 재시도해주세요.', 'tw-bg-red-600')
         } else if (projectRaData.isVerified) {
-          showNotification('성과 기록을 프로젝트 RA에 정상적으로 갱신하였습니다.', 'tw-bg-lime-600', 'score-update' + uuidv4(), true)
+          showNotification('성과 기록을 프로젝트 RA에 정상적으로 갱신하였습니다.', 'tw-bg-lime-600')
           if (projectRaData.filePath) {
-            showNotification(`${projectRaData.filePath} 경로에 성과 기록 이미지가 저장되었습니다.`, 'tw-bg-lime-600', 'file-save', true)
+            showNotification(`${projectRaData.filePath} 경로에 성과 기록 이미지가 저장되었습니다.`, 'tw-bg-lime-600')
           }
           fetchRecentHistory()
         }
@@ -192,6 +188,7 @@ export default function VArchiveRegScorePage() {
 
       dispatch(setUploadedDataProcessed(true))
       dispatch(setIsUploading(false))
+      dispatch(clearProjectRaData())
     }
   }, [projectRaData, isUploadedDataProcessed])
 
@@ -209,7 +206,7 @@ export default function VArchiveRegScorePage() {
   useEffect(() => {
     if (userData.userName === '') {
       router.push('/')
-      showNotification('기록 등록(베타)는 로그인이 필요합니다.', 'tw-bg-red-600', 'score-update', true)
+      showNotification('기록 등록(베타)는 로그인이 필요합니다.', 'tw-bg-red-600')
     }
   }, [userData])
 
@@ -247,7 +244,7 @@ export default function VArchiveRegScorePage() {
   return (
     <React.Fragment>
       <Head>
-        <title>WJMAX 기록 등록(베타) - 프로젝트 RA</title>
+        <title>기록 등록(베타) - 프로젝트 RA</title>
       </Head>
       {userData.userName !== '' ? (
         <div

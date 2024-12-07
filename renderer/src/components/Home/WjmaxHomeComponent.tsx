@@ -553,7 +553,7 @@ export default function WjmaxHomeComponent() {
                             ) : (
                               <div className="tw-flex tw-items-center tw-justify-center tw-h-full">
                                 <div className="tw-text-center">
-                                  <span className="tw-text-lg tw-font-bold">성과 기록 조회는 로그인 또는 V-ARCHIVE 계정 연동이 필요합니다.</span>
+                                  <span className="tw-text-lg tw-font-bold">성과 기록 조회는 로그인이 필요합니다.</span>
                                 </div>
                               </div>
                             )}

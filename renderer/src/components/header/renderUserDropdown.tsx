@@ -4,8 +4,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { useDispatch } from 'react-redux'
-import { setBackupData, setUserData, setVArchiveUserData } from 'store/slices/appSlice'
-import { setProjectRaData, setVArchiveData } from 'store/slices/uploadDataSlice'
+import { setBackupData, setUserData, setVArchiveUserData, setProjectRaData, setVArchiveData } from 'store/slices/appSlice'
 
 export const renderUserDropdown = (user, vArchiveUserData, ipcRenderer, router, callback, refreshKeyHandle) => {
   const { showNotification } = useNotificationSystem()

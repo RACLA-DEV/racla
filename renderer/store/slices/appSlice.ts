@@ -28,6 +28,8 @@ interface AppState {
   projectRaUploadedPageData: any | null
   vArchivePattern: string
   projectRaPattern: string
+  projectRaData: any | null
+  vArchiveData: any | null
 }
 
 const initialState: AppState = {
@@ -48,7 +50,7 @@ const initialState: AppState = {
   songData: [],
   wjmaxSongData: [],
   isSetting: false,
-  isUploadedDataProcessed: false,
+  isUploadedDataProcessed: true,
   isHomePanelOpen: true,
   backupData: null,
   isUploading: false,
@@ -57,6 +59,8 @@ const initialState: AppState = {
   projectRaUploadedPageData: null,
   vArchivePattern: '',
   projectRaPattern: '',
+  projectRaData: null,
+  vArchiveData: null,
 }
 
 export const appSlice = createSlice({
@@ -114,6 +118,22 @@ export const appSlice = createSlice({
     setProjectRaPattern: (state, action: PayloadAction<string>) => {
       state.projectRaPattern = action.payload
     },
+    setProjectRaData: (state, action: PayloadAction<any>) => {
+      state.isUploading = true
+      state.isUploadedDataProcessed = false
+      state.projectRaData = action.payload
+    },
+    setVArchiveData: (state, action: PayloadAction<any>) => {
+      state.isUploading = true
+      state.isUploadedDataProcessed = false
+      state.vArchiveData = action.payload
+    },
+    clearProjectRaData: (state) => {
+      state.projectRaData = null
+    },
+    clearVArchiveData: (state) => {
+      state.vArchiveData = null
+    },
   },
 })
 
@@ -135,5 +155,9 @@ export const {
   setProjectRaUploadedPageData,
   setVArchivePattern,
   setProjectRaPattern,
+  setProjectRaData,
+  setVArchiveData,
+  clearProjectRaData,
+  clearVArchiveData,
 } = appSlice.actions
 export default appSlice.reducer

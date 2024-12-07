@@ -1,11 +1,9 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react'
 import type { AppProps } from 'next/app'
-import { Noto_Sans_KR } from 'next/font/google'
 import axios, { AxiosResponse } from 'axios'
 import HeaderComponent from '@/components/header/HeaderComponent'
 import FooterComponent from '@/components/footer/FooterComponent'
 import { IUserNameRequest, IUserNameResponse } from '@/types/IUserName'
-import { useNotificationSystem } from '@/libs/client/useNotifications'
 import NotificationComponent from '@/components/notification/NotificationComponent'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useRouter } from 'next/router'
@@ -34,6 +32,8 @@ import {
   setUserData,
   setVArchiveUserData,
   setWjmaxSongData,
+  setProjectRaData,
+  setVArchiveData,
 } from 'store/slices/appSlice'
 import { addNotification, setNotificationFadeOut, removeNotification } from 'store/slices/notificationSlice'
 import { v4 as uuidv4 } from 'uuid'
@@ -43,7 +43,6 @@ import HomePanelComponent from '@/components/layout/HomePanelComponent'
 import ImageViewerComponent from '@/components/layout/ImageViewerComponent'
 import localFont from 'next/font/local'
 import { useParams } from 'next/navigation'
-import { setProjectRaData, setVArchiveData } from 'store/slices/uploadDataSlice'
 const noto = localFont({
   src: '../public/fonts/PretendardVariable.woff2',
   display: 'swap',
@@ -118,11 +117,7 @@ function MyApp({ Component, pageProps }: AppProps) {
     }
 
     const handleResultScreen = (data: string) => {
-      showNotification(
-        'DJMAX RESPECT V(게임)의 게임 결과창이 자동 인식되어 성과 기록 이미지를 처리 중에 있습니다. 잠시만 기다려주세요.',
-        'tw-bg-blue-600',
-        'score-update-' + uuidv4(),
-      )
+      showNotification('DJMAX RESPECT V(게임)의 게임 결과창이 자동 인식되어 성과 기록 이미지를 처리 중에 있습니다. 잠시만 기다려주세요.', 'tw-bg-blue-600')
     }
 
     // 이벤트 리스너 등록
@@ -230,20 +225,10 @@ function MyApp({ Component, pageProps }: AppProps) {
     })
   }, [])
 
-  const getUserName = async <T = IUserNameResponse, R = IUserNameRequest>(body: R): Promise<T> => {
-    const { data } = await axios.post<T, AxiosResponse<T>, R>(`${process.env.NEXT_PUBLIC_PROXY_API_URL}?url=https://v-archive.net/client/login`, body, {
-      withCredentials: false,
-    })
-    return data
-  }
-
   useEffect(() => {
     const handleScreenshotUploaded = (data: any) => {
       console.log(data)
       if (data.isVerified || data.screenType == 'versus') {
-        store.dispatch(setIsUploading(true))
-        store.dispatch(setUploadedDataProcessed(false))
-
         if (data.gameCode == 'djmax_respect_v') {
           store.dispatch(setVArchiveData(data))
         } else {
@@ -260,7 +245,7 @@ function MyApp({ Component, pageProps }: AppProps) {
         store.dispatch(setProjectRaData(null))
         store.dispatch(setIsUploading(false))
         store.dispatch(setUploadedDataProcessed(true))
-        showNotification('성과 기록 이미지를 처리 중에 오류가 발생하였습니다. 다시 시도해주시길 바랍니다.', 'tw-bg-red-600', 'score-update')
+        showNotification('성과 기록 이미지를 처리 중에 오류가 발생하였습니다. 다시 시도해주시길 바랍니다.', 'tw-bg-red-600')
       }
     }
 
@@ -456,44 +441,6 @@ function MyApp({ Component, pageProps }: AppProps) {
     fetchUserData()
   }, [userNo, userToken])
 
-  // V-ARCHIVE 연동 함수
-  const linkVArchive = async (vArchiveUserNo: string, vArchiveToken: string) => {
-    try {
-      // V-ARCHIVE 유효성 검증
-      const vArchiveResponse = await axios.post<IUserNameResponse>(`${process.env.NEXT_PUBLIC_PROXY_API_URL}?url=https://v-archive.net/client/login`, {
-        userNo: vArchiveUserNo,
-        token: vArchiveToken,
-      })
-
-      if (vArchiveResponse.data.success) {
-        // 프로젝트 RA API에 V-ARCHIVE 연동 요청
-        const linkResponse = await axios.post(
-          `${process.env.NEXT_PUBLIC_API_URL}/users/link/v-archive`,
-          { vArchiveUserNo, vArchiveToken },
-          {
-            headers: {
-              Authorization: `${userNo}|${userToken}`,
-            },
-          },
-        )
-
-        if (linkResponse.data.success) {
-          store.dispatch(
-            setUserData({
-              ...store.getState().app.userData,
-              vArchiveLinked: true,
-            }),
-          )
-          showNotification(`V-ARCHIVE 계정(${vArchiveResponse.data.nickname})이 연동되었습니다.`, 'tw-bg-lime-600')
-        }
-      } else {
-        showNotification('유효하지 않은 V-ARCHIVE 계정입니다.', 'tw-bg-red-600')
-      }
-    } catch (error) {
-      showNotification(`V-ARCHIVE 연동 중 오류가 발생했습니다: ${String(error)}`, 'tw-bg-red-600')
-    }
-  }
-
   useEffect(() => {
     if (router.pathname.includes('/overlay/widget')) {
       document.body.style.background = 'transparent'
@@ -523,8 +470,6 @@ function MyApp({ Component, pageProps }: AppProps) {
   const [externalUrl, setExternalUrl] = useState('')
 
   useEffect(() => {
-    // ... existing effects ...
-
     // 외부 링크 열기 요청 수신
     window.ipc.on('confirm-external-link', (url: string) => {
       setExternalUrl(url)
@@ -585,35 +530,6 @@ function MyApp({ Component, pageProps }: AppProps) {
         </div>
       </div>
 
-      {/* <div className="tw-flex tw-flex-col tw-gap-8 tw-p-6 tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-text-sm">
-        <div className="tw-flex tw-flex-col tw-gap-4 tw-w-full">
-          <div className="tw-flex tw-flex-col tw-gap-2 tw-w-full tw-leading-relaxed">
-            <div className="tw-bg-yellow-900 tw-bg-opacity-20 tw-p-4 tw-rounded tw-border-l-4 tw-border-yellow-500">
-              <span className="tw-font-bold">프로젝트 RA의 서비스 API 서버가 개발 모드로 운영 중인 상태입니다.</span>
-            </div>
-            <div className="tw-bg-gray-700 tw-bg-opacity-30 tw-p-4 tw-rounded">
-              <span>서비스 API와 관련된 기능을 정상적으로 사용할 수 있으나, 서버와 통신 시 일시적인 지연이 발생 할 수 있습니다.</span>
-            </div>
-          </div>
-        </div>
-      </div> */}
-
-      <div className="tw-flex tw-flex-col tw-gap-8 tw-p-6 tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-text-sm">
-        <div className="tw-flex tw-flex-col tw-gap-4 tw-w-full">
-          <div className="tw-flex tw-flex-col tw-gap-2 tw-w-full tw-leading-relaxed">
-            <div className="tw-bg-blue-900 tw-bg-opacity-20 tw-p-4 tw-rounded tw-border-l-4 tw-border-blue-500">
-              <span className="tw-font-bold">macOS, Linux 사용자를 위한 데스크톱 앱이 제공될 예정입니다.</span>
-            </div>
-            <div className="tw-bg-gray-700 tw-bg-opacity-30 tw-p-4 tw-rounded">
-              <span>
-                Wine, GPTK, Proton, Whisky 등의 호환 플레이 도구를 사용하여 DJMAX RESPECT V, WJMAX 등의 게임을 구동하는 사용자를 위한 자동 캡쳐 모드가 포함된
-                데스크톱 앱이 제공될 예정입니다.
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <div className="tw-flex tw-flex-col tw-gap-8 tw-p-6 tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-text-sm">
         <div className="tw-flex tw-flex-col tw-gap-4 tw-w-full">
           <div className="tw-flex tw-flex-col tw-gap-2 tw-w-full tw-leading-relaxed">
@@ -634,6 +550,22 @@ function MyApp({ Component, pageProps }: AppProps) {
         <div className="tw-flex tw-flex-col tw-gap-4 tw-w-full">
           <div className="tw-flex tw-flex-col tw-gap-2 tw-w-full tw-leading-relaxed">
             <div className="tw-bg-blue-900 tw-bg-opacity-20 tw-p-4 tw-rounded tw-border-l-4 tw-border-blue-500">
+              <span className="tw-font-bold">macOS, Linux 사용자를 위한 데스크톱 앱이 제공될 예정입니다.</span>
+            </div>
+            <div className="tw-bg-gray-700 tw-bg-opacity-30 tw-p-4 tw-rounded">
+              <span>
+                Wine, GPTK, Proton, Whisky 등의 호환 플레이 도구를 사용하여 DJMAX RESPECT V, WJMAX 등의 게임을 구동하는 사용자를 위한 자동 캡쳐 모드가 포함된
+                데스크톱 앱이 제공될 예정입니다.
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* <div className="tw-flex tw-flex-col tw-gap-8 tw-p-6 tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-text-sm">
+        <div className="tw-flex tw-flex-col tw-gap-4 tw-w-full">
+          <div className="tw-flex tw-flex-col tw-gap-2 tw-w-full tw-leading-relaxed">
+            <div className="tw-bg-blue-900 tw-bg-opacity-20 tw-p-4 tw-rounded tw-border-l-4 tw-border-blue-500">
               <span className="tw-font-bold">WJMAX 서비스의 티어 시뮬레이션과 수록곡 별 상수에 대하여 의견을 받습니다.</span>
             </div>
             <div className="tw-bg-gray-700 tw-bg-opacity-30 tw-p-4 tw-rounded">
@@ -644,7 +576,7 @@ function MyApp({ Component, pageProps }: AppProps) {
             </div>
           </div>
         </div>
-      </div>
+      </div> */}
 
       <div className="tw-flex tw-flex-col tw-gap-8 tw-p-6 tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-text-sm">
         <div className="tw-flex tw-flex-col tw-gap-4 tw-w-full">
@@ -671,11 +603,7 @@ function MyApp({ Component, pageProps }: AppProps) {
           <div className="tw-flex tw-flex-col tw-gap-2 tw-w-full tw-leading-relaxed">
             {/* 첫 번째 설명 블록 */}
             <div className="tw-bg-green-900 tw-bg-opacity-20 tw-p-4 tw-rounded tw-border-l-4 tw-border-green-500">
-              <span className="tw-font-bold tw-whitespace-pre-line">{`프로젝트 RA가 0.6.0-Canary 버전으로 업데이트 되었습니다.`}</span>
-            </div>
-
-            <div className="tw-bg-gray-700 tw-bg-opacity-30 tw-p-4 tw-rounded">
-              <span>현재 사용하고 계신 버전은 개발자(Canary) 빌드입니다. 추가 기능 사항 중 일부는 실제 배포 시에는 즉시 적용되지 않을 수도 있습니다.</span>
+              <span className="tw-font-bold tw-whitespace-pre-line">{`프로젝트 RA가 0.6.2 버전으로 업데이트 되었습니다.`}</span>
             </div>
 
             <div className="tw-bg-gray-700 tw-bg-opacity-30 tw-p-4 tw-rounded">
@@ -710,6 +638,171 @@ function MyApp({ Component, pageProps }: AppProps) {
                 이 외에 기능 추가 의견, 버그 신고, 불편 사항, 궁금한 점 등이 있으시면 언제든지 좌측 하단에 위치한 버그 신고 또는 배포된 게시글에 댓글을 통해
                 알려주세요.
               </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+
+  const update2Section = (
+    <div className="tw-flex tw-flex-col tw-gap-4 tw-break-keep">
+      <div className="tw-flex tw-flex-col tw-gap-8 tw-p-6 tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-text-sm">
+        <div className="tw-flex tw-flex-col tw-gap-4 tw-w-full">
+          <div className="tw-flex tw-flex-col tw-gap-2 tw-w-full tw-leading-relaxed">
+            {/* 첫 번째 설명 블록 */}
+            <div className="tw-bg-blue-900 tw-bg-opacity-20 tw-p-4 tw-rounded tw-border-l-4 tw-border-blue-500">
+              <span className="tw-font-bold tw-whitespace-pre-line">새로운 기능</span>
+            </div>
+
+            <div className="tw-bg-gray-700 tw-bg-opacity-30 tw-p-4 tw-rounded">
+              <span>
+                <span className="tw-text-sm tw-font-bold">WJMAX 서비스 지원</span>
+                <br />
+                V-ARCHIVE를 벤치마킹하여 프로젝트 RA의 자체 서비스로 WJMAX 서비스를 제공합니다. 데이터베이스, 성과표를 지원하며 데이터베이스에서는 키보드
+                접근성과 DJMAX RESPECT V 서비스 대비 더 많은 편의 기능을 제공합니다.
+                <br />
+                <br />
+                방향키 : 카테고리 변경 및 곡 선택
+                <br />
+                1번 키 : 키 변경
+                <br /> F 키 : 검색 창<br /> A, D 키 : 정렬
+                <br /> Q, E 키 : 난이도 변경 <br />V 키 : 목록 뷰 변경
+                <br />
+                <br />
+                일반 모드와 플러스 모드의 성과를 따로 기록할 수 있으며 자동 캡쳐 모드를 지원합니다. 단 현재는 수동 업로드와 자동 업로드 모두 프리스타일 결과
+                창만 지원합니다. 0.6.1 업데이트에서 곡 선택창을 지원할 예정입니다.
+              </span>
+              <div className="tw-flex tw-justify-center tw-my-4">
+                <Image
+                  src="https://cdn.lunatica.kr/project_ra/update_060_wjmax1.png"
+                  alt="overlay"
+                  className="tw-cursor-pointer tw-w-1/2 tw-h-auto"
+                  width={500}
+                  height={500}
+                  onClick={() => setSelectedImage('https://cdn.lunatica.kr/project_ra/update_060_wjmax1.png?full=1')}
+                  referrerPolicy="origin"
+                />
+                <Image
+                  src="https://cdn.lunatica.kr/project_ra/update_060_wjmax2.png"
+                  alt="overlay"
+                  className="tw-cursor-pointer tw-w-1/2 tw-h-auto"
+                  width={500}
+                  height={500}
+                  onClick={() => setSelectedImage('https://cdn.lunatica.kr/project_ra/update_060_wjmax2.png?full=1')}
+                />
+              </div>
+              <div className="tw-flex tw-justify-center tw-my-4">
+                <Image
+                  src="https://cdn.lunatica.kr/project_ra/update_060_wjmax3.png"
+                  alt="overlay"
+                  className="tw-cursor-pointer tw-w-1/2 tw-h-auto"
+                  width={500}
+                  height={500}
+                  onClick={() => setSelectedImage('https://cdn.lunatica.kr/project_ra/update_060_wjmax3.png?full=1')}
+                  referrerPolicy="origin"
+                />
+                <Image
+                  src="https://cdn.lunatica.kr/project_ra/update_060_wjmax4.png"
+                  alt="overlay"
+                  className="tw-cursor-pointer tw-w-1/2 tw-h-auto"
+                  width={500}
+                  height={500}
+                  onClick={() => setSelectedImage('https://cdn.lunatica.kr/project_ra/update_060_wjmax4.png?full=1')}
+                />
+              </div>
+            </div>
+
+            <div className="tw-bg-gray-700 tw-bg-opacity-30 tw-p-4 tw-rounded">
+              <span>
+                <span className="tw-text-sm tw-font-bold">미니 모드</span>
+                <br />
+                이제 사이드바를 열고 접을 수 있으며 더 많은 콘텐츠를 한 눈에 볼 수 있습니다.
+              </span>
+            </div>
+
+            <div className="tw-bg-gray-700 tw-bg-opacity-30 tw-p-4 tw-rounded">
+              <span>
+                <span className="tw-text-sm tw-font-bold">피드백 센터</span>
+                <br />
+                기존의 카카오톡 오픈 프로필로 연결된 버그 신고 기능은 잘 활용되지 않아 티켓 지원 방식의 피드백 센터를 추가하였습니다. 누구나 버그 신고, 의견
+                등의 요청 사항을 작성할 수 있으며 다른 이가 작성한 내용에 추가 의견을 제시할 수 있습니다.
+              </span>
+              <div className="tw-flex tw-justify-center tw-my-4">
+                <Image
+                  src="https://cdn.lunatica.kr/project_ra/update_060_feedback.png"
+                  alt="overlay"
+                  className="tw-cursor-pointer tw-w-1/2 tw-h-auto"
+                  width={500}
+                  height={500}
+                  onClick={() => setSelectedImage('https://cdn.lunatica.kr/project_ra/update_060_feedback.png?full=1')}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="tw-flex tw-flex-col tw-gap-8 tw-p-6 tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-text-sm">
+        <div className="tw-flex tw-flex-col tw-gap-4 tw-w-full">
+          <div className="tw-flex tw-flex-col tw-gap-2 tw-w-full tw-leading-relaxed">
+            {/* 첫 번째 설명 블록 */}
+            <div className="tw-bg-yellow-900 tw-bg-opacity-20 tw-p-4 tw-rounded tw-border-l-4 tw-border-yellow-500">
+              <span className="tw-font-bold tw-whitespace-pre-line">변경 사항</span>
+            </div>
+
+            <div className="tw-bg-gray-700 tw-bg-opacity-30 tw-p-4 tw-rounded">
+              <span>
+                WJMAX 자체 서비스가 추가됨에 따라 로그인 시스템이 일부 변경 되었습니다. 자세한 사항은 공지사항 패널 또는 로그인 화면의 내용을 참고 부탁드립니다.
+              </span>
+            </div>
+
+            <div className="tw-bg-gray-700 tw-bg-opacity-30 tw-p-4 tw-rounded">
+              <span>창 모드 사용자를 위해 프로젝트 RA가 요구하는 최저 해상도가 1440x810에서 1280x720으로 변경되었습니다.</span>
+            </div>
+
+            <div className="tw-bg-gray-700 tw-bg-opacity-30 tw-p-4 tw-rounded">
+              <span>전체적인 채도, 명도, 컬러 등의 재조정과 폰트 변경, 폰트 사이즈 변경 등의 가독성 향상 작업이 진행되었습니다.</span>
+            </div>
+
+            <div className="tw-bg-gray-700 tw-bg-opacity-30 tw-p-4 tw-rounded">
+              <span>
+                (DJMAX RESPECT V 오픈 매치 한정) 자동 캡쳐 모드 사용 시 캡쳐 주기를 3초 미만으로 사용하는 경우 올바르게 캡쳐되지 않는 문제가 발생하여 제대로
+                캡쳐가 인식되지 않는 경우가 발생하여 일정 시간(3초) 후 한번 더 캡쳐하도록 기능이 변경되었습니다.
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="tw-flex tw-flex-col tw-gap-8 tw-p-6 tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-text-sm">
+        <div className="tw-flex tw-flex-col tw-gap-4 tw-w-full">
+          <div className="tw-flex tw-flex-col tw-gap-2 tw-w-full tw-leading-relaxed">
+            {/* 첫 번째 설명 블록 */}
+            <div className="tw-bg-red-900 tw-bg-opacity-20 tw-p-4 tw-rounded tw-border-l-4 tw-border-red-500">
+              <span className="tw-font-bold tw-whitespace-pre-line">버그 수정 사항</span>
+            </div>
+
+            <div className="tw-bg-gray-700 tw-bg-opacity-30 tw-p-4 tw-rounded">
+              <span>홈, 성과표 그래프에서 성과 기록이 제대로 합산되지 않던 버그를 수정하였습니다.</span>
+            </div>
+
+            <div className="tw-bg-gray-700 tw-bg-opacity-30 tw-p-4 tw-rounded">
+              <span>일부 API가 캐싱 처리되어 지연이 발생하던 문제를 해소하였습니다.</span>
+            </div>
+
+            <div className="tw-bg-gray-700 tw-bg-opacity-30 tw-p-4 tw-rounded">
+              <span>
+                DJMAX RESPECT V 성과 기록 등록 시 난이도, 패턴을 올바르게 인식하였으나 간혈적으로 V-ARCHIVE로 갱신 요청에 실패하는 버그를 수정하였습니다.
+              </span>
+            </div>
+
+            <div className="tw-bg-gray-700 tw-bg-opacity-30 tw-p-4 tw-rounded">
+              <span>(0.6.1) 앱 오른쪽 하단에 표시되는 알림이 올바르게 제거되지 않는 버그를 수정하였습니다.</span>
+            </div>
+
+            <div className="tw-bg-gray-700 tw-bg-opacity-30 tw-p-4 tw-rounded">
+              <span>(0.6.2) 자동 캡쳐 모드 사용 시 상태값 충돌로 인하여 발생할 수 있는 Application Error를 일부 개선하였습니다.</span>
             </div>
           </div>
         </div>
@@ -774,9 +867,7 @@ function MyApp({ Component, pageProps }: AppProps) {
 
   const updateSections = [
     { title: '업데이트', content: update1Section },
-    // { title: '0.5.2-canary 업데이트', content: update4Section },
-    // { title: '0.5.1 업데이트', content: update3Section },
-    // { title: '0.5.0 업데이트', content: update2Section },
+    { title: '0.6 업데이트', content: update2Section },
   ]
 
   return (

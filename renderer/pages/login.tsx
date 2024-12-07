@@ -27,7 +27,7 @@ export default function VArchiveLoginPage() {
 
   useEffect(() => {
     if (isLogin) {
-      router.push(`${String(router.query.url)}`)
+      router.push('/')
     }
   }, [isLogin])
 
@@ -190,7 +190,7 @@ export default function VArchiveLoginPage() {
     setIsRegistering(false)
   }
 
-  return (
+  return userData.userName === '' ? (
     <React.Fragment>
       <Head>
         <title>로그인 - 프로젝트 RA</title>
@@ -331,5 +331,7 @@ export default function VArchiveLoginPage() {
         </div>
       </div>
     </React.Fragment>
+  ) : (
+    <></>
   )
 }

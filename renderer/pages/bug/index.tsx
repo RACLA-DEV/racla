@@ -1,15 +1,13 @@
 import { useState, useEffect } from 'react'
-import { Modal, Button, Input, Table, Pagination } from 'antd'
 import { useRouter } from 'next/router'
-import TextArea from 'antd/lib/input/TextArea'
 import { SyncLoader } from 'react-spinners'
 import { BsList, BsGrid } from 'react-icons/bs'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useSelector } from 'react-redux'
 import { RootState } from 'store'
 import axios from 'axios'
-import { fontFamily } from 'html2canvas/dist/types/css/property-descriptors/font-family'
 import { useNotificationSystem } from '@/libs/client/useNotifications'
+import Modal from '@/components/common/Modal'
 
 interface Bug {
   id: number
@@ -86,6 +84,19 @@ export default function BugList() {
     fetchBugs()
     fetchNotices()
   }, [])
+
+  useEffect(() => {
+    const handleEscKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && isModalVisible) {
+        setIsModalVisible(false)
+      }
+    }
+
+    window.addEventListener('keydown', handleEscKey)
+    return () => {
+      window.removeEventListener('keydown', handleEscKey)
+    }
+  }, [isModalVisible])
 
   const handleCreateBug = async () => {
     try {
@@ -204,58 +215,61 @@ export default function BugList() {
                 </motion.div>
               ))}
             </div>
-            <div className="tw-flex tw-justify-end">
-              <Pagination
-                current={pagination.current}
-                total={pagination.total}
-                pageSize={pagination.pageSize}
-                onChange={handlePageChange}
-                className="tw-text-white"
-              />
-            </div>
           </>
         )}
-      </div>
 
-      <Modal
-        title="피드백 생성"
-        open={isModalVisible}
-        onCancel={() => setIsModalVisible(false)}
-        centered
-        className={`tw-top-0 ${fontFamily}`}
-        footer={[
-          <button
-            key="cancel"
-            onClick={() => setIsModalVisible(false)}
-            className="tw-px-4 tw-py-1.5 tw-text-sm tw-bg-gray-800 tw-text-white tw-rounded hover:tw-bg-gray-700 tw-border-none tw-me-2"
-          >
-            취소
-          </button>,
-          <button
-            key="submit"
-            onClick={handleCreateBug}
-            className="tw-px-4 tw-py-1.5 tw-text-sm tw-bg-blue-600 tw-text-white tw-rounded hover:tw-bg-blue-700 tw-border-none"
-          >
-            생성
-          </button>,
-        ]}
-      >
-        <Input
-          placeholder="제목(최대 50자)"
-          value={newBug.title}
-          onChange={(e) => setNewBug({ ...newBug, title: e.target.value })}
-          className={'tw-mb-4 tw-bg-gray-800 tw-border-gray-700 tw-text-white' + ' ' + fontFamily}
-          maxLength={50}
-        />
-        <TextArea
-          placeholder="내용(최대 1500자)"
-          value={newBug.description}
-          onChange={(e) => setNewBug({ ...newBug, description: e.target.value })}
-          rows={4}
-          className={'tw-bg-gray-800 tw-border-gray-700 tw-text-white' + ' ' + fontFamily}
-          maxLength={1500}
-        />
-      </Modal>
+        <div className="tw-mt-6 tw-flex tw-justify-center">
+          <div className="tw-flex tw-gap-2">
+            {Array.from({ length: Math.ceil(pagination.total / pagination.pageSize) }).map((_, i) => (
+              <button
+                key={i}
+                onClick={() => fetchBugs(i)}
+                className={`tw-px-3 tw-py-1 tw-rounded ${
+                  pagination.current === i + 1 ? 'tw-bg-blue-600' : 'tw-bg-gray-700 hover:tw-bg-gray-600'
+                } tw-transition-colors`}
+              >
+                {i + 1}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <Modal isOpen={isModalVisible} onClose={() => setIsModalVisible(false)} title="피드백 작성하기">
+          <div className="tw-space-y-4">
+            <div>
+              <label className="tw-block tw-mb-2">제목</label>
+              <input
+                type="text"
+                value={newBug.title}
+                onChange={(e) => setNewBug({ ...newBug, title: e.target.value })}
+                className="tw-w-full tw-bg-gray-700 tw-rounded tw-px-3 tw-py-2 focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-blue-500"
+                placeholder="제목을 입력하세요"
+              />
+            </div>
+            <div>
+              <label className="tw-block tw-mb-2">내용</label>
+              <textarea
+                value={newBug.description}
+                onChange={(e) => setNewBug({ ...newBug, description: e.target.value })}
+                className="tw-w-full tw-bg-gray-700 tw-rounded tw-px-3 tw-py-2 focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-blue-500 tw-min-h-[100px]"
+                placeholder="내용을 입력하세요"
+              />
+            </div>
+            <div className="tw-flex tw-justify-end tw-gap-2">
+              <button onClick={() => setIsModalVisible(false)} className="tw-px-4 tw-py-2 tw-bg-gray-700 tw-rounded hover:tw-bg-gray-600 tw-transition-colors">
+                취소
+              </button>
+              <button
+                onClick={handleCreateBug}
+                disabled={loading}
+                className="tw-px-4 tw-py-2 tw-bg-blue-600 tw-rounded hover:tw-bg-blue-700 tw-transition-colors disabled:tw-opacity-50"
+              >
+                {loading ? <SyncLoader size={8} color="#ffffff" /> : '작성하기'}
+              </button>
+            </div>
+          </div>
+        </Modal>
+      </div>
     </motion.div>
   )
 }
