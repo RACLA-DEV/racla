@@ -1,9 +1,9 @@
 {
   "private": true,
-  "name": "project-ra",
-  "description": "프로젝트 RA",
-  "version": "0.6.2",
-  "author": "Lunatica Luna <luna@lunatica.kr>",
+  "name": "r-archive-electron-app",
+  "description": "R-ARCHIVE for Desktop",
+  "version": "0.6.3",
+  "author": "R-ARCHIVE <admin@r-archive.zip> by LunaticaLuna <luna@lunatica.kr>",
   "main": "app/background.js",
   "scripts": {
     "dev": "nextron --renderer-port 7777",

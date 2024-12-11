@@ -24,10 +24,10 @@ export const renderUserDropdown = (user, vArchiveUserData, ipcRenderer, router, 
         <button
           className="dropdown-item tw-py-2 tw-rounded-t-md"
           onClick={() => {
-            ipcRenderer.send('openBrowser', 'https://project-ra.lunatica.kr/')
+            ipcRenderer.send('openBrowser', 'https://r-archive.zip/')
           }}
         >
-          프로젝트 RA 바로가기
+          R-ARCHIVE 바로가기
         </button>
       </li>
       <li>

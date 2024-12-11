@@ -442,7 +442,9 @@ export default function VArchiveDbPage() {
     selectedGame === 'wjmax' && (
       <React.Fragment>
         <Head>
-          <title>데이터베이스({keyMode.replace('P', '')}B) - 프로젝트 RA</title>
+          <title>
+            {String(keyMode).replace('PLUS', '').replace('P', '').replace('B', '').replace('_', '')}B{keyMode.includes('P') ? '+' : ''} 데이터베이스 - R-ARCHIVE
+          </title>
         </Head>
         <div className="tw-flex tw-flex-col tw-gap-4 vh-screen tw-relative">
           {/* 상단 영역 */}

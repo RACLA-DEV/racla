@@ -502,7 +502,7 @@ export default function VArchiveDbTitlePage() {
     return (
       <React.Fragment>
         <Head>
-          <title>{baseSongData.length !== 0 ? baseSongData[0].name : '로딩중'} - 데이터베이스 - 프로젝트 RA</title>
+          <title>{baseSongData.length !== 0 ? baseSongData[0].name : '로딩중'} - 데이터베이스 - R-ARCHIVE</title>
         </Head>
         <div className="tw-flex tw-gap-4 vh-screen">
           {/* 곡 데이터 */}
@@ -535,7 +535,7 @@ export default function VArchiveDbTitlePage() {
                       {baseSongData[0].name}
                       <sup className="tw-text-xs tw-font-light tw-text-gray-300">
                         {' '}
-                        (V-ARCHIVE : {baseSongData[0].title} / 프로젝트 RA : {baseSongData[0].title})
+                        (V-ARCHIVE : {baseSongData[0].title} / R-ARCHIVE : {baseSongData[0].title})
                       </sup>
                     </span>
                   </div>

@@ -25,7 +25,7 @@ const BackgroundVideoComponent = React.memo(() => {
     setOpacity(backgroundBgaName ? 1 : 0)
   }, [backgroundBgaName])
 
-  const baseUrl = `https://cdn.lunatica.kr/${selectedGame.toLowerCase()}`
+  const baseUrl = `https://ribbon.r-archive.zip/${selectedGame.toLowerCase()}`
   const defaultVideoSrc = `${baseUrl}/bg_title.mp4`
   const dynamicVideoSrc = backgroundBgaName ? `${baseUrl}/preview/title/${backgroundBgaName}.${selectedGame === 'djmax_respect_v' ? 'webm' : 'mp4'}` : ''
 

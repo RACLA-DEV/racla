@@ -1,5 +1,6 @@
 import DjmaxHomeComponent from '@/components/Home/DjmaxHomeComponent'
 import WjmaxHomeComponent from '@/components/Home/WjmaxHomeComponent'
+import Head from 'next/head'
 import { useSelector } from 'react-redux'
 import { RootState } from 'store'
 
@@ -7,6 +8,9 @@ const Home = () => {
   const selectedGame = useSelector((state: RootState) => state.app.selectedGame)
   return (
     <>
+      <Head>
+        <title>R-ARCHIVE</title>
+      </Head>
       {selectedGame === 'wjmax' && <WjmaxHomeComponent />}
       {selectedGame === 'djmax_respect_v' && <DjmaxHomeComponent />}
     </>

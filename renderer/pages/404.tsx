@@ -14,5 +14,11 @@ export default function NotFoundPage({ userData }) {
     router.push('/')
   }, [])
 
-  return <></>
+  return (
+    <>
+      <Head>
+        <title>404 Not Found - R-ARCHIVE</title>
+      </Head>
+    </>
+  )
 }

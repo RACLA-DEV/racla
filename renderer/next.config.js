@@ -3,11 +3,11 @@ module.exports = {
   distDir: process.env.NODE_ENV === 'production' ? '../app' : '.next',
   trailingSlash: true,
   // images: {
-  //   domains: ['cdn.lunatica.kr', 'origin.lunatica.kr'],
+  //   domains: ['ribbon.r-archive.zip', 'origin.lunatica.kr'],
   //   remotePatterns: [
   //     {
   //       protocol: 'https',
-  //       hostname: 'cdn.lunatica.kr',
+  //       hostname: 'ribbon.r-archive.zip',
   //       pathname: '/**',
   //     },
   //   ],

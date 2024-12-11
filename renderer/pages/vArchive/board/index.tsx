@@ -1,4 +1,5 @@
 import { useNotificationSystem } from '@/libs/client/useNotifications'
+import Head from 'next/head'
 import { useRouter } from 'next/router'
 import { useEffect } from 'react'
 import { useSelector } from 'react-redux'
@@ -20,7 +21,13 @@ const BoardHome = () => {
     }
   }, [])
 
-  return <></>
+  return (
+    <>
+      <Head>
+        <title>성과표 - R-ARCHIVE</title>
+      </Head>
+    </>
+  )
 }
 
 export default BoardHome

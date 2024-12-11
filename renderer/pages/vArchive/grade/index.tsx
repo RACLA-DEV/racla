@@ -251,8 +251,8 @@ export default function VArchiveDbPage() {
     <React.Fragment>
       <Head>
         <title>
-          DJMAX RESPECT V 서열표 {String(keyMode) !== 'DJPOWER' ? String(keyMode) + 'B' : 'DJ POWER'}{' '}
-          {isNaN(Number(String(keyPattern))) ? String(keyPattern) : `Lv.${String(keyPattern)}`} - 프로젝트 RA
+          {String(keyMode) !== 'DJPOWER' ? String(keyMode) + 'B' : 'DJ POWER'}{' '}
+          {isNaN(Number(String(keyPattern))) ? String(keyPattern) : `Lv.${String(keyPattern)}`} 서열표 - R-ARCHIVE
         </title>
       </Head>
 
@@ -271,7 +271,7 @@ export default function VArchiveDbPage() {
               {/* 설명 내용 */}
               <div className="tw-bg-gray-700 tw-bg-opacity-30 tw-p-4 tw-rounded tw-space-y-2 tw-mb-auto">
                 <p className="tw-leading-relaxed">
-                  해당 서열표는 V-ARCHIVE의 서열표를 기반으로 하고 있습니다. 프로젝트 RA를 실행할 때마다 실시간으로 동기화됩니다.
+                  해당 서열표는 V-ARCHIVE의 서열표를 기반으로 하고 있습니다. R-ARCHIVE 데스크톱 앱을 실행할 때마다 실시간으로 동기화됩니다.
                 </p>
               </div>
 

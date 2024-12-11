@@ -458,7 +458,7 @@ const Board = () => {
     <React.Fragment>
       <Head>
         <title>
-          {keyMode}B {board} - 프로젝트 RA
+          {keyMode}B {board} 성과표 - R-ARCHIVE
         </title>
       </Head>
 

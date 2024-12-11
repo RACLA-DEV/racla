@@ -1,6 +1,6 @@
 appId: kr.lunatica.projectra
-productName: PROJECT RA
-copyright: Copyright © 2024 Lunatica Luna
+productName: R-ARCHIVE
+copyright: Copyright © 2024 R-ARCHIVE by LunaticaLuna
 directories:
   output: dist
   buildResources: resources

@@ -299,19 +299,19 @@ function MyApp({ Component, pageProps }: AppProps) {
     }
   }, [params, router])
 
-  // 프로젝트 RA 로그인 처리
+  // R-ARCHIVE 로그인 처리
   useEffect(() => {
     const fetchUserData = async () => {
       if (vArchiveUserNo !== '' && vArchiveUserToken !== '') {
         try {
-          // 프로젝트 RA API로 사용자 정보 조회
+          // R-ARCHIVE API로 사용자 정보 조회
           const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/v1/user/login/oauth/vArchive`, {
             userNo: vArchiveUserNo,
             userToken: vArchiveUserToken,
           })
 
           if (response.data) {
-            showNotification(`${response.data.userName}님 프로젝트 RA에 오신 것을 환영합니다.`, 'tw-bg-lime-600')
+            showNotification(`${response.data.userName}님 R-ARCHIVE에 오신 것을 환영합니다.`, 'tw-bg-lime-600')
             window.ipc.send('storeSession', {
               userNo: response.data.userNo,
               userToken: response.data.userToken,
@@ -370,19 +370,19 @@ function MyApp({ Component, pageProps }: AppProps) {
     fetchUserData()
   }, [vArchiveUserNo, vArchiveUserToken])
 
-  // 프로젝트 RA 로그인 처리
+  // R-ARCHIVE 로그인 처리
   useEffect(() => {
     const fetchUserData = async () => {
       if (userNo !== '' && userToken !== '') {
         try {
-          // 프로젝트 RA API로 사용자 정보 조회
+          // R-ARCHIVE API로 사용자 정보 조회
           const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/v1/user/login`, {
             userNo: userNo,
             userToken: userToken,
           })
 
           if (response.data) {
-            showNotification(`${response.data.userName}님 프로젝트 RA에 오신 것을 환영합니다.`, 'tw-bg-lime-600')
+            showNotification(`${response.data.userName}님 R-ARCHIVE에 오신 것을 환영합니다.`, 'tw-bg-lime-600')
             store.dispatch(
               setUserData({
                 userName: response.data.userName,
@@ -534,6 +534,22 @@ function MyApp({ Component, pageProps }: AppProps) {
         <div className="tw-flex tw-flex-col tw-gap-4 tw-w-full">
           <div className="tw-flex tw-flex-col tw-gap-2 tw-w-full tw-leading-relaxed">
             <div className="tw-bg-blue-900 tw-bg-opacity-20 tw-p-4 tw-rounded tw-border-l-4 tw-border-blue-500">
+              <span className="tw-font-bold">프로젝트 RA는 2024년 12월 07일 이후로 R-ARCHIVE로 리브랜딩 되었습니다.</span>
+            </div>
+            <div className="tw-bg-gray-700 tw-bg-opacity-30 tw-p-4 tw-rounded">
+              <span>
+                기존의 LUNATICA.KR 도메인은 하위 호환성을 위한 최소한의 유지 보수만으로 운영되며 공식적으로는 더 이상 사용되지 않으므로 참고해주시길
+                부탁드립니다.
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="tw-flex tw-flex-col tw-gap-8 tw-p-6 tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-text-sm">
+        <div className="tw-flex tw-flex-col tw-gap-4 tw-w-full">
+          <div className="tw-flex tw-flex-col tw-gap-2 tw-w-full tw-leading-relaxed">
+            <div className="tw-bg-blue-900 tw-bg-opacity-20 tw-p-4 tw-rounded tw-border-l-4 tw-border-blue-500">
               <span className="tw-font-bold">DJMAX RESPECT V 서비스는 데스크톱 앱에서만 지원합니다.</span>
             </div>
             <div className="tw-bg-gray-700 tw-bg-opacity-30 tw-p-4 tw-rounded">
@@ -582,11 +598,11 @@ function MyApp({ Component, pageProps }: AppProps) {
         <div className="tw-flex tw-flex-col tw-gap-4 tw-w-full">
           <div className="tw-flex tw-flex-col tw-gap-2 tw-w-full tw-leading-relaxed">
             <div className="tw-bg-blue-900 tw-bg-opacity-20 tw-p-4 tw-rounded tw-border-l-4 tw-border-blue-500">
-              <span className="tw-font-bold">프로젝트 RA는 아래와 같은 사용자 데이터를 수집합니다.</span>
+              <span className="tw-font-bold">R-ARCHIVE는 아래와 같은 사용자 데이터를 수집합니다.</span>
             </div>
             <div className="tw-bg-gray-700 tw-bg-opacity-30 tw-p-4 tw-rounded">
               <span>
-                프로젝트 RA는 사용자에게 더 나은 서비스를 제공하기 위한 닉네임 정보, 플레이 데이터, 접속 환경의 IP를 수집하고 있습니다. 사용자의 동의 없이
+                R-ARCHIVE는 사용자에게 더 나은 서비스를 제공하기 위한 닉네임 정보, 플레이 데이터, 접속 환경의 IP를 수집하고 있습니다. 사용자의 동의 없이
                 제3자에게 제공되지 않으며 계정 및 데이터 삭제 요청은 개발자에게 문의바랍니다.
               </span>
             </div>
@@ -603,7 +619,14 @@ function MyApp({ Component, pageProps }: AppProps) {
           <div className="tw-flex tw-flex-col tw-gap-2 tw-w-full tw-leading-relaxed">
             {/* 첫 번째 설명 블록 */}
             <div className="tw-bg-green-900 tw-bg-opacity-20 tw-p-4 tw-rounded tw-border-l-4 tw-border-green-500">
-              <span className="tw-font-bold tw-whitespace-pre-line">{`프로젝트 RA가 0.6.2 버전으로 업데이트 되었습니다.`}</span>
+              <span className="tw-font-bold tw-whitespace-pre-line">R-ARCHIVE 데스크톱 앱이 0.6.3 버전으로 업데이트 되었습니다.</span>
+            </div>
+
+            <div className="tw-bg-gray-700 tw-bg-opacity-30 tw-p-4 tw-rounded">
+              <span>
+                프로젝트 RA는 2024년 12월 07일 이후로 R-ARCHIVE로 리브랜딩 되었습니다. 기존의 LUNATICA.KR 도메인은 하위 호환성을 위한 최소한의 유지 보수만으로
+                운영되며 공식적으로는 더 이상 사용되지 않으므로 참고해주시길 부탁드립니다.
+              </span>
             </div>
 
             <div className="tw-bg-gray-700 tw-bg-opacity-30 tw-p-4 tw-rounded">
@@ -659,8 +682,8 @@ function MyApp({ Component, pageProps }: AppProps) {
               <span>
                 <span className="tw-text-sm tw-font-bold">WJMAX 서비스 지원</span>
                 <br />
-                V-ARCHIVE를 벤치마킹하여 프로젝트 RA의 자체 서비스로 WJMAX 서비스를 제공합니다. 데이터베이스, 성과표를 지원하며 데이터베이스에서는 키보드
-                접근성과 DJMAX RESPECT V 서비스 대비 더 많은 편의 기능을 제공합니다.
+                V-ARCHIVE를 벤치마킹하여 R-ARCHIVE의 자체 서비스로 WJMAX 서비스를 제공합니다. 데이터베이스, 성과표를 지원하며 데이터베이스에서는 키보드 접근성과
+                DJMAX RESPECT V 서비스 대비 더 많은 편의 기능을 제공합니다.
                 <br />
                 <br />
                 방향키 : 카테고리 변경 및 곡 선택
@@ -675,40 +698,40 @@ function MyApp({ Component, pageProps }: AppProps) {
               </span>
               <div className="tw-flex tw-justify-center tw-my-4">
                 <Image
-                  src="https://cdn.lunatica.kr/project_ra/update_060_wjmax1.png"
+                  src="https://ribbon.r-archive.zip/project_ra/update_060_wjmax1.png"
                   alt="overlay"
                   className="tw-cursor-pointer tw-w-1/2 tw-h-auto"
                   width={500}
                   height={500}
-                  onClick={() => setSelectedImage('https://cdn.lunatica.kr/project_ra/update_060_wjmax1.png?full=1')}
+                  onClick={() => setSelectedImage('https://ribbon.r-archive.zip/project_ra/update_060_wjmax1.png?full=1')}
                   referrerPolicy="origin"
                 />
                 <Image
-                  src="https://cdn.lunatica.kr/project_ra/update_060_wjmax2.png"
+                  src="https://ribbon.r-archive.zip/project_ra/update_060_wjmax2.png"
                   alt="overlay"
                   className="tw-cursor-pointer tw-w-1/2 tw-h-auto"
                   width={500}
                   height={500}
-                  onClick={() => setSelectedImage('https://cdn.lunatica.kr/project_ra/update_060_wjmax2.png?full=1')}
+                  onClick={() => setSelectedImage('https://ribbon.r-archive.zip/project_ra/update_060_wjmax2.png?full=1')}
                 />
               </div>
               <div className="tw-flex tw-justify-center tw-my-4">
                 <Image
-                  src="https://cdn.lunatica.kr/project_ra/update_060_wjmax3.png"
+                  src="https://ribbon.r-archive.zip/project_ra/update_060_wjmax3.png"
                   alt="overlay"
                   className="tw-cursor-pointer tw-w-1/2 tw-h-auto"
                   width={500}
                   height={500}
-                  onClick={() => setSelectedImage('https://cdn.lunatica.kr/project_ra/update_060_wjmax3.png?full=1')}
+                  onClick={() => setSelectedImage('https://ribbon.r-archive.zip/project_ra/update_060_wjmax3.png?full=1')}
                   referrerPolicy="origin"
                 />
                 <Image
-                  src="https://cdn.lunatica.kr/project_ra/update_060_wjmax4.png"
+                  src="https://ribbon.r-archive.zip/project_ra/update_060_wjmax4.png"
                   alt="overlay"
                   className="tw-cursor-pointer tw-w-1/2 tw-h-auto"
                   width={500}
                   height={500}
-                  onClick={() => setSelectedImage('https://cdn.lunatica.kr/project_ra/update_060_wjmax4.png?full=1')}
+                  onClick={() => setSelectedImage('https://ribbon.r-archive.zip/project_ra/update_060_wjmax4.png?full=1')}
                 />
               </div>
             </div>
@@ -730,12 +753,12 @@ function MyApp({ Component, pageProps }: AppProps) {
               </span>
               <div className="tw-flex tw-justify-center tw-my-4">
                 <Image
-                  src="https://cdn.lunatica.kr/project_ra/update_060_feedback.png"
+                  src="https://ribbon.r-archive.zip/project_ra/update_060_feedback.png"
                   alt="overlay"
                   className="tw-cursor-pointer tw-w-1/2 tw-h-auto"
                   width={500}
                   height={500}
-                  onClick={() => setSelectedImage('https://cdn.lunatica.kr/project_ra/update_060_feedback.png?full=1')}
+                  onClick={() => setSelectedImage('https://ribbon.r-archive.zip/project_ra/update_060_feedback.png?full=1')}
                 />
               </div>
             </div>
@@ -758,7 +781,7 @@ function MyApp({ Component, pageProps }: AppProps) {
             </div>
 
             <div className="tw-bg-gray-700 tw-bg-opacity-30 tw-p-4 tw-rounded">
-              <span>창 모드 사용자를 위해 프로젝트 RA가 요구하는 최저 해상도가 1440x810에서 1280x720으로 변경되었습니다.</span>
+              <span>창 모드 사용자를 위해 R-ARCHIVE 데스크톱 앱이 요구하는 최저 해상도가 1440x810에서 1280x720으로 변경되었습니다.</span>
             </div>
 
             <div className="tw-bg-gray-700 tw-bg-opacity-30 tw-p-4 tw-rounded">
@@ -770,6 +793,10 @@ function MyApp({ Component, pageProps }: AppProps) {
                 (DJMAX RESPECT V 오픈 매치 한정) 자동 캡쳐 모드 사용 시 캡쳐 주기를 3초 미만으로 사용하는 경우 올바르게 캡쳐되지 않는 문제가 발생하여 제대로
                 캡쳐가 인식되지 않는 경우가 발생하여 일정 시간(3초) 후 한번 더 캡쳐하도록 기능이 변경되었습니다.
               </span>
+            </div>
+
+            <div className="tw-bg-gray-700 tw-bg-opacity-30 tw-p-4 tw-rounded">
+              <span>(0.6.3) 서비스와 관련된 단어, 명칭을 R-ARCHIVE로 리브랜딩 하였습니다.</span>
             </div>
           </div>
         </div>
@@ -803,6 +830,17 @@ function MyApp({ Component, pageProps }: AppProps) {
 
             <div className="tw-bg-gray-700 tw-bg-opacity-30 tw-p-4 tw-rounded">
               <span>(0.6.2) 자동 캡쳐 모드 사용 시 상태값 충돌로 인하여 발생할 수 있는 Application Error를 일부 개선하였습니다.</span>
+            </div>
+
+            <div className="tw-bg-gray-700 tw-bg-opacity-30 tw-p-4 tw-rounded">
+              <span>(0.6.3) 백 프로세스(Electron)에서 발생할 수 있는 오류에 대한 예외 처리 코드를 모두 추가하였습니다.</span>
+            </div>
+
+            <div className="tw-bg-gray-700 tw-bg-opacity-30 tw-p-4 tw-rounded">
+              <span>
+                (0.6.3) 자동 캡쳐 모드 사용 시 캡쳐 주기를 3초 미만으로 사용 시 데이터 처리 과정에서 R-ARCHIVE 데스크톱 앱이 재시작하는 경우가 발생하여
+                정상적으로 성과 기록 등록이 되지 않던 부분을 일부 해소하였습니다.
+              </span>
             </div>
           </div>
         </div>
@@ -958,7 +996,7 @@ function MyApp({ Component, pageProps }: AppProps) {
       ) : (
         <div className={`tw-flex tw-w-screen tw-h-screen flex-equal tw-flex-col tw-gap-10 tw-items-center tw-justify-center ${noto.className}`}>
           <Image src="/images/logo.svg" height={240} width={240} alt="Logo" />
-          {/* <span className="tw-text-sm tw-font-bold">프로젝트 RA 실행에 필요한 데이터를 불러오고 있습니다. 잠시만 기다려주세요.</span> */}
+          {/* <span className="tw-text-sm tw-font-bold">R-ARCHIVE 실행에 필요한 데이터를 불러오고 있습니다. 잠시만 기다려주세요.</span> */}
           <SyncLoader color="#ffffff" size={8} />
         </div>
       )}

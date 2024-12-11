@@ -204,7 +204,7 @@ export default function VArchiveRegScorePage() {
         if (!vArchiveData.isVerified && vArchiveData.error) {
           showNotification('마지막으로 업로드한 성과 기록 이미지의 데이터 유효성 검증에 실패하였습니다. 다시 캡쳐한 후 재시도해주세요.', 'tw-bg-red-600')
         } else if (vArchiveData.isVerified) {
-          showNotification('성과 기록 이미지의 데이터 유효성 검증에 성공하였습니다. V-ARCHIVE, 프로젝트 RA 서비스로 점수 갱신을 요청합니다.', 'tw-bg-lime-600')
+          showNotification('성과 기록 이미지의 데이터 유효성 검증에 성공하였습니다. V-ARCHIVE, R-ARCHIVE 서비스로 점수 갱신을 요청합니다.', 'tw-bg-lime-600')
           fetchUpdateScore(vArchiveData)
           fetchRecentHistory()
         }
@@ -457,7 +457,7 @@ export default function VArchiveRegScorePage() {
   return (
     <React.Fragment>
       <Head>
-        <title>기록 등록(베타) - 프로젝트 RA</title>
+        <title>기록 등록(베타) - R-ARCHIVE</title>
       </Head>
       {vArchiveUserData.userName !== '' ? (
         <div
@@ -671,7 +671,7 @@ export default function VArchiveRegScorePage() {
                                   {vArchiveUploadedPageData.songData.name}
                                   <sup className="tw-text-xs tw-font-light tw-text-gray-300">
                                     {' '}
-                                    (V-ARCHIVE : {vArchiveUploadedPageData.songData.title} / 프로젝트 RA : {vArchiveUploadedPageData.songData.title})
+                                    (V-ARCHIVE : {vArchiveUploadedPageData.songData.title} / R-ARCHIVE : {vArchiveUploadedPageData.songData.title})
                                   </sup>
                                 </span>
                                 {/* {isCanRollback && backupData.patterns[`${vArchiveUploadedPageData.button}B`]?.[pattern]?.score && (
@@ -917,7 +917,7 @@ export default function VArchiveRegScorePage() {
                       <div className="tw-flex tw-flex-col tw-w-1/2 tw-relative tw-animate-fadeInLeft tw-bg-gray-600 tw-bg-opacity-10 tw-rounded-md p-4 tw-gap-2">
                         <div className="tw-flex tw-w-full tw-mb-2 tw-items-center tw-justify-between">
                           <span className="tw-text-lg tw-font-bold me-auto">최근 기록</span>
-                          <span className="tw-text-sm tw-text-gray-400">*프로젝트 RA 기록</span>
+                          <span className="tw-text-sm tw-text-gray-400">*R-ARCHIVE 기록</span>
                         </div>
 
                         <div className="tw-flex tw-flex-col tw-gap-2 tw-overflow-y-auto">

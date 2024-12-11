@@ -178,7 +178,7 @@ export default function VArchiveRegScorePage() {
         if (!projectRaData.isVerified && projectRaData.error) {
           showNotification('마지막으로 업로드한 성과 기록 이미지의 데이터 유효성 검증에 실패하였습니다. 다시 캡쳐한 후 재시도해주세요.', 'tw-bg-red-600')
         } else if (projectRaData.isVerified) {
-          showNotification('성과 기록을 프로젝트 RA에 정상적으로 갱신하였습니다.', 'tw-bg-lime-600')
+          showNotification('성과 기록을 R-ARCHIVE에 정상적으로 갱신하였습니다.', 'tw-bg-lime-600')
           if (projectRaData.filePath) {
             showNotification(`${projectRaData.filePath} 경로에 성과 기록 이미지가 저장되었습니다.`, 'tw-bg-lime-600')
           }
@@ -244,7 +244,7 @@ export default function VArchiveRegScorePage() {
   return (
     <React.Fragment>
       <Head>
-        <title>기록 등록(베타) - 프로젝트 RA</title>
+        <title>기록 등록(베타) - R-ARCHIVE</title>
       </Head>
       {userData.userName !== '' ? (
         <div
@@ -301,7 +301,11 @@ export default function VArchiveRegScorePage() {
                               <div className="tw-flex">
                                 <span className="tw-text-lg tw-font-bold me-auto">
                                   {projectRaUploadedPageData.songData.name}
-                                  <sup className="tw-text-xs tw-font-light tw-text-gray-300"> (프로젝트 RA : {projectRaUploadedPageData.songData.title})</sup>
+                                  <sup className="tw-text-xs tw-font-light tw-text-gray-300">
+                                    {' '}
+                                    (R-ARCHIVE : {projectRaUploadedPageData.songData.title} / 곡 길이 :{' '}
+                                    {moment.utc(projectRaUploadedPageData.songData.time * 1000).format('m분 s초')})
+                                  </sup>
                                 </span>
                               </div>
                             </div>

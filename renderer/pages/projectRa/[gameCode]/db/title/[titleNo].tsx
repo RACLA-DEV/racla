@@ -550,7 +550,9 @@ export default function VArchiveDbTitlePage() {
   // 패턴 데이터를 불러오는 함수
   const fetchPatternData = async (folderName: string, patternName: any, isKey6: boolean) => {
     try {
-      const response = await fetch(`https://cdn.lunatica.kr/${selectedGame}/music/${folderName}/${folderName} ${patternName?.en}${isKey6 ? ' Key6' : ''}.txt`)
+      const response = await fetch(
+        `https://ribbon.r-archive.zip/${selectedGame}/music/${folderName}/${folderName} ${patternName?.en}${isKey6 ? ' Key6' : ''}.txt`,
+      )
 
       if (!response.ok) {
         throw new Error('Network response was not ok')
@@ -570,7 +572,7 @@ export default function VArchiveDbTitlePage() {
     return (
       <React.Fragment>
         <Head>
-          <title>{baseSongData.length !== 0 ? baseSongData[0].name : '로딩중'} - 데이터베이스 - 프로젝트 RA</title>
+          <title>{baseSongData.length !== 0 ? baseSongData[0].name : '로딩중'} - 데이터베이스 - R-ARCHIVE</title>
         </Head>
         <div className="tw-flex tw-gap-4 vh-screen">
           {/* 곡 데이터 */}
@@ -615,7 +617,7 @@ export default function VArchiveDbTitlePage() {
                       {baseSongData[0].name}
                       <sup className="tw-text-xs tw-font-light tw-text-gray-300">
                         {' '}
-                        (프로젝트 RA : {baseSongData[0].title} / 곡 길이 : {moment.utc(baseSongData[0].time * 1000).format('m분 s초')})
+                        (R-ARCHIVE : {baseSongData[0].title} / 곡 길이 : {moment.utc(baseSongData[0].time * 1000).format('m분 s초')})
                       </sup>
                     </span>
                   </div>

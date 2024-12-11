@@ -38,7 +38,7 @@ const RenderUpdateSection: React.FC = () => {
 
   useEffect(() => {
     if (updateVersion) {
-      showNotification(`프로젝트 RA의 업데이트(${updateVersion})가 존재합니다. 자동 업데이트를 준비합니다.`, 'tw-bg-blue-600')
+      showNotification(`R-ARCHIVE 데스크톱 앱의 업데이트(${updateVersion})가 존재합니다. 자동 업데이트를 준비합니다.`, 'tw-bg-blue-600')
     }
   }, [updateVersion, showNotification])
 
@@ -101,7 +101,7 @@ const RenderUpdateSection: React.FC = () => {
         `}
         style={{
           transform: downloadProgress ? `translateX(-${100 - Math.floor(Number(downloadProgress.percent))}%)` : 'translateX(-100%)',
-          transition: 'transform 0.3s ease-in-out'
+          transition: 'transform 0.3s ease-in-out',
         }}
       />
     </div>

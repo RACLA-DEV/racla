@@ -276,7 +276,7 @@ export default function VArchiveDbPage() {
     selectedGame == 'djmax_respect_v' && (
       <React.Fragment>
         <Head>
-          <title>데이터베이스({keyMode}B) - 프로젝트 RA</title>
+          <title>{keyMode}B 데이터베이스 - R-ARCHIVE</title>
         </Head>
         <div className="tw-flex tw-gap-4 vh-screen tw-relative">
           {/* 곡 데이터 */}

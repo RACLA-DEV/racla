@@ -419,7 +419,7 @@ const gameList = { djmax_respect_v: 'DJMAX RESPECT V', wjmax: 'WJMAX' }
     if (userNo !== '' && userToken !== '') {
       session.defaultSession.cookies
         .set({
-          url: isProd ? 'https://papi.lunatica.kr/' : 'https://papi.kotaro.wtf/',
+          url: isProd ? 'https://aosame-rain.r-archive.zip/' : 'https://nagareboshi-to-kimi-no-uta.r-archive.zip/',
           name: 'Authorization',
           value: `${userNo}|${userToken}`,
           secure: true,
@@ -430,9 +430,11 @@ const gameList = { djmax_respect_v: 'DJMAX RESPECT V', wjmax: 'WJMAX' }
           console.log('Authorization Cookie Saved : ', userNo, userToken)
         })
     } else {
-      session.defaultSession.cookies.remove(isProd ? 'https://papi.lunatica.kr/' : 'https://papi.kotaro.wtf/', 'Authorization').then(() => {
-        console.log('Authorization Cookie Removed.')
-      })
+      session.defaultSession.cookies
+        .remove(isProd ? 'https://aosame-rain.r-archive.zip/' : 'https://nagareboshi-to-kimi-no-uta.r-archive.zip/', 'Authorization')
+        .then(() => {
+          console.log('Authorization Cookie Removed.')
+        })
     }
   })
 
@@ -644,7 +646,7 @@ const gameList = { djmax_respect_v: 'DJMAX RESPECT V', wjmax: 'WJMAX' }
             })
             formData.append('where', where)
             const session = await getSession()
-            const response = await axios.post(`${isProd ? 'https://rapi.lunatica.kr/api' : 'https://rapi.kotaro.wtf/api'}/v1/ocr/upload`, formData, {
+            const response = await axios.post(`${isProd ? 'https://near.r-archive.zip/api' : 'https://noah.r-archive.zip/api'}/v1/ocr/upload`, formData, {
               headers: {
                 ...formData.getHeaders(),
                 Authorization: isLogined ? `${session.vArchiveUserNo}|${session.vArchiveUserToken}` : '',
@@ -658,7 +660,7 @@ const gameList = { djmax_respect_v: 'DJMAX RESPECT V', wjmax: 'WJMAX' }
             if (playData.isVerified || playData.screenType == 'versus') {
               const filePath = path.join(
                 app.getPath('pictures'),
-                'PROJECT-RA',
+                'R-ARCHIVE',
                 gameCode.toUpperCase().replaceAll('_', ' ') +
                   '-' +
                   (playData.screenType == 'versus' ? 'Versus' : String(playData.songData.name).replaceAll(':', '-')) +
@@ -787,7 +789,7 @@ const gameList = { djmax_respect_v: 'DJMAX RESPECT V', wjmax: 'WJMAX' }
             formData.append('where', where)
             const session = await getSession()
             console.log(session)
-            const response = await axios.post(`${isProd ? 'https://rapi.lunatica.kr/api' : 'https://rapi.kotaro.wtf/api'}/v1/ocr/upload/wjmax`, formData, {
+            const response = await axios.post(`${isProd ? 'https://near.r-archive.zip/api' : 'https://noah.r-archive.zip/api'}/v1/ocr/upload/wjmax`, formData, {
               headers: {
                 ...formData.getHeaders(),
                 Authorization: isLogined ? `${session.userNo}|${session.userToken}` : '',
@@ -801,7 +803,7 @@ const gameList = { djmax_respect_v: 'DJMAX RESPECT V', wjmax: 'WJMAX' }
             if (playData.isVerified || playData.screenType == 'versus') {
               const filePath = path.join(
                 app.getPath('pictures'),
-                'PROJECT-RA',
+                'R-ARCHIVE',
                 gameCode.toUpperCase().replaceAll('_', ' ') +
                   '-' +
                   (playData.screenType == 'versus' ? 'Versus' : String(playData.songData.name).replaceAll(':', '-')) +
@@ -874,7 +876,7 @@ const gameList = { djmax_respect_v: 'DJMAX RESPECT V', wjmax: 'WJMAX' }
   ipcMain.on('create-player-file', async (event, data) => {
     const { userNo, userToken } = data
 
-    const filePath = path.join(app.getPath('documents'), 'PROJECT-RA', 'player.txt')
+    const filePath = path.join(app.getPath('documents'), 'R-ARCHIVE', 'player.txt')
 
     fs.writeFile(filePath, `${userNo}|${userToken}`, (err) => {
       if (err) {
@@ -892,7 +894,7 @@ const gameList = { djmax_respect_v: 'DJMAX RESPECT V', wjmax: 'WJMAX' }
 
     console.log(imageBuffer)
 
-    const filePath = path.join(app.getPath('pictures'), 'PROJECT-RA', '화면 캡쳐-' + moment().utcOffset(9).format('YYYY-MM-DD-HH-mm-ss-SSS') + '.png')
+    const filePath = path.join(app.getPath('pictures'), 'R-ARCHIVE', '화면 캡쳐-' + moment().utcOffset(9).format('YYYY-MM-DD-HH-mm-ss-SSS') + '.png')
 
     fs.writeFile(filePath, Buffer.from(imageBuffer), (err) => {
       if (err) {
@@ -1036,6 +1038,7 @@ const gameList = { djmax_respect_v: 'DJMAX RESPECT V', wjmax: 'WJMAX' }
       console.log('isRunning:', isRunning, 'isRunningWjmax:', isRunningWjmax)
       if ((isRunning || isRunningWjmax) && isLogined) {
         try {
+          isProcessing = true
           const gameSource = await captureScreen(isRunning ? 'djmax_respect_v' : 'wjmax')
           if (!gameSource) {
             console.error('Failed to capture game screen')

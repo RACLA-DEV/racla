@@ -23,7 +23,7 @@ import {
 } from 'react-icons/fa6'
 
 export const globalDictionary = {
-  version: 'V0.6.2.20241206 1656-Main',
+  version: 'V0.6.3.20241207 1523-Main',
   blurDataURL:
     'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDABQODxIPDRQSEBIXFRQdHx0fHRsdHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR3/2wBDAR0XFyAeIRshGxsdIR0hHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR3/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAb/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k=',
   settings: {
@@ -32,7 +32,7 @@ export const globalDictionary = {
         id: 'hardwareAcceleration',
         name: '하드웨어 가속 활성화',
         description:
-          '하드웨어 가속은 GPU를 사용하여 프로젝트 RA가 더 부드럽게 동작하게 해줍니다. 프로젝트 RA의 화면에 문제가 발생한다면 이 설정을 비활성화 해보시기 바랍니다. 설정을 변경하면 앱이 다시 시작됩니다.',
+          '하드웨어 가속은 GPU를 사용하여 R-ARCHIVE 데스크톱 앱이 더 부드럽게 동작하게 해줍니다. 앱의 화면에 문제가 발생한다면 이 설정을 비활성화 해보시기 바랍니다. 설정을 변경하면 앱이 다시 시작됩니다.',
         defaultValue: true,
         isEditable: false,
         requiresRestart: true,
@@ -184,7 +184,7 @@ export const globalDictionary = {
       autoStartGame: {
         id: 'autoStartGame',
         name: '게임 자동 실행',
-        description: '프로젝트 RA 실행 시 선택한 게임을 자동으로 실행합니다.',
+        description: 'R-ARCHIVE 데스크톱 앱 실행 시 선택한 게임을 자동으로 실행합니다.',
         defaultValue: false,
         isEditable: true,
         requiresRestart: false,
@@ -193,7 +193,7 @@ export const globalDictionary = {
         id: 'autoStartGameDjmaxRespectV',
         name: 'DJMAX RESPECT V 자동 실행',
         description:
-          '프로젝트 RA 실행 시 DJMAX RESPECT V를 자동으로 실행합니다. 해당 기능은 Steam과 DJMAX RESPECT V(Steam)가 설치되어 있을 경우에만 작동합니다.',
+          'R-ARCHIVE 데스크톱 앱 실행 시 DJMAX RESPECT V를 자동으로 실행합니다. 해당 기능은 Steam과 DJMAX RESPECT V(Steam)가 설치되어 있을 경우에만 작동합니다.',
         defaultValue: false,
         isEditable: true,
         requiresRestart: false,
@@ -201,7 +201,7 @@ export const globalDictionary = {
       autoStartGameWjmax: {
         id: 'autoStartGameWjmax',
         name: 'WJMAX 자동 실행',
-        description: '프로젝트 RA 실행 시 WJMAX를 자동으로 실행합니다.',
+        description: 'R-ARCHIVE 데스크톱 앱 실행 시 WJMAX를 자동으로 실행합니다.',
         defaultValue: false,
         isEditable: true,
         requiresRestart: false,
@@ -274,7 +274,7 @@ export const globalDictionary = {
     projectRa: {
       projectRa: {
         id: 'projectRaNavTitle',
-        name: '프로젝트 RA',
+        name: 'R-ARCHIVE',
         isDisplay: true,
         link: '/',
         userLevel: [],
@@ -610,7 +610,7 @@ export const globalDictionary = {
     // TJMAX: {
     //   projectRa: {
     //     id: 'projectRaNavTitle',
-    //     name: '프로젝트 RA',
+    //     name: 'R-ARCHIVE',
     //     isDisplay: true,
     //     link: '/projectRa',
     //     userLevel: [],

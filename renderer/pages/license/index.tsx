@@ -9,7 +9,7 @@ export default function LicensePage() {
   return (
     <React.Fragment>
       <Head>
-        <title>라이선스 - 프로젝트 RA</title>
+        <title>라이선스 - R-ARCHIVE</title>
       </Head>
 
       <div className="tw-h-[calc(100vh-7rem)] tw-flex tw-items-start tw-justify-center">
@@ -23,8 +23,8 @@ export default function LicensePage() {
             {/* 주요 라이선스 내용 */}
             <div className="tw-bg-gray-700 tw-bg-opacity-30 tw-p-6 tw-rounded-lg tw-space-y-4">
               <p className="tw-leading-relaxed">
-                1. 프로젝트 RA는 아래의 명시된 출처(게임)의 성과 관리 도구 애플리케이션(이하 팬 애플리케이션)이며, 애플리케이션 내 사용된 모든 컨텐츠(이미지,
-                문구 등)의 저작권은 명시된 저작권자에게 있습니다.
+                1. R-ARCHIVE는 아래의 명시된 출처(게임)의 성과 관리 도구 애플리케이션(이하 팬 애플리케이션)이며, 애플리케이션 내 사용된 모든 컨텐츠(이미지, 문구
+                등)의 저작권은 명시된 저작권자에게 있습니다.
               </p>
               <p className="tw-leading-relaxed">2. 명시된 콘텐츠 내부에 포함된 저작권 또한 각각의 콘텐츠의 저작권자에게 있습니다.</p>
               <p className="tw-leading-relaxed">
@@ -107,7 +107,7 @@ export default function LicensePage() {
               <h2 className="tw-text-lg tw-font-bold">Special Thanks</h2>
               <div className="tw-bg-gray-700 tw-bg-opacity-30 tw-p-6 tw-rounded-lg tw-space-y-4">
                 <p className="tw-leading-relaxed">1. 디시인사이드 디제이맥스 리스펙트 V 마이너 갤러리</p>
-                <p className="tw-leading-relaxed">2. 그리고 프로젝트 RA를 사용해주시고 피드백과 의견을 제공해주시는 모든 사용자 여러분들께 항상 감사합니다.</p>
+                <p className="tw-leading-relaxed">2. 그리고 R-ARCHIVE를 사용해주시고 피드백과 의견을 제공해주시는 모든 사용자 여러분들께 항상 감사합니다.</p>
               </div>
             </div>
 

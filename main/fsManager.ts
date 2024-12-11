@@ -11,6 +11,17 @@ const path = require('path')
 function ensureDirectoryExists(dirPath) {
   // 폴더 경로를 절대 경로로 변환합니다.
   const absolutePath = path.resolve(dirPath)
+  const parentDir = path.dirname(absolutePath)
+  const oldFolderName = 'PROJECT-RA'
+  const oldPath = path.join(parentDir, oldFolderName)
+
+  // 기존 PROJECT-RA 폴더가 있는지 확인
+  if (fs.existsSync(oldPath)) {
+    // 기존 폴더 이름을 R-ARCHIVE로 변경
+    fs.renameSync(oldPath, absolutePath)
+    console.log(`Folder Renamed: ${oldPath} -> ${absolutePath}`)
+    return
+  }
 
   // 폴더가 존재하는지 확인합니다.
   if (!fs.existsSync(absolutePath)) {
@@ -22,10 +33,10 @@ function ensureDirectoryExists(dirPath) {
   }
 }
 
-const picturePath = path.join(app.getPath('pictures'), 'PROJECT-RA')
+const picturePath = path.join(app.getPath('pictures'), 'R-ARCHIVE')
 ensureDirectoryExists(picturePath)
 
-const documentPath = path.join(app.getPath('documents'), 'PROJECT-RA')
+const documentPath = path.join(app.getPath('documents'), 'R-ARCHIVE')
 ensureDirectoryExists(documentPath)
 
 const sessionFile = path.join(documentPath, 'session.json')
