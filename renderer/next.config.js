@@ -15,6 +15,9 @@ module.exports = {
   images: {
     unoptimized: true,
   },
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production',
+  },
   webpack: (config) => {
     return config
   },

@@ -5,10 +5,16 @@
   "version": "0.6.3",
   "author": "R-ARCHIVE <admin@r-archive.zip> by LunaticaLuna <luna@lunatica.kr>",
   "main": "app/background.js",
+  "workspaces": [
+    "web"
+  ],
   "scripts": {
     "dev": "nextron --renderer-port 7777",
     "build": "nextron build",
-    "postinstall": "electron-builder install-app-deps"
+    "postinstall": "electron-builder install-app-deps",
+    "web:dev": "yarn workspace web dev",
+    "web:build": "yarn workspace web build",
+    "web:start": "yarn workspace web start"
   },
   "repository": {
     "type": "git",
