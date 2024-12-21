@@ -317,7 +317,8 @@ const Board = () => {
     <React.Fragment>
       <Head>
         <title>
-          {String(keyMode).replace('PLUS', '').replace('P', '').replace('B', '').replace('_', '')}B{keyMode.includes('P') ? '+' : ''} {board} 성과표 - R-ARCHIVE
+          {String(keyMode).replace('PLUS', '').replace('P', '').replace('B', '').replace('_', '')}B{String(keyMode).includes('P') ? '+' : ''} {board} 성과표 -
+          R-ARCHIVE
         </title>
       </Head>
 

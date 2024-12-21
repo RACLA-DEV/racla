@@ -534,12 +534,12 @@ function MyApp({ Component, pageProps }: AppProps) {
         <div className="tw-flex tw-flex-col tw-gap-4 tw-w-full">
           <div className="tw-flex tw-flex-col tw-gap-2 tw-w-full tw-leading-relaxed">
             <div className="tw-bg-blue-900 tw-bg-opacity-20 tw-p-4 tw-rounded tw-border-l-4 tw-border-blue-500">
-              <span className="tw-font-bold">프로젝트 RA는 2024년 12월 07일 이후로 R-ARCHIVE로 리브랜딩 되었습니다.</span>
+              <span className="tw-font-bold">프로젝트 RA는 2024년 12월 07일 이후로 R-ARCHIVE(알카이브)로 리브랜딩 되었습니다.</span>
             </div>
             <div className="tw-bg-gray-700 tw-bg-opacity-30 tw-p-4 tw-rounded">
               <span>
-                기존의 LUNATICA.KR 도메인은 하위 호환성을 위한 최소한의 유지 보수만으로 운영되며 공식적으로는 더 이상 사용되지 않으므로 참고해주시길
-                부탁드립니다.
+                제목의 내용에 이어 2024년 12월 16일부터 1인 개발 체계에서 3인 개발 체계로 변경되었으며 서버 운영에 필요한 자산을 후원 받게됨에 따라 이전보다 더
+                빠른 업데이트와 개선된 서비스가 제공될 예정입니다. 후원자 목록은 라이선스에서 확인하실 수 있습니다.
               </span>
             </div>
           </div>
@@ -619,13 +619,13 @@ function MyApp({ Component, pageProps }: AppProps) {
           <div className="tw-flex tw-flex-col tw-gap-2 tw-w-full tw-leading-relaxed">
             {/* 첫 번째 설명 블록 */}
             <div className="tw-bg-green-900 tw-bg-opacity-20 tw-p-4 tw-rounded tw-border-l-4 tw-border-green-500">
-              <span className="tw-font-bold tw-whitespace-pre-line">R-ARCHIVE 데스크톱 앱이 0.6.3 버전으로 업데이트 되었습니다.</span>
+              <span className="tw-font-bold tw-whitespace-pre-line">R-ARCHIVE 데스크톱 앱이 0.6.5 버전으로 업데이트 되었습니다.</span>
             </div>
 
             <div className="tw-bg-gray-700 tw-bg-opacity-30 tw-p-4 tw-rounded">
               <span>
-                프로젝트 RA는 2024년 12월 07일 이후로 R-ARCHIVE로 리브랜딩 되었습니다. 기존의 LUNATICA.KR 도메인은 하위 호환성을 위한 최소한의 유지 보수만으로
-                운영되며 공식적으로는 더 이상 사용되지 않으므로 참고해주시길 부탁드립니다.
+                2024년 12월 16일부터 1인 개발 체계에서 3인 개발 체계로 변경되었으며 서버 운영에 필요한 자산을 후원 받게됨에 따라 이전보다 더 빠른 업데이트와
+                개선된 서비스가 제공될 예정입니다. 후원자 목록은 라이선스에서 확인하실 수 있습니다.
               </span>
             </div>
 
@@ -762,6 +762,13 @@ function MyApp({ Component, pageProps }: AppProps) {
                 />
               </div>
             </div>
+
+            <div className="tw-bg-gray-700 tw-bg-opacity-30 tw-p-4 tw-rounded">
+              <span>
+                <span className="tw-text-sm tw-font-bold">(0.6.4) DJMAX RESPECT V - V LIBERTY 2 DLC 지원</span>
+                <br />V LIBERTY 2 DLC가 출시됨에 따라 성과 기록 등록 등의 기능을 사용 하기 위한 리소스를 추가하였습니다.
+              </span>
+            </div>
           </div>
         </div>
       </div>
@@ -842,6 +849,19 @@ function MyApp({ Component, pageProps }: AppProps) {
                 정상적으로 성과 기록 등록이 되지 않던 부분을 일부 해소하였습니다.
               </span>
             </div>
+
+            <div className="tw-bg-gray-700 tw-bg-opacity-30 tw-p-4 tw-rounded">
+              <span>
+                (0.6.4) WJMAX 성과표에서 다른 메뉴로 이동 시 화면이 새로 고침되며 이후로 동일 페이지나 다른 페이지로 접근이 불가해지는 버그를 수정하였습니다.
+              </span>
+            </div>
+
+            <div className="tw-bg-gray-700 tw-bg-opacity-30 tw-p-4 tw-rounded">
+              <span>
+                (0.6.5) MAX DJ POWER 최신화 코드가 누락되어 VL2가 NEW 곡에 포함되지 않던 버그가 확인되어 0.6.4를 릴리즈하고 30분도 안되어서 수정 후 0.6.5로
+                배포했습니다. 죄송합니다 ㅠㅠ...
+              </span>
+            </div>
           </div>
         </div>
       </div>
@@ -904,8 +924,8 @@ function MyApp({ Component, pageProps }: AppProps) {
   }
 
   const updateSections = [
-    { title: '업데이트', content: update1Section },
-    { title: '0.6 업데이트', content: update2Section },
+    { title: '업데이트 및 참고 사항', content: update1Section },
+    { title: '0.6.0+ 업데이트', content: update2Section },
   ]
 
   return (

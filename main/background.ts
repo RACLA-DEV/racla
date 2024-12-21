@@ -419,7 +419,7 @@ const gameList = { djmax_respect_v: 'DJMAX RESPECT V', wjmax: 'WJMAX' }
     if (userNo !== '' && userToken !== '') {
       session.defaultSession.cookies
         .set({
-          url: isProd ? 'https://aosame-rain.r-archive.zip/' : 'https://nagareboshi-to-kimi-no-uta.r-archive.zip/',
+          url: isProd ? 'https://aosame-rain.r-archive.zip/' : 'https://aosame-rain.r-archive.zip/',
           name: 'Authorization',
           value: `${userNo}|${userToken}`,
           secure: true,
@@ -430,11 +430,9 @@ const gameList = { djmax_respect_v: 'DJMAX RESPECT V', wjmax: 'WJMAX' }
           console.log('Authorization Cookie Saved : ', userNo, userToken)
         })
     } else {
-      session.defaultSession.cookies
-        .remove(isProd ? 'https://aosame-rain.r-archive.zip/' : 'https://nagareboshi-to-kimi-no-uta.r-archive.zip/', 'Authorization')
-        .then(() => {
-          console.log('Authorization Cookie Removed.')
-        })
+      session.defaultSession.cookies.remove(isProd ? 'https://aosame-rain.r-archive.zip/' : 'https://aosame-rain.r-archive.zip/', 'Authorization').then(() => {
+        console.log('Authorization Cookie Removed.')
+      })
     }
   })
 
@@ -646,7 +644,7 @@ const gameList = { djmax_respect_v: 'DJMAX RESPECT V', wjmax: 'WJMAX' }
             })
             formData.append('where', where)
             const session = await getSession()
-            const response = await axios.post(`${isProd ? 'https://near.r-archive.zip/api' : 'https://noah.r-archive.zip/api'}/v1/ocr/upload`, formData, {
+            const response = await axios.post(`${isProd ? 'https://near.r-archive.zip/api' : 'https://near.r-archive.zip/api'}/v1/ocr/upload`, formData, {
               headers: {
                 ...formData.getHeaders(),
                 Authorization: isLogined ? `${session.vArchiveUserNo}|${session.vArchiveUserToken}` : '',
@@ -789,7 +787,7 @@ const gameList = { djmax_respect_v: 'DJMAX RESPECT V', wjmax: 'WJMAX' }
             formData.append('where', where)
             const session = await getSession()
             console.log(session)
-            const response = await axios.post(`${isProd ? 'https://near.r-archive.zip/api' : 'https://noah.r-archive.zip/api'}/v1/ocr/upload/wjmax`, formData, {
+            const response = await axios.post(`${isProd ? 'https://near.r-archive.zip/api' : 'https://near.r-archive.zip/api'}/v1/ocr/upload/wjmax`, formData, {
               headers: {
                 ...formData.getHeaders(),
                 Authorization: isLogined ? `${session.userNo}|${session.userToken}` : '',

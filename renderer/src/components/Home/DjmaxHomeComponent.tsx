@@ -645,12 +645,12 @@ export default function DjmaxHomeComponent() {
 
       // NEW 30 턴 필터링 및 정렬 (VL, TEK DLC와 Insane Drift)
       const newPatterns = allPatterns
-        .filter((pattern: any) => pattern.dlcCode === 'VL' || pattern.dlcCode === 'TEK' || pattern.name === 'Insane Drift')
+        .filter((pattern: any) => pattern.dlcCode === 'VL' || pattern.dlcCode === 'VL2' || pattern.dlcCode === 'TEK' || pattern.name === 'Insane Drift')
         .sort((a: any, b: any) => (b.djpower || 0) - (a.djpower || 0))
 
       // BASIC 70 패턴 필터링 및 정렬 (VL, TEK DLC와 Insane Drift 제외)
       const basicPatterns = allPatterns
-        .filter((pattern: any) => pattern.dlcCode !== 'VL' && pattern.dlcCode !== 'TEK' && pattern.name !== 'Insane Drift')
+        .filter((pattern: any) => pattern.dlcCode !== 'VL' && pattern.dlcCode !== 'VL2' && pattern.dlcCode !== 'TEK' && pattern.name !== 'Insane Drift')
         .sort((a: any, b: any) => (b.djpower || 0) - (a.djpower || 0))
 
       // TOP 50 렬 (rating 기준)

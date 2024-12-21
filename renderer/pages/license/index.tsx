@@ -98,7 +98,7 @@ export default function LicensePage() {
                   onClick={() => window.ipc.send('openBrowser', 'https://github.com/djmax-in/openapi?tab=readme-ov-file')}
                 >
                   <FaLink className="tw-text-sm" />
-                  <span>V-ARCHIVE Open API - V-ARCHIVE</span>
+                  <span>V-ARCHIVE API - V-ARCHIVE</span>
                 </div>
               </div>
             </div>
@@ -106,8 +106,13 @@ export default function LicensePage() {
             <div className="tw-space-y-4">
               <h2 className="tw-text-lg tw-font-bold">Special Thanks</h2>
               <div className="tw-bg-gray-700 tw-bg-opacity-30 tw-p-6 tw-rounded-lg tw-space-y-4">
-                <p className="tw-leading-relaxed">1. 디시인사이드 디제이맥스 리스펙트 V 마이너 갤러리</p>
-                <p className="tw-leading-relaxed">2. 그리고 R-ARCHIVE를 사용해주시고 피드백과 의견을 제공해주시는 모든 사용자 여러분들께 항상 감사합니다.</p>
+                <p className="tw-leading-relaxed">1. 동기 부여를 해준 디시인사이드 디제이맥스 리스펙트 V 마이너 갤러리</p>
+                <p className="tw-leading-relaxed">2. 리소스 사용을 허락해주신 V-ARCHIVE 개발자님을 포함한 관계자분들</p>
+                <p className="tw-leading-relaxed">3. R-ARCHIVE 운영과 개발을 도와주는 GGDRN0 STUDIO와 사랑하는 팀원들</p>
+                <p className="tw-leading-relaxed">
+                  4. 매달 50 SGD 상당의 서버 자산을 정기적으로 후원해주시고 가난한 개발자를 위해 V LIBERTY 2 DLC를 선물해주신 KIHARU 후원자님
+                </p>
+                <p className="tw-leading-relaxed">5. 마지막으로 R-ARCHIVE를 사용해주시는 모든 사용자 여러분들께 감사합니다.</p>
               </div>
             </div>
 

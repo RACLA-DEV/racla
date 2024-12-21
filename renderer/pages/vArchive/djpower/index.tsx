@@ -57,7 +57,7 @@ export default function VArchiveDjPowerPage() {
           const dlcCode = R.path(['dlcCode'], item)
           const name = R.path(['name'], item)
           return (
-            (['6'].includes(keyMode) && ['Re:BIRTH'].includes(name) ? true : false) || !['VL', 'CP', 'TEK'].includes(dlcCode)
+            (['6'].includes(keyMode) && ['Re:BIRTH'].includes(name) ? true : false) || !['VL', 'VL2', 'CP', 'TEK'].includes(dlcCode)
             // (!['FAL', 'VL', 'CP', 'TEK'].includes(dlcCode) && !['Kamui', 'BlueWhite'].includes(name))
           )
         }),
@@ -87,7 +87,7 @@ export default function VArchiveDjPowerPage() {
             const dlcCode = R.path(['dlcCode'], item)
             const name = R.path(['name'], item)
             // return (['FAL', 'VL', 'CP', 'TEK'].includes(dlcCode) || ['Kamui', 'BlueWhite'].includes(name)) && !['From Hell to Breakfast', 'SURVIVOR'].includes(name)
-            return ['VL', 'CP', 'TEK'].includes(dlcCode) && !['From Hell to Breakfast', 'SURVIVOR', 'Re:BIRTH'].includes(name)
+            return ['VL', 'VL2', 'CP', 'TEK'].includes(dlcCode) && !['From Hell to Breakfast', 'SURVIVOR', 'Re:BIRTH'].includes(name)
           }),
           data,
         )
@@ -315,7 +315,7 @@ export default function VArchiveDjPowerPage() {
           <div className="tw-flex tw-justify-end tw-gap-2 tw-items-center tw-text-xs tw-font-semibold">
             <FaTriangleExclamation className=" tw-text-yellow-500" />
             <div className="tw-flex tw-items-center tw-gap-1 tw-text-gray-300">
-              2024년 11월 18일 03시 45분 기준 V-ARCHIVE와 동기화됨 (
+              2024년 12월 20일 01시 18분 기준 V-ARCHIVE와 동기화됨 (
               <span
                 className="tw-inline-flex tw-items-center tw-gap-1 tw-text-blue-400 hover:tw-text-blue-300 tw-cursor-pointer tw-transition-colors"
                 onClick={() => window.ipc.openBrowser(`https://v-archive.net/djpower/${keyMode}`)}

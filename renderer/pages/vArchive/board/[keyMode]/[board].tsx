@@ -232,12 +232,12 @@ const Board = () => {
 
         // NEW 30 패턴 필터링 및 정렬
         const newPatterns = allPatterns
-          .filter((pattern: any) => pattern.dlcCode === 'VL' || pattern.dlcCode === 'TEK' || pattern.name === 'Insane Drift')
+          .filter((pattern: any) => pattern.dlcCode === 'VL' || pattern.dlcCode === 'VL2' || pattern.dlcCode === 'TEK' || pattern.name === 'Insane Drift')
           .sort((a: any, b: any) => b.djpower - a.djpower)
 
         // BASIC 70 패턴 필터링 및 정렬
         const basicPatterns = allPatterns
-          .filter((pattern: any) => pattern.dlcCode !== 'VL' && pattern.dlcCode !== 'TEK' && pattern.name !== 'Insane Drift')
+          .filter((pattern: any) => pattern.dlcCode !== 'VL' && pattern.dlcCode !== 'VL2' && pattern.dlcCode !== 'TEK' && pattern.name !== 'Insane Drift')
           .sort((a: any, b: any) => b.djpower - a.djpower)
 
         // TOP 50 정렬 (이건 여전히 rating 기준)
