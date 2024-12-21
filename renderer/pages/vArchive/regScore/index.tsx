@@ -350,12 +350,7 @@ export default function VArchiveRegScorePage() {
               const top49Rating = (sortedPatterns[48] as any)?.rating || 0
 
               if (newRating > top50Cutoff) {
-                showNotification(
-                  `${data.songData.name} 곡의 성과로 TOP50이 ${top50Cutoff}TP에서 ${top49Rating}TP로 갱신하였습니다.`,
-                  'tw-bg-yellow-700',
-                  'top50-updated',
-                  true,
-                )
+                showNotification(`${data.songData.name} 곡의 성과로 TOP50이 ${top50Cutoff}TP에서 ${top49Rating}TP로 갱신하였습니다.`, 'tw-bg-yellow-700')
                 window.ipc.send('top50-updated', {
                   title: data.songData.title,
                   name: data.songData.name,
@@ -410,17 +405,17 @@ export default function VArchiveRegScorePage() {
               setBackupData(null)
               dispatch(setVArchiveUploadedPageData(null))
               setIsCanRollback(false)
-              showNotification('성과 기록을 정상적으로 롤백하였습니다.', 'tw-bg-lime-600', 'score-rollback', true)
+              showNotification('성과 기록을 정상적으로 롤백하였습니다.', 'tw-bg-lime-600')
             }
           })
           .catch((error) => {
-            showNotification('알 수 없는 오류가 발생하여 성과 기록 롤백에 실패하였습니다. 다시 시도해주시길 바랍니다.', 'tw-bg-red-600', 'score-rollback', true)
+            showNotification('알 수 없는 오류가 발생하여 성과 기록 롤백에 실패하였습니다. 다시 시도해주시길 바랍니다.', 'tw-bg-red-600')
           })
       } catch (error) {
         console.error('Error fetching data:', error)
       }
     } else {
-      showNotification('알 수 없는 오류가 발생하여 성과 기록 롤백에 실패하였습니다. 다시 시도해주시길 바랍니다.', 'tw-bg-red-600', 'score-rollback', true)
+      showNotification('알 수 없는 오류가 발생하여 성과 기록 롤백에 실패하였습니다. 다시 시도해주시길 바랍니다.', 'tw-bg-red-600')
     }
   }
 
@@ -492,7 +487,7 @@ export default function VArchiveRegScorePage() {
 
                   <div className="tw-flex tw-h-full tw-w-full tw-gap-4">
                     {vArchiveUploadedPageData.versusData.map((playerData, index) => (
-                      <div className="tw-flex tw-flex-col tw-gap-4 tw-flex-1">
+                      <div className="tw-flex tw-flex-col tw-gap-4 tw-flex-1" key={`versusDataList_${index}`}>
                         <div
                           key={index}
                           className={
@@ -512,7 +507,7 @@ export default function VArchiveRegScorePage() {
 
                             {/* 하단 정보 */}
                             <div className="tw-flex tw-gap-3 tw-mt-auto tw-items-end">
-                              <ScorePopupComponent songItemTitle={playerData.songData.title} keyMode={playerData.button + 'B'} />
+                              <ScorePopupComponent songItemTitle={playerData.songData.title} keyMode={playerData.button} />
                               <div className="tw-flex tw-flex-col tw-w-full">
                                 <span className="tw-flex tw-font-light tw-text-gray-300">{playerData.songData.composer}</span>
                                 <div className="tw-flex">
@@ -545,18 +540,20 @@ export default function VArchiveRegScorePage() {
                                     <span
                                       className={`tw-flex tw-items-center tw-gap-1 tw-text-lg ${
                                         parseFloat(String(playerData.score)) >
-                                        parseFloat(String(versusBackupData[index].patterns[`${playerData.button}B`][patternToCode(playerData.pattern)].score))
+                                        parseFloat(String(versusBackupData[index].patterns[`${playerData.button}B`][patternToCode(playerData.pattern)]?.score))
                                           ? 'tw-text-red-500'
                                           : parseFloat(String(playerData.score)) <
                                             parseFloat(
-                                              String(versusBackupData[index].patterns[`${playerData.button}B`][patternToCode(playerData.pattern)].score),
+                                              String(versusBackupData[index].patterns[`${playerData.button}B`][patternToCode(playerData.pattern)]?.score),
                                             )
                                           ? 'tw-text-blue-500'
                                           : 'tw-text-gray-500'
                                       }`}
                                     >
                                       {parseFloat(String(playerData.score)) >
-                                      parseFloat(String(versusBackupData[index].patterns[`${playerData.button}B`][patternToCode(playerData.pattern)].score)) ? (
+                                      parseFloat(
+                                        String(versusBackupData[index].patterns[`${playerData.button}B`][patternToCode(playerData.pattern)]?.score),
+                                      ) ? (
                                         <>
                                           <IconContext.Provider value={{ size: '12', className: 'tw-inline tw-mt-0.5' }}>
                                             <FiTriangle />
@@ -564,14 +561,14 @@ export default function VArchiveRegScorePage() {
                                           {(
                                             parseFloat(String(playerData.score)) -
                                             parseFloat(
-                                              String(versusBackupData[index].patterns[`${playerData.button}B`][patternToCode(playerData.pattern)].score),
+                                              String(versusBackupData[index].patterns[`${playerData.button}B`][patternToCode(playerData.pattern)]?.score),
                                             )
                                           ).toFixed(2)}
                                           %
                                         </>
                                       ) : parseFloat(String(playerData.score)) <
                                         parseFloat(
-                                          String(versusBackupData[index].patterns[`${playerData.button}B`][patternToCode(playerData.pattern)].score),
+                                          String(versusBackupData[index].patterns[`${playerData.button}B`][patternToCode(playerData.pattern)]?.score),
                                         ) ? (
                                         <>
                                           <IconContext.Provider value={{ size: '12', className: 'tw-inline tw-rotate-180 tw-mt-0.5' }}>
@@ -579,7 +576,7 @@ export default function VArchiveRegScorePage() {
                                           </IconContext.Provider>
                                           {(
                                             parseFloat(
-                                              String(versusBackupData[index].patterns[`${playerData.button}B`][patternToCode(playerData.pattern)].score),
+                                              String(versusBackupData[index].patterns[`${playerData.button}B`][patternToCode(playerData.pattern)]?.score),
                                             ) - parseFloat(String(playerData.score))
                                           ).toFixed(2)}
                                           %

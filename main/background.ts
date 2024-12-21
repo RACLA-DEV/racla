@@ -204,6 +204,13 @@ const gameList = { djmax_respect_v: 'DJMAX RESPECT V', wjmax: 'WJMAX' }
         return
       }
 
+      if (!settingData.resultOverlay) {
+        if (overlayWindow.isVisible()) {
+          overlayWindow.hide()
+        }
+        return
+      }
+
       const gamePos: any = await findGameWindow(isGameRunning ? 'djmax_respect_v' : 'wjmax')
       const focusedWindow = await getFocusedWindow()
 
@@ -419,7 +426,7 @@ const gameList = { djmax_respect_v: 'DJMAX RESPECT V', wjmax: 'WJMAX' }
     if (userNo !== '' && userToken !== '') {
       session.defaultSession.cookies
         .set({
-          url: isProd ? 'https://aosame-rain.r-archive.zip/' : 'https://aosame-rain.r-archive.zip/',
+          url: isProd ? 'https://aosame-rain.r-archive.zip/' : 'https://kamome-sano.r-archive.zip/',
           name: 'Authorization',
           value: `${userNo}|${userToken}`,
           secure: true,
@@ -430,7 +437,7 @@ const gameList = { djmax_respect_v: 'DJMAX RESPECT V', wjmax: 'WJMAX' }
           console.log('Authorization Cookie Saved : ', userNo, userToken)
         })
     } else {
-      session.defaultSession.cookies.remove(isProd ? 'https://aosame-rain.r-archive.zip/' : 'https://aosame-rain.r-archive.zip/', 'Authorization').then(() => {
+      session.defaultSession.cookies.remove(isProd ? 'https://aosame-rain.r-archive.zip/' : 'https://kamome-sano.r-archive.zip/', 'Authorization').then(() => {
         console.log('Authorization Cookie Removed.')
       })
     }
@@ -644,7 +651,7 @@ const gameList = { djmax_respect_v: 'DJMAX RESPECT V', wjmax: 'WJMAX' }
             })
             formData.append('where', where)
             const session = await getSession()
-            const response = await axios.post(`${isProd ? 'https://near.r-archive.zip/api' : 'https://near.r-archive.zip/api'}/v1/ocr/upload`, formData, {
+            const response = await axios.post(`${isProd ? 'https://near.r-archive.zip/api' : 'https://noah.r-archive.zip/api'}/v1/ocr/upload`, formData, {
               headers: {
                 ...formData.getHeaders(),
                 Authorization: isLogined ? `${session.vArchiveUserNo}|${session.vArchiveUserToken}` : '',
@@ -680,8 +687,22 @@ const gameList = { djmax_respect_v: 'DJMAX RESPECT V', wjmax: 'WJMAX' }
               }
 
               isUploaded = true
-              if (where !== 'versus' && playData.screenType !== 'versus') {
+              if (where !== 'versus' && playData.screenType !== 'versus' && playData.isVerified) {
                 settingData.resultOverlay && overlayWindow.webContents.send('IPC_RENDERER_GET_NOTIFICATION_DATA', { ...response.data.playData })
+              } else if (playData.screenType == 'versus') {
+                playData.versusData.forEach((value, index) => {
+                  if (Number(value.score) > 0) {
+                    setTimeout(() => {
+                      settingData.resultOverlay &&
+                        overlayWindow.webContents.send('IPC_RENDERER_GET_NOTIFICATION_DATA', { ...value, gameCode: 'djmax_respect_v' })
+                    }, 2000 * index)
+                  }
+                })
+              } else {
+                overlayWindow.webContents.send('IPC_RENDERER_GET_NOTIFICATION_DATA', {
+                  message: '게임 결과창이 아니거나 성과 기록 이미지를 처리 중에 오류가 발생하였습니다. 다시 시도해주시길 바랍니다.',
+                  color: 'tw-bg-red-600',
+                })
               }
               isProcessing = false
               return { ...response.data, filePath: settingData.saveImageWhenCapture ? filePath : null }
@@ -695,6 +716,10 @@ const gameList = { djmax_respect_v: 'DJMAX RESPECT V', wjmax: 'WJMAX' }
             }
           } catch (error) {
             console.error('서버 사이드 OCR 요청 실패:', error)
+            overlayWindow.webContents.send('IPC_RENDERER_GET_NOTIFICATION_DATA', {
+              message: '게임 결과창이 아니거나 성과 기록 이미지를 처리 중에 오류가 발생하였습니다. 다시 시도해주시길 바랍니다.',
+              color: 'tw-bg-red-600',
+            })
             isProcessing = false
             return {
               playData: {
@@ -787,7 +812,7 @@ const gameList = { djmax_respect_v: 'DJMAX RESPECT V', wjmax: 'WJMAX' }
             formData.append('where', where)
             const session = await getSession()
             console.log(session)
-            const response = await axios.post(`${isProd ? 'https://near.r-archive.zip/api' : 'https://near.r-archive.zip/api'}/v1/ocr/upload/wjmax`, formData, {
+            const response = await axios.post(`${isProd ? 'https://near.r-archive.zip/api' : 'https://noah.r-archive.zip/api'}/v1/ocr/upload/wjmax`, formData, {
               headers: {
                 ...formData.getHeaders(),
                 Authorization: isLogined ? `${session.userNo}|${session.userToken}` : '',
@@ -823,8 +848,21 @@ const gameList = { djmax_respect_v: 'DJMAX RESPECT V', wjmax: 'WJMAX' }
               }
 
               isUploaded = true
-              if (where !== 'versus' && playData.screenType !== 'versus') {
+              if (where !== 'versus' && playData.screenType !== 'versus' && playData.isVerified) {
                 settingData.resultOverlay && overlayWindow.webContents.send('IPC_RENDERER_GET_NOTIFICATION_DATA', { ...response.data.playData })
+              } else if (playData.screenType == 'versus') {
+                playData.versusData.forEach((value, index) => {
+                  if (Number(value.score) > 0) {
+                    setTimeout(() => {
+                      settingData.resultOverlay && overlayWindow.webContents.send('IPC_RENDERER_GET_NOTIFICATION_DATA', { ...value })
+                    }, 2000 * (index + 1))
+                  }
+                })
+              } else {
+                overlayWindow.webContents.send('IPC_RENDERER_GET_NOTIFICATION_DATA', {
+                  message: '게임 결과창이 아니거나 성과 기록 이미지를 처리 중에 오류가 발생하였습니다. 다시 시도해주시길 바랍니다.',
+                  color: 'tw-bg-red-600',
+                })
               }
               isProcessing = false
               return { ...response.data, filePath: settingData.saveImageWhenCapture ? filePath : null }

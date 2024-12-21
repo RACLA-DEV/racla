@@ -150,9 +150,9 @@ function MyApp({ Component, pageProps }: AppProps) {
 
   const [isLoading, setIsLoading] = useState(true)
 
-  const showNotification = useCallback((message: string, color?: string, updateKey?: string) => {
+  const showNotification = useCallback((message: string, color?: string) => {
     const notificationId = uuidv4()
-    store.dispatch(addNotification({ id: notificationId, message, color, updateKey }))
+    store.dispatch(addNotification({ id: notificationId, message, color }))
 
     setTimeout(() => {
       store.dispatch(setNotificationFadeOut(notificationId))
