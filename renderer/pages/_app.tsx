@@ -228,7 +228,7 @@ function MyApp({ Component, pageProps }: AppProps) {
   useEffect(() => {
     const handleScreenshotUploaded = (data: any) => {
       console.log(data)
-      if (data.isVerified || data.screenType == 'versus') {
+      if (data.isVerified || data.screenType == 'versus' || data.screenType == 'collection') {
         if (data.gameCode == 'djmax_respect_v') {
           store.dispatch(setVArchiveData(data))
         } else {

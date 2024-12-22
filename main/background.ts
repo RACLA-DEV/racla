@@ -574,12 +574,12 @@ const gameList = { djmax_respect_v: 'DJMAX RESPECT V', wjmax: 'WJMAX' }
           }
 
           if (settingData.autoCaptureOcrOpen3Region) {
-            regions.open3 = await sharp(imageBuffer).extract({ width: 62, height: 20, left: 266, top: 845 }).grayscale().linear(1.5, 0).toBuffer()
+            regions.open3 = await sharp(imageBuffer).extract({ width: 57, height: 26, left: 596, top: 470 }).grayscale().linear(1.5, 0).toBuffer()
             texts.open3 = await recognizeText(regions.open3, 'eng')
           }
 
           if (settingData.autoCaptureOcrOpen2Region) {
-            regions.open2 = await sharp(imageBuffer).extract({ width: 61, height: 17, left: 366, top: 846 }).grayscale().linear(1.5, 0).toBuffer()
+            regions.open2 = await sharp(imageBuffer).extract({ width: 60, height: 25, left: 693, top: 471 }).grayscale().linear(1.5, 0).toBuffer()
             texts.open2 = await recognizeText(regions.open2, 'eng')
           }
 
@@ -600,7 +600,7 @@ const gameList = { djmax_respect_v: 'DJMAX RESPECT V', wjmax: 'WJMAX' }
           }
 
           if (!where && settingData.autoCaptureOcrOpen3Region && texts.open3) {
-            if (texts.open3.toUpperCase().includes('TUNE') || texts.open3.toUpperCase().includes('TUNES')) {
+            if (texts.open3.toUpperCase().includes('MAX') || texts.open3.toUpperCase().includes('AX') || texts.open3.toUpperCase().includes('MA')) {
               where = 'open3'
               isResult = ['open3']
               text = texts.open3
@@ -608,7 +608,7 @@ const gameList = { djmax_respect_v: 'DJMAX RESPECT V', wjmax: 'WJMAX' }
           }
 
           if (!where && settingData.autoCaptureOcrOpen2Region && texts.open2) {
-            if (texts.open2.toUpperCase().includes('TUNE') || texts.open2.toUpperCase().includes('TUNES')) {
+            if (texts.open2.toUpperCase().includes('MAX') || texts.open2.toUpperCase().includes('AX') || texts.open2.toUpperCase().includes('MA')) {
               where = 'open2'
               isResult = ['open2']
               text = texts.open2
@@ -616,7 +616,7 @@ const gameList = { djmax_respect_v: 'DJMAX RESPECT V', wjmax: 'WJMAX' }
           }
 
           if (!where && settingData.autoCaptureOcrVersusRegion && texts.versus) {
-            if (texts.versus == 'E') {
+            if (texts.versus.trim() == 'E') {
               where = 'versus'
               isResult = ['versus']
               text = texts.versus
@@ -644,7 +644,8 @@ const gameList = { djmax_respect_v: 'DJMAX RESPECT V', wjmax: 'WJMAX' }
           try {
             const serverOcrStartTime = Date.now()
             const formData = new FormData()
-            const fuckBuffer = where == 'open2' || where == 'open3' ? await delay(3000).then(() => captureScreen('djmax_respect_v')) : imageBuffer
+            // const fuckBuffer = where == 'open2' || where == 'open3' ? await delay(3000).then(() => captureScreen('djmax_respect_v')) : imageBuffer
+            const fuckBuffer = imageBuffer
             formData.append('file', fuckBuffer, {
               filename: randomUUID() + '.png',
               contentType: 'image/png',
@@ -662,21 +663,21 @@ const gameList = { djmax_respect_v: 'DJMAX RESPECT V', wjmax: 'WJMAX' }
 
             const { playData } = response.data
 
-            if (playData.isVerified || playData.screenType == 'versus') {
+            if (playData.isVerified || playData.screenType == 'versus' || playData.screenType == 'collection') {
               const filePath = path.join(
                 app.getPath('pictures'),
                 'R-ARCHIVE',
                 gameCode.toUpperCase().replaceAll('_', ' ') +
                   '-' +
-                  (playData.screenType == 'versus' ? 'Versus' : String(playData.songData.name).replaceAll(':', '-')) +
+                  (playData.screenType == 'versus' || playData.screenType == 'collection' ? 'Versus' : String(playData.songData.name).replaceAll(':', '-')) +
                   '-' +
-                  (playData.screenType == 'versus' ? 'Match' : String(playData.score)) +
+                  (playData.screenType == 'versus' || playData.screenType == 'collection' ? 'Match' : String(playData.score)) +
                   '-' +
                   moment().utcOffset(9).format('YYYY-MM-DD-HH-mm-ss') +
                   '.png',
               )
 
-              if (settingData.saveImageWhenCapture && !isNotSaveImage) {
+              if (settingData.saveImageWhenCapture && !isNotSaveImage && playData.screenType != 'collection') {
                 fs.writeFile(filePath, Buffer.from(imageBuffer), (err) => {
                   if (err) {
                     console.error('Failed to save file:', err)
@@ -698,6 +699,11 @@ const gameList = { djmax_respect_v: 'DJMAX RESPECT V', wjmax: 'WJMAX' }
                     }, 2000 * index)
                   }
                 })
+              } else if (playData.screenType == 'collection') {
+                overlayWindow.webContents.send('IPC_RENDERER_GET_NOTIFICATION_DATA', {
+                  message: '컬렉션(COLLECTION) 화면 인식에 성공하였습니다. 결과는 R-ARCHIVE 데스크톱 앱에서 확인해주세요.',
+                  color: 'tw-bg-lime-600',
+                })
               } else {
                 overlayWindow.webContents.send('IPC_RENDERER_GET_NOTIFICATION_DATA', {
                   message: '게임 결과창이 아니거나 성과 기록 이미지를 처리 중에 오류가 발생하였습니다. 다시 시도해주시길 바랍니다.',
@@ -705,7 +711,7 @@ const gameList = { djmax_respect_v: 'DJMAX RESPECT V', wjmax: 'WJMAX' }
                 })
               }
               isProcessing = false
-              return { ...response.data, filePath: settingData.saveImageWhenCapture ? filePath : null }
+              return { ...response.data, filePath: settingData.saveImageWhenCapture && playData.screenType != 'collection' ? filePath : null }
             } else {
               isProcessing = false
               return {
@@ -956,7 +962,7 @@ const gameList = { djmax_respect_v: 'DJMAX RESPECT V', wjmax: 'WJMAX' }
           .toBuffer()
 
         const { playData } = await processResultScreen(croppedBuffer, true, true, gameCode)
-        if (playData !== null && (playData.isVerified !== undefined || playData.screenType == 'versus')) {
+        if (playData !== null && (playData.isVerified !== undefined || playData.screenType == 'versus' || playData.screenType == 'collection')) {
           mainWindow.webContents.send('screenshot-uploaded', playData)
         }
       } catch (error) {
@@ -968,7 +974,7 @@ const gameList = { djmax_respect_v: 'DJMAX RESPECT V', wjmax: 'WJMAX' }
       try {
         isProcessing = true
         const { playData } = await processResultScreen(image, true, true, gameCode)
-        if (playData !== null && (playData.isVerified !== undefined || playData.screenType == 'versus')) {
+        if (playData !== null && (playData.isVerified !== undefined || playData.screenType == 'versus' || playData.screenType == 'collection')) {
           mainWindow.webContents.send('screenshot-uploaded', playData)
         }
       } catch (error) {
@@ -1027,7 +1033,7 @@ const gameList = { djmax_respect_v: 'DJMAX RESPECT V', wjmax: 'WJMAX' }
                 }
 
                 const data = await processResultScreen(gameSource, false, false, isRunning ? 'djmax_respect_v' : 'wjmax')
-                if (data?.playData && (data.playData.isVerified !== null || data.playData.screenType == 'versus')) {
+                if (data?.playData && (data.playData.isVerified !== null || data.playData.screenType == 'versus' || data.playData.screenType == 'collection')) {
                   mainWindow.webContents.send('screenshot-uploaded', { ...data.playData, filePath: data.filePath })
                 }
               } catch (error) {
@@ -1088,7 +1094,7 @@ const gameList = { djmax_respect_v: 'DJMAX RESPECT V', wjmax: 'WJMAX' }
             data !== undefined &&
             data !== '' &&
             data.playData &&
-            (data.playData.isVerified !== undefined || data.playData.screenType == 'versus')
+            (data.playData.isVerified !== undefined || data.playData.screenType == 'versus' || data.playData.screenType == 'collection')
           ) {
             mainWindow.webContents.send('screenshot-uploaded', { ...data.playData, filePath: data.filePath })
           } else {

@@ -42,7 +42,7 @@ export const useNotificationSystem = () => {
         if (!isFinal) {
           timerRefs.current[notificationId] = setTimeout(() => {
             removeNotificationWithFade(notificationId)
-          }, 3000) // 3초 후 제거
+          }, 10000) // 3초 후 제거
         }
       } catch (error) {
         console.error('알림 표시 중 오류 발생:', error)

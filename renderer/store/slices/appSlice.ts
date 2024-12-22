@@ -30,6 +30,7 @@ interface AppState {
   projectRaPattern: string
   projectRaData: any | null
   vArchiveData: any | null
+  collectionData: any | null
 }
 
 const initialState: AppState = {
@@ -61,6 +62,7 @@ const initialState: AppState = {
   projectRaPattern: '',
   projectRaData: null,
   vArchiveData: null,
+  collectionData: [],
 }
 
 export const appSlice = createSlice({
@@ -134,6 +136,9 @@ export const appSlice = createSlice({
     clearVArchiveData: (state) => {
       state.vArchiveData = null
     },
+    setCollectionData: (state, action: PayloadAction<any>) => {
+      state.collectionData = action.payload
+    },
   },
 })
 
@@ -159,5 +164,6 @@ export const {
   setVArchiveData,
   clearProjectRaData,
   clearVArchiveData,
+  setCollectionData,
 } = appSlice.actions
 export default appSlice.reducer

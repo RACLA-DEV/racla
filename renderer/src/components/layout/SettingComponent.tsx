@@ -887,9 +887,9 @@ const SettingComponent = () => {
                 }}
               >
                 <span>자동 캡쳐 모드</span>
-                <span className="tw-text-xs tw-bg-blue-600 tw-rounded-full tw-px-2" style={{ padding: '2px 8px' }}>
+                {/* <span className="tw-text-xs tw-bg-blue-600 tw-rounded-full tw-px-2" style={{ padding: '2px 8px' }}>
                   베타
-                </span>
+                </span> */}
               </button>
               <button
                 className={`tw-flex tw-justify-between tw-items-center tw-text-left tw-px-3 tw-py-2 tw-rounded-md tw-text-sm ${

@@ -26,6 +26,7 @@ import {
   setVArchiveUploadedPageData,
   setVArchivePattern,
   clearVArchiveData,
+  setCollectionData,
 } from 'store/slices/appSlice'
 import { useNotificationSystem } from '@/libs/client/useNotifications'
 import ScorePopupComponent from '@/components/score/ScorePopupComponent'
@@ -119,7 +120,7 @@ export default function VArchiveRegScorePage() {
     }
   }
 
-  const { vArchiveUploadedPageData, vArchivePattern } = useSelector((state: RootState) => state.app)
+  const { vArchiveUploadedPageData, vArchivePattern, collectionData } = useSelector((state: RootState) => state.app)
 
   useEffect(() => {
     if (vArchiveData && !isUploadedDataProcessed) {
@@ -143,7 +144,7 @@ export default function VArchiveRegScorePage() {
                     name: playerData.songData.name,
                     composer: playerData.songData.composer,
                     button: Number(playerData.button),
-                    pattern: playerData.pattern,
+                    pattern: codeToPattern(playerData.pattern),
                     score: parseFloat(String(playerData.score)),
                     maxCombo: Number(playerData.maxCombo),
                   },
@@ -175,6 +176,64 @@ export default function VArchiveRegScorePage() {
         }
 
         processVersusData()
+      } else if (vArchiveData.screenType == 'collection') {
+        const processCollectionData = async () => {
+          const backupDataArray = []
+          // 초기 컬렉션 데이터 설정
+          let updatedCollectionData = []
+
+          for (const playerData of vArchiveData.collectionData) {
+            if (playerData.score > 0) {
+              try {
+                const backupResponse = await axios.get(
+                  `${process.env.NEXT_PUBLIC_PROXY_API_URL}?url=https://v-archive.net/api/archive/${vArchiveUserData.userName}/title/${playerData.songData.title}`,
+                )
+                backupDataArray.push(backupResponse.data)
+
+                const response = await axios.post(
+                  `${process.env.NEXT_PUBLIC_PROXY_API_URL}?url=https://v-archive.net/client/open/${vArchiveUserData.userNo}/score`,
+                  {
+                    name: playerData.songData.name,
+                    composer: playerData.songData.composer,
+                    button: Number(playerData.button),
+                    pattern: codeToPattern(playerData.pattern),
+                    score: parseFloat(String(playerData.score)),
+                    maxCombo: Number(playerData.maxCombo),
+                  },
+                  {
+                    headers: {
+                      Authorization: `${vArchiveUserData.userToken}`,
+                      'Content-Type': 'application/json',
+                    },
+                    withCredentials: true,
+                  },
+                )
+
+                if (response.data.success && response.data.update) {
+                  showNotification(`${playerData.songData.name} 곡의 성과 기록을 V-ARCHIVE에 정상적으로 갱신하였습니다.`, 'tw-bg-lime-600')
+                  setIsCanRollback(true)
+                  updatedCollectionData.push({ ...playerData, status: 'success' })
+                } else if (response.data.success && !response.data.update) {
+                  showNotification(
+                    `${playerData.songData.name} 곡은 기존의 성과 기록과 동일하거나 더 좋은 성과 기록이 존재하여 갱신되지 않았습니다.`,
+                    'tw-bg-orange-600',
+                  )
+                  updatedCollectionData.push({ ...playerData, status: 'noUpdate' })
+                }
+              } catch (error) {
+                backupDataArray.push(null)
+                showNotification(`${playerData.songData.name} 곡의 성과 기록 갱신 중 오류가 발생했습니다.`, 'tw-bg-red-600')
+                updatedCollectionData.push({ ...playerData, status: 'error' })
+              }
+            }
+          }
+
+          // 모든 처리가 끝난 후 한 번에 컬렉션 데이터 업데이트
+          dispatch(setCollectionData(updatedCollectionData))
+          setVersusBackupData(backupDataArray)
+        }
+
+        processCollectionData()
       } else {
         // 기존 단일 플레이어 데이터 처리
         if (vArchiveData.pattern) {
@@ -760,99 +819,100 @@ export default function VArchiveRegScorePage() {
                       </div>
                     </div>
 
-                    <div className="tw-flex tw-flex-col tw-w-full tw-relative tw-animate-fadeInLeft tw-bg-gray-600 tw-bg-opacity-10 tw-rounded-md p-4 tw-gap-2 tw-mb-4">
-                      <div className="tw-flex tw-justify-between tw-items-center">
-                        <div className="tw-flex tw-flex-col tw-gap-2">
-                          <span className="tw-text-base tw-font-light">BUTTON</span>
-                          <span className="tw-font-extrabold tw-text-4xl">{vArchiveUploadedPageData.button}B</span>
-                        </div>
-                        <div className="tw-flex tw-flex-col tw-gap-2">
-                          <span className="tw-text-base tw-font-light">DIFFICULTY</span>
-                          <span className="tw-font-extrabold tw-text-4xl">
-                            {patternToCode(vArchiveUploadedPageData.pattern)}{' '}
-                            {vArchiveUploadedPageData.songData.patterns[`${vArchiveUploadedPageData.button}B`][vArchivePattern].level}
-                          </span>
-                        </div>
-                        {backupData &&
-                        vArchiveUploadedPageData &&
-                        vArchiveUploadedPageData.songData &&
-                        backupData.title === vArchiveUploadedPageData.songData.title &&
-                        backupData ? (
+                    {vArchiveUploadedPageData.screenType != 'collection' && (
+                      <div className="tw-flex tw-flex-col tw-w-full tw-relative tw-animate-fadeInLeft tw-bg-gray-600 tw-bg-opacity-10 tw-rounded-md p-4 tw-gap-2 tw-mb-4">
+                        <div className="tw-flex tw-justify-between tw-items-center">
                           <div className="tw-flex tw-flex-col tw-gap-2">
-                            <span className="tw-text-base tw-font-light">
-                              {parseFloat(String(backupData.patterns[`${vArchiveUploadedPageData.button}B`][vArchivePattern].score)) >=
-                              parseFloat(String(vArchiveUploadedPageData.score))
-                                ? 'BEST'
-                                : 'LAST'}{' '}
-                              SCORE
-                            </span>
+                            <span className="tw-text-base tw-font-light">BUTTON</span>
+                            <span className="tw-font-extrabold tw-text-4xl">{vArchiveUploadedPageData.button}B</span>
+                          </div>
+                          <div className="tw-flex tw-flex-col tw-gap-2">
+                            <span className="tw-text-base tw-font-light">DIFFICULTY</span>
                             <span className="tw-font-extrabold tw-text-4xl">
-                              {backupData.patterns[`${vArchiveUploadedPageData.button}B`][vArchivePattern].score
-                                ? backupData.patterns[`${vArchiveUploadedPageData.button}B`][vArchivePattern].score
-                                : '00.00'}
-                              %
+                              {patternToCode(vArchiveUploadedPageData.pattern)}{' '}
+                              {vArchiveUploadedPageData.songData.patterns[`${vArchiveUploadedPageData.button}B`][vArchivePattern]?.level}
                             </span>
                           </div>
-                        ) : null}
-                        <div className="tw-flex tw-flex-col tw-gap-2">
-                          <span className="tw-text-base tw-font-light">{backupData ? 'CURRENT SCORE' : 'LAST PLAYED SCORE'}</span>
-                          <div className="tw-flex tw-items-start tw-gap-2">
-                            <span className="tw-font-extrabold tw-text-4xl">
-                              {String(vArchiveUploadedPageData.score).includes('.')
-                                ? String(vArchiveUploadedPageData.score).split('.')[1].length === 1
-                                  ? String(vArchiveUploadedPageData.score) + '0'
-                                  : vArchiveUploadedPageData.score
-                                : vArchiveUploadedPageData.score + '.00'}
-                              %
-                            </span>
-                            {backupData &&
-                              vArchiveUploadedPageData &&
-                              vArchiveUploadedPageData.songData &&
-                              backupData.title === vArchiveUploadedPageData.songData.title && (
-                                <span
-                                  className={`tw-flex tw-items-center tw-gap-1 tw-text-lg ${
-                                    parseFloat(String(vArchiveUploadedPageData.score)) >
-                                    parseFloat(String(backupData.patterns[`${vArchiveUploadedPageData.button}B`][vArchivePattern].score))
-                                      ? 'tw-text-red-500'
-                                      : parseFloat(String(vArchiveUploadedPageData.score)) <
-                                        parseFloat(String(backupData.patterns[`${vArchiveUploadedPageData.button}B`][vArchivePattern].score))
-                                      ? 'tw-text-blue-500'
-                                      : 'tw-text-gray-500'
-                                  }`}
-                                >
-                                  {parseFloat(String(vArchiveUploadedPageData.score)) >
-                                  parseFloat(String(backupData.patterns[`${vArchiveUploadedPageData.button}B`][vArchivePattern].score)) ? (
-                                    <>
-                                      <IconContext.Provider value={{ size: '12', className: 'tw-inline tw-mt-0.5' }}>
-                                        <FiTriangle />
-                                      </IconContext.Provider>
-                                      {(
-                                        parseFloat(String(vArchiveUploadedPageData.score)) -
-                                        parseFloat(String(backupData.patterns[`${vArchiveUploadedPageData.button}B`][vArchivePattern].score))
-                                      ).toFixed(2)}
-                                      %
-                                    </>
-                                  ) : parseFloat(String(vArchiveUploadedPageData.score)) <
+                          {backupData &&
+                          vArchiveUploadedPageData &&
+                          vArchiveUploadedPageData.songData &&
+                          backupData.title === vArchiveUploadedPageData.songData.title &&
+                          backupData ? (
+                            <div className="tw-flex tw-flex-col tw-gap-2">
+                              <span className="tw-text-base tw-font-light">
+                                {parseFloat(String(backupData.patterns[`${vArchiveUploadedPageData.button}B`][vArchivePattern].score)) >=
+                                parseFloat(String(vArchiveUploadedPageData.score))
+                                  ? 'BEST'
+                                  : 'LAST'}{' '}
+                                SCORE
+                              </span>
+                              <span className="tw-font-extrabold tw-text-4xl">
+                                {backupData.patterns[`${vArchiveUploadedPageData.button}B`][vArchivePattern].score
+                                  ? backupData.patterns[`${vArchiveUploadedPageData.button}B`][vArchivePattern].score
+                                  : '00.00'}
+                                %
+                              </span>
+                            </div>
+                          ) : null}
+                          <div className="tw-flex tw-flex-col tw-gap-2">
+                            <span className="tw-text-base tw-font-light">{backupData ? 'CURRENT SCORE' : 'LAST PLAYED SCORE'}</span>
+                            <div className="tw-flex tw-items-start tw-gap-2">
+                              <span className="tw-font-extrabold tw-text-4xl">
+                                {String(vArchiveUploadedPageData.score).includes('.')
+                                  ? String(vArchiveUploadedPageData.score).split('.')[1].length === 1
+                                    ? String(vArchiveUploadedPageData.score) + '0'
+                                    : vArchiveUploadedPageData.score
+                                  : vArchiveUploadedPageData.score + '.00'}
+                                %
+                              </span>
+                              {backupData &&
+                                vArchiveUploadedPageData &&
+                                vArchiveUploadedPageData.songData &&
+                                backupData.title === vArchiveUploadedPageData.songData.title && (
+                                  <span
+                                    className={`tw-flex tw-items-center tw-gap-1 tw-text-lg ${
+                                      parseFloat(String(vArchiveUploadedPageData.score)) >
+                                      parseFloat(String(backupData.patterns[`${vArchiveUploadedPageData.button}B`][vArchivePattern].score))
+                                        ? 'tw-text-red-500'
+                                        : parseFloat(String(vArchiveUploadedPageData.score)) <
+                                          parseFloat(String(backupData.patterns[`${vArchiveUploadedPageData.button}B`][vArchivePattern].score))
+                                        ? 'tw-text-blue-500'
+                                        : 'tw-text-gray-500'
+                                    }`}
+                                  >
+                                    {parseFloat(String(vArchiveUploadedPageData.score)) >
                                     parseFloat(String(backupData.patterns[`${vArchiveUploadedPageData.button}B`][vArchivePattern].score)) ? (
-                                    <>
-                                      <IconContext.Provider value={{ size: '12', className: 'tw-inline tw-rotate-180 tw-mt-0.5' }}>
-                                        <FiTriangle />
-                                      </IconContext.Provider>
-                                      {(
-                                        parseFloat(String(backupData.patterns[`${vArchiveUploadedPageData.button}B`][vArchivePattern].score)) -
-                                        parseFloat(String(vArchiveUploadedPageData.score))
-                                      ).toFixed(2)}
-                                      %
-                                    </>
-                                  ) : (
-                                    '±0.00%'
-                                  )}
-                                </span>
-                              )}
-                            <span className="tw-text-lg tw-font-light tw-text-yellow-400">{vArchiveUploadedPageData.maxCombo == 1 ? 'MAX COMBO' : ''}</span>
+                                      <>
+                                        <IconContext.Provider value={{ size: '12', className: 'tw-inline tw-mt-0.5' }}>
+                                          <FiTriangle />
+                                        </IconContext.Provider>
+                                        {(
+                                          parseFloat(String(vArchiveUploadedPageData.score)) -
+                                          parseFloat(String(backupData.patterns[`${vArchiveUploadedPageData.button}B`][vArchivePattern].score))
+                                        ).toFixed(2)}
+                                        %
+                                      </>
+                                    ) : parseFloat(String(vArchiveUploadedPageData.score)) <
+                                      parseFloat(String(backupData.patterns[`${vArchiveUploadedPageData.button}B`][vArchivePattern].score)) ? (
+                                      <>
+                                        <IconContext.Provider value={{ size: '12', className: 'tw-inline tw-rotate-180 tw-mt-0.5' }}>
+                                          <FiTriangle />
+                                        </IconContext.Provider>
+                                        {(
+                                          parseFloat(String(backupData.patterns[`${vArchiveUploadedPageData.button}B`][vArchivePattern].score)) -
+                                          parseFloat(String(vArchiveUploadedPageData.score))
+                                        ).toFixed(2)}
+                                        %
+                                      </>
+                                    ) : (
+                                      '±0.00%'
+                                    )}
+                                  </span>
+                                )}
+                              <span className="tw-text-lg tw-font-light tw-text-yellow-400">{vArchiveUploadedPageData.maxCombo == 1 ? 'MAX COMBO' : ''}</span>
+                            </div>
                           </div>
-                        </div>
-                        {/* <div className="tw-rounded-md tw-flex tw-gap-2">
+                          {/* <div className="tw-rounded-md tw-flex tw-gap-2">
                           <div className="tw-relative" style={{ width: 70, height: 70 }}>
                             <Image
                               loading="lazy" // "lazy" | "eager"
@@ -906,10 +966,69 @@ export default function VArchiveRegScorePage() {
                             <div className="tw-bg-gray-950 tw-bg-opacity-30 tw-shadow-sm tw-rounded-lg" style={{ width: 70, height: 70 }} />
                           )}
                         </div> */}
+                        </div>
                       </div>
-                    </div>
+                    )}
 
                     <div className="tw-flex tw-gap-4 tw-w-full tw-flex-1 tw-overflow-hidden">
+                      {vArchiveUploadedPageData.screenType == 'collection' && (
+                        <div className="tw-flex tw-flex-col tw-w-1/2 tw-relative tw-animate-fadeInLeft tw-bg-gray-600 tw-bg-opacity-10 tw-rounded-md p-4 tw-gap-2">
+                          <div className="tw-flex tw-w-full tw-mb-2 tw-items-center tw-justify-between">
+                            <span className="tw-text-lg tw-font-bold me-auto">컬렉션 인식 결과</span>
+                            <span className="tw-text-sm tw-text-gray-400">*V-ARCHIVE 기록 대비 더 낮은 점수는 갱신이 취소됩니다.</span>
+                          </div>
+
+                          <div className="tw-flex tw-flex-col tw-gap-2 tw-overflow-y-auto">
+                            {collectionData.map((history) => (
+                              <div
+                                key={history.songData.title}
+                                className="tw-flex tw-items-center tw-gap-3 tw-bg-gray-700 tw-bg-opacity-30 tw-rounded-lg tw-p-3 hover:tw-bg-opacity-40 tw-transition-all"
+                              >
+                                <div className="tw-relative hover:tw-scale-110 tw-transition-transform">
+                                  <ScorePopupComponent
+                                    songItemTitle={history.songData.title.toString()}
+                                    keyMode={String(history.button).replace('B', '')}
+                                    rivalName=""
+                                    delay={{ show: 500, hide: 0 }}
+                                    size={54}
+                                  />
+                                </div>
+
+                                <div className="tw-flex tw-flex-col tw-gap-2 tw-flex-1">
+                                  <div className="tw-flex tw-items-center tw-gap-2 tw-justify-between">
+                                    <span className="tw-font-bold">{history.songData.name}</span>
+                                    <div className="tw-flex tw-items-center tw-gap-2">
+                                      <div
+                                        className={`tw-flex tw-items-center tw-gap-1 tw-px-2 tw-py-1 tw-rounded-md tw-bg-gray-900 tw-bg-opacity-75 tw-min-w-12 tw-justify-center`}
+                                      >
+                                        <span className="tw-text-sm">{history.button}B</span>
+                                      </div>
+                                      <div
+                                        className={`tw-flex tw-items-center tw-gap-1 tw-px-2 tw-py-1 tw-rounded-md tw-bg-gray-900 tw-bg-opacity-75 tw-min-w-12 tw-justify-center`}
+                                      >
+                                        <span className="tw-text-sm">{history.pattern}</span>
+                                        {/* <span className="tw-text-sm">{history.level}</span> */}
+                                      </div>
+                                      <div
+                                        className={`tw-flex tw-items-center tw-gap-1 tw-px-2 tw-py-1 tw-rounded-md tw-bg-gray-900 tw-bg-opacity-75 tw-min-w-12 tw-justify-center`}
+                                      >
+                                        <span className="tw-text-sm">
+                                          {history.status == 'success' ? '갱신 성공' : history.status == 'noUpdate' ? '갱신 취소' : '갱신 실패'}
+                                        </span>
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  <div className="tw-flex tw-items-center tw-gap-2">
+                                    <span className="tw-font-bold">{history.score.toFixed(2)}%</span>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
                       {/* 최근 기록 섹션 */}
                       <div className="tw-flex tw-flex-col tw-w-1/2 tw-relative tw-animate-fadeInLeft tw-bg-gray-600 tw-bg-opacity-10 tw-rounded-md p-4 tw-gap-2">
                         <div className="tw-flex tw-w-full tw-mb-2 tw-items-center tw-justify-between">
@@ -951,10 +1070,11 @@ export default function VArchiveRegScorePage() {
                                   </div>
                                 </div>
 
-                                <div className="tw-flex tw-items-center tw-gap-2">
+                                <div className="tw-flex tw-items-center tw-justify-between tw-gap-2">
                                   <span className="tw-font-bold">
-                                    {history.score.toFixed(2)}%{history.maxCombo && <span className="tw-text-yellow-400 tw-font-light"> (MAX COMBO)</span>}
+                                    {history.score.toFixed(2)}%{history.maxCombo && <span className="tw-text-yellow-400 tw-font-light"> (MAX COMBO)</span>}{' '}
                                   </span>
+                                  <span className="tw-font-light tw-text-gray-400">{moment(history.playedAt).format('YYYY-MM-DD HH:mm:ss')}</span>
                                 </div>
                               </div>
                             </div>
@@ -963,16 +1083,18 @@ export default function VArchiveRegScorePage() {
                       </div>
 
                       {/* 추천 옵션 섹션 */}
-                      <div className="tw-flex tw-flex-col tw-w-1/2 tw-relative tw-animate-fadeInRight tw-bg-gray-600 tw-bg-opacity-10 tw-rounded-md p-4 tw-gap-2">
-                        <div className="tw-flex tw-w-full tw-mb-2 tw-items-center">
-                          <span className="tw-text-lg tw-font-bold me-auto">팁 & 추천 옵션</span>
-                        </div>
+                      {vArchiveUploadedPageData.screenType != 'collection' && (
+                        <div className="tw-flex tw-flex-col tw-w-1/2 tw-relative tw-animate-fadeInRight tw-bg-gray-600 tw-bg-opacity-10 tw-rounded-md p-4 tw-gap-2">
+                          <div className="tw-flex tw-w-full tw-mb-2 tw-items-center">
+                            <span className="tw-text-lg tw-font-bold me-auto">팁 & 추천 옵션</span>
+                          </div>
 
-                        <div className="tw-flex tw-flex-col flex-equal tw-justify-center tw-items-center tw-text-base">
-                          <span>통계 데이터가 충분하지 않아 팁 & 추천 옵션을 제공할 수 없습니다.</span>
-                          <span>더 많은 사용자의 플레이 데이터가 수집될 때까지 기다려주세요.</span>
+                          <div className="tw-flex tw-flex-col flex-equal tw-justify-center tw-items-center tw-text-base">
+                            <span>통계 데이터가 충분하지 않아 팁 & 추천 옵션을 제공할 수 없습니다.</span>
+                            <span>더 많은 사용자의 플레이 데이터가 수집될 때까지 기다려주세요.</span>
+                          </div>
                         </div>
-                      </div>
+                      )}
                     </div>
                   </>
                 ) : null}

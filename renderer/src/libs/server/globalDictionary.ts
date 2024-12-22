@@ -344,7 +344,7 @@ export const globalDictionary = {
             isOpenBrowser: false,
             link: '/regScore',
             userLevel: [],
-            status: 'beta',
+            status: 'stable',
           },
           {
             id: 'vArchiveNavItemsArchiveMyBoard',
@@ -453,20 +453,20 @@ export const globalDictionary = {
         link: '',
         userLevel: [],
         pages: [
-          {
-            id: 'utilityNavItemsVArchiveMacro',
-            name: {
-              startWithSup: '',
-              base: 'V-ARCHIVE 매크로',
-              lastWithSup: '',
-            },
-            icon: FaRobot,
-            isDisplay: true,
-            isOpenBrowser: true,
-            link: 'https://github.com/johypark97/VArchiveMacro',
-            userLevel: [],
-            status: 'stable',
-          },
+          // {
+          //   id: 'utilityNavItemsVArchiveMacro',
+          //   name: {
+          //     startWithSup: '',
+          //     base: 'V-ARCHIVE 매크로',
+          //     lastWithSup: '',
+          //   },
+          //   icon: FaRobot,
+          //   isDisplay: true,
+          //   isOpenBrowser: true,
+          //   link: 'https://github.com/johypark97/VArchiveMacro',
+          //   userLevel: [],
+          //   status: 'stable',
+          // },
           {
             id: 'utilityNavItemsRandomSelector',
             name: {
@@ -502,7 +502,7 @@ export const globalDictionary = {
               base: 'BEST 30 디스코드 봇',
               lastWithSup: '',
             },
-            icon: FaTableCells,
+            icon: FaRobot,
             isDisplay: true,
             isOpenBrowser: true,
             link: 'https://discord.com/oauth2/authorize?client_id=1147788679306289202&permissions=274877942784&scope=bot',
@@ -546,7 +546,7 @@ export const globalDictionary = {
             isOpenBrowser: false,
             link: '/wjmax/regScore',
             userLevel: [],
-            status: 'beta',
+            status: 'stable',
           },
           {
             id: 'wjmaxNavItemsArchiveMyBoard',
