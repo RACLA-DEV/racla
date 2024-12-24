@@ -42,7 +42,7 @@ const FooterComponent = ({ className }: IFooterComponent) => {
             >
               R-ARCHIVE 데스크톱 앱 · {globalDictionary.version}
             </span>
-            {/* - <FaTriangleExclamation /> 해당 버전은 개발 중인 화면으로 최종적인 버전이 아닙니다. */}
+            - <FaTriangleExclamation /> 해당 버전은 개발 중인 화면으로 최종적인 버전이 아닙니다.
             {/* - <FaTriangleExclamation /> 개발자 빌드 */}
           </span>
         </span>
@@ -52,7 +52,7 @@ const FooterComponent = ({ className }: IFooterComponent) => {
           {selectedGame === 'djmax_respect_v' && (
             <>
               <button
-                className="tw-text-xs"
+                className="tw-text-xs tw-animate-fadeInLeft"
                 type="button"
                 onClick={() => {
                   window.ipc.send('openBrowser', 'https://github.com/djmax-in/openapi?tab=readme-ov-file')
@@ -68,7 +68,7 @@ const FooterComponent = ({ className }: IFooterComponent) => {
           <span> · </span>
         </>
         <Link href="/license" className="tw-text-xs">
-          라이선스
+          라이선스 및 이용약관
         </Link>
       </div>
     </div>

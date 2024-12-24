@@ -8,6 +8,7 @@ import { RootState } from 'store'
 import axios from 'axios'
 import { useNotificationSystem } from '@/libs/client/useNotifications'
 import Modal from '@/components/common/Modal'
+import moment from 'moment'
 
 interface Bug {
   id: number
@@ -17,6 +18,7 @@ interface Bug {
   reporterId: number
   reporterName: string
   comments: any[]
+  createdAt: string
 }
 
 interface BugListResponse {
@@ -161,6 +163,7 @@ export default function BugList() {
                 <div className="tw-flex-1">제목</div>
                 <div className="tw-w-32">상태</div>
                 <div className="tw-w-32">작성자</div>
+                <div className="tw-w-32">작성일</div>
               </div>
               {notices.map((notice, index) => (
                 <motion.div
@@ -175,8 +178,15 @@ export default function BugList() {
                 >
                   <div className="tw-w-32 tw-text-gray-400">#{notice.id}</div>
                   <div className="tw-flex-1 tw-text-white">{notice.title}</div>
-                  <div className="tw-w-32 tw-text-gray-400">{notice.status}</div>
+                  <div
+                    className={`tw-w-32 ${
+                      notice.status === 'OPEN' ? 'tw-text-green-500' : notice.status === 'IN_PROGRESS' ? 'tw-text-blue-500' : 'tw-text-red-500'
+                    }`}
+                  >
+                    {notice.status}
+                  </div>
                   <div className="tw-w-32 tw-text-gray-400">{notice.reporterName}</div>
+                  <div className="tw-w-32 tw-text-gray-400">{moment(notice.createdAt).format('YYYY-MM-DD')}</div>
                 </motion.div>
               ))}
             </div>
@@ -196,6 +206,7 @@ export default function BugList() {
                 <div className="tw-flex-1">제목</div>
                 <div className="tw-w-32">상태</div>
                 <div className="tw-w-32">작성자</div>
+                <div className="tw-w-32">작성일</div>
               </div>
               {bugs.map((bug, index) => (
                 <motion.div
@@ -210,8 +221,13 @@ export default function BugList() {
                 >
                   <div className="tw-w-32 tw-text-gray-400">#{bug.id}</div>
                   <div className="tw-flex-1 tw-text-white">{bug.title}</div>
-                  <div className="tw-w-32 tw-text-gray-400">{bug.status}</div>
+                  <div
+                    className={`tw-w-32 ${bug.status === 'OPEN' ? 'tw-text-green-500' : bug.status === 'IN_PROGRESS' ? 'tw-text-blue-500' : 'tw-text-red-500'}`}
+                  >
+                    {bug.status}
+                  </div>
                   <div className="tw-w-32 tw-text-gray-400">{bug.reporterName}</div>
+                  <div className="tw-w-32 tw-text-gray-400">{moment(bug.createdAt).format('YYYY-MM-DD')}</div>
                 </motion.div>
               ))}
             </div>

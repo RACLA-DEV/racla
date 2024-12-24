@@ -34,8 +34,9 @@ import {
   setWjmaxSongData,
   setProjectRaData,
   setVArchiveData,
+  setCollectionData,
 } from 'store/slices/appSlice'
-import { addNotification, setNotificationFadeOut, removeNotification } from 'store/slices/notificationSlice'
+import { addNotification, removeNotification } from 'store/slices/notificationSlice'
 import { v4 as uuidv4 } from 'uuid'
 import { SyncLoader } from 'react-spinners'
 import { globalDictionary } from '@/libs/server/globalDictionary'
@@ -62,6 +63,7 @@ function MyApp({ Component, pageProps }: AppProps) {
   const [userToken, setUserToken] = useState<string>('')
   const [vArchiveUserNo, setVArchiveUserNo] = useState<string>('')
   const [vArchiveUserToken, setVArchiveUserToken] = useState<string>('')
+  const [vArchiveUserName, setVArchiveUserName] = useState<string>('')
   const [settingDataApp, setSettingDataApp] = useState<any>(null)
 
   useEffect(() => {
@@ -152,14 +154,28 @@ function MyApp({ Component, pageProps }: AppProps) {
 
   const showNotification = useCallback((message: string, color?: string) => {
     const notificationId = uuidv4()
-    store.dispatch(addNotification({ id: notificationId, message, color }))
+    store.dispatch(
+      addNotification({
+        id: notificationId,
+        message,
+        color,
+        createdAt: Date.now(),
+        isRemoving: false,
+      }),
+    )
 
+    // 10초 후 제거 애니메이션 시작
     setTimeout(() => {
-      store.dispatch(setNotificationFadeOut(notificationId))
+      const element = document.getElementById(`notification-${notificationId}`)
+      if (element) {
+        element.classList.remove('tw-animate-fadeInSlideRight')
+        element.classList.add('tw-animate-fadeOutSlideRight')
 
-      setTimeout(() => {
-        store.dispatch(removeNotification(notificationId))
-      }, 500)
+        // 애니메이션 완료 후 실제 제거
+        setTimeout(() => {
+          store.dispatch(removeNotification(notificationId))
+        }, 500)
+      }
     }, 10000)
   }, [])
 
@@ -230,6 +246,7 @@ function MyApp({ Component, pageProps }: AppProps) {
       console.log(data)
       if (data.isVerified || data.screenType == 'versus' || data.screenType == 'collection') {
         if (data.gameCode == 'djmax_respect_v') {
+          store.dispatch(setCollectionData([]))
           store.dispatch(setVArchiveData(data))
         } else {
           store.dispatch(setProjectRaData(data))
@@ -269,6 +286,7 @@ function MyApp({ Component, pageProps }: AppProps) {
           if (data.vArchiveUserNo !== '' && data.vArchiveUserToken !== '') {
             setVArchiveUserNo(data.vArchiveUserNo)
             setVArchiveUserToken(data.vArchiveUserToken)
+            setVArchiveUserName(data.vArchiveUserName)
           }
         })
       }
@@ -342,6 +360,13 @@ function MyApp({ Component, pageProps }: AppProps) {
                   }),
                 )
                 showNotification(`V-ARCHIVE 계정(${vArchiveResponse.data.nickname}) 데이터 동기화에 성공 하였습니다.`, 'tw-bg-lime-600')
+                window.ipc.send('storeSession', {
+                  userNo: response.data.userNo,
+                  userToken: response.data.userToken,
+                  vArchiveUserNo: response.data.varchiveUserNo,
+                  vArchiveUserToken: response.data.varchiveUserToken,
+                  vArchiveUserName: vArchiveResponse.data.nickname,
+                })
               } else {
                 showNotification(
                   'V-ARCHIVE 계정이 존재하지 않거나 통신 중 오류가 발생하였습니다. 연동 상태를 확인하시거나 잠시 후 다시 시도해주세요.',
@@ -413,6 +438,13 @@ function MyApp({ Component, pageProps }: AppProps) {
                   }),
                 )
                 showNotification(`V-ARCHIVE 계정(${vArchiveResponse.data.nickname}) 데이터 동기화에 성공 하였습니다.`, 'tw-bg-lime-600')
+                window.ipc.send('storeSession', {
+                  userNo: response.data.userNo,
+                  userToken: response.data.userToken,
+                  vArchiveUserNo: response.data.varchiveUserNo,
+                  vArchiveUserToken: response.data.varchiveUserToken,
+                  vArchiveUserName: vArchiveResponse.data.nickname,
+                })
               } else {
                 showNotification(
                   'V-ARCHIVE 계정이 존재하지 않거나 통신 중 오류가 발생하였습니다. 연동 상태를 확인하시거나 잠시 후 다시 시도해주세요.',
@@ -619,14 +651,7 @@ function MyApp({ Component, pageProps }: AppProps) {
           <div className="tw-flex tw-flex-col tw-gap-2 tw-w-full tw-leading-relaxed">
             {/* 첫 번째 설명 블록 */}
             <div className="tw-bg-green-900 tw-bg-opacity-20 tw-p-4 tw-rounded tw-border-l-4 tw-border-green-500">
-              <span className="tw-font-bold tw-whitespace-pre-line">R-ARCHIVE 데스크톱 앱이 0.6.5 버전으로 업데이트 되었습니다.</span>
-            </div>
-
-            <div className="tw-bg-gray-700 tw-bg-opacity-30 tw-p-4 tw-rounded">
-              <span>
-                2024년 12월 16일부터 1인 개발 체계에서 3인 개발 체계로 변경되었으며 서버 운영에 필요한 자산을 후원 받게됨에 따라 이전보다 더 빠른 업데이트와
-                개선된 서비스가 제공될 예정입니다. 후원자 목록은 라이선스에서 확인하실 수 있습니다.
-              </span>
+              <span className="tw-font-bold tw-whitespace-pre-line">R-ARCHIVE 데스크톱 앱이 0.7.0 버전으로 업데이트 되었습니다.</span>
             </div>
 
             <div className="tw-bg-gray-700 tw-bg-opacity-30 tw-p-4 tw-rounded">
@@ -868,6 +893,81 @@ function MyApp({ Component, pageProps }: AppProps) {
     </div>
   )
 
+  const update3Section = (
+    <div className="tw-flex tw-flex-col tw-gap-4 tw-break-keep">
+      <div className="tw-flex tw-flex-col tw-gap-8 tw-p-6 tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-text-sm">
+        <div className="tw-flex tw-flex-col tw-gap-4 tw-w-full">
+          <div className="tw-flex tw-flex-col tw-gap-6 tw-w-full tw-leading-relaxed">
+            {/* 첫 번째 설명 블록 */}
+            {/* <div className="tw-bg-blue-900 tw-bg-opacity-20 tw-p-4 tw-rounded tw-border-l-4 tw-border-blue-500">
+              <span className="tw-font-bold tw-whitespace-pre-line">새로운 기능</span>
+            </div> */}
+
+            <Image
+              src="https://ribbon.r-archive.zip/project_ra/update_070_banner.png"
+              alt="overlay"
+              className="tw-cursor-pointer tw-w-full tw-h-auto tw-rounded-lg"
+              width={500}
+              height={500}
+              onClick={() => setSelectedImage('https://ribbon.r-archive.zip/project_ra/update_070_banner.png?full=1')}
+              referrerPolicy="origin"
+            />
+
+            <Image
+              src="https://ribbon.r-archive.zip/project_ra/update_070_menual.png"
+              alt="overlay"
+              className="tw-cursor-pointer tw-w-full tw-h-auto tw-rounded-lg"
+              width={500}
+              height={500}
+              onClick={() => setSelectedImage('https://ribbon.r-archive.zip/project_ra/update_070_menual.png?full=1')}
+              referrerPolicy="origin"
+            />
+
+            <Image
+              src="https://ribbon.r-archive.zip/project_ra/update_070_content_1.png"
+              alt="overlay"
+              className="tw-cursor-pointer tw-w-full tw-h-auto tw-rounded-lg"
+              width={500}
+              height={500}
+              onClick={() => setSelectedImage('https://ribbon.r-archive.zip/project_ra/update_070_content_1.png?full=1')}
+              referrerPolicy="origin"
+            />
+
+            <Image
+              src="https://ribbon.r-archive.zip/project_ra/update_070_content_2.png"
+              alt="overlay"
+              className="tw-cursor-pointer tw-w-full tw-h-auto tw-rounded-lg"
+              width={500}
+              height={500}
+              onClick={() => setSelectedImage('https://ribbon.r-archive.zip/project_ra/update_070_content_2.png?full=1')}
+              referrerPolicy="origin"
+            />
+
+            <Image
+              src="https://ribbon.r-archive.zip/project_ra/update_070_content_3.png"
+              alt="overlay"
+              className="tw-cursor-pointer tw-w-full tw-h-auto tw-rounded-lg"
+              width={500}
+              height={500}
+              onClick={() => setSelectedImage('https://ribbon.r-archive.zip/project_ra/update_070_content_3.png?full=1')}
+              referrerPolicy="origin"
+            />
+
+            <Image
+              src="https://ribbon.r-archive.zip/project_ra/update_070_feedback.png"
+              alt="overlay"
+              className="tw-cursor-pointer tw-w-full tw-h-auto tw-rounded-lg"
+              width={500}
+              height={500}
+              onClick={() => setSelectedImage('https://ribbon.r-archive.zip/project_ra/update_070_feedback.png?full=1')}
+              referrerPolicy="origin"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+
   const ServiceSection = () => {
     const containerRef = useRef<HTMLDivElement>(null)
 
@@ -925,100 +1025,148 @@ function MyApp({ Component, pageProps }: AppProps) {
 
   const updateSections = [
     { title: '업데이트 및 참고 사항', content: update1Section },
-    { title: '0.6.0+ 업데이트', content: update2Section },
+    { title: '0.7.0 업데이트', content: update3Section },
+    { title: '0.6.0 업데이트', content: update2Section },
   ]
+
+  const [isBlurred, setIsBlurred] = useState(true)
+  const [showLoader, setShowLoader] = useState(true)
+
+  // isLoading 상태가 false로 변경될 때 순차적으로 전환
+  useEffect(() => {
+    if (!isLoading) {
+      // 1. 먼저 로딩 화면을 페이드 아웃
+      setTimeout(() => {
+        setShowLoader(false)
+      }, 1000)
+
+      // 2. 로딩 화면이 사라진 후 블러 효과도 제거
+      setTimeout(() => {
+        setIsBlurred(false)
+      }, 1000)
+    }
+  }, [isLoading])
 
   return (
     <Provider store={store}>
-      {!isLoading && !router.pathname.includes('/overlay/widget') ? (
-        <div className={`tw-w-full tw-transition-all tw-h-full ${noto.className}`}>
-          <BackgroundVideoComponent />
-
-          <main
-            className="tw-mx-5 tw-text-sm tw-transition-all"
-            style={{ marginLeft: settingDataApp.isMiniMode ? '4rem' : '14.25rem', marginBottom: '3rem', marginTop: '4rem' }}
-            data-bs-theme="dark"
-          >
-            <AnimatePresence initial={false} mode="wait">
-              <motion.div
-                key={asPath + refreshKey}
-                initial={{ x: 10, opacity: 0.5 }}
-                animate={{ x: 0, opacity: 1 }}
-                exit={{ x: -10, opacity: 0 }}
-                transition={{ duration: 0.3 }}
-                style={{ width: '100%' }}
-              >
-                <Component {...pageProps} />
-              </motion.div>
-            </AnimatePresence>
-
-            <HeaderComponent
-              refreshKeyHandle={setRefreshKey}
-              callback={() => {
-                setUserNo('')
-                setUserToken('')
-                setVArchiveUserNo('')
-                setVArchiveUserToken('')
-              }}
-            />
-            <SidebarComponent />
-            <FooterComponent />
-          </main>
-
-          <HomePanelComponent noticeSection={noticeSection} updateSections={updateSections} serviceSection={<ServiceSection />} />
-
-          {selectedImage && <ImageViewerComponent src={selectedImage} onClose={() => setSelectedImage(null)} />}
-
-          {/* 외부 링크 확인 모달 */}
+      {!router.pathname.includes('/overlay/widget') ? (
+        <>
+          {/* 블러 오버레이 */}
           <div
-            className={`tw-fixed tw-inset-0 tw-z-[9999] tw-transition-opacity tw-duration-300 ${
-              showExternalLinkModal ? 'tw-opacity-100 tw-pointer-events-auto' : 'tw-opacity-0 tw-pointer-events-none'
+            className={`tw-fixed tw-inset-0 tw-bg-gray-950/50 tw-backdrop-blur-xl tw-transition-all tw-duration-700 tw-ease-out tw-z-[999999] ${
+              isBlurred ? 'tw-opacity-100' : 'tw-opacity-0 tw-pointer-events-none'
             }`}
-          >
-            <div className="tw-fixed tw-inset-0 tw-bg-gray-950 tw-bg-opacity-90" onClick={handleBackdropClick} />
-            <div className="tw-fixed tw-inset-0 tw-flex tw-items-center tw-justify-center">
-              <div
-                className={`tw-bg-gray-900 tw-p-6 tw-rounded-lg tw-shadow-lg tw-max-w-md tw-w-full tw-mx-4 
-                tw-transition-all tw-duration-300 ${showExternalLinkModal ? 'tw-opacity-100 tw-translate-y-0' : 'tw-opacity-0 tw-translate-y-4'}`}
+          />
+
+          {/* 메인 앱 컨텐츠 */}
+          {!isLoading && (
+            <div className={`tw-w-full tw-transition-all tw-h-full ${noto.className}`}>
+              <BackgroundVideoComponent />
+              <main
+                className="tw-mx-5 tw-text-sm tw-transition-all"
+                style={{ marginLeft: settingDataApp.isMiniMode ? '4rem' : '14.25rem', marginBottom: '3rem', marginTop: '4rem' }}
+                data-bs-theme="dark"
               >
-                <h3 className="tw-text-lg tw-font-bold tw-mb-4 tw-text-center">외부 링크 열기</h3>
-                <p className="tw-mb-6 tw-text-center tw-font-light tw-text-sm">
-                  이 링크는 사용자의 브라우저에서 열립니다.
-                  <br />
-                  신뢰할 수 있는 링크인지 확인 후 이동해주세요.
-                </p>
-                <div className="tw-mb-6 tw-h-20 tw-overflow-y-auto tw-bg-gray-800 tw-rounded tw-p-2">
-                  <p className="tw-text-blue-400 tw-break-all tw-text-sm">{externalUrl}</p>
-                </div>
-                <div className="tw-flex tw-justify-end tw-gap-2">
-                  <button
-                    className="tw-px-4 tw-py-1.5 tw-text-sm tw-bg-gray-800 tw-rounded hover:tw-bg-gray-700"
-                    onClick={() => setShowExternalLinkModal(false)}
+                <AnimatePresence initial={false} mode="wait">
+                  <motion.div
+                    key={asPath + refreshKey}
+                    initial={{ x: 10, opacity: 0.5 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    exit={{ x: -10, opacity: 0 }}
+                    transition={{ duration: 0.3 }}
+                    style={{ width: '100%' }}
                   >
-                    취소
-                  </button>
-                  <button className="tw-px-4 tw-py-1.5 tw-text-sm tw-bg-blue-600 tw-rounded hover:tw-bg-blue-700" onClick={handleExternalLink}>
-                    열기
-                  </button>
+                    <Component {...pageProps} />
+                  </motion.div>
+                </AnimatePresence>
+
+                <HeaderComponent
+                  refreshKeyHandle={setRefreshKey}
+                  callback={() => {
+                    setUserNo('')
+                    setUserToken('')
+                    setVArchiveUserNo('')
+                    setVArchiveUserToken('')
+                  }}
+                />
+                <SidebarComponent />
+                <FooterComponent />
+              </main>
+
+              <HomePanelComponent noticeSection={noticeSection} updateSections={updateSections} serviceSection={<ServiceSection />} />
+
+              {selectedImage && <ImageViewerComponent src={selectedImage} onClose={() => setSelectedImage(null)} />}
+
+              {/* 외부 링크 확인 모달 */}
+              <div
+                className={`tw-fixed tw-inset-0 tw-z-[9999] tw-transition-opacity tw-duration-300 ${
+                  showExternalLinkModal ? 'tw-opacity-100 tw-pointer-events-auto' : 'tw-opacity-0 tw-pointer-events-none'
+                }`}
+              >
+                <div className="tw-fixed tw-inset-0 tw-bg-gray-950 tw-bg-opacity-90" onClick={handleBackdropClick} />
+                <div className="tw-fixed tw-inset-0 tw-flex tw-items-center tw-justify-center">
+                  <div
+                    className={`tw-bg-gray-900 tw-p-6 tw-rounded-lg tw-shadow-lg tw-max-w-md tw-w-full tw-mx-4 
+                  tw-transition-all tw-duration-300 ${showExternalLinkModal ? 'tw-opacity-100 tw-translate-y-0' : 'tw-opacity-0 tw-translate-y-4'}`}
+                  >
+                    <h3 className="tw-text-lg tw-font-bold tw-mb-4 tw-text-center">외부 링크 열기</h3>
+                    <p className="tw-mb-6 tw-text-center tw-font-light tw-text-sm">
+                      이 링크는 사용자의 브라우저에서 열립니다.
+                      <br />
+                      신뢰할 수 있는 링크인지 확인 후 이동해주세요.
+                    </p>
+                    <div className="tw-mb-6 tw-h-20 tw-overflow-y-auto tw-bg-gray-800 tw-rounded tw-p-2">
+                      <p className="tw-text-blue-400 tw-break-all tw-text-sm">{externalUrl}</p>
+                    </div>
+                    <div className="tw-flex tw-justify-end tw-gap-2">
+                      <button
+                        className="tw-px-4 tw-py-1.5 tw-text-sm tw-bg-gray-800 tw-rounded hover:tw-bg-gray-700"
+                        onClick={() => setShowExternalLinkModal(false)}
+                      >
+                        취소
+                      </button>
+                      <button className="tw-px-4 tw-py-1.5 tw-text-sm tw-bg-blue-600 tw-rounded hover:tw-bg-blue-700" onClick={handleExternalLink}>
+                        열기
+                      </button>
+                    </div>
+                  </div>
                 </div>
+              </div>
+
+              <NotificationComponent />
+
+              <SettingComponent />
+            </div>
+          )}
+
+          {/* 로딩 화면 - 항상 렌더링되지만 opacity로 제어 */}
+          <div
+            className={`tw-fixed tw-inset-0 tw-flex tw-w-screen tw-h-screen tw-bg-gray-900 tw-bg-opacity-90 tw-flex-col tw-gap-10 tw-items-center tw-justify-center tw-transition-opacity tw-duration-1000 tw-z-[1000000] ${
+              showLoader ? 'tw-opacity-100' : 'tw-opacity-0 tw-pointer-events-none'
+            } ${noto.className}`}
+          >
+            <div className="tw-flex tw-w-full tw-h-full tw-relative">
+              <div className="tw-flex tw-flex-1 tw-items-center tw-justify-center">
+                <SyncLoader color="#ffffff" size={8} />
+              </div>
+              <div className="tw-flex tw-flex-col tw-gap-2 tw-w-full tw-p-2 tw-justify-center tw-items-center tw-absolute tw-bottom-0">
+                {/* <span className="tw-text-xs tw-font-light tw-text-gray-200 tw-text-opacity-50">
+                  The resources provided by this Service are not licensed to each creator. Restricted to commercial use.
+                </span> */}
+                <span className="tw-text-xs tw-font-light tw-text-gray-200 tw-text-opacity-50">
+                  본 서비스에서 제공되는 리소스는 각 저작권자로부터 별도의 라이선스를 부여받지 않았습니다. 비상업적인 용도로만 사용할 수 있습니다.
+                </span>
+                <span className="tw-text-xs tw-font-light tw-text-gray-200 tw-text-opacity-50">
+                  Developed by R-ARCHIVE Team & GGDRN0 STUDIO. Produced by LunaticaLuna.
+                </span>
               </div>
             </div>
           </div>
-
-          <NotificationComponent />
-
-          <SettingComponent />
-        </div>
-      ) : router.pathname.includes('/overlay/widget') ? (
+        </>
+      ) : (
         <Provider store={store}>
           <Component {...pageProps} />
         </Provider>
-      ) : (
-        <div className={`tw-flex tw-w-screen tw-h-screen flex-equal tw-flex-col tw-gap-10 tw-items-center tw-justify-center ${noto.className}`}>
-          <Image src="/images/logo.svg" height={240} width={240} alt="Logo" />
-          {/* <span className="tw-text-sm tw-font-bold">R-ARCHIVE 실행에 필요한 데이터를 불러오고 있습니다. 잠시만 기다려주세요.</span> */}
-          <SyncLoader color="#ffffff" size={8} />
-        </div>
       )}
     </Provider>
   )

@@ -14,9 +14,9 @@ const initialState: UiState = {
   fontFamily: '',
   backgroundBgaName: '',
   isDjCommentOpen: false,
-  isHomePanelOpen: true,
+  isHomePanelOpen: false,
   homePanelCategory: 'update',
-  updateIndex: 0,
+  updateIndex: 1,
   slideDirection: 0,
 }
 

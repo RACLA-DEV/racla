@@ -24,6 +24,7 @@ interface Bug {
   status: string
   reporterId: number
   reporterName: string
+  createdAt: string
   comments: Comment[]
 }
 
@@ -104,6 +105,9 @@ export default function BugDetail() {
           <p className="tw-text-gray-400">
             <span className="tw-font-semibold">작성자:</span> {bug.reporterName}
           </p>
+          <p className="tw-text-gray-400">
+            <span className="tw-font-semibold">작성 시간:</span> {moment(bug.createdAt).format('YYYY-MM-DD HH:mm:ss')}
+          </p>
           <div className="tw-bg-gray-800 tw-p-6 tw-rounded-lg tw-space-y-4">
             <p className="tw-whitespace-pre-wrap">{bug.description}</p>
           </div>
@@ -148,7 +152,7 @@ export default function BugDetail() {
               <div key={comment.id} className="tw-bg-gray-700 tw-bg-opacity-50 tw-rounded tw-p-4">
                 <div className="tw-flex tw-justify-between tw-items-center tw-mb-2">
                   <span className="tw-font-medium">{comment.commenterName}</span>
-                  <span className="tw-text-sm tw-text-gray-400">{moment(comment.createdAt).format('YYYY-MM-DD HH:mm')}</span>
+                  <span className="tw-text-sm tw-text-gray-400">{moment(comment.createdAt).format('YYYY-MM-DD HH:mm:ss')}</span>
                 </div>
                 <p className="tw-whitespace-pre-wrap">{comment.content}</p>
               </div>

@@ -100,6 +100,12 @@ export default function VArchiveLoginPage() {
       fileReader.readAsText(file)
     } catch (error) {
       handleError('알 수 없는 오류가 발생했습니다. 다시 시도해주세요. ' + String(error))
+      if (raFileInputRef.current) {
+        raFileInputRef.current.value = ''
+      }
+      if (vArchiveFileInputRef.current) {
+        vArchiveFileInputRef.current.value = ''
+      }
     }
   }
 
@@ -144,6 +150,12 @@ export default function VArchiveLoginPage() {
         }
       } catch (e) {
         handleError('알 수 없는 오류가 발생했습니다. 다시 시도해주세요. ' + String(e))
+        if (vArchiveFileInputRef.current) {
+          vArchiveFileInputRef.current.value = ''
+        }
+        if (raFileInputRef.current) {
+          raFileInputRef.current.value = ''
+        }
       }
     }
     try {
@@ -158,10 +170,12 @@ export default function VArchiveLoginPage() {
 
   // 각각의 파일 선택 핸들러
   const handleRaFileSelect = () => {
+    showNotification('R-ARCHIVE 데스크톱 앱으로 생성한 player.txt 파일을 선택해주세요.', 'tw-bg-blue-600')
     raFileInputRef.current?.click()
   }
 
   const handleVArchiveFileSelect = () => {
+    showNotification('V-ARCHIVE 공식 클라이언트로 생성한 account.txt 파일을 선택해주세요.', 'tw-bg-blue-600')
     vArchiveFileInputRef.current?.click()
   }
 
@@ -218,7 +232,7 @@ export default function VArchiveLoginPage() {
             </div>
 
             {/* 컨텐츠 */}
-            <div className="tw-relative" style={{ minHeight: '420px' }}>
+            <div className="tw-relative" style={{ minHeight: 'auto' }}>
               <AnimatePresence mode="wait">
                 {isLoginView ? (
                   <motion.div
@@ -227,15 +241,11 @@ export default function VArchiveLoginPage() {
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -50 }}
                     transition={{ duration: 0.3 }}
-                    className="tw-absolute tw-w-full"
+                    className="tw-w-full"
                   >
                     {/* 로그인 섹션 내용 */}
                     <div className="tw-space-y-4">
                       <div className="tw-flex tw-flex-col tw-gap-4">
-                        <div className="tw-bg-gray-700 tw-bg-opacity-30 tw-p-4 tw-rounded">
-                          <p className="tw-break-keep">R-ARCHIVE 데스크톱 앱 또는 V-ARCHIVE 공식 클라이언트로 생성한 로그인 데이터 파일을 선택해주세요.</p>
-                        </div>
-
                         {/* 숨겨진 파일 input */}
                         <input ref={raFileInputRef} type="file" accept=".txt" onChange={onRaFileChange} className="tw-hidden" />
                         <input ref={vArchiveFileInputRef} type="file" accept=".txt" onChange={onVArchiveFileChange} className="tw-hidden" />
@@ -251,22 +261,19 @@ export default function VArchiveLoginPage() {
 
                         <button
                           onClick={handleVArchiveFileSelect}
-                          className="tw-w-full tw-flex tw-items-center tw-justify-center tw-gap-2 tw-px-4 tw-py-3 tw-rounded-md tw-bg-amber-600 hover:tw-bg-amber-700 tw-text-white tw-transition-colors"
+                          className="tw-w-full tw-mb-4 tw-flex tw-items-center tw-justify-center tw-gap-2 tw-px-4 tw-py-3 tw-rounded-md tw-bg-amber-600 hover:tw-bg-amber-700 tw-text-white tw-transition-colors"
                         >
                           <FaV className="tw-text-lg" />
                           V-ARCHIVE 계정으로 로그인
                         </button>
-
-                        <div className="tw-bg-blue-900 tw-bg-opacity-20 tw-p-4 tw-rounded tw-border-l-4 tw-border-blue-500">
-                          <p className="tw-break-keep">V-ARCHIVE 계정으로 로그인 시 자동으로 R-ARCHIVE 계정이 생성되며 V-ARCHIVE 계정 정보와 연동됩니다.</p>
-                        </div>
                       </div>
 
-                      <div className="tw-flex tw-justify-center tw-gap-3 tw-items-start tw-text-sm tw-text-gray-300 tw-mt-6 tw-pt-4 tw-border-t tw-border-gray-700">
-                        <FaCircleInfo className="tw-mt-1 tw-text-blue-400" />
+                      <div className="tw-flex tw-justify-center tw-gap-3 tw-items-start tw-text-sm tw-text-gray-300 tw-mt-6 tw-pt-8 tw-border-t tw-border-gray-700">
+                        <FaCircleInfo className="tw-mt-1 tw-min-w-3 tw-text-blue-400" />
                         <div className="tw-flex tw-flex-col tw-gap-1 tw-break-keep">
                           <span>R-ARCHIVE는 DJMAX RESPECT V 서비스에 한하여 V-ARCHIVE의 사용자 데이터를 수집 및 사용하고 있습니다.</span>
                           <span>V-ARCHIVE 계정 미연동 시 DJMAX RESPECT V 서비스는 사용할 수 없습니다.</span>
+                          <span>V-ARCHIVE 계정으로 최초 로그인 시 자동으로 R-ARCHIVE 계정이 자동으로 생성되며 V-ARCHIVE 계정 정보와 연동됩니다.</span>
                           <span
                             className="tw-flex tw-items-center tw-gap-1 tw-text-blue-400 hover:tw-text-blue-300 tw-cursor-pointer tw-transition-colors"
                             onClick={() => window.ipc.send('openBrowser', 'https://v-archive.net/downloads')}
@@ -284,20 +291,11 @@ export default function VArchiveLoginPage() {
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -50 }}
                     transition={{ duration: 0.3 }}
-                    className="tw-absolute tw-w-full"
+                    className="tw-w-full"
                   >
                     {/* 계정가입 섹션 내용 */}
                     <div className="tw-space-y-4">
-                      <div className="tw-bg-gray-700 tw-bg-opacity-30 tw-p-4 tw-rounded">
-                        <p className="tw-break-keep">
-                          계정 생성 시 자동으로 생성된 로그인 데이터가 담긴 player.txt 파일이 현재 사용하고 있는 운영체제의 사용자 계정의 내 문서 폴더에 위치한
-                          R-ARCHIVE에 저장됩니다.
-                        </p>
-                        <br />
-                        <p>해당 파일을 분실하지 않도록 꼭 보관해주세요.</p>
-                      </div>
-
-                      <div className="tw-flex tw-flex-col tw-gap-4">
+                      <div className="tw-flex tw-flex-col tw-gap-4 tw-pb-4">
                         <input
                           type="text"
                           value={nickname}
@@ -316,11 +314,18 @@ export default function VArchiveLoginPage() {
                         </button>
                       </div>
 
-                      <div className="tw-bg-blue-900 tw-bg-opacity-20 tw-p-4 tw-rounded tw-border-l-4 tw-border-blue-500">
-                        <p className="tw-break-keep">
-                          계정 생성 시 서비스를 이용을 위한 플레이 데이터, 닉네임 정보, 접속 환경의 IP를 R-ARCHIVE가 수집하는 것을 동의한 것으로 간주합니다.
-                          해당 정보는 제3자에게 사용자의 동의 없이 제공되지 않습니다.
-                        </p>
+                      <div className="tw-flex tw-justify-center tw-gap-3 tw-items-start tw-text-sm tw-text-gray-300 tw-mt-6 tw-pt-8 tw-border-t tw-border-gray-700">
+                        <FaCircleInfo className="tw-mt-1 tw-text-blue-400 tw-min-w-3" />
+                        <div className="tw-flex tw-flex-col tw-gap-1 tw-break-keep">
+                          <span>
+                            계정 생성 시 자동으로 생성된 로그인 데이터가 담긴 player.txt 파일이 사용 중인 운영체제의 사용자 계정 문서 폴더에 위치한 R-ARCHIVE에
+                            저장되며 추후 로그인 시 사용됩니다.
+                          </span>
+                          <span>
+                            계정 생성 시 서비스를 이용을 위한 플레이 데이터, 닉네임 정보, 접속 환경의 IP를 R-ARCHIVE가 수집하는 것을 동의한 것으로 간주합니다.
+                            해당 정보는 제3자에게 사용자의 동의 없이 제공되지 않습니다.
+                          </span>
+                        </div>
                       </div>
                     </div>
                   </motion.div>

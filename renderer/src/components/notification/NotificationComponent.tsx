@@ -1,12 +1,12 @@
 import { useNotificationSystem } from '@/libs/client/useNotifications'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from 'store'
 import { FaCheck, FaCircleNotch, FaCrown, FaQuestion, FaXmark, FaDownload, FaRotate } from 'react-icons/fa6'
 import { useEffect, useState } from 'react'
+import { removeNotification } from 'store/slices/notificationSlice'
 
 const NotificationComponent = () => {
   const notifications = useSelector((state: RootState) => state.notification.notifications)
-  const { removeNotification } = useNotificationSystem()
   const [updateVersion, setUpdateVersion] = useState<string | null>(null)
   const [downloadProgress, setDownloadProgress] = useState<{ percent: string } | null>(null)
   const [isDownloaded, setIsDownloaded] = useState(false)
@@ -66,9 +66,11 @@ const NotificationComponent = () => {
     }
   }
 
+  const dispatch = useDispatch()
+
   return (
     <div className="tw-fixed tw-bottom-7 tw-right-2 tw-z-50 tw-break-keep tw-min-w-96 tw-max-w-96 tw-w-96">
-      {notifications.map(({ id, message, fadeOut, color, isFinal }) => (
+      {notifications.map(({ id, message, color, isFinal, isRemoving }) => (
         <div
           key={id}
           className={`
@@ -88,14 +90,15 @@ const NotificationComponent = () => {
             tw-border
             tw-border-white/10
             tw-transform
-            ${fadeOut ? 'tw-animate-fadeOutSlideRight tw-pointer-events-none' : 'tw-animate-fadeInSlideRight'}
+            ${isRemoving ? 'tw-animate-fadeOutSlideRight' : 'tw-animate-fadeInSlideRight'}
             hover:tw-scale-102
             hover:tw-brightness-110
             tw-transition-all
             tw-duration-200
             tw-text-xs
           `}
-          onClick={() => removeNotification(id)}
+          onClick={() => dispatch(removeNotification(id))}
+          id={`notification-${id}`}
         >
           <div className="tw-flex tw-items-center tw-gap-3">
             {color && <div className={`tw-text-sm tw-p-1 tw-rounded-sm tw-bg-white/10 ${isFinal ? 'tw-animate-pulse' : ''}`}>{getStatusIcon(color)}</div>}
@@ -112,8 +115,8 @@ const NotificationComponent = () => {
               tw-left-0 
               tw-h-1 
               tw-w-full 
+              tw-animate-notificationProgress
               ${color ? color : 'tw-bg-white/30'}
-              ${fadeOut ? 'tw-animate-fadeOut' : 'tw-animate-notificationProgress'}
             `}
             style={{ transform: 'translateX(-100%)' }}
           />

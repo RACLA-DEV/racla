@@ -206,7 +206,7 @@ export default function VArchiveRegScorePage() {
   useEffect(() => {
     if (userData.userName === '') {
       router.push('/')
-      showNotification('기록 등록(베타)는 로그인이 필요합니다.', 'tw-bg-red-600')
+      showNotification('기록 등록은 로그인이 필요합니다.', 'tw-bg-red-600')
     }
   }, [userData])
 
@@ -244,7 +244,7 @@ export default function VArchiveRegScorePage() {
   return (
     <React.Fragment>
       <Head>
-        <title>기록 등록(베타) - R-ARCHIVE</title>
+        <title>기록 등록 - R-ARCHIVE</title>
       </Head>
       {userData.userName !== '' ? (
         <div

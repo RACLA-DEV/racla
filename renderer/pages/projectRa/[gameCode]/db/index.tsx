@@ -586,7 +586,7 @@ export default function VArchiveDbPage() {
                   <div className={`tw-w-full ${viewMode === 'grid' ? 'tw-flex tw-gap-3 tw-flex-wrap tw-justify-between' : 'tw-flex tw-flex-col'}`}>
                     {viewMode === 'list' && (
                       <div className="tw-flex tw-items-center tw-gap-4 tw-p-2 tw-border-b tw-border-gray-600 tw-text-gray-400 tw-font-bold tw-text-sm">
-                        <div className="tw-w-[130px] tw-text-center">앨범</div>
+                        <div className="tw-w-[130px] tw-text-center">곡 이미지</div>
                         <div className="tw-flex tw-flex-1">
                           <div className="tw-flex-1">곡 정보</div>
                           <div className="tw-w-96 tw-text-center">난이도</div>

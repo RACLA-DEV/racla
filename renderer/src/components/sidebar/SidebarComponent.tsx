@@ -2,7 +2,7 @@
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import React, { useEffect, useState } from 'react'
-import { FaBug, FaGear, FaNoteSticky, FaChevronLeft, FaChevronRight } from 'react-icons/fa6'
+import { FaBug, FaGear, FaNoteSticky, FaChevronLeft, FaChevronRight, FaSliders, FaList, FaTableList } from 'react-icons/fa6'
 import { globalDictionary } from '@/libs/server/globalDictionary'
 import { IconContext } from 'react-icons'
 import { renderNavigation } from './renderNavigation'
@@ -66,14 +66,6 @@ const SidebarComponent: React.FC = () => {
           isMiniMode ? 'tw-w-auto tw-px-2 tw-py-2' : 'tw-w-52 tw-p-4'
         } tw-left-0 tw-top-12 tw-h-[calc(100vh-5.125rem)] tw-z-50 tw-ease-in-out`}
       >
-        <button
-          onClick={() => {
-            handleSettingChange({ isMiniMode: !isMiniMode })
-          }}
-          className="tw-absolute tw-right-[-10px] tw-top-0 tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-sm tw-p-1 tw-cursor-pointer hover:tw-bg-gray-600 tw-transition-colors"
-        >
-          {isMiniMode ? <FaChevronRight size={10} /> : <FaChevronLeft size={10} />}
-        </button>
         {renderNavigation('projectRa', router)}
         {renderNavigation(selectedGame, router)}
 
@@ -107,7 +99,7 @@ const SidebarComponent: React.FC = () => {
               )}
             </Link>
           </OverlayTrigger>
-          <OverlayTrigger
+          {/* <OverlayTrigger
             placement="right"
             overlay={
               <Tooltip id={`tooltip-developer-note`} className="tw-text-xs">
@@ -133,7 +125,7 @@ const SidebarComponent: React.FC = () => {
                 </div>
               )}
             </span>
-          </OverlayTrigger>
+          </OverlayTrigger> */}
           <OverlayTrigger
             placement="right"
             overlay={
@@ -156,6 +148,34 @@ const SidebarComponent: React.FC = () => {
               ) : (
                 <div className="tw-invisible group-hover:tw-visible tw-absolute tw-left-12 tw-bg-gray-800 tw-text-white tw-px-2 tw-py-1 tw-rounded tw-whitespace-nowrap tw-text-xs tw-z-50">
                   설정
+                </div>
+              )}
+            </span>
+          </OverlayTrigger>
+          <OverlayTrigger
+            placement="right"
+            overlay={
+              <Tooltip id={`tooltip-sidebar-toggle`} className="tw-text-xs">
+                {isMiniMode ? '사이드바 최대화' : '사이드바 최소화'}
+              </Tooltip>
+            }
+          >
+            <span
+              className={`tw-text-sm tw-text-gray-400 tw-font-bold tw-flex tw-items-center tw-gap-2 tw-cursor-pointer group relative hover:tw-bg-gray-700 hover:tw-bg-opacity-30 tw-rounded ${
+                !isMiniMode ? 'tw-p-1.5' : 'tw-my-1'
+              }`}
+              onClick={() => handleSettingChange({ isMiniMode: !isMiniMode })}
+            >
+              {true && (
+                <div className={`${isMiniMode ? 'tw-bg-gray-700 tw-bg-opacity-30 tw-p-2 tw-rounded-md' : ''}`}>
+                  {isMiniMode ? <FaTableList size={isMiniMode ? 16 : 12} /> : <FaTableList size={isMiniMode ? 16 : 12} />}
+                </div>
+              )}
+              {!isMiniMode ? (
+                <span className="tw-text-xs">사이드바 최소화</span>
+              ) : (
+                <div className="tw-invisible group-hover:tw-visible tw-absolute tw-left-12 tw-bg-gray-800 tw-text-white tw-px-2 tw-py-1 tw-rounded tw-whitespace-nowrap tw-text-xs tw-z-50">
+                  사이드바 최대화
                 </div>
               )}
             </span>

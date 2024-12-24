@@ -121,6 +121,7 @@ const gameList = { djmax_respect_v: 'DJMAX RESPECT V', wjmax: 'WJMAX' }
       preload: path.join(__dirname, 'preload.js'),
     },
     autoHideMenuBar: true,
+    show: false,
     useContentSize: true,
     type: 'toolbar', // 창 유형을 'toolbar'로 설정
   })
@@ -355,10 +356,10 @@ const gameList = { djmax_respect_v: 'DJMAX RESPECT V', wjmax: 'WJMAX' }
   })
 
   // 세션 저장 처리
-  ipcMain.on('login', async (event, { userNo, userToken, vArchiveUserNo, vArchiveUserToken }) => {
+  ipcMain.on('login', async (event, { userNo, userToken, vArchiveUserNo, vArchiveUserToken, vArchiveUserName }) => {
     if (vArchiveUserNo && vArchiveUserToken) {
       try {
-        storeSession({ vArchiveUserNo, vArchiveUserToken, userNo: '', userToken: '' })
+        storeSession({ vArchiveUserNo, vArchiveUserToken, vArchiveUserName, userNo: '', userToken: '' })
         mainWindow.webContents.send('IPC_RENDERER_IS_LOGINED', true)
       } catch (e) {
         mainWindow.webContents.send('IPC_RENDERER_IS_LOGINED', false)
@@ -366,7 +367,7 @@ const gameList = { djmax_respect_v: 'DJMAX RESPECT V', wjmax: 'WJMAX' }
     }
     if (userNo && userToken) {
       try {
-        storeSession({ vArchiveUserNo: '', vArchiveUserToken: '', userNo, userToken })
+        storeSession({ vArchiveUserNo: '', vArchiveUserToken: '', vArchiveUserName: '', userNo, userToken })
         mainWindow.webContents.send('IPC_RENDERER_IS_LOGINED', true)
       } catch (e) {
         mainWindow.webContents.send('IPC_RENDERER_IS_LOGINED', false)
@@ -520,8 +521,8 @@ const gameList = { djmax_respect_v: 'DJMAX RESPECT V', wjmax: 'WJMAX' }
   ipcMain.on('top50-updated', (event, data) => {
     overlayWindow.webContents.send('IPC_RENDERER_GET_NOTIFICATION_DATA', {
       title: data.title,
-      message: `방금 전에 업로드된 ${data.name} 곡의 성과로 TOP50이 ${data.previousCutoff}TP에서 ${data.currentCutoff}TP로 갱신하였습니다.`,
-      color: 'tw-bg-yellow-700',
+      message: `방금 전 업로드된 ${data.name} 곡의 성과로 TOP50이 ${data.previousCutoff}TP에서 ${data.currentCutoff}TP로 갱신되었습니다.`,
+      color: 'tw-bg-amber-600',
     })
   })
 
@@ -677,26 +678,186 @@ const gameList = { djmax_respect_v: 'DJMAX RESPECT V', wjmax: 'WJMAX' }
                   '.png',
               )
 
-              if (settingData.saveImageWhenCapture && !isNotSaveImage && playData.screenType != 'collection') {
-                fs.writeFile(filePath, Buffer.from(imageBuffer), (err) => {
-                  if (err) {
-                    console.error('Failed to save file:', err)
+              // 프로필 영역 좌표 정의
+              const profileRegions = {
+                djmax_respect_v: {
+                  result: {
+                    myProfile: { left: 1542, top: 26, width: 320, height: 68 }, // 내 프로필 좌표
+                    otherProfile: { left: 1, top: 1, width: 1, height: 1 }, // 다른 사람 프로필 좌표
+                  },
+                  select: {
+                    myProfile: { left: 1522, top: 22, width: 320, height: 68 }, // 플레이어1 프로필 좌표
+                    otherProfile: { left: 1, top: 1, width: 1, height: 1 }, // 플레이어2 프로필 좌표
+                  },
+                  open3: {
+                    myProfile: { left: 211, top: 177, width: 320, height: 68 }, // 플레이어1 프로필 좌표
+                    otherProfile: { left: 777, top: 116, width: 1106, height: 852 }, // 플레이어2 프로필 좌표
+                  },
+                  open2: {
+                    myProfile: { left: 310, top: 176, width: 321, height: 69 }, // 플레이어1 프로필 좌표
+                    otherProfile: { left: 1290, top: 176, width: 321, height: 69 }, // 플레이어2 프로필 좌표
+                  },
+                  versus: {
+                    myProfile: { left: 201, top: 867, width: 320, height: 68 }, // 플레이어1 프로필 좌표
+                    otherProfile: { left: 1401, top: 867, width: 320, height: 68 }, // 플레이어2 프로필 좌표
+                  },
+                  collection: {
+                    myProfile: { left: 1512, top: 22, width: 320, height: 68 }, // 플레이어1 프로필 좌표
+                    otherProfile: { left: 1, top: 1, width: 1, height: 1 }, // 플레이어2 프로필 좌표
+                  },
+                  openSelect: {
+                    myProfile: { left: 1361, top: 216, width: 320, height: 68 }, // 플레이어1 프로필 좌표
+                    otherProfile: { left: 1363, top: 318, width: 316, height: 464 }, // 플레이어2 프로필 좌표
+                  },
+                },
+              }
+
+              const applyProfileMask = async (imageBuffer, gameCode, screenType, settings) => {
+                try {
+                  const image = sharp(imageBuffer)
+                  const regions = profileRegions[gameCode]?.[screenType]
+                  if (!regions) return imageBuffer
+
+                  let regionsToMask = []
+
+                  // 설정에 따른 마스킹 영역 결정
+                  if (settings.saveImageWithoutAllProfileWhenCapture) {
+                    if (screenType == 'result' || screenType == 'select' || screenType == 'collection') {
+                      regionsToMask = [regions.myProfile]
+                    } else if (screenType == 'openSelect') {
+                      regionsToMask = [regions.myProfile, regions.otherProfile, { left: 58, top: 687, width: 524, height: 256 }]
+                    } else {
+                      regionsToMask = [regions.myProfile, regions.otherProfile]
+                    }
+                  } else if (settings.saveImageWithoutOtherProfileWhenCapture) {
+                    if (screenType == 'result' || screenType == 'select' || screenType == 'collection') {
+                      regionsToMask = []
+                    } else if (screenType == 'openSelect') {
+                      regionsToMask = [regions.otherProfile, { left: 58, top: 687, width: 524, height: 256 }]
+                    } else {
+                      regionsToMask = [regions.otherProfile]
+                    }
                   } else {
-                    console.log('File saved to', filePath)
+                    if (screenType == 'openSelect') {
+                      regionsToMask = [{ left: 58, top: 687, width: 524, height: 256 }]
+                    } else {
+                      regionsToMask = []
+                    }
                   }
-                })
+
+                  if (regionsToMask.length === 0) return imageBuffer
+
+                  // 선택된 영역에 마스킹 효과 적용
+                  const overlays = await Promise.all(
+                    regionsToMask.map(async (region) => {
+                      let maskedRegion
+                      if (settings.saveImageBlurMode == 'black') {
+                        // 검은색 마스킹
+                        maskedRegion = await sharp({
+                          create: {
+                            width: region.width,
+                            height: region.height,
+                            channels: 4,
+                            background: '#000000', // 검은색을 hex 값으로 지정
+                          },
+                        })
+                          .jpeg() // 이미지 포맷 지정
+                          .toBuffer()
+                      } else {
+                        // 블러 마스킹
+                        maskedRegion = await sharp(imageBuffer).extract(region).blur(15).toBuffer()
+                      }
+
+                      return {
+                        input: maskedRegion,
+                        left: region.left,
+                        top: region.top,
+                      }
+                    }),
+                  )
+
+                  // 마스킹 처리된 영역을 원본 이미지에 합성
+                  return await image.composite(overlays).toBuffer()
+                } catch (error) {
+                  console.error('Error applying profile mask:', error)
+                  return imageBuffer
+                }
+              }
+
+              // 파일 저장 부분 수정
+              if (settingData.saveImageWhenCapture && !isNotSaveImage) {
+                try {
+                  let finalImageBuffer = imageBuffer
+
+                  finalImageBuffer = await applyProfileMask(imageBuffer, 'djmax_respect_v', playData.screenType, settingData)
+
+                  fs.writeFile(filePath, finalImageBuffer, (err) => {
+                    if (err) {
+                      console.error('Failed to save file:', err)
+                    } else {
+                      console.log('File saved to', filePath)
+                    }
+                  })
+                } catch (error) {
+                  console.error('Error processing image:', error)
+                }
               }
 
               isUploaded = true
               if (where !== 'versus' && playData.screenType !== 'versus' && playData.isVerified) {
-                settingData.resultOverlay && overlayWindow.webContents.send('IPC_RENDERER_GET_NOTIFICATION_DATA', { ...response.data.playData })
+                // 기존 점수 조회
+                try {
+                  const session = await getSession()
+                  const backupResponse = await axios.get(
+                    `${isProd ? 'https://aosame-rain.r-archive.zip/' : 'https://kamome-sano.r-archive.zip/'}?url=https://v-archive.net/api/archive/${
+                      session.vArchiveUserName
+                    }/title/${playData.songData.title}`,
+                  )
+                  const lastScore = backupResponse.data?.patterns?.[`${playData.button}B`]?.[playData.pattern]?.score || null
+
+                  settingData.resultOverlay &&
+                    overlayWindow.webContents.send('IPC_RENDERER_GET_NOTIFICATION_DATA', {
+                      ...response.data.playData,
+                      lastScore,
+                    })
+                } catch (error) {
+                  console.error('Error fetching backup data:', error)
+                  settingData.resultOverlay &&
+                    overlayWindow.webContents.send('IPC_RENDERER_GET_NOTIFICATION_DATA', {
+                      ...response.data.playData,
+                    })
+                }
               } else if (playData.screenType == 'versus') {
-                playData.versusData.forEach((value, index) => {
+                playData.versusData.forEach(async (value, index) => {
                   if (Number(value.score) > 0) {
-                    setTimeout(() => {
-                      settingData.resultOverlay &&
-                        overlayWindow.webContents.send('IPC_RENDERER_GET_NOTIFICATION_DATA', { ...value, gameCode: 'djmax_respect_v' })
-                    }, 2000 * index)
+                    try {
+                      // 각 플레이어의 기존 점수 조회
+                      const session = await getSession()
+                      const backupResponse = await axios.get(
+                        `${isProd ? 'https://aosame-rain.r-archive.zip/' : 'https://kamome-sano.r-archive.zip/'}?url=https://v-archive.net/api/archive/${
+                          session.vArchiveUserName
+                        }/title/${value.songData.title}`,
+                      )
+                      const lastScore = backupResponse.data?.patterns?.[`${value.button}B`]?.[value.pattern]?.score || null
+
+                      setTimeout(() => {
+                        settingData.resultOverlay &&
+                          overlayWindow.webContents.send('IPC_RENDERER_GET_NOTIFICATION_DATA', {
+                            ...value,
+                            gameCode: 'djmax_respect_v',
+                            lastScore,
+                          })
+                      }, 2000 * index)
+                    } catch (error) {
+                      console.error('Error fetching backup data:', error)
+                      setTimeout(() => {
+                        settingData.resultOverlay &&
+                          overlayWindow.webContents.send('IPC_RENDERER_GET_NOTIFICATION_DATA', {
+                            ...value,
+                            gameCode: 'djmax_respect_v',
+                          })
+                      }, 2000 * index)
+                    }
                   }
                 })
               } else if (playData.screenType == 'collection') {
@@ -835,22 +996,104 @@ const gameList = { djmax_respect_v: 'DJMAX RESPECT V', wjmax: 'WJMAX' }
                 'R-ARCHIVE',
                 gameCode.toUpperCase().replaceAll('_', ' ') +
                   '-' +
-                  (playData.screenType == 'versus' ? 'Versus' : String(playData.songData.name).replaceAll(':', '-')) +
+                  (playData.screenType == 'versus'
+                    ? 'Versus'
+                    : playData.screenType == 'collection'
+                    ? 'Collection'
+                    : String(playData.songData.name).replaceAll(':', '-')) +
                   '-' +
-                  (playData.screenType == 'versus' ? 'Match' : String(playData.score)) +
+                  (playData.screenType == 'versus' ? 'Match' : playData.screenType == 'collection' ? 'MusicData' : String(playData.score)) +
                   '-' +
                   moment().utcOffset(9).format('YYYY-MM-DD-HH-mm-ss') +
                   '.png',
               )
 
-              if (settingData.saveImageWhenCapture && !isNotSaveImage) {
-                fs.writeFile(filePath, Buffer.from(imageBuffer), (err) => {
-                  if (err) {
-                    console.error('Failed to save file:', err)
+              // 프로필 영역 좌표 정의
+              const profileRegions = {
+                wjmax: {
+                  result: {
+                    myProfile: { left: 1546, top: 32, width: 342, height: 70 }, // 플레이어1 프로필 좌표
+                    otherProfile: { left: 1, top: 1, width: 1, height: 1 }, // 플레이어2 프로필 좌표
+                  },
+                },
+              }
+
+              const applyProfileBlur = async (imageBuffer, gameCode, screenType, settings) => {
+                try {
+                  const image = sharp(imageBuffer)
+                  const regions = profileRegions[gameCode]?.[screenType]
+                  if (!regions) return imageBuffer
+
+                  let regionsToBlur = []
+
+                  // 설정에 따른 블러 처리 영역 결정
+                  if (settings.saveImageWithoutAllProfileWhenCapture) {
+                    // 모든 프로필 제외 - 모든 프로필에 블러
+                    if (screenType == 'result' || screenType == 'select' || screenType == 'collection') {
+                      regionsToBlur = [regions.myProfile]
+                    } else if (screenType == 'openSelect') {
+                      regionsToBlur = [regions.myProfile, regions.otherProfile, { left: 58, top: 687, width: 524, height: 256 }]
+                    } else {
+                      regionsToBlur = [regions.myProfile, regions.otherProfile]
+                    }
+                  } else if (settings.saveImageWithoutOtherProfileWhenCapture) {
+                    // 내 프로필만 - 다른 프로필만 블러
+                    if (screenType == 'result' || screenType == 'select' || screenType == 'collection') {
+                      regionsToBlur = []
+                    } else if (screenType == 'openSelect') {
+                      regionsToBlur = [regions.otherProfile, { left: 58, top: 687, width: 524, height: 256 }]
+                    } else {
+                      regionsToBlur = [regions.otherProfile]
+                    }
                   } else {
-                    console.log('File saved to', filePath)
+                    if (screenType == 'openSelect') {
+                      regionsToBlur = [{ left: 58, top: 687, width: 524, height: 256 }]
+                    } else {
+                      regionsToBlur = []
+                    }
                   }
-                })
+                  // saveImageWithAllProfileWhenCapture가 true인 경우는 블러 처리 없음
+
+                  if (regionsToBlur.length === 0) return imageBuffer
+
+                  // 선택된 영역에 블러 효과 적용
+                  const overlays = await Promise.all(
+                    regionsToBlur.map(async (region) => {
+                      const blurred = await sharp(imageBuffer).extract(region).blur(15).toBuffer()
+
+                      return {
+                        input: blurred,
+                        left: region.left,
+                        top: region.top,
+                      }
+                    }),
+                  )
+
+                  // 블러 처리된 영역을 원본 이미지에 합성
+                  return await image.composite(overlays).toBuffer()
+                } catch (error) {
+                  console.error('Error applying profile blur:', error)
+                  return imageBuffer
+                }
+              }
+
+              // 파일 저장 부분 수정
+              if (settingData.saveImageWhenCapture && !isNotSaveImage) {
+                try {
+                  let finalImageBuffer = imageBuffer
+
+                  finalImageBuffer = await applyProfileBlur(imageBuffer, 'djmax_respect_v', playData.screenType, settingData)
+
+                  fs.writeFile(filePath, finalImageBuffer, (err) => {
+                    if (err) {
+                      console.error('Failed to save file:', err)
+                    } else {
+                      console.log('File saved to', filePath)
+                    }
+                  })
+                } catch (error) {
+                  console.error('Error processing image:', error)
+                }
               }
 
               isUploaded = true
@@ -1071,7 +1314,7 @@ const gameList = { djmax_respect_v: 'DJMAX RESPECT V', wjmax: 'WJMAX' }
       console.log('Pressed Ctrl+Alt+Insert Key')
       if (settingData.resultOverlay) {
         overlayWindow.webContents.send('IPC_RENDERER_GET_NOTIFICATION_DATA', {
-          message: '게임 결과창 인식을 시작합니다. 잠시만 기다려주세요.',
+          message: '게임 화면 인식을 시작합니다. 잠시만 기다려주세요.',
           color: 'tw-bg-lime-600',
         })
       }

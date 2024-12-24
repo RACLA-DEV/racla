@@ -9,9 +9,13 @@ import axios from 'axios'
 import { SyncLoader } from 'react-spinners'
 import { globalDictionary } from '@/libs/server/globalDictionary'
 import ScorePopupComponent from '@/components/score/ScorePopupComponent'
-import html2canvas from 'html2canvas'
+import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js'
 import moment from 'moment'
+import html2canvas from 'html2canvas'
 import RaScorePopupComponent from '../score/RaScorePopupComponent'
+import { Doughnut } from 'react-chartjs-2'
+
+ChartJS.register(ArcElement, Tooltip, Legend)
 
 interface Pattern {
   title: number
@@ -442,273 +446,273 @@ export default function WjmaxHomeComponent() {
 
   return (
     <React.Fragment>
-      <div className="tw-flex tw-gap-4 tw-h-[calc(100vh-theme(spacing.28))]">
-        <motion.div
-          layout
-          initial={false}
-          animate={{
-            width: '100%',
-            transition: {
-              duration: 0.3,
-              ease: 'easeInOut',
-            },
-          }}
-          className="tw-relative tw-flex tw-flex-col tw-h-full tw-bg-gray-600 tw-bg-opacity-10 tw-rounded-md tw-p-4"
-        >
-          <div className="tw-flex tw-flex-col tw-gap-1 tw-w-full tw-pb-4 tw-px-1 tw-mt-0.5 tw-border-b tw-border-gray-700 tw-mb-4">
-            <span className="tw-text-lg tw-font-bold">
-              {userData.userName !== '' && userData.userName !== '' ? `${userData.userName}` : 'Guest'}님의 성과표
-            </span>
-          </div>
+      {selectedGame === 'wjmax' && (
+        <>
+          {isLoading ? (
+            <div className="tw-flex tw-items-center tw-justify-center tw-h-screen tw-flex-1 tw-bg-gray-800 tw-bg-opacity-40 tw-rounded-lg">
+              <SyncLoader color="#ffffff" size={8} />
+            </div>
+          ) : (
+            <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5, ease: 'easeOut' }}>
+              {/* 헤더 섹션 */}
+              <div className="tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-shadow-lg tw-p-4 tw-mb-4">
+                <div className="tw-flex tw-justify-between tw-items-center">
+                  <span className="tw-text-xl tw-font-bold">{userData.userName !== '' ? `${userData.userName}` : 'Guest'}님 환영합니다.</span>
+                  <KeyModeSelector />
+                </div>
+              </div>
 
-          <div className="tw-absolute tw-right-4 tw-top-4 tw-z-10 tw-flex tw-gap-2 tw-items-center">
-            <KeyModeSelector />
+              {/* 패널들 - 래퍼 제거하고 직접 배치 */}
+              <div className="tw-flex tw-gap-4 stats-section">
+                <div className="tw-flex tw-flex-col tw-gap-4 tw-w-3/5">
+                  {/* Total Overall Panel */}
+                  <div className="tw-flex tw-flex-col tw-gap-4">
+                    <div className="tw-flex tw-justify-between tw-items-end tw-bg-gray-800 tw-bg-opacity-40 tw-rounded-lg tw-p-4">
+                      <div className="tw-flex tw-flex-col">
+                        <span className="tw-text-xl tw-font-bold">전체 통계</span>
+                      </div>
+                    </div>
 
-            {/* 토글 버튼 */}
-          </div>
+                    <div className="tw-bg-gray-800 tw-bg-opacity-40 tw-rounded-lg tw-p-4 tw-pb-8">
+                      {/* 상단 통계 요약 */}
+                      <div className="tw-grid tw-grid-cols-3 tw-gap-2 tw-mb-8">
+                        {[
+                          { key: 'maxCombo', label: '맥스 콤보', color: 'tw-text-green-500' },
+                          { key: 'perfect', label: '퍼펙트', color: 'tw-text-red-500' },
+                          { key: 'clear', label: '클리어', color: 'tw-text-blue-500' },
+                        ].map(({ key, label, color }) => (
+                          <div key={key} className="tw-text-center tw-p-4 tw-bg-gray-950 tw-bg-opacity-50 tw-rounded-lg">
+                            <div className={`tw-text-lg tw-font-bold ${color}`}>{totalStats[key]}</div>
+                            <div className="tw-text-xs tw-text-gray-400">{label}</div>
+                          </div>
+                        ))}
+                      </div>
 
-          {/* 스크롤 가능한 컨텐츠 영역 */}
-          <div className="tw-flex-1 tw-overflow-y-auto tw-scroll-smooth">
-            <div id="ContentHeader" />
-            {selectedGame === 'wjmax' && (
-              <div className="tw-flex tw-flex-col tw-gap-4">
-                {isLoading ? (
-                  <div className="tw-flex tw-items-center tw-justify-center tw-h-screen tw-flex-1">
-                    <div className="tw-flex flex-equal tw-items-center tw-justify-center tw-h-[calc(100vh-theme(spacing.52))] tw-flex-1">
-                      <SyncLoader color="#ffffff" size={8} />
+                      {/* 도넛 차트 */}
+                      <div className="tw-relative tw-w-full tw-h-44 tw-flex tw-items-center tw-justify-center">
+                        <div className="tw-absolute tw-top-1/2 tw-left-1/2 tw-transform -tw-translate-x-1/2 -tw-translate-y-1/2 tw-text-center tw-w-20 tw-h-20 tw-bg-gray-950 tw-bg-opacity-50 tw-rounded-full tw-p-4 tw-pointer-events-none tw-z-0">
+                          <div className="tw-text-lg tw-font-bold">{totalStats.totalPatterns}</div>
+                          <div className="tw-text-sm tw-text-gray-300">전체</div>
+                        </div>
+
+                        <div className="tw-relative tw-z-10 tw-w-full tw-h-full">
+                          <Doughnut
+                            data={{
+                              labels: ['MAX COMBO', 'PERFECT', '99.9%+', '99.5%+', '99.0%+', '97.0%+', 'CLEAR'],
+                              datasets: [
+                                {
+                                  data: [totalStats.maxCombo, totalStats.perfect, totalStats.clear],
+                                  backgroundColor: ['rgba(34, 197, 94, 0.8)', 'rgba(239, 68, 68, 0.8)', 'rgba(59, 130, 246, 0.8)'],
+                                  borderColor: ['rgba(34, 197, 94, 1)', 'rgba(239, 68, 68, 1)', 'rgba(59, 130, 246, 1)'],
+                                  borderWidth: 1,
+                                },
+                              ],
+                            }}
+                            options={{
+                              responsive: true,
+                              maintainAspectRatio: false,
+                              cutout: '60%',
+                              plugins: {
+                                legend: {
+                                  display: false,
+                                },
+                                tooltip: {
+                                  position: 'nearest',
+                                  callbacks: {
+                                    label: (context: any) => {
+                                      const label = context.label || ''
+                                      const value = context.raw || 0
+                                      const percentage = ((value / totalStats.totalPatterns) * 100).toFixed(1)
+                                      return `${label}: ${value} (${percentage}%)`
+                                    },
+                                  },
+                                },
+                              },
+                            }}
+                          />
+                        </div>
+                      </div>
                     </div>
                   </div>
-                ) : (
-                  <>
-                    {/* 선택된 키모드에 대한 데이터 표시 */}
-                    <div className="tw-flex tw-gap-4 stats-section">
-                      <div className="tw-flex tw-flex-col tw-gap-4 tw-w-3/5">
-                        <div className="[text-shadow:_0_0_1px_rgba(0,0,0,0.3),_2px_2px_2px_rgb(0_0_0_/_90%),_4px_4px_4px_rgb(0_0_0_/_60%)] tw-relative tw-w-full tw-h-48 tw-rounded-lg tw-shadow-lg tw-overflow-hidden tw-transition-all tw-duration-1000 tw-ease-out tw-animate-fadeInLeft">
-                          <Image
-                            loading="lazy" // "lazy" | "eager"
-                            blurDataURL={globalDictionary.blurDataURL}
-                            src={`/images/wjmax/jackets/${wjmaxSongData[randomHeaderBg - 1].folderName}.jpg`}
-                            alt="Background"
-                            fill
-                            className="tw-object-cover tw-blur-md tw-brightness-50 tw-opacity-50"
-                          />
-                          <div className="tw-absolute tw-inset-0 tw-p-4 tw-flex tw-flex-col tw-justify-between">
-                            {userData.userName !== '' ? (
-                              <>
-                                <div className="tw-flex tw-justify-between tw-items-end">
-                                  <div className="tw-flex tw-flex-col">
-                                    <span className="tw-text-3xl tw-font-bold [text-shadow:_2px_2px_2px_rgb(0_0_0_/_90%),_4px_4px_4px_rgb(0_0_0_/_60%)]">
-                                      TOTAL OVERALL
-                                    </span>
-                                  </div>
-                                  <div className="tw-flex tw-flex-col tw-items-end">
-                                    <span className="tw-text-lg tw-font-bold">WJMAX</span>
-                                  </div>
-                                </div>
 
-                                <div className="tw-space-y-2">
-                                  {/* PERFECT */}
-                                  <div className="tw-flex tw-items-center tw-gap-2">
-                                    <span className="tw-w-32 tw-text-sm">PERFECT</span>
-                                    <div className="tw-relative tw-flex-1 tw-h-6 tw-bg-gray-950 tw-rounded-sm tw-overflow-hidden">
-                                      <div
-                                        className="tw-absolute tw-h-full tw-bg-red-500 tw-transition-all tw-duration-1000 tw-ease-out"
-                                        style={{ width: showProgress ? `${calculateProgress(totalStats.perfect, totalStats.totalPatterns)}%` : '0%' }}
-                                      />
-                                      <div className="tw-absolute tw-inset-0 tw-flex tw-items-center tw-justify-end tw-px-2 tw-text-xs tw-font-bold">
-                                        {totalStats.perfect} / {totalStats.totalPatterns}
-                                      </div>
-                                    </div>
-                                  </div>
+                  {/* Button Mode Panel */}
+                  <div className="tw-flex tw-flex-col tw-gap-4">
+                    <div className="tw-flex tw-justify-between tw-items-end tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-shadow-lg tw-p-4">
+                      <span className="tw-flex tw-w-full tw-items-center tw-gap-1">
+                        <span className="tw-text-xl tw-font-bold tw-me-auto">
+                          {String(selectedKeyMode).replace('B', '').replace('_PLUS', '')}B{String(selectedKeyMode).includes('_PLUS') ? '+' : ''} 통계
+                        </span>
+                      </span>
+                    </div>
 
-                                  {/* MAX COMBO */}
-                                  <div className="tw-flex tw-items-center tw-gap-2">
-                                    <span className="tw-w-32 tw-text-sm">MAX COMBO</span>
-                                    <div className="tw-relative tw-flex-1 tw-h-6 tw-bg-gray-950 tw-rounded-sm tw-overflow-hidden">
-                                      <div
-                                        className="tw-absolute tw-h-full tw-bg-green-500 tw-transition-all tw-duration-1000 tw-ease-out"
-                                        style={{ width: showProgress ? `${calculateProgress(totalStats.maxCombo, totalStats.totalPatterns)}%` : '0%' }}
-                                      />
-                                      <div className="tw-absolute tw-inset-0 tw-flex tw-items-center tw-justify-end tw-px-2 tw-text-xs tw-font-bold">
-                                        {totalStats.maxCombo} / {totalStats.totalPatterns}
-                                      </div>
-                                    </div>
-                                  </div>
-
-                                  {/* CLEAR */}
-                                  <div className="tw-flex tw-items-center tw-gap-2">
-                                    <span className="tw-w-32 tw-text-sm">CLEAR</span>
-                                    <div className="tw-relative tw-flex-1 tw-h-6 tw-bg-gray-950 tw-rounded-sm tw-overflow-hidden">
-                                      <div
-                                        className="tw-absolute tw-h-full tw-bg-blue-500 tw-transition-all tw-duration-1000 tw-ease-out"
-                                        style={{ width: showProgress ? `${calculateProgress(totalStats.clear, totalStats.totalPatterns)}%` : '0%' }}
-                                      />
-                                      <div className="tw-absolute tw-inset-0 tw-flex tw-items-center tw-justify-end tw-px-2 tw-text-xs tw-font-bold">
-                                        {totalStats.clear} / {totalStats.totalPatterns}
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                              </>
-                            ) : (
-                              <div className="tw-flex tw-items-center tw-justify-center tw-h-full">
-                                <div className="tw-text-center">
-                                  <span className="tw-text-lg tw-font-bold">성과 기록 조회는 로그인이 필요합니다.</span>
-                                </div>
-                              </div>
-                            )}
+                    {/* 통계 정보 */}
+                    <div className="tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-p-4">
+                      {/* 상단 통계 요약 */}
+                      <div className="tw-grid tw-grid-cols-7 tw-gap-2 tw-mb-8">
+                        {[
+                          { key: 'maxCombo', label: '맥스 콤보', color: 'tw-text-green-500' },
+                          { key: 'perfect', label: '퍼펙트', color: 'tw-text-red-500' },
+                          { key: 'over999', label: '99.9%+', color: 'tw-text-yellow-500' },
+                          { key: 'over995', label: '99.5%+', color: 'tw-text-yellow-400' },
+                          { key: 'over99', label: '99.0%+', color: 'tw-text-yellow-300' },
+                          { key: 'over97', label: '97.0%+', color: 'tw-text-yellow-200' },
+                          { key: 'clear', label: '클리어', color: 'tw-text-blue-500' },
+                        ].map(({ key, label, color }) => (
+                          <div key={key} className="tw-text-center tw-p-4 tw-bg-gray-950 tw-bg-opacity-50 tw-rounded-lg">
+                            <div className={`tw-text-lg tw-font-bold ${color}`}>{calculateStats(keyModeData[selectedKeyMode])[key]}</div>
+                            <div className="tw-text-xs tw-text-gray-400">{label}</div>
                           </div>
-                        </div>
-
-                        <div className="[text-shadow:_2px_2px_2px_rgb(0_0_0_/_90%),_4px_4px_4px_rgb(0_0_0_/_60%)] tw-shadow-lg tw-relative tw-w-full tw-h-80 tw-rounded-lg tw-overflow-hidden">
-                          <Image
-                            src={`/images/wjmax/jackets/${wjmaxSongData[randomHeaderBg2 - 1].folderName}.jpg`}
-                            alt="Background"
-                            fill
-                            className="tw-object-cover tw-blur-md tw-brightness-50 tw-opacity-50"
-                          />
-                          <div className="tw-absolute tw-inset-0 tw-p-4 tw-flex tw-flex-col tw-justify-between">
-                            <div className="tw-flex tw-justify-between tw-items-end">
-                              <span className="tw-flex tw-w-full tw-items-end tw-gap-1 tw-text-lg tw-font-bold">
-                                <span className="tw-text-4xl tw-font-bold">{String(selectedKeyMode).replace('B', '').replace('_PLUS', '')}</span>
-                                <span className="tw-me-auto tw-relative">
-                                  Button
-                                  {String(selectedKeyMode).includes('_PLUS') ? (
-                                    <span className="tw-absolute tw-text-xl tw-right-[-12px] tw-top-[-12px] tw-font-bold">+</span>
-                                  ) : null}
-                                </span>
-                              </span>
-                            </div>
-
-                            {/* 통계 정보 */}
-                            {!isLoading && keyModeData[selectedKeyMode] && (
-                              <div className="tw-space-y-2">
-                                {Object.entries(calculateStats(keyModeData[selectedKeyMode])).map(([key, value], _, entries) => {
-                                  if (key === 'total') return null
-                                  const totalPatterns = entries.find(([k]) => k === 'total')?.[1] || 0
-                                  const percentage = (value / totalPatterns) * 100
-
-                                  return (
-                                    <motion.div
-                                      key={`${key}_${selectedKeyMode}`}
-                                      initial={{ opacity: 0, x: 10 }}
-                                      animate={{ opacity: 1, x: 0 }}
-                                      transition={{ duration: 0.2 }}
-                                      className={`tw-flex tw-items-center ${userData.userName !== '' ? '' : 'tw-blur-sm'} tw-gap-2`}
-                                    >
-                                      <span className="tw-w-32 tw-text-sm">{keyTitle[key]}</span>
-                                      <div className="tw-relative tw-flex-1 tw-h-6 tw-bg-gray-950 tw-rounded-sm tw-overflow-hidden">
-                                        <motion.div
-                                          initial={{ width: 0 }}
-                                          animate={{ width: `${percentage}%` }}
-                                          transition={{ duration: 0.3 }}
-                                          className={`tw-absolute tw-h-full ${
-                                            key === 'maxCombo'
-                                              ? 'tw-bg-green-500'
-                                              : key === 'perfect'
-                                              ? 'tw-bg-red-500'
-                                              : key === 'clear'
-                                              ? 'tw-bg-blue-500'
-                                              : 'tw-bg-yellow-500'
-                                          }`}
-                                        />
-                                        <div className="tw-absolute tw-inset-0 tw-flex tw-items-center tw-justify-end tw-px-2 tw-text-xs tw-font-bold">
-                                          {value} / {totalPatterns}
-                                        </div>
-                                      </div>
-                                    </motion.div>
-                                  )
-                                })}
-                              </div>
-                            )}
-                          </div>
-                        </div>
+                        ))}
                       </div>
 
-                      <div className="tw-flex tw-flex-col tw-gap-4 tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-shadow-lg tw-p-6 tw-w-2/5">
-                        <span className="tw-text-lg tw-font-bold">🎯 {String(selectedKeyMode).replace('_PLUS', '')} 최고 성과 기록</span>
-                        {!isLoading && keyModeData[selectedKeyMode] && (
-                          <motion.div
-                            key={`achievements_${selectedKeyMode}`}
-                            initial={{ opacity: 0, x: 10 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ duration: 0.2 }}
-                            className="tw-flex tw-flex-col tw-gap-2"
-                          >
-                            {Object.entries({
-                              maxCombo: '맥스 콤보',
-                              perfect: '퍼펙트',
-                              over999: '스코어 99.9% 이상',
-                              over995: '스코어 99.5% 이상',
-                              over99: '스코어 99% 이상',
-                              over97: '스코어 97% 이상',
-                              clear: '클리어',
-                            }).map(([key, label]) => {
-                              const patterns = keyModeData[selectedKeyMode]
-                              const condition = (pattern: Pattern) => {
-                                const score = typeof pattern.score === 'string' ? parseFloat(pattern.score) : pattern.score
-                                if (score === null) return false
+                      {/* 도넛 차트 */}
+                      <div className="tw-relative tw-w-full tw-h-44 tw-flex tw-items-center tw-justify-center">
+                        <div className="tw-absolute tw-top-1/2 tw-left-1/2 tw-transform -tw-translate-x-1/2 -tw-translate-y-1/2 tw-text-center tw-w-20 tw-h-20 tw-bg-gray-950 tw-bg-opacity-50 tw-rounded-full tw-p-4 tw-pointer-events-none tw-z-0">
+                          <div className="tw-text-lg tw-font-bold">{calculateStats(keyModeData[selectedKeyMode]).total}</div>
+                          <div className="tw-text-xs tw-text-gray-300">전체</div>
+                        </div>
 
-                                // perfect, maxCombo, clear는 독립적으로 체크
-                                if (key === 'perfect') {
-                                  return Math.abs(score - 100.0) < 0.001
-                                }
-                                if (key === 'maxCombo') {
-                                  return pattern.maxCombo
-                                }
-                                if (key === 'clear') {
-                                  return score > 0
-                                }
-
-                                // over 카테고리들은 서로 겹치지 않도록 체크
-                                switch (key) {
-                                  case 'over999':
-                                    return score >= 99.9 && score < 100
-                                  case 'over995':
-                                    return score >= 99.5 && score < 99.9
-                                  case 'over99':
-                                    return score >= 99.0 && score < 99.5
-                                  case 'over97':
-                                    return score >= 97.0 && score < 99.0
-                                  default:
-                                    return false
-                                }
-                              }
-
-                              const highestPattern = getHighestLevelInfo(patterns, condition)
-
-                              if (!highestPattern) return null
-
-                              return (
-                                <div key={`${key}_${selectedKeyMode}`} className="tw-flex tw-gap-2">
-                                  <RaScorePopupComponent
-                                    songItemTitle={String(highestPattern.title)}
-                                    keyMode={String(selectedKeyMode).replace('B', '').replace('_PLUS', '')}
-                                    judgementType=""
-                                  />
-                                  <div className="tw-flex tw-flex-col tw-gap-1 tw-bg-gray-950 tw-bg-opacity-50 tw-rounded-md tw-p-3 tw-flex-1">
-                                    <div className="tw-flex tw-justify-between tw-items-center">
-                                      <span className="tw-text-sm tw-font-bold">{label}</span>
-                                      <span className="tw-text-sm tw-font-extrabold">{getLevelDisplay(highestPattern)}</span>
-                                    </div>
-                                    <p className="tw-text-sm tw-text-gray-400 tw-break-all tw-max-w-full">{highestPattern.name}</p>
-                                  </div>
-                                </div>
-                              )
-                            })}
-                          </motion.div>
-                        )}
+                        <div className="tw-relative tw-z-10 tw-w-full tw-h-full">
+                          <Doughnut
+                            data={{
+                              labels: ['MAX COMBO', 'PERFECT', '99.9%+', '99.5%+', '99.0%+', '97.0%+', 'CLEAR'],
+                              datasets: [
+                                {
+                                  data: [
+                                    calculateStats(keyModeData[selectedKeyMode]).maxCombo,
+                                    calculateStats(keyModeData[selectedKeyMode]).perfect,
+                                    calculateStats(keyModeData[selectedKeyMode]).over999,
+                                    calculateStats(keyModeData[selectedKeyMode]).over995,
+                                    calculateStats(keyModeData[selectedKeyMode]).over99,
+                                    calculateStats(keyModeData[selectedKeyMode]).over97,
+                                    calculateStats(keyModeData[selectedKeyMode]).clear,
+                                  ],
+                                  backgroundColor: [
+                                    'rgba(34, 197, 94, 0.8)',
+                                    'rgba(239, 68, 68, 0.8)',
+                                    'rgba(234, 179, 8, 0.8)',
+                                    'rgba(234, 179, 8, 0.6)',
+                                    'rgba(234, 179, 8, 0.4)',
+                                    'rgba(234, 179, 8, 0.2)',
+                                    'rgba(59, 130, 246, 0.8)',
+                                  ],
+                                  borderColor: [
+                                    'rgba(34, 197, 94, 1)',
+                                    'rgba(239, 68, 68, 1)',
+                                    'rgba(234, 179, 8, 1)',
+                                    'rgba(234, 179, 8, 0.8)',
+                                    'rgba(234, 179, 8, 0.6)',
+                                    'rgba(234, 179, 8, 0.4)',
+                                    'rgba(59, 130, 246, 1)',
+                                  ],
+                                  borderWidth: 1,
+                                },
+                              ],
+                            }}
+                            options={{
+                              responsive: true,
+                              maintainAspectRatio: false,
+                              cutout: '60%',
+                              plugins: {
+                                legend: {
+                                  display: false,
+                                },
+                                tooltip: {
+                                  position: 'nearest',
+                                  callbacks: {
+                                    label: (context: any) => {
+                                      const label = context.label || ''
+                                      const value = context.raw || 0
+                                      const percentage = ((value / calculateStats(keyModeData[selectedKeyMode]).total) * 100).toFixed(1)
+                                      return `${label}: ${value} (${percentage}%)`
+                                    },
+                                  },
+                                },
+                              },
+                            }}
+                          />
+                        </div>
                       </div>
                     </div>
-                  </>
-                )}
-              </div>
-            )}
+                  </div>
+                </div>
 
-            <div id="ContentFooter" />
-          </div>
-        </motion.div>
-      </div>
+                {/* 최고 성과 패널 */}
+                <div className="tw-w-2/5">
+                  <div className="tw-flex tw-flex-col tw-gap-4 tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-shadow-lg tw-p-4">
+                    <span className="tw-text-lg tw-font-bold">
+                      🎯 {String(selectedKeyMode).replace('B', '').replace('_PLUS', '')}B{String(selectedKeyMode).includes('_PLUS') ? '+' : ''} 최고 성과 기록
+                    </span>
+                    {!isLoading && keyModeData[selectedKeyMode] && (
+                      <motion.div
+                        key={`achievements_${selectedKeyMode}`}
+                        initial={{ opacity: 0, x: 10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="tw-flex tw-flex-col tw-gap-2"
+                      >
+                        {Object.entries({
+                          maxCombo: '맥스 콤보',
+                          perfect: '퍼펙트',
+                          over999: '스코어 99.9% 이상',
+                          over995: '스코어 99.5% 이상',
+                          over99: '스코어 99% 이상',
+                          over97: '스코어 97% 이상',
+                          clear: '클리어',
+                        }).map(([key, label]) => {
+                          const patterns = keyModeData[selectedKeyMode]
+                          const condition = (pattern: Pattern) => {
+                            const score = typeof pattern.score === 'string' ? parseFloat(pattern.score) : pattern.score
+                            if (score === null) return false
+
+                            if (key === 'perfect') return Math.abs(score - 100.0) < 0.001
+                            if (key === 'maxCombo') return pattern.maxCombo
+                            if (key === 'clear') return score > 0
+
+                            switch (key) {
+                              case 'over999':
+                                return score >= 99.9 && score < 100
+                              case 'over995':
+                                return score >= 99.5 && score < 99.9
+                              case 'over99':
+                                return score >= 99.0 && score < 99.5
+                              case 'over97':
+                                return score >= 97.0 && score < 99.0
+                              default:
+                                return false
+                            }
+                          }
+
+                          const highestPattern = getHighestLevelInfo(patterns, condition)
+
+                          if (!highestPattern) return null
+
+                          return (
+                            <div key={`${key}_${selectedKeyMode}`} className="tw-flex tw-gap-2">
+                              <RaScorePopupComponent
+                                songItemTitle={String(highestPattern.title)}
+                                keyMode={String(selectedKeyMode).replace('B', '').replace('_PLUS', '')}
+                                judgementType={String(selectedKeyMode).includes('_PLUS') ? '1' : '0'}
+                              />
+                              <div className="tw-flex tw-flex-col tw-gap-1 tw-bg-gray-950 tw-bg-opacity-50 tw-rounded-md tw-p-3 tw-flex-1">
+                                <div className="tw-flex tw-justify-between tw-items-center">
+                                  <span className="tw-text-sm tw-font-bold">{label}</span>
+                                  <span className="tw-text-sm tw-font-extrabold">{getLevelDisplay(highestPattern)}</span>
+                                </div>
+                                <p className="tw-text-sm tw-text-gray-400 tw-break-all tw-max-w-full">{highestPattern.name}</p>
+                              </div>
+                            </div>
+                          )
+                        })}
+                      </motion.div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </>
+      )}
     </React.Fragment>
   )
 }

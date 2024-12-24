@@ -3,13 +3,8 @@ import Head from 'next/head'
 import Image from 'next/image'
 import * as R from 'ramda'
 import { FaBackward, FaCircleInfo, FaCloudArrowUp, FaHeart, FaO, FaRegFile, FaRegHeart, FaRotate, FaTriangleExclamation, FaX } from 'react-icons/fa6'
-import { OverlayTrigger, Tooltip } from 'react-bootstrap'
-import { globalDictionary } from '@/libs/server/globalDictionary'
 import { IconContext } from 'react-icons'
 import moment from 'moment'
-import { randomUUID } from 'crypto'
-import { v4 as uuidv4 } from 'uuid'
-
 import 'moment/locale/ko'
 import axios from 'axios'
 import Link from 'next/link'
@@ -289,7 +284,7 @@ export default function VArchiveRegScorePage() {
   useEffect(() => {
     if (vArchiveUserData.userName === '') {
       router.push('/')
-      showNotification('기록 등록(베타)는 로그인 또는 V-ARCHIVE 계정 연동이 필요합니다.', 'tw-bg-red-600')
+      showNotification('기록 등록은 로그인 또는 V-ARCHIVE 계정 연동이 필요합니다.', 'tw-bg-red-600')
     }
   }, [userData])
 
@@ -511,7 +506,7 @@ export default function VArchiveRegScorePage() {
   return (
     <React.Fragment>
       <Head>
-        <title>기록 등록(베타) - R-ARCHIVE</title>
+        <title>기록 등록 - R-ARCHIVE</title>
       </Head>
       {vArchiveUserData.userName !== '' ? (
         <div
@@ -529,7 +524,7 @@ export default function VArchiveRegScorePage() {
               </IconContext.Provider>
               <div className="tw-text-xl tw-font-bold tw-text-white tw-animate-pulse">리절트(결과) 화면의 이미지를 업로드해주세요.</div>
               <div className="tw-text-base tw-text-white tw-animate-pulse">
-                DJMAX RESPECT V는 프리스타일 곡 선택, 프리스타일 결과, 오픈 매치 결과, 래더/버서스 매치 결과 창을 지원합니다.
+                DJMAX RESPECT V는 프리스타일 곡 선택, 프리스타일 결과, 오픈 매치 곡 선택, 오픈 매치 결과, 래더/버서스 매치 결과, 컬렉션 창을 지원합니다.
               </div>
             </div>
             // ... existing code ...
@@ -974,57 +969,83 @@ export default function VArchiveRegScorePage() {
                       {vArchiveUploadedPageData.screenType == 'collection' && (
                         <div className="tw-flex tw-flex-col tw-w-1/2 tw-relative tw-animate-fadeInLeft tw-bg-gray-600 tw-bg-opacity-10 tw-rounded-md p-4 tw-gap-2">
                           <div className="tw-flex tw-w-full tw-mb-2 tw-items-center tw-justify-between">
-                            <span className="tw-text-lg tw-font-bold me-auto">컬렉션 인식 결과</span>
-                            <span className="tw-text-sm tw-text-gray-400">*V-ARCHIVE 기록 대비 더 낮은 점수는 갱신이 취소됩니다.</span>
+                            <span className="tw-text-lg tw-font-bold me-auto">컬렉션 처리 결과</span>
+                            <span className="tw-text-sm tw-text-gray-400">*V-ARCHIVE 기록 대비 낮은 점수는 갱신되지 않습니다.</span>
                           </div>
 
-                          <div className="tw-flex tw-flex-col tw-gap-2 tw-overflow-y-auto">
-                            {collectionData.map((history) => (
-                              <div
-                                key={history.songData.title}
-                                className="tw-flex tw-items-center tw-gap-3 tw-bg-gray-700 tw-bg-opacity-30 tw-rounded-lg tw-p-3 hover:tw-bg-opacity-40 tw-transition-all"
-                              >
-                                <div className="tw-relative hover:tw-scale-110 tw-transition-transform">
-                                  <ScorePopupComponent
-                                    songItemTitle={history.songData.title.toString()}
-                                    keyMode={String(history.button).replace('B', '')}
-                                    rivalName=""
-                                    delay={{ show: 500, hide: 0 }}
-                                    size={54}
-                                  />
-                                </div>
-
-                                <div className="tw-flex tw-flex-col tw-gap-2 tw-flex-1">
-                                  <div className="tw-flex tw-items-center tw-gap-2 tw-justify-between">
-                                    <span className="tw-font-bold">{history.songData.name}</span>
-                                    <div className="tw-flex tw-items-center tw-gap-2">
-                                      <div
-                                        className={`tw-flex tw-items-center tw-gap-1 tw-px-2 tw-py-1 tw-rounded-md tw-bg-gray-900 tw-bg-opacity-75 tw-min-w-12 tw-justify-center`}
-                                      >
-                                        <span className="tw-text-sm">{history.button}B</span>
-                                      </div>
-                                      <div
-                                        className={`tw-flex tw-items-center tw-gap-1 tw-px-2 tw-py-1 tw-rounded-md tw-bg-gray-900 tw-bg-opacity-75 tw-min-w-12 tw-justify-center`}
-                                      >
-                                        <span className="tw-text-sm">{history.pattern}</span>
-                                        {/* <span className="tw-text-sm">{history.level}</span> */}
-                                      </div>
-                                      <div
-                                        className={`tw-flex tw-items-center tw-gap-1 tw-px-2 tw-py-1 tw-rounded-md tw-bg-gray-900 tw-bg-opacity-75 tw-min-w-12 tw-justify-center`}
-                                      >
-                                        <span className="tw-text-sm">
-                                          {history.status == 'success' ? '갱신 성공' : history.status == 'noUpdate' ? '갱신 취소' : '갱신 실패'}
-                                        </span>
-                                      </div>
-                                    </div>
-                                  </div>
-
-                                  <div className="tw-flex tw-items-center tw-gap-2">
-                                    <span className="tw-font-bold">{history.score.toFixed(2)}%</span>
+                          <div className="tw-w-full tw-h-full tw-overflow-hidden tw-rounded-md tw-text-center tw-shadow-lg tw-bg-gray-800 tw-bg-opacity-50">
+                            {/* 헤더 - 키 모드 */}
+                            <div className="tw-h-16 tw-grid tw-grid-cols-5 tw-auto-rows-fr tw-gap-4 tw-p-4 tw-pb-0">
+                              <span className="tw-border-gray-600 tw-border-opacity-25 tw-flex tw-flex-col tw-justify-center tw-items-center tw-overflow-hidden tw-bg-gray-900 tw-bg-opacity-0 tw-rounded-lg tw-text-base tw-font-bold">
+                                {' '}
+                              </span>
+                              {['4B', '5B', '6B', '8B'].map((button) => (
+                                <div
+                                  key={button}
+                                  className="tw-border-gray-600 tw-border-opacity-25 tw-flex tw-flex-col tw-justify-center tw-items-center tw-overflow-hidden tw-bg-gray-900 tw-bg-opacity-20 tw-rounded-lg"
+                                >
+                                  <div className="tw-relative tw-h-full tw-w-full tw-flex-1">
+                                    <Image
+                                      loading="lazy"
+                                      src={`/images/djmax_respect_v/${button}-BG.png`}
+                                      alt=""
+                                      fill
+                                      className="tw-absolute tw-rounded-lg tw-object-cover"
+                                    />
+                                    <div className="tw-absolute tw-inset-0 tw-bg-gray-950 tw-bg-opacity-50 tw-rounded-lg tw-backdrop-blur-md" />
+                                    <div className={`tw-absolute tw-inset-0 respect_db_button respect_bg_b${button.replace('B', '')} tw-rounded-lg`} />
+                                    <span className="tw-absolute tw-inset-0 tw-font-extrabold tw-text-4xl tw-flex tw-items-center tw-justify-center">
+                                      <span className="tw-text-base tw-font-bold">{button}</span>
+                                    </span>
                                   </div>
                                 </div>
-                              </div>
-                            ))}
+                              ))}
+                            </div>
+
+                            {/* 난이도별 점수 그리드 */}
+                            <div className="tw-grid tw-grid-rows-4 tw-grid-cols-5 tw-gap-4 tw-h-[calc(100%-64px)] tw-p-4">
+                              {['NM', 'HD', 'MX', 'SC'].map((difficulty) => (
+                                <React.Fragment key={difficulty}>
+                                  {/* 난이도 라벨 */}
+                                  <div
+                                    className={`tw-border-gray-600 tw-text-bold tw-text-base tw-border-opacity-25 tw-flex tw-flex-col tw-justify-center tw-items-center tw-overflow-hidden tw-bg-gray-900 tw-bg-opacity-50 tw-rounded-lg tw-font-bold ${
+                                      difficulty === 'SC'
+                                        ? 'tw-text-respect-sc-15'
+                                        : difficulty === 'MX'
+                                        ? 'tw-text-respect-nm-15'
+                                        : difficulty === 'HD'
+                                        ? 'tw-text-respect-nm-10'
+                                        : 'tw-text-respect-nm-5'
+                                    }`}
+                                  >
+                                    {difficulty}
+                                  </div>
+
+                                  {/* 각 키 모드별 점수 */}
+                                  {['4B', '5B', '6B', '8B'].map((button) => {
+                                    const matchingScore = collectionData.find((item) => item.button + 'B' === button && item.pattern === difficulty)
+
+                                    return (
+                                      <div
+                                        key={`${difficulty}_${button}`}
+                                        className="tw-border-gray-600 tw-border-opacity-25 tw-flex tw-flex-col tw-justify-center tw-items-center tw-p-2 tw-bg-gray-700 tw-bg-opacity-20 tw-rounded-lg"
+                                      >
+                                        {matchingScore ? (
+                                          <div className="tw-flex tw-items-center tw-justify-center tw-gap-1 tw-w-full tw-flex-col">
+                                            <span className={`tw-font-semibold tw-text-base`}>
+                                              {matchingScore.score == 100 ? '100.00' : matchingScore.score.toFixed(2)}
+                                            </span>
+                                            <span className="tw-text-yellow-500 tw-text-xs">{matchingScore.maxCombo ? 'MAX' : ''}</span>
+                                          </div>
+                                        ) : (
+                                          <span className="tw-text-gray-500 tw-text-sm">-</span>
+                                        )}
+                                      </div>
+                                    )
+                                  })}
+                                </React.Fragment>
+                              ))}
+                            </div>
                           </div>
                         </div>
                       )}
@@ -1038,46 +1059,45 @@ export default function VArchiveRegScorePage() {
 
                         <div className="tw-flex tw-flex-col tw-gap-2 tw-overflow-y-auto">
                           {recentHistory.map((history) => (
-                            <div
-                              key={history.historyId}
-                              className="tw-flex tw-items-center tw-gap-3 tw-bg-gray-700 tw-bg-opacity-30 tw-rounded-lg tw-p-3 hover:tw-bg-opacity-40 tw-transition-all"
-                            >
-                              <div className="tw-relative hover:tw-scale-110 tw-transition-transform">
-                                <ScorePopupComponent
-                                  songItemTitle={history.songId.toString()}
-                                  keyMode={history.keyType.replace('B', '')}
-                                  rivalName=""
-                                  delay={{ show: 500, hide: 0 }}
-                                  size={54}
-                                />
-                              </div>
+                            <React.Fragment key={history.historyId}>
+                              <div className="tw-flex tw-items-center tw-gap-3 tw-bg-gray-700 tw-bg-opacity-30 tw-rounded-lg tw-p-3 hover:tw-bg-opacity-40 tw-transition-all">
+                                <div className="tw-relative hover:tw-scale-110 tw-transition-transform">
+                                  <ScorePopupComponent
+                                    songItemTitle={history.songId.toString()}
+                                    keyMode={history.keyType.replace('B', '')}
+                                    rivalName=""
+                                    delay={{ show: 500, hide: 0 }}
+                                    size={54}
+                                  />
+                                </div>
 
-                              <div className="tw-flex tw-flex-col tw-gap-2 tw-flex-1">
-                                <div className="tw-flex tw-items-center tw-gap-2 tw-justify-between">
-                                  <span className="tw-font-bold">{history.songName}</span>
-                                  <div className="tw-flex tw-items-center tw-gap-2">
-                                    <div
-                                      className={`tw-flex tw-items-center tw-gap-1 tw-px-2 tw-py-1 tw-rounded-md tw-bg-gray-900 tw-bg-opacity-75 tw-min-w-12 tw-justify-center`}
-                                    >
-                                      <span className="tw-text-sm">{history.keyType}</span>
-                                    </div>
-                                    <div
-                                      className={`tw-flex tw-items-center tw-gap-1 tw-px-2 tw-py-1 tw-rounded-md tw-bg-gray-900 tw-bg-opacity-75 tw-min-w-12 tw-justify-center`}
-                                    >
-                                      <span className="tw-text-sm">{history.difficultyType}</span>
-                                      <span className="tw-text-sm">{history.level}</span>
+                                <div className="tw-flex tw-flex-col tw-gap-2 tw-flex-1">
+                                  <div className="tw-flex tw-items-center tw-gap-2 tw-justify-between">
+                                    <span className="tw-font-bold">{history.songName}</span>
+                                    <div className="tw-flex tw-items-center tw-gap-2">
+                                      <div
+                                        className={`tw-flex tw-items-center tw-gap-1 tw-px-2 tw-py-1 tw-rounded-md tw-bg-gray-900 tw-bg-opacity-75 tw-min-w-12 tw-justify-center`}
+                                      >
+                                        <span className="tw-text-sm">{history.keyType}</span>
+                                      </div>
+                                      <div
+                                        className={`tw-flex tw-items-center tw-gap-1 tw-px-2 tw-py-1 tw-rounded-md tw-bg-gray-900 tw-bg-opacity-75 tw-min-w-12 tw-justify-center`}
+                                      >
+                                        <span className="tw-text-sm">{history.difficultyType}</span>
+                                        <span className="tw-text-sm">{history.level}</span>
+                                      </div>
                                     </div>
                                   </div>
-                                </div>
 
-                                <div className="tw-flex tw-items-center tw-justify-between tw-gap-2">
-                                  <span className="tw-font-bold">
-                                    {history.score.toFixed(2)}%{history.maxCombo && <span className="tw-text-yellow-400 tw-font-light"> (MAX COMBO)</span>}{' '}
-                                  </span>
-                                  <span className="tw-font-light tw-text-gray-400">{moment(history.playedAt).format('YYYY-MM-DD HH:mm:ss')}</span>
+                                  <div className="tw-flex tw-items-center tw-justify-between tw-gap-2">
+                                    <span className="tw-font-bold">
+                                      {history.score.toFixed(2)}%{history.maxCombo && <span className="tw-text-yellow-400 tw-font-light"> (MAX COMBO)</span>}{' '}
+                                    </span>
+                                    <span className="tw-font-light tw-text-gray-400">{moment(history.playedAt).format('YYYY-MM-DD HH:mm:ss')}</span>
+                                  </div>
                                 </div>
                               </div>
-                            </div>
+                            </React.Fragment>
                           ))}
                         </div>
                       </div>
@@ -1111,7 +1131,7 @@ export default function VArchiveRegScorePage() {
                   </IconContext.Provider>
                   <div className="tw-text-xl tw-font-bold tw-text-white tw-animate-pulse">리절트(결과) 화면의 이미지를 업로드해주세요.</div>
                   <div className="tw-text-base tw-text-white tw-animate-pulse">
-                    DJMAX RESPECT V는 프리스타일 곡 선택, 프리스타일 결과, 오픈 매치 결과, 래더/버서스 매치 결과 창을 지원합니다.
+                    DJMAX RESPECT V는 프리스타일 곡 선택, 프리스타일 결과, 오픈 매치 곡 선택, 오픈 매치 결과, 래더/버서스 매치 결과, 컬렉션 창을 지원합니다.
                   </div>
                 </div>
               )

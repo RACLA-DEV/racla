@@ -1,17 +1,19 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { v4 as uuidv4 } from 'uuid'
 
 interface Notification {
   id: string
   message: string
   color?: string
-  fadeOut: boolean
   isFinal?: boolean
+  createdAt: number
+  isRemoving: boolean
 }
 
 interface NotificationState {
   notifications: Notification[]
 }
+
+const MAX_NOTIFICATIONS = 5
 
 const initialState: NotificationState = {
   notifications: [],
@@ -21,19 +23,33 @@ export const notificationSlice = createSlice({
   name: 'notification',
   initialState,
   reducers: {
-    addNotification: (state, action: PayloadAction<{ id: string; message: string; color?: string; isFinal?: boolean }>) => {
+    addNotification: (
+      state,
+      action: PayloadAction<{
+        id: string
+        message: string
+        color?: string
+        isFinal?: boolean
+        createdAt: number
+        isRemoving: boolean
+      }>,
+    ) => {
+      if (state.notifications.length >= MAX_NOTIFICATIONS) {
+        const oldestNotification = state.notifications.filter((n) => !n.isRemoving).sort((a, b) => a.createdAt - b.createdAt)[0]
+
+        if (oldestNotification) {
+          oldestNotification.isRemoving = true
+        }
+      }
+
       state.notifications.push({
-        id: action.payload.id,
-        message: action.payload.message,
-        color: action.payload.color,
-        fadeOut: false,
-        isFinal: action.payload.isFinal,
+        ...action.payload,
       })
     },
-    setNotificationFadeOut: (state, action: PayloadAction<string>) => {
+    startRemovingNotification: (state, action: PayloadAction<string>) => {
       const notification = state.notifications.find((n) => n.id === action.payload)
       if (notification) {
-        notification.fadeOut = true
+        notification.isRemoving = true
       }
     },
     removeNotification: (state, action: PayloadAction<string>) => {
@@ -42,5 +58,5 @@ export const notificationSlice = createSlice({
   },
 })
 
-export const { addNotification, setNotificationFadeOut, removeNotification } = notificationSlice.actions
+export const { addNotification, removeNotification, startRemovingNotification } = notificationSlice.actions
 export default notificationSlice.reducer

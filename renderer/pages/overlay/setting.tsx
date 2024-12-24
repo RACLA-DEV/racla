@@ -1,4 +1,5 @@
 import { globalDictionary } from '@/libs/server/globalDictionary'
+import Head from 'next/head'
 import Image from 'next/image'
 import { useEffect, useState } from 'react'
 import { IconContext } from 'react-icons'
@@ -27,6 +28,9 @@ const OverlaySetting = () => {
   return (
     data && (
       <>
+        <Head>
+          <title>오버레이 설정 - R-ARCHIVE</title>
+        </Head>
         <div id="ContentHeader" />
         <div className="tw-flex tw-gap-4">
           <div className="tw-flex tw-flex-col tw-gap-4 tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-shadow-lg tw-p-6 tw-mb-4 tw-flex-1">
@@ -86,7 +90,7 @@ const OverlaySetting = () => {
                 <div className="tw-flex tw-flex-col tw-gap-1">
                   <div className="tw-flex tw-gap-3">
                     <span className="tw-text-sm tw-font-light tw-text-gray-200 tw-break-keep">
-                      게임 결과창 인식을 시작합니다. 잠시만 기다려주세요. (Ctrl+Alt+Insert 단축키 사용 시)
+                      게임 화면 인식을 시작합니다. 잠시만 기다려주세요. (Ctrl+Alt+Insert 단축키 사용 시)
                     </span>
                   </div>
                 </div>

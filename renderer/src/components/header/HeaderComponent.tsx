@@ -245,7 +245,7 @@ const HeaderComponent: React.FC<IHeaderComponentProps> = ({ refreshKeyHandle, cl
             {vArchiveUserData.userName !== '' ? `(${vArchiveUserData.userName})` : ''}
           </>
         ) : (
-          '로그인해주세요'
+          '로그인'
         )}
       </button>
       {renderUserDropdown(userData, vArchiveUserData, ipcRenderer, router, callback, refreshKeyHandle)}

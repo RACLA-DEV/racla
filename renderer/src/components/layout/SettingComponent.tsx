@@ -408,7 +408,7 @@ const SettingComponent = () => {
       </div>
 
       <span className="tw-text-sm tw-font-light tw-text-gray-400 tw-break-keep">
-        DJMAX(NEOWIZ) and V-ARCHIVE, I deeply respect you. {'<'}3<br />
+        V-ARCHIVE, DJMAX(NEOWIZ), WJMAX(WJMAX STUDIO). We deeply respect you. {'<'}3<br />
         R-ARCHIVE is dedicated to your remarkable games and services.
       </span>
 
@@ -712,6 +712,105 @@ const SettingComponent = () => {
         </div>
         <span className="tw-text-sm tw-font-light tw-text-gray-400">
           수동 캡쳐 또는 자동 캡쳐 모드에서 캡처한 이미지를 사용자 계정 경로의 사진 폴더 내에 R-ARCHIVE에 저장합니다.
+        </span>
+      </div>
+
+      <div className="tw-flex tw-flex-col tw-gap-1">
+        <div className="tw-flex tw-items-center">
+          <span className="tw-text-sm">이미지 저장 시 블러 효과</span>
+        </div>
+        <span className="tw-text-sm tw-font-light tw-text-gray-400 tw-break-keep">이미지 저장 시 블러 효과 또는 검은색 마스킹 효과를 적용합니다.</span>
+        <select
+          className="form-select tw-my-1 tw-text-sm tw-bg-gray-900 tw-bg-opacity-20 tw-text-gray-300 tw-w-36"
+          defaultValue={settingData.saveImageBlurMode}
+          onChange={(e) => {
+            handleSettingChange({ saveImageBlurMode: e.currentTarget.value })
+          }}
+        >
+          <option value="blur">블러 효과</option>
+          <option value="black">검은색 마스킹</option>
+        </select>
+      </div>
+
+      <div className="tw-flex tw-flex-col tw-gap-1">
+        <div className="tw-flex tw-items-center">
+          <span className="tw-text-sm">이미지 저장 시 모든 프로필 포함</span>
+          <button
+            className={`tw-scale-50 tw-relative tw-inline-flex tw-items-center tw-h-8 tw-w-16 tw-rounded-full tw-transition-colors tw-duration-300 ${
+              settingData.saveImageWithAllProfileWhenCapture ? 'tw-bg-blue-600' : 'tw-bg-gray-600'
+            }`}
+            onClick={() => {
+              handleSettingChange({
+                saveImageWithAllProfileWhenCapture: !settingData.saveImageWithAllProfileWhenCapture,
+                saveImageWithoutOtherProfileWhenCapture: false,
+                saveImageWithoutAllProfileWhenCapture: false,
+              })
+            }}
+          >
+            <span
+              className={`tw-inline-block tw-h-6 tw-w-6 tw-bg-white tw-rounded-full tw-absolute tw-shadow tw-transform tw-transition-all tw-duration-300 ${
+                settingData.saveImageWithAllProfileWhenCapture ? 'tw-right-1' : 'tw-left-1'
+              }`}
+            />
+          </button>
+        </div>
+        <span className="tw-text-sm tw-font-light tw-text-gray-400">
+          이미지 저장 시 모든 프로필을 포함하여 저장합니다. 모든 프로필을 포함하여 저장하는 경우 프로필 영역에 블러 효과가 적용되지 않습니다. 단 채팅 창 영역은
+          예외로 적용됩니다.
+        </span>
+      </div>
+
+      <div className="tw-flex tw-flex-col tw-gap-1">
+        <div className="tw-flex tw-items-center">
+          <span className="tw-text-sm">이미지 저장 시 내 프로필만 포함</span>
+          <button
+            className={`tw-scale-50 tw-relative tw-inline-flex tw-items-center tw-h-8 tw-w-16 tw-rounded-full tw-transition-colors tw-duration-300 ${
+              settingData.saveImageWithoutOtherProfileWhenCapture ? 'tw-bg-blue-600' : 'tw-bg-gray-600'
+            }`}
+            onClick={() => {
+              handleSettingChange({
+                saveImageWithoutOtherProfileWhenCapture: !settingData.saveImageWithoutOtherProfileWhenCapture,
+                saveImageWithAllProfileWhenCapture: false,
+                saveImageWithoutAllProfileWhenCapture: false,
+              })
+            }}
+          >
+            <span
+              className={`tw-inline-block tw-h-6 tw-w-6 tw-bg-white tw-rounded-full tw-absolute tw-shadow tw-transform tw-transition-all tw-duration-300 ${
+                settingData.saveImageWithoutOtherProfileWhenCapture ? 'tw-right-1' : 'tw-left-1'
+              }`}
+            />
+          </button>
+        </div>
+        <span className="tw-text-sm tw-font-light tw-text-gray-400">
+          이미지 저장 시 내 프로필만 포함하여 저장합니다. 다른 사용자의 프로필 영역에 블러 효과가 적용됩니다.
+        </span>
+      </div>
+
+      <div className="tw-flex tw-flex-col tw-gap-1">
+        <div className="tw-flex tw-items-center">
+          <span className="tw-text-sm">이미지 저장 시 모든 프로필 제외</span>
+          <button
+            className={`tw-scale-50 tw-relative tw-inline-flex tw-items-center tw-h-8 tw-w-16 tw-rounded-full tw-transition-colors tw-duration-300 ${
+              settingData.saveImageWithoutAllProfileWhenCapture ? 'tw-bg-blue-600' : 'tw-bg-gray-600'
+            }`}
+            onClick={() => {
+              handleSettingChange({
+                saveImageWithoutAllProfileWhenCapture: !settingData.saveImageWithoutAllProfileWhenCapture,
+                saveImageWithAllProfileWhenCapture: false,
+                saveImageWithoutOtherProfileWhenCapture: false,
+              })
+            }}
+          >
+            <span
+              className={`tw-inline-block tw-h-6 tw-w-6 tw-bg-white tw-rounded-full tw-absolute tw-shadow tw-transform tw-transition-all tw-duration-300 ${
+                settingData.saveImageWithoutAllProfileWhenCapture ? 'tw-right-1' : 'tw-left-1'
+              }`}
+            />
+          </button>
+        </div>
+        <span className="tw-text-sm tw-font-light tw-text-gray-400">
+          이미지 저장 시 모든 프로필을 제외하여 저장합니다. 모든 프로필 영역에 블러 효과가 적용됩니다.
         </span>
       </div>
     </div>
