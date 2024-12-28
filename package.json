@@ -2,8 +2,8 @@
   "private": true,
   "name": "r-archive-electron-app",
   "description": "R-ARCHIVE for Desktop",
-  "version": "0.6.5",
-  "author": "R-ARCHIVE <admin@r-archive.zip> by LunaticaLuna <luna@lunatica.kr>",
+  "version": "0.7.0",
+  "author": "Developed by R-ARCHIVE Team <admin@r-archive.zip> & GGDRN0 STUDIO <ggdrn0@gmail.com>. Produced by LunaticaLuna <luna@lunatica.kr>.",
   "main": "app/background.js",
   "workspaces": [
     "web"

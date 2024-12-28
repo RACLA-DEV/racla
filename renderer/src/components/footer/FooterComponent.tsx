@@ -42,7 +42,7 @@ const FooterComponent = ({ className }: IFooterComponent) => {
             >
               R-ARCHIVE 데스크톱 앱 · {globalDictionary.version}
             </span>
-            - <FaTriangleExclamation /> 해당 버전은 개발 중인 화면으로 최종적인 버전이 아닙니다.
+            {/* - <FaTriangleExclamation /> 해당 버전은 개발 중인 화면으로 최종적인 버전이 아닙니다. */}
             {/* - <FaTriangleExclamation /> 개발자 빌드 */}
           </span>
         </span>
