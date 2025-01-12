@@ -70,6 +70,10 @@ export default function VArchiveRegScorePage() {
       case 'NORMAL':
       case 'NM':
         return 'NM'
+      case 'DPC':
+        return 'DPC'
+      default:
+        return 'NM'
     }
   }
 
@@ -85,6 +89,10 @@ export default function VArchiveRegScorePage() {
         return '엔젤'
       case 'NORMAL':
       case 'NM':
+        return '메시'
+      case 'DPC':
+        return '거짓말'
+      default:
         return '메시'
     }
   }
@@ -155,6 +163,9 @@ export default function VArchiveRegScorePage() {
       if (projectRaData.pattern) {
         let newPattern = 'NM'
         switch (projectRaData.pattern) {
+          case 'DPC':
+            newPattern = 'DPC'
+            break
           case 'SC':
             newPattern = 'SC'
             break
@@ -297,15 +308,17 @@ export default function VArchiveRegScorePage() {
                             />
                             <div className="tw-flex tw-flex-col tw-w-full">
                               {/* 제목 */}
-                              <span className="tw-flex tw-font-light tw-text-gray-300">{projectRaUploadedPageData.songData.composer}</span>
+                              <span className="tw-flex tw-font-light tw-text-gray-300">
+                                {projectRaUploadedPageData.songData.artist +
+                                  (projectRaUploadedPageData.songData.composer ? ' / ' + projectRaUploadedPageData.songData.composer : '') +
+                                  ' / ' +
+                                  (projectRaUploadedPageData.songData.bpm + ' BPM / ') +
+                                  moment.utc(projectRaUploadedPageData.songData.time * 1000).format('m분 s초')}
+                              </span>
                               <div className="tw-flex">
                                 <span className="tw-text-lg tw-font-bold me-auto">
                                   {projectRaUploadedPageData.songData.name}
-                                  <sup className="tw-text-xs tw-font-light tw-text-gray-300">
-                                    {' '}
-                                    (R-ARCHIVE : {projectRaUploadedPageData.songData.title} / 곡 길이 :{' '}
-                                    {moment.utc(projectRaUploadedPageData.songData.time * 1000).format('m분 s초')})
-                                  </sup>
+                                  <sup className="tw-text-xs tw-font-light tw-text-gray-300"> (R-ARCHIVE : {projectRaUploadedPageData.songData.title})</sup>
                                 </span>
                               </div>
                             </div>

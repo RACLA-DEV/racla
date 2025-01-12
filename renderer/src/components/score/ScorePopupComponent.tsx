@@ -47,7 +47,7 @@ const ScorePopupComponent = ({
 }: ScorePopupComponentProps) => {
   const dispatch = useDispatch()
   const fontFamily = useSelector((state: RootState) => state.ui.fontFamily)
-  const userData = useSelector((state: RootState) => state.app.userData)
+  const userData = useSelector((state: RootState) => state.app.vArchiveUserData)
   const vArchiveUserData = useSelector((state: RootState) => state.app.vArchiveUserData)
   const songDataList = useSelector((state: RootState) => state.app.songData)
   const selectedGame = useSelector((state: RootState) => state.app.selectedGame)
@@ -70,26 +70,23 @@ const ScorePopupComponent = ({
     let isMounted = true
 
     const fetchData = async () => {
-      if (!userData.userName && !songItem && songItemTitle) {
-        const foundSong = songDataList.find((song) => song.title === songItemTitle)
-        if (foundSong) {
-          setSongData(foundSong)
-        }
+      if (!userData.userName || (!songItem && !songItemTitle)) {
         return
       }
 
       if (userData.userName && isHovered && !isScored) {
         setIsLoading(true)
         try {
-          const response = await fetch(
-            `${process.env.NEXT_PUBLIC_PROXY_API_URL}?url=https://v-archive.net/api/archive/${userData.userName}/title/${songItem?.title || songItemTitle}`,
-          )
-          if (response.ok && isMounted) {
-            const data = await response.json()
-            if (songItem) {
-              setSongData({ ...songItem, patterns: data.patterns })
-            } else {
-              setSongData(data)
+          const title = songItem?.title || songItemTitle
+          if (title !== undefined && title !== null) {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_PROXY_API_URL}?url=https://v-archive.net/api/archive/${userData.userName}/title/${title}`)
+            if (response.ok && isMounted) {
+              const data = await response.json()
+              if (songItem) {
+                setSongData({ ...songItem, patterns: data.patterns })
+              } else {
+                setSongData(data)
+              }
             }
           }
         } catch (error) {
@@ -98,12 +95,13 @@ const ScorePopupComponent = ({
 
         if (rivalName && rivalName !== userData.userName) {
           try {
-            const response = await fetch(
-              `${process.env.NEXT_PUBLIC_PROXY_API_URL}?url=https://v-archive.net/api/archive/${rivalName}/title/${songItem?.title || songItemTitle}`,
-            )
-            if (response.ok && isMounted) {
-              const data = await response.json()
-              setRivalSongData(data)
+            const title = songItem?.title || songItemTitle
+            if (title !== undefined && title !== null) {
+              const response = await fetch(`${process.env.NEXT_PUBLIC_PROXY_API_URL}?url=https://v-archive.net/api/archive/${rivalName}/title/${title}`)
+              if (response.ok && isMounted) {
+                const data = await response.json()
+                setRivalSongData(data)
+              }
             }
           } catch (error) {
             console.error('Error fetching rival data:', error)
@@ -357,20 +355,16 @@ const ScorePopupComponent = ({
           style={{ width: size, height: size }}
         >
           {inView && (
-            <>
-              <Image
-                loading="lazy"
-                blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDABQODxIPDRQSEBIXFRQdHx4eHRoaHSQtJSEkLzYvLy02Mi45OEA6PTo4OTZCRk1RUVdaWHJ4jZeGnJ2krbS/v7v/2wBDARUXFx4aHR4eHb+7pqC7v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7//wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAb/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
-                placeholder="blur"
-                src={imageUrl}
-                className={`tw-absolute tw-rounded-md tw-shadow-lg tw-transition-opacity ${!imageLoaded ? 'tw-bg-gray-700 tw-blur-sm' : ''}`}
-                width={rivalName ? 70 : size}
-                height={rivalName ? 70 : size}
-                alt=""
-                onLoad={handleImageLoad}
-                style={{ objectFit: 'cover' }}
-              />
-            </>
+            <Image
+              loading="lazy"
+              src={imageUrl}
+              className={`tw-absolute tw-rounded-md tw-shadow-lg ${imageLoaded ? 'tw-animate-fadeIn' : 'tw-opacity-0'}`}
+              width={rivalName ? 70 : size}
+              height={rivalName ? 70 : size}
+              alt=""
+              onLoad={handleImageLoad}
+              style={{ objectFit: 'cover' }}
+            />
           )}
           {isVisibleCode ? (
             <span className="tw-absolute tw-top-0 tw-left-0 respect_dlc_code_wrap tw-rounded-tl-md">

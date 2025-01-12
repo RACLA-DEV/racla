@@ -729,76 +729,6 @@ export default function DjmaxHomeComponent() {
               {/* 패널들 - 래퍼 제거하고 직접 배치 */}
               <div className="tw-flex tw-gap-4 stats-section">
                 <div className="tw-flex tw-flex-col tw-gap-4 tw-w-3/5">
-                  {/* Total Overall Panel */}
-                  <div className="tw-flex tw-flex-col tw-gap-4">
-                    <div className="tw-flex tw-justify-between tw-items-end tw-bg-gray-800 tw-bg-opacity-40 tw-rounded-lg tw-p-4">
-                      <div className="tw-flex tw-flex-col">
-                        <span className="tw-text-xl tw-font-bold">전체 통계</span>
-                      </div>
-                    </div>
-
-                    <div className="tw-bg-gray-800 tw-bg-opacity-40 tw-rounded-lg tw-p-4 tw-pb-8">
-                      {/* 상단 통계 요약 */}
-                      <div className="tw-grid tw-grid-cols-3 tw-gap-2 tw-mb-8">
-                        {[
-                          { key: 'maxCombo', label: '맥스 콤보', color: 'tw-text-green-500' },
-                          { key: 'perfect', label: '퍼펙트', color: 'tw-text-red-500' },
-                          { key: 'clear', label: '클리어', color: 'tw-text-blue-500' },
-                        ].map(({ key, label, color }) => (
-                          <div key={key} className="tw-text-center tw-p-4 tw-bg-gray-950 tw-bg-opacity-50 tw-rounded-lg">
-                            <div className={`tw-text-lg tw-font-bold ${color}`}>{totalStats[key]}</div>
-                            <div className="tw-text-xs tw-text-gray-400">{label}</div>
-                          </div>
-                        ))}
-                      </div>
-
-                      {/* 도넛 차트 */}
-                      <div className="tw-relative tw-w-full tw-h-44 tw-flex tw-items-center tw-justify-center">
-                        <div className="tw-absolute tw-top-1/2 tw-left-1/2 tw-transform -tw-translate-x-1/2 -tw-translate-y-1/2 tw-text-center tw-w-20 tw-h-20 tw-bg-gray-950 tw-bg-opacity-50 tw-rounded-full tw-p-4 tw-pointer-events-none tw-z-0">
-                          <div className="tw-text-lg tw-font-bold">{totalStats.totalPatterns}</div>
-                          <div className="tw-text-xs tw-text-gray-300">전체</div>
-                        </div>
-
-                        <div className="tw-relative tw-z-10 tw-w-full tw-h-full">
-                          <Doughnut
-                            data={{
-                              labels: ['MAX COMBO', 'PERFECT', '99.9%+', '99.5%+', '99.0%+', '97.0%+', 'CLEAR'],
-                              datasets: [
-                                {
-                                  data: [totalStats.maxCombo, totalStats.perfect, totalStats.clear],
-                                  backgroundColor: ['rgba(34, 197, 94, 0.8)', 'rgba(239, 68, 68, 0.8)', 'rgba(59, 130, 246, 0.8)'],
-                                  borderColor: ['rgba(34, 197, 94, 1)', 'rgba(239, 68, 68, 1)', 'rgba(59, 130, 246, 1)'],
-                                  borderWidth: 1,
-                                },
-                              ],
-                            }}
-                            options={{
-                              responsive: true,
-                              maintainAspectRatio: false,
-                              cutout: '60%',
-                              plugins: {
-                                legend: {
-                                  display: false,
-                                },
-                                tooltip: {
-                                  position: 'nearest',
-                                  callbacks: {
-                                    label: (context: any) => {
-                                      const label = context.label || ''
-                                      const value = context.raw || 0
-                                      const percentage = ((value / totalStats.totalPatterns) * 100).toFixed(1)
-                                      return `${label}: ${value} (${percentage}%)`
-                                    },
-                                  },
-                                },
-                              },
-                            }}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
                   {/* Button Mode Panel */}
                   <div className="tw-flex tw-flex-col tw-gap-4 ">
                     <div className="tw-flex tw-justify-between tw-items-end tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-shadow-lg tw-p-4">
@@ -913,6 +843,76 @@ export default function DjmaxHomeComponent() {
                           <span className="tw-p-1 tw-px-4 tw-bg-gray-950 tw-bg-opacity-50 tw-rounded-md tw-text-white">
                             {cutoffScores[selectedKeyMode]?.top50.toFixed(3)} TP
                           </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Total Overall Panel */}
+                  <div className="tw-flex tw-flex-col tw-gap-4">
+                    <div className="tw-flex tw-justify-between tw-items-end tw-bg-gray-800 tw-bg-opacity-40 tw-rounded-lg tw-p-4">
+                      <div className="tw-flex tw-flex-col">
+                        <span className="tw-text-xl tw-font-bold">전체 통계</span>
+                      </div>
+                    </div>
+
+                    <div className="tw-bg-gray-800 tw-bg-opacity-40 tw-rounded-lg tw-p-4 tw-pb-8">
+                      {/* 상단 통계 요약 */}
+                      <div className="tw-grid tw-grid-cols-3 tw-gap-2 tw-mb-8">
+                        {[
+                          { key: 'maxCombo', label: '맥스 콤보', color: 'tw-text-green-500' },
+                          { key: 'perfect', label: '퍼펙트', color: 'tw-text-red-500' },
+                          { key: 'clear', label: '클리어', color: 'tw-text-blue-500' },
+                        ].map(({ key, label, color }) => (
+                          <div key={key} className="tw-text-center tw-p-4 tw-bg-gray-950 tw-bg-opacity-50 tw-rounded-lg">
+                            <div className={`tw-text-lg tw-font-bold ${color}`}>{totalStats[key]}</div>
+                            <div className="tw-text-xs tw-text-gray-400">{label}</div>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* 도넛 차트 */}
+                      <div className="tw-relative tw-w-full tw-h-44 tw-flex tw-items-center tw-justify-center">
+                        <div className="tw-absolute tw-top-1/2 tw-left-1/2 tw-transform -tw-translate-x-1/2 -tw-translate-y-1/2 tw-text-center tw-w-20 tw-h-20 tw-bg-gray-950 tw-bg-opacity-50 tw-rounded-full tw-p-4 tw-pointer-events-none tw-z-0">
+                          <div className="tw-text-lg tw-font-bold">{totalStats.totalPatterns}</div>
+                          <div className="tw-text-xs tw-text-gray-300">전체</div>
+                        </div>
+
+                        <div className="tw-relative tw-z-10 tw-w-full tw-h-full">
+                          <Doughnut
+                            data={{
+                              labels: ['MAX COMBO', 'PERFECT', '99.9%+', '99.5%+', '99.0%+', '97.0%+', 'CLEAR'],
+                              datasets: [
+                                {
+                                  data: [totalStats.maxCombo, totalStats.perfect, totalStats.clear],
+                                  backgroundColor: ['rgba(34, 197, 94, 0.8)', 'rgba(239, 68, 68, 0.8)', 'rgba(59, 130, 246, 0.8)'],
+                                  borderColor: ['rgba(34, 197, 94, 1)', 'rgba(239, 68, 68, 1)', 'rgba(59, 130, 246, 1)'],
+                                  borderWidth: 1,
+                                },
+                              ],
+                            }}
+                            options={{
+                              responsive: true,
+                              maintainAspectRatio: false,
+                              cutout: '60%',
+                              plugins: {
+                                legend: {
+                                  display: false,
+                                },
+                                tooltip: {
+                                  position: 'nearest',
+                                  callbacks: {
+                                    label: (context: any) => {
+                                      const label = context.label || ''
+                                      const value = context.raw || 0
+                                      const percentage = ((value / totalStats.totalPatterns) * 100).toFixed(1)
+                                      return `${label}: ${value} (${percentage}%)`
+                                    },
+                                  },
+                                },
+                              },
+                            }}
+                          />
                         </div>
                       </div>
                     </div>

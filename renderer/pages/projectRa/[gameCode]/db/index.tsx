@@ -6,6 +6,7 @@ import { FaCircleCheck, FaLink } from 'react-icons/fa6'
 import { globalDictionary } from '@/libs/server/globalDictionary'
 import { SyncLoader } from 'react-spinners'
 import { BsList, BsGrid } from 'react-icons/bs'
+import { debounce } from 'lodash'
 
 import 'moment/locale/ko'
 import axios from 'axios'
@@ -18,6 +19,7 @@ import dynamic from 'next/dynamic'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useRouter } from 'next/router'
 import VirtualizedRaSongList from '@/components/songList/VirtualizedRaSongList'
+import moment from 'moment'
 
 // 동적 임포트로 ScorePopupComponent 지연 로딩
 const RaScorePopupComponent = dynamic(() => import('@/components/score/RaScorePopupComponent'), {
@@ -25,24 +27,14 @@ const RaScorePopupComponent = dynamic(() => import('@/components/score/RaScorePo
 })
 
 export default function VArchiveDbPage() {
-  const { showNotification } = useNotificationSystem()
   const dispatch = useDispatch()
   const { wjmaxSongData, userData, vArchiveUserData } = useSelector((state: RootState) => state.app)
-  const fontFamily = useSelector((state: RootState) => state.ui.fontFamily)
 
   const [keyMode, setKeyMode] = useState<string>('4')
-  const [baseSongData, setBaseSongData] = useState<any[]>([])
-  const [isLoading, setIsLoading] = useState<boolean>(false)
 
   const [isScoredBaseSongData, setIsScoredBaseSongData] = useState<boolean>(true)
 
   const [hoveredTitle, setHoveredTitle] = useState<string>(null)
-  const [songItemData, setSongItemData] = useState<any>(null)
-
-  const [isFetchingCommentData, setIsFetchingCommentData] = useState(false)
-  const [commentData, setCommentData] = useState<any[]>([])
-  const [commentPage, setCommentPage] = useState<number>(0)
-  const [hasNextCommentData, setHasNextCommentData] = useState(true)
 
   const [searchName, setSearchName] = useState<string>('')
   const [selectedLevel, setSelectedLevel] = useState<string>('all')
@@ -50,156 +42,87 @@ export default function VArchiveDbPage() {
 
   const [selectedDlcCode, setSelectedDlcCode] = useState<string>('이세돌')
 
-  const [commentRivalName, setCommentRivalName] = useState<string>('')
-  const [commentRivalSongItemData, setCommentRivalSongItemData] = useState<any>(null)
-
   const router = useRouter()
 
-  // URL 패턴을 정규식으로 정의
-  const urlPattern = /https?:\/\/[^\s]+/g
+  // 프리뷰 BGA 변경을 위한 디바운스된 함수
+  const debouncedSetBgaName = useMemo(
+    () =>
+      debounce((title: string) => {
+        if (title) {
+          dispatch(setBackgroundBgaName(String(wjmaxSongData.filter((song) => song.title == title)[0].folderName) + '_preview'))
+        }
+      }, 300),
+    [dispatch, wjmaxSongData],
+  )
 
-  // 문자열에서 URL을 링크로 변환하고 줄바꿈을 처리하는 함수
-  const parseText = (text) => {
-    // 줄바꿈을 <br /> 태그로 변환
-    const newText = text.replace(/\n/g, '<br>').replace(urlPattern, (url) => {
-      // URL을 링크로 변환
-      const splited = String(url).split('<br>')
+  // 스크롤 중인지 감지하는 상태 추가
+  const [isScrolling, setIsScrolling] = useState(false)
+  const scrollTimer = useRef(null)
 
-      return `<a href="#" onclick="window.ipc.openBrowser('${splited.length > 1 ? String(url).split('<br>')[0] : String(url)}'); return false;">${
-        splited.length > 1 ? String(url).split('<br>')[0] : String(url)
-      }(<svg style="display: inline;" stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 640 512" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M579.8 267.7c56.5-56.5 56.5-148 0-204.5c-50-50-128.8-56.5-186.3-15.4l-1.6 1.1c-14.4 10.3-17.7 30.3-7.4 44.6s30.3 17.7 44.6 7.4l1.6-1.1c32.1-22.9 76-19.3 103.8 8.6c31.5 31.5 31.5 82.5 0 114L422.3 334.8c-31.5 31.5-82.5 31.5-114 0c-27.9-27.9-31.5-71.8-8.6-103.8l1.1-1.6c10.3-14.4 6.9-34.4-7.4-44.6s-34.4-6.9-44.6 7.4l-1.1 1.6C206.5 251.2 213 330 263 380c56.5 56.5 148 56.5 204.5 0L579.8 267.7zM60.2 244.3c-56.5 56.5-56.5 148 0 204.5c50 50 128.8 56.5 186.3 15.4l1.6-1.1c14.4-10.3 17.7-30.3 7.4-44.6s-30.3-17.7-44.6-7.4l-1.6 1.1c-32.1 22.9-76 19.3-103.8-8.6C74 372 74 321 105.5 289.5L217.7 177.2c31.5-31.5 82.5-31.5 114 0c27.9 27.9 31.5 71.8 8.6 103.9l-1.1 1.6c-10.3 14.4-6.9 34.4 7.4 44.6s34.4 6.9 44.6-7.4l1.1-1.6C433.5 260.8 427 182 377 132c-56.5-56.5-148-56.5-204.5 0L60.2 244.3z"></path></svg>)</a>${
-        splited.length > 1 ? '<br>' + splited.filter((v, index) => index != 0).join('<br>') : ''
-      }`
-    })
+  // 마지막 마우스 위치를 저장할 ref
+  const lastMousePositionRef = useRef({ x: 0, y: 0 })
 
-    return newText
-  }
+  // 스크롤 핸들러 수정
+  const handleScroll = () => {
+    // 스크롤 시작시 호버 효과 제거
+    setHoveredTitle(null)
+    setIsScrolling(true)
 
-  const fetchSongItemData = async (title) => {
-    try {
-      if (vArchiveUserData.userName !== '') {
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_PROXY_API_URL}?url=https://v-archive.net/api/archive/${vArchiveUserData.userName}/title/${hoveredTitle}`,
-        )
-        const result = await response.json()
-        setSongItemData(result)
-      } else {
-        const response = wjmaxSongData.filter((wjmaxSongData) => String(wjmaxSongData.title) == String(title))
-        const result = response.length > 0 ? response[0] : []
-        setSongItemData(result)
+    if (scrollTimer.current) {
+      clearTimeout(scrollTimer.current)
+    }
+
+    scrollTimer.current = setTimeout(() => {
+      setIsScrolling(false)
+      // 스크롤이 끝난 후 마우스 위치의 엘리먼트 찾기
+      const element = document.elementFromPoint(lastMousePositionRef.current.x, lastMousePositionRef.current.y)
+      // 해당 엘리먼트의 가장 가까운 곡 아이템 컨테이너 찾기
+      const songContainer = element?.closest('[data-song-title]')
+      if (songContainer) {
+        const songTitle = songContainer.getAttribute('data-song-title')
+        setHoveredTitle(songTitle) // 스크롤 끝나면 즉시 호버 상태 적용
+        debouncedSetBgaName(songTitle) // BGA는 디바운스 적용
       }
-    } catch (error) {
-      console.error('Error fetching data:', error)
+    }, 500) // 타이머 시간을 좀 더 짧게 조정
+  }
+
+  // 호버 핸들러 수정
+  const handleMouseEnter = (songItem) => {
+    if (!isScrolling) {
+      // 스크롤 중이 아닐 때만 호버 효과 적용
+      setHoveredTitle(songItem.title)
+      debouncedSetBgaName(songItem.title)
     }
   }
 
-  const fetchCommentRivalSongItemData = async (title) => {
-    try {
-      if (commentRivalName !== '') {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_PROXY_API_URL}?url=https://v-archive.net/api/archive/${commentRivalName}/title/${hoveredTitle}`)
-        const result = await response.json()
-        setCommentRivalSongItemData(result)
-      } else {
-        const response = wjmaxSongData.filter((wjmaxSongData) => String(wjmaxSongData.title) == String(title))
-        const result = response.length > 0 ? response[0] : []
-        setCommentRivalSongItemData(result)
-      }
-    } catch (error) {
-      console.error('Error fetching data:', error)
+  const handleMouseLeave = () => {
+    if (!isScrolling) {
+      // 스크롤 중이 아닐 때만 호버 효과 제거
+      setHoveredTitle(null)
+      dispatch(setBackgroundBgaName(''))
+      debouncedSetBgaName.cancel()
     }
   }
 
-  const [voteComment, setVoteComment] = useState<number>(null)
-
-  const updateCommentVote = async (title, cmtNo, cmd) => {
-    try {
-      const response = await axios
-        .post(
-          `${process.env.NEXT_PUBLIC_PROXY_API_URL}?url=https://v-archive.net/api/db/title/${title}/comment/${cmtNo}/vote`,
-          {
-            vote: 1,
-            cmd,
-          },
-          {
-            method: 'POST',
-            headers: {
-              Authorization: `${vArchiveUserData.userNo}|${vArchiveUserData.userToken}`,
-              'Content-Type': 'application/json',
-            },
-            withCredentials: true,
-          },
-        )
-        .then((data) => {
-          if (data.data.success) {
-            setVoteComment(cmtNo)
-            setCommentData(
-              commentData.map((commentItem) => {
-                if (commentItem.cmtNo === cmtNo) {
-                  return data.data.comment
-                } else {
-                  return commentItem
-                }
-              }),
-            )
-          }
-        })
-        .catch((error) => {
-          // console.log(error)
-        })
-    } catch (error) {
-      console.error('Error fetching data:', error)
-    }
-  }
-
-  // DJ 코멘트 데이터 가져오기 함수
-  const fetchCommentData = async () => {
-    if (isFetchingCommentData) return // 이미 데이터를 가져오는 중이면 종료
-    setIsFetchingCommentData(true)
-
-    try {
-      const response = await axios
-        .get(`${process.env.NEXT_PUBLIC_PROXY_API_URL}?url=https://v-archive.net/api/db/comments?page=${commentPage}&order=ymdt`, {
-          headers: {
-            Authorization: `${vArchiveUserData.userNo}|${vArchiveUserData.userToken}`,
-            'Content-Type': 'application/json',
-          },
-          withCredentials: true,
-        })
-        .then((result) => {
-          if (result.data.success) {
-            // console.log(result.data.commentList)
-            setCommentData((prevData) => [...prevData, ...result.data.commentList])
-            setCommentPage((prevPage) => prevPage + 1)
-            setHasNextCommentData(result.data.hasNext)
-          }
-        })
-    } catch (error) {
-      console.error('Error fetching data:', error)
-    } finally {
-      setIsFetchingCommentData(false)
-    }
+  // 마우스 이동 핸들러 추가
+  const handleMouseMove = (e: MouseEvent) => {
+    lastMousePositionRef.current = { x: e.clientX, y: e.clientY }
   }
 
   useEffect(() => {
-    fetchCommentData()
+    const scrollContainer = document.querySelector('.tw-overflow-y-auto')
+    if (scrollContainer) {
+      scrollContainer.addEventListener('scroll', handleScroll)
+      document.addEventListener('mousemove', handleMouseMove)
+      return () => {
+        scrollContainer.removeEventListener('scroll', handleScroll)
+        document.removeEventListener('mousemove', handleMouseMove)
+        if (scrollTimer.current) {
+          clearTimeout(scrollTimer.current)
+        }
+      }
+    }
   }, [])
-
-  useEffect(() => {
-    let timer
-    if (hoveredTitle) {
-      timer = setTimeout(() => {
-        // fetchSongItemData(hoveredTitle)
-        // fetchCommentRivalSongItemData(hoveredTitle)
-        dispatch(setBackgroundBgaName(String(wjmaxSongData.filter((song) => song.title === hoveredTitle)[0].folderName) + '_preview'))
-      }, 500)
-    }
-
-    return () => {
-      if (timer) {
-        clearTimeout(timer)
-      }
-    }
-  }, [hoveredTitle])
 
   // 초성을 추출하는 함수
   const getChosung = (char) => {
@@ -231,6 +154,7 @@ export default function VArchiveDbPage() {
 
     // 일반 문자열 검색
     const isStringMatch =
+      String(songItem.artist).toLowerCase().includes(searchNameLower) ||
       String(songItem.composer).toLowerCase().includes(searchNameLower) ||
       String(songItem.name).toLowerCase().includes(searchNameLower) ||
       String(songItem.dlcCode).toLowerCase().includes(searchNameLower) ||
@@ -238,6 +162,7 @@ export default function VArchiveDbPage() {
       String(songItem.title).includes(searchNameLower)
 
     const isStringMatchBackspaced =
+      String(songItem.artist).toLowerCase().includes(backspacedSearchNameLower) ||
       String(songItem.composer).toLowerCase().includes(backspacedSearchNameLower) ||
       String(songItem.name).toLowerCase().includes(backspacedSearchNameLower) ||
       String(songItem.dlcCode).toLowerCase().includes(backspacedSearchNameLower) ||
@@ -273,18 +198,6 @@ export default function VArchiveDbPage() {
     return ['전체', ...codes] // '전체'를 마지막에 추가
   }, [wjmaxSongData])
 
-  // 키보드 네비게이션을 위한 함수
-  const handleDlcNavigation = (direction: 'left' | 'right') => {
-    const currentIndex = dlcCodeList.indexOf(selectedDlcCode)
-    if (direction === 'left') {
-      const newIndex = currentIndex > 0 ? currentIndex - 1 : dlcCodeList.length - 1
-      setSelectedDlcCode(dlcCodeList[newIndex])
-    } else {
-      const newIndex = currentIndex < dlcCodeList.length - 1 ? currentIndex + 1 : 0
-      setSelectedDlcCode(dlcCodeList[newIndex])
-    }
-  }
-
   const buttonRefs = useRef<(HTMLButtonElement | null)[]>([])
 
   // 키재 선택된 곡의 인덱스를 추적하기 위한 state 추가
@@ -292,7 +205,7 @@ export default function VArchiveDbPage() {
 
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('list')
 
-  // 필터링된 곡 데이터 계산 (DLC 필터 추가)
+  // 필터링된 곡 데이터 계산 (DPC 필터 추가)
   const filteredSongData = useMemo(() => {
     const filtered = wjmaxSongData.filter((songItem) => {
       // 검색어 필터
@@ -304,9 +217,11 @@ export default function VArchiveDbPage() {
       // 난이도 필터
       const levelFilter =
         selectedLevel === 'all' ||
-        ['NM', 'HD', 'MX', 'SC'].some(
-          (difficulty) => Math.floor(songItem.patterns[`${keyMode.replace('P', '')}B`]?.[difficulty]?.level ?? 0) === parseInt(selectedLevel),
-        )
+        ['NM', 'HD', 'MX', 'SC', 'DPC'].some((difficulty) => {
+          const pattern = songItem.patterns[`${keyMode.replace('P', '')}B`]
+          const level = pattern?.[difficulty]?.level
+          return level !== undefined && Math.floor(level) === parseInt(selectedLevel)
+        })
 
       return searchFilter && dlcFilter && levelFilter
     })
@@ -327,7 +242,7 @@ export default function VArchiveDbPage() {
   // 검색 input ref 추가
   const searchInputRef = useRef<HTMLInputElement>(null)
 
-  // 키보드 이벤트 리스너 수정
+  // 키보드 접근성
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       // 검색창에 포커스가 있을 때
@@ -339,12 +254,12 @@ export default function VArchiveDbPage() {
         return // 다른 모든 키보드 단축키 무시
       }
 
-      // 일반 입력 필드에서는 키보드 단축키를 무시 (검색창 제외)
+      // 일반 입력 필드에서는 키보드 단축키를 무시
       if ((e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) && e.target !== searchInputRef.current) {
         return
       }
 
-      // 메타키(Cmd/Ctrl)나 Alt가 눌려있으면 무시
+      // 메타키가 눌려있으면 무시
       if (e.metaKey || e.ctrlKey || e.altKey) {
         return
       }
@@ -352,67 +267,12 @@ export default function VArchiveDbPage() {
       if (e.key.toLowerCase() === 'f') {
         e.preventDefault()
         searchInputRef.current?.focus()
-      } else if (e.key === 'ArrowLeft') {
-        e.preventDefault()
-        handleDlcNavigation('left')
-      } else if (e.key === 'ArrowRight') {
-        e.preventDefault()
-        handleDlcNavigation('right')
-      } else if (e.key === '1') {
-        e.preventDefault()
-        setKeyMode((prev) => {
-          if (prev === '4') return '4P'
-          else if (prev === '4P') return '6'
-          else if (prev === '6') return '6P'
-          else return '4'
-        })
-      } else if (e.key === 'a') {
-        e.preventDefault()
-        setSortOrder('asc')
-      } else if (e.key === 'd') {
-        e.preventDefault()
-        setSortOrder('desc')
-      } else if (e.key === 'v') {
-        e.preventDefault()
-        setViewMode((prev) => (prev === 'grid' ? 'list' : 'grid'))
-      } else if (e.key === 'q') {
-        e.preventDefault()
-        setSelectedLevel((prev) => {
-          if (Number(prev) - 1 < 1) return 'all'
-          else if (prev === 'all') return '20'
-          else return String(Number(prev) - 1)
-        })
-      } else if (e.key === 'e') {
-        e.preventDefault()
-        setSelectedLevel((prev) => {
-          if (Number(prev) + 1 > 20) return 'all'
-          else if (prev === 'all') return '1'
-          else return String(Number(prev) + 1)
-        })
-      } else if (viewMode === 'list' && !searchInputRef.current?.contains(document.activeElement)) {
-        if (e.key === 'ArrowUp') {
-          e.preventDefault()
-          setSelectedSongIndex((prev) => {
-            const newIndex = prev <= 0 ? filteredSongData.length - 1 : prev - 1
-            return newIndex
-          })
-        } else if (e.key === 'ArrowDown') {
-          e.preventDefault()
-          setSelectedSongIndex((prev) => {
-            const newIndex = prev >= filteredSongData.length - 1 ? 0 : prev + 1
-            return newIndex
-          })
-        } else if (e.key === 'Enter' && selectedSongIndex >= 0) {
-          e.preventDefault()
-          const selectedSong = filteredSongData[selectedSongIndex]
-          router.push(`/projectRa/wjmax/db/title/${selectedSong.title}`)
-        }
       }
     }
 
-    document.addEventListener('keydown', handleKeyDown, true)
-    return () => document.removeEventListener('keydown', handleKeyDown, true)
-  }, [selectedDlcCode, dlcCodeList, viewMode, filteredSongData.length, selectedSongIndex])
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [])
 
   // 초기 선택 인덱스 설정
   useEffect(() => {
@@ -422,17 +282,17 @@ export default function VArchiveDbPage() {
   }, [viewMode, filteredSongData.length])
 
   // 선택된 곡이 변경될 때 스크롤 처리 추가
-  useEffect(() => {
-    if (selectedSongIndex >= 0 && viewMode === 'list' && selectedSongRef.current) {
-      selectedSongRef.current.scrollIntoView({
-        behavior: 'smooth',
-        block: 'nearest',
-      })
+  // useEffect(() => {
+  //   if (selectedSongIndex >= 0 && viewMode === 'list' && selectedSongRef.current) {
+  //     selectedSongRef.current.scrollIntoView({
+  //       behavior: 'smooth',
+  //       block: 'nearest',
+  //     })
 
-      const selectedSong = filteredSongData[selectedSongIndex]
-      setHoveredTitle(selectedSong.title)
-    }
-  }, [selectedSongIndex, viewMode])
+  //     const selectedSong = filteredSongData[selectedSongIndex]
+  //     handleHoverTitle(selectedSong.title)
+  //   }
+  // }, [selectedSongIndex, viewMode])
 
   const isDjCommentOpen = useSelector((state: RootState) => state.ui.isDjCommentOpen)
 
@@ -514,7 +374,7 @@ export default function VArchiveDbPage() {
                         className="form-select tw-text-sm tw-bg-gray-900 tw-bg-opacity-80 tw-w-36 tw-border tw-border-gray-600 tw-border-opacity-50 focus:tw-border-blue-400 focus:tw-ring-2 focus:tw-ring-blue-400 focus:tw-ring-opacity-20 tw-transition-all"
                       >
                         <option value="all">모든 난이도</option>
-                        {Array.from({ length: 20 }, (_, i) => i + 1).map((level) => (
+                        {Array.from({ length: 30 }, (_, i) => i + 1).map((level) => (
                           <option key={level} value={level.toString()}>
                             Lv.{level}
                           </option>
@@ -564,7 +424,7 @@ export default function VArchiveDbPage() {
                 {/* 하단 정보 */}
                 <div className="tw-flex tw-justify-end tw-gap-2 tw-items-center tw-text-xs tw-font-semibold">
                   <FaCircleCheck className=" tw-text-green-500" />
-                  <div className="tw-flex tw-items-center tw-gap-1 tw-text-gray-300">WJMAX 3.6.1 버전 데이터로 동기화됨</div>
+                  <div className="tw-flex tw-items-center tw-gap-1 tw-text-gray-300">WJMAX 4.0 데이터로 동기화됨</div>
                 </div>
               </div>
             </div>
@@ -589,7 +449,7 @@ export default function VArchiveDbPage() {
                         <div className="tw-w-[130px] tw-text-center">곡 이미지</div>
                         <div className="tw-flex tw-flex-1">
                           <div className="tw-flex-1">곡 정보</div>
-                          <div className="tw-w-96 tw-text-center">난이도</div>
+                          <div className="tw-w-[480px] tw-text-center">난이도</div>
                         </div>
                       </div>
                     )}
@@ -607,17 +467,18 @@ export default function VArchiveDbPage() {
                       ) : (
                         <div
                           key={songItem.title}
+                          data-song-title={songItem.title}
                           ref={songItemIndex === selectedSongIndex ? selectedSongRef : null}
                           onClick={() => router.push(`/projectRa/wjmax/db/title/${songItem.title}`)}
                           className={`
                             tw-flex tw-items-center tw-gap-4 tw-p-2 tw-border-b tw-border-gray-700 
                             tw-relative tw-overflow-hidden
                             tw-cursor-pointer
-                            hover:tw-bg-transparent
-                            ${viewMode === 'list' && selectedSongIndex === songItemIndex ? 'tw-bg-transparent' : 'hover:tw-bg-transparent'}
+                            ${hoveredTitle === songItem.title ? 'tw-bg-gray-700 tw-bg-opacity-30' : ''}
+                            hover:tw-bg-gray-700 hover:tw-bg-opacity-30
                           `}
-                          onMouseEnter={() => setHoveredTitle(songItem.title)}
-                          onMouseLeave={() => setHoveredTitle(null)}
+                          onMouseEnter={() => handleMouseEnter(songItem)}
+                          onMouseLeave={handleMouseLeave}
                         >
                           {/* 애니메이션 배경 레이어 */}
                           <div
@@ -629,7 +490,7 @@ export default function VArchiveDbPage() {
                               before:tw-bg-[length:200%_200%]
                               before:tw-animate-gradientSlide
                               before:tw-bg-gradient-to-r before:tw-from-[#1d8975] before:tw-via-[#5276b4] before:tw-via-[#8432bd] before:tw-via-[#5276b4] before:tw-to-[#1d8975]
-                              ${(viewMode === 'list' && selectedSongIndex === songItemIndex) || hoveredTitle === songItem.title ? 'tw-opacity-20' : ''}
+                              ${hoveredTitle === songItem.title ? 'tw-opacity-20' : ''}
                             `}
                           />
 
@@ -649,14 +510,21 @@ export default function VArchiveDbPage() {
                               <div className="tw-flex-1">
                                 <div className="tw-font-bold">{songItem.name}</div>
                                 <div className="tw-flex tw-gap-2 tw-mt-1">
-                                  <div className="tw-text-gray-400">{songItem.composer}</div>
-                                  <div className="tw-text-blue-400">{songItem.dlc || ''}</div>
+                                  <div className="tw-text-gray-400">
+                                    {songItem.artist +
+                                      (songItem.composer !== '' ? ` / ${songItem.composer}` : '') +
+                                      ' / ' +
+                                      songItem.bpm +
+                                      ' BPM / ' +
+                                      moment.utc(songItem.time * 1000).format('m분 s초')}
+                                  </div>
+                                  {/* <div className="tw-text-blue-400">{songItem.dlc || ''}</div> */}
                                 </div>
                               </div>
 
                               {/* 난이도별 고정 칸 */}
                               <div className="tw-flex tw-gap-4 tw-items-center justify-center">
-                                {['NM', 'HD', 'MX', 'SC'].map((diff) => (
+                                {['NM', 'HD', 'MX', 'SC', 'DPC'].map((diff) => (
                                   <div key={diff} className="tw-w-20 tw-text-center">
                                     {songItem.patterns[`${keyMode.replace('P', '')}B`]?.[diff] ? (
                                       <div
@@ -672,6 +540,7 @@ export default function VArchiveDbPage() {
                                           ${diff === 'HD' && 'tw-text-wjmax-hd'}
                                           ${diff === 'MX' && 'tw-text-wjmax-mx'}
                                           ${diff === 'SC' && 'tw-text-wjmax-sc'}
+                                          ${diff === 'DPC' && 'tw-text-wjmax-dpc'}
                                         `}
                                       >
                                         <Image src={`/images/wjmax/nm_${diff.toLowerCase()}.png`} width={24} height={24} alt={diff} />

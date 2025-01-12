@@ -39,10 +39,11 @@ module.exports = {
       'respect-sc-10': '#c604e4',
       'respect-sc-15': '#3d66ff',
       'respect-sc-20': '#3d66ff',
-      'wjmax-nm': '#ffb401',
+      'wjmax-nm': '#c79b61',
       'wjmax-hd': '#9696ff',
       'wjmax-mx': '#78ff91',
       'wjmax-sc': '#ff4c4c',
+      'wjmax-dpc': '#ffb401',
     },
     safelist: ['tw-text-wjmax-nm', 'tw-text-wjmax-hd', 'tw-text-wjmax-mx', 'tw-text-wjmax-sc'],
     extend: {

@@ -67,6 +67,14 @@ const WJMAX_ENCRYPTION_KEY = '99FLKWJFL;l99r7@!()f09sodkjfs;a;o9fU#@'
 
 const gameList = { djmax_respect_v: 'DJMAX RESPECT V', wjmax: 'WJMAX' }
 
+const gotTheLock = app.requestSingleInstanceLock()
+console.log('gotTheLock', gotTheLock)
+
+if (!gotTheLock) {
+  app.quit()
+  process.exit(0)
+}
+
 ;(async () => {
   await app.whenReady()
 
@@ -548,6 +556,21 @@ const gameList = { djmax_respect_v: 'DJMAX RESPECT V', wjmax: 'WJMAX' }
     mainWindow.webContents.send('update-downloaded', info.version)
   })
 
+  app.on('second-instance', (event, commandLine, workingDirectory) => {
+    if (mainWindow) {
+      if (mainWindow.isMinimized()) {
+        mainWindow.restore()
+      }
+      mainWindow.focus()
+
+      // 알림 표시 (선택사항)
+      mainWindow.webContents.send('pushNotification', {
+        message: '앱이 이미 실행 중입니다.',
+        color: 'tw-bg-yellow-600',
+      })
+    }
+  })
+
   const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
   async function processResultScreen(imageBuffer, isMenualUpload?, isNotSaveImage?, gameCode?) {
@@ -600,8 +623,9 @@ const gameList = { djmax_respect_v: 'DJMAX RESPECT V', wjmax: 'WJMAX' }
             }
           }
 
+          // 로직 변경 필요
           if (!where && settingData.autoCaptureOcrOpen3Region && texts.open3) {
-            if (texts.open3.toUpperCase().includes('MAX') || texts.open3.toUpperCase().includes('AX') || texts.open3.toUpperCase().includes('MA')) {
+            if (texts.open3.trim().toUpperCase() == 'MAX') {
               where = 'open3'
               isResult = ['open3']
               text = texts.open3
@@ -609,15 +633,16 @@ const gameList = { djmax_respect_v: 'DJMAX RESPECT V', wjmax: 'WJMAX' }
           }
 
           if (!where && settingData.autoCaptureOcrOpen2Region && texts.open2) {
-            if (texts.open2.toUpperCase().includes('MAX') || texts.open2.toUpperCase().includes('AX') || texts.open2.toUpperCase().includes('MA')) {
+            if (texts.open2.trim().toUpperCase() == 'MAX') {
               where = 'open2'
               isResult = ['open2']
               text = texts.open2
             }
           }
 
+          // 로직 변경 필요
           if (!where && settingData.autoCaptureOcrVersusRegion && texts.versus) {
-            if (texts.versus.trim() == 'E') {
+            if (texts.versus.trim().toUpperCase().replaceAll(' ', '') == 'RE') {
               where = 'versus'
               isResult = ['versus']
               text = texts.versus

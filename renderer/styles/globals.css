@@ -1718,6 +1718,10 @@
   font-size: 4rem;
 }
 
+.pattern.wjmax.DPC {
+  background-color: #ffbb00dd;
+  color: #fff;
+}
 .pattern.wjmax.SC {
   background-color: #bf0c0cdd;
   color: #fff;
@@ -1731,7 +1735,7 @@
   color: #fff;
 }
 .pattern.wjmax.NM {
-  background-color: #bf7500dd;
+  background-color: #835100dd;
   color: #fff;
 }
 

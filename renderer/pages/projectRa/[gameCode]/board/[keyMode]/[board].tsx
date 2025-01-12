@@ -40,6 +40,26 @@ const Board = () => {
   const [highlightCondition, setHighlightCondition] = useState<string | null>(null)
   const [highlightInverse, setHighlightInverse] = useState<boolean>(false)
 
+  // 현재 레벨에 따른 난이도 결정 함수
+  const getDifficultyByLevel = (level: string) => {
+    const levelNum = Number(level)
+    if (levelNum <= 10) return '1~10'
+    if (levelNum <= 20) return '11~20'
+    return '21~30'
+  }
+
+  // state 초기값 설정
+  const [selectedDifficulty, setSelectedDifficulty] = useState<'1~10' | '11~20' | '21~30'>(() => {
+    return getDifficultyByLevel(board as string)
+  })
+
+  // useEffect로 board 변경 시 난이도 자동 업데이트
+  useEffect(() => {
+    if (board) {
+      setSelectedDifficulty(getDifficultyByLevel(board as string))
+    }
+  }, [board])
+
   // songData에서 현재 keyMode와 board에 해당하는 패턴 데이터 추출
   const processBaseSongData = () => {
     if (!wjmaxSongData || !keyMode) return []
@@ -187,49 +207,45 @@ const Board = () => {
     if (!highlightCondition) return true
 
     const score = typeof pattern.score === 'string' ? parseFloat(pattern.score) : pattern.score
-    if (score === null) return false
 
-    // For inverse highlighting (clicking on the empty part of the bar)
-    if (highlightInverse) {
+    // 기본 하이라이트 조건 확인
+    let matches = false
+
+    if (score === null) {
+      // clear 조건일 때만 특별 처리
+      if (highlightCondition === 'clear') {
+        matches = false
+      }
+    } else {
       switch (highlightCondition) {
         case 'perfect':
-          return score < 100.0
+          matches = score === 100.0
+          break
         case 'over999':
-          return score < 99.9
+          matches = score >= 99.9
+          break
         case 'over995':
-          return score < 99.5
+          matches = score >= 99.5
+          break
         case 'over99':
-          return score < 99.0
+          matches = score >= 99.0
+          break
         case 'over97':
-          return score < 97.0
+          matches = score >= 97.0
+          break
         case 'maxCombo':
-          return pattern?.maxCombo
+          matches = pattern?.maxCombo === 1
+          break
         case 'clear':
-          return score === 0 || score === null
+          matches = score > 0
+          break
         default:
-          return true
+          matches = true
       }
     }
 
-    // For normal highlighting (clicking on the filled part of the bar)
-    switch (highlightCondition) {
-      case 'perfect':
-        return score === 100.0
-      case 'over999':
-        return score >= 99.9
-      case 'over995':
-        return score >= 99.5
-      case 'over99':
-        return score >= 99.0
-      case 'over97':
-        return score >= 97.0
-      case 'maxCombo':
-        return pattern?.maxCombo
-      case 'clear':
-        return score > 0
-      default:
-        return true
-    }
+    // highlightInverse가 true이면 조건을 반전
+    return highlightInverse ? !matches : matches
   }
 
   // 정렬 함수 추가
@@ -292,6 +308,16 @@ const Board = () => {
     18: 'Lv.18',
     19: 'Lv.19',
     20: 'Lv.20',
+    21: 'Lv.21',
+    22: 'Lv.22',
+    23: 'Lv.23',
+    24: 'Lv.24',
+    25: 'Lv.25',
+    26: 'Lv.26',
+    27: 'Lv.27',
+    28: 'Lv.28',
+    29: 'Lv.29',
+    30: 'Lv.30',
   }
 
   const [randomHeaderBg, setRandomHeaderBg] = useState(Math.floor(Math.random() * wjmaxSongData.length) + 1)
@@ -313,6 +339,13 @@ const Board = () => {
     return avgScore.toFixed(2)
   }
 
+  // 레벨 그룹 정의
+  const levelGroups = [
+    { name: '1~10', levels: Array.from({ length: 10 }, (_, i) => String(i + 1)) },
+    { name: '11~20', levels: Array.from({ length: 10 }, (_, i) => String(i + 11)) },
+    { name: '21~30', levels: Array.from({ length: 10 }, (_, i) => String(i + 21)) },
+  ]
+
   return (
     <React.Fragment>
       <Head>
@@ -328,7 +361,7 @@ const Board = () => {
           {/* 통계 섹션 */}
           {!isLoading ? (
             <div className="tw-flex tw-gap-4">
-              <div className="[text-shadow:_2px_2px_2px_rgb(0_0_0_/_90%),_4px_4px_4px_rgb(0_0_0_/_60%)] tw-relative tw-w-2/3 tw-h-[22rem] tw-rounded-lg tw-overflow-hidden">
+              <div className="[text-shadow:_2px_2px_2px_rgb(0_0_0_/_90%),_4px_4px_4px_rgb(0_0_0_/_60%)] tw-relative tw-w-2/3 tw-h-[20rem] tw-rounded-lg tw-overflow-hidden">
                 <Image
                   src={`/images/wjmax/jackets/${wjmaxSongData[randomHeaderBg - 1].folderName}.jpg`}
                   alt="Background"
@@ -343,7 +376,7 @@ const Board = () => {
                         <span className="tw-me-auto tw-flex tw-relative">
                           Button <span className="tw-absolute tw-2xl tw-top-[-12px] tw-right-[-12px]">{String(keyMode).includes('B_PLUS') ? '+' : ''}</span>
                         </span>{' '}
-                        <span className="tw-text-2xl tw-font-bold">{String(keyBoardTitle[board as string]).replace('12~15', '12~15(a.k.a MX)')}</span>
+                        <span className="tw-text-2xl tw-font-bold">{String(keyBoardTitle[board as string])}</span>
                       </span>
                     </div>
 
@@ -406,9 +439,11 @@ const Board = () => {
               {/* 키모드 & 레벨 선택 패널 */}
               <div className="tw-flex tw-flex-col tw-gap-4 tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-shadow-lg tw-p-6 tw-w-1/3">
                 <div className="tw-flex tw-items-center tw-justify-between">
-                  <span className="tw-text-lg tw-font-bold">🎮 성과표 바로가기</span>
+                  <span className="tw-text-lg tw-font-bold">🎮 성과표 필터</span>
                 </div>
 
+                {/* 키모드 설명 */}
+                <div className="tw-text-sm tw-text-gray-400 tw-font-medium">키(버튼) 선택</div>
                 {/* 키모드 선택 버튼 */}
                 <div className="tw-flex tw-gap-2">
                   {['4B', '4B_PLUS', '6B', '6B_PLUS'].map((mode) => (
@@ -428,20 +463,49 @@ const Board = () => {
                 </div>
 
                 {/* 레벨 선택 그리드 */}
-                <div className="tw-grid tw-grid-cols-4 tw-gap-2 tw-flex-1">
-                  {['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20'].map((level) => (
-                    <Link
-                      key={`level_${level}`}
-                      href={`/projectRa/wjmax/board/${keyMode}/${level}`}
-                      className={`tw-flex tw-items-center tw-justify-center tw-relative tw-px-3 tw-py-1.5 tw-border tw-border-opacity-50 tw-transition-all tw-duration-500 tw-rounded-md ${
-                        level === board
-                          ? 'tw-border-blue-500 tw-bg-blue-900 tw-bg-opacity-20 tw-brightness-150'
-                          : 'tw-border-gray-600 tw-opacity-50 hover:tw-border-blue-400 hover:tw-bg-gray-700 hover:tw-bg-opacity-30 hover:tw-opacity-100'
-                      }`}
+                <div className="tw-flex tw-flex-col tw-gap-2">
+                  {/* 난이도 범위 설명 */}
+                  <div className="tw-text-sm tw-text-gray-400 tw-font-medium">레벨</div>
+                  {/* 난이도 선택 탭 */}
+                  <div className="tw-flex tw-gap-2 tw-mb-1">
+                    {levelGroups.map((group) => (
+                      <button
+                        key={group.name}
+                        onClick={() => setSelectedDifficulty(group.name as '1~10' | '11~20' | '21~30')}
+                        className={`tw-flex-1 tw-px-4 tw-py-1.5 tw-rounded-md tw-text-sm tw-font-medium tw-transition-all
+                          ${
+                            selectedDifficulty === group.name
+                              ? 'tw-bg-blue-900/50 tw-text-blue-200 tw-border tw-border-blue-500'
+                              : 'tw-bg-gray-800/30 hover:tw-bg-gray-700/50 tw-text-gray-400'
+                          }`}
+                      >
+                        Lv.{group.name}
+                      </button>
+                    ))}
+                  </div>
+                  {/* 선택된 난이도의 레벨 그리드 */}
+                  {levelGroups.map((group) => (
+                    <div
+                      key={group.name}
+                      className={`tw-grid tw-grid-cols-5 tw-gap-1 tw-transition-all tw-duration-300
+                        ${selectedDifficulty === group.name ? 'tw-block' : 'tw-hidden'}`}
                     >
-                      <div className={`tw-absolute tw-w-full tw-h-full tw-opacity-30`} />
-                      <span className="tw-relative tw-text-sm tw-font-bold">{keyBoardTitle[level]}</span>
-                    </Link>
+                      {group.levels.map((level) => (
+                        <Link
+                          key={`level_${level}`}
+                          href={`/projectRa/wjmax/board/${keyMode}/${level}`}
+                          className={`tw-flex tw-items-center tw-justify-center tw-relative tw-h-8 
+                            tw-transition-all tw-duration-300 tw-rounded-md 
+                            ${
+                              level === board
+                                ? 'tw-bg-blue-900/50 tw-text-blue-200 tw-border tw-border-blue-500'
+                                : 'tw-bg-gray-800/30 hover:tw-bg-gray-700/50 tw-text-gray-400'
+                            } tw-text-sm tw-font-medium`}
+                        >
+                          Lv.{level}
+                        </Link>
+                      ))}
+                    </div>
                   ))}
                 </div>
               </div>

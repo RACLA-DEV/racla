@@ -23,6 +23,7 @@ import { useNotificationSystem } from '@/libs/client/useNotifications'
 import { useInView } from 'react-intersection-observer'
 import dynamic from 'next/dynamic'
 import { useRouter } from 'next/router'
+import { debounce } from 'lodash'
 
 // 동적 임포트로 ScorePopupComponent 지연 로딩
 const ScorePopupComponent = dynamic(() => import('@/components/score/ScorePopupComponent'), {
@@ -338,22 +339,90 @@ export default function VArchiveDbPage() {
         return
       }
 
-      // 키보드 단축키
       if (e.key.toLowerCase() === 'f') {
         e.preventDefault()
         searchInputRef.current?.focus()
-      } else if (e.key === 'g') {
-        e.preventDefault()
-        setViewMode(viewMode === 'grid' ? 'list' : 'grid')
-      } else if (e.key === 's') {
-        e.preventDefault()
-        setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
       }
     }
 
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [viewMode, sortOrder])
+  }, [])
+
+  // 스크롤 중인지 감지하는 상태 추가
+  const [isScrolling, setIsScrolling] = useState(false)
+  const scrollTimer = useRef(null)
+  const lastMousePositionRef = useRef({ x: 0, y: 0 })
+
+  // 프리뷰 BGA 변경을 위한 디바운스된 함수
+  const debouncedSetBgaName = useMemo(
+    () =>
+      debounce((title: string) => {
+        // title이 0이거나 다른 유효한 값인 경우
+        dispatch(setBackgroundBgaName(title))
+      }, 300),
+    [dispatch, songData],
+  )
+
+  // 스크롤 핸들러 수정
+  const handleScroll = () => {
+    // 스크롤 시작시 호버 효과 제거
+    setHoveredTitle(null)
+    setIsScrolling(true)
+
+    if (scrollTimer.current) {
+      clearTimeout(scrollTimer.current)
+    }
+
+    scrollTimer.current = setTimeout(() => {
+      setIsScrolling(false)
+      // 스크롤이 끝난 후 마우스 위치의 엘리먼트 찾기
+      const element = document.elementFromPoint(lastMousePositionRef.current.x, lastMousePositionRef.current.y)
+      // 해당 엘리먼트의 가장 가까운 곡 아이템 컨테이너 찾기
+      const songContainer = element?.closest('[data-song-title]')
+      if (songContainer) {
+        const songTitle = songContainer.getAttribute('data-song-title')
+        setHoveredTitle(songTitle) // 스크롤 끝나면 즉시 호버 상태 적용
+        debouncedSetBgaName(songTitle) // BGA는 디바운스 적용
+      }
+    }, 100)
+  }
+
+  // 마우스 이동 핸들러 추가
+  const handleMouseMove = (e: MouseEvent) => {
+    lastMousePositionRef.current = { x: e.clientX, y: e.clientY }
+  }
+
+  // 호버 핸들러 수정
+  const handleMouseEnter = (songItem) => {
+    if (!isScrolling) {
+      setHoveredTitle(songItem.title)
+      debouncedSetBgaName(songItem.title)
+    }
+  }
+
+  const handleMouseLeave = () => {
+    if (!isScrolling) {
+      setHoveredTitle(null)
+      dispatch(setBackgroundBgaName(''))
+      debouncedSetBgaName.cancel()
+    }
+  }
+
+  useEffect(() => {
+    const scrollContainer = document.querySelector('.tw-overflow-y-auto')
+    if (scrollContainer) {
+      scrollContainer.addEventListener('scroll', handleScroll)
+      document.addEventListener('mousemove', handleMouseMove)
+      return () => {
+        scrollContainer.removeEventListener('scroll', handleScroll)
+        document.removeEventListener('mousemove', handleMouseMove)
+        if (scrollTimer.current) {
+          clearTimeout(scrollTimer.current)
+        }
+      }
+    }
+  }, [])
 
   return (
     selectedGame === 'djmax_respect_v' && (
@@ -547,17 +616,16 @@ export default function VArchiveDbPage() {
                     ) : (
                       <div
                         key={songItem.title}
-                        ref={songItemIndex === selectedSongIndex ? selectedSongRef : null}
-                        onClick={() => router.push(`/vArchive/db/title/${songItem.title}`)}
+                        data-song-title={songItem.title}
                         className={`
                 tw-flex tw-items-center tw-gap-4 tw-p-2 tw-border-b tw-border-gray-700 
                 tw-relative tw-overflow-hidden
                 tw-cursor-pointer
-                hover:tw-bg-transparent
-                ${viewMode === 'list' && selectedSongIndex === songItemIndex ? 'tw-bg-transparent' : 'hover:tw-bg-transparent'}
+                ${hoveredTitle === songItem.title ? 'tw-bg-gray-700 tw-bg-opacity-30' : ''}
+                hover:tw-bg-gray-700 hover:tw-bg-opacity-30
               `}
-                        onMouseEnter={() => setHoveredTitle(songItem.title)}
-                        onMouseLeave={() => setHoveredTitle(null)}
+                        onMouseEnter={() => handleMouseEnter(songItem)}
+                        onMouseLeave={handleMouseLeave}
                       >
                         {/* 애니메이션 배경 레이어 */}
                         <div

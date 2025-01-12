@@ -2,8 +2,8 @@
   "private": true,
   "name": "r-archive-electron-app",
   "description": "R-ARCHIVE for Desktop",
-  "version": "0.7.0",
-  "author": "Developed by R-ARCHIVE Team <admin@r-archive.zip> & GGDRN0 STUDIO <ggdrn0@gmail.com>. Produced by LunaticaLuna <luna@lunatica.kr>.",
+  "version": "0.7.2",
+  "author": "Developed by R-ARCHIVE Team <admin@r-archive.zip> & GGDRN0 STUDIO <admin@gongroin.com>. Produced by LunaticaLuna <luna@lunatica.kr>.",
   "main": "app/background.js",
   "workspaces": [
     "web"
@@ -21,6 +21,8 @@
     "url": "https://github.com/Lunatica-Luna/project-ra.git"
   },
   "dependencies": {
+    "@ckeditor/ckeditor5-build-classic": "^44.1.0",
+    "@ckeditor/ckeditor5-react": "^9.4.0",
     "@headlessui/react": "^2.2.0",
     "@loadable/component": "^5.16.4",
     "@popperjs/core": "^2.11.8",

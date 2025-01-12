@@ -9,6 +9,8 @@ import axios from 'axios'
 import { useNotificationSystem } from '@/libs/client/useNotifications'
 import Modal from '@/components/common/Modal'
 import moment from 'moment'
+import { CKEditor } from '@ckeditor/ckeditor5-react'
+import ClassicEditor from '@ckeditor/ckeditor5-build-classic'
 
 interface Bug {
   id: number
@@ -58,6 +60,7 @@ export default function BugList() {
         ...pagination,
         current: data.pageNo + 1,
         total: data.totalElements,
+        pageSize: data.pageSize,
       })
     } catch (error) {
       showNotification('피드백 리스트를 가져오는 중에 오류가 발생했습니다.', 'tw-bg-red-600')
@@ -123,6 +126,51 @@ export default function BugList() {
   }
 
   const fontFamily = useSelector((state: RootState) => state.ui.fontFamily)
+
+  const customUploadAdapter = (loader) => {
+    return {
+      upload() {
+        return new Promise((resolve, reject) => {
+          const formData = new FormData()
+
+          loader.file.then((file) => {
+            formData.append('file', file)
+
+            axios
+              .post(`${process.env.NEXT_PUBLIC_API_URL}/v1/upload`, formData, {
+                headers: {
+                  Authorization: `${userData.userNo}|${userData.userToken}`,
+                  'Content-Type': 'multipart/form-data',
+                },
+                withCredentials: true,
+              })
+              .then((response) => {
+                resolve({
+                  default: response.data.url,
+                })
+              })
+              .catch((error) => reject(error))
+          })
+        })
+      },
+    }
+  }
+
+  function uploadPlugin(editor) {
+    editor.plugins.get('FileRepository').createUploadAdapter = (loader) => customUploadAdapter(loader)
+  }
+
+  const editorConfiguration = {
+    licenseKey: 'GPL',
+    toolbar: ['heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', '|', 'uploadImage', '|', 'undo', 'redo'],
+    extraPlugins: [uploadPlugin],
+    placeholder: '내용을 입력하세요',
+    image: {
+      upload: {
+        types: ['jpeg', 'png', 'gif', 'jpg'],
+      },
+    },
+  }
 
   return (
     <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="tw-flex tw-flex-col tw-gap-4">
@@ -236,7 +284,7 @@ export default function BugList() {
 
         <div className="tw-mt-6 tw-flex tw-justify-center">
           <div className="tw-flex tw-gap-2">
-            {Array.from({ length: Math.ceil(pagination.total / pagination.pageSize) }).map((_, i) => (
+            {Array.from({ length: Math.max(1, Math.ceil(pagination.total / pagination.pageSize)) }).map((_, i) => (
               <button
                 key={i}
                 onClick={() => fetchBugs(i)}
@@ -251,8 +299,8 @@ export default function BugList() {
         </div>
 
         <Modal isOpen={isModalVisible} onClose={() => setIsModalVisible(false)} title="피드백 작성하기">
-          <div className="tw-space-y-4">
-            <div>
+          <div className="tw-flex tw-flex-col tw-h-full">
+            <div className="tw-shrink-0 tw-mb-4">
               <label className="tw-block tw-mb-2">제목</label>
               <input
                 type="text"
@@ -262,16 +310,23 @@ export default function BugList() {
                 placeholder="제목을 입력하세요"
               />
             </div>
-            <div>
+
+            <div className="tw-flex-1 tw-min-h-0">
               <label className="tw-block tw-mb-2">내용</label>
-              <textarea
-                value={newBug.description}
-                onChange={(e) => setNewBug({ ...newBug, description: e.target.value })}
-                className="tw-w-full tw-bg-gray-700 tw-rounded tw-px-3 tw-py-2 focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-blue-500 tw-min-h-[100px]"
-                placeholder="내용을 입력하세요"
-              />
+              <div className="tw-h-full tw-bg-gray-700 tw-rounded tw-overflow-y-auto">
+                <CKEditor
+                  editor={ClassicEditor}
+                  data={newBug.description}
+                  config={editorConfiguration}
+                  onChange={(event, editor) => {
+                    const data = editor.getData()
+                    setNewBug({ ...newBug, description: data })
+                  }}
+                />
+              </div>
             </div>
-            <div className="tw-flex tw-justify-end tw-gap-2">
+
+            <div className="tw-shrink-0 tw-mt-4 tw-flex tw-justify-end tw-gap-2">
               <button onClick={() => setIsModalVisible(false)} className="tw-px-4 tw-py-2 tw-bg-gray-700 tw-rounded hover:tw-bg-gray-600 tw-transition-colors">
                 취소
               </button>

@@ -15,6 +15,7 @@ import { RootState } from 'store'
 import { useState, useEffect, useCallback } from 'react'
 import { setBackgroundBgaName } from 'store/slices/uiSlice'
 import axios from 'axios'
+import { useInView } from 'react-intersection-observer'
 
 interface RaScorePopupComponentProps {
   songItem?: any
@@ -58,6 +59,15 @@ const RaScorePopupComponent = ({
   const [isHovered, setIsHovered] = useState<boolean>(false)
   const [showScore, setShowScore] = useState<boolean>(false)
   const [mounted, setMounted] = useState<boolean>(false)
+  const [imageLoaded, setImageLoaded] = useState(false)
+  const { ref, inView } = useInView({
+    threshold: 0,
+    triggerOnce: true,
+  })
+
+  const handleImageLoad = useCallback(() => {
+    setImageLoaded(true)
+  }, [])
 
   useEffect(() => {
     let isMounted = true
@@ -156,7 +166,7 @@ const RaScorePopupComponent = ({
     setIsHovered(true)
     onMouseEnter?.()
     if (songItem) {
-      dispatch(setBackgroundBgaName(String(`${songItem.folderName}_preview`)))
+      dispatch(setBackgroundBgaName(String(`${songItem?.folderName}_preview`)))
     }
   }
 
@@ -173,6 +183,7 @@ const RaScorePopupComponent = ({
     HD: '엔젤',
     MX: '왁굳',
     SC: '민수',
+    DPC: '거짓말',
   }
 
   return (
@@ -199,7 +210,8 @@ const RaScorePopupComponent = ({
                   loading="lazy" // "lazy" | "eager"
                   blurDataURL={globalDictionary.blurDataURL}
                   src={`/images/${selectedGame}/jackets/${
-                    wjmaxSongData[Number(songItem ? String(songItem.title).replace('10000', '') : String(songItemTitle).replace('10000', ''))].folderName
+                    wjmaxSongData.filter((song) => song.title === Number(songItem ? String(songItem.title) : String(songItemTitle)))?.[0]?.folderName
+                    // wjmaxSongData[Number(songItem ? String(songItem.title).replace('10000', '') : String(songItemTitle).replace('10000', ''))]?.folderName
                   }.jpg`}
                   className="tw-absolute tw-animate-fadeInLeft tw-rounded-md tw-blur tw-brightness-50 tw-bg-opacity-90"
                   fill
@@ -207,7 +219,8 @@ const RaScorePopupComponent = ({
                   style={{ objectFit: 'cover' }}
                 />
                 <span className="tw-absolute tw-left-0 tw-bottom-0 tw-px-2 tw-font-bold tw-text-left tw-break-keep">
-                  <span className="tw-font-medium tw-text-md">{displayData?.composer}</span>
+                  <span className="tw-font-medium tw-text-md">{displayData?.artist ? displayData?.artist : displayData?.composer}</span>
+
                   <br />
                   <span className="tw-text-xl">{displayData?.name}</span>
                 </span>
@@ -217,7 +230,7 @@ const RaScorePopupComponent = ({
               </div>
               <div className="tw-flex tw-flex-col tw-gap-2 tw-w-80 tw-p-2 tw-rounded-md tw-mb-1 tw-bg-gray-700 tw-bg-opacity-20">
                 {displayData?.patterns[`${keyMode}B`] !== undefined
-                  ? ['NM', 'HD', 'MX', 'SC'].map(
+                  ? ['NM', 'HD', 'MX', 'SC', 'DPC'].map(
                       (value, difficultyIndex) =>
                         displayData?.patterns[`${keyMode}B${String(judgementType) == 'HARD' || String(judgementType) == '1' ? '_PLUS' : ''}`]?.[value] !==
                           undefined &&
@@ -235,6 +248,8 @@ const RaScorePopupComponent = ({
                                     ? 'tw-text-wjmax-mx'
                                     : value === 'SC'
                                     ? 'tw-text-wjmax-sc'
+                                    : value === 'DPC'
+                                    ? 'tw-text-wjmax-dpc'
                                     : ''
                                 }`}
                               >
@@ -300,13 +315,15 @@ const RaScorePopupComponent = ({
                                       : '0%',
                                     backgroundColor:
                                       value === 'NM'
-                                        ? '#ffb401' // wjmax-nm
+                                        ? '#c79b61' // wjmax-nm
                                         : value === 'HD'
                                         ? '#9696ff' // wjmax-hd
                                         : value === 'MX'
                                         ? '#78ff91' // wjmax-mx
                                         : value === 'SC'
                                         ? '#ff4c4c' // wjmax-sc
+                                        : value === 'DPC'
+                                        ? '#ffb401' // wjmax-dpc
                                         : '', // wjmax-sc-15
                                   }}
                                 />
@@ -336,7 +353,7 @@ const RaScorePopupComponent = ({
                     loading="lazy" // "lazy" | "eager"
                     blurDataURL={globalDictionary.blurDataURL}
                     src={`/images/${selectedGame}/jackets/${
-                      wjmaxSongData[Number(songItem ? String(songItem.title).replace('10000', '') : String(songItemTitle).replace('10000', ''))].folderName
+                      wjmaxSongData.filter((song) => song.title === Number(songItem ? String(songItem.title) : String(songItemTitle)))?.[0]?.folderName
                     }.jpg`}
                     className="tw-absolute tw-animate-fadeInLeft tw-rounded-md tw-blur tw-brightness-50 tw-bg-opacity-90"
                     fill
@@ -353,7 +370,7 @@ const RaScorePopupComponent = ({
                   </span>
                 </div>
                 <div className="tw-flex tw-flex-col tw-gap-2 tw-w-80 tw-p-2 tw-rounded-md tw-mb-1 tw-bg-gray-700 tw-bg-opacity-20">
-                  {['NM', 'HD', 'MX', 'SC'].map(
+                  {['NM', 'HD', 'MX', 'SC', 'DPC'].map(
                     (value, difficultyIndex) =>
                       rivalSongData.patterns[`${keyMode}B${String(judgementType) == 'HARD' || String(judgementType) == '1' ? '_PLUS' : ''}`][value] !==
                         undefined &&
@@ -371,6 +388,8 @@ const RaScorePopupComponent = ({
                                   ? 'tw-text-wjmax-mx'
                                   : value === 'SC'
                                   ? 'tw-text-wjmax-sc'
+                                  : value === 'DPC'
+                                  ? 'tw-text-wjmax-dpc'
                                   : ''
                               }`}
                             >
@@ -436,13 +455,15 @@ const RaScorePopupComponent = ({
                                     : '0%',
                                   backgroundColor:
                                     value === 'NM'
-                                      ? '#ffb401' // wjmax-nm
+                                      ? '#c79b61' // wjmax-nm
                                       : value === 'HD'
                                       ? '#9696ff' // wjmax-hd
                                       : value === 'MX'
                                       ? '#78ff91' // wjmax-mx
                                       : value === 'SC'
                                       ? '#ff4c4c' // wjmax-sc
+                                      : value === 'DPC'
+                                      ? '#ffb401' // wjmax-dpc
                                       : '', // wjmax-sc
                                 }}
                               />
@@ -468,7 +489,7 @@ const RaScorePopupComponent = ({
         </Tooltip>
       }
     >
-      <div className="tw-inline-flex tw-flex-col tw-transition-all" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+      <div ref={ref} className="tw-inline-flex tw-flex-col tw-transition-all" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
         <Link
           href={`/projectRa/${selectedGame}/db/title/${displayData?.title ?? songItemTitle}`}
           className="tw-relative tw-rounded-md hover-scale-110 wjmax_record tw-cursor-pointer tw-overflow-hidden"
@@ -478,17 +499,20 @@ const RaScorePopupComponent = ({
           }}
         >
           <div className="tw-w-full tw-h-full">
-            <Image
-              loading="lazy"
-              blurDataURL={globalDictionary.blurDataURL}
-              src={`/images/${selectedGame}/jackets/${
-                wjmaxSongData[Number(songItem ? String(songItem.title).replace('10000', '') : String(songItemTitle).replace('10000', ''))].folderName
-              }.jpg`}
-              className="tw-rounded-md tw-shadow-lg"
-              fill
-              style={{ objectFit: 'cover' }}
-              alt=""
-            />
+            {inView && (
+              <Image
+                loading="lazy"
+                blurDataURL={globalDictionary.blurDataURL}
+                src={`/images/${selectedGame}/jackets/${
+                  wjmaxSongData.filter((song) => song.title === Number(songItem ? String(songItem.title) : String(songItemTitle)))?.[0]?.folderName
+                }.jpg`}
+                className={`tw-rounded-md tw-shadow-lg ${imageLoaded ? 'tw-animate-fadeIn' : 'tw-opacity-0'}`}
+                fill
+                style={{ objectFit: 'cover' }}
+                alt=""
+                onLoad={handleImageLoad}
+              />
+            )}
           </div>
           {isVisibleCode ? (
             <span className="tw-absolute tw-top-0 tw-left-0 wjmax_dlc_code_wrap tw-rounded-tl-md">
@@ -497,7 +521,9 @@ const RaScorePopupComponent = ({
           ) : null}
           {displayData?.pattern && (
             <span className={`tw-absolute tw-right-0 tw-bottom-0 pattern wjmax tw-rounded-br-md ${displayData.pattern}`}>
-              <span className={`tw-text-white`}>{patternToName[String(displayData.pattern)]}</span>
+              <span className={`tw-text-white`}>
+                {patternToName[String(displayData.pattern)]} {Number(displayData.level).toFixed(1)}
+              </span>
             </span>
           )}
         </Link>

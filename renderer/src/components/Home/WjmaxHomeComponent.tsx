@@ -82,6 +82,16 @@ export default function WjmaxHomeComponent() {
     '18',
     '19',
     '20',
+    '21',
+    '22',
+    '23',
+    '24',
+    '25',
+    '26',
+    '27',
+    '28',
+    '29',
+    '30',
   ])
 
   const [selectedKeyMode, setSelectedKeyMode] = useState<string>('4B')
@@ -281,27 +291,19 @@ export default function WjmaxHomeComponent() {
       if (value <= 5) return 'nm'
       if (value <= 10) return 'hd'
       if (value <= 15) return 'mx'
-      return 'sc' // 15보다 큰 값도 모두 15로 처리
+      if (value <= 20) return 'sc'
+      return 'dpc' // 15보다 큰 값도 모두 15로 처리
     }
 
-    if (pattern.floor != null && pattern.floor != 0) {
-      const floorGroup = getFloorGroup(pattern.floor)
-      return (
-        <span className={`tw-flex tw-gap-2 tw-font-extrabold tw-items-center tw-text-wjmax-${floorGroup}`}>
-          <Image src={`/images/wjmax/nm_${floorGroup}_star.png`} alt="difficulty" width={16} height={16} className="tw-w-4 tw-h-4" />
-          <span className="tw-font-extrabold tw-mb-0.5">{`${pattern.floor}`}F</span>
-        </span>
-      )
-    }
     if (pattern.level != null) {
       return (
         <span className={`tw-flex tw-gap-2 tw-font-extrabold tw-items-center tw-text-wjmax-${getFloorGroup(pattern.level)}`}>
           <Image
             src={`/images/wjmax/nm_${Math.ceil((pattern.level || 0) / 5) * 5}_star.png`}
             alt="difficulty"
-            width={16}
-            height={16}
-            className="tw-w-4 tw-h-4"
+            width={pattern.level > 20 ? 16 : 20}
+            height={pattern.level > 20 ? 16 : 20}
+            className={pattern.level > 20 ? 'tw-w-4 tw-h-4' : 'tw-w-5 tw-h-5'}
           />
           <span className="tw-font-extrabold tw-mb-0.5">{`${Number(pattern.level).toFixed(1)}`}</span>
         </span>
@@ -311,53 +313,26 @@ export default function WjmaxHomeComponent() {
   }
 
   const getHighestLevelInfo = (patterns: Pattern[], condition: (pattern: Pattern) => boolean) => {
-    // 조건에 맞는 패턴들만 터
+    // 조건에 맞는 패턴들만 필터링
     const filteredPatterns = patterns.filter(condition)
-
-    // wjmaxSongData에서 올바른 floor 값을 가져와서 패턴 정보 업데이트
-    const updatedPatterns = filteredPatterns.map((pattern) => {
-      // wjmaxSongData에서 해당 곡 찾기
-      const song = wjmaxSongData.find((s) => s.title === pattern.title)
-      if (!song) return { ...pattern, floor: 0 }
-
-      // 해당 키모드의 패턴 정보 찾기
-      const keyModePatterns = song.patterns[`${selectedKeyMode}B`]
-      if (!keyModePatterns) return { ...pattern, floor: 0 }
-
-      // pattern key에 해당하는 floor 값 찾기
-      const patternInfo = keyModePatterns[pattern.pattern]
-      if (!patternInfo) return { ...pattern, floor: 0 }
-
-      // floor 값이 있으면 사용, 없으면 0
-      return {
-        ...pattern,
-        floor: patternInfo.floor || 0,
-      }
-    })
 
     // 패턴의 난이도를 비교하는 함수
     const compareDifficulty = (a: Pattern, b: Pattern) => {
-      // SC 패턴 (floor가 있는 경우)
-      const aFloor = a.floor !== null && a.floor !== undefined ? Number(a.floor) : -1
-      const bFloor = b.floor !== null && b.floor !== undefined ? Number(b.floor) : -1
+      const aLevel = Number(a.level || 0).toFixed(1)
+      const bLevel = Number(b.level || 0).toFixed(1)
 
-      // 둘 다 SC 패턴인 경우 floor로 비교
-      if (aFloor >= 0 && bFloor >= 0) {
-        return bFloor - aFloor
+      // level이 같은 경우 score로 비교
+      if (aLevel === bLevel) {
+        const aScore = Number(a.score || 0)
+        const bScore = Number(b.score || 0)
+        return bScore - aScore
       }
 
-      // SC 패턴이 있는 경우 SC 패턴 우선
-      if (aFloor >= 0) return -1
-      if (bFloor >= 0) return 1
-
-      // 둘 다 일반 패턴인 경우 level로 비교
-      const aLevel = a.level || 0
-      const bLevel = b.level || 0
-      return bLevel - aLevel
+      return Number(bLevel) - Number(aLevel)
     }
 
     // 난이도 순으로 정렬하고 가장 높은 난이도의 패턴 반환
-    return updatedPatterns.sort(compareDifficulty)[0]
+    return filteredPatterns.sort(compareDifficulty)[0]
   }
 
   const [randomHeaderBg, setRandomHeaderBg] = useState(Math.floor(Math.random() * wjmaxSongData.length) + 1)
@@ -465,76 +440,6 @@ export default function WjmaxHomeComponent() {
               {/* 패널들 - 래퍼 제거하고 직접 배치 */}
               <div className="tw-flex tw-gap-4 stats-section">
                 <div className="tw-flex tw-flex-col tw-gap-4 tw-w-3/5">
-                  {/* Total Overall Panel */}
-                  <div className="tw-flex tw-flex-col tw-gap-4">
-                    <div className="tw-flex tw-justify-between tw-items-end tw-bg-gray-800 tw-bg-opacity-40 tw-rounded-lg tw-p-4">
-                      <div className="tw-flex tw-flex-col">
-                        <span className="tw-text-xl tw-font-bold">전체 통계</span>
-                      </div>
-                    </div>
-
-                    <div className="tw-bg-gray-800 tw-bg-opacity-40 tw-rounded-lg tw-p-4 tw-pb-8">
-                      {/* 상단 통계 요약 */}
-                      <div className="tw-grid tw-grid-cols-3 tw-gap-2 tw-mb-8">
-                        {[
-                          { key: 'maxCombo', label: '맥스 콤보', color: 'tw-text-green-500' },
-                          { key: 'perfect', label: '퍼펙트', color: 'tw-text-red-500' },
-                          { key: 'clear', label: '클리어', color: 'tw-text-blue-500' },
-                        ].map(({ key, label, color }) => (
-                          <div key={key} className="tw-text-center tw-p-4 tw-bg-gray-950 tw-bg-opacity-50 tw-rounded-lg">
-                            <div className={`tw-text-lg tw-font-bold ${color}`}>{totalStats[key]}</div>
-                            <div className="tw-text-xs tw-text-gray-400">{label}</div>
-                          </div>
-                        ))}
-                      </div>
-
-                      {/* 도넛 차트 */}
-                      <div className="tw-relative tw-w-full tw-h-44 tw-flex tw-items-center tw-justify-center">
-                        <div className="tw-absolute tw-top-1/2 tw-left-1/2 tw-transform -tw-translate-x-1/2 -tw-translate-y-1/2 tw-text-center tw-w-20 tw-h-20 tw-bg-gray-950 tw-bg-opacity-50 tw-rounded-full tw-p-4 tw-pointer-events-none tw-z-0">
-                          <div className="tw-text-lg tw-font-bold">{totalStats.totalPatterns}</div>
-                          <div className="tw-text-sm tw-text-gray-300">전체</div>
-                        </div>
-
-                        <div className="tw-relative tw-z-10 tw-w-full tw-h-full">
-                          <Doughnut
-                            data={{
-                              labels: ['MAX COMBO', 'PERFECT', '99.9%+', '99.5%+', '99.0%+', '97.0%+', 'CLEAR'],
-                              datasets: [
-                                {
-                                  data: [totalStats.maxCombo, totalStats.perfect, totalStats.clear],
-                                  backgroundColor: ['rgba(34, 197, 94, 0.8)', 'rgba(239, 68, 68, 0.8)', 'rgba(59, 130, 246, 0.8)'],
-                                  borderColor: ['rgba(34, 197, 94, 1)', 'rgba(239, 68, 68, 1)', 'rgba(59, 130, 246, 1)'],
-                                  borderWidth: 1,
-                                },
-                              ],
-                            }}
-                            options={{
-                              responsive: true,
-                              maintainAspectRatio: false,
-                              cutout: '60%',
-                              plugins: {
-                                legend: {
-                                  display: false,
-                                },
-                                tooltip: {
-                                  position: 'nearest',
-                                  callbacks: {
-                                    label: (context: any) => {
-                                      const label = context.label || ''
-                                      const value = context.raw || 0
-                                      const percentage = ((value / totalStats.totalPatterns) * 100).toFixed(1)
-                                      return `${label}: ${value} (${percentage}%)`
-                                    },
-                                  },
-                                },
-                              },
-                            }}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
                   {/* Button Mode Panel */}
                   <div className="tw-flex tw-flex-col tw-gap-4">
                     <div className="tw-flex tw-justify-between tw-items-end tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-shadow-lg tw-p-4">
@@ -624,6 +529,75 @@ export default function WjmaxHomeComponent() {
                                       const label = context.label || ''
                                       const value = context.raw || 0
                                       const percentage = ((value / calculateStats(keyModeData[selectedKeyMode]).total) * 100).toFixed(1)
+                                      return `${label}: ${value} (${percentage}%)`
+                                    },
+                                  },
+                                },
+                              },
+                            }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  {/* Total Overall Panel */}
+                  <div className="tw-flex tw-flex-col tw-gap-4">
+                    <div className="tw-flex tw-justify-between tw-items-end tw-bg-gray-800 tw-bg-opacity-40 tw-rounded-lg tw-p-4">
+                      <div className="tw-flex tw-flex-col">
+                        <span className="tw-text-xl tw-font-bold">전체 통계</span>
+                      </div>
+                    </div>
+
+                    <div className="tw-bg-gray-800 tw-bg-opacity-40 tw-rounded-lg tw-p-4 tw-pb-8">
+                      {/* 상단 통계 요약 */}
+                      <div className="tw-grid tw-grid-cols-3 tw-gap-2 tw-mb-8">
+                        {[
+                          { key: 'maxCombo', label: '맥스 콤보', color: 'tw-text-green-500' },
+                          { key: 'perfect', label: '퍼펙트', color: 'tw-text-red-500' },
+                          { key: 'clear', label: '클리어', color: 'tw-text-blue-500' },
+                        ].map(({ key, label, color }) => (
+                          <div key={key} className="tw-text-center tw-p-4 tw-bg-gray-950 tw-bg-opacity-50 tw-rounded-lg">
+                            <div className={`tw-text-lg tw-font-bold ${color}`}>{totalStats[key]}</div>
+                            <div className="tw-text-xs tw-text-gray-400">{label}</div>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* 도넛 차트 */}
+                      <div className="tw-relative tw-w-full tw-h-44 tw-flex tw-items-center tw-justify-center">
+                        <div className="tw-absolute tw-top-1/2 tw-left-1/2 tw-transform -tw-translate-x-1/2 -tw-translate-y-1/2 tw-text-center tw-w-20 tw-h-20 tw-bg-gray-950 tw-bg-opacity-50 tw-rounded-full tw-p-4 tw-pointer-events-none tw-z-0">
+                          <div className="tw-text-lg tw-font-bold">{totalStats.totalPatterns}</div>
+                          <div className="tw-text-sm tw-text-gray-300">전체</div>
+                        </div>
+
+                        <div className="tw-relative tw-z-10 tw-w-full tw-h-full">
+                          <Doughnut
+                            data={{
+                              labels: ['MAX COMBO', 'PERFECT', '99.9%+', '99.5%+', '99.0%+', '97.0%+', 'CLEAR'],
+                              datasets: [
+                                {
+                                  data: [totalStats.maxCombo, totalStats.perfect, totalStats.clear],
+                                  backgroundColor: ['rgba(34, 197, 94, 0.8)', 'rgba(239, 68, 68, 0.8)', 'rgba(59, 130, 246, 0.8)'],
+                                  borderColor: ['rgba(34, 197, 94, 1)', 'rgba(239, 68, 68, 1)', 'rgba(59, 130, 246, 1)'],
+                                  borderWidth: 1,
+                                },
+                              ],
+                            }}
+                            options={{
+                              responsive: true,
+                              maintainAspectRatio: false,
+                              cutout: '60%',
+                              plugins: {
+                                legend: {
+                                  display: false,
+                                },
+                                tooltip: {
+                                  position: 'nearest',
+                                  callbacks: {
+                                    label: (context: any) => {
+                                      const label = context.label || ''
+                                      const value = context.raw || 0
+                                      const percentage = ((value / totalStats.totalPatterns) * 100).toFixed(1)
                                       return `${label}: ${value} (${percentage}%)`
                                     },
                                   },

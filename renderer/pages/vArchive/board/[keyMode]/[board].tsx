@@ -108,6 +108,24 @@ const Board = () => {
     top50: 0,
   })
 
+  // 현재 레벨에 따른 난이도 그룹 결정 함수
+  const getDifficultyByLevel = (level: string) => {
+    if (level.startsWith('SC')) return 'SC'
+    return 'NORMAL'
+  }
+
+  // state 추가
+  const [selectedDifficulty, setSelectedDifficulty] = useState<'NORMAL' | 'SC'>(() => {
+    return getDifficultyByLevel(board as string)
+  })
+
+  // useEffect로 board 변경 시 난이도 자동 업데이트
+  useEffect(() => {
+    if (board) {
+      setSelectedDifficulty(getDifficultyByLevel(board as string))
+    }
+  }, [board])
+
   // songData에서 현재 keyMode와 board에 해당하는 패턴 데이터 추출
   const processBaseSongData = () => {
     if (!songData || !keyMode) return []
@@ -318,49 +336,45 @@ const Board = () => {
     if (!highlightCondition) return true
 
     const score = typeof pattern.score === 'string' ? parseFloat(pattern.score) : pattern.score
-    if (score === null) return false
 
-    // For inverse highlighting (clicking on the empty part of the bar)
-    if (highlightInverse) {
+    // 기본 하이라이트 조건 확인
+    let matches = false
+
+    if (score === null) {
+      // clear 조건일 때만 특별 처리
+      if (highlightCondition === 'clear') {
+        matches = score > 0
+      }
+    } else {
       switch (highlightCondition) {
         case 'perfect':
-          return score < 100.0
+          matches = score === 100.0
+          break
         case 'over999':
-          return score < 99.9
+          matches = score >= 99.9
+          break
         case 'over995':
-          return score < 99.5
+          matches = score >= 99.5
+          break
         case 'over99':
-          return score < 99.0
+          matches = score >= 99.0
+          break
         case 'over97':
-          return score < 97.0
+          matches = score >= 97.0
+          break
         case 'maxCombo':
-          return pattern.maxCombo !== 1
+          matches = pattern.maxCombo === 1
+          break
         case 'clear':
-          return score === 0 || score === null
+          matches = score > 0
+          break
         default:
-          return true
+          matches = true
       }
     }
 
-    // For normal highlighting (clicking on the filled part of the bar)
-    switch (highlightCondition) {
-      case 'perfect':
-        return score === 100.0
-      case 'over999':
-        return score >= 99.9
-      case 'over995':
-        return score >= 99.5
-      case 'over99':
-        return score >= 99.0
-      case 'over97':
-        return score >= 97.0
-      case 'maxCombo':
-        return pattern.maxCombo === 1
-      case 'clear':
-        return score > 0
-      default:
-        return true
-    }
+    // highlightInverse가 true이면 조건을 반전
+    return highlightInverse ? !matches : matches
   }
 
   // 정렬 함수 추가
@@ -475,7 +489,7 @@ const Board = () => {
             {/* 통계 섹션 */}
             {!isLoading ? (
               <div className="tw-flex tw-gap-4">
-                <div className="[text-shadow:_2px_2px_2px_rgb(0_0_0_/_90%),_4px_4px_4px_rgb(0_0_0_/_60%)] tw-relative tw-w-2/3 tw-h-80 tw-rounded-lg tw-overflow-hidden">
+                <div className="[text-shadow:_2px_2px_2px_rgb(0_0_0_/_90%),_4px_4px_4px_rgb(0_0_0_/_60%)] tw-relative tw-w-2/3 tw-min-h-[20rem] tw-h-full tw-rounded-lg tw-overflow-hidden">
                   <Image
                     src={`/images/djmax_respect_v/header_bg${randomHeaderBg}.jpg`}
                     alt="Background"
@@ -487,7 +501,7 @@ const Board = () => {
                       <div className="tw-flex tw-justify-between tw-items-start">
                         <span className="tw-flex tw-w-full tw-items-end tw-gap-1 tw-text-lg tw-font-bold [text-shadow:_2px_2px_2px_rgb(0_0_0_/_90%),_4px_4px_4px_rgb(0_0_0_/_60%)]">
                           <span className="tw-text-4xl tw-font-bold">{keyMode}</span> <span className="tw-me-auto">Button</span>{' '}
-                          <span className="tw-text-2xl tw-font-bold">{String(keyBoardTitle[board as string]).replace('12~15', '12~15(a.k.a MX)')}</span>
+                          <span className="tw-text-2xl tw-font-bold">{String(keyBoardTitle[board as string])}</span>
                         </span>
                       </div>
 
@@ -550,16 +564,18 @@ const Board = () => {
                 {/* 키모드 & 레벨 선택 패널 */}
                 <div className="tw-flex tw-flex-col tw-gap-4 tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-shadow-lg tw-p-6 tw-w-1/3">
                   <div className="tw-flex tw-items-center tw-justify-between">
-                    <span className="tw-text-lg tw-font-bold">🎮 성과표 바로가기</span>
+                    <span className="tw-text-lg tw-font-bold">🎮 성과표 필터</span>
                   </div>
 
+                  {/* 키모드 설명 */}
+                  <div className="tw-text-sm tw-text-gray-400 tw-font-medium">키(버튼) 선택</div>
                   {/* 키모드 선택 버튼 */}
                   <div className="tw-flex tw-gap-2">
                     {['4', '5', '6', '8'].map((mode) => (
                       <Link
                         key={`mode_${mode}`}
                         href={`/vArchive/board/${mode}/${board}`}
-                        className={`tw-flex tw-items-center tw-justify-center tw-relative tw-px-4 tw-py-2 tw-border tw-border-opacity-50 tw-transition-all tw-duration-500 tw-rounded-md tw-flex-1 ${
+                        className={`tw-flex tw-items-center tw-justify-center tw-relative tw-px-4 tw-py-1 tw-border tw-border-opacity-50 tw-transition-all tw-duration-500 tw-rounded-md tw-flex-1 ${
                           mode === keyMode
                             ? 'tw-border-blue-500 tw-bg-blue-900 tw-bg-opacity-20 tw-brightness-150'
                             : 'tw-border-gray-600 tw-opacity-50 hover:tw-border-blue-400 hover:tw-bg-gray-700 hover:tw-bg-opacity-30 hover:tw-opacity-100'
@@ -572,26 +588,58 @@ const Board = () => {
                   </div>
 
                   {/* 레벨 선택 그리드 */}
-                  <div className="tw-grid tw-grid-cols-4 tw-gap-2 tw-flex-1">
-                    {['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', 'MX', 'SC', 'SC5', 'SC10', 'SC15'].map((level) => (
-                      <Link
-                        key={`level_${level}`}
-                        href={`/vArchive/board/${keyMode}/${level}`}
-                        className={`tw-flex tw-items-center tw-justify-center tw-relative tw-px-3 tw-py-1.5 tw-border tw-border-opacity-50 tw-transition-all tw-duration-500 tw-rounded-md ${
-                          level === board
-                            ? 'tw-border-blue-500 tw-bg-blue-900 tw-bg-opacity-20 tw-brightness-150'
-                            : 'tw-border-gray-600 tw-opacity-50 hover:tw-border-blue-400 hover:tw-bg-gray-700 hover:tw-bg-opacity-30 hover:tw-opacity-100'
-                        }`}
-                      >
-                        <div className={`tw-absolute tw-w-full tw-h-full tw-opacity-30`} />
-                        <span className="tw-relative tw-text-sm tw-font-bold">{keyBoardTitle[level]}</span>
-                      </Link>
-                    ))}
+                  <div className="tw-flex tw-flex-col tw-gap-2">
+                    {/* 난이도 범위 설명 */}
+                    <div className="tw-text-sm tw-text-gray-400 tw-font-medium">레벨</div>
+                    {/* 난이도 선택 탭 */}
+                    <div className="tw-flex tw-gap-2 tw-mb-1">
+                      {['NORMAL', 'SC'].map((group) => (
+                        <button
+                          key={group}
+                          onClick={() => setSelectedDifficulty(group as 'NORMAL' | 'SC')}
+                          className={`tw-flex-1 tw-px-4 tw-py-1.5 tw-rounded-md tw-text-sm tw-font-medium tw-transition-all
+                            ${
+                              selectedDifficulty === group
+                                ? 'tw-bg-blue-900/50 tw-text-blue-200 tw-border tw-border-blue-500'
+                                : 'tw-bg-gray-800/30 hover:tw-bg-gray-700/50 tw-text-gray-400'
+                            }`}
+                        >
+                          {group === 'NORMAL' ? 'NORMAL' : 'SC'}
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* 레벨 선택 설명 */}
+                    {/* <div className="tw-text-sm tw-text-gray-400 tw-font-medium">레벨 선택</div> */}
+                    {/* 선택된 난이도의 레벨 그리드 */}
+                    <div className="tw-grid tw-grid-cols-5 tw-gap-1">
+                      {boards
+                        .filter((level) => {
+                          if (selectedDifficulty === 'NORMAL') return !level.startsWith('SC')
+                          return level.startsWith('SC')
+                        })
+                        .map((level) => (
+                          <Link
+                            key={`level_${level}`}
+                            href={`/vArchive/board/${keyMode}/${level}`}
+                            className={`tw-flex tw-items-center tw-justify-center tw-relative tw-h-8 
+                              tw-transition-all tw-duration-300 tw-rounded-md 
+                              ${
+                                level === board
+                                  ? 'tw-bg-blue-900/50 tw-text-blue-200 tw-border tw-border-blue-500'
+                                  : 'tw-bg-gray-800/30 hover:tw-bg-gray-700/50 tw-text-gray-400'
+                              } tw-text-sm tw-font-medium`}
+                          >
+                            {keyBoardTitle[level]}
+                          </Link>
+                        ))}
+                    </div>
                   </div>
                 </div>
               </div>
             ) : null}
 
+            {/* 컷오프 점수 표시 */}
             {!isLoading && (
               <div className="tw-flex tw-items-center tw-justify-center tw-gap-1 tw-bg-gray-600 tw-bg-opacity-10 tw-rounded-md tw-text-xs tw-p-2 tw-w-full">
                 <span className="tw-p-1 tw-px-4 tw-bg-gray-950 tw-bg-opacity-50 tw-rounded-md tw-font-extrabold tw-text-green-700">NEW 30</span>
