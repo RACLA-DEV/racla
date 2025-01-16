@@ -40,7 +40,7 @@ const FooterComponent = ({ className }: IFooterComponent) => {
                 window.ipc.openBrowser('https://github.com/Lunatica-Luna/project-ra/releases')
               }}
             >
-              R-ARCHIVE 데스크톱 앱 · {globalDictionary.version}
+              RACLA 데스크톱 앱 · {globalDictionary.version}
             </span>
             {/* - <FaTriangleExclamation /> 해당 버전은 개발 중인 화면으로 최종적인 버전이 아닙니다. */}
             {/* - <FaTriangleExclamation /> 개발자 빌드 */}
@@ -51,6 +51,7 @@ const FooterComponent = ({ className }: IFooterComponent) => {
         <>
           {selectedGame === 'djmax_respect_v' && (
             <>
+              <span>Powered by </span>
               <button
                 className="tw-text-xs tw-animate-fadeInLeft"
                 type="button"
@@ -58,9 +59,19 @@ const FooterComponent = ({ className }: IFooterComponent) => {
                   window.ipc.send('openBrowser', 'https://github.com/djmax-in/openapi?tab=readme-ov-file')
                 }}
               >
-                Powered by V-ARCHIVE
-                <span> · </span>
+                V-ARCHIVE
               </button>
+              <span> & </span>
+              <button
+                className="tw-text-xs tw-animate-fadeInLeft"
+                type="button"
+                onClick={() => {
+                  window.ipc.send('openBrowser', 'https://hard-archive.com')
+                }}
+              >
+                전일 아카이브
+              </button>
+              <span> · </span>
             </>
           )}
 

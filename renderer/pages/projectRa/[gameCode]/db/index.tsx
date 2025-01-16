@@ -303,7 +303,7 @@ export default function VArchiveDbPage() {
       <React.Fragment>
         <Head>
           <title>
-            {String(keyMode).replace('PLUS', '').replace('P', '').replace('B', '').replace('_', '')}B{keyMode.includes('P') ? '+' : ''} 데이터베이스 - R-ARCHIVE
+            {String(keyMode).replace('PLUS', '').replace('P', '').replace('B', '').replace('_', '')}B{keyMode.includes('P') ? '+' : ''} 데이터베이스 - RACLA
           </title>
         </Head>
         <div className="tw-flex tw-flex-col tw-gap-4 vh-screen tw-relative">

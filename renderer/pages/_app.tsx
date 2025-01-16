@@ -317,160 +317,113 @@ function MyApp({ Component, pageProps }: AppProps) {
     }
   }, [params, router])
 
-  // R-ARCHIVE 로그인 처리
-  useEffect(() => {
-    const fetchUserData = async () => {
-      if (vArchiveUserNo !== '' && vArchiveUserToken !== '') {
-        try {
-          // R-ARCHIVE API로 사용자 정보 조회
-          const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/v1/user/login/oauth/vArchive`, {
-            userNo: vArchiveUserNo,
-            userToken: vArchiveUserToken,
-          })
+  // 로그인 타입 정의
+  type LoginType = 'vArchive' | 'normal'
 
-          if (response.data) {
-            showNotification(`${response.data.userName}님 R-ARCHIVE에 오신 것을 환영합니다.`, 'tw-bg-lime-600')
-            window.ipc.send('storeSession', {
-              userNo: response.data.userNo,
-              userToken: response.data.userToken,
-              vArchiveUserNo: response.data.varchiveUserNo,
-              vArchiveUserToken: response.data.varchiveUserToken,
-            })
-            store.dispatch(
-              setUserData({
-                userName: response.data.userName,
-                userNo: response.data.userNo,
-                userToken: response.data.userToken,
-                randomTitle: Math.floor(Math.random() * 652 + 1).toString(),
-                vArchiveLinked: response.data.varchiveLinked || false,
-              }),
-            )
-            if (response.data.varchiveLinked) {
-              const vArchiveResponse = await axios.post<IUserNameResponse>(`${process.env.NEXT_PUBLIC_PROXY_API_URL}?url=https://v-archive.net/client/login`, {
-                userNo: response.data.varchiveUserNo,
-                token: response.data.varchiveUserToken,
-              })
+  // 로그인 함수 분리
+  const handleLogin = async (loginType: LoginType, credentials: { userNo: string; userToken: string }) => {
+    if (!credentials.userNo || !credentials.userToken) return
 
-              if (vArchiveResponse.data.success) {
-                store.dispatch(
-                  setVArchiveUserData({
-                    userNo: response.data.varchiveUserNo,
-                    userToken: response.data.varchiveUserToken,
-                    userName: vArchiveResponse.data.nickname,
-                  }),
-                )
-                showNotification(`V-ARCHIVE 계정(${vArchiveResponse.data.nickname}) 데이터 동기화에 성공 하였습니다.`, 'tw-bg-lime-600')
-                window.ipc.send('storeSession', {
-                  userNo: response.data.userNo,
-                  userToken: response.data.userToken,
-                  vArchiveUserNo: response.data.varchiveUserNo,
-                  vArchiveUserToken: response.data.varchiveUserToken,
-                  vArchiveUserName: vArchiveResponse.data.nickname,
-                })
-              } else {
-                showNotification(
-                  'V-ARCHIVE 계정이 존재하지 않거나 통신 중 오류가 발생하였습니다. 연동 상태를 확인하시거나 잠시 후 다시 시도해주세요.',
-                  'tw-bg-yellow-600',
-                )
-              }
-              window.ipc.setAuthorization({ userNo: response.data.varchiveUserNo, userToken: response.data.varchiveUserToken })
-            } else {
-              showNotification('DJMAX RESPECT V 서비스를 이용하시려면 V-ARCHIVE 계정 연동이 필요합니다. 설정에서 연동을 진행해주세요.', 'tw-bg-yellow-600')
-            }
-            window.ipc.send('logined')
-          } else {
-            window.ipc.logout()
-            setUserNo('')
-            setUserToken('')
-            showNotification('유효하지 않은 사용자 세션입니다.', 'tw-bg-red-600')
-          }
-        } catch (error) {
-          window.ipc.logout()
-          setUserNo('')
-          setUserToken('')
-          showNotification(`알 수 없는 오류로 인해 사용자 정보 조회에 실패하였습니다. ${String(error)}`, 'tw-bg-red-600')
-        }
+    try {
+      // RACLA API 로그인
+      const endpoint = loginType === 'vArchive' ? '/v1/user/login/oauth/vArchive' : '/v1/user/login'
+
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}${endpoint}`, credentials)
+
+      if (!response.data) {
+        throw new Error('유효하지 않은 사용자 세션입니다.')
       }
+
+      // 기본 사용자 데이터 저장
+      showNotification(`${response.data.userName}님 RACLA에 오신 것을 환영합니다.`, 'tw-bg-lime-600')
+
+      store.dispatch(
+        setUserData({
+          userName: response.data.userName,
+          userNo: response.data.userNo,
+          userToken: response.data.userToken,
+          randomTitle: Math.floor(Math.random() * 652 + 1).toString(),
+          vArchiveLinked: response.data.varchiveLinked || false,
+        }),
+      )
+
+      // V-ARCHIVE 연동 처리
+      if (response.data.varchiveLinked) {
+        const sessionData = {
+          userNo: response.data.userNo,
+          userToken: response.data.userToken,
+          vArchiveUserNo: response.data.varchiveUserNo,
+          vArchiveUserToken: response.data.varchiveUserToken,
+        }
+
+        window.ipc.send('storeSession', sessionData)
+
+        const vArchiveResponse = await axios.post<IUserNameResponse>(`${process.env.NEXT_PUBLIC_PROXY_API_URL}?url=https://v-archive.net/client/login`, {
+          userNo: response.data.varchiveUserNo,
+          token: response.data.varchiveUserToken,
+        })
+
+        if (vArchiveResponse.data.success) {
+          store.dispatch(
+            setVArchiveUserData({
+              userNo: response.data.varchiveUserNo,
+              userToken: response.data.varchiveUserToken,
+              userName: vArchiveResponse.data.nickname,
+            }),
+          )
+
+          showNotification(`V-ARCHIVE 계정(${vArchiveResponse.data.nickname}) 데이터 동기화에 성공 하였습니다.`, 'tw-bg-lime-600')
+
+          window.ipc.send('storeSession', {
+            ...sessionData,
+            vArchiveUserName: vArchiveResponse.data.nickname,
+          })
+        } else {
+          showNotification(
+            'V-ARCHIVE 계정이 존재하지 않거나 통신 중 오류가 발생하였습니다. 연동 상태를 확인하시거나 잠시 후 다시 시도해주세요.',
+            'tw-bg-yellow-600',
+          )
+        }
+
+        window.ipc.setAuthorization({
+          userNo: response.data.varchiveUserNo,
+          userToken: response.data.varchiveUserToken,
+        })
+      } else {
+        showNotification('DJMAX RESPECT V 서비스를 이용하시려면 V-ARCHIVE 계정 연동이 필요합니다. 설정에서 연동을 진행해주세요.', 'tw-bg-yellow-600')
+      }
+
+      window.ipc.send('logined')
+    } catch (error) {
+      window.ipc.logout()
+      if (loginType === 'vArchive') {
+        setVArchiveUserNo('')
+        setVArchiveUserToken('')
+      } else {
+        setUserNo('')
+        setUserToken('')
+      }
+      showNotification(`알 수 없는 오류로 인해 사용자 정보 조회에 실패하였습니다. ${String(error)}`, 'tw-bg-red-600')
     }
-    fetchUserData()
+  }
+
+  // useEffect 통합
+  useEffect(() => {
+    if (vArchiveUserNo && vArchiveUserToken) {
+      handleLogin('vArchive', {
+        userNo: vArchiveUserNo,
+        userToken: vArchiveUserToken,
+      })
+    }
   }, [vArchiveUserNo, vArchiveUserToken])
 
-  // R-ARCHIVE 로그인 처리
   useEffect(() => {
-    const fetchUserData = async () => {
-      if (userNo !== '' && userToken !== '') {
-        try {
-          // R-ARCHIVE API로 사용자 정보 조회
-          const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/v1/user/login`, {
-            userNo: userNo,
-            userToken: userToken,
-          })
-
-          if (response.data) {
-            showNotification(`${response.data.userName}님 R-ARCHIVE에 오신 것을 환영합니다.`, 'tw-bg-lime-600')
-            store.dispatch(
-              setUserData({
-                userName: response.data.userName,
-                userNo: response.data.userNo,
-                userToken: response.data.userToken,
-                randomTitle: Math.floor(Math.random() * 652 + 1).toString(),
-                vArchiveLinked: response.data.varchiveLinked || false,
-              }),
-            )
-            if (response.data.varchiveLinked) {
-              window.ipc.send('storeSession', {
-                userNo: response.data.userNo,
-                userToken: response.data.userToken,
-                vArchiveUserNo: response.data.varchiveUserNo,
-                vArchiveUserToken: response.data.varchiveUserToken,
-              })
-              const vArchiveResponse = await axios.post<IUserNameResponse>(`${process.env.NEXT_PUBLIC_PROXY_API_URL}?url=https://v-archive.net/client/login`, {
-                userNo: response.data.varchiveUserNo,
-                token: response.data.varchiveUserToken,
-              })
-
-              if (vArchiveResponse.data.success) {
-                store.dispatch(
-                  setVArchiveUserData({
-                    userNo: response.data.varchiveUserNo,
-                    userToken: response.data.varchiveUserToken,
-                    userName: vArchiveResponse.data.nickname,
-                  }),
-                )
-                showNotification(`V-ARCHIVE 계정(${vArchiveResponse.data.nickname}) 데이터 동기화에 성공 하였습니다.`, 'tw-bg-lime-600')
-                window.ipc.send('storeSession', {
-                  userNo: response.data.userNo,
-                  userToken: response.data.userToken,
-                  vArchiveUserNo: response.data.varchiveUserNo,
-                  vArchiveUserToken: response.data.varchiveUserToken,
-                  vArchiveUserName: vArchiveResponse.data.nickname,
-                })
-              } else {
-                showNotification(
-                  'V-ARCHIVE 계정이 존재하지 않거나 통신 중 오류가 발생하였습니다. 연동 상태를 확인하시거나 잠시 후 다시 시도해주세요.',
-                  'tw-bg-yellow-600',
-                )
-              }
-              window.ipc.setAuthorization({ userNo: response.data.varchiveUserNo, userToken: response.data.varchiveUserToken })
-            } else {
-              showNotification('DJMAX RESPECT V 서비스를 이용하시려면 V-ARCHIVE 계정 연동이 필요합니다. 설정에서 연동을 진행해주세요.', 'tw-bg-yellow-600')
-            }
-            window.ipc.send('logined')
-          } else {
-            window.ipc.logout()
-            setUserNo('')
-            setUserToken('')
-            showNotification('유효하지 않은 사용자 세션입니다.', 'tw-bg-red-600')
-          }
-        } catch (error) {
-          window.ipc.logout()
-          setUserNo('')
-          setUserToken('')
-          showNotification(`알 수 없는 오류로 인해 사용자 정보 조회에 실패하였습니다. ${String(error)}`, 'tw-bg-red-600')
-        }
-      }
+    if (userNo && userToken) {
+      handleLogin('normal', {
+        userNo: userNo,
+        userToken: userToken,
+      })
     }
-    fetchUserData()
   }, [userNo, userToken])
 
   useEffect(() => {
@@ -566,38 +519,6 @@ function MyApp({ Component, pageProps }: AppProps) {
         <div className="tw-flex tw-flex-col tw-gap-4 tw-w-full">
           <div className="tw-flex tw-flex-col tw-gap-2 tw-w-full tw-leading-relaxed">
             <div className="tw-bg-blue-900 tw-bg-opacity-20 tw-p-4 tw-rounded tw-border-l-4 tw-border-blue-500">
-              <span className="tw-font-bold">프로젝트 RA는 2024년 12월 07일 이후로 R-ARCHIVE(알카이브)로 리브랜딩 되었습니다.</span>
-            </div>
-            <div className="tw-bg-gray-700 tw-bg-opacity-30 tw-p-4 tw-rounded">
-              <span>
-                제목의 내용에 이어 2024년 12월 16일부터 1인 개발 체계에서 3인 개발 체계로 변경되었으며 서버 운영에 필요한 자산을 후원 받게됨에 따라 이전보다 더
-                빠른 업데이트와 개선된 서비스가 제공될 예정입니다. 후원자 목록은 라이선스에서 확인하실 수 있습니다.
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="tw-flex tw-flex-col tw-gap-8 tw-p-6 tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-text-sm">
-        <div className="tw-flex tw-flex-col tw-gap-4 tw-w-full">
-          <div className="tw-flex tw-flex-col tw-gap-2 tw-w-full tw-leading-relaxed">
-            <div className="tw-bg-blue-900 tw-bg-opacity-20 tw-p-4 tw-rounded tw-border-l-4 tw-border-blue-500">
-              <span className="tw-font-bold">DJMAX RESPECT V 서비스는 데스크톱 앱에서만 지원합니다.</span>
-            </div>
-            <div className="tw-bg-gray-700 tw-bg-opacity-30 tw-p-4 tw-rounded">
-              <span>
-                DJMAX RESPECT V 서비스의 경우 V-ARCHIVE에 의존하고 있습니다. 해당 서비스를 운영해주시는 관계자분들과 서비스 유지를 위한 수익에 피해를 드리지
-                않도록 웹 서비스는 제공하지 않습니다.
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="tw-flex tw-flex-col tw-gap-8 tw-p-6 tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-text-sm">
-        <div className="tw-flex tw-flex-col tw-gap-4 tw-w-full">
-          <div className="tw-flex tw-flex-col tw-gap-2 tw-w-full tw-leading-relaxed">
-            <div className="tw-bg-blue-900 tw-bg-opacity-20 tw-p-4 tw-rounded tw-border-l-4 tw-border-blue-500">
               <span className="tw-font-bold">macOS, Linux 사용자를 위한 데스크톱 앱이 제공될 예정입니다.</span>
             </div>
             <div className="tw-bg-gray-700 tw-bg-opacity-30 tw-p-4 tw-rounded">
@@ -610,32 +531,16 @@ function MyApp({ Component, pageProps }: AppProps) {
         </div>
       </div>
 
-      {/* <div className="tw-flex tw-flex-col tw-gap-8 tw-p-6 tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-text-sm">
-        <div className="tw-flex tw-flex-col tw-gap-4 tw-w-full">
-          <div className="tw-flex tw-flex-col tw-gap-2 tw-w-full tw-leading-relaxed">
-            <div className="tw-bg-blue-900 tw-bg-opacity-20 tw-p-4 tw-rounded tw-border-l-4 tw-border-blue-500">
-              <span className="tw-font-bold">WJMAX 서비스의 티어 시뮬레이션과 수록곡 별 상수에 대하여 의견을 받습니다.</span>
-            </div>
-            <div className="tw-bg-gray-700 tw-bg-opacity-30 tw-p-4 tw-rounded">
-              <span>
-                WJMAX 서비스의 티어 수식 또는 계산식 그리고 수록곡 별 상수에 대하여 의견을 받습니다. 보내주신 의견이 채택되는 경우 라이선스에 해당되는 사용자의
-                닉네임이 반영(선택 사항), 기프티콘 그리고 개발자 빌드 참여 기회가 제공됩니다.
-              </span>
-            </div>
-          </div>
-        </div>
-      </div> */}
-
       <div className="tw-flex tw-flex-col tw-gap-8 tw-p-6 tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-text-sm">
         <div className="tw-flex tw-flex-col tw-gap-4 tw-w-full">
           <div className="tw-flex tw-flex-col tw-gap-2 tw-w-full tw-leading-relaxed">
             <div className="tw-bg-blue-900 tw-bg-opacity-20 tw-p-4 tw-rounded tw-border-l-4 tw-border-blue-500">
-              <span className="tw-font-bold">R-ARCHIVE는 아래와 같은 사용자 데이터를 수집합니다.</span>
+              <span className="tw-font-bold">RACLA는 아래와 같은 사용자 데이터를 수집합니다.</span>
             </div>
             <div className="tw-bg-gray-700 tw-bg-opacity-30 tw-p-4 tw-rounded">
               <span>
-                R-ARCHIVE는 사용자에게 더 나은 서비스를 제공하기 위한 닉네임 정보, 플레이 데이터, 접속 환경의 IP를 수집하고 있습니다. 사용자의 동의 없이
-                제3자에게 제공되지 않으며 계정 및 데이터 삭제 요청은 개발자에게 문의바랍니다.
+                RACLA는 사용자에게 더 나은 서비스를 제공하기 위한 닉네임 정보, 플레이 데이터, 접속 환경의 IP를 수집하고 있습니다. 사용자의 동의 없이 제3자에게
+                제공되지 않으며 계정 및 데이터 삭제 요청은 개발자에게 문의바랍니다.
               </span>
             </div>
           </div>
@@ -644,256 +549,7 @@ function MyApp({ Component, pageProps }: AppProps) {
     </div>
   )
 
-  const update1Section = (
-    <div className="tw-flex tw-flex-col tw-gap-4 tw-break-keep">
-      <div className="tw-flex tw-flex-col tw-gap-8 tw-p-6 tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-text-sm">
-        <div className="tw-flex tw-flex-col tw-gap-4 tw-w-full">
-          <div className="tw-flex tw-flex-col tw-gap-2 tw-w-full tw-leading-relaxed">
-            {/* 첫 번째 설명 블록 */}
-            <div className="tw-bg-green-900 tw-bg-opacity-20 tw-p-4 tw-rounded tw-border-l-4 tw-border-green-500">
-              <span className="tw-font-bold tw-whitespace-pre-line">R-ARCHIVE 데스크톱 앱이 0.7.0 버전으로 업데이트 되었습니다.</span>
-            </div>
-
-            <div className="tw-bg-gray-700 tw-bg-opacity-30 tw-p-4 tw-rounded">
-              <span>
-                해당 창을 닫으려면 상하좌우의 검정 여백을 클릭해주세요. 홈 화면 우측 상단의{' '}
-                <button disabled className="tw-bg-gray-700 tw-p-2 tw-rounded">
-                  <FaBell />
-                </button>{' '}
-                버튼을 통해 다시 확인하실 수 있습니다.
-              </span>
-            </div>
-
-            <div className="tw-bg-gray-700 tw-bg-opacity-30 tw-p-4 tw-rounded">
-              <span>
-                업데이트 내용은 아래의 목차에 따라 내용이 정리되어 있습니다. 우측 상단의{' '}
-                <button disabled className="tw-bg-gray-700 tw-p-2 tw-rounded">
-                  <FaChevronLeft />
-                </button>{' '}
-                <button disabled className="tw-bg-gray-700 tw-p-2 tw-rounded">
-                  <FaChevronRight />
-                </button>{' '}
-                버튼을 통해 확인하실 수 있습니다.
-              </span>
-            </div>
-
-            <div className="tw-bg-gray-700 tw-bg-opacity-30 tw-p-4 tw-rounded">
-              <span>각 이미지는 클릭 시 원본 크기로 확대되어 확인할 수 있습니다.</span>
-            </div>
-
-            <div className="tw-bg-gray-700 tw-bg-opacity-30 tw-p-4 tw-rounded">
-              <span>
-                이 외에 기능 추가 의견, 버그 신고, 불편 사항, 궁금한 점 등이 있으시면 언제든지 좌측 하단에 위치한 버그 신고 또는 배포된 게시글에 댓글을 통해
-                알려주세요.
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-
-  const update2Section = (
-    <div className="tw-flex tw-flex-col tw-gap-4 tw-break-keep">
-      <div className="tw-flex tw-flex-col tw-gap-8 tw-p-6 tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-text-sm">
-        <div className="tw-flex tw-flex-col tw-gap-4 tw-w-full">
-          <div className="tw-flex tw-flex-col tw-gap-2 tw-w-full tw-leading-relaxed">
-            {/* 첫 번째 설명 블록 */}
-            <div className="tw-bg-blue-900 tw-bg-opacity-20 tw-p-4 tw-rounded tw-border-l-4 tw-border-blue-500">
-              <span className="tw-font-bold tw-whitespace-pre-line">새로운 기능</span>
-            </div>
-
-            <div className="tw-bg-gray-700 tw-bg-opacity-30 tw-p-4 tw-rounded">
-              <span>
-                <span className="tw-text-sm tw-font-bold">WJMAX 서비스 지원</span>
-                <br />
-                V-ARCHIVE를 벤치마킹하여 R-ARCHIVE의 자체 서비스로 WJMAX 서비스를 제공합니다. 데이터베이스, 성과표를 지원하며 데이터베이스에서는 키보드 접근성과
-                DJMAX RESPECT V 서비스 대비 더 많은 편의 기능을 제공합니다.
-                <br />
-                <br />
-                방향키 : 카테고리 변경 및 곡 선택
-                <br />
-                1번 키 : 키 변경
-                <br /> F 키 : 검색 창<br /> A, D 키 : 정렬
-                <br /> Q, E 키 : 난이도 변경 <br />V 키 : 목록 뷰 변경
-                <br />
-                <br />
-                일반 모드와 플러스 모드의 성과를 따로 기록할 수 있으며 자동 캡쳐 모드를 지원합니다. 단 현재는 수동 업로드와 자동 업로드 모두 프리스타일 결과
-                창만 지원합니다. 0.6.1 업데이트에서 곡 선택창을 지원할 예정입니다.
-              </span>
-              <div className="tw-flex tw-justify-center tw-my-4">
-                <Image
-                  src="https://ribbon.r-archive.zip/project_ra/update_060_wjmax1.png"
-                  alt="overlay"
-                  className="tw-cursor-pointer tw-w-1/2 tw-h-auto"
-                  width={500}
-                  height={500}
-                  onClick={() => setSelectedImage('https://ribbon.r-archive.zip/project_ra/update_060_wjmax1.png?full=1')}
-                  referrerPolicy="origin"
-                />
-                <Image
-                  src="https://ribbon.r-archive.zip/project_ra/update_060_wjmax2.png"
-                  alt="overlay"
-                  className="tw-cursor-pointer tw-w-1/2 tw-h-auto"
-                  width={500}
-                  height={500}
-                  onClick={() => setSelectedImage('https://ribbon.r-archive.zip/project_ra/update_060_wjmax2.png?full=1')}
-                />
-              </div>
-              <div className="tw-flex tw-justify-center tw-my-4">
-                <Image
-                  src="https://ribbon.r-archive.zip/project_ra/update_060_wjmax3.png"
-                  alt="overlay"
-                  className="tw-cursor-pointer tw-w-1/2 tw-h-auto"
-                  width={500}
-                  height={500}
-                  onClick={() => setSelectedImage('https://ribbon.r-archive.zip/project_ra/update_060_wjmax3.png?full=1')}
-                  referrerPolicy="origin"
-                />
-                <Image
-                  src="https://ribbon.r-archive.zip/project_ra/update_060_wjmax4.png"
-                  alt="overlay"
-                  className="tw-cursor-pointer tw-w-1/2 tw-h-auto"
-                  width={500}
-                  height={500}
-                  onClick={() => setSelectedImage('https://ribbon.r-archive.zip/project_ra/update_060_wjmax4.png?full=1')}
-                />
-              </div>
-            </div>
-
-            <div className="tw-bg-gray-700 tw-bg-opacity-30 tw-p-4 tw-rounded">
-              <span>
-                <span className="tw-text-sm tw-font-bold">미니 모드</span>
-                <br />
-                이제 사이드바를 열고 접을 수 있으며 더 많은 콘텐츠를 한 눈에 볼 수 있습니다.
-              </span>
-            </div>
-
-            <div className="tw-bg-gray-700 tw-bg-opacity-30 tw-p-4 tw-rounded">
-              <span>
-                <span className="tw-text-sm tw-font-bold">피드백 센터</span>
-                <br />
-                기존의 카카오톡 오픈 프로필로 연결된 버그 신고 기능은 잘 활용되지 않아 티켓 지원 방식의 피드백 센터를 추가하였습니다. 누구나 버그 신고, 의견
-                등의 요청 사항을 작성할 수 있으며 다른 이가 작성한 내용에 추가 의견을 제시할 수 있습니다.
-              </span>
-              <div className="tw-flex tw-justify-center tw-my-4">
-                <Image
-                  src="https://ribbon.r-archive.zip/project_ra/update_060_feedback.png"
-                  alt="overlay"
-                  className="tw-cursor-pointer tw-w-1/2 tw-h-auto"
-                  width={500}
-                  height={500}
-                  onClick={() => setSelectedImage('https://ribbon.r-archive.zip/project_ra/update_060_feedback.png?full=1')}
-                />
-              </div>
-            </div>
-
-            <div className="tw-bg-gray-700 tw-bg-opacity-30 tw-p-4 tw-rounded">
-              <span>
-                <span className="tw-text-sm tw-font-bold">(0.6.4) DJMAX RESPECT V - V LIBERTY 2 DLC 지원</span>
-                <br />V LIBERTY 2 DLC가 출시됨에 따라 성과 기록 등록 등의 기능을 사용 하기 위한 리소스를 추가하였습니다.
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="tw-flex tw-flex-col tw-gap-8 tw-p-6 tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-text-sm">
-        <div className="tw-flex tw-flex-col tw-gap-4 tw-w-full">
-          <div className="tw-flex tw-flex-col tw-gap-2 tw-w-full tw-leading-relaxed">
-            {/* 첫 번째 설명 블록 */}
-            <div className="tw-bg-yellow-900 tw-bg-opacity-20 tw-p-4 tw-rounded tw-border-l-4 tw-border-yellow-500">
-              <span className="tw-font-bold tw-whitespace-pre-line">변경 사항</span>
-            </div>
-
-            <div className="tw-bg-gray-700 tw-bg-opacity-30 tw-p-4 tw-rounded">
-              <span>
-                WJMAX 자체 서비스가 추가됨에 따라 로그인 시스템이 일부 변경 되었습니다. 자세한 사항은 공지사항 패널 또는 로그인 화면의 내용을 참고 부탁드립니다.
-              </span>
-            </div>
-
-            <div className="tw-bg-gray-700 tw-bg-opacity-30 tw-p-4 tw-rounded">
-              <span>창 모드 사용자를 위해 R-ARCHIVE 데스크톱 앱이 요구하는 최저 해상도가 1440x810에서 1280x720으로 변경되었습니다.</span>
-            </div>
-
-            <div className="tw-bg-gray-700 tw-bg-opacity-30 tw-p-4 tw-rounded">
-              <span>전체적인 채도, 명도, 컬러 등의 재조정과 폰트 변경, 폰트 사이즈 변경 등의 가독성 향상 작업이 진행되었습니다.</span>
-            </div>
-
-            <div className="tw-bg-gray-700 tw-bg-opacity-30 tw-p-4 tw-rounded">
-              <span>
-                (DJMAX RESPECT V 오픈 매치 한정) 자동 캡쳐 모드 사용 시 캡쳐 주기를 3초 미만으로 사용하는 경우 올바르게 캡쳐되지 않는 문제가 발생하여 제대로
-                캡쳐가 인식되지 않는 경우가 발생하여 일정 시간(3초) 후 한번 더 캡쳐하도록 기능이 변경되었습니다.
-              </span>
-            </div>
-
-            <div className="tw-bg-gray-700 tw-bg-opacity-30 tw-p-4 tw-rounded">
-              <span>(0.6.3) 서비스와 관련된 단어, 명칭을 R-ARCHIVE로 리브랜딩 하였습니다.</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="tw-flex tw-flex-col tw-gap-8 tw-p-6 tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-text-sm">
-        <div className="tw-flex tw-flex-col tw-gap-4 tw-w-full">
-          <div className="tw-flex tw-flex-col tw-gap-2 tw-w-full tw-leading-relaxed">
-            {/* 첫 번째 설명 블록 */}
-            <div className="tw-bg-red-900 tw-bg-opacity-20 tw-p-4 tw-rounded tw-border-l-4 tw-border-red-500">
-              <span className="tw-font-bold tw-whitespace-pre-line">버그 수정 사항</span>
-            </div>
-
-            <div className="tw-bg-gray-700 tw-bg-opacity-30 tw-p-4 tw-rounded">
-              <span>홈, 성과표 그래프에서 성과 기록이 제대로 합산되지 않던 버그를 수정하였습니다.</span>
-            </div>
-
-            <div className="tw-bg-gray-700 tw-bg-opacity-30 tw-p-4 tw-rounded">
-              <span>일부 API가 캐싱 처리되어 지연이 발생하던 문제를 해소하였습니다.</span>
-            </div>
-
-            <div className="tw-bg-gray-700 tw-bg-opacity-30 tw-p-4 tw-rounded">
-              <span>
-                DJMAX RESPECT V 성과 기록 등록 시 난이도, 패턴을 올바르게 인식하였으나 간혈적으로 V-ARCHIVE로 갱신 요청에 실패하는 버그를 수정하였습니다.
-              </span>
-            </div>
-
-            <div className="tw-bg-gray-700 tw-bg-opacity-30 tw-p-4 tw-rounded">
-              <span>(0.6.1) 앱 오른쪽 하단에 표시되는 알림이 올바르게 제거되지 않는 버그를 수정하였습니다.</span>
-            </div>
-
-            <div className="tw-bg-gray-700 tw-bg-opacity-30 tw-p-4 tw-rounded">
-              <span>(0.6.2) 자동 캡쳐 모드 사용 시 상태값 충돌로 인하여 발생할 수 있는 Application Error를 일부 개선하였습니다.</span>
-            </div>
-
-            <div className="tw-bg-gray-700 tw-bg-opacity-30 tw-p-4 tw-rounded">
-              <span>(0.6.3) 백 프로세스(Electron)에서 발생할 수 있는 오류에 대한 예외 처리 코드를 모두 추가하였습니다.</span>
-            </div>
-
-            <div className="tw-bg-gray-700 tw-bg-opacity-30 tw-p-4 tw-rounded">
-              <span>
-                (0.6.3) 자동 캡쳐 모드 사용 시 캡쳐 주기를 3초 미만으로 사용 시 데이터 처리 과정에서 R-ARCHIVE 데스크톱 앱이 재시작하는 경우가 발생하여
-                정상적으로 성과 기록 등록이 되지 않던 부분을 일부 해소하였습니다.
-              </span>
-            </div>
-
-            <div className="tw-bg-gray-700 tw-bg-opacity-30 tw-p-4 tw-rounded">
-              <span>
-                (0.6.4) WJMAX 성과표에서 다른 메뉴로 이동 시 화면이 새로 고침되며 이후로 동일 페이지나 다른 페이지로 접근이 불가해지는 버그를 수정하였습니다.
-              </span>
-            </div>
-
-            <div className="tw-bg-gray-700 tw-bg-opacity-30 tw-p-4 tw-rounded">
-              <span>
-                (0.6.5) MAX DJ POWER 최신화 코드가 누락되어 VL2가 NEW 곡에 포함되지 않던 버그가 확인되어 0.6.4를 릴리즈하고 30분도 안되어서 수정 후 0.6.5로
-                배포했습니다. 죄송합니다 ㅠㅠ...
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-
-  const update3Section = (
+  const updateSection = (
     <div className="tw-flex tw-flex-col tw-gap-4 tw-break-keep">
       <div className="tw-flex tw-flex-col tw-gap-8 tw-p-6 tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-text-sm">
         <div className="tw-flex tw-flex-col tw-gap-4 tw-w-full">
@@ -1023,11 +679,7 @@ function MyApp({ Component, pageProps }: AppProps) {
     )
   }
 
-  const updateSections = [
-    { title: '업데이트 및 참고 사항', content: update1Section },
-    { title: '0.7.0 업데이트', content: update3Section },
-    { title: '0.6.0 업데이트', content: update2Section },
-  ]
+  const updateSections = [{ title: '0.7.0 업데이트', content: updateSection }]
 
   const [isBlurred, setIsBlurred] = useState(true)
   const [showLoader, setShowLoader] = useState(true)
@@ -1153,11 +805,11 @@ function MyApp({ Component, pageProps }: AppProps) {
                 {/* <span className="tw-text-xs tw-font-light tw-text-gray-200 tw-text-opacity-50">
                   The resources provided by this Service are not licensed to each creator. Restricted to commercial use.
                 </span> */}
-                <span className="tw-text-xs tw-font-light tw-text-gray-200 tw-text-opacity-50">
+                {/* <span className="tw-text-xs tw-font-light tw-text-gray-200 tw-text-opacity-50">
                   본 서비스에서 제공되는 리소스는 각 저작권자로부터 별도의 라이선스를 부여받지 않았습니다. 비상업적인 용도로만 사용할 수 있습니다.
-                </span>
+                </span> */}
                 <span className="tw-text-xs tw-font-light tw-text-gray-200 tw-text-opacity-50">
-                  Developed by R-ARCHIVE Team & GGDRN0 STUDIO. Produced by LunaticaLuna.
+                  Developed by GGDRN0 STUDIO & R-ARCHIVE TEAM. Produced by LunaticaLuna.
                 </span>
               </div>
             </div>

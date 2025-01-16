@@ -13,13 +13,55 @@ function ensureDirectoryExists(dirPath) {
   const absolutePath = path.resolve(dirPath)
   const parentDir = path.dirname(absolutePath)
   const oldFolderName = 'PROJECT-RA'
+  const oldFolderName2 = 'R-ARCHIVE'
   const oldPath = path.join(parentDir, oldFolderName)
+  const oldPath2 = path.join(parentDir, oldFolderName2)
+
+  // 파일/폴더를 복사하는 헬퍼 함수
+  const copyFolderRecursive = (src: string, dest: string) => {
+    if (!fs.existsSync(dest)) {
+      fs.mkdirSync(dest, { recursive: true })
+    }
+
+    const files = fs.readdirSync(src)
+    files.forEach((file) => {
+      const srcPath = path.join(src, file)
+      const destPath = path.join(dest, file)
+
+      if (fs.statSync(srcPath).isDirectory()) {
+        copyFolderRecursive(srcPath, destPath)
+      } else {
+        fs.copyFileSync(srcPath, destPath)
+      }
+    })
+  }
 
   // 기존 PROJECT-RA 폴더가 있는지 확인
   if (fs.existsSync(oldPath)) {
-    // 기존 폴더 이름을 R-ARCHIVE로 변경
-    fs.renameSync(oldPath, absolutePath)
-    console.log(`Folder Renamed: ${oldPath} -> ${absolutePath}`)
+    if (fs.existsSync(absolutePath)) {
+      // RACLA 폴더가 이미 존재하면 데이터 병합
+      copyFolderRecursive(oldPath, absolutePath)
+      fs.rmSync(oldPath, { recursive: true })
+      console.log(`Merged data from ${oldPath} to ${absolutePath}`)
+    } else {
+      // RACLA 폴더가 없으면 이름만 변경
+      fs.renameSync(oldPath, absolutePath)
+      console.log(`Folder Renamed: ${oldPath} -> ${absolutePath}`)
+    }
+    return
+  }
+
+  if (fs.existsSync(oldPath2)) {
+    if (fs.existsSync(absolutePath)) {
+      // RACLA 폴더가 이미 존재하면 데이터 병합
+      copyFolderRecursive(oldPath2, absolutePath)
+      fs.rmSync(oldPath2, { recursive: true })
+      console.log(`Merged data from ${oldPath2} to ${absolutePath}`)
+    } else {
+      // RACLA 폴더가 없으면 이름만 변경
+      fs.renameSync(oldPath2, absolutePath)
+      console.log(`Folder Renamed: ${oldPath2} -> ${absolutePath}`)
+    }
     return
   }
 
@@ -33,10 +75,10 @@ function ensureDirectoryExists(dirPath) {
   }
 }
 
-const picturePath = path.join(app.getPath('pictures'), 'R-ARCHIVE')
+const picturePath = path.join(app.getPath('pictures'), 'RACLA')
 ensureDirectoryExists(picturePath)
 
-const documentPath = path.join(app.getPath('documents'), 'R-ARCHIVE')
+const documentPath = path.join(app.getPath('documents'), 'RACLA')
 ensureDirectoryExists(documentPath)
 
 const sessionFile = path.join(documentPath, 'session.json')

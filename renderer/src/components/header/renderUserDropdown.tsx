@@ -27,7 +27,7 @@ export const renderUserDropdown = (user, vArchiveUserData, ipcRenderer, router, 
             ipcRenderer.send('openBrowser', 'https://r-archive.zip/')
           }}
         >
-          R-ARCHIVE 바로가기
+          RACLA 바로가기
         </button>
       </li>
       <li>

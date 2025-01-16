@@ -276,7 +276,7 @@ export default function VArchiveDjPowerPage() {
   return (
     <React.Fragment>
       <Head>
-        <title>{keyMode}B MAX DJ POWER - R-ARCHIVE</title>
+        <title>{keyMode}B MAX DJ POWER - RACLA</title>
       </Head>
 
       <div id="ContentHeader" />

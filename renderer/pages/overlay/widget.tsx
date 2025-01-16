@@ -49,6 +49,8 @@ const Overlay = () => {
 
   const patternToCode = (pattern: string) => {
     switch (pattern) {
+      case 'DPC':
+        return 'DPC'
       case 'SC':
         return 'SC'
       case 'MAXIMUM':
@@ -65,6 +67,8 @@ const Overlay = () => {
 
   const codeToPatternName = (pattern: string) => {
     switch (pattern) {
+      case 'DPC':
+        return '거짓말'
       case 'SC':
         return '민수'
       case 'MAXIMUM':
@@ -125,7 +129,16 @@ const Overlay = () => {
 tw-min-w-[400px] tw-cursor-pointer tw-text-sm tw-bg-opacity-80 tw-relative tw-text-white tw-rounded-lg tw-overflow-hidden tw-shadow-lg
 ${fadeOut[id] ? 'tw-animate-fadeOut' : 'tw-animate-fadeIn'}`}
             >
-              <div className="tw-py-3 tw-px-3 tw-flex tw-gap-3 tw-bg-gray-900 tw-bg-opacity-50 tw-items-center">
+              <div className="tw-absolute tw-inset-0 tw-overflow-hidden tw-rounded-md tw-z-0">
+                <Image
+                  src={`/images/djmax_respect_v/jackets/${data.songData.title}.jpg`}
+                  layout="fill"
+                  objectFit="cover"
+                  alt=""
+                  className="tw-opacity-75 tw-blur-xl"
+                />
+              </div>
+              <div className="tw-py-3 tw-px-3 tw-flex tw-gap-3 tw-bg-gray-900 tw-bg-opacity-75 tw-items-center">
                 <Image
                   loading="lazy"
                   blurDataURL={globalDictionary.blurDataURL}
@@ -137,7 +150,7 @@ ${fadeOut[id] ? 'tw-animate-fadeOut' : 'tw-animate-fadeIn'}`}
                 />
                 <div className="tw-flex tw-flex-col tw-gap-1 tw-flex-1">
                   <span className="tw-text-lg tw-font-bold">{data.songData.name}</span>
-                  <div className="tw-flex tw-gap-3 tw-flex-1">
+                  <div className="tw-flex tw-gap-3 tw-flex-1 tw-items-center">
                     <span className="tw-text-sm tw-font-bold tw-text-gray-200">{data.button}B</span>
                     <span className="tw-text-sm tw-font-bold tw-text-gray-200">{data.pattern}</span>
                     {data.score === 100 ? (
@@ -152,20 +165,20 @@ ${fadeOut[id] ? 'tw-animate-fadeOut' : 'tw-animate-fadeIn'}`}
                     )}
                     {data.lastScore ? (
                       parseFloat(data.lastScore) < parseFloat(data.score) ? (
-                        <span className="tw-text-sm tw-font-bold tw-text-red-500">
+                        <span className="tw-text-sm tw-font-extrabold tw-text-red-500 tw-px-2 tw-py-1 tw-text-shadow-outline">
                           {Number(parseFloat(data.score) - parseFloat(data.lastScore)).toFixed(2)}% 상승
                         </span>
                       ) : parseFloat(data.lastScore) == parseFloat(data.score) ? (
-                        <span className="tw-text-sm tw-font-bold tw-text-gray-200">점수 변동 없음</span>
+                        <span className="tw-text-sm tw-font-extrabold tw-text-gray-200 tw-px-2 tw-py-1 tw-text-shadow-outline">점수 변동 없음</span>
                       ) : (
-                        <span className="tw-text-sm tw-font-bold tw-text-blue-600">
+                        <span className="tw-text-sm tw-font-extrabold tw-text-blue-500 tw-px-2 tw-py-1 tw-text-shadow-outline">
                           {Number(parseFloat(data.score) - parseFloat(data.lastScore)).toFixed(2)}% 하락
                         </span>
                       )
                     ) : parseFloat(data.score) > 0 ? (
-                      <span className="tw-text-sm tw-font-bold tw-text-amber-500">신규 기록!</span>
+                      <span className="tw-text-sm tw-font-extrabold tw-text-amber-500 tw-px-2 tw-py-1 tw-text-shadow-outline">신규 기록!</span>
                     ) : (
-                      <span className="tw-text-sm tw-font-bold tw-text-gray-200">기록 없음</span>
+                      <span className="tw-text-sm tw-font-extrabold tw-text-gray-200 tw-px-2 tw-py-1 tw-text-shadow-outline">기록 없음</span>
                     )}
                   </div>
                 </div>
@@ -192,7 +205,7 @@ ${fadeOut[id] ? 'tw-animate-fadeOut' : 'tw-animate-fadeIn'}`}
                   className="tw-opacity-75 tw-blur-xl"
                 />
               </div>
-              <div className="tw-py-3 tw-px-3 tw-flex tw-gap-3 tw-bg-gray-950 tw-bg-opacity-50 tw-items-center tw-relative tw-z-10">
+              <div className="tw-py-3 tw-px-3 tw-flex tw-gap-3 tw-bg-gray-950 tw-bg-opacity-75 tw-items-center tw-relative tw-z-10">
                 <Image
                   loading="lazy" // "lazy" | "eager"
                   blurDataURL={globalDictionary.blurDataURL}
@@ -204,7 +217,7 @@ ${fadeOut[id] ? 'tw-animate-fadeOut' : 'tw-animate-fadeIn'}`}
                 />
                 <div className="tw-flex tw-flex-col tw-gap-1 tw-flex-1">
                   <span className="tw-text-lg tw-font-bold">{data.songData.name}</span>
-                  <div className="tw-flex tw-gap-3 tw-flex-1">
+                  <div className="tw-flex tw-gap-3 tw-flex-1 tw-items-center">
                     <span className="tw-text-sm tw-font-bold tw-text-gray-200">
                       {data.button}B{Number(data.judgementType) == 1 ? '+' : ''}
                     </span>
@@ -221,18 +234,18 @@ ${fadeOut[id] ? 'tw-animate-fadeOut' : 'tw-animate-fadeIn'}`}
                     )}
                     {data.lastScore ? (
                       parseFloat(data.lastScore) < parseFloat(data.score) ? (
-                        <span className="tw-text-sm tw-font-bold tw-text-red-500">
+                        <span className="tw-text-sm tw-font-extrabold tw-text-red-500 tw-px-2 tw-py-1 tw-text-shadow-outline">
                           {Number(parseFloat(data.score) - parseFloat(data.lastScore)).toFixed(2)}% 상승
                         </span>
                       ) : parseFloat(data.lastScore) == parseFloat(data.score) ? (
-                        <span className="tw-text-sm tw-font-bold tw-text-gray-200">점수 변동 없음</span>
+                        <span className="tw-text-sm tw-font-extrabold tw-text-gray-200 tw-px-2 tw-py-1 tw-text-shadow-outline">점수 변동 없음</span>
                       ) : (
-                        <span className="tw-text-sm tw-font-bold tw-text-blue-600">
+                        <span className="tw-text-sm tw-font-extrabold tw-text-blue-500 tw-px-2 tw-py-1 tw-text-shadow-outline">
                           {Number(parseFloat(data.score) - parseFloat(data.lastScore)).toFixed(2)}% 하락
                         </span>
                       )
                     ) : (
-                      <span className="tw-text-sm tw-font-bold tw-text-amber-500">신규 기록!</span>
+                      <span className="tw-text-sm tw-font-extrabold tw-text-amber-500 tw-px-2 tw-py-1 tw-text-shadow-outline">신규 기록!</span>
                     )}
                   </div>
                 </div>

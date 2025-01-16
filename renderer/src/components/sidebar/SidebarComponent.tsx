@@ -55,7 +55,7 @@ const SidebarComponent: React.FC = () => {
   // useEffect(() => {
   //   if (updateVersion) {
   //     console.log('updateVersion', updateVersion)
-  //     showNotification(`R-ARCHIVE 데스크톱 앱의 업데이트(${updateVersion})가 존재합니다. 자동 업데이트를 준비합니다.`, 'tw-bg-blue-600')
+  //     showNotification(`RACLA 데스크톱 앱의 업데이트(${updateVersion})가 존재합니다. 자동 업데이트를 준비합니다.`, 'tw-bg-blue-600')
   //   }
   // }, [updateVersion, showNotification])
 
@@ -66,9 +66,10 @@ const SidebarComponent: React.FC = () => {
           isMiniMode ? 'tw-w-auto tw-px-2 tw-py-2' : 'tw-w-52 tw-p-4'
         } tw-left-0 tw-top-12 tw-h-[calc(100vh-5.125rem)] tw-z-50 tw-ease-in-out`}
       >
-        {renderNavigation('projectRa', router)}
-        {renderNavigation(selectedGame, router)}
-
+        <div className="tw-flex-1 tw-flex tw-flex-col tw-overflow-hidden">
+          <div className="tw-overflow-hidden">{renderNavigation('projectRa', router)}</div>
+          <div className="tw-flex-1 tw-overflow-auto tw-mb-2 custom-scrollbar">{renderNavigation(selectedGame, router)}</div>
+        </div>
         {/* 기타 */}
         <div className="tw-flex tw-flex-col tw-gap-0.5 tw-mt-auto">
           <OverlayTrigger

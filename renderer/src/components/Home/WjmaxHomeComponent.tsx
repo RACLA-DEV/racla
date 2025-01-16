@@ -463,7 +463,7 @@ export default function WjmaxHomeComponent() {
                           { key: 'over97', label: '97.0%+', color: 'tw-text-yellow-200' },
                           { key: 'clear', label: '클리어', color: 'tw-text-blue-500' },
                         ].map(({ key, label, color }) => (
-                          <div key={key} className="tw-text-center tw-p-4 tw-bg-gray-950 tw-bg-opacity-50 tw-rounded-lg">
+                          <div key={key} className="tw-text-center tw-p-3 tw-bg-gray-950 tw-bg-opacity-50 tw-rounded-lg">
                             <div className={`tw-text-lg tw-font-bold ${color}`}>{calculateStats(keyModeData[selectedKeyMode])[key]}</div>
                             <div className="tw-text-xs tw-text-gray-400">{label}</div>
                           </div>
@@ -556,7 +556,7 @@ export default function WjmaxHomeComponent() {
                           { key: 'perfect', label: '퍼펙트', color: 'tw-text-red-500' },
                           { key: 'clear', label: '클리어', color: 'tw-text-blue-500' },
                         ].map(({ key, label, color }) => (
-                          <div key={key} className="tw-text-center tw-p-4 tw-bg-gray-950 tw-bg-opacity-50 tw-rounded-lg">
+                          <div key={key} className="tw-text-center tw-p-3 tw-bg-gray-950 tw-bg-opacity-50 tw-rounded-lg">
                             <div className={`tw-text-lg tw-font-bold ${color}`}>{totalStats[key]}</div>
                             <div className="tw-text-xs tw-text-gray-400">{label}</div>
                           </div>

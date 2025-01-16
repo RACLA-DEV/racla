@@ -41,7 +41,7 @@ const NotificationComponent = () => {
 
   useEffect(() => {
     if (updateVersion) {
-      showNotification(`R-ARCHIVE 데스크톱 앱의 업데이트(${updateVersion})가 존재합니다. 자동 업데이트를 준비합니다.`, 'tw-bg-blue-600')
+      showNotification(`RACLA 데스크톱 앱의 업데이트(${updateVersion})가 존재합니다. 자동 업데이트를 준비합니다.`, 'tw-bg-blue-600')
     }
   }, [updateVersion, showNotification])
 

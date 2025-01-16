@@ -9,7 +9,7 @@ export default function LicensePage() {
   return (
     <React.Fragment>
       <Head>
-        <title>라이선스 및 이용약관 - R-ARCHIVE</title>
+        <title>라이선스 및 이용약관 - RACLA</title>
       </Head>
 
       <div className="tw-w-full tw-flex tw-flex-col tw-items-center tw-justify-center tw-gap-4">
@@ -23,18 +23,18 @@ export default function LicensePage() {
             {/* 주요 라이선스 내용 */}
             <div className="tw-bg-gray-700 tw-bg-opacity-30 tw-p-6 tw-rounded-lg tw-space-y-4">
               <p className="tw-leading-relaxed">
-                1. R-ARCHIVE는 아래의 명시된 출처(게임)의 성과 관리 도구 애플리케이션(이하 팬 애플리케이션)입니다. R-ARCHIVE에서 제공되는 리소스는 각
-                저작권자로부터 별도의 라이선스를 부여받지 않았습니다. 애플리케이션 내 사용된 모든 컨텐츠(이미지, 문구 등)의 저작권은 명시된 저작권자에게
-                있습니다.
+                1. RACLA는 아래의 명시된 출처(게임)의 성과 관리 도구 애플리케이션(이하 팬 애플리케이션)입니다. RACLA에서 제공되는 리소스는 각 저작권자의 2차
+                창작 가이드라인을 준수하여 사용되고 있으며, 일부 리소스는 사전 허가를 받아 사용하고 있습니다. 애플리케이션 내 사용된 모든 컨텐츠(이미지, 문구
+                등)의 저작권은 명시된 저작권자에게 있습니다.
               </p>
               <p className="tw-leading-relaxed">2. 명시된 콘텐츠 내부에 포함된 저작권 또한 각각의 콘텐츠의 저작권자에게 있습니다.</p>
               <p className="tw-leading-relaxed">
-                3. 해당 애플리케이션은 개인적인 사용을 위한 비상업적인 용도로만 서비스가 제공됩니다. 애플리케이션 내부의 콘텐츠를 상업적이거나 공공의 목적으로
-                다운로드, 수정, 유통하는 등 어떠한 방식으로도 사용할 수 없습니다.
+                3. 해당 애플리케이션은 비상업적인 용도로 제공되며, RACLA를 통한 제3자의 직접적인 상업적 행위(재배포, 판매 등)를 금지합니다. 다만, 게임 스트리밍
+                방송, 게임 플레이 영상 제작, 게임 관련 콘텐츠 제작 등 일반적인 창작 활동에서 화면에 포함되는 경우는 예외로 합니다.
               </p>
               <p className="tw-leading-relaxed">
-                4. 본 서비스의 유지를 위한 모든 비용은 LunaticaLuna(R-ARCHIVE Team), GGDRN0 STUDIO가 부담합니다. 다만, 서비스 운영 및 유지 비용을 충당하기 위해
-                필요한 최소한의 광고가 저작권자와의 협의하에 게재될 수 있습니다.
+                4. 본 서비스의 유지를 위한 모든 비용은 GGDRN0 STUDIO가 부담합니다. 다만, 서비스 운영 및 유지 비용을 충당하기 위해 필요한 최소한의 광고가
+                저작권자와의 협의하에 게재될 수 있습니다.
               </p>
             </div>
 
@@ -105,6 +105,14 @@ export default function LicensePage() {
                   <FaLink className="tw-text-sm" />
                   <span>V-ARCHIVE API - V-ARCHIVE</span>
                 </div>
+                <hr className="tw-my-4 tw-border-green-500 tw-border-opacity-50" />
+                <div
+                  className="tw-flex tw-items-center tw-gap-2 tw-cursor-pointer hover:tw-text-green-400 tw-transition-colors"
+                  onClick={() => window.ipc.send('openBrowser', 'https://hard-archive.com')}
+                >
+                  <FaLink className="tw-text-sm" />
+                  <span>전일 아카이브 API - 전일 아카이브</span>
+                </div>
               </div>
             </div>
 
@@ -112,10 +120,12 @@ export default function LicensePage() {
               <h2 className="tw-text-lg tw-font-bold">Special Thanks</h2>
               <div className="tw-bg-gray-700 tw-bg-opacity-30 tw-p-6 tw-rounded-lg tw-space-y-4">
                 <p className="tw-leading-relaxed">1. 동기 부여를 해준 디시인사이드 디제이맥스 리스펙트 V 마이너 갤러리</p>
-                <p className="tw-leading-relaxed">2. 리소스 사용을 허락해주신 V-ARCHIVE 개발자님을 포함한 관계자분들</p>
-                <p className="tw-leading-relaxed">3. R-ARCHIVE 운영과 개발을 도와주는 GGDRN0 STUDIO와 사랑하는 R-ARCHIVE 팀원들</p>
-                <p className="tw-leading-relaxed">4. 매달 50 SGD 상당의 서버 자산을 정기적으로 후원해주시고 V LIBERTY 2 DLC를 선물해주신 KIHARU 후원자님</p>
-                <p className="tw-leading-relaxed">5. 마지막으로 R-ARCHIVE를 사용해주시는 모든 사용자 여러분들께 감사합니다.</p>
+                <p className="tw-leading-relaxed">2. 리소스 사용을 허락해주신 V-ARCHIVE 개발자님을 포함한 V-ARCHIVE 관계자분들</p>
+                <p className="tw-leading-relaxed">3. 리소스 사용을 허락해주신 전일 아카이브 개발자님을 포함한 전일 아카이브 관계자분들</p>
+                <p className="tw-leading-relaxed">4. 리소스 사용을 허락해주신 WJMAX 개발자님을 포함한 WJMAX STUDIO 관계자분들</p>
+                <p className="tw-leading-relaxed">5. RACLA 운영과 개발을 도와주는 회사와 팀원들</p>
+                <p className="tw-leading-relaxed">6. 매달 50 SGD 상당의 서버 자산을 정기적으로 후원해주시는 KIHARU 후원자님</p>
+                <p className="tw-leading-relaxed">7. 마지막으로 RACLA를 사용해주시는 모든 사용자 여러분들께 감사합니다.</p>
               </div>
             </div>
           </div>
@@ -132,8 +142,8 @@ export default function LicensePage() {
                 <div>
                   <h3 className="tw-font-bold tw-mb-2">제1조 (목적)</h3>
                   <p className="tw-leading-relaxed">
-                    본 약관은 R-ARCHIVE Team과 GGDRN0 STUDIO(이하 "개발팀")이 제공하는 R-ARCHIVE 서비스(이하 "서비스")의 이용과 관련하여 개발팀과 이용자 간의
-                    권리, 의무, 책임사항 및 기타 필요한 사항을 규정함을 목적으로 합니다.
+                    본 약관은 GGDRN0 STUDIO와 R-ARCHIVE TEAM(이하 "개발팀")이 제공하는 RACLA 서비스(이하 "서비스")의 이용과 관련하여 개발팀과 이용자 간의 권리,
+                    의무, 책임사항 및 기타 필요한 사항을 규정함을 목적으로 합니다.
                   </p>
                 </div>
 
@@ -141,7 +151,7 @@ export default function LicensePage() {
                   <h3 className="tw-font-bold tw-mb-2">제2조 (정의)</h3>
                   <div className="tw-space-y-2">
                     <p className="tw-leading-relaxed">
-                      "서비스"란 R-ARCHIVE Team과 GGDRN0 STUDIO 공동 개발하여 제공하는 디지털 콘텐츠 및 관련 서비스를 말합니다.
+                      "서비스"란 GGDRN0 STUDIO 소속 R-ARCHIVE TEAM이 개발하여 제공하는 디지털 콘텐츠 및 관련 서비스를 말합니다.
                     </p>
                     <p className="tw-leading-relaxed">"이용자"란 본 약관에 동의하고 서비스를 이용하는 자를 의미합니다.</p>
                     <p className="tw-leading-relaxed">"비상업적 사용"이란 개인적이고 상업적 이익을 추구하지 않는 사용을 의미합니다.</p>

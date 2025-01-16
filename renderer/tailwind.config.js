@@ -47,6 +47,9 @@ module.exports = {
     },
     safelist: ['tw-text-wjmax-nm', 'tw-text-wjmax-hd', 'tw-text-wjmax-mx', 'tw-text-wjmax-sc'],
     extend: {
+      textShadow: {
+        outline: '-1px -1px 3px rgba(0, 0, 0, 0.75), 1px -1px 3px rgba(0, 0, 0, 0.75), -1px 1px 3px rgba(0, 0, 0, 0.75), 1px 1px 3px rgba(0, 0, 0, 0.75)',
+      },
       animation: {
         fadeInDown: 'fadeInDown 0.5s ease-out forwards',
         fadeInLeft: 'fadeInLeft 0.5s ease-out forwards',
@@ -142,6 +145,16 @@ module.exports = {
         },
       }
       addUtilities(newUtilities)
+    },
+    function ({ matchUtilities, theme }) {
+      matchUtilities(
+        {
+          'text-shadow': (value) => ({
+            textShadow: value,
+          }),
+        },
+        { values: theme('textShadow') },
+      )
     },
   ],
 }

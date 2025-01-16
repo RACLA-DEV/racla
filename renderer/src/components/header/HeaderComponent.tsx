@@ -173,7 +173,7 @@ const HeaderComponent: React.FC<IHeaderComponentProps> = ({ refreshKeyHandle, cl
           placement="bottom"
           overlay={
             <Tooltip id="btn-select-game-respect-v" className={className + ' tw-text-xs'}>
-              Life is too short, You need R-ARCHIVE
+              Life is too short, You need RACLA
             </Tooltip>
           }
         >

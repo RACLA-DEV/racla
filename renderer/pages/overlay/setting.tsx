@@ -29,7 +29,7 @@ const OverlaySetting = () => {
     data && (
       <>
         <Head>
-          <title>오버레이 설정 - R-ARCHIVE</title>
+          <title>오버레이 설정 - RACLA</title>
         </Head>
         <div id="ContentHeader" />
         <div className="tw-flex tw-gap-4">
@@ -71,8 +71,8 @@ const OverlaySetting = () => {
               </button>
             </div>
             <span className="tw-text-sm tw-font-light tw-text-gray-400 tw-break-keep tw-mb-2">
-              자동 캡쳐 또는 수동 캡쳐 모드에서 캡쳐한 결과와 처리 과정을 예시와 같이 인게임 오버레이(중앙 하단 최대 600px)로 표시합니다. 단 버서스/래더 매치는
-              현재 지원하지 않습니다. 해당 오버레이 크기는 피드백에 따라 추후 변경될 수 있습니다.
+              자동 캡쳐 또는 수동 캡쳐 모드에서 캡쳐한 결과와 처리 과정을 예시와 같이 인게임 오버레이(중앙 하단 최대 600px)로 표시합니다. 단 버서스/래더 매치
+              화면은 지원하지 않습니다.
             </span>
           </div>
         </div>
@@ -89,9 +89,7 @@ const OverlaySetting = () => {
                 </IconContext.Provider>
                 <div className="tw-flex tw-flex-col tw-gap-1">
                   <div className="tw-flex tw-gap-3">
-                    <span className="tw-text-sm tw-font-light tw-text-gray-200 tw-break-keep">
-                      게임 화면 인식을 시작합니다. 잠시만 기다려주세요. (Ctrl+Alt+Insert 단축키 사용 시)
-                    </span>
+                    <span className="tw-text-sm tw-font-light tw-text-gray-200 tw-break-keep">게임 화면 인식을 시작합니다. 잠시만 기다려주세요.</span>
                   </div>
                 </div>
               </div>
@@ -109,7 +107,7 @@ const OverlaySetting = () => {
                   <div className="tw-flex tw-gap-3">
                     <span className="tw-text-sm tw-font-light tw-text-gray-200 tw-break-keep">
                       DJMAX RESPECT V(게임)의 게임 결과창이 자동 인식되어 성과 기록 이미지를 처리 중에 있습니다. <br />
-                      잠시만 기다려주세요. (자동 캡쳐 모드 사용 시)
+                      잠시만 기다려주세요.
                     </span>
                   </div>
                 </div>
@@ -130,7 +128,7 @@ const OverlaySetting = () => {
                   <div className="tw-flex tw-gap-3">
                     <span className="tw-text-sm tw-font-light tw-text-gray-200 tw-break-keep">
                       게임 결과창이 아니거나 성과 기록 이미지를 처리 중에 오류가 발생하였습니다. <br />
-                      다시 시도해주시길 바랍니다. (캡쳐 인식 불가 시)
+                      다시 시도해주시길 바랍니다.
                     </span>
                   </div>
                 </div>
@@ -147,7 +145,7 @@ const OverlaySetting = () => {
                 </IconContext.Provider>
                 <div className="tw-flex tw-flex-col tw-gap-1">
                   <div className="tw-flex tw-gap-3">
-                    <span className="tw-text-sm tw-font-light tw-text-gray-200 tw-break-keep">방금 전에 업로드된 곡의 성과로 TOP50이 갱신되었습니다.</span>
+                    <span className="tw-text-sm tw-font-light tw-text-gray-200 tw-break-keep">방금 전 업로드된 곡의 성과로 TOP50이 갱신되었습니다.</span>
                   </div>
                 </div>
               </div>

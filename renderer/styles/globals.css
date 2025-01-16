@@ -327,12 +327,6 @@
   .dragable > button {
     -webkit-app-region: none;
   }
-
-  ::-webkit-scrollbar {
-    display: none;
-    width: 10px; /* 세로축 스크롤바 폭 너비 */
-    height: 20px; /* 가로축 스크롤바 폭 너비 */
-  }
 }
 
 @layer components {
@@ -1737,6 +1731,37 @@
 .pattern.wjmax.NM {
   background-color: #835100dd;
   color: #fff;
+}
+
+/* 기본 스크롤바 숨김 */
+::-webkit-scrollbar {
+  display: none;
+  background: transparent;
+}
+
+/* 커스텀 스크롤바 스타일 */
+.custom-scrollbar::-webkit-scrollbar {
+  display: block !important;
+  width: 6px !important;
+  height: 6px !important;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent !important;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.custom-scrollbar:hover::-webkit-scrollbar-thumb {
+  background: rgba(156, 163, 175, 0.4) !important;
+}
+
+.custom-scrollbar:hover::-webkit-scrollbar-thumb:hover {
+  background: rgba(156, 163, 175, 0.6) !important;
 }
 
 /* 테이블 다크 모드 스타일링 */ /* 테이블 다크 모드 스타일링 */

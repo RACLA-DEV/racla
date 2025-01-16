@@ -23,7 +23,7 @@ const BoardHome = () => {
   return (
     <>
       <Head>
-        <title>성과표 - R-ARCHIVE</title>
+        <title>성과표 - RACLA</title>
       </Head>
     </>
   )

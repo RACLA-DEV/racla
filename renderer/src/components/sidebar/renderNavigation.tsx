@@ -14,16 +14,18 @@ export const renderNavigation = (selectedGame: string, router: any) => {
   const isMiniMode = useSelector((state: RootState) => state.app.isMiniMode)
 
   if (selectedGame && selectedGame !== '') {
-    return R.keys(globalDictionary.navDictionary[selectedGame]).map((value) => {
+    return R.keys(globalDictionary.navDictionary[selectedGame]).map((value, index) => {
       const navItem = globalDictionary.navDictionary[selectedGame][value]
       if (navItem.isDisplay && (!isMiniMode || navItem.id !== 'utilityNavTitle')) {
         return (
           <div key={navItem.id + 'Main'} className="tw-flex tw-flex-col">
-            {!isMiniMode && (
+            {!isMiniMode ? (
               <span key={navItem.id + 'Head'} className="tw-font-semibold tw-text-xs tw-mb-2">
                 {navItem.name}
               </span>
-            )}
+            ) : selectedGame !== 'projectRa' ? (
+              <hr className="tw-mb-3" />
+            ) : null}
             <div key={navItem.id + 'Body'} className="tw-flex tw-flex-col tw-gap-0.5 tw-mb-3">
               {navItem.pages.map((page) =>
                 page.isDisplay && ['stable', 'beta'].includes(page.status) ? (
@@ -33,7 +35,7 @@ export const renderNavigation = (selectedGame: string, router: any) => {
                       placement="right"
                       overlay={
                         <Tooltip id={`tooltip-${page.id}`} className="tw-text-xs">
-                          {page.name.startWithSup} {page.name.base}
+                          {page.description}
                         </Tooltip>
                       }
                     >
@@ -69,7 +71,7 @@ export const renderNavigation = (selectedGame: string, router: any) => {
                       placement="right"
                       overlay={
                         <Tooltip id={`tooltip-${page.id}`} className="tw-text-xs">
-                          {page.name.startWithSup} {page.name.base}
+                          {page.description}
                         </Tooltip>
                       }
                     >
@@ -103,7 +105,7 @@ export const renderNavigation = (selectedGame: string, router: any) => {
                     placement="right"
                     overlay={
                       <Tooltip id={`tooltip-${page.id}`} className="tw-text-xs">
-                        {page.name.startWithSup} {page.name.base}
+                        {page.description}
                       </Tooltip>
                     }
                   >

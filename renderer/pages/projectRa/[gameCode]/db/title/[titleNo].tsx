@@ -323,7 +323,7 @@ export default function VArchiveDbTitlePage() {
     return (
       <React.Fragment>
         <Head>
-          <title>{baseSongData.length !== 0 ? baseSongData[0].name : '로딩중'} - 데이터베이스 - R-ARCHIVE</title>
+          <title>{baseSongData.length !== 0 ? baseSongData[0].name : '로딩중'} - 데이터베이스 - RACLA</title>
         </Head>
         <div className="tw-flex tw-gap-4 vh-screen">
           {/* 곡 데이터 */}
@@ -374,7 +374,7 @@ export default function VArchiveDbTitlePage() {
                     </span>
                     <span className="tw-text-lg tw-font-bold me-auto">
                       {baseSongData[0].name}
-                      <sup className="tw-text-xs tw-font-light tw-text-gray-300"> (R-ARCHIVE : {baseSongData[0].title})</sup>
+                      <sup className="tw-text-xs tw-font-light tw-text-gray-300"> (RACLA : {baseSongData[0].title})</sup>
                     </span>
                   </div>
                 </div>
@@ -404,7 +404,7 @@ export default function VArchiveDbTitlePage() {
 
             {!isLoading && (
               <div className="tw-w-full tw-h-full tw-overflow-y-auto tw-p-4 tw-rounded-md tw-text-center tw-shadow-lg tw-bg-gray-800 tw-bg-opacity-50">
-                <div className="tw-grid tw-grid-cols-6 tw-auto-rows-fr tw-gap-4 tw-h-full">
+                <div className="tw-flex tw-flex-col tw-gap-4 tw-h-full">
                   {baseSongData.length !== 0 && !isLoading ? (
                     Object.keys(baseSongData[0].patterns)
                       .sort((a, b) => {
@@ -416,28 +416,31 @@ export default function VArchiveDbTitlePage() {
                       .map((patternName) => (
                         <React.Fragment key={String(patternName)}>
                           {/* Button Column */}
-                          <div className="tw-border-gray-600  tw-border-opacity-25 tw-flex tw-flex-col tw-justify-center tw-items-center tw-overflow-hidden tw-bg-gray-900 tw-bg-opacity-20 tw-rounded-lg">
-                            <div className="tw-relative tw-h-full tw-w-full tw-flex-1">
-                              <div
-                                className={`tw-absolute tw-inset-0 wjmax_db_button wjmax_bg_b${String(patternName)
-                                  .replace('B', '')
-                                  .toLowerCase()} tw-rounded-lg`}
-                              />
-                              <span className="tw-absolute tw-inset-0 tw-bg-gray-950 tw-bg-opacity-50 tw-rounded-lg tw-font-extrabold tw-text-4xl tw-flex tw-items-center tw-justify-center">
-                                <span className="tw-text-lg tw-font-bold tw-relative">
-                                  <span className="tw-text-4xl tw-font-bold">{String(patternName).replace('B', '').replace('_PLUS', '')}</span> Button
-                                  <sup className="tw-text-2xl tw-absolute tw-top-[-2px]">{String(patternName).includes('_PLUS') ? '+' : ''}</sup>
+                          <div className="tw-flex tw-flex-1">
+                            <div className="tw-min-w-20 tw-border-gray-600  tw-border-opacity-25 tw-flex tw-flex-col tw-justify-center tw-items-center tw-overflow-hidden tw-bg-gray-900 tw-bg-opacity-20 tw-rounded-lg">
+                              <div className="tw-relative tw-h-full tw-w-full tw-flex-1">
+                                <div
+                                  className={`tw-absolute tw-inset-0 wjmax_db_button wjmax_bg_b${String(patternName)
+                                    .replace('B', '')
+                                    .toLowerCase()} tw-rounded-lg`}
+                                />
+                                <span className="tw-aboslute tw-h-full tw-w-full tw-bg-gray-950 tw-bg-opacity-50 tw-rounded-lg tw-font-extrabold tw-text-4xl tw-flex tw-items-center tw-justify-center">
+                                  <span className="tw-text-lg tw-font-bold tw-relative">
+                                    <span className="tw-text-2xl tw-font-bold">
+                                      {String(patternName).replace('B', '').replace('_PLUS', '')}B{String(patternName).includes('_PLUS') ? '+' : ''}
+                                    </span>
+                                  </span>
                                 </span>
-                              </span>
+                              </div>
                             </div>
-                          </div>
 
-                          {/* Difficulty Columns */}
-                          {['NM', 'HD', 'MX', 'SC', 'DPC'].map((difficultyCode: string) =>
-                            baseSongData[0].patterns[patternName][difficultyCode] !== undefined &&
-                            baseSongData[0].patterns[patternName][difficultyCode] !== null ? (
-                              <div className="tw-relative tw-h-full">
-                                {/* <button
+                            <div className="tw-flex-1 tw-grid tw-grid-cols-5 tw-gap-2">
+                              {/* Difficulty Columns */}
+                              {['NM', 'HD', 'MX', 'SC', 'DPC'].map((difficultyCode: string) =>
+                                baseSongData[0].patterns[patternName][difficultyCode] !== undefined &&
+                                baseSongData[0].patterns[patternName][difficultyCode] !== null ? (
+                                  <div className="tw-relative tw-h-full">
+                                    {/* <button
                                   className="tw-absolute tw-right-2 tw-z-[100] tw-top-2 tw-flex-1 tw-px-2 tw-py-2 tw-bg-blue-600 tw-text-white tw-rounded-md hover:tw-bg-blue-500 tw-transition-all tw-text-sm"
                                   onClick={() =>
                                     fetchPatternData(
@@ -449,137 +452,139 @@ export default function VArchiveDbTitlePage() {
                                 >
                                   <FaTable />
                                 </button> */}
-                                <div
-                                  key={`${String(patternName)}_${difficultyCode}`}
-                                  className={`tw-border-gray-600 tw-border-opacity-25 tw-flex tw-h-full tw-flex-col tw-justify-center tw-items-center tw-p-2 tw-bg-gray-700 tw-bg-opacity-20 tw-rounded-lg  ${
-                                    userData.userName !== '' ? 'tw-cursor-pointer hover:tw-bg-gray-600 hover:tw-bg-opacity-30' : ''
-                                  } ${
-                                    baseSongData[0].patterns[patternName][difficultyCode].score !== undefined &&
-                                    Number(baseSongData[0].patterns[patternName][difficultyCode].score) <= 0
-                                      ? 'tw-opacity-70 tw-bg-gray-950'
-                                      : ''
-                                  }`}
-                                  onClick={() => {
-                                    if (userData.userName !== '') {
-                                      setPatternCode(`patterns${String(patternName)}${difficultyCode}`)
-                                      setPatternMaxCombo(baseSongData[0].patterns[patternName][difficultyCode].maxCombo)
-                                      setPatternButton(String(patternName))
-                                      setPatternDificulty(difficultyCode)
-                                      setUpdateScore(
-                                        Number(
-                                          baseSongData[0].patterns[patternName][difficultyCode].score !== undefined &&
-                                            baseSongData[0].patterns[patternName][difficultyCode].score !== null
-                                            ? Number(baseSongData[0].patterns[patternName][difficultyCode].score)
-                                            : 0,
-                                        ),
-                                      )
-                                      setIsPlusPattern(String(patternName).includes('_PLUS'))
-                                      setShowScoreModal(true)
-                                    }
-                                  }}
-                                >
-                                  <div className="tw-flex tw-w-full tw-justify-center tw-items-center tw-rounded-lg tw-gap-4 tw-p-2">
-                                    {/* 난이도 표시 */}
-                                    <div className="tw-w-flex tw-flex-col tw-justify-center tw-items-center">
-                                      <span
-                                        className={
-                                          difficultyCode === 'NM'
-                                            ? 'tw-flex tw-justify-center tw-items-center tw-gap-2 tw-text-base tw-font-extrabold text-stroke-100 tw-text-wjmax-nm'
-                                            : difficultyCode === 'HD'
-                                            ? 'tw-flex tw-justify-center tw-items-center tw-gap-2 tw-text-base tw-font-extrabold text-stroke-100 tw-text-wjmax-hd'
-                                            : difficultyCode === 'MX'
-                                            ? 'tw-flex tw-justify-center tw-items-center tw-gap-2 tw-text-base tw-font-extrabold text-stroke-100 tw-text-wjmax-mx'
-                                            : difficultyCode === 'SC'
-                                            ? 'tw-flex tw-justify-center tw-items-center tw-gap-2 tw-text-base tw-font-extrabold text-stroke-100 tw-text-wjmax-sc'
-                                            : 'tw-flex tw-justify-center tw-items-center tw-gap-2 tw-text-base tw-font-extrabold text-stroke-100 tw-text-wjmax-dpc'
+                                    <div
+                                      key={`${String(patternName)}_${difficultyCode}`}
+                                      className={`tw-border-gray-600 tw-border-opacity-25 tw-flex tw-h-full tw-flex-col tw-justify-center tw-items-center tw-p-2 tw-bg-gray-700 tw-bg-opacity-20 tw-rounded-lg  ${
+                                        userData.userName !== '' ? 'tw-cursor-pointer hover:tw-bg-gray-600 hover:tw-bg-opacity-30' : ''
+                                      } ${
+                                        baseSongData[0].patterns[patternName][difficultyCode].score !== undefined &&
+                                        Number(baseSongData[0].patterns[patternName][difficultyCode].score) <= 0
+                                          ? 'tw-opacity-70 tw-bg-gray-950'
+                                          : ''
+                                      }`}
+                                      onClick={() => {
+                                        if (userData.userName !== '') {
+                                          setPatternCode(`patterns${String(patternName)}${difficultyCode}`)
+                                          setPatternMaxCombo(baseSongData[0].patterns[patternName][difficultyCode].maxCombo)
+                                          setPatternButton(String(patternName))
+                                          setPatternDificulty(difficultyCode)
+                                          setUpdateScore(
+                                            Number(
+                                              baseSongData[0].patterns[patternName][difficultyCode].score !== undefined &&
+                                                baseSongData[0].patterns[patternName][difficultyCode].score !== null
+                                                ? Number(baseSongData[0].patterns[patternName][difficultyCode].score)
+                                                : 0,
+                                            ),
+                                          )
+                                          setIsPlusPattern(String(patternName).includes('_PLUS'))
+                                          setShowScoreModal(true)
                                         }
-                                      >
-                                        <Image
-                                          loading="lazy"
-                                          blurDataURL={globalDictionary.blurDataURL}
-                                          src={
-                                            difficultyCode === 'NM'
-                                              ? `/images/wjmax/nm_5_star.png`
-                                              : difficultyCode === 'HD'
-                                              ? `/images/wjmax/nm_10_star.png`
-                                              : difficultyCode === 'MX'
-                                              ? `/images/wjmax/nm_15_star.png`
-                                              : difficultyCode === 'SC'
-                                              ? `/images/wjmax/nm_20_star.png`
-                                              : `/images/wjmax/nm_25_star.png`
-                                          }
-                                          height={24}
-                                          width={24}
-                                          alt=""
-                                          className="tw-drop-shadow-lg"
-                                        />
-                                        {baseSongData[0].patterns[patternName][difficultyCode].level.toFixed(1)}
-                                      </span>
-                                      {baseSongData[0].patterns[patternName][difficultyCode].floor &&
-                                        Number(baseSongData[0].patterns[patternName][difficultyCode].floor) > 0 && (
+                                      }}
+                                    >
+                                      <div className="tw-flex tw-w-full tw-justify-center tw-items-center tw-rounded-lg tw-gap-4 tw-p-2">
+                                        {/* 난이도 표시 */}
+                                        <div className="tw-w-flex tw-flex-col tw-justify-center tw-items-center">
                                           <span
                                             className={
                                               difficultyCode === 'NM'
-                                                ? 'tw-font-light tw-text-sm tw-text-wjmax-nm'
+                                                ? 'tw-flex tw-justify-center tw-items-center tw-gap-2 tw-text-base tw-font-extrabold text-stroke-100 tw-text-wjmax-nm'
                                                 : difficultyCode === 'HD'
-                                                ? 'tw-font-light tw-text-sm tw-text-wjmax-hd'
+                                                ? 'tw-flex tw-justify-center tw-items-center tw-gap-2 tw-text-base tw-font-extrabold text-stroke-100 tw-text-wjmax-hd'
                                                 : difficultyCode === 'MX'
-                                                ? 'tw-font-light tw-text-sm tw-text-wjmax-mx'
+                                                ? 'tw-flex tw-justify-center tw-items-center tw-gap-2 tw-text-base tw-font-extrabold text-stroke-100 tw-text-wjmax-mx'
                                                 : difficultyCode === 'SC'
-                                                ? 'tw-font-light tw-text-sm tw-text-wjmax-sc'
-                                                : 'tw-font-light tw-text-sm tw-text-wjmax-dpc'
+                                                ? 'tw-flex tw-justify-center tw-items-center tw-gap-2 tw-text-base tw-font-extrabold text-stroke-100 tw-text-wjmax-sc'
+                                                : 'tw-flex tw-justify-center tw-items-center tw-gap-2 tw-text-base tw-font-extrabold text-stroke-100 tw-text-wjmax-dpc'
                                             }
                                           >
-                                            ({baseSongData[0].patterns[patternName][difficultyCode].floor}F)
+                                            <Image
+                                              loading="lazy"
+                                              blurDataURL={globalDictionary.blurDataURL}
+                                              src={
+                                                difficultyCode === 'NM'
+                                                  ? `/images/wjmax/nm_5_star.png`
+                                                  : difficultyCode === 'HD'
+                                                  ? `/images/wjmax/nm_10_star.png`
+                                                  : difficultyCode === 'MX'
+                                                  ? `/images/wjmax/nm_15_star.png`
+                                                  : difficultyCode === 'SC'
+                                                  ? `/images/wjmax/nm_20_star.png`
+                                                  : `/images/wjmax/nm_25_star.png`
+                                              }
+                                              height={24}
+                                              width={24}
+                                              alt=""
+                                              className="tw-drop-shadow-lg"
+                                            />
+                                            {baseSongData[0].patterns[patternName][difficultyCode].level.toFixed(1)}
                                           </span>
-                                        )}
-                                    </div>
-
-                                    {/* 점수 표시 (로그인한 경우에만) */}
-                                    {userData.userName !== '' && (
-                                      <div className="tw-flex tw-flex-col tw-items-start tw-justify-center tw-gap-1 tw-min-w-20">
-                                        {baseSongData[0].patterns[patternName][difficultyCode].score &&
-                                        Number(baseSongData[0].patterns[patternName][difficultyCode].score) > 0 ? (
-                                          baseSongData[0].patterns[patternName][difficultyCode].score === '100.00' ? (
-                                            <>
-                                              {/* <span className="tw-font-bold tw-text-sm tw-text-yellow-400 tw-drop-shadow-lg">PERFECT</span> */}
-                                              <span className="tw-font-light tw-text-sm tw-text-gray-300">
-                                                {baseSongData[0].patterns[patternName][difficultyCode].score}%{' '}
-                                                {/* <sup>{baseSongData[0].patterns[patternName][difficultyCode].rating}TP</sup> */}
+                                          {baseSongData[0].patterns[patternName][difficultyCode].floor &&
+                                            Number(baseSongData[0].patterns[patternName][difficultyCode].floor) > 0 && (
+                                              <span
+                                                className={
+                                                  difficultyCode === 'NM'
+                                                    ? 'tw-font-light tw-text-sm tw-text-wjmax-nm'
+                                                    : difficultyCode === 'HD'
+                                                    ? 'tw-font-light tw-text-sm tw-text-wjmax-hd'
+                                                    : difficultyCode === 'MX'
+                                                    ? 'tw-font-light tw-text-sm tw-text-wjmax-mx'
+                                                    : difficultyCode === 'SC'
+                                                    ? 'tw-font-light tw-text-sm tw-text-wjmax-sc'
+                                                    : 'tw-font-light tw-text-sm tw-text-wjmax-dpc'
+                                                }
+                                              >
+                                                ({baseSongData[0].patterns[patternName][difficultyCode].floor}F)
                                               </span>
-                                            </>
-                                          ) : (
-                                            <>
-                                              {/* <span className="tw-font-bold tw-text-3xl tw-drop-shadow-lg">
+                                            )}
+                                        </div>
+
+                                        {/* 점수 표시 (로그인한 경우에만) */}
+                                        {userData.userName !== '' && (
+                                          <div className="tw-flex tw-flex-col tw-items-start tw-justify-center tw-gap-1 tw-min-w-20">
+                                            {baseSongData[0].patterns[patternName][difficultyCode].score &&
+                                            Number(baseSongData[0].patterns[patternName][difficultyCode].score) > 0 ? (
+                                              baseSongData[0].patterns[patternName][difficultyCode].score === '100.00' ? (
+                                                <>
+                                                  {/* <span className="tw-font-bold tw-text-sm tw-text-yellow-400 tw-drop-shadow-lg">PERFECT</span> */}
+                                                  <span className="tw-font-light tw-text-sm tw-text-gray-300">
+                                                    {baseSongData[0].patterns[patternName][difficultyCode].score}%{' '}
+                                                    {/* <sup>{baseSongData[0].patterns[patternName][difficultyCode].rating}TP</sup> */}
+                                                  </span>
+                                                </>
+                                              ) : (
+                                                <>
+                                                  {/* <span className="tw-font-bold tw-text-3xl tw-drop-shadow-lg">
                                             {getGrade(baseSongData[0].patterns[patternName][difficultyCode].score)}
                                           </span> */}
-                                              <span className="tw-font-light tw-text-sm tw-text-gray-300">
-                                                {baseSongData[0].patterns[patternName][difficultyCode].score}%{' '}
-                                                {/* <sup>{baseSongData[0].patterns[patternName][difficultyCode].rating}TP</sup> */}
-                                              </span>
-                                            </>
-                                          )
-                                        ) : (
-                                          <>
-                                            <span className="tw-font-light tw-text-sm tw-text-gray-500">-</span>
-                                            <span className="tw-font-light tw-text-xs tw-text-gray-400 tw-break-keep">(기록 미존재)</span>
-                                          </>
+                                                  <span className="tw-font-light tw-text-sm tw-text-gray-300">
+                                                    {baseSongData[0].patterns[patternName][difficultyCode].score}%{' '}
+                                                    {/* <sup>{baseSongData[0].patterns[patternName][difficultyCode].rating}TP</sup> */}
+                                                  </span>
+                                                </>
+                                              )
+                                            ) : (
+                                              <>
+                                                <span className="tw-font-light tw-text-sm tw-text-gray-500">-</span>
+                                                <span className="tw-font-light tw-text-xs tw-text-gray-400 tw-break-keep">(기록 미존재)</span>
+                                              </>
+                                            )}
+                                            {baseSongData[0].patterns[patternName][difficultyCode].score !== undefined &&
+                                            baseSongData[0].patterns[patternName][difficultyCode].score === '100.00' ? (
+                                              <span className="tw-text-xs tw-font-light tw-text-yellow-400">MAX COMBO</span>
+                                            ) : baseSongData[0].patterns[patternName][difficultyCode].maxCombo ? (
+                                              <span className="tw-text-xs tw-font-light tw-text-yellow-400">MAX COMBO</span>
+                                            ) : null}
+                                          </div>
                                         )}
-                                        {baseSongData[0].patterns[patternName][difficultyCode].score !== undefined &&
-                                        baseSongData[0].patterns[patternName][difficultyCode].score === '100.00' ? (
-                                          <span className="tw-text-xs tw-font-light tw-text-yellow-400">MAX COMBO</span>
-                                        ) : baseSongData[0].patterns[patternName][difficultyCode].maxCombo ? (
-                                          <span className="tw-text-xs tw-font-light tw-text-yellow-400">MAX COMBO</span>
-                                        ) : null}
                                       </div>
-                                    )}
+                                    </div>
                                   </div>
-                                </div>
-                              </div>
-                            ) : (
-                              <div key={`${String(patternName)}_${difficultyCode}`}></div>
-                            ),
-                          )}
+                                ) : (
+                                  <div key={`${String(patternName)}_${difficultyCode}`}></div>
+                                ),
+                              )}
+                            </div>
+                          </div>
                         </React.Fragment>
                       ))
                   ) : (

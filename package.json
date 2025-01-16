@@ -1,9 +1,9 @@
 {
   "private": true,
-  "name": "r-archive-electron-app",
-  "description": "R-ARCHIVE for Desktop",
+  "name": "racla-electron-app",
+  "description": "RACLA for Desktop",
   "version": "0.7.2",
-  "author": "Developed by R-ARCHIVE Team <admin@r-archive.zip> & GGDRN0 STUDIO <admin@gongroin.com>. Produced by LunaticaLuna <luna@lunatica.kr>.",
+  "author": "Developed by GGDRN0 STUDIO & R-ARCHIVE TEAM. Produced by LunaticaLuna.",
   "main": "app/background.js",
   "workspaces": [
     "web"

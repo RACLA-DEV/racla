@@ -91,9 +91,9 @@ export default function VArchiveLoginPage() {
             return
           }
         }
-        handleError('유효하지 않은 사용자 정보입니다. R-ARCHIVE 데스크톱 앱으로 생성한 로그인 데이터(player.txt) 파일을 선택해주세요.')
+        handleError('유효하지 않은 사용자 정보입니다. RACLA 데스크톱 앱으로 생성한 로그인 데이터(player.txt) 파일을 선택해주세요.')
       } catch (e) {
-        handleError('유효하지 않은 사용자 정보입니다. R-ARCHIVE 데스크톱 앱으로 생성한 로그인 데이터(player.txt) 파일을 선택해주세요.')
+        handleError('유효하지 않은 사용자 정보입니다. RACLA 데스크톱 앱으로 생성한 로그인 데이터(player.txt) 파일을 선택해주세요.')
       }
     }
     try {
@@ -170,7 +170,7 @@ export default function VArchiveLoginPage() {
 
   // 각각의 파일 선택 핸들러
   const handleRaFileSelect = () => {
-    showNotification('R-ARCHIVE 데스크톱 앱으로 생성한 player.txt 파일을 선택해주세요.', 'tw-bg-blue-600')
+    showNotification('RACLA 데스크톱 앱으로 생성한 player.txt 파일을 선택해주세요.', 'tw-bg-blue-600')
     raFileInputRef.current?.click()
   }
 
@@ -207,7 +207,7 @@ export default function VArchiveLoginPage() {
   return userData.userName === '' ? (
     <React.Fragment>
       <Head>
-        <title>로그인 - R-ARCHIVE</title>
+        <title>로그인 - RACLA</title>
       </Head>
       <div className="tw-h-[calc(100vh-7rem)] tw-flex tw-items-center tw-justify-center tw-py-12 tw-px-4">
         <div className="tw-w-full tw-max-w-md">
@@ -255,8 +255,8 @@ export default function VArchiveLoginPage() {
                           onClick={handleRaFileSelect}
                           className="tw-w-full tw-flex tw-items-center tw-justify-center tw-gap-2 tw-px-4 tw-py-3 tw-rounded-md tw-bg-blue-600 hover:tw-bg-blue-700 tw-text-white tw-transition-colors"
                         >
-                          <Image src="/images/logo.svg" alt="R-ARCHIVE" width={20} height={20} className="tw-mt-1" />
-                          R-ARCHIVE 계정으로 로그인
+                          <Image src="/images/logo.svg" alt="RACLA" width={20} height={20} className="tw-mt-1" />
+                          RACLA 계정으로 로그인
                         </button>
 
                         <button
@@ -271,9 +271,9 @@ export default function VArchiveLoginPage() {
                       <div className="tw-flex tw-justify-center tw-gap-3 tw-items-start tw-text-sm tw-text-gray-300 tw-mt-6 tw-pt-8 tw-border-t tw-border-gray-700">
                         <FaCircleInfo className="tw-mt-1 tw-min-w-3 tw-text-blue-400" />
                         <div className="tw-flex tw-flex-col tw-gap-1 tw-break-keep">
-                          <span>R-ARCHIVE는 DJMAX RESPECT V 서비스에 한하여 V-ARCHIVE의 사용자 데이터를 수집 및 사용하고 있습니다.</span>
+                          <span>RACLA는 DJMAX RESPECT V 서비스에 한하여 V-ARCHIVE의 사용자 데이터를 수집 및 사용하고 있습니다.</span>
                           <span>V-ARCHIVE 계정 미연동 시 DJMAX RESPECT V 서비스는 사용할 수 없습니다.</span>
-                          <span>V-ARCHIVE 계정으로 최초 로그인 시 자동으로 R-ARCHIVE 계정이 자동으로 생성되며 V-ARCHIVE 계정 정보와 연동됩니다.</span>
+                          <span>V-ARCHIVE 계정으로 최초 로그인 시 자동으로 RACLA 계정이 자동으로 생성되며 V-ARCHIVE 계정 정보와 연동됩니다.</span>
                           <span
                             className="tw-flex tw-items-center tw-gap-1 tw-text-blue-400 hover:tw-text-blue-300 tw-cursor-pointer tw-transition-colors"
                             onClick={() => window.ipc.send('openBrowser', 'https://v-archive.net/downloads')}
@@ -318,12 +318,12 @@ export default function VArchiveLoginPage() {
                         <FaCircleInfo className="tw-mt-1 tw-text-blue-400 tw-min-w-3" />
                         <div className="tw-flex tw-flex-col tw-gap-1 tw-break-keep">
                           <span>
-                            계정 생성 시 자동으로 생성된 로그인 데이터가 담긴 player.txt 파일이 사용 중인 운영체제의 사용자 계정 문서 폴더에 위치한 R-ARCHIVE에
+                            계정 생성 시 자동으로 생성된 로그인 데이터가 담긴 player.txt 파일이 사용 중인 운영체제의 사용자 계정 문서 폴더에 위치한 RACLA에
                             저장되며 추후 로그인 시 사용됩니다.
                           </span>
                           <span>
-                            계정 생성 시 서비스를 이용을 위한 플레이 데이터, 닉네임 정보, 접속 환경의 IP를 R-ARCHIVE가 수집하는 것을 동의한 것으로 간주합니다.
-                            해당 정보는 제3자에게 사용자의 동의 없이 제공되지 않습니다.
+                            계정 생성 시 서비스를 이용을 위한 플레이 데이터, 닉네임 정보, 접속 환경의 IP를 RACLA가 수집하는 것을 동의한 것으로 간주합니다. 해당
+                            정보는 제3자에게 사용자의 동의 없이 제공되지 않습니다.
                           </span>
                         </div>
                       </div>

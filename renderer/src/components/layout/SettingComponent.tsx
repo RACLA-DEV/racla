@@ -185,7 +185,7 @@ const SettingComponent = () => {
             />
           </button>
         </div>
-        <span className="tw-text-sm tw-font-light tw-text-gray-400 tw-break-keep">R-ARCHIVE 데스크톱 앱 실행 시 선택한 게임을 자동으로 실행합니다.</span>
+        <span className="tw-text-sm tw-font-light tw-text-gray-400 tw-break-keep">RACLA 데스크톱 앱 실행 시 선택한 게임을 자동으로 실행합니다.</span>
       </div>
 
       <div className="tw-flex tw-flex-col tw-gap-1">
@@ -207,7 +207,7 @@ const SettingComponent = () => {
           </button>
         </div>
         <span className="tw-text-sm tw-font-light tw-text-gray-400 tw-break-keep">
-          R-ARCHIVE 데스크톱 앱 실행 시 DJMAX RESPECT V를 자동으로 실행합니다. 해당 기능은 Steam과 DJMAX RESPECT V(Steam)가 설치되어 있을 경우에만 작동합니다.
+          RACLA 데스크톱 앱 실행 시 DJMAX RESPECT V를 자동으로 실행합니다. 해당 기능은 Steam과 DJMAX RESPECT V(Steam)가 설치되어 있을 경우에만 작동합니다.
           Microsoft Stroe 버전은 지원하지 않습니다.
         </span>
       </div>
@@ -232,7 +232,7 @@ const SettingComponent = () => {
           </button>
         </div>
         <span className="tw-text-sm tw-font-light tw-text-gray-400 tw-break-keep">
-          R-ARCHIVE 데스크톱 앱 실행 시 WJMAX 를 자동으로 실행합니다. 해당 기능 WJMAX의 실행 파일(WJMAX.exe)의 경로가 지정한 경우에만 작동합니다.
+          RACLA 데스크톱 앱 실행 시 WJMAX 를 자동으로 실행합니다. 해당 기능 WJMAX의 실행 파일(WJMAX.exe)의 경로가 지정한 경우에만 작동합니다.
         </span>
       </div>
 
@@ -275,8 +275,8 @@ const SettingComponent = () => {
           </button>
         </div>
         <span className="tw-text-sm tw-font-light tw-text-gray-400 tw-break-keep">
-          하드웨어 가속은 GPU를 사용하여 R-ARCHIVE 데스크톱 앱이 더 부드럽게 동작하게 해줍니다. 앱의 화면에 문제가 발생한다면 이 설정을 비활성화 해보시기
-          바랍니다. 설정을 변경하면 앱이 다시 시작됩니다.
+          하드웨어 가속은 GPU를 사용하여 RACLA 데스크톱 앱이 더 부드럽게 동작하게 해줍니다. 앱의 화면에 문제가 발생한다면 이 설정을 비활성화 해보시기 바랍니다.
+          설정을 변경하면 앱이 다시 시작됩니다.
         </span>
         <span className="tw-text-sm tw-font-light tw-text-red-500">해당 버전에서는 변경할 수 없는 설정값입니다.</span>
       </div>
@@ -319,8 +319,8 @@ const SettingComponent = () => {
           </button>
         </div>
         <span className="tw-text-sm tw-font-light tw-text-gray-400 tw-break-keep">
-          대부분의 애니메이션 효과를 비활성화 합니다. 사양이 낮은 기기에서 R-ARCHIVE 데스크톱 앱을 사용거나 게임 또는 다른 애플리케이션에 성능 집중시킬 경우
-          활성화 하는 것을 권장합니다.
+          대부분의 애니메이션 효과를 비활성화 합니다. 사양이 낮은 기기에서 RACLA 데스크톱 앱을 사용거나 게임 또는 다른 애플리케이션에 성능 집중시킬 경우 활성화
+          하는 것을 권장합니다.
         </span>
       </div>
       <div className="tw-flex tw-flex-col tw-gap-1">
@@ -364,7 +364,7 @@ const SettingComponent = () => {
           </button>
         </div>
         <span className="tw-text-sm tw-font-light tw-text-gray-400 tw-break-keep">
-          자동 업데이트 활성화 시 R-ARCHIVE 데스크톱 앱을 실행할 때마다 업데이트를 확인합니다.
+          자동 업데이트 활성화 시 RACLA 데스크톱 앱을 실행할 때마다 업데이트를 확인합니다.
         </span>
       </div>
       <div className="tw-flex tw-flex-col tw-gap-1">
@@ -383,7 +383,7 @@ const SettingComponent = () => {
               </button> */}
         </div>
         <span className="tw-text-sm tw-font-light tw-text-gray-400 tw-break-keep">
-          R-ARCHIVE 데스크톱 앱의 언어를 변경합니다. 일부 화면은 언어 데이터가 미존재 시 한국어 또는 영어를 우선하여 표시합니다. 설정을 변경하면 앱이 다시
+          RACLA 데스크톱 앱의 언어를 변경합니다. 일부 화면은 언어 데이터가 미존재 시 한국어 또는 영어를 우선하여 표시합니다. 설정을 변경하면 앱이 다시
           시작됩니다.
         </span>
         <select className="form-select tw-my-1 tw-text-sm tw-bg-gray-900 tw-bg-opacity-20 tw-text-gray-300 tw-w-36" defaultValue="ko">
@@ -409,7 +409,7 @@ const SettingComponent = () => {
 
       <span className="tw-text-sm tw-font-light tw-text-gray-400 tw-break-keep">
         V-ARCHIVE, DJMAX(NEOWIZ), WJMAX(WJMAX STUDIO). We deeply respect you. {'<'}3<br />
-        R-ARCHIVE is dedicated to your remarkable games and services.
+        RACLA is dedicated to your remarkable games and services.
       </span>
 
       <span className="tw-text-sm tw-font-light tw-text-gray-400 tw-break-keep">{globalDictionary.version}</span>
@@ -422,9 +422,7 @@ const SettingComponent = () => {
         <div className="tw-flex tw-items-center">
           <span className="tw-text-sm tw-my-1">오버레이</span>
         </div>
-        <span className="tw-text-sm tw-font-light tw-text-gray-400">
-          오버레이 옵션은 사이드바에 위치한 R-ARCHIVE 탭의 오버레이 메뉴에서 확인하실 수 있습니다.
-        </span>
+        <span className="tw-text-sm tw-font-light tw-text-gray-400">오버레이 옵션은 사이드바에 위치한 RACLA 탭의 오버레이 메뉴에서 확인하실 수 있습니다.</span>
       </div>
     </div>
   )
@@ -450,10 +448,10 @@ const SettingComponent = () => {
           </button>
         </div>
         <span className="tw-text-sm tw-font-light tw-text-gray-400">
-          자동 캡쳐 모드는 R-ARCHIVE 데스크톱 앱에서 지원하는 게임이 실행 중일 경우 주기적으로 캡쳐하여 결과 창이 인식되는 경우 캡쳐 이미지를 분석하여 서버로
-          성과 기록을 갱신하는 기능입니다. 활성화 시 다른 백그라운드 애플리케이션 또는 사용 환경, 사양 등에 따라 화면 끊어짐 등의 이상 현상이 발생할 수
-          있습니다. 만약 화면 끊어짐 현상 등이 발생하는 경우 아래에 제공된 부가 옵션을 환경에 맞춰 사용하는 것을 권장합니다. 개발자는 i5-9400F / RX 580 8GB
-          사양으로 인게임 1920x1080 400FPS x8, 앱 설정 포커스 시에만 캡쳐 주기 1초 옵션으로 사용 중입니다.
+          자동 캡쳐 모드는 RACLA 데스크톱 앱에서 지원하는 게임이 실행 중일 경우 주기적으로 캡쳐하여 결과 창이 인식되는 경우 캡쳐 이미지를 분석하여 서버로 성과
+          기록을 갱신하는 기능입니다. 활성화 시 다른 백그라운드 애플리케이션 또는 사용 환경, 사양 등에 따라 화면 끊어짐 등의 이상 현상이 발생할 수 있습니다.
+          만약 화면 끊어짐 현상 등이 발생하는 경우 아래에 제공된 부가 옵션을 환경에 맞춰 사용하는 것을 권장합니다. 개발자는 i5-9400F / RX 580 8GB 사양으로
+          인게임 1920x1080 400FPS x8, 앱 설정 포커스 시에만 캡쳐 주기 1초 옵션으로 사용 중입니다.
         </span>
       </div>
 
@@ -512,7 +510,7 @@ const SettingComponent = () => {
           </button>
         </div>
         <span className="tw-text-sm tw-font-light tw-text-gray-400">
-          자동 캡쳐 모드에서 캡쳐 과정에서 생긴 이미지의 흑백 여백을 R-ARCHIVE 데스크톱 앱에서 자동으로 제거 후 재처리하여 서버로 전송합니다. 현재는 강제적으로
+          자동 캡쳐 모드에서 캡쳐 과정에서 생긴 이미지의 흑백 여백을 RACLA 데스크톱 앱에서 자동으로 제거 후 재처리하여 서버로 전송합니다. 현재는 강제적으로
           활성화 되어 있습니다.
         </span>
         <span className="tw-text-sm tw-font-light tw-text-red-500">해당 버전에서는 변경할 수 없는 설정값입니다.</span>
@@ -545,8 +543,8 @@ const SettingComponent = () => {
       <div className="tw-flex tw-flex-col tw-gap-1">
         <span className="tw-text-sm">텍스트 인식(OCR) API(Deprecated)</span>
         <span className="tw-text-sm tw-font-light tw-text-gray-400">
-          0.5.0 버전 이후로는 텍스트 인식을 클라이언트에서 처리하지 않으며 서버(R-ARCHIVE Service API)에서만 처리합니다. 해당 설정은 더 이상 사용되지 않습니다.
-          추후 삭제될 예정입니다.
+          0.5.0 버전 이후로는 텍스트 인식을 클라이언트에서 처리하지 않으며 서버(RACLA Service API)에서만 처리합니다. 해당 설정은 더 이상 사용되지 않습니다. 추후
+          삭제될 예정입니다.
         </span>
       </div>
 
@@ -558,9 +556,9 @@ const SettingComponent = () => {
             onClick={() => {
               if (isDetectedGame) {
                 window.ipc.send('captureTest')
-                showNotification('화면 캡쳐가 요청 되었습니다. 결과 이미지는 사용자의 사진 폴더에 위치한 R-ARCHIVE에서 확인할 수 있습니다.', 'tw-bg-lime-600')
+                showNotification('화면 캡쳐가 요청 되었습니다. 결과 이미지는 사용자의 사진 폴더에 위치한 RACLA에서 확인할 수 있습니다.', 'tw-bg-lime-600')
                 setCaptureTestMessage(
-                  '화면 캡쳐가 요청 되었습니다. 결과 이미지는 사용자의 사진 폴더에 위치한 R-ARCHIVE에서 확인할 수 있습니다. 상하좌우로 1px을 초과하는 여백이 포함이 된 경우 자동 캡쳐 모드가 올바르게 동작하지 않을 수 있습니다.',
+                  '화면 캡쳐가 요청 되었습니다. 결과 이미지는 사용자의 사진 폴더에 위치한 RACLA에서 확인할 수 있습니다. 상하좌우로 1px을 초과하는 여백이 포함이 된 경우 자동 캡쳐 모드가 올바르게 동작하지 않을 수 있습니다.',
                 )
               } else {
                 showNotification('게임이 실행 중이지 않습니다.', 'tw-bg-red-600')
@@ -711,7 +709,7 @@ const SettingComponent = () => {
           </button>
         </div>
         <span className="tw-text-sm tw-font-light tw-text-gray-400">
-          수동 캡쳐 또는 자동 캡쳐 모드에서 캡처한 이미지를 사용자 계정 경로의 사진 폴더 내에 R-ARCHIVE에 저장합니다.
+          수동 캡쳐 또는 자동 캡쳐 모드에서 캡처한 이미지를 사용자 계정 경로의 사진 폴더 내에 RACLA에 저장합니다.
         </span>
       </div>
 
@@ -845,14 +843,14 @@ const SettingComponent = () => {
       </div> */}
       <div className="tw-flex tw-flex-col tw-gap-2">
         <input ref={vArchiveFileInputRef} type="file" accept=".txt" onChange={onVArchiveFileChange} className="tw-hidden" />
-        <span className="tw-text-sm">R-ARCHIVE 계정 정보</span>
+        <span className="tw-text-sm">RACLA 계정 정보</span>
         <span className="tw-text-sm tw-font-light tw-text-gray-400">
           계정 번호 : <span className="tw-blur-sm hover:tw-blur-none tw-transition-all tw-duration-300">{userData.userNo}</span>
           <br />
           계정 토큰 : <span className="tw-blur-sm hover:tw-blur-none tw-transition-all tw-duration-300">{userData.userToken}</span>
         </span>
         <span className="tw-text-sm tw-font-light tw-text-red-500 tw-break-keep">
-          노출되는 정보는 R-ARCHIVE에서 로그인 데이터로 사용되는 계정 번호와 계정 토큰입니다. 계정 번호와 계정 토큰은 외부에 노출되지 않도록 주의해주세요.
+          노출되는 정보는 RACLA에서 로그인 데이터로 사용되는 계정 번호와 계정 토큰입니다. 계정 번호와 계정 토큰은 외부에 노출되지 않도록 주의해주세요.
         </span>
       </div>
       <div className="tw-flex tw-flex-col tw-gap-2">

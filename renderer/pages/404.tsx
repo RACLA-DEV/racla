@@ -17,7 +17,7 @@ export default function NotFoundPage({ userData }) {
   return (
     <>
       <Head>
-        <title>404 Not Found - R-ARCHIVE</title>
+        <title>404 Not Found - RACLA</title>
       </Head>
     </>
   )

@@ -16,7 +16,7 @@ const initialState: UiState = {
   isDjCommentOpen: false,
   isHomePanelOpen: false,
   homePanelCategory: 'update',
-  updateIndex: 1,
+  updateIndex: 0,
   slideDirection: 0,
 }
 

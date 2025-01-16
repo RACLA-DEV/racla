@@ -9,7 +9,7 @@ const Home = () => {
   return (
     <>
       <Head>
-        <title>R-ARCHIVE</title>
+        <title>RACLA</title>
       </Head>
       {selectedGame === 'wjmax' && <WjmaxHomeComponent />}
       {selectedGame === 'djmax_respect_v' && <DjmaxHomeComponent />}
