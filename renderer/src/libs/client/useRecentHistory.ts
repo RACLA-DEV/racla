@@ -1,8 +1,8 @@
-// hooks/useRecentHistory.ts
-import { useState } from 'react'
 import axios from 'axios'
 import { useSelector } from 'react-redux'
 import { RootState } from 'store'
+// hooks/useRecentHistory.ts
+import { useState } from 'react'
 
 interface RecentHistoryItem {
   historyId: number
@@ -40,12 +40,15 @@ export const useRecentHistory = () => {
     setErrorRecentHistory(null)
 
     try {
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/v2/play/history/${userData.userNo}/${selectedGame}`, {
-        headers: {
-          Authorization: `${userData.userNo}|${userData.userToken}`,
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/v2/play/history/${userData.userNo}/${selectedGame}`,
+        {
+          headers: {
+            Authorization: `${userData.userNo}|${userData.userToken}`,
+          },
+          withCredentials: true,
         },
-        withCredentials: true,
-      })
+      )
 
       if (response.data.success) {
         setRecentHistory(response.data.recentHistory)

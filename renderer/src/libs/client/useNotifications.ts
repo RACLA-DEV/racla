@@ -1,6 +1,11 @@
-import { useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { addNotification, removeNotification, startRemovingNotification } from 'store/slices/notificationSlice'
+import {
+  addNotification,
+  removeNotification,
+  startRemovingNotification,
+} from 'store/slices/notificationSlice'
+
+import { useCallback } from 'react'
 import { RootState } from 'store'
 import { v4 as uuidv4 } from 'uuid'
 

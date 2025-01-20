@@ -1,4 +1,4 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit'
+import { PayloadAction, createSlice } from '@reduxjs/toolkit'
 
 interface Notification {
   id: string
@@ -35,7 +35,9 @@ export const notificationSlice = createSlice({
       }>,
     ) => {
       if (state.notifications.length >= MAX_NOTIFICATIONS) {
-        const oldestNotification = state.notifications.filter((n) => !n.isRemoving).sort((a, b) => a.createdAt - b.createdAt)[0]
+        const oldestNotification = state.notifications
+          .filter((n) => !n.isRemoving)
+          .sort((a, b) => a.createdAt - b.createdAt)[0]
 
         if (oldestNotification) {
           oldestNotification.isRemoving = true
@@ -53,10 +55,13 @@ export const notificationSlice = createSlice({
       }
     },
     removeNotification: (state, action: PayloadAction<string>) => {
-      state.notifications = state.notifications.filter((notification) => notification.id !== action.payload)
+      state.notifications = state.notifications.filter(
+        (notification) => notification.id !== action.payload,
+      )
     },
   },
 })
 
-export const { addNotification, removeNotification, startRemovingNotification } = notificationSlice.actions
+export const { addNotification, removeNotification, startRemovingNotification } =
+  notificationSlice.actions
 export default notificationSlice.reducer

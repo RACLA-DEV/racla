@@ -1,6 +1,7 @@
+import { FaCheck, FaDownload, FaRotate } from 'react-icons/fa6'
 // renderUpdateSection.tsx
 import React, { useEffect, useState } from 'react'
-import { FaDownload, FaRotate, FaCheck } from 'react-icons/fa6'
+
 import { useNotificationSystem } from '@/libs/client/useNotifications'
 
 const RenderUpdateSection: React.FC = () => {

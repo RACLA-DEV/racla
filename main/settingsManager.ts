@@ -59,6 +59,8 @@ export const settingsManager = {
 
   // 설정이 재시작이 필요한지 확인
   requiresRestart(changedSettings: string[]) {
-    return changedSettings.some((key) => globalDictionary.settings.defaultSettings[key]?.requiresRestart)
+    return changedSettings.some(
+      (key) => globalDictionary.settings.defaultSettings[key]?.requiresRestart,
+    )
   },
 }

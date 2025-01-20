@@ -1,6 +1,6 @@
+import Head from 'next/head'
 import DjmaxHomeComponent from '@/components/Home/DjmaxHomeComponent'
 import WjmaxHomeComponent from '@/components/Home/WjmaxHomeComponent'
-import Head from 'next/head'
 import { useSelector } from 'react-redux'
 import { RootState } from 'store'
 

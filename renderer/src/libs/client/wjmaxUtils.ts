@@ -124,5 +124,8 @@ export const perfectConst = {
 export const calDjpower = (x: any, c: any) => {
   if (parseFloat(x) === 100) return parseFloat(c)
   if (parseFloat(x) === 0) return 0
-  return (parseFloat(c) * (0.9016 * (1 / (1 + Math.exp(-0.9175 * parseFloat(x) + 88.6))) + 0.125)).toFixed(3)
+  return (
+    parseFloat(c) *
+    (0.9016 * (1 / (1 + Math.exp(-0.9175 * parseFloat(x) + 88.6))) + 0.125)
+  ).toFixed(3)
 }

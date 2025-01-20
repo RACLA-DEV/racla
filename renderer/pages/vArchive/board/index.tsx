@@ -1,7 +1,7 @@
-import { useNotificationSystem } from '@/libs/client/useNotifications'
+import { useEffect } from 'react'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
-import { useEffect } from 'react'
+import { useNotificationSystem } from '@/libs/client/useNotifications'
 import { useSelector } from 'react-redux'
 import { RootState } from 'store'
 
@@ -17,7 +17,10 @@ const BoardHome = () => {
       router.push('/vArchive/board/4/1')
     } else {
       router.push('/')
-      showNotification('성과표 조회 기능은 로그인 또는 V-ARCHIVE 계정 연동이 필요합니다.', 'tw-bg-red-600')
+      showNotification(
+        '성과표 조회 기능은 로그인 또는 V-ARCHIVE 계정 연동이 필요합니다.',
+        'tw-bg-red-600',
+      )
     }
   }, [])
 

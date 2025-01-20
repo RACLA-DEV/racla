@@ -1,7 +1,7 @@
-import { useNotificationSystem } from '@/libs/client/useNotifications'
+import { useEffect } from 'react'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
-import { useEffect } from 'react'
+import { useNotificationSystem } from '@/libs/client/useNotifications'
 import { useSelector } from 'react-redux'
 import { RootState } from 'store'
 

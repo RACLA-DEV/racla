@@ -1,5 +1,5 @@
-appId: kr.lunatica.projectra
-productName: RACLA
+appId: zip.r-archive.racla-electron-app
+productName: RACLA for Desktop
 copyright: Copyright © 2024-2025 GGDRN0 STUDIO & R-ARCHIVE TEAM
 directories:
   output: dist

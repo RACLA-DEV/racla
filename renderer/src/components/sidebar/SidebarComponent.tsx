@@ -1,18 +1,15 @@
-// SidebarComponent.tsx
-import Link from 'next/link'
-import { useRouter } from 'next/router'
-import React, { useEffect, useState } from 'react'
-import { FaBug, FaGear, FaNoteSticky, FaChevronLeft, FaChevronRight, FaSliders, FaList, FaTableList } from 'react-icons/fa6'
-import { globalDictionary } from '@/libs/server/globalDictionary'
-import { IconContext } from 'react-icons'
-import { renderNavigation } from './renderNavigation'
-import RenderUpdateSection from './renderUpdateSection'
-import { useSelector } from 'react-redux'
-import type { RootState } from 'store'
-import { useDispatch } from 'react-redux'
-import { setIsSetting, setIsMiniMode, setSettingData } from 'store/slices/appSlice'
-import { useNotificationSystem } from '@/libs/client/useNotifications'
 import { OverlayTrigger, Tooltip } from 'react-bootstrap'
+import { FaBug, FaGear, FaTableList } from 'react-icons/fa6'
+import { useDispatch, useSelector } from 'react-redux'
+import { setIsSetting, setSettingData } from 'store/slices/appSlice'
+
+import Link from 'next/link'
+import React from 'react'
+import type { RootState } from 'store'
+import { renderNavigation } from './renderNavigation'
+// SidebarComponent.tsx
+import { useNotificationSystem } from '@/libs/client/useNotifications'
+import { useRouter } from 'next/router'
 
 const SidebarComponent: React.FC = () => {
   const { showNotification } = useNotificationSystem()
@@ -63,38 +60,47 @@ const SidebarComponent: React.FC = () => {
     <>
       <div
         className={`tw-flex tw-fixed tw-animate-fadeInLeft tw-transition-all tw-flex-col tw-bg-gray-600 tw-bg-opacity-10 ${
-          isMiniMode ? 'tw-w-auto tw-px-2 tw-py-2' : 'tw-w-52 tw-p-4'
+          isMiniMode
+            ? 'tw-w-auto tw-pl-2.5 tw-pr-0.5 tw-py-2'
+            : 'tw-w-52 tw-py-4 tw-pl-4 tw-pr-3 tw-mr-1'
         } tw-left-0 tw-top-12 tw-h-[calc(100vh-5.125rem)] tw-z-50 tw-ease-in-out`}
       >
-        <div className="tw-flex-1 tw-flex tw-flex-col tw-overflow-hidden">
-          <div className="tw-overflow-hidden">{renderNavigation('projectRa', router)}</div>
-          <div className="tw-flex-1 tw-overflow-auto tw-mb-2 custom-scrollbar">{renderNavigation(selectedGame, router)}</div>
+        <div className='tw-flex-1 tw-flex tw-flex-col tw-overflow-hidden'>
+          <div className='tw-overflow-hidden'>{renderNavigation('projectRa', router)}</div>
+          <div className='tw-flex-1 tw-overflow-auto tw-mb-2 custom-scrollbar'>
+            {renderNavigation(selectedGame, router)}
+          </div>
         </div>
         {/* 기타 */}
-        <div className="tw-flex tw-flex-col tw-gap-0.5 tw-mt-auto">
+        <div className='tw-flex tw-flex-col tw-gap-0.5 tw-mt-auto'>
           <OverlayTrigger
-            placement="right"
+            placement='right'
             overlay={
-              <Tooltip id={`tooltip-bug-report`} className="tw-text-xs">
+              <Tooltip id={`tooltip-bug-report`} className='tw-text-xs'>
                 피드백 센터
               </Tooltip>
             }
           >
             <Link
-              href="/bug"
-              className={`tw-text-sm tw-text-gray-400 tw-font-bold tw-flex tw-items-center tw-gap-2 tw-cursor-pointer group relative hover:tw-bg-gray-700 hover:tw-bg-opacity-30 tw-rounded   ${
+              href='/bug'
+              className={`tw-text-sm tw-mr-2 tw-text-gray-400 tw-font-bold tw-flex tw-items-center tw-gap-2 tw-cursor-pointer hover:tw-bg-gray-700 hover:tw-bg-opacity-30 tw-rounded group relative ${
                 !isMiniMode ? 'tw-p-1.5' : 'tw-my-1'
               }`}
             >
-              <div className={`${isMiniMode ? 'tw-bg-gray-700 tw-bg-opacity-30 tw-p-2 tw-rounded-md' : ''}`}>
+              <div
+                className={`${isMiniMode ? 'tw-bg-gray-700 tw-bg-opacity-30 tw-p-2 tw-rounded-md' : ''}`}
+              >
                 <FaBug size={isMiniMode ? 16 : 12} />
               </div>
               {!isMiniMode ? (
-                <button type="button" className="tw-flex tw-gap-1 tw-w-full tw-items-center tw-text-xs">
+                <button
+                  type='button'
+                  className='tw-flex tw-gap-1 tw-w-full tw-items-center tw-text-xs'
+                >
                   피드백 센터
                 </button>
               ) : (
-                <div className="tw-invisible group-hover:tw-visible tw-absolute tw-left-12 tw-bg-gray-800 tw-text-white tw-px-2 tw-py-1 tw-rounded tw-whitespace-nowrap tw-text-xs tw-z-50">
+                <div className='tw-invisible group-hover:tw-visible tw-absolute tw-left-12 tw-bg-gray-800 tw-text-white tw-px-2 tw-py-1 tw-rounded tw-whitespace-nowrap tw-text-xs tw-z-50'>
                   피드백 센터
                 </div>
               )}
@@ -128,54 +134,62 @@ const SidebarComponent: React.FC = () => {
             </span>
           </OverlayTrigger> */}
           <OverlayTrigger
-            placement="right"
+            placement='right'
             overlay={
-              <Tooltip id={`tooltip-setting`} className="tw-text-xs">
+              <Tooltip id={`tooltip-setting`} className='tw-text-xs'>
                 설정
               </Tooltip>
             }
           >
             <span
-              className={`tw-text-sm tw-text-gray-400 tw-font-bold tw-flex tw-items-center tw-gap-2 tw-cursor-pointer group relative hover:tw-bg-gray-700 hover:tw-bg-opacity-30 tw-rounded   ${
+              className={`tw-text-sm tw-mr-2 tw-text-gray-400 tw-font-bold tw-flex tw-items-center tw-gap-2 tw-cursor-pointer hover:tw-bg-gray-700 hover:tw-bg-opacity-30 tw-rounded group relative ${
                 !isMiniMode ? 'tw-p-1.5' : 'tw-my-1'
               }`}
               onClick={() => dispatch(setIsSetting(true))}
             >
-              <div className={`${isMiniMode ? 'tw-bg-gray-700 tw-bg-opacity-30 tw-p-2 tw-rounded-md' : ''}`}>
+              <div
+                className={`${isMiniMode ? 'tw-bg-gray-700 tw-bg-opacity-30 tw-p-2 tw-rounded-md' : ''}`}
+              >
                 <FaGear size={isMiniMode ? 16 : 12} />
               </div>
               {!isMiniMode ? (
-                <span className="tw-text-xs">설정</span>
+                <span className='tw-text-xs'>설정</span>
               ) : (
-                <div className="tw-invisible group-hover:tw-visible tw-absolute tw-left-12 tw-bg-gray-800 tw-text-white tw-px-2 tw-py-1 tw-rounded tw-whitespace-nowrap tw-text-xs tw-z-50">
+                <div className='tw-invisible group-hover:tw-visible tw-absolute tw-left-12 tw-bg-gray-800 tw-text-white tw-px-2 tw-py-1 tw-rounded tw-whitespace-nowrap tw-text-xs tw-z-50'>
                   설정
                 </div>
               )}
             </span>
           </OverlayTrigger>
           <OverlayTrigger
-            placement="right"
+            placement='right'
             overlay={
-              <Tooltip id={`tooltip-sidebar-toggle`} className="tw-text-xs">
+              <Tooltip id={`tooltip-sidebar-toggle`} className='tw-text-xs'>
                 {isMiniMode ? '사이드바 최대화' : '사이드바 최소화'}
               </Tooltip>
             }
           >
             <span
-              className={`tw-text-sm tw-text-gray-400 tw-font-bold tw-flex tw-items-center tw-gap-2 tw-cursor-pointer group relative hover:tw-bg-gray-700 hover:tw-bg-opacity-30 tw-rounded ${
+              className={`tw-text-sm tw-mr-2 tw-text-gray-400 tw-font-bold tw-flex tw-items-center tw-gap-2 tw-cursor-pointer hover:tw-bg-gray-700 hover:tw-bg-opacity-30 tw-rounded group relative ${
                 !isMiniMode ? 'tw-p-1.5' : 'tw-my-1'
               }`}
               onClick={() => handleSettingChange({ isMiniMode: !isMiniMode })}
             >
               {true && (
-                <div className={`${isMiniMode ? 'tw-bg-gray-700 tw-bg-opacity-30 tw-p-2 tw-rounded-md' : ''}`}>
-                  {isMiniMode ? <FaTableList size={isMiniMode ? 16 : 12} /> : <FaTableList size={isMiniMode ? 16 : 12} />}
+                <div
+                  className={`${isMiniMode ? 'tw-bg-gray-700 tw-bg-opacity-30 tw-p-2 tw-rounded-md' : ''}`}
+                >
+                  {isMiniMode ? (
+                    <FaTableList size={isMiniMode ? 16 : 12} />
+                  ) : (
+                    <FaTableList size={isMiniMode ? 16 : 12} />
+                  )}
                 </div>
               )}
               {!isMiniMode ? (
-                <span className="tw-text-xs">사이드바 최소화</span>
+                <span className='tw-text-xs'>사이드바 최소화</span>
               ) : (
-                <div className="tw-invisible group-hover:tw-visible tw-absolute tw-left-12 tw-bg-gray-800 tw-text-white tw-px-2 tw-py-1 tw-rounded tw-whitespace-nowrap tw-text-xs tw-z-50">
+                <div className='tw-invisible group-hover:tw-visible tw-absolute tw-left-12 tw-bg-gray-800 tw-text-white tw-px-2 tw-py-1 tw-rounded tw-whitespace-nowrap tw-text-xs tw-z-50'>
                   사이드바 최대화
                 </div>
               )}

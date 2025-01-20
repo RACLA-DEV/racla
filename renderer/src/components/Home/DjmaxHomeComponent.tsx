@@ -1,19 +1,15 @@
-import React, { useState, useEffect } from 'react'
-import Head from 'next/head'
-import Image from 'next/image'
-import { FaGithub, FaLink, FaTriangleExclamation, FaChevronLeft, FaChevronRight, FaRotate, FaX, FaXmark, FaBell } from 'react-icons/fa6'
-import { useSelector, useDispatch } from 'react-redux'
-import { RootState } from 'store'
-import { motion, AnimatePresence } from 'framer-motion'
-import axios from 'axios'
-import { SyncLoader } from 'react-spinners'
-import { globalDictionary } from '@/libs/server/globalDictionary'
+import { ArcElement, Chart as ChartJS, Legend, Tooltip } from 'chart.js'
+import React, { useEffect, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+
 import ScorePopupComponent from '@/components/score/ScorePopupComponent'
-import html2canvas from 'html2canvas'
-import moment from 'moment'
-import StatsModal from '../stat/StatsModal'
+import { globalDictionary } from '@/libs/server/globalDictionary'
+import axios from 'axios'
+import { motion } from 'framer-motion'
+import Image from 'next/image'
 import { Doughnut } from 'react-chartjs-2'
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js'
+import { SyncLoader } from 'react-spinners'
+import { RootState } from 'store'
 
 ChartJS.register(ArcElement, Tooltip, Legend)
 
@@ -62,7 +58,24 @@ export default function DjmaxHomeComponent() {
     totalPatterns: 0,
   })
 
-  const [boards, setBoards] = useState<string[]>(['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', 'MX', 'SC', 'SC5', 'SC10', 'SC15'])
+  const [boards, setBoards] = useState<string[]>([
+    '1',
+    '2',
+    '3',
+    '4',
+    '5',
+    '6',
+    '7',
+    '8',
+    '9',
+    '10',
+    '11',
+    'MX',
+    'SC',
+    'SC5',
+    'SC10',
+    'SC15',
+  ])
 
   const [cutoffScores, setCutoffScores] = useState<{
     [keyMode: string]: {
@@ -81,7 +94,7 @@ export default function DjmaxHomeComponent() {
 
   const KeyModeSelector = () =>
     selectedGame === 'djmax_respect_v' && (
-      <div className="tw-flex tw-gap-2">
+      <div className='tw-flex tw-gap-2'>
         {globalDictionary[selectedGame].keyModeList.map((mode) => (
           <button
             key={`mode_${mode}`}
@@ -93,12 +106,11 @@ export default function DjmaxHomeComponent() {
             }`}
           >
             <div
-              className={`tw-absolute tw-w-full tw-h-full tw-opacity-30 ${selectedGame === 'djmax_respect_v' ? 'respect' : 'wjmax'}_bg_b${String(mode).replace(
-                'P',
-                '',
-              )}`}
+              className={`tw-absolute tw-w-full tw-h-full tw-opacity-30 ${selectedGame === 'djmax_respect_v' ? 'respect' : 'wjmax'}_bg_b${String(
+                mode,
+              ).replace('P', '')}`}
             />
-            <span className="tw-relative tw-text-base tw-font-bold">
+            <span className='tw-relative tw-text-base tw-font-bold'>
               {String(mode).replace('P', '')}B{String(mode).includes('P') ? '+' : ''}
             </span>
           </button>
@@ -166,9 +178,14 @@ export default function DjmaxHomeComponent() {
           allKeyModeData[keyMode] = Object.values(
             allBoardResponses.flat().reduce((acc, apiPattern) => {
               const key = `${apiPattern.title}_${apiPattern.pattern}`
-              const basePattern = baseSongData.find((bp) => bp.title === apiPattern.title && bp.pattern === apiPattern.pattern)
+              const basePattern = baseSongData.find(
+                (bp) => bp.title === apiPattern.title && bp.pattern === apiPattern.pattern,
+              )
 
-              if (!acc[key] || (apiPattern.djpower && apiPattern.djpower > (acc[key].djpower || 0))) {
+              if (
+                !acc[key] ||
+                (apiPattern.djpower && apiPattern.djpower > (acc[key].djpower || 0))
+              ) {
                 // 먼저 기본 객체 구조 생성
                 const mergedPattern = {
                   title: apiPattern.title,
@@ -345,29 +362,33 @@ export default function DjmaxHomeComponent() {
     if (pattern.floor != null && pattern.floor != 0) {
       const floorGroup = getFloorGroup(pattern.floor)
       return (
-        <span className={`tw-flex tw-gap-2 tw-font-extrabold tw-items-center tw-text-respect-${pattern.floor ? 'sc' : 'nm'}-${floorGroup}`}>
+        <span
+          className={`tw-flex tw-gap-2 tw-font-extrabold tw-items-center tw-text-respect-${pattern.floor ? 'sc' : 'nm'}-${floorGroup}`}
+        >
           <Image
             src={`/images/djmax_respect_v/${pattern.floor ? 'sc' : 'nm'}_${floorGroup}_star.png`}
-            alt="difficulty"
+            alt='difficulty'
             width={16}
             height={16}
-            className="tw-w-4 tw-h-4"
+            className='tw-w-4 tw-h-4'
           />
-          <span className="tw-font-extrabold tw-mb-0.5">{`${pattern.floor}`}F</span>
+          <span className='tw-font-extrabold tw-mb-0.5'>{`${pattern.floor}`}F</span>
         </span>
       )
     }
     if (pattern.level != null) {
       return (
-        <span className={`tw-flex tw-gap-2 tw-font-extrabold tw-items-center tw-text-respect-nm-${Math.ceil((pattern.level || 0) / 5) * 5}`}>
+        <span
+          className={`tw-flex tw-gap-2 tw-font-extrabold tw-items-center tw-text-respect-nm-${Math.ceil((pattern.level || 0) / 5) * 5}`}
+        >
           <Image
             src={`/images/djmax_respect_v/nm_${Math.ceil((pattern.level || 0) / 5) * 5}_star.png`}
-            alt="difficulty"
+            alt='difficulty'
             width={16}
             height={16}
-            className="tw-w-4 tw-h-4"
+            className='tw-w-4 tw-h-4'
           />
-          <span className="tw-font-extrabold tw-mb-0.5">{`${pattern.level}`}</span>
+          <span className='tw-font-extrabold tw-mb-0.5'>{`${pattern.level}`}</span>
         </span>
       )
     }
@@ -392,11 +413,13 @@ export default function DjmaxHomeComponent() {
     // floor가 있는 경우 (큰별 + 작은별)
     if (pattern.floor) {
       const fullStars = Math.floor(pattern.floor)
-      const decimalPart = String(pattern.floor).includes('.') ? parseInt(String(pattern.floor).split('.')[1]) : 0
+      const decimalPart = String(pattern.floor).includes('.')
+        ? parseInt(String(pattern.floor).split('.')[1])
+        : 0
       const isSC = pattern.pattern.startsWith('SC')
 
       return (
-        <div className="tw-flex tw-gap-1 tw-items-end">
+        <div className='tw-flex tw-gap-1 tw-items-end'>
           {/* 큰 별들을 5개씩 묶어서 다른 이미지 사용 */}
           {[...Array(Math.ceil(fullStars / 5))].map((_, groupIndex) => {
             const starsInGroup = Math.min(5, fullStars - groupIndex * 5)
@@ -406,11 +429,11 @@ export default function DjmaxHomeComponent() {
               <Image
                 key={`${pattern.title}_${pattern.pattern}_full_${groupIndex}_${starIndex}`}
                 src={`/images/djmax_respect_v/${starImage}`}
-                alt="star"
+                alt='star'
                 width={16}
                 height={16}
-                className="tw-w-4 tw-h-4"
-                loading="lazy"
+                className='tw-w-4 tw-h-4'
+                loading='lazy'
                 blurDataURL={globalDictionary.blurDataURL}
               />
             ))
@@ -422,11 +445,11 @@ export default function DjmaxHomeComponent() {
               <Image
                 key={`${pattern.title}_${pattern.pattern}_small_${i}`}
                 src={`/images/djmax_respect_v/${getStarImage(Math.ceil(fullStars / 5) * 5, isSC)}`}
-                alt="small-star"
+                alt='small-star'
                 width={12}
                 height={12}
-                className="tw-w-3 tw-h-3"
-                loading="lazy"
+                className='tw-w-3 tw-h-3'
+                loading='lazy'
                 blurDataURL={globalDictionary.blurDataURL}
               />
             ))}
@@ -440,7 +463,7 @@ export default function DjmaxHomeComponent() {
       const isSC = pattern.pattern.startsWith('SC')
 
       return (
-        <div className="tw-flex tw-gap-1">
+        <div className='tw-flex tw-gap-1'>
           {[...Array(Math.round(boardLevel / 5))].map((_, groupIndex) => {
             const starsInGroup = Math.min(5, boardLevel - groupIndex * 5)
             const starImage = getStarImage((groupIndex + 1) * 5, isSC)
@@ -449,11 +472,11 @@ export default function DjmaxHomeComponent() {
               <Image
                 key={`${pattern.title}_${pattern.pattern}_board_${groupIndex}_${starIndex}`}
                 src={`/images/djmax_respect_v/${starImage}`}
-                alt="star"
+                alt='star'
                 width={16}
                 height={16}
-                className="tw-w-4 tw-h-4"
-                loading="lazy"
+                className='tw-w-4 tw-h-4'
+                loading='lazy'
                 blurDataURL={globalDictionary.blurDataURL}
               />
             ))
@@ -652,7 +675,10 @@ export default function DjmaxHomeComponent() {
       const newPatterns = allPatterns
         .filter(
           (pattern: any) =>
-            pattern.dlcCode === 'VL2' || pattern.dlcCode === 'TEK' || pattern.name === 'Kill Trap' || pattern.name === 'Diomedes ~Extended Mix~',
+            pattern.dlcCode === 'VL2' ||
+            pattern.dlcCode === 'TEK' ||
+            pattern.name === 'Kill Trap' ||
+            pattern.name === 'Diomedes ~Extended Mix~',
         )
         .sort((a: any, b: any) => (b.djpower || 0) - (a.djpower || 0))
 
@@ -660,7 +686,10 @@ export default function DjmaxHomeComponent() {
       const basicPatterns = allPatterns
         .filter(
           (pattern: any) =>
-            pattern.dlcCode !== 'VL2' && pattern.dlcCode !== 'TEK' && pattern.name !== 'Kill Trap' && pattern.name !== 'Diomedes ~Extended Mix~',
+            pattern.dlcCode !== 'VL2' &&
+            pattern.dlcCode !== 'TEK' &&
+            pattern.name !== 'Kill Trap' &&
+            pattern.name !== 'Diomedes ~Extended Mix~',
         )
         .sort((a: any, b: any) => (b.djpower || 0) - (a.djpower || 0))
 
@@ -680,68 +709,58 @@ export default function DjmaxHomeComponent() {
     setCutoffScores(newCutoffScores)
   }, [keyModeData])
 
-  // 새로운 함수 추가
-  const captureAndSaveSection = async () => {
-    try {
-      // html2canvas 라이브러리 사용
-      const sectionElement: HTMLElement | null = document.querySelector('.stats-section')
-      if (!sectionElement) return
-
-      const canvas = await html2canvas(sectionElement)
-
-      // 캔버스를 이미지로 변환
-      const imageData = canvas.toDataURL('image/png').replace(/^data:image\/png;base64,/, '')
-
-      window.ipc.send('canvas-screenshot-upload', {
-        buffer: imageData,
-        fileName: `${vArchiveUserData.userName}_stats_${selectedKeyMode}B-${moment().utcOffset(9).format('YYYY-MM-DD-HH-mm-ss-SSS')}.png`,
-      })
-    } catch (error) {
-      console.error('Error capturing section:', error)
-    }
-  }
-
   const [isStatsModalOpen, setIsStatsModalOpen] = useState(false)
 
   return (
     <React.Fragment>
-      <div id="ContentHeader" />
+      <div id='ContentHeader' />
       {selectedGame === 'djmax_respect_v' && (
         <>
           {isLoading ? (
-            <div className="tw-flex tw-items-center tw-justify-center tw-h-screen tw-flex-1 tw-bg-gray-800 tw-bg-opacity-40 tw-rounded-lg">
-              <SyncLoader color="#ffffff" size={8} />
+            <div className='tw-flex tw-items-center tw-justify-center tw-h-screen tw-flex-1 tw-bg-gray-800 tw-bg-opacity-40 tw-rounded-lg'>
+              <SyncLoader color='#ffffff' size={8} />
             </div>
           ) : (
-            <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5, ease: 'easeOut' }}>
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5, ease: 'easeOut' }}
+            >
               {/* 헤더 섹션 */}
-              <div className="tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-shadow-lg tw-p-4 tw-mb-4">
-                <div className="tw-flex tw-justify-between tw-items-center">
-                  <span className="tw-text-xl tw-font-bold">
-                    {userData.userName !== '' && vArchiveUserData.userName !== '' ? `${vArchiveUserData.userName}` : 'Guest'}님 환영합니다.
+              <div className='tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-shadow-lg tw-p-4 tw-mb-4'>
+                <div className='tw-flex tw-justify-between tw-items-center'>
+                  <span className='tw-text-xl tw-font-bold'>
+                    {userData.userName !== '' && vArchiveUserData.userName !== ''
+                      ? `${vArchiveUserData.userName}`
+                      : 'Guest'}
+                    님 환영합니다.
                   </span>
-                  <span className="tw-text-lg">
+                  <span className='tw-text-lg'>
                     <KeyModeSelector />
                   </span>
                 </div>
               </div>
 
               {/* 패널들 - 래퍼 제거하고 직접 배치 */}
-              <div className="tw-flex tw-gap-4 stats-section">
-                <div className="tw-flex tw-flex-col tw-gap-4 tw-w-3/5">
+              <div className='tw-flex tw-gap-4 stats-section'>
+                <div className='tw-flex tw-flex-col tw-gap-4 tw-w-3/5'>
                   {/* Button Mode Panel */}
-                  <div className="tw-flex tw-flex-col tw-gap-4 ">
-                    <div className="tw-flex tw-justify-between tw-items-end tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-shadow-lg tw-p-4">
-                      <span className="tw-flex tw-w-full tw-items-center tw-gap-1">
-                        <span className="tw-text-xl tw-font-bold tw-me-auto">{selectedKeyMode}B 통계</span>
-                        <span className="tw-text-lg tw-font-bold">{String(tierScores[selectedKeyMode].tier).toUpperCase()}</span>
+                  <div className='tw-flex tw-flex-col tw-gap-4'>
+                    <div className='tw-flex tw-justify-between tw-items-end tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-shadow-lg tw-p-4'>
+                      <span className='tw-flex tw-w-full tw-items-center tw-gap-1'>
+                        <span className='tw-text-xl tw-font-bold tw-me-auto'>
+                          {selectedKeyMode}B 통계
+                        </span>
+                        <span className='tw-text-lg tw-font-bold'>
+                          {String(tierScores[selectedKeyMode].tier).toUpperCase()}
+                        </span>
                       </span>
                     </div>
 
                     {/* 통계 정보 */}
-                    <div className="tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-p-4">
+                    <div className='tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-p-4'>
                       {/* 상단 통계 요약 */}
-                      <div className="tw-grid tw-grid-cols-7 tw-gap-2 tw-mb-8">
+                      <div className='tw-grid tw-grid-cols-7 tw-gap-2 tw-mb-8'>
                         {[
                           { key: 'maxCombo', label: '맥스 콤보', color: 'tw-text-green-500' },
                           { key: 'perfect', label: '퍼펙트', color: 'tw-text-red-500' },
@@ -751,26 +770,41 @@ export default function DjmaxHomeComponent() {
                           { key: 'over97', label: '97.0%+', color: 'tw-text-yellow-200' },
                           { key: 'clear', label: '클리어', color: 'tw-text-blue-500' },
                         ].map(({ key, label, color }) => (
-                          <div key={key} className="tw-text-center tw-p-3 tw-bg-gray-950 tw-bg-opacity-50 tw-rounded-lg">
-                            <div className={`tw-text-lg tw-font-bold ${color}`}>{calculateStats(keyModeData[selectedKeyMode])[key]}</div>
-                            <div className="tw-text-xs tw-text-gray-400">{label}</div>
+                          <div
+                            key={key}
+                            className='tw-text-center tw-p-3 tw-bg-gray-950 tw-bg-opacity-50 tw-rounded-lg'
+                          >
+                            <div className={`tw-text-lg tw-font-bold ${color}`}>
+                              {calculateStats(keyModeData[selectedKeyMode])[key]}
+                            </div>
+                            <div className='tw-text-xs tw-text-gray-400'>{label}</div>
                           </div>
                         ))}
                       </div>
 
                       {/* 도넛 차트 */}
-                      <div className="tw-relative tw-w-full tw-h-44 tw-flex tw-items-center tw-justify-center">
+                      <div className='tw-relative tw-w-full tw-h-44 tw-flex tw-items-center tw-justify-center'>
                         {/* 중앙 전체 곡 수 표시 - z-index 낮춤 */}
-                        <div className="tw-absolute tw-top-1/2 tw-left-1/2 tw-transform -tw-translate-x-1/2 -tw-translate-y-1/2 tw-text-center tw-w-20 tw-h-20 tw-bg-gray-950 tw-bg-opacity-50 tw-rounded-full tw-p-4 tw-pointer-events-none tw-z-0">
-                          <div className="tw-text-lg tw-font-bold">{calculateStats(keyModeData[selectedKeyMode]).total}</div>
-                          <div className="tw-text-xs tw-text-gray-300">전체</div>
+                        <div className='tw-absolute tw-top-1/2 tw-left-1/2 tw-transform -tw-translate-x-1/2 -tw-translate-y-1/2 tw-text-center tw-w-20 tw-h-20 tw-bg-gray-950 tw-bg-opacity-50 tw-rounded-full tw-p-4 tw-pointer-events-none tw-z-0'>
+                          <div className='tw-text-lg tw-font-bold'>
+                            {calculateStats(keyModeData[selectedKeyMode]).total}
+                          </div>
+                          <div className='tw-text-xs tw-text-gray-300'>전체</div>
                         </div>
 
                         {/* 도넛 차트를 위로 올림 */}
-                        <div className="tw-relative tw-z-10 tw-w-full tw-h-full">
+                        <div className='tw-relative tw-z-10 tw-w-full tw-h-full'>
                           <Doughnut
                             data={{
-                              labels: ['MAX COMBO', 'PERFECT', '99.9%+', '99.5%+', '99.0%+', '97.0%+', 'CLEAR'],
+                              labels: [
+                                'MAX COMBO',
+                                'PERFECT',
+                                '99.9%+',
+                                '99.5%+',
+                                '99.0%+',
+                                '97.0%+',
+                                'CLEAR',
+                              ],
                               datasets: [
                                 {
                                   data: [
@@ -818,7 +852,9 @@ export default function DjmaxHomeComponent() {
                                     label: (context: any) => {
                                       const label = context.label || ''
                                       const value = context.raw || 0
-                                      const total = calculateStats(keyModeData[selectedKeyMode]).total
+                                      const total = calculateStats(
+                                        keyModeData[selectedKeyMode],
+                                      ).total
                                       const percentage = ((value / total) * 100).toFixed(1)
                                       return `${label}: ${value} (${percentage}%)`
                                     },
@@ -829,18 +865,24 @@ export default function DjmaxHomeComponent() {
                           />
                         </div>
                       </div>
-                      <div className="tw-flex tw-flex-col tw-justify-center tw-items-center tw-gap-1 tw-text-xs tw-rounded-lg tw-mt-8">
-                        <div className="tw-flex tw-justify-center tw-gap-1 tw-w-full">
-                          <span className="tw-p-1 tw-px-4 tw-bg-gray-950 tw-bg-opacity-50 tw-rounded-md tw-font-extrabold tw-text-green-700">NEW 30</span>
-                          <span className="tw-p-1 tw-px-4 tw-bg-gray-950 tw-bg-opacity-50 tw-rounded-md tw-text-white">
+                      <div className='tw-flex tw-flex-col tw-justify-center tw-items-center tw-gap-1 tw-text-xs tw-rounded-lg tw-mt-8'>
+                        <div className='tw-flex tw-justify-center tw-gap-1 tw-w-full'>
+                          <span className='tw-p-1 tw-px-4 tw-bg-gray-950 tw-bg-opacity-50 tw-rounded-md tw-font-extrabold tw-text-green-700'>
+                            NEW 30
+                          </span>
+                          <span className='tw-p-1 tw-px-4 tw-bg-gray-950 tw-bg-opacity-50 tw-rounded-md tw-text-white'>
                             {cutoffScores[selectedKeyMode]?.new30.toFixed(3)} DP
                           </span>
-                          <span className="tw-p-1 tw-px-4 tw-bg-gray-950 tw-bg-opacity-50 tw-rounded-md tw-font-extrabold tw-text-yellow-500">BASIC 70</span>
-                          <span className="tw-p-1 tw-px-4 tw-bg-gray-950 tw-bg-opacity-50 tw-rounded-md tw-text-white">
+                          <span className='tw-p-1 tw-px-4 tw-bg-gray-950 tw-bg-opacity-50 tw-rounded-md tw-font-extrabold tw-text-yellow-500'>
+                            BASIC 70
+                          </span>
+                          <span className='tw-p-1 tw-px-4 tw-bg-gray-950 tw-bg-opacity-50 tw-rounded-md tw-text-white'>
                             {cutoffScores[selectedKeyMode]?.basic70.toFixed(3)} DP
                           </span>
-                          <span className="tw-p-1 tw-px-4 tw-bg-gray-950 tw-bg-opacity-50 tw-rounded-md tw-font-extrabold tw-text-red-500">TOP 50</span>
-                          <span className="tw-p-1 tw-px-4 tw-bg-gray-950 tw-bg-opacity-50 tw-rounded-md tw-text-white">
+                          <span className='tw-p-1 tw-px-4 tw-bg-gray-950 tw-bg-opacity-50 tw-rounded-md tw-font-extrabold tw-text-red-500'>
+                            TOP 50
+                          </span>
+                          <span className='tw-p-1 tw-px-4 tw-bg-gray-950 tw-bg-opacity-50 tw-rounded-md tw-text-white'>
                             {cutoffScores[selectedKeyMode]?.top50.toFixed(3)} TP
                           </span>
                         </div>
@@ -849,44 +891,65 @@ export default function DjmaxHomeComponent() {
                   </div>
 
                   {/* Total Overall Panel */}
-                  <div className="tw-flex tw-flex-col tw-gap-4">
-                    <div className="tw-flex tw-justify-between tw-items-end tw-bg-gray-800 tw-bg-opacity-40 tw-rounded-lg tw-p-4">
-                      <div className="tw-flex tw-flex-col">
-                        <span className="tw-text-xl tw-font-bold">전체 통계</span>
+                  <div className='tw-flex tw-flex-col tw-gap-4'>
+                    <div className='tw-flex tw-justify-between tw-items-end tw-bg-gray-800 tw-bg-opacity-40 tw-rounded-lg tw-p-4'>
+                      <div className='tw-flex tw-flex-col'>
+                        <span className='tw-text-xl tw-font-bold'>전체 통계</span>
                       </div>
                     </div>
 
-                    <div className="tw-bg-gray-800 tw-bg-opacity-40 tw-rounded-lg tw-p-4 tw-pb-8">
+                    <div className='tw-bg-gray-800 tw-bg-opacity-40 tw-rounded-lg tw-p-4 tw-pb-8'>
                       {/* 상단 통계 요약 */}
-                      <div className="tw-grid tw-grid-cols-3 tw-gap-2 tw-mb-8">
+                      <div className='tw-grid tw-grid-cols-3 tw-gap-2 tw-mb-8'>
                         {[
                           { key: 'maxCombo', label: '맥스 콤보', color: 'tw-text-green-500' },
                           { key: 'perfect', label: '퍼펙트', color: 'tw-text-red-500' },
                           { key: 'clear', label: '클리어', color: 'tw-text-blue-500' },
                         ].map(({ key, label, color }) => (
-                          <div key={key} className="tw-text-center tw-p-3 tw-bg-gray-950 tw-bg-opacity-50 tw-rounded-lg">
-                            <div className={`tw-text-lg tw-font-bold ${color}`}>{totalStats[key]}</div>
-                            <div className="tw-text-xs tw-text-gray-400">{label}</div>
+                          <div
+                            key={key}
+                            className='tw-text-center tw-p-3 tw-bg-gray-950 tw-bg-opacity-50 tw-rounded-lg'
+                          >
+                            <div className={`tw-text-lg tw-font-bold ${color}`}>
+                              {totalStats[key]}
+                            </div>
+                            <div className='tw-text-xs tw-text-gray-400'>{label}</div>
                           </div>
                         ))}
                       </div>
 
                       {/* 도넛 차트 */}
-                      <div className="tw-relative tw-w-full tw-h-44 tw-flex tw-items-center tw-justify-center">
-                        <div className="tw-absolute tw-top-1/2 tw-left-1/2 tw-transform -tw-translate-x-1/2 -tw-translate-y-1/2 tw-text-center tw-w-20 tw-h-20 tw-bg-gray-950 tw-bg-opacity-50 tw-rounded-full tw-p-4 tw-pointer-events-none tw-z-0">
-                          <div className="tw-text-lg tw-font-bold">{totalStats.totalPatterns}</div>
-                          <div className="tw-text-xs tw-text-gray-300">전체</div>
+                      <div className='tw-relative tw-w-full tw-h-44 tw-flex tw-items-center tw-justify-center'>
+                        <div className='tw-absolute tw-top-1/2 tw-left-1/2 tw-transform -tw-translate-x-1/2 -tw-translate-y-1/2 tw-text-center tw-w-20 tw-h-20 tw-bg-gray-950 tw-bg-opacity-50 tw-rounded-full tw-p-4 tw-pointer-events-none tw-z-0'>
+                          <div className='tw-text-lg tw-font-bold'>{totalStats.totalPatterns}</div>
+                          <div className='tw-text-xs tw-text-gray-300'>전체</div>
                         </div>
 
-                        <div className="tw-relative tw-z-10 tw-w-full tw-h-full">
+                        <div className='tw-relative tw-z-10 tw-w-full tw-h-full'>
                           <Doughnut
                             data={{
-                              labels: ['MAX COMBO', 'PERFECT', '99.9%+', '99.5%+', '99.0%+', '97.0%+', 'CLEAR'],
+                              labels: [
+                                'MAX COMBO',
+                                'PERFECT',
+                                '99.9%+',
+                                '99.5%+',
+                                '99.0%+',
+                                '97.0%+',
+                                'CLEAR',
+                              ],
                               datasets: [
                                 {
                                   data: [totalStats.maxCombo, totalStats.perfect, totalStats.clear],
-                                  backgroundColor: ['rgba(34, 197, 94, 0.8)', 'rgba(239, 68, 68, 0.8)', 'rgba(59, 130, 246, 0.8)'],
-                                  borderColor: ['rgba(34, 197, 94, 1)', 'rgba(239, 68, 68, 1)', 'rgba(59, 130, 246, 1)'],
+                                  backgroundColor: [
+                                    'rgba(34, 197, 94, 0.8)',
+                                    'rgba(239, 68, 68, 0.8)',
+                                    'rgba(59, 130, 246, 0.8)',
+                                  ],
+                                  borderColor: [
+                                    'rgba(34, 197, 94, 1)',
+                                    'rgba(239, 68, 68, 1)',
+                                    'rgba(59, 130, 246, 1)',
+                                  ],
                                   borderWidth: 1,
                                 },
                               ],
@@ -905,7 +968,10 @@ export default function DjmaxHomeComponent() {
                                     label: (context: any) => {
                                       const label = context.label || ''
                                       const value = context.raw || 0
-                                      const percentage = ((value / totalStats.totalPatterns) * 100).toFixed(1)
+                                      const percentage = (
+                                        (value / totalStats.totalPatterns) *
+                                        100
+                                      ).toFixed(1)
                                       return `${label}: ${value} (${percentage}%)`
                                     },
                                   },
@@ -920,16 +986,18 @@ export default function DjmaxHomeComponent() {
                 </div>
 
                 {/* 최고 성과 패널 */}
-                <div className=" tw-w-2/5">
-                  <div className="tw-flex tw-flex-col tw-gap-4 tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-shadow-lg tw-p-4">
-                    <span className="tw-text-lg tw-font-bold">🎯 {selectedKeyMode}B 최고 성과 기록</span>
+                <div className='tw-w-2/5'>
+                  <div className='tw-flex tw-flex-col tw-gap-4 tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-shadow-lg tw-p-4'>
+                    <span className='tw-text-lg tw-font-bold'>
+                      🎯 {selectedKeyMode}B 최고 성과 기록
+                    </span>
                     {!isLoading && keyModeData[selectedKeyMode] && (
                       <motion.div
                         key={`achievements_${selectedKeyMode}`}
                         initial={{ opacity: 0, x: 10 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.2 }}
-                        className="tw-flex tw-flex-col tw-gap-2"
+                        className='tw-flex tw-flex-col tw-gap-2'
                       >
                         {Object.entries({
                           maxCombo: '맥스 콤보',
@@ -942,7 +1010,10 @@ export default function DjmaxHomeComponent() {
                         }).map(([key, label]) => {
                           const patterns = keyModeData[selectedKeyMode]
                           const condition = (pattern: Pattern) => {
-                            const score = typeof pattern.score === 'string' ? parseFloat(pattern.score) : pattern.score
+                            const score =
+                              typeof pattern.score === 'string'
+                                ? parseFloat(pattern.score)
+                                : pattern.score
                             if (score === null) return false
 
                             // perfect, maxCombo, clear는 독립적으로 체크
@@ -976,14 +1047,21 @@ export default function DjmaxHomeComponent() {
                           if (!highestPattern) return null
 
                           return (
-                            <div key={`${key}_${selectedKeyMode}`} className="tw-flex tw-gap-2">
-                              <ScorePopupComponent songItemTitle={String(highestPattern.title)} keyMode={selectedKeyMode} />
-                              <div className="tw-flex tw-flex-col tw-gap-1 tw-bg-gray-950 tw-bg-opacity-50 tw-rounded-md tw-p-3 tw-flex-1">
-                                <div className="tw-flex tw-justify-between tw-items-center">
-                                  <span className="tw-text-sm tw-font-bold">{label}</span>
-                                  <span className="tw-text-sm tw-font-extrabold">{getLevelDisplay(highestPattern)}</span>
+                            <div key={`${key}_${selectedKeyMode}`} className='tw-flex tw-gap-2'>
+                              <ScorePopupComponent
+                                songItemTitle={String(highestPattern.title)}
+                                keyMode={selectedKeyMode}
+                              />
+                              <div className='tw-flex tw-flex-col tw-gap-1 tw-bg-gray-950 tw-bg-opacity-50 tw-rounded-md tw-p-3 tw-flex-1'>
+                                <div className='tw-flex tw-justify-between tw-items-center'>
+                                  <span className='tw-text-sm tw-font-bold'>{label}</span>
+                                  <span className='tw-text-sm tw-font-extrabold'>
+                                    {getLevelDisplay(highestPattern)}
+                                  </span>
                                 </div>
-                                <p className="tw-text-sm tw-text-gray-400 tw-break-all tw-max-w-full">{highestPattern.name}</p>
+                                <p className='tw-text-sm tw-text-gray-400 tw-break-all tw-max-w-full'>
+                                  {highestPattern.name}
+                                </p>
                               </div>
                             </div>
                           )
@@ -994,7 +1072,7 @@ export default function DjmaxHomeComponent() {
                 </div>
               </div>
 
-              <div className="tw-flex tw-gap-4">
+              <div className='tw-flex tw-gap-4'>
                 {/* <div className="tw-flex tw-flex-col tw-gap-4 tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-shadow-lg tw-p-6 tw-flex-1">
                       <div className="tw-flex tw-items-center tw-justify-between">
                         <span className="tw-text-lg tw-font-bold">🎮 성과표 바로가기</span>
@@ -1029,7 +1107,7 @@ export default function DjmaxHomeComponent() {
         </>
       )}
 
-      <div id="ContentFooter" />
+      <div id='ContentFooter' />
 
       {/* <div className="tw-flex tw-items-center tw-justify-between tw-mb-4">
         <span className="tw-text-lg tw-font-bold">📊 통계</span>

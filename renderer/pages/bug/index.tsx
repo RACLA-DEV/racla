@@ -1,16 +1,15 @@
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
-import { SyncLoader } from 'react-spinners'
-import { BsList, BsGrid } from 'react-icons/bs'
-import { motion, AnimatePresence } from 'framer-motion'
-import { useSelector } from 'react-redux'
-import { RootState } from 'store'
-import axios from 'axios'
-import { useNotificationSystem } from '@/libs/client/useNotifications'
 import Modal from '@/components/common/Modal'
-import moment from 'moment'
-import { CKEditor } from '@ckeditor/ckeditor5-react'
+import { useNotificationSystem } from '@/libs/client/useNotifications'
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic'
+import { CKEditor } from '@ckeditor/ckeditor5-react'
+import axios from 'axios'
+import { motion } from 'framer-motion'
+import moment from 'moment'
+import { useSelector } from 'react-redux'
+import { SyncLoader } from 'react-spinners'
+import { RootState } from 'store'
 
 interface Bug {
   id: number
@@ -157,12 +156,26 @@ export default function BugList() {
   }
 
   function uploadPlugin(editor) {
-    editor.plugins.get('FileRepository').createUploadAdapter = (loader) => customUploadAdapter(loader)
+    editor.plugins.get('FileRepository').createUploadAdapter = (loader) =>
+      customUploadAdapter(loader)
   }
 
   const editorConfiguration = {
     licenseKey: 'GPL',
-    toolbar: ['heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', '|', 'uploadImage', '|', 'undo', 'redo'],
+    toolbar: [
+      'heading',
+      '|',
+      'bold',
+      'italic',
+      'link',
+      'bulletedList',
+      'numberedList',
+      '|',
+      'uploadImage',
+      '|',
+      'undo',
+      'redo',
+    ],
     extraPlugins: [uploadPlugin],
     placeholder: '내용을 입력하세요',
     image: {
@@ -173,15 +186,19 @@ export default function BugList() {
   }
 
   return (
-    <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="tw-flex tw-flex-col tw-gap-4">
-      <div className="tw-flex tw-flex-col tw-gap-4 tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-shadow-lg p-4">
-        <div className="tw-flex tw-justify-between tw-items-center">
-          <h1 className="tw-text-2xl tw-font-bold">피드백 센터</h1>
+    <motion.div
+      initial={{ opacity: 0, x: 20 }}
+      animate={{ opacity: 1, x: 0 }}
+      className='tw-flex tw-flex-col tw-gap-4'
+    >
+      <div className='tw-flex tw-flex-col tw-gap-4 tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-shadow-lg p-4'>
+        <div className='tw-flex tw-justify-between tw-items-center'>
+          <h1 className='tw-text-2xl tw-font-bold'>피드백 센터</h1>
           {userData.userName !== '' ? (
             <button
-              type="button"
+              type='button'
               onClick={() => setIsModalVisible(true)}
-              className="tw-px-4 tw-py-1.5 tw-text-sm tw-bg-blue-600 tw-rounded hover:tw-bg-blue-700"
+              className='tw-px-4 tw-py-1.5 tw-text-sm tw-bg-blue-600 tw-rounded hover:tw-bg-blue-700'
             >
               피드백 생성
             </button>
@@ -190,28 +207,32 @@ export default function BugList() {
           )}
         </div>
 
-        <div className="tw-bg-gray-700 tw-bg-opacity-30 tw-p-4 tw-rounded tw-space-y-2 tw-mb-auto">
-          <p className="tw-leading-relaxed">
-            버그 신고, 의견 제공 등의 피드백을 작성 및 확인 할 수 있는 공간입니다. 부적절한 언어 사용과 문제 발생 시 피드백 센터의 이용 제한 조치가 이루어질 수
-            있습니다.
+        <div className='tw-bg-gray-700 tw-bg-opacity-30 tw-p-4 tw-rounded tw-space-y-2 tw-mb-auto'>
+          <p className='tw-leading-relaxed'>
+            버그 신고, 의견 제공 등의 피드백을 작성 및 확인 할 수 있는 공간입니다. 부적절한 언어
+            사용과 문제 발생 시 피드백 센터의 이용 제한 조치가 이루어질 수 있습니다.
           </p>
-          <p className="tw-leading-relaxed">OPEN 상태는 아직 개발자가 확인하지 않은 단계를 의미하며 해당 내용이 확인된 경우 IN_PROGRESS 상태로 전환됩니다. </p>
-          <p className="tw-leading-relaxed">
-            CLOSED 상태인 경우 해당 피드백에 대한 조치가 완료 되었다는 것을 의미하며 원본 내용을 유지하기 위해 추가 의견을 작성할 수 없습니다.
+          <p className='tw-leading-relaxed'>
+            OPEN 상태는 아직 개발자가 확인하지 않은 단계를 의미하며 해당 내용이 확인된 경우
+            IN_PROGRESS 상태로 전환됩니다.{' '}
+          </p>
+          <p className='tw-leading-relaxed'>
+            CLOSED 상태인 경우 해당 피드백에 대한 조치가 완료 되었다는 것을 의미하며 원본 내용을
+            유지하기 위해 추가 의견을 작성할 수 없습니다.
           </p>
         </div>
 
         {notices.length > 0 && (
-          <div className="tw-flex tw-flex-col tw-gap-2">
-            <h2 className="tw-text-xl tw-font-bold">고정됨</h2>
+          <div className='tw-flex tw-flex-col tw-gap-2'>
+            <h2 className='tw-text-xl tw-font-bold'>고정됨</h2>
 
-            <div className="tw-flex tw-flex-col tw-bg-gray-600 tw-bg-opacity-10 tw-rounded-md tw-px-4 tw-py-2">
-              <div className="tw-flex tw-items-center tw-gap-4 tw-p-2 tw-border-b tw-border-gray-600 tw-text-gray-400 tw-font-bold tw-text-sm">
-                <div className="tw-w-32">#</div>
-                <div className="tw-flex-1">제목</div>
-                <div className="tw-w-32">상태</div>
-                <div className="tw-w-32">작성자</div>
-                <div className="tw-w-32">작성일</div>
+            <div className='tw-flex tw-flex-col tw-bg-gray-600 tw-bg-opacity-10 tw-rounded-md tw-px-4 tw-py-2'>
+              <div className='tw-flex tw-items-center tw-gap-4 tw-p-2 tw-border-b tw-border-gray-600 tw-text-gray-400 tw-font-bold tw-text-sm'>
+                <div className='tw-w-32'>#</div>
+                <div className='tw-flex-1'>제목</div>
+                <div className='tw-w-32'>상태</div>
+                <div className='tw-w-32'>작성자</div>
+                <div className='tw-w-32'>작성일</div>
               </div>
               {notices.map((notice, index) => (
                 <motion.div
@@ -224,17 +245,23 @@ export default function BugList() {
                   }
                   onClick={() => router.push(`/bug/${notice.id}`)}
                 >
-                  <div className="tw-w-32 tw-text-gray-400">#{notice.id}</div>
-                  <div className="tw-flex-1 tw-text-white">{notice.title}</div>
+                  <div className='tw-w-32 tw-text-gray-400'>#{notice.id}</div>
+                  <div className='tw-flex-1 tw-text-white'>{notice.title}</div>
                   <div
                     className={`tw-w-32 ${
-                      notice.status === 'OPEN' ? 'tw-text-green-500' : notice.status === 'IN_PROGRESS' ? 'tw-text-blue-500' : 'tw-text-red-500'
+                      notice.status === 'OPEN'
+                        ? 'tw-text-green-500'
+                        : notice.status === 'IN_PROGRESS'
+                          ? 'tw-text-blue-500'
+                          : 'tw-text-red-500'
                     }`}
                   >
                     {notice.status}
                   </div>
-                  <div className="tw-w-32 tw-text-gray-400">{notice.reporterName}</div>
-                  <div className="tw-w-32 tw-text-gray-400">{moment(notice.createdAt).format('YYYY-MM-DD')}</div>
+                  <div className='tw-w-32 tw-text-gray-400'>{notice.reporterName}</div>
+                  <div className='tw-w-32 tw-text-gray-400'>
+                    {moment(notice.createdAt).format('YYYY-MM-DD')}
+                  </div>
                 </motion.div>
               ))}
             </div>
@@ -242,19 +269,19 @@ export default function BugList() {
         )}
 
         {loading ? (
-          <div className="tw-flex tw-justify-center tw-items-center tw-h-64">
-            <SyncLoader color="#ffffff" size={8} />
+          <div className='tw-flex tw-justify-center tw-items-center tw-h-64'>
+            <SyncLoader color='#ffffff' size={8} />
           </div>
         ) : (
           <>
-            <h2 className="tw-text-xl tw-font-bold">목록</h2>
-            <div className="tw-flex tw-flex-col tw-bg-gray-600 tw-bg-opacity-10 tw-rounded-md tw-px-4 tw-py-2">
-              <div className="tw-flex tw-items-center tw-gap-4 tw-p-2 tw-border-b tw-border-gray-600 tw-text-gray-400 tw-font-bold tw-text-sm">
-                <div className="tw-w-32">#</div>
-                <div className="tw-flex-1">제목</div>
-                <div className="tw-w-32">상태</div>
-                <div className="tw-w-32">작성자</div>
-                <div className="tw-w-32">작성일</div>
+            <h2 className='tw-text-xl tw-font-bold'>목록</h2>
+            <div className='tw-flex tw-flex-col tw-bg-gray-600 tw-bg-opacity-10 tw-rounded-md tw-px-4 tw-py-2'>
+              <div className='tw-flex tw-items-center tw-gap-4 tw-p-2 tw-border-b tw-border-gray-600 tw-text-gray-400 tw-font-bold tw-text-sm'>
+                <div className='tw-w-32'>#</div>
+                <div className='tw-flex-1'>제목</div>
+                <div className='tw-w-32'>상태</div>
+                <div className='tw-w-32'>작성자</div>
+                <div className='tw-w-32'>작성일</div>
               </div>
               {bugs.map((bug, index) => (
                 <motion.div
@@ -267,29 +294,35 @@ export default function BugList() {
                   }
                   onClick={() => router.push(`/bug/${bug.id}`)}
                 >
-                  <div className="tw-w-32 tw-text-gray-400">#{bug.id}</div>
-                  <div className="tw-flex-1 tw-text-white">{bug.title}</div>
+                  <div className='tw-w-32 tw-text-gray-400'>#{bug.id}</div>
+                  <div className='tw-flex-1 tw-text-white'>{bug.title}</div>
                   <div
                     className={`tw-w-32 ${bug.status === 'OPEN' ? 'tw-text-green-500' : bug.status === 'IN_PROGRESS' ? 'tw-text-blue-500' : 'tw-text-red-500'}`}
                   >
                     {bug.status}
                   </div>
-                  <div className="tw-w-32 tw-text-gray-400">{bug.reporterName}</div>
-                  <div className="tw-w-32 tw-text-gray-400">{moment(bug.createdAt).format('YYYY-MM-DD')}</div>
+                  <div className='tw-w-32 tw-text-gray-400'>{bug.reporterName}</div>
+                  <div className='tw-w-32 tw-text-gray-400'>
+                    {moment(bug.createdAt).format('YYYY-MM-DD')}
+                  </div>
                 </motion.div>
               ))}
             </div>
           </>
         )}
 
-        <div className="tw-mt-6 tw-flex tw-justify-center">
-          <div className="tw-flex tw-gap-2">
-            {Array.from({ length: Math.max(1, Math.ceil(pagination.total / pagination.pageSize)) }).map((_, i) => (
+        <div className='tw-mt-6 tw-flex tw-justify-center'>
+          <div className='tw-flex tw-gap-2'>
+            {Array.from({
+              length: Math.max(1, Math.ceil(pagination.total / pagination.pageSize)),
+            }).map((_, i) => (
               <button
                 key={i}
                 onClick={() => fetchBugs(i)}
                 className={`tw-px-3 tw-py-1 tw-rounded ${
-                  pagination.current === i + 1 ? 'tw-bg-blue-600' : 'tw-bg-gray-700 hover:tw-bg-gray-600'
+                  pagination.current === i + 1
+                    ? 'tw-bg-blue-600'
+                    : 'tw-bg-gray-700 hover:tw-bg-gray-600'
                 } tw-transition-colors`}
               >
                 {i + 1}
@@ -298,22 +331,26 @@ export default function BugList() {
           </div>
         </div>
 
-        <Modal isOpen={isModalVisible} onClose={() => setIsModalVisible(false)} title="피드백 작성하기">
-          <div className="tw-flex tw-flex-col tw-h-full">
-            <div className="tw-shrink-0 tw-mb-4">
-              <label className="tw-block tw-mb-2">제목</label>
+        <Modal
+          isOpen={isModalVisible}
+          onClose={() => setIsModalVisible(false)}
+          title='피드백 작성하기'
+        >
+          <div className='tw-flex tw-flex-col tw-h-full'>
+            <div className='tw-shrink-0 tw-mb-4'>
+              <label className='tw-block tw-mb-2'>제목</label>
               <input
-                type="text"
+                type='text'
                 value={newBug.title}
                 onChange={(e) => setNewBug({ ...newBug, title: e.target.value })}
-                className="tw-w-full tw-bg-gray-700 tw-rounded tw-px-3 tw-py-2 focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-blue-500"
-                placeholder="제목을 입력하세요"
+                className='tw-w-full tw-bg-gray-700 tw-rounded tw-px-3 tw-py-2 focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-blue-500'
+                placeholder='제목을 입력하세요'
               />
             </div>
 
-            <div className="tw-flex-1 tw-min-h-0">
-              <label className="tw-block tw-mb-2">내용</label>
-              <div className="tw-h-full tw-bg-gray-700 tw-rounded tw-overflow-y-auto">
+            <div className='tw-flex-1 tw-min-h-0'>
+              <label className='tw-block tw-mb-2'>내용</label>
+              <div className='tw-h-full tw-bg-gray-700 tw-rounded tw-overflow-y-auto'>
                 <CKEditor
                   editor={ClassicEditor}
                   data={newBug.description}
@@ -326,16 +363,19 @@ export default function BugList() {
               </div>
             </div>
 
-            <div className="tw-shrink-0 tw-mt-4 tw-flex tw-justify-end tw-gap-2">
-              <button onClick={() => setIsModalVisible(false)} className="tw-px-4 tw-py-2 tw-bg-gray-700 tw-rounded hover:tw-bg-gray-600 tw-transition-colors">
+            <div className='tw-shrink-0 tw-mt-4 tw-flex tw-justify-end tw-gap-2'>
+              <button
+                onClick={() => setIsModalVisible(false)}
+                className='tw-px-4 tw-py-2 tw-bg-gray-700 tw-rounded hover:tw-bg-gray-600 tw-transition-colors'
+              >
                 취소
               </button>
               <button
                 onClick={handleCreateBug}
                 disabled={loading}
-                className="tw-px-4 tw-py-2 tw-bg-blue-600 tw-rounded hover:tw-bg-blue-700 tw-transition-colors disabled:tw-opacity-50"
+                className='tw-px-4 tw-py-2 tw-bg-blue-600 tw-rounded hover:tw-bg-blue-700 tw-transition-colors disabled:tw-opacity-50'
               >
-                {loading ? <SyncLoader size={8} color="#ffffff" /> : '작성하기'}
+                {loading ? <SyncLoader size={8} color='#ffffff' /> : '작성하기'}
               </button>
             </div>
           </div>

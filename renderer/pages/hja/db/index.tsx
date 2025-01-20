@@ -62,7 +62,6 @@ export default function VArchiveDbPage() {
 
   const [selectedSongIndex, setSelectedSongIndex] = useState<number>(-1)
   const selectedSongRef = useRef<HTMLDivElement>(null)
-  const [difficulty, setDifficulty] = useState<'all' | 'sc'>('all')
 
   const router = useRouter()
 
@@ -315,14 +314,11 @@ export default function VArchiveDbPage() {
       // 난이도 필터
       const levelFilter =
         selectedLevel === 'all' ||
-        (difficulty === 'all'
-          ? ['NM', 'HD', 'MX', 'SC'].some(
-              (diff) =>
-                Math.floor(songItem.patterns[keyMode + 'B']?.[diff]?.level ?? 0) ===
-                parseInt(selectedLevel),
-            )
-          : Math.floor(songItem.patterns[keyMode + 'B']?.['SC']?.level ?? 0) ===
-            parseInt(selectedLevel))
+        ['NM', 'HD', 'MX', 'SC'].some(
+          (difficulty) =>
+            Math.floor(songItem.patterns[keyMode + 'B']?.[difficulty]?.level ?? 0) ===
+            parseInt(selectedLevel),
+        )
 
       // DLC 필터 추가
       const dlcFilter = selectedDlcCode === 'all' || songItem.dlcCode === selectedDlcCode
@@ -338,7 +334,7 @@ export default function VArchiveDbPage() {
         return b.name.localeCompare(a.name)
       }
     })
-  }, [songData, searchName, selectedLevel, keyMode, sortOrder, selectedDlcCode, difficulty])
+  }, [songData, searchName, selectedLevel, keyMode, sortOrder, selectedDlcCode])
 
   // 스크롤 시 더 많은 아이템 로드
   useEffect(() => {
@@ -547,20 +543,6 @@ export default function VArchiveDbPage() {
                         >
                           {sortOrder === 'asc' ? '이름 ↑' : '이름 ↓'}
                         </button>
-                        <button
-                          onClick={() => {
-                            console.log('Current difficulty:', difficulty)
-                            setDifficulty(difficulty === 'all' ? 'sc' : 'all')
-                            console.log('New difficulty:', difficulty === 'all' ? 'sc' : 'all')
-                          }}
-                          className={`tw-text-light tw-px-4 tw-py-2 tw-rounded-lg tw-border tw-border-gray-600 tw-border-opacity-50 tw-transition-all ${
-                            difficulty === 'sc'
-                              ? 'tw-bg-blue-500 tw-bg-opacity-100 tw-text-white hover:tw-bg-blue-500'
-                              : 'tw-bg-gray-900 tw-bg-opacity-50 hover:tw-bg-gray-800'
-                          }`}
-                        >
-                          SC ONLY {difficulty === 'sc' ? 'ON' : 'OFF'}
-                        </button>
                         <select
                           value={selectedLevel}
                           onChange={(e) => setSelectedLevel(e.target.value)}
@@ -693,18 +675,10 @@ export default function VArchiveDbPage() {
                                     <div
                                       className={`tw-flex tw-justify-center tw-items-center tw-gap-1 tw-font-extrabold ${
                                         selectedLevel === 'all' ||
-                                        (difficulty === 'all'
-                                          ? Math.floor(
-                                              songItem.patterns[`${keyMode.replace('P', '')}B`][
-                                                diff
-                                              ].level,
-                                            ) == Number(selectedLevel)
-                                          : diff === 'SC' &&
-                                            Math.floor(
-                                              songItem.patterns[`${keyMode.replace('P', '')}B`][
-                                                'SC'
-                                              ]?.level,
-                                            ) == Number(selectedLevel))
+                                        Math.floor(
+                                          songItem.patterns[`${keyMode.replace('P', '')}B`][diff]
+                                            .level,
+                                        ) == Number(selectedLevel)
                                           ? ''
                                           : 'tw-opacity-30'
                                       } ${diff === 'NM' && 'tw-text-respect-nm-5'} ${diff === 'HD' && 'tw-text-respect-nm-10'} ${diff === 'MX' && 'tw-text-respect-nm-15'} ${diff === 'SC' && 'tw-text-respect-sc-15'} `}

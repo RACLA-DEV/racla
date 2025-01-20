@@ -1,6 +1,7 @@
-import React, { useCallback } from 'react'
-import { FixedSizeGrid } from 'react-window'
+import { useCallback } from 'react'
+
 import { useWindowSize } from '@/libs/client/useWindowSize'
+import { FixedSizeGrid } from 'react-window'
 import ScorePopupComponent from '../score/ScorePopupComponent'
 
 interface VirtualizedSongListProps {
@@ -9,7 +10,11 @@ interface VirtualizedSongListProps {
   isScored: boolean
 }
 
-export default function VirtualizedSongList({ items, keyMode, isScored }: VirtualizedSongListProps) {
+export default function VirtualizedSongList({
+  items,
+  keyMode,
+  isScored,
+}: VirtualizedSongListProps) {
   const { width: windowWidth, height: windowHeight } = useWindowSize()
   const COLUMN_WIDTH = 120
   const ROW_HEIGHT = 120
@@ -17,25 +22,28 @@ export default function VirtualizedSongList({ items, keyMode, isScored }: Virtua
   const COLUMN_COUNT = Math.floor((windowWidth - PADDING) / COLUMN_WIDTH) || 6
   const ROW_COUNT = Math.ceil(items.length / COLUMN_COUNT)
 
-  const Cell = useCallback(({ columnIndex, rowIndex, style }) => {
-    const index = rowIndex * COLUMN_COUNT + columnIndex
-    const item = items[index]
-    
-    if (!item) return null
+  const Cell = useCallback(
+    ({ columnIndex, rowIndex, style }) => {
+      const index = rowIndex * COLUMN_COUNT + columnIndex
+      const item = items[index]
 
-    return (
-      <div style={style} className="tw-p-2">
-        <ScorePopupComponent
-          songItem={item}
-          songItemTitle={item.title}
-          keyMode={keyMode}
-          isScored={isScored}
-          isVisibleCode={true}
-          size={80}
-        />
-      </div>
-    )
-  }, [items, keyMode, isScored, COLUMN_COUNT])
+      if (!item) return null
+
+      return (
+        <div style={style} className='tw-p-2'>
+          <ScorePopupComponent
+            songItem={item}
+            songItemTitle={item.title}
+            keyMode={keyMode}
+            isScored={isScored}
+            isVisibleCode={true}
+            size={80}
+          />
+        </div>
+      )
+    },
+    [items, keyMode, isScored, COLUMN_COUNT],
+  )
 
   return (
     <FixedSizeGrid
@@ -45,7 +53,7 @@ export default function VirtualizedSongList({ items, keyMode, isScored }: Virtua
       rowCount={ROW_COUNT}
       rowHeight={ROW_HEIGHT}
       width={COLUMN_COUNT * COLUMN_WIDTH}
-      className="tw-mx-auto"
+      className='tw-mx-auto'
     >
       {Cell}
     </FixedSizeGrid>

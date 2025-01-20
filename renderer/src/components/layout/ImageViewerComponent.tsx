@@ -1,5 +1,6 @@
-import React, { useState, useRef, MouseEvent, useEffect, WheelEvent } from 'react'
-import { FaX, FaPlus, FaMinus, FaXmark } from 'react-icons/fa6'
+import { MouseEvent, WheelEvent, useEffect, useRef, useState } from 'react'
+import { FaMinus, FaPlus, FaXmark } from 'react-icons/fa6'
+
 import { createPortal } from 'react-dom'
 
 interface ImageViewerProps {
@@ -90,10 +91,13 @@ export default function ImageViewerComponent({ src, alt = '', onClose }: ImageVi
   }, [onClose])
 
   return createPortal(
-    <div className={`tw-fixed tw-inset-0 tw-transition-opacity tw-duration-300 ${isVisible ? 'tw-opacity-100' : 'tw-opacity-0'}`} style={{ zIndex: 99999 }}>
+    <div
+      className={`tw-fixed tw-inset-0 tw-transition-opacity tw-duration-300 ${isVisible ? 'tw-opacity-100' : 'tw-opacity-0'}`}
+      style={{ zIndex: 99999 }}
+    >
       {/* 배경 */}
       <div
-        className="tw-fixed tw-h-screen tw-w-screen tw-inset-0 tw-bg-gray-950 tw-bg-opacity-75"
+        className='tw-fixed tw-h-screen tw-w-screen tw-inset-0 tw-bg-gray-950 tw-bg-opacity-75'
         style={{ position: 'fixed', left: 0, top: 0, zIndex: 99998 }}
       />
 
@@ -111,17 +115,26 @@ export default function ImageViewerComponent({ src, alt = '', onClose }: ImageVi
       >
         {/* 컨트롤 버튼 */}
         <div
-          className="tw-absolute tw-bottom-20 tw-flex tw-gap-4 tw-bg-gray-900 tw-shadow-lg tw-border tw-border-gray-800 tw-rounded-md tw-p-2"
+          className='tw-absolute tw-bottom-20 tw-flex tw-gap-4 tw-bg-gray-900 tw-shadow-lg tw-border tw-border-gray-800 tw-rounded-md tw-p-2'
           style={{ zIndex: 100000 }}
         >
-          <button onClick={handleZoomOut} className="tw-p-2 tw-rounded-md tw-bg-gray-800 hover:tw-bg-gray-700 tw-text-white">
-            <FaMinus className="tw-w-4 tw-h-4" />
+          <button
+            onClick={handleZoomOut}
+            className='tw-p-2 tw-rounded-md tw-bg-gray-800 hover:tw-bg-gray-700 tw-text-white'
+          >
+            <FaMinus className='tw-w-4 tw-h-4' />
           </button>
-          <button onClick={handleZoomIn} className="tw-p-2 tw-rounded-md tw-bg-gray-800 hover:tw-bg-gray-700 tw-text-white">
-            <FaPlus className="tw-w-4 tw-h-4" />
+          <button
+            onClick={handleZoomIn}
+            className='tw-p-2 tw-rounded-md tw-bg-gray-800 hover:tw-bg-gray-700 tw-text-white'
+          >
+            <FaPlus className='tw-w-4 tw-h-4' />
           </button>
-          <button onClick={handleClose} className="tw-p-2 tw-rounded-md tw-bg-gray-800 hover:tw-bg-gray-700 tw-text-white">
-            <FaXmark className="tw-w-4 tw-h-4" />
+          <button
+            onClick={handleClose}
+            className='tw-p-2 tw-rounded-md tw-bg-gray-800 hover:tw-bg-gray-700 tw-text-white'
+          >
+            <FaXmark className='tw-w-4 tw-h-4' />
           </button>
         </div>
 
@@ -136,7 +149,7 @@ export default function ImageViewerComponent({ src, alt = '', onClose }: ImageVi
           <img
             src={src}
             alt={alt}
-            className="tw-transition-transform tw-duration-200 tw-pointer-events-none"
+            className='tw-transition-transform tw-duration-200 tw-pointer-events-none'
             style={{
               transform: `scale(${scale})`,
               maxWidth: '90vw',

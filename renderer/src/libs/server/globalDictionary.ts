@@ -1,26 +1,16 @@
-import { v4 as uuidv4 } from 'uuid'
 import {
   FaCompactDisc,
-  FaRankingStar,
   FaDatabase,
-  FaDumbbell,
-  FaGraduationCap,
-  FaGear,
-  FaNoteSticky,
   FaDice,
-  FaRobot,
-  FaTableCells,
-  FaMobileScreen,
-  FaList,
-  FaUpload,
-  FaWindowMaximize,
-  FaWandMagicSparkles,
-  FaDownload,
-  FaTrophy,
-  FaTextSlash,
   FaHouse,
-  FaUsers,
   FaKeyboard,
+  FaList,
+  FaRankingStar,
+  FaRobot,
+  FaTrophy,
+  FaUpload,
+  FaWandMagicSparkles,
+  FaWindowMaximize,
 } from 'react-icons/fa6'
 
 export const globalDictionary = {
@@ -49,7 +39,8 @@ export const globalDictionary = {
       visibleBga: {
         id: 'visibleBga',
         name: 'BGA 영상 표시',
-        description: '기본적인 배경 BGA 영상과 BGA가 존재하는 곡의 이미지(자켓)에 마우스 커서를 올려둔 경우 해당 곡의 BGA 영상을 표시합니다.',
+        description:
+          '기본적인 배경 BGA 영상과 BGA가 존재하는 곡의 이미지(자켓)에 마우스 커서를 올려둔 경우 해당 곡의 BGA 영상을 표시합니다.',
         defaultValue: true,
         isEditable: true,
         requiresRestart: false,
@@ -316,7 +307,10 @@ export const globalDictionary = {
   },
   wjmax: {
     keyModeList: ['4', '4P', '6', '6P'],
-    levelList: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30],
+    levelList: [
+      1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26,
+      27, 28, 29, 30,
+    ],
     difficulty: {
       NM: {
         name: 'NM',
@@ -428,7 +422,7 @@ export const globalDictionary = {
               lastWithSup: '',
             },
             description: 'V-ARCHIVE 성과표',
-            icon: FaTrophy,
+            icon: FaList,
             isDisplay: true,
             isOpenBrowser: false,
             link: '/board',
@@ -518,21 +512,22 @@ export const globalDictionary = {
         link: '/hja',
         userLevel: [],
         pages: [
-          // {
-          //   id: 'hjaNavItemsRanking',
-          //   name: {
-          //     startWithSup: '',
-          //     base: '랭킹',
-          //     lastWithSup: '',
-          //   },
-          //   description: '전일 아카이브 랭킹, RACLA의 운영 정책 상 외부 링크로 제공됩니다.',
-          //   icon: FaRankingStar,
-          //   isDisplay: true,
-          //   isOpenBrowser: true,
-          //   link: 'https://hard-archive.com/ranking',
-          //   userLevel: [],
-          //   status: 'stable',
-          // },
+          {
+            id: 'hjaNavItemsRanking',
+            name: {
+              startWithSup: '',
+              base: '랭킹',
+              lastWithSup: '',
+            },
+            // description: '전일 아카이브 랭킹, RACLA의 운영 정책 상 외부 링크로 제공됩니다.',
+            description: '전일 아카이브 랭킹',
+            icon: FaTrophy,
+            isDisplay: true,
+            isOpenBrowser: false,
+            link: '/ranking',
+            userLevel: [],
+            status: 'stable',
+          },
           {
             id: 'hjaNavItemsGrade',
             name: {

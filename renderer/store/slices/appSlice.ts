@@ -1,5 +1,4 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { set } from 'ramda'
+import { PayloadAction, createSlice } from '@reduxjs/toolkit'
 
 interface AppState {
   selectedGame: string
@@ -78,7 +77,10 @@ export const appSlice = createSlice({
     setSettingData: (state, action: PayloadAction<any>) => {
       state.settingData = action.payload
     },
-    setUserData: (state, action: PayloadAction<{ userName?: string; userNo?: string; userToken?: string }>) => {
+    setUserData: (
+      state,
+      action: PayloadAction<{ userName?: string; userNo?: string; userToken?: string }>,
+    ) => {
       state.userData = { ...state.userData, ...action.payload }
     },
     setSongData: (state, action: PayloadAction<any[]>) => {
@@ -102,7 +104,10 @@ export const appSlice = createSlice({
     setIsMiniMode: (state, action: PayloadAction<boolean>) => {
       state.isMiniMode = action.payload
     },
-    setVArchiveUserData: (state, action: PayloadAction<{ userName?: string; userNo?: string; userToken?: string }>) => {
+    setVArchiveUserData: (
+      state,
+      action: PayloadAction<{ userName?: string; userNo?: string; userToken?: string }>,
+    ) => {
       state.vArchiveUserData = { ...state.vArchiveUserData, ...action.payload }
     },
     setWjmaxSongData: (state, action: PayloadAction<any[]>) => {

@@ -1,49 +1,49 @@
-import React, { useEffect, useState, useCallback, useRef } from 'react'
-import type { AppProps } from 'next/app'
-import axios, { AxiosResponse } from 'axios'
-import HeaderComponent from '@/components/header/HeaderComponent'
-import FooterComponent from '@/components/footer/FooterComponent'
-import { IUserNameRequest, IUserNameResponse } from '@/types/IUserName'
-import NotificationComponent from '@/components/notification/NotificationComponent'
+//prettier-ignore
+import 'bootstrap/dist/css/bootstrap.min.css';
+//prettier-ignore
+import '@styles/globals.css';
+
 import { AnimatePresence, motion } from 'framer-motion'
-import { useRouter } from 'next/router'
-import SidebarComponent from '@/components/sidebar/SidebarComponent'
-import Image from 'next/image'
-
-import 'bootstrap/dist/css/bootstrap.min.css'
-import '@styles/globals.css'
-import { FaBell, FaChevronLeft, FaChevronRight, FaRotate } from 'react-icons/fa6'
-import SettingComponent from '@/components/layout/SettingComponent'
-import { IconContext } from 'react-icons'
-import { setFontFamily, setBackgroundBgaName, setIsDjCommentOpen } from 'store/slices/uiSlice'
-
-import { RootState, store } from 'store'
-// import { setIsDetectedGame, setSettingData, setUserData, setUploadedData, setVArchiveSongData } from 'store/slices/appSlice'
-import { Provider } from 'react-redux'
-import BackgroundVideoComponent from '@/components/layout/BackgroundVideoComponent'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import {
+  setCollectionData,
   setIsDetectedGame,
   setIsMiniMode,
   setIsUploading,
+  setProjectRaData,
   setSelectedGame,
   setSettingData,
   setSongData,
   setUploadedDataProcessed,
   setUserData,
+  setVArchiveData,
   setVArchiveUserData,
   setWjmaxSongData,
-  setProjectRaData,
-  setVArchiveData,
-  setCollectionData,
 } from 'store/slices/appSlice'
 import { addNotification, removeNotification } from 'store/slices/notificationSlice'
-import { v4 as uuidv4 } from 'uuid'
-import { SyncLoader } from 'react-spinners'
-import { globalDictionary } from '@/libs/server/globalDictionary'
+import { setFontFamily, setIsDjCommentOpen } from 'store/slices/uiSlice'
+
+import FooterComponent from '@/components/footer/FooterComponent'
+import HeaderComponent from '@/components/header/HeaderComponent'
+import BackgroundVideoComponent from '@/components/layout/BackgroundVideoComponent'
 import HomePanelComponent from '@/components/layout/HomePanelComponent'
 import ImageViewerComponent from '@/components/layout/ImageViewerComponent'
+import NotificationComponent from '@/components/notification/NotificationComponent'
+import { IUserNameResponse } from '@/types/IUserName'
+import type { AppProps } from 'next/app'
+import Image from 'next/image'
+import { Provider } from 'react-redux'
+// import { setIsDetectedGame, setSettingData, setUserData, setUploadedData, setVArchiveSongData } from 'store/slices/appSlice'
+import SettingComponent from '@/components/layout/SettingComponent'
+import SidebarComponent from '@/components/sidebar/SidebarComponent'
+import axios from 'axios'
 import localFont from 'next/font/local'
 import { useParams } from 'next/navigation'
+import { useRouter } from 'next/router'
+import { SyncLoader } from 'react-spinners'
+import { store } from 'store'
+import { v4 as uuidv4 } from 'uuid'
+
 const noto = localFont({
   src: '../public/fonts/PretendardVariable.woff2',
   display: 'swap',
@@ -119,7 +119,10 @@ function MyApp({ Component, pageProps }: AppProps) {
     }
 
     const handleResultScreen = (data: string) => {
-      showNotification('DJMAX RESPECT V(게임)의 게임 결과창이 자동 인식되어 성과 기록 이미지를 처리 중에 있습니다. 잠시만 기다려주세요.', 'tw-bg-blue-600')
+      showNotification(
+        'DJMAX RESPECT V(게임)의 게임 결과창이 자동 인식되어 성과 기록 이미지를 처리 중에 있습니다. 잠시만 기다려주세요.',
+        'tw-bg-blue-600',
+      )
     }
 
     // 이벤트 리스너 등록
@@ -143,7 +146,8 @@ function MyApp({ Component, pageProps }: AppProps) {
     if (!isLoading) {
       showNotification(
         detectedGame
-          ? detectedGameName + '(게임)의 실행이 감지되어 게임 모드(배경 BGA 표시 비활성화)가 활성화 되었습니다.'
+          ? detectedGameName +
+              '(게임)의 실행이 감지되어 게임 모드(배경 BGA 표시 비활성화)가 활성화 되었습니다.'
           : '게임 종료가 감지되어 게임 모드(배경 BGA 표시 비활성화)가 비활성화 되었습니다.',
         'tw-bg-blue-600',
       )
@@ -183,7 +187,9 @@ function MyApp({ Component, pageProps }: AppProps) {
     const fetchData = async () => {
       try {
         // 서버에서 이미 처리된 곡 데이터 가져오기
-        const { data } = await axios.get(`${process.env.NEXT_PUBLIC_OPEN_API_URL}/songs/processed/djmax_respect_v`)
+        const { data } = await axios.get(
+          `${process.env.NEXT_PUBLIC_OPEN_API_URL}/songs/processed/djmax_respect_v`,
+        )
 
         if (data && data.length > 0) {
           // 데이터 저장
@@ -252,9 +258,15 @@ function MyApp({ Component, pageProps }: AppProps) {
           store.dispatch(setProjectRaData(data))
         }
 
-        if (!router.asPath.includes(`/${data.gameCode === 'djmax_respect_v' ? 'vArchive' : 'projectRa/' + data.gameCode}/regScore`)) {
+        if (
+          !router.asPath.includes(
+            `/${data.gameCode === 'djmax_respect_v' ? 'vArchive' : 'projectRa/' + data.gameCode}/regScore`,
+          )
+        ) {
           setTimeout(() => {
-            router.push(`/${data.gameCode === 'djmax_respect_v' ? 'vArchive' : 'projectRa/' + data.gameCode}/regScore`)
+            router.push(
+              `/${data.gameCode === 'djmax_respect_v' ? 'vArchive' : 'projectRa/' + data.gameCode}/regScore`,
+            )
           }, 300)
         }
       } else {
@@ -262,7 +274,10 @@ function MyApp({ Component, pageProps }: AppProps) {
         store.dispatch(setProjectRaData(null))
         store.dispatch(setIsUploading(false))
         store.dispatch(setUploadedDataProcessed(true))
-        showNotification('성과 기록 이미지를 처리 중에 오류가 발생하였습니다. 다시 시도해주시길 바랍니다.', 'tw-bg-red-600')
+        showNotification(
+          '성과 기록 이미지를 처리 중에 오류가 발생하였습니다. 다시 시도해주시길 바랍니다.',
+          'tw-bg-red-600',
+        )
       }
     }
 
@@ -308,7 +323,12 @@ function MyApp({ Component, pageProps }: AppProps) {
   const router = useRouter()
 
   useEffect(() => {
-    if (router.pathname != '/' && !router.pathname.includes('/license') && !router.pathname.includes('/overlay') && !router.pathname.includes('/bug')) {
+    if (
+      router.pathname != '/' &&
+      !router.pathname.includes('/license') &&
+      !router.pathname.includes('/overlay') &&
+      !router.pathname.includes('/bug')
+    ) {
       if (params?.gameCode) {
         store.dispatch(setSelectedGame(params?.gameCode as string))
       } else {
@@ -321,21 +341,30 @@ function MyApp({ Component, pageProps }: AppProps) {
   type LoginType = 'vArchive' | 'normal'
 
   // 로그인 함수 분리
-  const handleLogin = async (loginType: LoginType, credentials: { userNo: string; userToken: string }) => {
+  const handleLogin = async (
+    loginType: LoginType,
+    credentials: { userNo: string; userToken: string },
+  ) => {
     if (!credentials.userNo || !credentials.userToken) return
 
     try {
       // RACLA API 로그인
       const endpoint = loginType === 'vArchive' ? '/v1/user/login/oauth/vArchive' : '/v1/user/login'
 
-      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}${endpoint}`, credentials)
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}${endpoint}`,
+        credentials,
+      )
 
       if (!response.data) {
         throw new Error('유효하지 않은 사용자 세션입니다.')
       }
 
       // 기본 사용자 데이터 저장
-      showNotification(`${response.data.userName}님 RACLA에 오신 것을 환영합니다.`, 'tw-bg-lime-600')
+      showNotification(
+        `${response.data.userName}님 RACLA에 오신 것을 환영합니다.`,
+        'tw-bg-lime-600',
+      )
 
       store.dispatch(
         setUserData({
@@ -358,10 +387,13 @@ function MyApp({ Component, pageProps }: AppProps) {
 
         window.ipc.send('storeSession', sessionData)
 
-        const vArchiveResponse = await axios.post<IUserNameResponse>(`${process.env.NEXT_PUBLIC_PROXY_API_URL}?url=https://v-archive.net/client/login`, {
-          userNo: response.data.varchiveUserNo,
-          token: response.data.varchiveUserToken,
-        })
+        const vArchiveResponse = await axios.post<IUserNameResponse>(
+          `${process.env.NEXT_PUBLIC_PROXY_API_URL}?url=https://v-archive.net/client/login`,
+          {
+            userNo: response.data.varchiveUserNo,
+            token: response.data.varchiveUserToken,
+          },
+        )
 
         if (vArchiveResponse.data.success) {
           store.dispatch(
@@ -372,7 +404,10 @@ function MyApp({ Component, pageProps }: AppProps) {
             }),
           )
 
-          showNotification(`V-ARCHIVE 계정(${vArchiveResponse.data.nickname}) 데이터 동기화에 성공 하였습니다.`, 'tw-bg-lime-600')
+          showNotification(
+            `V-ARCHIVE 계정(${vArchiveResponse.data.nickname}) 데이터 동기화에 성공 하였습니다.`,
+            'tw-bg-lime-600',
+          )
 
           window.ipc.send('storeSession', {
             ...sessionData,
@@ -390,7 +425,10 @@ function MyApp({ Component, pageProps }: AppProps) {
           userToken: response.data.varchiveUserToken,
         })
       } else {
-        showNotification('DJMAX RESPECT V 서비스를 이용하시려면 V-ARCHIVE 계정 연동이 필요합니다. 설정에서 연동을 진행해주세요.', 'tw-bg-yellow-600')
+        showNotification(
+          'DJMAX RESPECT V 서비스를 이용하시려면 V-ARCHIVE 계정 연동이 필요합니다. 설정에서 연동을 진행해주세요.',
+          'tw-bg-yellow-600',
+        )
       }
 
       window.ipc.send('logined')
@@ -403,7 +441,10 @@ function MyApp({ Component, pageProps }: AppProps) {
         setUserNo('')
         setUserToken('')
       }
-      showNotification(`알 수 없는 오류로 인해 사용자 정보 조회에 실패하였습니다. ${String(error)}`, 'tw-bg-red-600')
+      showNotification(
+        `알 수 없는 오류로 인해 사용자 정보 조회에 실패하였습니다. ${String(error)}`,
+        'tw-bg-red-600',
+      )
     }
   }
 
@@ -498,49 +539,56 @@ function MyApp({ Component, pageProps }: AppProps) {
   const [refreshKey, setRefreshKey] = useState(0)
 
   const noticeSection = (
-    <div className="tw-flex tw-flex-col tw-gap-8">
-      <div className="tw-flex tw-flex-col tw-gap-8 tw-p-6 tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-text-sm">
-        <div className="tw-flex tw-flex-col tw-gap-4 tw-w-full">
-          <div className="tw-flex tw-flex-col tw-gap-2 tw-w-full tw-leading-relaxed">
-            <div className="tw-bg-yellow-900 tw-bg-opacity-20 tw-p-4 tw-rounded tw-border-l-4 tw-border-yellow-500">
-              <span className="tw-font-bold">전체 화면에서는 오버레이 기능이 올바르게 작동하지 않습니다.</span>
+    <div className='tw-flex tw-flex-col tw-gap-8'>
+      <div className='tw-flex tw-flex-col tw-gap-8 tw-p-6 tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-text-sm'>
+        <div className='tw-flex tw-flex-col tw-gap-4 tw-w-full'>
+          <div className='tw-flex tw-flex-col tw-gap-2 tw-w-full tw-leading-relaxed'>
+            <div className='tw-bg-yellow-900 tw-bg-opacity-20 tw-p-4 tw-rounded tw-border-l-4 tw-border-yellow-500'>
+              <span className='tw-font-bold'>
+                전체 화면에서는 오버레이 기능이 올바르게 작동하지 않습니다.
+              </span>
             </div>
-            <div className="tw-bg-gray-700 tw-bg-opacity-30 tw-p-4 tw-rounded">
+            <div className='tw-bg-gray-700 tw-bg-opacity-30 tw-p-4 tw-rounded'>
               <span>
-                현재 오버레이 기능은 창 모드, 전체 창모드에서만 올바르게 작동합니다. 단 오버레이 기능과 별개로 자동 캡쳐 모드는 창 모드, 전체 창모드, 전체
-                화면에서 900p 이상 해상도에서 모두 정상적으로 작동하오니 착오가 없으시길 바랍니다.
+                현재 오버레이 기능은 창 모드, 전체 창모드에서만 올바르게 작동합니다. 단 오버레이
+                기능과 별개로 자동 캡쳐 모드는 창 모드, 전체 창모드, 전체 화면에서 900p 이상
+                해상도에서 모두 정상적으로 작동하오니 착오가 없으시길 바랍니다.
               </span>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="tw-flex tw-flex-col tw-gap-8 tw-p-6 tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-text-sm">
-        <div className="tw-flex tw-flex-col tw-gap-4 tw-w-full">
-          <div className="tw-flex tw-flex-col tw-gap-2 tw-w-full tw-leading-relaxed">
-            <div className="tw-bg-blue-900 tw-bg-opacity-20 tw-p-4 tw-rounded tw-border-l-4 tw-border-blue-500">
-              <span className="tw-font-bold">macOS, Linux 사용자를 위한 데스크톱 앱이 제공될 예정입니다.</span>
+      <div className='tw-flex tw-flex-col tw-gap-8 tw-p-6 tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-text-sm'>
+        <div className='tw-flex tw-flex-col tw-gap-4 tw-w-full'>
+          <div className='tw-flex tw-flex-col tw-gap-2 tw-w-full tw-leading-relaxed'>
+            <div className='tw-bg-blue-900 tw-bg-opacity-20 tw-p-4 tw-rounded tw-border-l-4 tw-border-blue-500'>
+              <span className='tw-font-bold'>
+                macOS, Linux 사용자를 위한 데스크톱 앱이 제공될 예정입니다.
+              </span>
             </div>
-            <div className="tw-bg-gray-700 tw-bg-opacity-30 tw-p-4 tw-rounded">
+            <div className='tw-bg-gray-700 tw-bg-opacity-30 tw-p-4 tw-rounded'>
               <span>
-                Wine, GPTK, Proton, Whisky 등의 호환 플레이 도구를 사용하여 DJMAX RESPECT V, WJMAX 등의 게임을 구동하는 사용자를 위한 자동 캡쳐 모드가 포함된
-                데스크톱 앱이 제공될 예정입니다.
+                Wine, GPTK, Proton, Whisky 등의 호환 플레이 도구를 사용하여 DJMAX RESPECT V, WJMAX
+                등의 게임을 구동하는 사용자를 위한 자동 캡쳐 모드가 포함된 데스크톱 앱이 제공될
+                예정입니다.
               </span>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="tw-flex tw-flex-col tw-gap-8 tw-p-6 tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-text-sm">
-        <div className="tw-flex tw-flex-col tw-gap-4 tw-w-full">
-          <div className="tw-flex tw-flex-col tw-gap-2 tw-w-full tw-leading-relaxed">
-            <div className="tw-bg-blue-900 tw-bg-opacity-20 tw-p-4 tw-rounded tw-border-l-4 tw-border-blue-500">
-              <span className="tw-font-bold">RACLA는 아래와 같은 사용자 데이터를 수집합니다.</span>
+      <div className='tw-flex tw-flex-col tw-gap-8 tw-p-6 tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-text-sm'>
+        <div className='tw-flex tw-flex-col tw-gap-4 tw-w-full'>
+          <div className='tw-flex tw-flex-col tw-gap-2 tw-w-full tw-leading-relaxed'>
+            <div className='tw-bg-blue-900 tw-bg-opacity-20 tw-p-4 tw-rounded tw-border-l-4 tw-border-blue-500'>
+              <span className='tw-font-bold'>RACLA는 아래와 같은 사용자 데이터를 수집합니다.</span>
             </div>
-            <div className="tw-bg-gray-700 tw-bg-opacity-30 tw-p-4 tw-rounded">
+            <div className='tw-bg-gray-700 tw-bg-opacity-30 tw-p-4 tw-rounded'>
               <span>
-                RACLA는 사용자에게 더 나은 서비스를 제공하기 위한 닉네임 정보, 플레이 데이터, 접속 환경의 IP를 수집하고 있습니다. 사용자의 동의 없이 제3자에게
-                제공되지 않으며 계정 및 데이터 삭제 요청은 개발자에게 문의바랍니다.
+                RACLA는 사용자에게 더 나은 서비스를 제공하기 위한 닉네임 정보, 플레이 데이터, 접속
+                환경의 IP를 수집하고 있습니다. 사용자의 동의 없이 제3자에게 제공되지 않으며 계정 및
+                데이터 삭제 요청은 개발자에게 문의바랍니다.
               </span>
             </div>
           </div>
@@ -550,73 +598,97 @@ function MyApp({ Component, pageProps }: AppProps) {
   )
 
   const updateSection = (
-    <div className="tw-flex tw-flex-col tw-gap-4 tw-break-keep">
-      <div className="tw-flex tw-flex-col tw-gap-8 tw-p-6 tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-text-sm">
-        <div className="tw-flex tw-flex-col tw-gap-4 tw-w-full">
-          <div className="tw-flex tw-flex-col tw-gap-6 tw-w-full tw-leading-relaxed">
+    <div className='tw-flex tw-flex-col tw-gap-4 tw-break-keep'>
+      <div className='tw-flex tw-flex-col tw-gap-8 tw-p-6 tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-text-sm'>
+        <div className='tw-flex tw-flex-col tw-gap-4 tw-w-full'>
+          <div className='tw-flex tw-flex-col tw-gap-6 tw-w-full tw-leading-relaxed'>
             {/* 첫 번째 설명 블록 */}
             {/* <div className="tw-bg-blue-900 tw-bg-opacity-20 tw-p-4 tw-rounded tw-border-l-4 tw-border-blue-500">
               <span className="tw-font-bold tw-whitespace-pre-line">새로운 기능</span>
             </div> */}
 
             <Image
-              src="https://ribbon.r-archive.zip/project_ra/update_070_banner.png"
-              alt="overlay"
-              className="tw-cursor-pointer tw-w-full tw-h-auto tw-rounded-lg"
+              src='https://ribbon.r-archive.zip/project_ra/update_070_banner.png'
+              alt='overlay'
+              className='tw-cursor-pointer tw-w-full tw-h-auto tw-rounded-lg'
               width={500}
               height={500}
-              onClick={() => setSelectedImage('https://ribbon.r-archive.zip/project_ra/update_070_banner.png?full=1')}
-              referrerPolicy="origin"
+              onClick={() =>
+                setSelectedImage(
+                  'https://ribbon.r-archive.zip/project_ra/update_070_banner.png?full=1',
+                )
+              }
+              referrerPolicy='origin'
             />
 
             <Image
-              src="https://ribbon.r-archive.zip/project_ra/update_070_menual.png"
-              alt="overlay"
-              className="tw-cursor-pointer tw-w-full tw-h-auto tw-rounded-lg"
+              src='https://ribbon.r-archive.zip/project_ra/update_070_menual.png'
+              alt='overlay'
+              className='tw-cursor-pointer tw-w-full tw-h-auto tw-rounded-lg'
               width={500}
               height={500}
-              onClick={() => setSelectedImage('https://ribbon.r-archive.zip/project_ra/update_070_menual.png?full=1')}
-              referrerPolicy="origin"
+              onClick={() =>
+                setSelectedImage(
+                  'https://ribbon.r-archive.zip/project_ra/update_070_menual.png?full=1',
+                )
+              }
+              referrerPolicy='origin'
             />
 
             <Image
-              src="https://ribbon.r-archive.zip/project_ra/update_070_content_1.png"
-              alt="overlay"
-              className="tw-cursor-pointer tw-w-full tw-h-auto tw-rounded-lg"
+              src='https://ribbon.r-archive.zip/project_ra/update_070_content_1.png'
+              alt='overlay'
+              className='tw-cursor-pointer tw-w-full tw-h-auto tw-rounded-lg'
               width={500}
               height={500}
-              onClick={() => setSelectedImage('https://ribbon.r-archive.zip/project_ra/update_070_content_1.png?full=1')}
-              referrerPolicy="origin"
+              onClick={() =>
+                setSelectedImage(
+                  'https://ribbon.r-archive.zip/project_ra/update_070_content_1.png?full=1',
+                )
+              }
+              referrerPolicy='origin'
             />
 
             <Image
-              src="https://ribbon.r-archive.zip/project_ra/update_070_content_2.png"
-              alt="overlay"
-              className="tw-cursor-pointer tw-w-full tw-h-auto tw-rounded-lg"
+              src='https://ribbon.r-archive.zip/project_ra/update_070_content_2.png'
+              alt='overlay'
+              className='tw-cursor-pointer tw-w-full tw-h-auto tw-rounded-lg'
               width={500}
               height={500}
-              onClick={() => setSelectedImage('https://ribbon.r-archive.zip/project_ra/update_070_content_2.png?full=1')}
-              referrerPolicy="origin"
+              onClick={() =>
+                setSelectedImage(
+                  'https://ribbon.r-archive.zip/project_ra/update_070_content_2.png?full=1',
+                )
+              }
+              referrerPolicy='origin'
             />
 
             <Image
-              src="https://ribbon.r-archive.zip/project_ra/update_070_content_3.png"
-              alt="overlay"
-              className="tw-cursor-pointer tw-w-full tw-h-auto tw-rounded-lg"
+              src='https://ribbon.r-archive.zip/project_ra/update_070_content_3.png'
+              alt='overlay'
+              className='tw-cursor-pointer tw-w-full tw-h-auto tw-rounded-lg'
               width={500}
               height={500}
-              onClick={() => setSelectedImage('https://ribbon.r-archive.zip/project_ra/update_070_content_3.png?full=1')}
-              referrerPolicy="origin"
+              onClick={() =>
+                setSelectedImage(
+                  'https://ribbon.r-archive.zip/project_ra/update_070_content_3.png?full=1',
+                )
+              }
+              referrerPolicy='origin'
             />
 
             <Image
-              src="https://ribbon.r-archive.zip/project_ra/update_070_feedback.png"
-              alt="overlay"
-              className="tw-cursor-pointer tw-w-full tw-h-auto tw-rounded-lg"
+              src='https://ribbon.r-archive.zip/project_ra/update_070_feedback.png'
+              alt='overlay'
+              className='tw-cursor-pointer tw-w-full tw-h-auto tw-rounded-lg'
               width={500}
               height={500}
-              onClick={() => setSelectedImage('https://ribbon.r-archive.zip/project_ra/update_070_feedback.png?full=1')}
-              referrerPolicy="origin"
+              onClick={() =>
+                setSelectedImage(
+                  'https://ribbon.r-archive.zip/project_ra/update_070_feedback.png?full=1',
+                )
+              }
+              referrerPolicy='origin'
             />
           </div>
         </div>
@@ -715,11 +787,15 @@ function MyApp({ Component, pageProps }: AppProps) {
             <div className={`tw-w-full tw-transition-all tw-h-full ${noto.className}`}>
               <BackgroundVideoComponent />
               <main
-                className="tw-mx-5 tw-text-sm tw-transition-all"
-                style={{ marginLeft: settingDataApp.isMiniMode ? '4rem' : '14.25rem', marginBottom: '3rem', marginTop: '4rem' }}
-                data-bs-theme="dark"
+                className='tw-pr-2 tw-mx-2 tw-text-sm tw-transition-all tw-overflow-x-hidden custom-scrollbar'
+                style={{
+                  marginLeft: settingDataApp.isMiniMode ? '4.25rem' : '14rem',
+                  marginBottom: '3rem',
+                  marginTop: '4rem',
+                }}
+                data-bs-theme='dark'
               >
-                <AnimatePresence initial={false} mode="wait">
+                <AnimatePresence initial={false} mode='wait'>
                   <motion.div
                     key={asPath + refreshKey}
                     initial={{ x: 10, opacity: 0.5 }}
@@ -727,6 +803,7 @@ function MyApp({ Component, pageProps }: AppProps) {
                     exit={{ x: -10, opacity: 0 }}
                     transition={{ duration: 0.3 }}
                     style={{ width: '100%' }}
+                    className='tw-overflow-x-hidden'
                   >
                     <Component {...pageProps} />
                   </motion.div>
@@ -745,39 +822,54 @@ function MyApp({ Component, pageProps }: AppProps) {
                 <FooterComponent />
               </main>
 
-              <HomePanelComponent noticeSection={noticeSection} updateSections={updateSections} serviceSection={<ServiceSection />} />
+              <HomePanelComponent
+                noticeSection={noticeSection}
+                updateSections={updateSections}
+                serviceSection={<ServiceSection />}
+              />
 
-              {selectedImage && <ImageViewerComponent src={selectedImage} onClose={() => setSelectedImage(null)} />}
+              {selectedImage && (
+                <ImageViewerComponent src={selectedImage} onClose={() => setSelectedImage(null)} />
+              )}
 
               {/* 외부 링크 확인 모달 */}
               <div
                 className={`tw-fixed tw-inset-0 tw-z-[9999] tw-transition-opacity tw-duration-300 ${
-                  showExternalLinkModal ? 'tw-opacity-100 tw-pointer-events-auto' : 'tw-opacity-0 tw-pointer-events-none'
+                  showExternalLinkModal
+                    ? 'tw-opacity-100 tw-pointer-events-auto'
+                    : 'tw-opacity-0 tw-pointer-events-none'
                 }`}
               >
-                <div className="tw-fixed tw-inset-0 tw-bg-gray-950 tw-bg-opacity-90" onClick={handleBackdropClick} />
-                <div className="tw-fixed tw-inset-0 tw-flex tw-items-center tw-justify-center">
+                <div
+                  className='tw-fixed tw-inset-0 tw-bg-gray-950 tw-bg-opacity-90'
+                  onClick={handleBackdropClick}
+                />
+                <div className='tw-fixed tw-inset-0 tw-flex tw-items-center tw-justify-center'>
                   <div
-                    className={`tw-bg-gray-900 tw-p-6 tw-rounded-lg tw-shadow-lg tw-max-w-md tw-w-full tw-mx-4 
-                  tw-transition-all tw-duration-300 ${showExternalLinkModal ? 'tw-opacity-100 tw-translate-y-0' : 'tw-opacity-0 tw-translate-y-4'}`}
+                    className={`tw-bg-gray-900 tw-p-6 tw-rounded-lg tw-shadow-lg tw-max-w-md tw-w-full tw-mx-4 tw-transition-all tw-duration-300 ${showExternalLinkModal ? 'tw-opacity-100 tw-translate-y-0' : 'tw-opacity-0 tw-translate-y-4'}`}
                   >
-                    <h3 className="tw-text-lg tw-font-bold tw-mb-4 tw-text-center">외부 링크 열기</h3>
-                    <p className="tw-mb-6 tw-text-center tw-font-light tw-text-sm">
+                    <h3 className='tw-text-lg tw-font-bold tw-mb-4 tw-text-center'>
+                      외부 링크 열기
+                    </h3>
+                    <p className='tw-mb-6 tw-text-center tw-font-light tw-text-sm'>
                       이 링크는 사용자의 브라우저에서 열립니다.
                       <br />
                       신뢰할 수 있는 링크인지 확인 후 이동해주세요.
                     </p>
-                    <div className="tw-mb-6 tw-h-20 tw-overflow-y-auto tw-bg-gray-800 tw-rounded tw-p-2">
-                      <p className="tw-text-blue-400 tw-break-all tw-text-sm">{externalUrl}</p>
+                    <div className='tw-mb-6 tw-h-20 tw-overflow-y-auto tw-bg-gray-800 tw-rounded tw-p-2'>
+                      <p className='tw-text-blue-400 tw-break-all tw-text-sm'>{externalUrl}</p>
                     </div>
-                    <div className="tw-flex tw-justify-end tw-gap-2">
+                    <div className='tw-flex tw-justify-end tw-gap-2'>
                       <button
-                        className="tw-px-4 tw-py-1.5 tw-text-sm tw-bg-gray-800 tw-rounded hover:tw-bg-gray-700"
+                        className='tw-px-4 tw-py-1.5 tw-text-sm tw-bg-gray-800 tw-rounded hover:tw-bg-gray-700'
                         onClick={() => setShowExternalLinkModal(false)}
                       >
                         취소
                       </button>
-                      <button className="tw-px-4 tw-py-1.5 tw-text-sm tw-bg-blue-600 tw-rounded hover:tw-bg-blue-700" onClick={handleExternalLink}>
+                      <button
+                        className='tw-px-4 tw-py-1.5 tw-text-sm tw-bg-blue-600 tw-rounded hover:tw-bg-blue-700'
+                        onClick={handleExternalLink}
+                      >
                         열기
                       </button>
                     </div>
@@ -797,18 +889,18 @@ function MyApp({ Component, pageProps }: AppProps) {
               showLoader ? 'tw-opacity-100' : 'tw-opacity-0 tw-pointer-events-none'
             } ${noto.className}`}
           >
-            <div className="tw-flex tw-w-full tw-h-full tw-relative">
-              <div className="tw-flex tw-flex-1 tw-items-center tw-justify-center">
-                <SyncLoader color="#ffffff" size={8} />
+            <div className='tw-flex tw-w-full tw-h-full tw-relative'>
+              <div className='tw-flex tw-flex-1 tw-items-center tw-justify-center'>
+                <SyncLoader color='#ffffff' size={8} />
               </div>
-              <div className="tw-flex tw-flex-col tw-gap-2 tw-w-full tw-p-2 tw-justify-center tw-items-center tw-absolute tw-bottom-0">
+              <div className='tw-flex tw-flex-col tw-gap-2 tw-w-full tw-p-2 tw-justify-center tw-items-center tw-absolute tw-bottom-0'>
                 {/* <span className="tw-text-xs tw-font-light tw-text-gray-200 tw-text-opacity-50">
                   The resources provided by this Service are not licensed to each creator. Restricted to commercial use.
                 </span> */}
                 {/* <span className="tw-text-xs tw-font-light tw-text-gray-200 tw-text-opacity-50">
                   본 서비스에서 제공되는 리소스는 각 저작권자로부터 별도의 라이선스를 부여받지 않았습니다. 비상업적인 용도로만 사용할 수 있습니다.
                 </span> */}
-                <span className="tw-text-xs tw-font-light tw-text-gray-200 tw-text-opacity-50">
+                <span className='tw-text-xs tw-font-light tw-text-gray-200 tw-text-opacity-50'>
                   Developed by GGDRN0 STUDIO & R-ARCHIVE TEAM. Produced by LunaticaLuna.
                 </span>
               </div>

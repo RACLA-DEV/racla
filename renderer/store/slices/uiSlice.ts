@@ -1,4 +1,4 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit'
+import { PayloadAction, createSlice } from '@reduxjs/toolkit'
 
 interface UiState {
   fontFamily: string
@@ -50,6 +50,13 @@ export const uiSlice = createSlice({
   },
 })
 
-export const { setFontFamily, setBackgroundBgaName, setIsDjCommentOpen, setHomePanelOpen, setHomePanelCategory, setUpdateIndex, setSlideDirection } =
-  uiSlice.actions
+export const {
+  setFontFamily,
+  setBackgroundBgaName,
+  setIsDjCommentOpen,
+  setHomePanelOpen,
+  setHomePanelCategory,
+  setUpdateIndex,
+  setSlideDirection,
+} = uiSlice.actions
 export default uiSlice.reducer

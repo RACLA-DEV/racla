@@ -278,7 +278,7 @@ const ScorePopupComponent = ({
               </div>
               {vArchiveUserData.userName !== '' && (
                 <span className='tw-text-xs tw-font-light tw-text-gray-300 tw-my-2'>
-                  <span className=''>{vArchiveUserData.userName}</span>님의 성과 기록
+                  <span className=''>{vArchiveUserData.userName}</span>님의 성과 기록(V-ARCHIVE)
                 </span>
               )}
             </div>
@@ -398,7 +398,7 @@ const ScorePopupComponent = ({
         onMouseLeave={handleMouseLeave}
       >
         <Link
-          href={`/vArchive/db/title/${displayData?.title ?? songItemTitle}`}
+          href={`/hja/db/title/${displayData?.title ?? songItemTitle}`}
           className='tw-relative tw-rounded-md hover-scale-110 respect_record tw-cursor-pointer'
           style={{ width: size, height: size }}
         >

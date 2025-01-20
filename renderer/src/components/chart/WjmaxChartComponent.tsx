@@ -1,7 +1,8 @@
-import { useEffect, useState, useRef, MouseEvent, WheelEvent } from 'react'
+import { MouseEvent, WheelEvent, useEffect, useRef, useState } from 'react'
+import { FaArrowRightArrowLeft, FaArrowsRotate, FaDice, FaPalette, FaXmark } from 'react-icons/fa6'
+import { TransformComponent, TransformWrapper } from 'react-zoom-pan-pinch'
+
 import { createPortal } from 'react-dom'
-import { FaMinus, FaPlus, FaXmark, FaPalette, FaArrowsRotate, FaArrowRightArrowLeft, FaDice, FaHouse, FaTrashCan } from 'react-icons/fa6'
-import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch'
 
 // constants/chart.js
 export const DEFAULT_BPM = 206
@@ -47,7 +48,11 @@ interface WjmaxChartProps {
   onClose: () => void
 }
 
-export default function WjmaxChartComponent({ chartData, bpm = DEFAULT_BPM, onClose }: WjmaxChartProps) {
+export default function WjmaxChartComponent({
+  chartData,
+  bpm = DEFAULT_BPM,
+  onClose,
+}: WjmaxChartProps) {
   const [sections, setSections] = useState<ChartSection>({})
   const [scale, setScale] = useState(0.5) // 기본 0.5배 크기로 시작
   const [isVisible, setIsVisible] = useState(false)
@@ -330,46 +335,77 @@ export default function WjmaxChartComponent({ chartData, bpm = DEFAULT_BPM, onCl
 
   const renderColumn = (startSectionIndex: number) => {
     return (
-      <div className="chart-column tw-z-[99999]">
+      <div className='chart-column tw-z-[99999]'>
         {Array.from({ length: SECTIONS_PER_COLUMN }).map((_, i) => {
           const sectionIndex = startSectionIndex + (SECTIONS_PER_COLUMN - 1 - i)
           const sectionNotes = sections[sectionIndex] || []
           const sectionTime = formatTime(sectionIndex * calculateSectionDuration(bpm))
 
           return (
-            <div key={sectionIndex} className="chart-section" style={{ height: `${sectionHeight}px` }}>
-              <div className="section-header tw-relative">
-                <div className="tw-flex tw-gap-16 tw-absolute tw-w-[800px] tw-h-32 tw-left-[-338px] tw-bottom-[360px] tw-transform tw-rotate-[-90deg]">
-                  <span className={`section-number ${`tw-text-${theme}-500`}`}>#{sectionIndex + 1}</span>
-                  <span className="section-time tw-font-bold">{sectionTime}</span>
+            <div
+              key={sectionIndex}
+              className='chart-section'
+              style={{ height: `${sectionHeight}px` }}
+            >
+              <div className='section-header tw-relative'>
+                <div className='tw-flex tw-gap-16 tw-absolute tw-w-[800px] tw-h-32 tw-left-[-338px] tw-bottom-[360px] tw-transform tw-rotate-[-90deg]'>
+                  <span className={`section-number ${`tw-text-${theme}-500`}`}>
+                    #{sectionIndex + 1}
+                  </span>
+                  <span className='section-time tw-font-bold'>{sectionTime}</span>
                   <span className={`bpm-indicator tw-font-bold`}>BPM: {bpm}</span>
                 </div>
               </div>
-              <div className="lanes-container">
-                <div className="measure-lines">
+              <div className='lanes-container'>
+                <div className='measure-lines'>
                   {Array.from({ length: BEATS_PER_SECTION / 4 }).map((_, i) => (
-                    <div key={`major-${i}`} className={`measure-line major ${theme}-theme`} style={{ bottom: `${i * 25}%` }} />
+                    <div
+                      key={`major-${i}`}
+                      className={`measure-line major ${theme}-theme`}
+                      style={{ bottom: `${i * 25}%` }}
+                    />
                   ))}
                   {Array.from({ length: BEATS_PER_SECTION }).map((_, i) => (
-                    <div key={`minor-${i}`} className={`measure-line minor ${theme}-theme`} style={{ bottom: `${i * (100 / BEATS_PER_SECTION)}%` }} />
+                    <div
+                      key={`minor-${i}`}
+                      className={`measure-line minor ${theme}-theme`}
+                      style={{ bottom: `${i * (100 / BEATS_PER_SECTION)}%` }}
+                    />
                   ))}
                 </div>
                 {getLaneOrder().map((lane) => (
                   <div
                     key={lane}
                     className={`lane ${theme}-theme ${
-                      (chartData.key === 0 && (lane === 1 || lane === 2)) || (chartData.key === 2 && (lane === 1 || lane === 4)) ? 'special-lane' : ''
+                      (chartData.key === 0 && (lane === 1 || lane === 2)) ||
+                      (chartData.key === 2 && (lane === 1 || lane === 4))
+                        ? 'special-lane'
+                        : ''
                     }`}
                   >
                     {sectionNotes
                       .filter((note) => note.index === lane)
                       .map((note, idx) => {
                         const sectionDuration = calculateSectionDuration(bpm)
-                        const startPos = calculateNotePosition(note.headMilliSec % sectionDuration, sectionDuration)
-                        const endPos = calculateNotePosition(note.tailMilliSec % sectionDuration, sectionDuration)
+                        const startPos = calculateNotePosition(
+                          note.headMilliSec % sectionDuration,
+                          sectionDuration,
+                        )
+                        const endPos = calculateNotePosition(
+                          note.tailMilliSec % sectionDuration,
+                          sectionDuration,
+                        )
                         const noteLength = note.type === 1 ? Math.abs(endPos - startPos) : 0
 
-                        return <Note key={idx} type={note.type} position={startPos} length={noteLength} isLongNote={note.type === 1} />
+                        return (
+                          <Note
+                            key={idx}
+                            type={note.type}
+                            position={startPos}
+                            length={noteLength}
+                            isLongNote={note.type === 1}
+                          />
+                        )
                       })}
                   </div>
                 ))}
@@ -450,7 +486,7 @@ export default function WjmaxChartComponent({ chartData, bpm = DEFAULT_BPM, onCl
     <div className={`chart-viewer ${isVisible ? 'visible' : ''}`} style={{ zIndex: 99999 }}>
       {/* 배경 */}
       <div
-        className="chart-backdrop"
+        className='chart-backdrop'
         style={{
           zIndex: -1,
           opacity: isVisible ? 1 : 0,
@@ -479,39 +515,39 @@ export default function WjmaxChartComponent({ chartData, bpm = DEFAULT_BPM, onCl
       >
         {/* 컨트롤 버튼 */}
         <div
-          className="tw-absolute tw-bottom-4 tw-flex tw-items-center tw-gap-4 tw-bg-gray-900 tw-shadow-lg tw-border tw-border-gray-800 tw-rounded-md tw-p-2"
+          className='tw-absolute tw-bottom-4 tw-flex tw-items-center tw-gap-4 tw-bg-gray-900 tw-shadow-lg tw-border tw-border-gray-800 tw-rounded-md tw-p-2'
           style={{ zIndex: 100000 }}
         >
           {/* 테마 선택 드롭다운 수정 */}
-          <div ref={themeDropdownRef} className="tw-relative">
+          <div ref={themeDropdownRef} className='tw-relative'>
             <button
               onClick={() => setIsThemeDropdownOpen(!isThemeDropdownOpen)}
-              className="tw-p-2 tw-rounded-md tw-bg-gray-800 hover:tw-bg-gray-700 tw-text-white"
+              className='tw-p-2 tw-rounded-md tw-bg-gray-800 hover:tw-bg-gray-700 tw-text-white'
             >
-              <FaPalette className="tw-w-4 tw-h-4" />
+              <FaPalette className='tw-w-4 tw-h-4' />
             </button>
             {isThemeDropdownOpen && (
-              <div className="tw-absolute tw-w-24 tw-left-[-42px] tw-bottom-10 tw-text-sm tw-flex tw-gap-2 tw-mb-2 tw-bg-gray-900 tw-rounded-md tw-shadow-lg tw-border tw-border-gray-800">
+              <div className='tw-absolute tw-w-24 tw-left-[-42px] tw-bottom-10 tw-text-sm tw-flex tw-gap-2 tw-mb-2 tw-bg-gray-900 tw-rounded-md tw-shadow-lg tw-border tw-border-gray-800'>
                 <button
                   onClick={() => handleThemeChange('blue')}
-                  className="tw-block tw-w-full tw-text-left tw-h-8 tw-px-4 tw-py-2 tw-rounded-md tw-bg-blue-500 hover:tw-bg-blue-800 tw-text-white"
+                  className='tw-block tw-w-full tw-text-left tw-h-8 tw-px-4 tw-py-2 tw-rounded-md tw-bg-blue-500 hover:tw-bg-blue-800 tw-text-white'
                 ></button>
                 <button
                   onClick={() => handleThemeChange('orange')}
-                  className="tw-block tw-w-full tw-text-left tw-h-8 tw-px-4 tw-py-2 tw-rounded-md tw-bg-orange-500 hover:tw-bg-orange-800 tw-text-white"
+                  className='tw-block tw-w-full tw-text-left tw-h-8 tw-px-4 tw-py-2 tw-rounded-md tw-bg-orange-500 hover:tw-bg-orange-800 tw-text-white'
                 ></button>
                 <button
                   onClick={() => handleThemeChange('red')}
-                  className="tw-block tw-w-full tw-text-left tw-h-8 tw-px-4 tw-py-2 tw-rounded-md tw-bg-red-500 hover:tw-bg-red-800 tw-text-white"
+                  className='tw-block tw-w-full tw-text-left tw-h-8 tw-px-4 tw-py-2 tw-rounded-md tw-bg-red-500 hover:tw-bg-red-800 tw-text-white'
                 ></button>
               </div>
             )}
           </div>
 
-          <div className="tw-flex tw-items-center tw-gap-2">
-            <span className="tw-text-white tw-text-xs tw-font-bold">1열당 섹션</span>
+          <div className='tw-flex tw-items-center tw-gap-2'>
+            <span className='tw-text-white tw-text-xs tw-font-bold'>1열당 섹션</span>
             <input
-              type="number"
+              type='number'
               value={SECTIONS_PER_COLUMN}
               onChange={(e) => {
                 const value = parseInt(e.target.value)
@@ -519,17 +555,17 @@ export default function WjmaxChartComponent({ chartData, bpm = DEFAULT_BPM, onCl
                   setSECTIONS_PER_COLUMN(value)
                 }
               }}
-              className="tw-w-20 tw-px-2 tw-pl-5 tw-py-1 tw-rounded-md tw-bg-gray-800 tw-text-white tw-border tw-text-center tw-border-gray-700 tw-text-sm"
-              min="1"
-              max="4"
-              step="1"
+              className='tw-w-20 tw-px-2 tw-pl-5 tw-py-1 tw-rounded-md tw-bg-gray-800 tw-text-white tw-border tw-text-center tw-border-gray-700 tw-text-sm'
+              min='1'
+              max='4'
+              step='1'
             />
           </div>
 
-          <div className="tw-flex tw-items-center tw-gap-2">
-            <span className="tw-text-white tw-text-xs tw-font-bold">1섹션당 비트</span>
+          <div className='tw-flex tw-items-center tw-gap-2'>
+            <span className='tw-text-white tw-text-xs tw-font-bold'>1섹션당 비트</span>
             <input
-              type="number"
+              type='number'
               value={BEATS_PER_SECTION}
               onChange={(e) => {
                 const value = parseInt(e.target.value)
@@ -537,32 +573,32 @@ export default function WjmaxChartComponent({ chartData, bpm = DEFAULT_BPM, onCl
                   setBEATS_PER_SECTION(value)
                 }
               }}
-              className="tw-w-20 tw-px-2 tw-pl-5 tw-py-1 tw-rounded-md tw-bg-gray-800 tw-text-white tw-border tw-text-center tw-border-gray-700 tw-text-sm"
-              min="4"
-              max="16"
-              step="1"
+              className='tw-w-20 tw-px-2 tw-pl-5 tw-py-1 tw-rounded-md tw-bg-gray-800 tw-text-white tw-border tw-text-center tw-border-gray-700 tw-text-sm'
+              min='4'
+              max='16'
+              step='1'
             />
           </div>
 
           {/* 높이 조절 입력 */}
-          <div className="tw-flex tw-items-center tw-gap-2">
-            <span className="tw-text-white tw-text-xs tw-font-bold">높이</span>
+          <div className='tw-flex tw-items-center tw-gap-2'>
+            <span className='tw-text-white tw-text-xs tw-font-bold'>높이</span>
             <input
-              type="number"
+              type='number'
               value={sectionHeight}
               onChange={handleHeightChange}
-              className="tw-w-20 tw-px-2 tw-pl-5 tw-py-1 tw-rounded-md tw-bg-gray-800 tw-text-white tw-border tw-text-center tw-border-gray-700 tw-text-sm"
-              min="900"
-              max="6000"
-              step="60"
+              className='tw-w-20 tw-px-2 tw-pl-5 tw-py-1 tw-rounded-md tw-bg-gray-800 tw-text-white tw-border tw-text-center tw-border-gray-700 tw-text-sm'
+              min='900'
+              max='6000'
+              step='60'
             />
           </div>
 
           {/* 레인 순서 입력 및 버튼들 */}
-          <div className="tw-flex tw-items-center tw-gap-2">
-            <span className="tw-text-white tw-text-xs tw-font-bold">레인 배치</span>
+          <div className='tw-flex tw-items-center tw-gap-2'>
+            <span className='tw-text-white tw-text-xs tw-font-bold'>레인 배치</span>
             <input
-              type="text"
+              type='text'
               value={laneOrder}
               onChange={handleLaneOrderChange}
               placeholder={getCurrentLaneOrder()}
@@ -570,23 +606,41 @@ export default function WjmaxChartComponent({ chartData, bpm = DEFAULT_BPM, onCl
                 isLaneOrderValid ? 'tw-border-gray-700' : 'tw-border-blue-500'
               } tw-text-sm tw-text-center`}
             />
-            <button onClick={handleOriginal} title="정배치로 초기화" className="tw-p-2 tw-rounded-md tw-bg-gray-800 hover:tw-bg-gray-700 tw-text-white">
-              <FaArrowsRotate className="tw-w-4 tw-h-4" />
+            <button
+              onClick={handleOriginal}
+              title='정배치로 초기화'
+              className='tw-p-2 tw-rounded-md tw-bg-gray-800 hover:tw-bg-gray-700 tw-text-white'
+            >
+              <FaArrowsRotate className='tw-w-4 tw-h-4' />
             </button>
-            <button onClick={handleMirror} title="미러" className="tw-p-2 tw-rounded-md tw-bg-gray-800 hover:tw-bg-gray-700 tw-text-white">
-              <FaArrowRightArrowLeft className="tw-w-4 tw-h-4" />
+            <button
+              onClick={handleMirror}
+              title='미러'
+              className='tw-p-2 tw-rounded-md tw-bg-gray-800 hover:tw-bg-gray-700 tw-text-white'
+            >
+              <FaArrowRightArrowLeft className='tw-w-4 tw-h-4' />
             </button>
-            <button onClick={handleRandom} title="랜덤" className="tw-p-2 tw-rounded-md tw-bg-gray-800 hover:tw-bg-gray-700 tw-text-white">
-              <FaDice className="tw-w-4 tw-h-4" />
+            <button
+              onClick={handleRandom}
+              title='랜덤'
+              className='tw-p-2 tw-rounded-md tw-bg-gray-800 hover:tw-bg-gray-700 tw-text-white'
+            >
+              <FaDice className='tw-w-4 tw-h-4' />
             </button>
           </div>
 
-          <button onClick={handleClose} className="tw-p-2 tw-rounded-md tw-bg-gray-800 hover:tw-bg-gray-700 tw-text-white">
-            <FaXmark className="tw-w-4 tw-h-4" />
+          <button
+            onClick={handleClose}
+            className='tw-p-2 tw-rounded-md tw-bg-gray-800 hover:tw-bg-gray-700 tw-text-white'
+          >
+            <FaXmark className='tw-w-4 tw-h-4' />
           </button>
         </div>
 
-        <div className="chart-wrapper" style={{ width: '100vw', height: '100vh', overflow: 'hidden', position: 'relative' }}>
+        <div
+          className='chart-wrapper'
+          style={{ width: '100vw', height: '100vh', overflow: 'hidden', position: 'relative' }}
+        >
           <TransformWrapper
             key={`chart-${BEATS_PER_SECTION}-${SECTIONS_PER_COLUMN}`}
             initialScale={0.2}
@@ -596,10 +650,13 @@ export default function WjmaxChartComponent({ chartData, bpm = DEFAULT_BPM, onCl
             onInit={(init) => console.log(init)}
             initialPositionX={0}
           >
-            <TransformComponent wrapperStyle={{ width: '100%', height: '100%' }} contentStyle={{ opacity: isVisible ? 1 : 0 }}>
-              <div ref={chartRef} className="chart-scale-container">
+            <TransformComponent
+              wrapperStyle={{ width: '100%', height: '100%' }}
+              contentStyle={{ opacity: isVisible ? 1 : 0 }}
+            >
+              <div ref={chartRef} className='chart-scale-container'>
                 {Array.from({ length: columnCount }).map((_, i) => (
-                  <div key={i} className="chart-column">
+                  <div key={i} className='chart-column'>
                     {renderColumn(i * SECTIONS_PER_COLUMN)}
                   </div>
                 ))}

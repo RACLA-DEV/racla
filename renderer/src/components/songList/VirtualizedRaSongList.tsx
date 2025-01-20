@@ -1,6 +1,7 @@
-import React, { useCallback } from 'react'
-import { FixedSizeGrid } from 'react-window'
+import { useCallback } from 'react'
+
 import { useWindowSize } from '@/libs/client/useWindowSize'
+import { FixedSizeGrid } from 'react-window'
 import RaScorePopupComponent from '../score/RaScorePopupComponent'
 
 interface VirtualizedRaSongListProps {
@@ -10,7 +11,12 @@ interface VirtualizedRaSongListProps {
   judgementType?: string
 }
 
-export default function VirtualizedRaSongList({ items, keyMode, viewMode, judgementType }: VirtualizedRaSongListProps) {
+export default function VirtualizedRaSongList({
+  items,
+  keyMode,
+  viewMode,
+  judgementType,
+}: VirtualizedRaSongListProps) {
   const { width: windowWidth, height: windowHeight } = useWindowSize()
   const COLUMN_WIDTH = 150 // 120에서 130으로 증가
   const ROW_HEIGHT = 90 // 120에서 90으로 감소
@@ -26,7 +32,7 @@ export default function VirtualizedRaSongList({ items, keyMode, viewMode, judgem
       if (!item || viewMode !== 'grid') return null
 
       return (
-        <div style={style} className="tw-p-2">
+        <div style={style} className='tw-p-2'>
           <RaScorePopupComponent
             key={item.title}
             songItem={item}
@@ -52,7 +58,7 @@ export default function VirtualizedRaSongList({ items, keyMode, viewMode, judgem
       rowCount={ROW_COUNT}
       rowHeight={ROW_HEIGHT}
       width={COLUMN_COUNT * COLUMN_WIDTH}
-      className="tw-pr-4"
+      className='tw-pr-4'
     >
       {Cell}
     </FixedSizeGrid>

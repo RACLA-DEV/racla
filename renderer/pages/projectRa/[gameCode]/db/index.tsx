@@ -1,29 +1,24 @@
-import React, { useEffect, useRef, useState, useMemo } from 'react'
+import 'moment/locale/ko'
+
+import { AnimatePresence, motion } from 'framer-motion'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
+import { BsGrid, BsList } from 'react-icons/bs'
+import { useDispatch, useSelector } from 'react-redux'
+
+import { globalDictionary } from '@/libs/server/globalDictionary'
+import { debounce } from 'lodash'
+import moment from 'moment'
+import dynamic from 'next/dynamic'
 import Head from 'next/head'
 import Image from 'next/image'
-import * as R from 'ramda'
-import { FaCircleCheck, FaLink } from 'react-icons/fa6'
-import { globalDictionary } from '@/libs/server/globalDictionary'
-import { SyncLoader } from 'react-spinners'
-import { BsList, BsGrid } from 'react-icons/bs'
-import { debounce } from 'lodash'
-
-import 'moment/locale/ko'
-import axios from 'axios'
-import { useSelector, useDispatch } from 'react-redux'
-import { RootState } from 'store'
-import { setBackgroundBgaName, setIsDjCommentOpen } from 'store/slices/uiSlice'
-import { useNotificationSystem } from '@/libs/client/useNotifications'
-import { useInView } from 'react-intersection-observer'
-import dynamic from 'next/dynamic'
-import { motion, AnimatePresence } from 'framer-motion'
 import { useRouter } from 'next/router'
-import VirtualizedRaSongList from '@/components/songList/VirtualizedRaSongList'
-import moment from 'moment'
+import { FaCircleCheck } from 'react-icons/fa6'
+import { RootState } from 'store'
+import { setBackgroundBgaName } from 'store/slices/uiSlice'
 
 // 동적 임포트로 ScorePopupComponent 지연 로딩
 const RaScorePopupComponent = dynamic(() => import('@/components/score/RaScorePopupComponent'), {
-  loading: () => <div className="tw-w-[80px] tw-h-[80px] tw-bg-gray-600 tw-bg-opacity-10" />,
+  loading: () => <div className='tw-w-[80px] tw-h-[80px] tw-bg-gray-600 tw-bg-opacity-10' />,
 })
 
 export default function VArchiveDbPage() {
@@ -49,7 +44,12 @@ export default function VArchiveDbPage() {
     () =>
       debounce((title: string) => {
         if (title) {
-          dispatch(setBackgroundBgaName(String(wjmaxSongData.filter((song) => song.title == title)[0].folderName) + '_preview'))
+          dispatch(
+            setBackgroundBgaName(
+              String(wjmaxSongData.filter((song) => song.title == title)[0].folderName) +
+                '_preview',
+            ),
+          )
         }
       }, 300),
     [dispatch, wjmaxSongData],
@@ -75,7 +75,10 @@ export default function VArchiveDbPage() {
     scrollTimer.current = setTimeout(() => {
       setIsScrolling(false)
       // 스크롤이 끝난 후 마우스 위치의 엘리먼트 찾기
-      const element = document.elementFromPoint(lastMousePositionRef.current.x, lastMousePositionRef.current.y)
+      const element = document.elementFromPoint(
+        lastMousePositionRef.current.x,
+        lastMousePositionRef.current.y,
+      )
       // 해당 엘리먼트의 가장 가까운 곡 아이템 컨테이너 찾기
       const songContainer = element?.closest('[data-song-title]')
       if (songContainer) {
@@ -127,7 +130,27 @@ export default function VArchiveDbPage() {
   // 초성을 추출하는 함수
   const getChosung = (char) => {
     const baseCode = '가'.charCodeAt(0)
-    const chosung = ['ㄱ', 'ㄲ', 'ㄴ', 'ㄷ', 'ㄸ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅃ', 'ㅅ', 'ㅆ', 'ㅇ', 'ㅈ', 'ㅉ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ']
+    const chosung = [
+      'ㄱ',
+      'ㄲ',
+      'ㄴ',
+      'ㄷ',
+      'ㄸ',
+      'ㄹ',
+      'ㅁ',
+      'ㅂ',
+      'ㅃ',
+      'ㅅ',
+      'ㅆ',
+      'ㅇ',
+      'ㅈ',
+      'ㅉ',
+      'ㅊ',
+      'ㅋ',
+      'ㅌ',
+      'ㅍ',
+      'ㅎ',
+    ]
 
     const code = char.charCodeAt(0)
     if (code < baseCode) return ''
@@ -255,7 +278,10 @@ export default function VArchiveDbPage() {
       }
 
       // 일반 입력 필드에서는 키보드 단축키를 무시
-      if ((e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) && e.target !== searchInputRef.current) {
+      if (
+        (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) &&
+        e.target !== searchInputRef.current
+      ) {
         return
       }
 
@@ -303,18 +329,19 @@ export default function VArchiveDbPage() {
       <React.Fragment>
         <Head>
           <title>
-            {String(keyMode).replace('PLUS', '').replace('P', '').replace('B', '').replace('_', '')}B{keyMode.includes('P') ? '+' : ''} 데이터베이스 - RACLA
+            {String(keyMode).replace('PLUS', '').replace('P', '').replace('B', '').replace('_', '')}
+            B{keyMode.includes('P') ? '+' : ''} 데이터베이스 - RACLA
           </title>
         </Head>
-        <div className="tw-flex tw-flex-col tw-gap-4 vh-screen tw-relative">
+        <div className='tw-flex tw-flex-col tw-gap-4 vh-screen tw-relative'>
           {/* 상단 영역 */}
-          <div className={`tw-flex tw-flex-col tw-gap-4 tw-transition-all duration-300 w-w-full'}`}>
-            <div className="tw-flex tw-w-full tw-gap-4">
-              <div className="tw-flex tw-w-full tw-flex-col tw-gap-4 tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-shadow-lg tw-p-4">
+          <div className={`tw-flex tw-flex-col tw-gap-4 tw-transition-all w-w-full'} duration-300`}>
+            <div className='tw-flex tw-w-full tw-gap-4'>
+              <div className='tw-flex tw-w-full tw-flex-col tw-gap-4 tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-shadow-lg tw-p-4'>
                 {/* 헤더 */}
 
-                <div className="tw-flex tw-w-full tw-bg-gray-700 tw-bg-opacity-30 tw-rounded tw-overflow-x-auto tw-scroll-smooth">
-                  <div className="tw-flex tw-items-center tw-w-full">
+                <div className='tw-flex tw-w-full tw-bg-gray-700 tw-bg-opacity-30 tw-rounded tw-overflow-x-auto tw-scroll-smooth'>
+                  <div className='tw-flex tw-items-center tw-w-full'>
                     {dlcCodeList.map((dlcCode, index) => (
                       <button
                         key={dlcCode}
@@ -322,20 +349,11 @@ export default function VArchiveDbPage() {
                           buttonRefs.current[index] = el
                         }}
                         onClick={() => setSelectedDlcCode(dlcCode)}
-                        className={`
-                            tw-py-2
-                            tw-flex-1
-                            tw-min-w-0
-                            tw-text-sm tw-font-medium 
-                            tw-whitespace-nowrap
-                            tw-relative
-                            tw-transition-all tw-duration-300
-                            ${
-                              selectedDlcCode === dlcCode
-                                ? 'tw-text-white tw-bg-blue-500'
-                                : 'tw-text-gray-400 hover:tw-text-gray-200 hover:tw-bg-gray-600 hover:tw-bg-opacity-30'
-                            }
-                          `}
+                        className={`tw-py-2 tw-flex-1 tw-min-w-0 tw-text-sm tw-font-medium tw-whitespace-nowrap tw-relative tw-transition-all tw-duration-300 ${
+                          selectedDlcCode === dlcCode
+                            ? 'tw-text-white tw-bg-blue-500'
+                            : 'tw-text-gray-400 hover:tw-text-gray-200 hover:tw-bg-gray-600 hover:tw-bg-opacity-30'
+                        } `}
                       >
                         {dlcCode}
                       </button>
@@ -343,9 +361,9 @@ export default function VArchiveDbPage() {
                   </div>
                 </div>
                 {/* 설명 내용 */}
-                <div className="tw-flex tw-flex-col tw-gap-2">
-                  <div className="tw-flex tw-justify-between tw-items-center tw-gap-2">
-                    <div className="tw-flex tw-gap-2">
+                <div className='tw-flex tw-flex-col tw-gap-2'>
+                  <div className='tw-flex tw-justify-between tw-items-center tw-gap-2'>
+                    <div className='tw-flex tw-gap-2'>
                       {globalDictionary.wjmax.keyModeList.map((value) => (
                         <button
                           key={`keyModeSelector_${value}`}
@@ -357,23 +375,23 @@ export default function VArchiveDbPage() {
                           }`}
                           disabled={keyMode === String(value) || !isScoredBaseSongData}
                         >
-                          <span className="tw-text-sm tw-font-bold">{`${value.replace('P', '')}B${value.includes('P') ? '+' : ''}`}</span>
+                          <span className='tw-text-sm tw-font-bold'>{`${value.replace('P', '')}B${value.includes('P') ? '+' : ''}`}</span>
                         </button>
                       ))}
                     </div>
-                    <div className="tw-flex tw-flex-1 tw-gap-2">
+                    <div className='tw-flex tw-flex-1 tw-gap-2'>
                       <button
                         onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
-                        className="tw-bg-gray-900 tw-bg-opacity-50 tw-text-light tw-px-4 tw-py-2 tw-rounded-lg tw-border tw-border-gray-600 tw-border-opacity-50 hover:tw-bg-gray-800 tw-transition-all"
+                        className='tw-bg-gray-900 tw-bg-opacity-50 tw-text-light tw-px-4 tw-py-2 tw-rounded-lg tw-border tw-border-gray-600 tw-border-opacity-50 hover:tw-bg-gray-800 tw-transition-all'
                       >
                         {sortOrder === 'asc' ? '이름 ↑' : '이름 ↓'}
                       </button>
                       <select
                         value={selectedLevel}
                         onChange={(e) => setSelectedLevel(e.target.value)}
-                        className="form-select tw-text-sm tw-bg-gray-900 tw-bg-opacity-80 tw-w-36 tw-border tw-border-gray-600 tw-border-opacity-50 focus:tw-border-blue-400 focus:tw-ring-2 focus:tw-ring-blue-400 focus:tw-ring-opacity-20 tw-transition-all"
+                        className='form-select tw-text-sm tw-bg-gray-900 tw-bg-opacity-80 tw-w-36 tw-border tw-border-gray-600 tw-border-opacity-50 focus:tw-border-blue-400 focus:tw-ring-2 focus:tw-ring-blue-400 focus:tw-ring-opacity-20 tw-transition-all'
                       >
-                        <option value="all">모든 난이도</option>
+                        <option value='all'>모든 난이도</option>
                         {Array.from({ length: 30 }, (_, i) => i + 1).map((level) => (
                           <option key={level} value={level.toString()}>
                             Lv.{level}
@@ -381,31 +399,38 @@ export default function VArchiveDbPage() {
                         ))}
                       </select>
 
-                      <div className="tw-relative tw-flex-1">
-                        <div className="tw-absolute tw-inset-y-0 tw-left-0 tw-pl-3 tw-flex tw-items-center tw-pointer-events-none">
-                          <svg className="tw-h-5 tw-w-5 tw-text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                      <div className='tw-relative tw-flex-1'>
+                        <div className='tw-absolute tw-inset-y-0 tw-left-0 tw-pl-3 tw-flex tw-items-center tw-pointer-events-none'>
+                          <svg
+                            className='tw-h-5 tw-w-5 tw-text-gray-400'
+                            xmlns='http://www.w3.org/2000/svg'
+                            viewBox='0 0 20 20'
+                            fill='currentColor'
+                          >
                             <path
-                              fillRule="evenodd"
-                              d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-                              clipRule="evenodd"
+                              fillRule='evenodd'
+                              d='M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z'
+                              clipRule='evenodd'
                             />
                           </svg>
                         </div>
 
                         <input
                           ref={searchInputRef}
-                          className="tw-w-full tw-bg-gray-900 tw-bg-opacity-50 tw-text-light tw-pl-10 tw-pr-4 tw-py-2 tw-rounded-lg tw-border tw-border-gray-600 tw-border-opacity-50 focus:tw-border-blue-400 focus:tw-ring-2 focus:tw-ring-blue-400 focus:tw-ring-opacity-20 tw-transition-all"
+                          className='tw-w-full tw-bg-gray-900 tw-bg-opacity-50 tw-text-light tw-pl-10 tw-pr-4 tw-py-2 tw-rounded-lg tw-border tw-border-gray-600 tw-border-opacity-50 focus:tw-border-blue-400 focus:tw-ring-2 focus:tw-ring-blue-400 focus:tw-ring-opacity-20 tw-transition-all'
                           onChange={(e) => setSearchName(e.currentTarget.value)}
-                          type="text"
-                          placeholder="제목, 제작자명 또는 DLC명으로 검색..."
+                          type='text'
+                          placeholder='제목, 제작자명 또는 DLC명으로 검색'
                         />
                       </div>
                     </div>
-                    <div className="tw-flex tw-gap-2 tw-items-center">
+                    <div className='tw-flex tw-gap-2 tw-items-center'>
                       <button
                         onClick={() => setViewMode('list')}
                         className={`tw-p-2 tw-rounded-md tw-transition-all ${
-                          viewMode === 'list' ? 'tw-bg-blue-500 tw-text-white' : 'tw-bg-gray-700 tw-text-gray-300 hover:tw-bg-gray-600'
+                          viewMode === 'list'
+                            ? 'tw-bg-blue-500 tw-text-white'
+                            : 'tw-bg-gray-700 tw-text-gray-300 hover:tw-bg-gray-600'
                         }`}
                       >
                         <BsList size={20} />
@@ -413,7 +438,9 @@ export default function VArchiveDbPage() {
                       <button
                         onClick={() => setViewMode('grid')}
                         className={`tw-p-2 tw-rounded-md tw-transition-all ${
-                          viewMode === 'grid' ? 'tw-bg-blue-500 tw-text-white' : 'tw-bg-gray-700 tw-text-gray-300 hover:tw-bg-gray-600'
+                          viewMode === 'grid'
+                            ? 'tw-bg-blue-500 tw-text-white'
+                            : 'tw-bg-gray-700 tw-text-gray-300 hover:tw-bg-gray-600'
                         }`}
                       >
                         <BsGrid size={20} />
@@ -422,9 +449,11 @@ export default function VArchiveDbPage() {
                   </div>
                 </div>
                 {/* 하단 정보 */}
-                <div className="tw-flex tw-justify-end tw-gap-2 tw-items-center tw-text-xs tw-font-semibold">
-                  <FaCircleCheck className=" tw-text-green-500" />
-                  <div className="tw-flex tw-items-center tw-gap-1 tw-text-gray-300">WJMAX 4.0 데이터로 동기화됨</div>
+                <div className='tw-flex tw-justify-end tw-gap-2 tw-items-center tw-text-xs tw-font-semibold'>
+                  <FaCircleCheck className='tw-text-green-500' />
+                  <div className='tw-flex tw-items-center tw-gap-1 tw-text-gray-300'>
+                    WJMAX 4.0 데이터로 동기화됨
+                  </div>
                 </div>
               </div>
             </div>
@@ -432,24 +461,28 @@ export default function VArchiveDbPage() {
 
           {/* 메인 콘텐츠 영역 - 상단 고정 영역만큼 여백 추가 */}
           {/* 상단 고정 영역의 높이에 맞게 조정 필요 */}
-          <div className={`tw-flex-1 tw-overflow-hidden tw-transition-all duration-300 tw-w-full'}`}>
-            <div className="tw-h-full tw-overflow-y-auto tw-scroll-smooth">
-              <AnimatePresence mode="wait">
+          <div
+            className={`tw-flex-1 tw-overflow-hidden tw-transition-all tw-w-full'} duration-300`}
+          >
+            <div className='tw-h-full tw-overflow-y-auto tw-scroll-smooth'>
+              <AnimatePresence mode='wait'>
                 <motion.div
                   key={selectedDlcCode} // 키가 변경될 때마다 애니메이션 트리거
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
                   transition={{ duration: 0.3 }}
-                  className="tw-flex tw-flex-col tw-gap-1 tw-bg-gray-600 tw-bg-opacity-10 tw-rounded-md tw-p-4"
+                  className='tw-flex tw-flex-col tw-gap-1 tw-bg-gray-600 tw-bg-opacity-10 tw-rounded-md tw-p-4'
                 >
-                  <div className={`tw-w-full ${viewMode === 'grid' ? 'tw-flex tw-gap-3 tw-flex-wrap tw-justify-between' : 'tw-flex tw-flex-col'}`}>
+                  <div
+                    className={`tw-w-full ${viewMode === 'grid' ? 'tw-flex tw-gap-3 tw-flex-wrap tw-justify-between' : 'tw-flex tw-flex-col'}`}
+                  >
                     {viewMode === 'list' && (
-                      <div className="tw-flex tw-items-center tw-gap-4 tw-p-2 tw-border-b tw-border-gray-600 tw-text-gray-400 tw-font-bold tw-text-sm">
-                        <div className="tw-w-[130px] tw-text-center">곡 이미지</div>
-                        <div className="tw-flex tw-flex-1">
-                          <div className="tw-flex-1">곡 정보</div>
-                          <div className="tw-w-[480px] tw-text-center">난이도</div>
+                      <div className='tw-flex tw-items-center tw-gap-4 tw-p-2 tw-border-b tw-border-gray-600 tw-text-gray-400 tw-font-bold tw-text-sm'>
+                        <div className='tw-w-[130px] tw-text-center'>곡 이미지</div>
+                        <div className='tw-flex tw-flex-1'>
+                          <div className='tw-flex-1'>곡 정보</div>
+                          <div className='tw-w-[480px] tw-text-center'>난이도</div>
                         </div>
                       </div>
                     )}
@@ -470,33 +503,18 @@ export default function VArchiveDbPage() {
                           data-song-title={songItem.title}
                           ref={songItemIndex === selectedSongIndex ? selectedSongRef : null}
                           onClick={() => router.push(`/projectRa/wjmax/db/title/${songItem.title}`)}
-                          className={`
-                            tw-flex tw-items-center tw-gap-4 tw-p-2 tw-border-b tw-border-gray-700 
-                            tw-relative tw-overflow-hidden
-                            tw-cursor-pointer
-                            ${hoveredTitle === songItem.title ? 'tw-bg-gray-700 tw-bg-opacity-30' : ''}
-                            hover:tw-bg-gray-700 hover:tw-bg-opacity-30
-                          `}
+                          className={`tw-flex tw-items-center tw-gap-4 tw-p-2 tw-border-b tw-border-gray-700 tw-relative tw-overflow-hidden tw-cursor-pointer ${hoveredTitle === songItem.title ? 'tw-bg-gray-700 tw-bg-opacity-30' : ''} hover:tw-bg-gray-700 hover:tw-bg-opacity-30`}
                           onMouseEnter={() => handleMouseEnter(songItem)}
                           onMouseLeave={handleMouseLeave}
                         >
                           {/* 애니메이션 배경 레이어 */}
                           <div
-                            className={`
-                              tw-absolute tw-inset-0 tw-opacity-0 tw-transition-opacity tw-duration-300
-                              before:tw-content-[''] 
-                              before:tw-absolute 
-                              before:tw-inset-[-150%]
-                              before:tw-bg-[length:200%_200%]
-                              before:tw-animate-gradientSlide
-                              before:tw-bg-gradient-to-r before:tw-from-[#1d8975] before:tw-via-[#5276b4] before:tw-via-[#8432bd] before:tw-via-[#5276b4] before:tw-to-[#1d8975]
-                              ${hoveredTitle === songItem.title ? 'tw-opacity-20' : ''}
-                            `}
+                            className={`tw-absolute tw-inset-0 tw-opacity-0 tw-transition-opacity tw-duration-300 before:tw-content-[''] before:tw-absolute before:tw-inset-[-150%] before:tw-bg-[length:200%_200%] before:tw-animate-gradientSlide before:tw-bg-gradient-to-r before:tw-from-[#1d8975] before:tw-via-[#5276b4] before:tw-via-[#8432bd] before:tw-via-[#5276b4] before:tw-to-[#1d8975] ${hoveredTitle === songItem.title ? 'tw-opacity-20' : ''} `}
                           />
 
                           {/* 기존 콘텐츠 */}
-                          <div className="tw-relative tw-z-10 tw-w-full tw-flex tw-items-center tw-gap-4">
-                            <div className="tw-w-auto">
+                          <div className='tw-relative tw-z-10 tw-w-full tw-flex tw-items-center tw-gap-4'>
+                            <div className='tw-w-auto'>
                               <RaScorePopupComponent
                                 songItem={songItem}
                                 songItemTitle={songItem.title}
@@ -506,11 +524,11 @@ export default function VArchiveDbPage() {
                                 judgementType={keyMode.includes('P') ? 'HARD' : 'NORMAL'}
                               />
                             </div>
-                            <div className="tw-flex tw-flex-1">
-                              <div className="tw-flex-1">
-                                <div className="tw-font-bold">{songItem.name}</div>
-                                <div className="tw-flex tw-gap-2 tw-mt-1">
-                                  <div className="tw-text-gray-400">
+                            <div className='tw-flex tw-flex-1'>
+                              <div className='tw-flex-1'>
+                                <div className='tw-font-bold'>{songItem.name}</div>
+                                <div className='tw-flex tw-gap-2 tw-mt-1'>
+                                  <div className='tw-text-gray-400'>
                                     {songItem.artist +
                                       (songItem.composer !== '' ? ` / ${songItem.composer}` : '') +
                                       ' / ' +
@@ -523,32 +541,36 @@ export default function VArchiveDbPage() {
                               </div>
 
                               {/* 난이도별 고정 칸 */}
-                              <div className="tw-flex tw-gap-4 tw-items-center justify-center">
+                              <div className='tw-flex tw-gap-4 tw-items-center justify-center'>
                                 {['NM', 'HD', 'MX', 'SC', 'DPC'].map((diff) => (
-                                  <div key={diff} className="tw-w-20 tw-text-center">
+                                  <div key={diff} className='tw-w-20 tw-text-center'>
                                     {songItem.patterns[`${keyMode.replace('P', '')}B`]?.[diff] ? (
                                       <div
-                                        className={`
-                                          tw-flex justify-center tw-items-center tw-gap-1 tw-font-extrabold
-                                          ${
-                                            selectedLevel === 'all' ||
-                                            Math.floor(songItem.patterns[`${keyMode.replace('P', '')}B`][diff].level) == Number(selectedLevel)
-                                              ? ''
-                                              : 'tw-opacity-30'
-                                          }
-                                          ${diff === 'NM' && 'tw-text-wjmax-nm'}
-                                          ${diff === 'HD' && 'tw-text-wjmax-hd'}
-                                          ${diff === 'MX' && 'tw-text-wjmax-mx'}
-                                          ${diff === 'SC' && 'tw-text-wjmax-sc'}
-                                          ${diff === 'DPC' && 'tw-text-wjmax-dpc'}
-                                        `}
+                                        className={`tw-flex tw-items-center tw-gap-1 tw-font-extrabold justify-center ${
+                                          selectedLevel === 'all' ||
+                                          Math.floor(
+                                            songItem.patterns[`${keyMode.replace('P', '')}B`][diff]
+                                              .level,
+                                          ) == Number(selectedLevel)
+                                            ? ''
+                                            : 'tw-opacity-30'
+                                        } ${diff === 'NM' && 'tw-text-wjmax-nm'} ${diff === 'HD' && 'tw-text-wjmax-hd'} ${diff === 'MX' && 'tw-text-wjmax-mx'} ${diff === 'SC' && 'tw-text-wjmax-sc'} ${diff === 'DPC' && 'tw-text-wjmax-dpc'} `}
                                       >
-                                        <Image src={`/images/wjmax/nm_${diff.toLowerCase()}.png`} width={24} height={24} alt={diff} />
-                                        <div className="tw-text-base">{songItem.patterns[`${keyMode.replace('P', '')}B`][diff].level.toFixed(1)}</div>
+                                        <Image
+                                          src={`/images/wjmax/nm_${diff.toLowerCase()}.png`}
+                                          width={24}
+                                          height={24}
+                                          alt={diff}
+                                        />
+                                        <div className='tw-text-base'>
+                                          {songItem.patterns[`${keyMode.replace('P', '')}B`][
+                                            diff
+                                          ].level.toFixed(1)}
+                                        </div>
                                       </div>
                                     ) : (
-                                      <div className="tw-opacity-30">
-                                        <div className="tw-text-base tw-font-extrabold">-</div>
+                                      <div className='tw-opacity-30'>
+                                        <div className='tw-text-base tw-font-extrabold'>-</div>
                                       </div>
                                     )}
                                   </div>
@@ -560,7 +582,10 @@ export default function VArchiveDbPage() {
                       ),
                     )}
 
-                    {viewMode === 'grid' && Array.from(Array(20)).map((_, index) => <div key={index} className="tw-w-[130px] tw-h-[74px]" />)}
+                    {viewMode === 'grid' &&
+                      Array.from(Array(20)).map((_, index) => (
+                        <div key={index} className='tw-w-[130px] tw-h-[74px]' />
+                      ))}
                   </div>
                 </motion.div>
               </AnimatePresence>

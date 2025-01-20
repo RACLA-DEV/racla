@@ -1,12 +1,11 @@
+import { globalDictionary } from '@/libs/server/globalDictionary'
 import Link from 'next/link'
-import { FaTriangleExclamation } from 'react-icons/fa6'
 import { useRouter } from 'next/router'
+import { useSelector } from 'react-redux'
+import type { RootState } from 'store'
 import FooterLicenseDjmaxRespectV from './license/DjmaxRespectV'
 import FooterLicenseTjmax from './license/Tjmax'
 import FooterLicenseWjmax from './license/Wjmax'
-import { useSelector } from 'react-redux'
-import type { RootState } from 'store'
-import { globalDictionary } from '@/libs/server/globalDictionary'
 
 interface IFooterComponent {
   className?: string
@@ -30,12 +29,12 @@ const FooterComponent = ({ className }: IFooterComponent) => {
   }
 
   return (
-    <div className="tw-flex tw-fixed tw-w-full tw-bg-gray-900 tw-items-center tw-bottom-0 tw-h-8 tw-bg-opacity-50 tw-left-0 tw-px-2 tw-border-t tw-border-opacity-50 tw-border-gray-600">
-      <div className="tw-flex tw-justify-center tw-items-center tw-gap-1 tw-h-8 tw-pl-2 tw-me-auto">
-        <span className="tw-text-xs tw-flex tw-items-center">
-          <span className="tw-flex tw-items-center tw-gap-1">
+    <div className='tw-flex tw-fixed tw-w-full tw-bg-gray-900 tw-items-center tw-bottom-0 tw-h-8 tw-bg-opacity-50 tw-left-0 tw-px-2 tw-border-t tw-border-opacity-50 tw-border-gray-600'>
+      <div className='tw-flex tw-justify-center tw-items-center tw-gap-1 tw-pl-1 tw-h-8 tw-me-auto'>
+        <span className='tw-text-xs tw-flex tw-items-center'>
+          <span className='tw-flex tw-items-center tw-gap-1'>
             <span
-              className="tw-cursor-pointer"
+              className='tw-cursor-pointer'
               onClick={() => {
                 window.ipc.openBrowser('https://github.com/Lunatica-Luna/project-ra/releases')
               }}
@@ -47,24 +46,27 @@ const FooterComponent = ({ className }: IFooterComponent) => {
           </span>
         </span>
       </div>
-      <div className="tw-flex tw-justify-center tw-items-center tw-gap-1 tw-h-8 tw-pr-2">
+      <div className='tw-flex tw-text-xs tw-justify-center tw-items-center tw-gap-1 tw-h-8 tw-pr-1'>
         <>
           {selectedGame === 'djmax_respect_v' && (
             <>
               <span>Powered by </span>
               <button
-                className="tw-text-xs tw-animate-fadeInLeft"
-                type="button"
+                className='tw-text-xs tw-animate-fadeInLeft'
+                type='button'
                 onClick={() => {
-                  window.ipc.send('openBrowser', 'https://github.com/djmax-in/openapi?tab=readme-ov-file')
+                  window.ipc.send(
+                    'openBrowser',
+                    'https://github.com/djmax-in/openapi?tab=readme-ov-file',
+                  )
                 }}
               >
                 V-ARCHIVE
               </button>
               <span> & </span>
               <button
-                className="tw-text-xs tw-animate-fadeInLeft"
-                type="button"
+                className='tw-text-xs tw-animate-fadeInLeft'
+                type='button'
                 onClick={() => {
                   window.ipc.send('openBrowser', 'https://hard-archive.com')
                 }}
@@ -78,7 +80,7 @@ const FooterComponent = ({ className }: IFooterComponent) => {
           {selectedGame && renderGameSpecificContent(selectedGame)}
           <span> · </span>
         </>
-        <Link href="/license" className="tw-text-xs">
+        <Link href='/license' className='tw-text-xs'>
           라이선스 및 이용약관
         </Link>
       </div>

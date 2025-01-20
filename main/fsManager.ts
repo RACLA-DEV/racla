@@ -104,7 +104,11 @@ export function getSession() {
 // 세션 삭제
 export function clearSession() {
   if (fs.existsSync(sessionFile)) {
-    fs.writeFileSync(sessionFile, JSON.stringify({ userNo: '', userToken: '', vArchiveUserNo: '', vArchiveUserToken: '' }), 'utf-8')
+    fs.writeFileSync(
+      sessionFile,
+      JSON.stringify({ userNo: '', userToken: '', vArchiveUserNo: '', vArchiveUserToken: '' }),
+      'utf-8',
+    )
   }
 }
 

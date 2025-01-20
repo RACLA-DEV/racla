@@ -1,27 +1,21 @@
-import React, { useEffect, useRef, useState } from 'react'
+import 'moment/locale/ko'
+import React, { useEffect, useState } from 'react'
 import Head from 'next/head'
 import Image from 'next/image'
-import * as R from 'ramda'
-import { FaCircleInfo, FaHeart, FaPencil, FaRegHeart, FaRotate, FaTriangleExclamation, FaChevronLeft, FaYoutube, FaChartColumn, FaTable } from 'react-icons/fa6'
-import { OverlayTrigger, Tooltip } from 'react-bootstrap'
-import { globalDictionary } from '@/libs/server/globalDictionary'
-import { IconContext } from 'react-icons'
-import moment from 'moment'
-import { randomUUID } from 'crypto'
-
-import 'moment/locale/ko'
-import axios from 'axios'
 import { useParams } from 'next/navigation'
 import { useRouter } from 'next/router'
-import { useSelector } from 'react-redux'
-import { RootState } from 'store'
-import { setBackgroundBgaName, setIsDjCommentOpen } from 'store/slices/uiSlice'
-import { useDispatch } from 'react-redux'
-import { useNotificationSystem } from '@/libs/client/useNotifications'
-import ScoreEditComponent from '@/components/score/ScoreEditComponent'
-import { SyncLoader } from 'react-spinners'
-import RaScorePopupComponent from '@/components/score/RaScorePopupComponent'
 import WjmaxChartComponent from '@/components/chart/WjmaxChartComponent'
+import ScoreEditComponent from '@/components/score/ScoreEditComponent'
+import { useNotificationSystem } from '@/libs/client/useNotifications'
+import { globalDictionary } from '@/libs/server/globalDictionary'
+import axios from 'axios'
+import moment from 'moment'
+import * as R from 'ramda'
+import { FaYoutube } from 'react-icons/fa6'
+import { useDispatch, useSelector } from 'react-redux'
+import { SyncLoader } from 'react-spinners'
+import { RootState } from 'store'
+import { setBackgroundBgaName } from 'store/slices/uiSlice'
 
 export default function VArchiveDbTitlePage() {
   const { showNotification } = useNotificationSystem()
@@ -56,18 +50,23 @@ export default function VArchiveDbTitlePage() {
       // 로그인한 사용자의 경우 rating 정보를 포함한 데이터 가져오기
       if (userData.userName) {
         try {
-          const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/v2/songs/${selectedGame}/${params?.titleNo}/user/${userData.userNo}`, {
-            headers: {
-              Authorization: `${userData.userNo}|${userData.userToken}`,
+          const response = await axios.get(
+            `${process.env.NEXT_PUBLIC_API_URL}/v2/songs/${selectedGame}/${params?.titleNo}/user/${userData.userNo}`,
+            {
+              headers: {
+                Authorization: `${userData.userNo}|${userData.userToken}`,
+              },
+              withCredentials: true,
             },
-            withCredentials: true,
-          })
+          )
           const { data } = response
           const { patterns, plusPatterns } = data
           const newPatterns = Object.fromEntries(
             Object.entries({
               ...patterns,
-              ...Object.fromEntries(Object.keys(plusPatterns).map((key) => [`${key}_PLUS`, plusPatterns[key]])),
+              ...Object.fromEntries(
+                Object.keys(plusPatterns).map((key) => [`${key}_PLUS`, plusPatterns[key]]),
+              ),
             }).sort(([keyA], [keyB]) => {
               const numA = parseInt(keyA)
               const numB = parseInt(keyB)
@@ -145,18 +144,23 @@ export default function VArchiveDbTitlePage() {
           .then(async (data) => {
             if (data.data.success) {
               // 곡 데이터를 다시 불러옴
-              const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/v2/songs/${selectedGame}/${baseSongData[0].title}/user/${userData.userNo}`, {
-                headers: {
-                  Authorization: `${userData.userNo}|${userData.userToken}`,
+              const response = await axios.get(
+                `${process.env.NEXT_PUBLIC_API_URL}/v2/songs/${selectedGame}/${baseSongData[0].title}/user/${userData.userNo}`,
+                {
+                  headers: {
+                    Authorization: `${userData.userNo}|${userData.userToken}`,
+                  },
+                  withCredentials: true,
                 },
-                withCredentials: true,
-              })
+              )
               const { data } = response
               const { patterns, plusPatterns } = data
               const newPatterns = Object.fromEntries(
                 Object.entries({
                   ...patterns,
-                  ...Object.fromEntries(Object.keys(plusPatterns).map((key) => [`${key}_PLUS`, plusPatterns[key]])),
+                  ...Object.fromEntries(
+                    Object.keys(plusPatterns).map((key) => [`${key}_PLUS`, plusPatterns[key]]),
+                  ),
                 }).sort(([keyA], [keyB]) => {
                   const numA = parseInt(keyA)
                   const numB = parseInt(keyB)
@@ -176,14 +180,20 @@ export default function VArchiveDbTitlePage() {
             }
           })
           .catch((error) => {
-            showNotification('성과 기록 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.', 'tw-bg-red-600')
+            showNotification(
+              '성과 기록 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
+              'tw-bg-red-600',
+            )
           })
       } catch (error) {
         console.error('Error fetching data:', error)
       }
     } else {
       setFetchingUpdateScore(false)
-      showNotification('WJMAX 데이터베이스에 기록할 수 있는 최대 점수는 100점입니다. 입력한 값을 다시 한번 확인해주세요.', 'tw-bg-red-600')
+      showNotification(
+        'WJMAX 데이터베이스에 기록할 수 있는 최대 점수는 100점입니다. 입력한 값을 다시 한번 확인해주세요.',
+        'tw-bg-red-600',
+      )
     }
   }
 
@@ -200,16 +210,21 @@ export default function VArchiveDbTitlePage() {
   const fetchSongItemData = async (title) => {
     try {
       if (userData.userName !== '') {
-        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/v2/songs/${selectedGame}/${title}/user/${userData.userNo}`, {
-          headers: {
-            Authorization: `${userData.userNo}|${userData.userToken}`,
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}/v2/songs/${selectedGame}/${title}/user/${userData.userNo}`,
+          {
+            headers: {
+              Authorization: `${userData.userNo}|${userData.userToken}`,
+            },
+            withCredentials: true,
           },
-          withCredentials: true,
-        })
+        )
         const { data } = response
         setSongItemData(data)
       } else {
-        const response = baseSongData.filter((baseSongData) => String(baseSongData.title) == String(title))
+        const response = baseSongData.filter(
+          (baseSongData) => String(baseSongData.title) == String(title),
+        )
         const result = response.length > 0 ? response[0] : []
         setSongItemData(result)
       }
@@ -236,12 +251,15 @@ export default function VArchiveDbTitlePage() {
   const loadDataWithScore = async (title) => {
     if (userData.userName !== '') {
       try {
-        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/v2/songs/${selectedGame}/${title}/user/${userData.userNo}`, {
-          headers: {
-            Authorization: `${userData.userNo}|${userData.userToken}`,
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}/v2/songs/${selectedGame}/${title}/user/${userData.userNo}`,
+          {
+            headers: {
+              Authorization: `${userData.userNo}|${userData.userToken}`,
+            },
+            withCredentials: true,
           },
-          withCredentials: true,
-        })
+        )
         if (!response) {
           throw new Error('Network response was not ok')
         }
@@ -264,7 +282,9 @@ export default function VArchiveDbTitlePage() {
             const data = await loadDataWithScore(item.title)
             const keysToRemove1 = ['4B', '5B', '6B', '8B']
             const keysToRemove2 = ['DPC', 'SC', 'MX', 'HD', 'NM']
-            const pathsToRemove = keysToRemove1.map((key1) => keysToRemove2.map((key2) => ['patterns', key1, key2, 'level']))
+            const pathsToRemove = keysToRemove1.map((key1) =>
+              keysToRemove2.map((key2) => ['patterns', key1, key2, 'level']),
+            )
             const removeLevels = (paths, obj) => {
               return paths.reduce((acc, path) => R.dissocPath(path, acc), obj)
             }
@@ -323,11 +343,15 @@ export default function VArchiveDbTitlePage() {
     return (
       <React.Fragment>
         <Head>
-          <title>{baseSongData.length !== 0 ? baseSongData[0].name : '로딩중'} - 데이터베이스 - RACLA</title>
+          <title>
+            {baseSongData.length !== 0 ? baseSongData[0].name : '로딩중'} - 데이터베이스 - RACLA
+          </title>
         </Head>
-        <div className="tw-flex tw-gap-4 vh-screen">
+        <div className='tw-flex tw-gap-4 vh-screen'>
           {/* 곡 데이터 */}
-          <div className={`tw-flex tw-flex-col tw-transition-all duration-300 ${isDjCommentOpen ? 'tw-w-8/12' : 'tw-w-full'}`}>
+          <div
+            className={`tw-flex tw-flex-col tw-transition-all duration-300 ${isDjCommentOpen ? 'tw-w-8/12' : 'tw-w-full'}`}
+          >
             <div
               className={
                 'tw-flex tw-flex-col tw-gap-4 tw-bg-opacity-10 tw-rounded-md p-0 tw-mb-4 tw-h-auto tw-relative ' +
@@ -338,32 +362,32 @@ export default function VArchiveDbTitlePage() {
               }}
             >
               {/* 배경 이미지 추가 */}
-              <div className="tw-absolute tw-inset-0 tw-overflow-hidden tw-rounded-md">
+              <div className='tw-absolute tw-inset-0 tw-overflow-hidden tw-rounded-md'>
                 <Image
                   src={`/images/${selectedGame}/jackets/${baseSongData[0].folderName}.jpg`}
-                  layout="fill"
-                  objectFit="cover"
-                  alt=""
-                  className="tw-opacity-30 tw-blur-xl"
+                  layout='fill'
+                  objectFit='cover'
+                  alt=''
+                  className='tw-opacity-30 tw-blur-xl'
                 />
-                <div className="tw-absolute tw-inset-0 tw-bg-black tw-bg-opacity-50" />
+                <div className='tw-absolute tw-inset-0 tw-bg-black tw-bg-opacity-50' />
               </div>
 
-              <div className="tw-flex tw-justify-between tw-gap-4 tw-animate-fadeInLeft p-4 flex-equal tw-bg-gray-900 tw-bg-opacity-30 tw-rounded-md">
+              <div className='tw-flex tw-justify-between tw-gap-4 tw-animate-fadeInLeft p-4 flex-equal tw-bg-gray-900 tw-bg-opacity-30 tw-rounded-md'>
                 {/* 하단 */}
-                <div className="tw-flex tw-gap-3 tw-mt-auto tw-items-end">
+                <div className='tw-flex tw-gap-3 tw-mt-auto tw-items-end'>
                   <Image
-                    loading="lazy" // "lazy" | "eager"
+                    loading='lazy' // "lazy" | "eager"
                     blurDataURL={globalDictionary.blurDataURL}
                     src={`/images/${selectedGame}/jackets/${baseSongData[0].folderName}.jpg`}
                     height={74}
                     width={130}
-                    alt=""
-                    className="tw-animate-fadeInLeft tw-rounded-md tw-shadow-sm"
+                    alt=''
+                    className='tw-animate-fadeInLeft tw-rounded-md tw-shadow-sm'
                   />
-                  <div className="tw-flex tw-flex-col tw-w-full">
+                  <div className='tw-flex tw-flex-col tw-w-full'>
                     {/* 제목 */}
-                    <span className="tw-flex tw-font-light tw-text-gray-300">
+                    <span className='tw-flex tw-font-light tw-text-gray-300'>
                       {baseSongData[0].artist +
                         (baseSongData[0].composer !== '' ? ` / ${baseSongData[0].composer}` : '') +
                         ' / ' +
@@ -372,26 +396,33 @@ export default function VArchiveDbTitlePage() {
                         ' / ' +
                         moment.utc(baseSongData[0].time * 1000).format('m분 s초')}
                     </span>
-                    <span className="tw-text-lg tw-font-bold me-auto">
+                    <span className='tw-text-lg tw-font-bold me-auto'>
                       {baseSongData[0].name}
-                      <sup className="tw-text-xs tw-font-light tw-text-gray-300"> (RACLA : {baseSongData[0].title})</sup>
+                      <sup className='tw-text-xs tw-font-light tw-text-gray-300'>
+                        {' '}
+                        (RACLA : {baseSongData[0].title})
+                      </sup>
                     </span>
                   </div>
                 </div>
                 <div>
-                  <div className="tw-flex tw-gap-2">
+                  <div className='tw-flex tw-gap-2'>
                     {String(baseSongData[0].bgaUrl).trim() !== '' && (
                       <button
-                        className="tw-inline-flex tw-items-center tw-gap-2 tw-animate-fadeInLeft p-1 px-2 tw-bg-gray-950 tw-bg-opacity-75 tw-rounded-md hover:tw-bg-gray-700 tw-transition-colors tw-text-sm"
+                        className='tw-inline-flex tw-items-center tw-gap-2 tw-animate-fadeInLeft p-1 px-2 tw-bg-gray-950 tw-bg-opacity-75 tw-rounded-md hover:tw-bg-gray-700 tw-transition-colors tw-text-sm'
                         onClick={() => window.ipc.openBrowser(baseSongData[0].bgaUrl)}
                       >
-                        <FaYoutube className="tw-text-red-500 tw-mt-0.5" />
-                        <span className="tw-text-gray-300">BGA 영상 바로가기</span>
+                        <FaYoutube className='tw-text-red-500 tw-mt-0.5' />
+                        <span className='tw-text-gray-300'>BGA 영상 바로가기</span>
                       </button>
                     )}
-                    <div className="tw-animate-fadeInLeft tw-rounded-md p-1 tw-bg-gray-950 tw-bg-opacity-75">
-                      <span className="wjmax_dlc_code_wrap ">
-                        <span className={`wjmax_dlc_code wjmax_dlc_code_${baseSongData[0].dlcCode}`}>{baseSongData[0].dlc}</span>
+                    <div className='tw-animate-fadeInLeft tw-rounded-md p-1 tw-bg-gray-950 tw-bg-opacity-75'>
+                      <span className='wjmax_dlc_code_wrap '>
+                        <span
+                          className={`wjmax_dlc_code wjmax_dlc_code_${baseSongData[0].dlcCode}`}
+                        >
+                          {baseSongData[0].dlc}
+                        </span>
                       </span>
                     </div>
                   </div>
@@ -403,8 +434,8 @@ export default function VArchiveDbTitlePage() {
             </div>
 
             {!isLoading && (
-              <div className="tw-w-full tw-h-full tw-overflow-y-auto tw-p-4 tw-rounded-md tw-text-center tw-shadow-lg tw-bg-gray-800 tw-bg-opacity-50">
-                <div className="tw-flex tw-flex-col tw-gap-4 tw-h-full">
+              <div className='tw-w-full tw-h-full tw-overflow-y-auto tw-p-4 tw-rounded-md tw-text-center tw-shadow-lg tw-bg-gray-800 tw-bg-opacity-50'>
+                <div className='tw-flex tw-flex-col tw-gap-4 tw-h-full'>
                   {baseSongData.length !== 0 && !isLoading ? (
                     Object.keys(baseSongData[0].patterns)
                       .sort((a, b) => {
@@ -416,30 +447,34 @@ export default function VArchiveDbTitlePage() {
                       .map((patternName) => (
                         <React.Fragment key={String(patternName)}>
                           {/* Button Column */}
-                          <div className="tw-flex tw-flex-1">
-                            <div className="tw-min-w-20 tw-border-gray-600  tw-border-opacity-25 tw-flex tw-flex-col tw-justify-center tw-items-center tw-overflow-hidden tw-bg-gray-900 tw-bg-opacity-20 tw-rounded-lg">
-                              <div className="tw-relative tw-h-full tw-w-full tw-flex-1">
+                          <div className='tw-flex tw-flex-1'>
+                            <div className='tw-min-w-20 tw-border-gray-600  tw-border-opacity-25 tw-flex tw-flex-col tw-justify-center tw-items-center tw-overflow-hidden tw-bg-gray-900 tw-bg-opacity-20 tw-rounded-lg'>
+                              <div className='tw-relative tw-h-full tw-w-full tw-flex-1'>
                                 <div
-                                  className={`tw-absolute tw-inset-0 wjmax_db_button wjmax_bg_b${String(patternName)
+                                  className={`tw-absolute tw-inset-0 wjmax_db_button wjmax_bg_b${String(
+                                    patternName,
+                                  )
                                     .replace('B', '')
                                     .toLowerCase()} tw-rounded-lg`}
                                 />
-                                <span className="tw-aboslute tw-h-full tw-w-full tw-bg-gray-950 tw-bg-opacity-50 tw-rounded-lg tw-font-extrabold tw-text-4xl tw-flex tw-items-center tw-justify-center">
-                                  <span className="tw-text-lg tw-font-bold tw-relative">
-                                    <span className="tw-text-2xl tw-font-bold">
-                                      {String(patternName).replace('B', '').replace('_PLUS', '')}B{String(patternName).includes('_PLUS') ? '+' : ''}
+                                <span className='tw-aboslute tw-h-full tw-w-full tw-bg-gray-950 tw-bg-opacity-50 tw-rounded-lg tw-font-extrabold tw-text-4xl tw-flex tw-items-center tw-justify-center'>
+                                  <span className='tw-text-lg tw-font-bold tw-relative'>
+                                    <span className='tw-text-2xl tw-font-bold'>
+                                      {String(patternName).replace('B', '').replace('_PLUS', '')}B
+                                      {String(patternName).includes('_PLUS') ? '+' : ''}
                                     </span>
                                   </span>
                                 </span>
                               </div>
                             </div>
 
-                            <div className="tw-flex-1 tw-grid tw-grid-cols-5 tw-gap-2">
+                            <div className='tw-flex-1 tw-grid tw-grid-cols-5 tw-gap-2'>
                               {/* Difficulty Columns */}
                               {['NM', 'HD', 'MX', 'SC', 'DPC'].map((difficultyCode: string) =>
-                                baseSongData[0].patterns[patternName][difficultyCode] !== undefined &&
+                                baseSongData[0].patterns[patternName][difficultyCode] !==
+                                  undefined &&
                                 baseSongData[0].patterns[patternName][difficultyCode] !== null ? (
-                                  <div className="tw-relative tw-h-full">
+                                  <div className='tw-relative tw-h-full'>
                                     {/* <button
                                   className="tw-absolute tw-right-2 tw-z-[100] tw-top-2 tw-flex-1 tw-px-2 tw-py-2 tw-bg-blue-600 tw-text-white tw-rounded-md hover:tw-bg-blue-500 tw-transition-all tw-text-sm"
                                   onClick={() =>
@@ -455,24 +490,42 @@ export default function VArchiveDbTitlePage() {
                                     <div
                                       key={`${String(patternName)}_${difficultyCode}`}
                                       className={`tw-border-gray-600 tw-border-opacity-25 tw-flex tw-h-full tw-flex-col tw-justify-center tw-items-center tw-p-2 tw-bg-gray-700 tw-bg-opacity-20 tw-rounded-lg  ${
-                                        userData.userName !== '' ? 'tw-cursor-pointer hover:tw-bg-gray-600 hover:tw-bg-opacity-30' : ''
+                                        userData.userName !== ''
+                                          ? 'tw-cursor-pointer hover:tw-bg-gray-600 hover:tw-bg-opacity-30'
+                                          : ''
                                       } ${
-                                        baseSongData[0].patterns[patternName][difficultyCode].score !== undefined &&
-                                        Number(baseSongData[0].patterns[patternName][difficultyCode].score) <= 0
+                                        baseSongData[0].patterns[patternName][difficultyCode]
+                                          .score !== undefined &&
+                                        Number(
+                                          baseSongData[0].patterns[patternName][difficultyCode]
+                                            .score,
+                                        ) <= 0
                                           ? 'tw-opacity-70 tw-bg-gray-950'
                                           : ''
                                       }`}
                                       onClick={() => {
                                         if (userData.userName !== '') {
-                                          setPatternCode(`patterns${String(patternName)}${difficultyCode}`)
-                                          setPatternMaxCombo(baseSongData[0].patterns[patternName][difficultyCode].maxCombo)
+                                          setPatternCode(
+                                            `patterns${String(patternName)}${difficultyCode}`,
+                                          )
+                                          setPatternMaxCombo(
+                                            baseSongData[0].patterns[patternName][difficultyCode]
+                                              .maxCombo,
+                                          )
                                           setPatternButton(String(patternName))
                                           setPatternDificulty(difficultyCode)
                                           setUpdateScore(
                                             Number(
-                                              baseSongData[0].patterns[patternName][difficultyCode].score !== undefined &&
-                                                baseSongData[0].patterns[patternName][difficultyCode].score !== null
-                                                ? Number(baseSongData[0].patterns[patternName][difficultyCode].score)
+                                              baseSongData[0].patterns[patternName][difficultyCode]
+                                                .score !== undefined &&
+                                                baseSongData[0].patterns[patternName][
+                                                  difficultyCode
+                                                ].score !== null
+                                                ? Number(
+                                                    baseSongData[0].patterns[patternName][
+                                                      difficultyCode
+                                                    ].score,
+                                                  )
                                                 : 0,
                                             ),
                                           )
@@ -481,73 +534,95 @@ export default function VArchiveDbTitlePage() {
                                         }
                                       }}
                                     >
-                                      <div className="tw-flex tw-w-full tw-justify-center tw-items-center tw-rounded-lg tw-gap-4 tw-p-2">
+                                      <div className='tw-flex tw-w-full tw-justify-center tw-items-center tw-rounded-lg tw-gap-4 tw-p-2'>
                                         {/* 난이도 표시 */}
-                                        <div className="tw-w-flex tw-flex-col tw-justify-center tw-items-center">
+                                        <div className='tw-w-flex tw-flex-col tw-justify-center tw-items-center'>
                                           <span
                                             className={
                                               difficultyCode === 'NM'
                                                 ? 'tw-flex tw-justify-center tw-items-center tw-gap-2 tw-text-base tw-font-extrabold text-stroke-100 tw-text-wjmax-nm'
                                                 : difficultyCode === 'HD'
-                                                ? 'tw-flex tw-justify-center tw-items-center tw-gap-2 tw-text-base tw-font-extrabold text-stroke-100 tw-text-wjmax-hd'
-                                                : difficultyCode === 'MX'
-                                                ? 'tw-flex tw-justify-center tw-items-center tw-gap-2 tw-text-base tw-font-extrabold text-stroke-100 tw-text-wjmax-mx'
-                                                : difficultyCode === 'SC'
-                                                ? 'tw-flex tw-justify-center tw-items-center tw-gap-2 tw-text-base tw-font-extrabold text-stroke-100 tw-text-wjmax-sc'
-                                                : 'tw-flex tw-justify-center tw-items-center tw-gap-2 tw-text-base tw-font-extrabold text-stroke-100 tw-text-wjmax-dpc'
+                                                  ? 'tw-flex tw-justify-center tw-items-center tw-gap-2 tw-text-base tw-font-extrabold text-stroke-100 tw-text-wjmax-hd'
+                                                  : difficultyCode === 'MX'
+                                                    ? 'tw-flex tw-justify-center tw-items-center tw-gap-2 tw-text-base tw-font-extrabold text-stroke-100 tw-text-wjmax-mx'
+                                                    : difficultyCode === 'SC'
+                                                      ? 'tw-flex tw-justify-center tw-items-center tw-gap-2 tw-text-base tw-font-extrabold text-stroke-100 tw-text-wjmax-sc'
+                                                      : 'tw-flex tw-justify-center tw-items-center tw-gap-2 tw-text-base tw-font-extrabold text-stroke-100 tw-text-wjmax-dpc'
                                             }
                                           >
                                             <Image
-                                              loading="lazy"
+                                              loading='lazy'
                                               blurDataURL={globalDictionary.blurDataURL}
                                               src={
                                                 difficultyCode === 'NM'
                                                   ? `/images/wjmax/nm_5_star.png`
                                                   : difficultyCode === 'HD'
-                                                  ? `/images/wjmax/nm_10_star.png`
-                                                  : difficultyCode === 'MX'
-                                                  ? `/images/wjmax/nm_15_star.png`
-                                                  : difficultyCode === 'SC'
-                                                  ? `/images/wjmax/nm_20_star.png`
-                                                  : `/images/wjmax/nm_25_star.png`
+                                                    ? `/images/wjmax/nm_10_star.png`
+                                                    : difficultyCode === 'MX'
+                                                      ? `/images/wjmax/nm_15_star.png`
+                                                      : difficultyCode === 'SC'
+                                                        ? `/images/wjmax/nm_20_star.png`
+                                                        : `/images/wjmax/nm_25_star.png`
                                               }
                                               height={24}
                                               width={24}
-                                              alt=""
-                                              className="tw-drop-shadow-lg"
+                                              alt=''
+                                              className='tw-drop-shadow-lg'
                                             />
-                                            {baseSongData[0].patterns[patternName][difficultyCode].level.toFixed(1)}
+                                            {baseSongData[0].patterns[patternName][
+                                              difficultyCode
+                                            ].level.toFixed(1)}
                                           </span>
-                                          {baseSongData[0].patterns[patternName][difficultyCode].floor &&
-                                            Number(baseSongData[0].patterns[patternName][difficultyCode].floor) > 0 && (
+                                          {baseSongData[0].patterns[patternName][difficultyCode]
+                                            .floor &&
+                                            Number(
+                                              baseSongData[0].patterns[patternName][difficultyCode]
+                                                .floor,
+                                            ) > 0 && (
                                               <span
                                                 className={
                                                   difficultyCode === 'NM'
                                                     ? 'tw-font-light tw-text-sm tw-text-wjmax-nm'
                                                     : difficultyCode === 'HD'
-                                                    ? 'tw-font-light tw-text-sm tw-text-wjmax-hd'
-                                                    : difficultyCode === 'MX'
-                                                    ? 'tw-font-light tw-text-sm tw-text-wjmax-mx'
-                                                    : difficultyCode === 'SC'
-                                                    ? 'tw-font-light tw-text-sm tw-text-wjmax-sc'
-                                                    : 'tw-font-light tw-text-sm tw-text-wjmax-dpc'
+                                                      ? 'tw-font-light tw-text-sm tw-text-wjmax-hd'
+                                                      : difficultyCode === 'MX'
+                                                        ? 'tw-font-light tw-text-sm tw-text-wjmax-mx'
+                                                        : difficultyCode === 'SC'
+                                                          ? 'tw-font-light tw-text-sm tw-text-wjmax-sc'
+                                                          : 'tw-font-light tw-text-sm tw-text-wjmax-dpc'
                                                 }
                                               >
-                                                ({baseSongData[0].patterns[patternName][difficultyCode].floor}F)
+                                                (
+                                                {
+                                                  baseSongData[0].patterns[patternName][
+                                                    difficultyCode
+                                                  ].floor
+                                                }
+                                                F)
                                               </span>
                                             )}
                                         </div>
 
                                         {/* 점수 표시 (로그인한 경우에만) */}
                                         {userData.userName !== '' && (
-                                          <div className="tw-flex tw-flex-col tw-items-start tw-justify-center tw-gap-1 tw-min-w-20">
-                                            {baseSongData[0].patterns[patternName][difficultyCode].score &&
-                                            Number(baseSongData[0].patterns[patternName][difficultyCode].score) > 0 ? (
-                                              baseSongData[0].patterns[patternName][difficultyCode].score === '100.00' ? (
+                                          <div className='tw-flex tw-flex-col tw-items-start tw-justify-center tw-gap-1 tw-min-w-20'>
+                                            {baseSongData[0].patterns[patternName][difficultyCode]
+                                              .score &&
+                                            Number(
+                                              baseSongData[0].patterns[patternName][difficultyCode]
+                                                .score,
+                                            ) > 0 ? (
+                                              baseSongData[0].patterns[patternName][difficultyCode]
+                                                .score === '100.00' ? (
                                                 <>
                                                   {/* <span className="tw-font-bold tw-text-sm tw-text-yellow-400 tw-drop-shadow-lg">PERFECT</span> */}
-                                                  <span className="tw-font-light tw-text-sm tw-text-gray-300">
-                                                    {baseSongData[0].patterns[patternName][difficultyCode].score}%{' '}
+                                                  <span className='tw-font-light tw-text-sm tw-text-gray-300'>
+                                                    {
+                                                      baseSongData[0].patterns[patternName][
+                                                        difficultyCode
+                                                      ].score
+                                                    }
+                                                    %{' '}
                                                     {/* <sup>{baseSongData[0].patterns[patternName][difficultyCode].rating}TP</sup> */}
                                                   </span>
                                                 </>
@@ -556,23 +631,40 @@ export default function VArchiveDbTitlePage() {
                                                   {/* <span className="tw-font-bold tw-text-3xl tw-drop-shadow-lg">
                                             {getGrade(baseSongData[0].patterns[patternName][difficultyCode].score)}
                                           </span> */}
-                                                  <span className="tw-font-light tw-text-sm tw-text-gray-300">
-                                                    {baseSongData[0].patterns[patternName][difficultyCode].score}%{' '}
+                                                  <span className='tw-font-light tw-text-sm tw-text-gray-300'>
+                                                    {
+                                                      baseSongData[0].patterns[patternName][
+                                                        difficultyCode
+                                                      ].score
+                                                    }
+                                                    %{' '}
                                                     {/* <sup>{baseSongData[0].patterns[patternName][difficultyCode].rating}TP</sup> */}
                                                   </span>
                                                 </>
                                               )
                                             ) : (
                                               <>
-                                                <span className="tw-font-light tw-text-sm tw-text-gray-500">-</span>
-                                                <span className="tw-font-light tw-text-xs tw-text-gray-400 tw-break-keep">(기록 미존재)</span>
+                                                <span className='tw-font-light tw-text-sm tw-text-gray-500'>
+                                                  -
+                                                </span>
+                                                <span className='tw-font-light tw-text-xs tw-text-gray-400 tw-break-keep'>
+                                                  (기록 미존재)
+                                                </span>
                                               </>
                                             )}
-                                            {baseSongData[0].patterns[patternName][difficultyCode].score !== undefined &&
-                                            baseSongData[0].patterns[patternName][difficultyCode].score === '100.00' ? (
-                                              <span className="tw-text-xs tw-font-light tw-text-yellow-400">MAX COMBO</span>
-                                            ) : baseSongData[0].patterns[patternName][difficultyCode].maxCombo ? (
-                                              <span className="tw-text-xs tw-font-light tw-text-yellow-400">MAX COMBO</span>
+                                            {baseSongData[0].patterns[patternName][difficultyCode]
+                                              .score !== undefined &&
+                                            baseSongData[0].patterns[patternName][difficultyCode]
+                                              .score === '100.00' ? (
+                                              <span className='tw-text-xs tw-font-light tw-text-yellow-400'>
+                                                MAX COMBO
+                                              </span>
+                                            ) : baseSongData[0].patterns[patternName][
+                                                difficultyCode
+                                              ].maxCombo ? (
+                                              <span className='tw-text-xs tw-font-light tw-text-yellow-400'>
+                                                MAX COMBO
+                                              </span>
                                             ) : null}
                                           </div>
                                         )}
@@ -588,8 +680,8 @@ export default function VArchiveDbTitlePage() {
                         </React.Fragment>
                       ))
                   ) : (
-                    <div className="tw-col-span-5">
-                      <SyncLoader color="#ffffff" size={8} />
+                    <div className='tw-col-span-5'>
+                      <SyncLoader color='#ffffff' size={8} />
                     </div>
                   )}
                 </div>
@@ -614,7 +706,11 @@ export default function VArchiveDbTitlePage() {
           />
         </div>
         {showPatternViewer && patternViewerData && (
-          <WjmaxChartComponent chartData={patternViewerData} bpm={baseSongData[0].bpm} onClose={() => setShowPatternViewer(false)} />
+          <WjmaxChartComponent
+            chartData={patternViewerData}
+            bpm={baseSongData[0].bpm}
+            onClose={() => setShowPatternViewer(false)}
+          />
         )}
       </React.Fragment>
     )

@@ -1,7 +1,7 @@
-import { useRouter } from 'next/router'
 import React, { useEffect, useRef, useState } from 'react'
-import { useDispatch } from 'react-redux'
-import { useSelector } from 'react-redux'
+
+import { useRouter } from 'next/router'
+import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from 'store'
 import { setBackgroundBgaName } from 'store/slices/uiSlice'
 
@@ -27,7 +27,9 @@ const BackgroundVideoComponent = React.memo(() => {
 
   const baseUrl = `https://ribbon.r-archive.zip/${selectedGame.toLowerCase()}`
   const defaultVideoSrc = `${baseUrl}/bg_title.mp4`
-  const dynamicVideoSrc = backgroundBgaName ? `${baseUrl}/preview/title/${backgroundBgaName}.${selectedGame === 'djmax_respect_v' ? 'webm' : 'mp4'}` : ''
+  const dynamicVideoSrc = backgroundBgaName
+    ? `${baseUrl}/preview/title/${backgroundBgaName}.${selectedGame === 'djmax_respect_v' ? 'webm' : 'mp4'}`
+    : ''
 
   if (isDetectedGame || !settingData?.visibleBga) {
     return null
@@ -38,13 +40,13 @@ const BackgroundVideoComponent = React.memo(() => {
       {/* 기본 배경 비디오 */}
       <video
         ref={defaultVideoRef}
-        key="default-video"
+        key='default-video'
         src={defaultVideoSrc}
         autoPlay
         muted
         loop
         playsInline
-        preload="auto"
+        preload='auto'
         style={{
           position: 'fixed',
           width: '100%',
@@ -54,7 +56,7 @@ const BackgroundVideoComponent = React.memo(() => {
           opacity: dynamicVideoSrc ? 0 : 1,
           transition: 'opacity 0.3s ease-in-out',
         }}
-        className="background-video tw-absolute tw-top-0 tw-left-0 tw-w-full tw-h-screen"
+        className='background-video tw-absolute tw-top-0 tw-left-0 tw-w-full tw-h-screen'
         onError={(e) => console.error('기본 비디오 로드 에러:', e)}
       />
 
@@ -68,7 +70,7 @@ const BackgroundVideoComponent = React.memo(() => {
           muted
           loop
           playsInline
-          preload="auto"
+          preload='auto'
           style={{
             position: 'fixed',
             width: '100%',
@@ -78,11 +80,11 @@ const BackgroundVideoComponent = React.memo(() => {
             opacity: opacity,
             transition: 'opacity 0.3s ease-in-out',
           }}
-          className="background-video tw-absolute tw-top-0 tw-left-0 tw-w-full tw-h-screen"
+          className='background-video tw-absolute tw-top-0 tw-left-0 tw-w-full tw-h-screen'
           onError={(e) => console.error('동적 비디오 로드 에러:', e)}
         />
       )}
-      <div className="background-image-color" />
+      <div className='background-image-color' />
     </>
   )
 })

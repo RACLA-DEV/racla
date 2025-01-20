@@ -1,21 +1,20 @@
-import { globalDictionary } from '@/libs/server/globalDictionary'
 import {
   getDifficultyClassName,
-  getDifficultyScoreBarClassName,
   getDifficultyStarImage,
-  getDifficultyTextClassName,
-  getScoreDisplayText,
   getSCPatternScoreDisplayText,
+  getScoreDisplayText,
 } from '@/libs/client/wjmaxUtils'
+import { useCallback, useEffect, useState } from 'react'
+import { OverlayTrigger, Tooltip } from 'react-bootstrap'
+import { useDispatch, useSelector } from 'react-redux'
+
+import { globalDictionary } from '@/libs/server/globalDictionary'
+import axios from 'axios'
 import Image from 'next/image'
 import Link from 'next/link'
-import { OverlayTrigger, Tooltip } from 'react-bootstrap'
-import { useSelector, useDispatch } from 'react-redux'
-import { RootState } from 'store'
-import { useState, useEffect, useCallback } from 'react'
-import { setBackgroundBgaName } from 'store/slices/uiSlice'
-import axios from 'axios'
 import { useInView } from 'react-intersection-observer'
+import { RootState } from 'store'
+import { setBackgroundBgaName } from 'store/slices/uiSlice'
 
 interface RaScorePopupComponentProps {
   songItem?: any
@@ -99,7 +98,9 @@ const RaScorePopupComponent = ({
             const newPatterns = Object.fromEntries(
               Object.entries({
                 ...patterns,
-                ...Object.fromEntries(Object.keys(plusPatterns).map((key) => [`${key}_PLUS`, plusPatterns[key]])),
+                ...Object.fromEntries(
+                  Object.keys(plusPatterns).map((key) => [`${key}_PLUS`, plusPatterns[key]]),
+                ),
               }).sort(([keyA], [keyB]) => {
                 const numA = parseInt(keyA)
                 const numB = parseInt(keyB)
@@ -189,122 +190,144 @@ const RaScorePopupComponent = ({
   return (
     <OverlayTrigger
       key={'songDataPack_item' + (displayData?.title ?? songItemTitle)}
-      placement="auto"
+      placement='auto'
       delay={delay}
       show={isHovered && !isLoading && displayData !== null}
       overlay={
-        <Tooltip id="btn-nav-home" className={`tw-bg-gray-950 tw-bg-opacity-100 tw-text-xs tw-min-h-48 ${fontFamily}`}>
-          <div className="tw-flex tw-gap-2">
+        <Tooltip
+          id='btn-nav-home'
+          className={`tw-bg-gray-950 tw-bg-opacity-100 tw-text-xs tw-min-h-48 ${fontFamily}`}
+        >
+          <div className='tw-flex tw-gap-2'>
             <style jsx global>{`
               .tooltip-inner {
-                background-color: rgb(3 7 18) !important;
                 opacity: 1 !important;
+                background-color: rgb(3 7 18) !important;
               }
               .tooltip.show {
                 opacity: 1 !important;
               }
             `}</style>
-            <div className="tw-flex tw-flex-col">
-              <div className="tw-flex tw-flex-col tw-w-80 tw-h-32 tw-relative tw-mb-2 tw-mt-1 tw-bg-gray-900 tw-bg-opacity-100 tw-overflow-hidden tw-rounded-md">
+            <div className='tw-flex tw-flex-col'>
+              <div className='tw-flex tw-flex-col tw-w-80 tw-h-32 tw-relative tw-mb-2 tw-mt-1 tw-bg-gray-900 tw-bg-opacity-100 tw-overflow-hidden tw-rounded-md'>
                 <Image
-                  loading="lazy" // "lazy" | "eager"
+                  loading='lazy' // "lazy" | "eager"
                   blurDataURL={globalDictionary.blurDataURL}
                   src={`/images/${selectedGame}/jackets/${
-                    wjmaxSongData.filter((song) => song.title === Number(songItem ? String(songItem.title) : String(songItemTitle)))?.[0]?.folderName
+                    wjmaxSongData.filter(
+                      (song) =>
+                        song.title ===
+                        Number(songItem ? String(songItem.title) : String(songItemTitle)),
+                    )?.[0]?.folderName
                     // wjmaxSongData[Number(songItem ? String(songItem.title).replace('10000', '') : String(songItemTitle).replace('10000', ''))]?.folderName
                   }.jpg`}
-                  className="tw-absolute tw-animate-fadeInLeft tw-rounded-md tw-blur tw-brightness-50 tw-bg-opacity-90"
+                  className='tw-absolute tw-animate-fadeInLeft tw-rounded-md tw-blur tw-brightness-50 tw-bg-opacity-90'
                   fill
-                  alt=""
+                  alt=''
                   style={{ objectFit: 'cover' }}
                 />
-                <span className="tw-absolute tw-left-0 tw-bottom-0 tw-px-2 tw-font-bold tw-text-left tw-break-keep">
-                  <span className="tw-font-medium tw-text-md">{displayData?.artist ? displayData?.artist : displayData?.composer}</span>
+                <span className='tw-absolute tw-left-0 tw-bottom-0 tw-px-2 tw-font-bold tw-text-left tw-break-keep'>
+                  <span className='tw-font-medium tw-text-md'>
+                    {displayData?.artist ? displayData?.artist : displayData?.composer}
+                  </span>
 
                   <br />
-                  <span className="tw-text-xl">{displayData?.name}</span>
+                  <span className='tw-text-xl'>{displayData?.name}</span>
                 </span>
-                <span className="tw-absolute tw-top-1 tw-right-1 wjmax_dlc_code_wrap tw-animate-fadeInLeft tw-rounded-md p-1 tw-bg-gray-950">
-                  <span className={`wjmax_dlc_code wjmax_dlc_code_${displayData?.dlcCode ?? ''}`}>{displayData?.dlc ?? ''}</span>
+                <span className='tw-absolute tw-top-1 tw-right-1 wjmax_dlc_code_wrap tw-animate-fadeInLeft tw-rounded-md tw-bg-gray-950 p-1'>
+                  <span className={`wjmax_dlc_code wjmax_dlc_code_${displayData?.dlcCode ?? ''}`}>
+                    {displayData?.dlc ?? ''}
+                  </span>
                 </span>
               </div>
-              <div className="tw-flex tw-flex-col tw-gap-2 tw-w-80 tw-p-2 tw-rounded-md tw-mb-1 tw-bg-gray-700 tw-bg-opacity-20">
+              <div className='tw-flex tw-flex-col tw-gap-2 tw-w-80 tw-p-2 tw-rounded-md tw-mb-1 tw-bg-gray-700 tw-bg-opacity-20'>
                 {displayData?.patterns[`${keyMode}B`] !== undefined
                   ? ['NM', 'HD', 'MX', 'SC', 'DPC'].map(
                       (value, difficultyIndex) =>
-                        displayData?.patterns[`${keyMode}B${String(judgementType) == 'HARD' || String(judgementType) == '1' ? '_PLUS' : ''}`]?.[value] !==
-                          undefined &&
-                        displayData?.patterns[`${keyMode}B${String(judgementType) == 'HARD' || String(judgementType) == '1' ? '_PLUS' : ''}`]?.[value] !==
-                          null && (
-                          <div className="tw-flex tw-flex-col tw-gap-2" key={'songDataPack_item' + displayData.title + '_hover' + value}>
-                            <div className="tw-flex tw-items-center tw-gap-1">
+                        displayData?.patterns[
+                          `${keyMode}B${String(judgementType) == 'HARD' || String(judgementType) == '1' ? '_PLUS' : ''}`
+                        ]?.[value] !== undefined &&
+                        displayData?.patterns[
+                          `${keyMode}B${String(judgementType) == 'HARD' || String(judgementType) == '1' ? '_PLUS' : ''}`
+                        ]?.[value] !== null && (
+                          <div
+                            className='tw-flex tw-flex-col tw-gap-2'
+                            key={'songDataPack_item' + displayData.title + '_hover' + value}
+                          >
+                            <div className='tw-flex tw-items-center tw-gap-1'>
                               <span
                                 className={`tw-text-base tw-font-extrabold tw-text-left tw-z-50 text-stroke-100 tw-me-auto ${
                                   value === 'NM'
                                     ? 'tw-text-wjmax-nm'
                                     : value === 'HD'
-                                    ? 'tw-text-wjmax-hd'
-                                    : value === 'MX'
-                                    ? 'tw-text-wjmax-mx'
-                                    : value === 'SC'
-                                    ? 'tw-text-wjmax-sc'
-                                    : value === 'DPC'
-                                    ? 'tw-text-wjmax-dpc'
-                                    : ''
+                                      ? 'tw-text-wjmax-hd'
+                                      : value === 'MX'
+                                        ? 'tw-text-wjmax-mx'
+                                        : value === 'SC'
+                                          ? 'tw-text-wjmax-sc'
+                                          : value === 'DPC'
+                                            ? 'tw-text-wjmax-dpc'
+                                            : ''
                                 }`}
                               >
                                 {globalDictionary.wjmax.difficulty[value].fullName}
                               </span>
                               <Image
-                                loading="lazy" // "lazy" | "eager"
+                                loading='lazy' // "lazy" | "eager"
                                 blurDataURL={globalDictionary.blurDataURL}
                                 src={getDifficultyStarImage(
-                                  displayData.patterns[`${keyMode}B${String(judgementType) == 'HARD' || String(judgementType) == '1' ? '_PLUS' : ''}`][value]
-                                    .level,
+                                  displayData.patterns[
+                                    `${keyMode}B${String(judgementType) == 'HARD' || String(judgementType) == '1' ? '_PLUS' : ''}`
+                                  ][value].level,
                                   value,
                                 )}
                                 height={20}
                                 width={20}
-                                alt=""
+                                alt=''
                               />
                               <span
                                 className={getDifficultyClassName(
-                                  displayData.patterns[`${keyMode}B${String(judgementType) == 'HARD' || String(judgementType) == '1' ? '_PLUS' : ''}`][value]
-                                    .level,
+                                  displayData.patterns[
+                                    `${keyMode}B${String(judgementType) == 'HARD' || String(judgementType) == '1' ? '_PLUS' : ''}`
+                                  ][value].level,
                                   value,
                                 )}
                               >
                                 {Number(
-                                  displayData.patterns[`${keyMode}B${String(judgementType) == 'HARD' || String(judgementType) == '1' ? '_PLUS' : ''}`][value]
-                                    .level,
+                                  displayData.patterns[
+                                    `${keyMode}B${String(judgementType) == 'HARD' || String(judgementType) == '1' ? '_PLUS' : ''}`
+                                  ][value].level,
                                 ).toFixed(1)}{' '}
-                                <sup className="tw-text-xs">
-                                  {displayData.patterns[`${keyMode}B${String(judgementType) == 'HARD' || String(judgementType) == '1' ? '_PLUS' : ''}`][value]
-                                    .floor !== undefined &&
-                                  displayData.patterns[`${keyMode}B${String(judgementType) == 'HARD' || String(judgementType) == '1' ? '_PLUS' : ''}`][value]
-                                    .floor !== null
+                                <sup className='tw-text-xs'>
+                                  {displayData.patterns[
+                                    `${keyMode}B${String(judgementType) == 'HARD' || String(judgementType) == '1' ? '_PLUS' : ''}`
+                                  ][value].floor !== undefined &&
+                                  displayData.patterns[
+                                    `${keyMode}B${String(judgementType) == 'HARD' || String(judgementType) == '1' ? '_PLUS' : ''}`
+                                  ][value].floor !== null
                                     ? `(${
-                                        displayData.patterns[`${keyMode}B${String(judgementType) == 'HARD' || String(judgementType) == '1' ? '_PLUS' : ''}`][
-                                          value
-                                        ].floor
+                                        displayData.patterns[
+                                          `${keyMode}B${String(judgementType) == 'HARD' || String(judgementType) == '1' ? '_PLUS' : ''}`
+                                        ][value].floor
                                       }F)`
                                     : null}
                                 </sup>
                               </span>
                             </div>
                             {userData.userName !== '' &&
-                            (displayData.patterns[`${keyMode}B${String(judgementType) == 'HARD' || String(judgementType) == '1' ? '_PLUS' : ''}`][value] !==
-                              undefined ||
+                            (displayData.patterns[
+                              `${keyMode}B${String(judgementType) == 'HARD' || String(judgementType) == '1' ? '_PLUS' : ''}`
+                            ][value] !== undefined ||
                               isScored) ? (
-                              <div className="tw-relative tw-w-full tw-h-6 tw-bg-gray-900 tw-rounded-sm tw-overflow-hidden">
+                              <div className='tw-relative tw-w-full tw-h-6 tw-bg-gray-900 tw-rounded-sm tw-overflow-hidden'>
                                 <div
-                                  className="tw-h-full tw-transition-all tw-duration-1000 tw-ease-out"
+                                  className='tw-h-full tw-transition-all tw-duration-1000 tw-ease-out'
                                   style={{
                                     width: mounted
                                       ? `${
-                                          displayData.patterns[`${keyMode}B${String(judgementType) == 'HARD' || String(judgementType) == '1' ? '_PLUS' : ''}`][
-                                            value
-                                          ]?.score
+                                          displayData.patterns[
+                                            `${keyMode}B${String(judgementType) == 'HARD' || String(judgementType) == '1' ? '_PLUS' : ''}`
+                                          ][value]?.score
                                             ? Number(
                                                 displayData.patterns[
                                                   `${keyMode}B${String(judgementType) == 'HARD' || String(judgementType) == '1' ? '_PLUS' : ''}`
@@ -317,19 +340,21 @@ const RaScorePopupComponent = ({
                                       value === 'NM'
                                         ? '#c79b61' // wjmax-nm
                                         : value === 'HD'
-                                        ? '#9696ff' // wjmax-hd
-                                        : value === 'MX'
-                                        ? '#78ff91' // wjmax-mx
-                                        : value === 'SC'
-                                        ? '#ff4c4c' // wjmax-sc
-                                        : value === 'DPC'
-                                        ? '#ffb401' // wjmax-dpc
-                                        : '', // wjmax-sc-15
+                                          ? '#9696ff' // wjmax-hd
+                                          : value === 'MX'
+                                            ? '#78ff91' // wjmax-mx
+                                            : value === 'SC'
+                                              ? '#ff4c4c' // wjmax-sc
+                                              : value === 'DPC'
+                                                ? '#ffb401' // wjmax-dpc
+                                                : '', // wjmax-sc-15
                                   }}
                                 />
-                                <div className="tw-absolute tw-inset-0 tw-flex tw-items-center tw-justify-center tw-font-bold tw-text-white">
+                                <div className='tw-absolute tw-inset-0 tw-flex tw-items-center tw-justify-center tw-font-bold tw-text-white'>
                                   {getScoreDisplayText(
-                                    displayData.patterns[`${keyMode}B${String(judgementType) == 'HARD' || String(judgementType) == '1' ? '_PLUS' : ''}`][value],
+                                    displayData.patterns[
+                                      `${keyMode}B${String(judgementType) == 'HARD' || String(judgementType) == '1' ? '_PLUS' : ''}`
+                                    ][value],
                                   )}
                                 </div>
                               </div>
@@ -340,111 +365,128 @@ const RaScorePopupComponent = ({
                   : '조회된 데이터가 없습니다.'}
               </div>
               {userData.userName !== '' && (
-                <span className="tw-text-xs tw-font-light tw-text-gray-300 tw-my-2">
-                  <span className="">{userData.userName}</span>님의 성과 기록
+                <span className='tw-text-xs tw-font-light tw-text-gray-300 tw-my-2'>
+                  <span className=''>{userData.userName}</span>님의 성과 기록
                 </span>
               )}
             </div>
 
             {rivalName && rivalName !== userData.userName && rivalSongData && (
-              <div className="tw-flex tw-flex-col">
-                <div className="tw-flex tw-flex-col tw-w-80 tw-h-32 tw-relative tw-mb-2 tw-mt-1 tw-bg-gray-900 tw-bg-opacity-100 tw-overflow-hidden tw-rounded-md">
+              <div className='tw-flex tw-flex-col'>
+                <div className='tw-flex tw-flex-col tw-w-80 tw-h-32 tw-relative tw-mb-2 tw-mt-1 tw-bg-gray-900 tw-bg-opacity-100 tw-overflow-hidden tw-rounded-md'>
                   <Image
-                    loading="lazy" // "lazy" | "eager"
+                    loading='lazy' // "lazy" | "eager"
                     blurDataURL={globalDictionary.blurDataURL}
                     src={`/images/${selectedGame}/jackets/${
-                      wjmaxSongData.filter((song) => song.title === Number(songItem ? String(songItem.title) : String(songItemTitle)))?.[0]?.folderName
+                      wjmaxSongData.filter(
+                        (song) =>
+                          song.title ===
+                          Number(songItem ? String(songItem.title) : String(songItemTitle)),
+                      )?.[0]?.folderName
                     }.jpg`}
-                    className="tw-absolute tw-animate-fadeInLeft tw-rounded-md tw-blur tw-brightness-50 tw-bg-opacity-90"
+                    className='tw-absolute tw-animate-fadeInLeft tw-rounded-md tw-blur tw-brightness-50 tw-bg-opacity-90'
                     fill
-                    alt=""
+                    alt=''
                     style={{ objectFit: 'cover' }}
                   />
-                  <span className="tw-absolute tw-left-0 tw-bottom-0 tw-px-2 tw-font-bold tw-text-left tw-break-keep">
-                    <span className="tw-font-medium tw-text-md">{rivalSongData.composer}</span>
+                  <span className='tw-absolute tw-left-0 tw-bottom-0 tw-px-2 tw-font-bold tw-text-left tw-break-keep'>
+                    <span className='tw-font-medium tw-text-md'>{rivalSongData.composer}</span>
                     <br />
-                    <span className="tw-text-xl">{rivalSongData.name}</span>
+                    <span className='tw-text-xl'>{rivalSongData.name}</span>
                   </span>
-                  <span className="tw-absolute tw-top-1 tw-right-1 wjmax_dlc_code_wrap tw-animate-fadeInLeft tw-rounded-md p-1 tw-bg-gray-950">
-                    <span className={`wjmax_dlc_code wjmax_dlc_code_${rivalSongData.dlcCode}`}>{rivalSongData.dlc}</span>
+                  <span className='tw-absolute tw-top-1 tw-right-1 wjmax_dlc_code_wrap tw-animate-fadeInLeft tw-rounded-md tw-bg-gray-950 p-1'>
+                    <span className={`wjmax_dlc_code wjmax_dlc_code_${rivalSongData.dlcCode}`}>
+                      {rivalSongData.dlc}
+                    </span>
                   </span>
                 </div>
-                <div className="tw-flex tw-flex-col tw-gap-2 tw-w-80 tw-p-2 tw-rounded-md tw-mb-1 tw-bg-gray-700 tw-bg-opacity-20">
+                <div className='tw-flex tw-flex-col tw-gap-2 tw-w-80 tw-p-2 tw-rounded-md tw-mb-1 tw-bg-gray-700 tw-bg-opacity-20'>
                   {['NM', 'HD', 'MX', 'SC', 'DPC'].map(
                     (value, difficultyIndex) =>
-                      rivalSongData.patterns[`${keyMode}B${String(judgementType) == 'HARD' || String(judgementType) == '1' ? '_PLUS' : ''}`][value] !==
-                        undefined &&
-                      rivalSongData.patterns[`${keyMode}B${String(judgementType) == 'HARD' || String(judgementType) == '1' ? '_PLUS' : ''}`][value] !==
-                        null && (
-                        <div className="tw-flex tw-flex-col tw-gap-2" key={'songDataPack_item' + rivalSongData.title + '_hover' + value}>
-                          <div className="tw-flex tw-items-center tw-gap-1">
+                      rivalSongData.patterns[
+                        `${keyMode}B${String(judgementType) == 'HARD' || String(judgementType) == '1' ? '_PLUS' : ''}`
+                      ][value] !== undefined &&
+                      rivalSongData.patterns[
+                        `${keyMode}B${String(judgementType) == 'HARD' || String(judgementType) == '1' ? '_PLUS' : ''}`
+                      ][value] !== null && (
+                        <div
+                          className='tw-flex tw-flex-col tw-gap-2'
+                          key={'songDataPack_item' + rivalSongData.title + '_hover' + value}
+                        >
+                          <div className='tw-flex tw-items-center tw-gap-1'>
                             <span
                               className={`tw-text-base tw-font-extrabold tw-text-left tw-z-50 text-stroke-100 tw-me-auto ${
                                 value === 'NM'
                                   ? 'tw-text-wjmax-nm'
                                   : value === 'HD'
-                                  ? 'tw-text-wjmax-hd'
-                                  : value === 'MX'
-                                  ? 'tw-text-wjmax-mx'
-                                  : value === 'SC'
-                                  ? 'tw-text-wjmax-sc'
-                                  : value === 'DPC'
-                                  ? 'tw-text-wjmax-dpc'
-                                  : ''
+                                    ? 'tw-text-wjmax-hd'
+                                    : value === 'MX'
+                                      ? 'tw-text-wjmax-mx'
+                                      : value === 'SC'
+                                        ? 'tw-text-wjmax-sc'
+                                        : value === 'DPC'
+                                          ? 'tw-text-wjmax-dpc'
+                                          : ''
                               }`}
                             >
                               {globalDictionary.wjmax.difficulty[value].fullName}
                             </span>
                             <Image
-                              loading="lazy" // "lazy" | "eager"
+                              loading='lazy' // "lazy" | "eager"
                               blurDataURL={globalDictionary.blurDataURL}
                               src={getDifficultyStarImage(
-                                rivalSongData.patterns[`${keyMode}B${String(judgementType) == 'HARD' || String(judgementType) == '1' ? '_PLUS' : ''}`][value]
-                                  .level,
+                                rivalSongData.patterns[
+                                  `${keyMode}B${String(judgementType) == 'HARD' || String(judgementType) == '1' ? '_PLUS' : ''}`
+                                ][value].level,
                                 value,
                               )}
                               height={20}
                               width={20}
-                              alt=""
+                              alt=''
                             />
                             <span
                               className={getDifficultyClassName(
-                                rivalSongData.patterns[`${keyMode}B${String(judgementType) == 'HARD' || String(judgementType) == '1' ? '_PLUS' : ''}`][value]
-                                  .level,
+                                rivalSongData.patterns[
+                                  `${keyMode}B${String(judgementType) == 'HARD' || String(judgementType) == '1' ? '_PLUS' : ''}`
+                                ][value].level,
                                 value,
                               )}
                             >
                               {
-                                rivalSongData.patterns[`${keyMode}B${String(judgementType) == 'HARD' || String(judgementType) == '1' ? '_PLUS' : ''}`][value]
-                                  .level
+                                rivalSongData.patterns[
+                                  `${keyMode}B${String(judgementType) == 'HARD' || String(judgementType) == '1' ? '_PLUS' : ''}`
+                                ][value].level
                               }{' '}
-                              <sup className="tw-text-xs">
-                                {rivalSongData.patterns[`${keyMode}B${String(judgementType) == 'HARD' || String(judgementType) == '1' ? '_PLUS' : ''}`][value]
-                                  .floor !== undefined &&
-                                rivalSongData.patterns[`${keyMode}B${String(judgementType) == 'HARD' || String(judgementType) == '1' ? '_PLUS' : ''}`][value]
-                                  .floor !== null
+                              <sup className='tw-text-xs'>
+                                {rivalSongData.patterns[
+                                  `${keyMode}B${String(judgementType) == 'HARD' || String(judgementType) == '1' ? '_PLUS' : ''}`
+                                ][value].floor !== undefined &&
+                                rivalSongData.patterns[
+                                  `${keyMode}B${String(judgementType) == 'HARD' || String(judgementType) == '1' ? '_PLUS' : ''}`
+                                ][value].floor !== null
                                   ? `(${
-                                      rivalSongData.patterns[`${keyMode}B${String(judgementType) == 'HARD' || String(judgementType) == '1' ? '_PLUS' : ''}`][
-                                        value
-                                      ].floor
+                                      rivalSongData.patterns[
+                                        `${keyMode}B${String(judgementType) == 'HARD' || String(judgementType) == '1' ? '_PLUS' : ''}`
+                                      ][value].floor
                                     }F)`
                                   : null}
                               </sup>
                             </span>
                           </div>
                           {userData.userName !== '' &&
-                          (rivalSongData.patterns[`${keyMode}B${String(judgementType) == 'HARD' || String(judgementType) == '1' ? '_PLUS' : ''}`][value] !==
-                            undefined ||
+                          (rivalSongData.patterns[
+                            `${keyMode}B${String(judgementType) == 'HARD' || String(judgementType) == '1' ? '_PLUS' : ''}`
+                          ][value] !== undefined ||
                             isScored) ? (
-                            <div className="tw-relative tw-w-full tw-h-6 tw-bg-gray-900 tw-rounded-sm tw-overflow-hidden">
+                            <div className='tw-relative tw-w-full tw-h-6 tw-bg-gray-900 tw-rounded-sm tw-overflow-hidden'>
                               <div
-                                className="tw-h-full tw-transition-all tw-duration-1000 tw-ease-out"
+                                className='tw-h-full tw-transition-all tw-duration-1000 tw-ease-out'
                                 style={{
                                   width: mounted
                                     ? `${
-                                        rivalSongData.patterns[`${keyMode}B${String(judgementType) == 'HARD' || String(judgementType) == '1' ? '_PLUS' : ''}`][
-                                          value
-                                        ]?.score
+                                        rivalSongData.patterns[
+                                          `${keyMode}B${String(judgementType) == 'HARD' || String(judgementType) == '1' ? '_PLUS' : ''}`
+                                        ][value]?.score
                                           ? Number(
                                               rivalSongData.patterns[
                                                 `${keyMode}B${String(judgementType) == 'HARD' || String(judgementType) == '1' ? '_PLUS' : ''}`
@@ -457,19 +499,21 @@ const RaScorePopupComponent = ({
                                     value === 'NM'
                                       ? '#c79b61' // wjmax-nm
                                       : value === 'HD'
-                                      ? '#9696ff' // wjmax-hd
-                                      : value === 'MX'
-                                      ? '#78ff91' // wjmax-mx
-                                      : value === 'SC'
-                                      ? '#ff4c4c' // wjmax-sc
-                                      : value === 'DPC'
-                                      ? '#ffb401' // wjmax-dpc
-                                      : '', // wjmax-sc
+                                        ? '#9696ff' // wjmax-hd
+                                        : value === 'MX'
+                                          ? '#78ff91' // wjmax-mx
+                                          : value === 'SC'
+                                            ? '#ff4c4c' // wjmax-sc
+                                            : value === 'DPC'
+                                              ? '#ffb401' // wjmax-dpc
+                                              : '', // wjmax-sc
                                 }}
                               />
-                              <div className="tw-absolute tw-inset-0 tw-flex tw-items-center tw-justify-center tw-font-bold tw-text-white">
+                              <div className='tw-absolute tw-inset-0 tw-flex tw-items-center tw-justify-center tw-font-bold tw-text-white'>
                                 {getScoreDisplayText(
-                                  rivalSongData.patterns[`${keyMode}B${String(judgementType) == 'HARD' || String(judgementType) == '1' ? '_PLUS' : ''}`][value],
+                                  rivalSongData.patterns[
+                                    `${keyMode}B${String(judgementType) == 'HARD' || String(judgementType) == '1' ? '_PLUS' : ''}`
+                                  ][value],
                                 )}
                               </div>
                             </div>
@@ -479,8 +523,8 @@ const RaScorePopupComponent = ({
                   )}
                 </div>
                 {rivalName !== '' && (
-                  <span className="tw-text-xs tw-font-light tw-text-gray-300 tw-my-2">
-                    <span className="">{rivalName}</span>님의 성과 기록
+                  <span className='tw-text-xs tw-font-light tw-text-gray-300 tw-my-2'>
+                    <span className=''>{rivalName}</span>님의 성과 기록
                   </span>
                 )}
               </div>
@@ -489,38 +533,51 @@ const RaScorePopupComponent = ({
         </Tooltip>
       }
     >
-      <div ref={ref} className="tw-inline-flex tw-flex-col tw-transition-all" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+      <div
+        ref={ref}
+        className='tw-inline-flex tw-flex-col tw-transition-all'
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+      >
         <Link
           href={`/projectRa/${selectedGame}/db/title/${displayData?.title ?? songItemTitle}`}
-          className="tw-relative tw-rounded-md hover-scale-110 wjmax_record tw-cursor-pointer tw-overflow-hidden"
+          className='tw-relative tw-rounded-md hover-scale-110 wjmax_record tw-cursor-pointer tw-overflow-hidden'
           style={{
             width: size ? (size / 9) * 16 : 130,
             height: size ? size : 74,
           }}
         >
-          <div className="tw-w-full tw-h-full">
+          <div className='tw-w-full tw-h-full'>
             {inView && (
               <Image
-                loading="lazy"
+                loading='lazy'
                 blurDataURL={globalDictionary.blurDataURL}
                 src={`/images/${selectedGame}/jackets/${
-                  wjmaxSongData.filter((song) => song.title === Number(songItem ? String(songItem.title) : String(songItemTitle)))?.[0]?.folderName
+                  wjmaxSongData.filter(
+                    (song) =>
+                      song.title ===
+                      Number(songItem ? String(songItem.title) : String(songItemTitle)),
+                  )?.[0]?.folderName
                 }.jpg`}
                 className={`tw-rounded-md tw-shadow-lg ${imageLoaded ? 'tw-animate-fadeIn' : 'tw-opacity-0'}`}
                 fill
                 style={{ objectFit: 'cover' }}
-                alt=""
+                alt=''
                 onLoad={handleImageLoad}
               />
             )}
           </div>
           {isVisibleCode ? (
-            <span className="tw-absolute tw-top-0 tw-left-0 wjmax_dlc_code_wrap tw-rounded-tl-md">
-              <span className={`wjmax_dlc_code wjmax_dlc_code_${displayData?.dlcCode ?? ''}`}>{displayData?.dlc ?? ''}</span>
+            <span className='tw-absolute tw-top-0 tw-left-0 wjmax_dlc_code_wrap tw-rounded-tl-md'>
+              <span className={`wjmax_dlc_code wjmax_dlc_code_${displayData?.dlcCode ?? ''}`}>
+                {displayData?.dlc ?? ''}
+              </span>
             </span>
           ) : null}
           {displayData?.pattern && (
-            <span className={`tw-absolute tw-right-0 tw-bottom-0 pattern wjmax tw-rounded-br-md ${displayData.pattern}`}>
+            <span
+              className={`tw-absolute tw-right-0 tw-bottom-0 pattern wjmax tw-rounded-br-md ${displayData.pattern}`}
+            >
               <span className={`tw-text-white`}>
                 {patternToName[String(displayData.pattern)]} {Number(displayData.level).toFixed(1)}
               </span>
@@ -528,7 +585,11 @@ const RaScorePopupComponent = ({
           )}
         </Link>
         {userData.userName !== '' && isScored && displayData ? (
-          <span className={'mt-2 tw-w-full tw-bg-gray-950 tw-text-center tw-rounded-md tw-text-xs tw-font-bold'}>
+          <span
+            className={
+              'tw-w-full tw-bg-gray-950 tw-text-center tw-rounded-md tw-text-xs tw-font-bold mt-2'
+            }
+          >
             {getSCPatternScoreDisplayText(displayData.patterns, keyMode)}
           </span>
         ) : null}{' '}

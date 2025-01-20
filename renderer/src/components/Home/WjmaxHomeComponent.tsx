@@ -1,19 +1,14 @@
-import React, { useState, useEffect } from 'react'
-import Head from 'next/head'
-import Image from 'next/image'
-import { FaGithub, FaLink, FaTriangleExclamation, FaChevronLeft, FaChevronRight, FaRotate, FaX, FaXmark, FaBell } from 'react-icons/fa6'
-import { useSelector, useDispatch } from 'react-redux'
-import { RootState } from 'store'
-import { motion, AnimatePresence } from 'framer-motion'
+import { ArcElement, Chart as ChartJS, Legend, Tooltip } from 'chart.js'
+import React, { useEffect, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+
 import axios from 'axios'
-import { SyncLoader } from 'react-spinners'
-import { globalDictionary } from '@/libs/server/globalDictionary'
-import ScorePopupComponent from '@/components/score/ScorePopupComponent'
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js'
-import moment from 'moment'
-import html2canvas from 'html2canvas'
-import RaScorePopupComponent from '../score/RaScorePopupComponent'
+import { motion } from 'framer-motion'
+import Image from 'next/image'
 import { Doughnut } from 'react-chartjs-2'
+import { SyncLoader } from 'react-spinners'
+import { RootState } from 'store'
+import RaScorePopupComponent from '../score/RaScorePopupComponent'
 
 ChartJS.register(ArcElement, Tooltip, Legend)
 
@@ -97,7 +92,7 @@ export default function WjmaxHomeComponent() {
   const [selectedKeyMode, setSelectedKeyMode] = useState<string>('4B')
 
   const KeyModeSelector = () => (
-    <div className="tw-flex tw-gap-2">
+    <div className='tw-flex tw-gap-2'>
       {['4B', '4B_PLUS', '6B', '6B_PLUS'].map((mode) => (
         <button
           key={`mode_${mode}`}
@@ -109,11 +104,13 @@ export default function WjmaxHomeComponent() {
           }`}
         >
           <div
-            className={`tw-absolute tw-w-full tw-h-full tw-opacity-30 ${selectedGame === 'wjmax' ? 'wjmax' : 'respect'}_bg_b${String(mode)
+            className={`tw-absolute tw-w-full tw-h-full tw-opacity-30 ${selectedGame === 'wjmax' ? 'wjmax' : 'respect'}_bg_b${String(
+              mode,
+            )
               .replace('_PLUS', '')
               .replace('B', '')}`}
           />
-          <span className="tw-relative tw-text-base tw-font-bold">
+          <span className='tw-relative tw-text-base tw-font-bold'>
             {String(mode).replace('_PLUS', '')}
             {String(mode).includes('_PLUS') ? '+' : ''}
           </span>
@@ -160,11 +157,14 @@ export default function WjmaxHomeComponent() {
           const allBoardResponses = await Promise.all(
             boards.map(async (boardType) => {
               try {
-                const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/v1/board/wjmax/${keyMode}/${boardType}/user/${userData.userNo}`, {
-                  headers: {
-                    Authorization: `${userData.userNo}|${userData.userToken}`,
+                const response = await axios.get(
+                  `${process.env.NEXT_PUBLIC_API_URL}/v1/board/wjmax/${keyMode}/${boardType}/user/${userData.userNo}`,
+                  {
+                    headers: {
+                      Authorization: `${userData.userNo}|${userData.userToken}`,
+                    },
                   },
-                })
+                )
                 return (
                   response.data.floors?.flatMap((floor) =>
                     floor.patterns.map((pattern) => ({
@@ -184,9 +184,14 @@ export default function WjmaxHomeComponent() {
           allKeyModeData[keyMode] = Object.values(
             allBoardResponses.flat().reduce((acc, apiPattern) => {
               const key = `${apiPattern.title}_${apiPattern.pattern}`
-              const basePattern = baseSongData.find((bp) => bp.title === apiPattern.title && bp.pattern === apiPattern.pattern)
+              const basePattern = baseSongData.find(
+                (bp) => bp.title === apiPattern.title && bp.pattern === apiPattern.pattern,
+              )
 
-              if (!acc[key] || (apiPattern.djpower && apiPattern.djpower > (acc[key].djpower || 0))) {
+              if (
+                !acc[key] ||
+                (apiPattern.djpower && apiPattern.djpower > (acc[key].djpower || 0))
+              ) {
                 // 먼저 기본 객체 구조 생성
                 const mergedPattern = {
                   title: apiPattern.title,
@@ -297,15 +302,17 @@ export default function WjmaxHomeComponent() {
 
     if (pattern.level != null) {
       return (
-        <span className={`tw-flex tw-gap-2 tw-font-extrabold tw-items-center tw-text-wjmax-${getFloorGroup(pattern.level)}`}>
+        <span
+          className={`tw-flex tw-gap-2 tw-font-extrabold tw-items-center tw-text-wjmax-${getFloorGroup(pattern.level)}`}
+        >
           <Image
             src={`/images/wjmax/nm_${Math.ceil((pattern.level || 0) / 5) * 5}_star.png`}
-            alt="difficulty"
+            alt='difficulty'
             width={pattern.level > 20 ? 16 : 20}
             height={pattern.level > 20 ? 16 : 20}
             className={pattern.level > 20 ? 'tw-w-4 tw-h-4' : 'tw-w-5 tw-h-5'}
           />
-          <span className="tw-font-extrabold tw-mb-0.5">{`${Number(pattern.level).toFixed(1)}`}</span>
+          <span className='tw-font-extrabold tw-mb-0.5'>{`${Number(pattern.level).toFixed(1)}`}</span>
         </span>
       )
     }
@@ -335,8 +342,12 @@ export default function WjmaxHomeComponent() {
     return filteredPatterns.sort(compareDifficulty)[0]
   }
 
-  const [randomHeaderBg, setRandomHeaderBg] = useState(Math.floor(Math.random() * wjmaxSongData.length) + 1)
-  const [randomHeaderBg2, setRandomHeaderBg2] = useState(Math.floor(Math.random() * wjmaxSongData.length) + 1)
+  const [randomHeaderBg, setRandomHeaderBg] = useState(
+    Math.floor(Math.random() * wjmaxSongData.length) + 1,
+  )
+  const [randomHeaderBg2, setRandomHeaderBg2] = useState(
+    Math.floor(Math.random() * wjmaxSongData.length) + 1,
+  )
 
   // board 페이지의 통계 계산 함수와 동일한 로직
   const calculateStats = (patterns: Pattern[]) => {
@@ -398,62 +409,48 @@ export default function WjmaxHomeComponent() {
     total: '전체',
   }
 
-  // 새로운 함수 추가
-  const captureAndSaveSection = async () => {
-    try {
-      // html2canvas 라이브러리 사용
-      const sectionElement: HTMLElement | null = document.querySelector('.stats-section')
-      if (!sectionElement) return
-
-      const canvas = await html2canvas(sectionElement)
-
-      // 캔버스를 이미지로 변환
-      const imageData = canvas.toDataURL('image/png').replace(/^data:image\/png;base64,/, '')
-
-      window.ipc.send('canvas-screenshot-upload', {
-        buffer: imageData,
-        fileName: `${userData.userName}_stats_${selectedKeyMode}B-${moment().utcOffset(9).format('YYYY-MM-DD-HH-mm-ss-SSS')}.png`,
-      })
-    } catch (error) {
-      console.error('Error capturing section:', error)
-    }
-  }
-
   return (
     <React.Fragment>
       {selectedGame === 'wjmax' && (
         <>
           {isLoading ? (
-            <div className="tw-flex tw-items-center tw-justify-center tw-h-screen tw-flex-1 tw-bg-gray-800 tw-bg-opacity-40 tw-rounded-lg">
-              <SyncLoader color="#ffffff" size={8} />
+            <div className='tw-flex tw-items-center tw-justify-center tw-h-screen tw-flex-1 tw-bg-gray-800 tw-bg-opacity-40 tw-rounded-lg'>
+              <SyncLoader color='#ffffff' size={8} />
             </div>
           ) : (
-            <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5, ease: 'easeOut' }}>
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5, ease: 'easeOut' }}
+            >
               {/* 헤더 섹션 */}
-              <div className="tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-shadow-lg tw-p-4 tw-mb-4">
-                <div className="tw-flex tw-justify-between tw-items-center">
-                  <span className="tw-text-xl tw-font-bold">{userData.userName !== '' ? `${userData.userName}` : 'Guest'}님 환영합니다.</span>
+              <div className='tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-shadow-lg tw-p-4 tw-mb-4'>
+                <div className='tw-flex tw-justify-between tw-items-center'>
+                  <span className='tw-text-xl tw-font-bold'>
+                    {userData.userName !== '' ? `${userData.userName}` : 'Guest'}님 환영합니다.
+                  </span>
                   <KeyModeSelector />
                 </div>
               </div>
 
               {/* 패널들 - 래퍼 제거하고 직접 배치 */}
-              <div className="tw-flex tw-gap-4 stats-section">
-                <div className="tw-flex tw-flex-col tw-gap-4 tw-w-3/5">
+              <div className='tw-flex tw-gap-4 stats-section'>
+                <div className='tw-flex tw-flex-col tw-gap-4 tw-w-3/5'>
                   {/* Button Mode Panel */}
-                  <div className="tw-flex tw-flex-col tw-gap-4">
-                    <div className="tw-flex tw-justify-between tw-items-end tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-shadow-lg tw-p-4">
-                      <span className="tw-flex tw-w-full tw-items-center tw-gap-1">
-                        <span className="tw-text-xl tw-font-bold tw-me-auto">
-                          {String(selectedKeyMode).replace('B', '').replace('_PLUS', '')}B{String(selectedKeyMode).includes('_PLUS') ? '+' : ''} 통계
+                  <div className='tw-flex tw-flex-col tw-gap-4'>
+                    <div className='tw-flex tw-justify-between tw-items-end tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-shadow-lg tw-p-4'>
+                      <span className='tw-flex tw-w-full tw-items-center tw-gap-1'>
+                        <span className='tw-text-xl tw-font-bold tw-me-auto'>
+                          {String(selectedKeyMode).replace('B', '').replace('_PLUS', '')}B
+                          {String(selectedKeyMode).includes('_PLUS') ? '+' : ''} 통계
                         </span>
                       </span>
                     </div>
 
                     {/* 통계 정보 */}
-                    <div className="tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-p-4">
+                    <div className='tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-p-4'>
                       {/* 상단 통계 요약 */}
-                      <div className="tw-grid tw-grid-cols-7 tw-gap-2 tw-mb-8">
+                      <div className='tw-grid tw-grid-cols-7 tw-gap-2 tw-mb-8'>
                         {[
                           { key: 'maxCombo', label: '맥스 콤보', color: 'tw-text-green-500' },
                           { key: 'perfect', label: '퍼펙트', color: 'tw-text-red-500' },
@@ -463,24 +460,39 @@ export default function WjmaxHomeComponent() {
                           { key: 'over97', label: '97.0%+', color: 'tw-text-yellow-200' },
                           { key: 'clear', label: '클리어', color: 'tw-text-blue-500' },
                         ].map(({ key, label, color }) => (
-                          <div key={key} className="tw-text-center tw-p-3 tw-bg-gray-950 tw-bg-opacity-50 tw-rounded-lg">
-                            <div className={`tw-text-lg tw-font-bold ${color}`}>{calculateStats(keyModeData[selectedKeyMode])[key]}</div>
-                            <div className="tw-text-xs tw-text-gray-400">{label}</div>
+                          <div
+                            key={key}
+                            className='tw-text-center tw-p-3 tw-bg-gray-950 tw-bg-opacity-50 tw-rounded-lg'
+                          >
+                            <div className={`tw-text-lg tw-font-bold ${color}`}>
+                              {calculateStats(keyModeData[selectedKeyMode])[key]}
+                            </div>
+                            <div className='tw-text-xs tw-text-gray-400'>{label}</div>
                           </div>
                         ))}
                       </div>
 
                       {/* 도넛 차트 */}
-                      <div className="tw-relative tw-w-full tw-h-44 tw-flex tw-items-center tw-justify-center">
-                        <div className="tw-absolute tw-top-1/2 tw-left-1/2 tw-transform -tw-translate-x-1/2 -tw-translate-y-1/2 tw-text-center tw-w-20 tw-h-20 tw-bg-gray-950 tw-bg-opacity-50 tw-rounded-full tw-p-4 tw-pointer-events-none tw-z-0">
-                          <div className="tw-text-lg tw-font-bold">{calculateStats(keyModeData[selectedKeyMode]).total}</div>
-                          <div className="tw-text-xs tw-text-gray-300">전체</div>
+                      <div className='tw-relative tw-w-full tw-h-44 tw-flex tw-items-center tw-justify-center'>
+                        <div className='tw-absolute tw-top-1/2 tw-left-1/2 tw-transform -tw-translate-x-1/2 -tw-translate-y-1/2 tw-text-center tw-w-20 tw-h-20 tw-bg-gray-950 tw-bg-opacity-50 tw-rounded-full tw-p-4 tw-pointer-events-none tw-z-0'>
+                          <div className='tw-text-lg tw-font-bold'>
+                            {calculateStats(keyModeData[selectedKeyMode]).total}
+                          </div>
+                          <div className='tw-text-xs tw-text-gray-300'>전체</div>
                         </div>
 
-                        <div className="tw-relative tw-z-10 tw-w-full tw-h-full">
+                        <div className='tw-relative tw-z-10 tw-w-full tw-h-full'>
                           <Doughnut
                             data={{
-                              labels: ['MAX COMBO', 'PERFECT', '99.9%+', '99.5%+', '99.0%+', '97.0%+', 'CLEAR'],
+                              labels: [
+                                'MAX COMBO',
+                                'PERFECT',
+                                '99.9%+',
+                                '99.5%+',
+                                '99.0%+',
+                                '97.0%+',
+                                'CLEAR',
+                              ],
                               datasets: [
                                 {
                                   data: [
@@ -528,7 +540,11 @@ export default function WjmaxHomeComponent() {
                                     label: (context: any) => {
                                       const label = context.label || ''
                                       const value = context.raw || 0
-                                      const percentage = ((value / calculateStats(keyModeData[selectedKeyMode]).total) * 100).toFixed(1)
+                                      const percentage = (
+                                        (value /
+                                          calculateStats(keyModeData[selectedKeyMode]).total) *
+                                        100
+                                      ).toFixed(1)
                                       return `${label}: ${value} (${percentage}%)`
                                     },
                                   },
@@ -541,44 +557,65 @@ export default function WjmaxHomeComponent() {
                     </div>
                   </div>
                   {/* Total Overall Panel */}
-                  <div className="tw-flex tw-flex-col tw-gap-4">
-                    <div className="tw-flex tw-justify-between tw-items-end tw-bg-gray-800 tw-bg-opacity-40 tw-rounded-lg tw-p-4">
-                      <div className="tw-flex tw-flex-col">
-                        <span className="tw-text-xl tw-font-bold">전체 통계</span>
+                  <div className='tw-flex tw-flex-col tw-gap-4'>
+                    <div className='tw-flex tw-justify-between tw-items-end tw-bg-gray-800 tw-bg-opacity-40 tw-rounded-lg tw-p-4'>
+                      <div className='tw-flex tw-flex-col'>
+                        <span className='tw-text-xl tw-font-bold'>전체 통계</span>
                       </div>
                     </div>
 
-                    <div className="tw-bg-gray-800 tw-bg-opacity-40 tw-rounded-lg tw-p-4 tw-pb-8">
+                    <div className='tw-bg-gray-800 tw-bg-opacity-40 tw-rounded-lg tw-p-4 tw-pb-8'>
                       {/* 상단 통계 요약 */}
-                      <div className="tw-grid tw-grid-cols-3 tw-gap-2 tw-mb-8">
+                      <div className='tw-grid tw-grid-cols-3 tw-gap-2 tw-mb-8'>
                         {[
                           { key: 'maxCombo', label: '맥스 콤보', color: 'tw-text-green-500' },
                           { key: 'perfect', label: '퍼펙트', color: 'tw-text-red-500' },
                           { key: 'clear', label: '클리어', color: 'tw-text-blue-500' },
                         ].map(({ key, label, color }) => (
-                          <div key={key} className="tw-text-center tw-p-3 tw-bg-gray-950 tw-bg-opacity-50 tw-rounded-lg">
-                            <div className={`tw-text-lg tw-font-bold ${color}`}>{totalStats[key]}</div>
-                            <div className="tw-text-xs tw-text-gray-400">{label}</div>
+                          <div
+                            key={key}
+                            className='tw-text-center tw-p-3 tw-bg-gray-950 tw-bg-opacity-50 tw-rounded-lg'
+                          >
+                            <div className={`tw-text-lg tw-font-bold ${color}`}>
+                              {totalStats[key]}
+                            </div>
+                            <div className='tw-text-xs tw-text-gray-400'>{label}</div>
                           </div>
                         ))}
                       </div>
 
                       {/* 도넛 차트 */}
-                      <div className="tw-relative tw-w-full tw-h-44 tw-flex tw-items-center tw-justify-center">
-                        <div className="tw-absolute tw-top-1/2 tw-left-1/2 tw-transform -tw-translate-x-1/2 -tw-translate-y-1/2 tw-text-center tw-w-20 tw-h-20 tw-bg-gray-950 tw-bg-opacity-50 tw-rounded-full tw-p-4 tw-pointer-events-none tw-z-0">
-                          <div className="tw-text-lg tw-font-bold">{totalStats.totalPatterns}</div>
-                          <div className="tw-text-sm tw-text-gray-300">전체</div>
+                      <div className='tw-relative tw-w-full tw-h-44 tw-flex tw-items-center tw-justify-center'>
+                        <div className='tw-absolute tw-top-1/2 tw-left-1/2 tw-transform -tw-translate-x-1/2 -tw-translate-y-1/2 tw-text-center tw-w-20 tw-h-20 tw-bg-gray-950 tw-bg-opacity-50 tw-rounded-full tw-p-4 tw-pointer-events-none tw-z-0'>
+                          <div className='tw-text-lg tw-font-bold'>{totalStats.totalPatterns}</div>
+                          <div className='tw-text-sm tw-text-gray-300'>전체</div>
                         </div>
 
-                        <div className="tw-relative tw-z-10 tw-w-full tw-h-full">
+                        <div className='tw-relative tw-z-10 tw-w-full tw-h-full'>
                           <Doughnut
                             data={{
-                              labels: ['MAX COMBO', 'PERFECT', '99.9%+', '99.5%+', '99.0%+', '97.0%+', 'CLEAR'],
+                              labels: [
+                                'MAX COMBO',
+                                'PERFECT',
+                                '99.9%+',
+                                '99.5%+',
+                                '99.0%+',
+                                '97.0%+',
+                                'CLEAR',
+                              ],
                               datasets: [
                                 {
                                   data: [totalStats.maxCombo, totalStats.perfect, totalStats.clear],
-                                  backgroundColor: ['rgba(34, 197, 94, 0.8)', 'rgba(239, 68, 68, 0.8)', 'rgba(59, 130, 246, 0.8)'],
-                                  borderColor: ['rgba(34, 197, 94, 1)', 'rgba(239, 68, 68, 1)', 'rgba(59, 130, 246, 1)'],
+                                  backgroundColor: [
+                                    'rgba(34, 197, 94, 0.8)',
+                                    'rgba(239, 68, 68, 0.8)',
+                                    'rgba(59, 130, 246, 0.8)',
+                                  ],
+                                  borderColor: [
+                                    'rgba(34, 197, 94, 1)',
+                                    'rgba(239, 68, 68, 1)',
+                                    'rgba(59, 130, 246, 1)',
+                                  ],
                                   borderWidth: 1,
                                 },
                               ],
@@ -597,7 +634,10 @@ export default function WjmaxHomeComponent() {
                                     label: (context: any) => {
                                       const label = context.label || ''
                                       const value = context.raw || 0
-                                      const percentage = ((value / totalStats.totalPatterns) * 100).toFixed(1)
+                                      const percentage = (
+                                        (value / totalStats.totalPatterns) *
+                                        100
+                                      ).toFixed(1)
                                       return `${label}: ${value} (${percentage}%)`
                                     },
                                   },
@@ -612,10 +652,11 @@ export default function WjmaxHomeComponent() {
                 </div>
 
                 {/* 최고 성과 패널 */}
-                <div className="tw-w-2/5">
-                  <div className="tw-flex tw-flex-col tw-gap-4 tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-shadow-lg tw-p-4">
-                    <span className="tw-text-lg tw-font-bold">
-                      🎯 {String(selectedKeyMode).replace('B', '').replace('_PLUS', '')}B{String(selectedKeyMode).includes('_PLUS') ? '+' : ''} 최고 성과 기록
+                <div className='tw-w-2/5'>
+                  <div className='tw-flex tw-flex-col tw-gap-4 tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-shadow-lg tw-p-4'>
+                    <span className='tw-text-lg tw-font-bold'>
+                      🎯 {String(selectedKeyMode).replace('B', '').replace('_PLUS', '')}B
+                      {String(selectedKeyMode).includes('_PLUS') ? '+' : ''} 최고 성과 기록
                     </span>
                     {!isLoading && keyModeData[selectedKeyMode] && (
                       <motion.div
@@ -623,7 +664,7 @@ export default function WjmaxHomeComponent() {
                         initial={{ opacity: 0, x: 10 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.2 }}
-                        className="tw-flex tw-flex-col tw-gap-2"
+                        className='tw-flex tw-flex-col tw-gap-2'
                       >
                         {Object.entries({
                           maxCombo: '맥스 콤보',
@@ -636,7 +677,10 @@ export default function WjmaxHomeComponent() {
                         }).map(([key, label]) => {
                           const patterns = keyModeData[selectedKeyMode]
                           const condition = (pattern: Pattern) => {
-                            const score = typeof pattern.score === 'string' ? parseFloat(pattern.score) : pattern.score
+                            const score =
+                              typeof pattern.score === 'string'
+                                ? parseFloat(pattern.score)
+                                : pattern.score
                             if (score === null) return false
 
                             if (key === 'perfect') return Math.abs(score - 100.0) < 0.001
@@ -662,18 +706,26 @@ export default function WjmaxHomeComponent() {
                           if (!highestPattern) return null
 
                           return (
-                            <div key={`${key}_${selectedKeyMode}`} className="tw-flex tw-gap-2">
+                            <div key={`${key}_${selectedKeyMode}`} className='tw-flex tw-gap-2'>
                               <RaScorePopupComponent
                                 songItemTitle={String(highestPattern.title)}
-                                keyMode={String(selectedKeyMode).replace('B', '').replace('_PLUS', '')}
-                                judgementType={String(selectedKeyMode).includes('_PLUS') ? '1' : '0'}
+                                keyMode={String(selectedKeyMode)
+                                  .replace('B', '')
+                                  .replace('_PLUS', '')}
+                                judgementType={
+                                  String(selectedKeyMode).includes('_PLUS') ? '1' : '0'
+                                }
                               />
-                              <div className="tw-flex tw-flex-col tw-gap-1 tw-bg-gray-950 tw-bg-opacity-50 tw-rounded-md tw-p-3 tw-flex-1">
-                                <div className="tw-flex tw-justify-between tw-items-center">
-                                  <span className="tw-text-sm tw-font-bold">{label}</span>
-                                  <span className="tw-text-sm tw-font-extrabold">{getLevelDisplay(highestPattern)}</span>
+                              <div className='tw-flex tw-flex-col tw-gap-1 tw-bg-gray-950 tw-bg-opacity-50 tw-rounded-md tw-p-3 tw-flex-1'>
+                                <div className='tw-flex tw-justify-between tw-items-center'>
+                                  <span className='tw-text-sm tw-font-bold'>{label}</span>
+                                  <span className='tw-text-sm tw-font-extrabold'>
+                                    {getLevelDisplay(highestPattern)}
+                                  </span>
                                 </div>
-                                <p className="tw-text-sm tw-text-gray-400 tw-break-all tw-max-w-full">{highestPattern.name}</p>
+                                <p className='tw-text-sm tw-text-gray-400 tw-break-all tw-max-w-full'>
+                                  {highestPattern.name}
+                                </p>
                               </div>
                             </div>
                           )

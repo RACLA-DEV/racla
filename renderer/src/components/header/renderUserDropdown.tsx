@@ -1,12 +1,24 @@
+import {
+  setBackupData,
+  setProjectRaData,
+  setUserData,
+  setVArchiveData,
+  setVArchiveUserData,
+} from 'store/slices/appSlice'
+
+import Link from 'next/link'
+import { useDispatch } from 'react-redux'
 // renderUserDropdown.tsx
 import { useNotificationSystem } from '@/libs/client/useNotifications'
-import Image from 'next/image'
-import Link from 'next/link'
-import { useRouter } from 'next/router'
-import { useDispatch } from 'react-redux'
-import { setBackupData, setUserData, setVArchiveUserData, setProjectRaData, setVArchiveData } from 'store/slices/appSlice'
 
-export const renderUserDropdown = (user, vArchiveUserData, ipcRenderer, router, callback, refreshKeyHandle) => {
+export const renderUserDropdown = (
+  user,
+  vArchiveUserData,
+  ipcRenderer,
+  router,
+  callback,
+  refreshKeyHandle,
+) => {
   const { showNotification } = useNotificationSystem()
   const dispatch = useDispatch()
 
@@ -19,10 +31,13 @@ export const renderUserDropdown = (user, vArchiveUserData, ipcRenderer, router, 
   }
 
   return (
-    <ul className="dropdown-menu tw-text-xs tw-bg-gray-900 tw-bg-opacity-90 tw-p-0" aria-labelledby="btn-nav-user">
+    <ul
+      className='dropdown-menu tw-text-xs tw-bg-gray-900 tw-bg-opacity-90 tw-p-0'
+      aria-labelledby='btn-nav-user'
+    >
       <li>
         <button
-          className="dropdown-item tw-py-2 tw-rounded-t-md"
+          className='dropdown-item tw-py-2 tw-rounded-t-md'
           onClick={() => {
             ipcRenderer.send('openBrowser', 'https://r-archive.zip/')
           }}
@@ -31,11 +46,11 @@ export const renderUserDropdown = (user, vArchiveUserData, ipcRenderer, router, 
         </button>
       </li>
       <li>
-        <hr className="dropdown-divider tw-m-0" />
+        <hr className='dropdown-divider tw-m-0' />
       </li>
       <li>
         <button
-          className="dropdown-item tw-py-2 tw-rounded-t-md"
+          className='dropdown-item tw-py-2 tw-rounded-t-md'
           onClick={() => {
             ipcRenderer.send('openBrowser', 'https://v-archive.net/')
           }}
@@ -43,12 +58,17 @@ export const renderUserDropdown = (user, vArchiveUserData, ipcRenderer, router, 
           V-ARCHIVE 바로가기
         </button>
       </li>
-      {vArchiveUserData.userNo !== '' && vArchiveUserData.userToken !== '' && vArchiveUserData.userName !== '' ? (
+      {vArchiveUserData.userNo !== '' &&
+      vArchiveUserData.userToken !== '' &&
+      vArchiveUserData.userName !== '' ? (
         <li>
           <button
-            className="dropdown-item tw-py-2"
+            className='dropdown-item tw-py-2'
             onClick={() => {
-              ipcRenderer.send('openBrowser', `https://v-archive.net/archive/${vArchiveUserData.userName}/board`)
+              ipcRenderer.send(
+                'openBrowser',
+                `https://v-archive.net/archive/${vArchiveUserData.userName}/board`,
+              )
             }}
           >
             성과표(V-ARCHIVE) 바로가기
@@ -56,12 +76,12 @@ export const renderUserDropdown = (user, vArchiveUserData, ipcRenderer, router, 
         </li>
       ) : null}
       <li>
-        <hr className="dropdown-divider tw-m-0" />
+        <hr className='dropdown-divider tw-m-0' />
       </li>
       {user.userNo !== '' && user.userToken !== '' && user.userName !== '' ? (
         <li>
           <button
-            className="dropdown-item tw-py-2 tw-rounded-b-md tw-text-red-600"
+            className='dropdown-item tw-py-2 tw-rounded-b-md tw-text-red-600'
             onClick={() => {
               logoutCallback()
               ipcRenderer.logout()
@@ -78,7 +98,10 @@ export const renderUserDropdown = (user, vArchiveUserData, ipcRenderer, router, 
         </li>
       ) : (
         <li>
-          <Link href={`/login?url=${router.asPath}`} className="dropdown-item tw-py-2 tw-rounded-b-md">
+          <Link
+            href={`/login?url=${router.asPath}`}
+            className='dropdown-item tw-py-2 tw-rounded-b-md'
+          >
             로그인
           </Link>
         </li>

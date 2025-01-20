@@ -1,8 +1,28 @@
 module.exports = {
   useTabs: false,
-  singleQuote: true,
+  plugins: [
+    '@ianvs/prettier-plugin-sort-imports',
+    'prettier-plugin-organize-imports',
+    'prettier-plugin-tailwindcss',
+    'prettier-plugin-style-order',
+    'prettier-plugin-css-order',
+  ],
   semi: false,
   tabWidth: 2,
-  trailingComma: "all",
-  printWidth: 160,
-};
+  printWidth: 100,
+  singleQuote: true,
+  trailingComma: 'all',
+  jsxSingleQuote: true,
+  bracketSpacing: true,
+  importOrderBuiltinModules: true,
+  importOrder: [
+    '^(react/(.*)$)|^(react$)',
+    '^(next/(.*)$)|^(next$)',
+    '<THIRD_PARTY_MODULES>',
+    '^(?!.*[.]css$)[./].*$',
+    'bootstrap/dist/css/bootstrap.min.css$',
+    '@styles/globals.css$',
+  ],
+  importOrderParserPlugins: ['typescript', 'jsx', 'decorators-legacy'],
+  importOrderTypeScriptVersion: '5.0.0',
+}

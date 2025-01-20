@@ -289,7 +289,7 @@ export default function VArchiveDbPage() {
               {/* 설명 내용 */}
               <div className='tw-bg-gray-700 tw-bg-opacity-30 tw-p-4 tw-rounded tw-space-y-2 tw-mb-auto'>
                 <p className='tw-leading-relaxed'>
-                  V-ARCHIVE의 서열표는 디제이맥스 리스펙트 V 마이너 갤러리에서 투표로 만들어지는
+                  V-ARCHIVE의 '서열표'는 디제이맥스 리스펙트 V 마이너 갤러리에서 투표로 만들어지는
                   비공식 난이도표(서열표)를 그대로 차용하고 있습니다. (SC 패턴과 12렙 이상의
                   NM/HD/MX 패턴만)
                 </p>

@@ -1,15 +1,14 @@
 import React, { useEffect, useState } from 'react'
 import Head from 'next/head'
-import { useRouter } from 'next/router'
-import { useSelector } from 'react-redux'
-import { RootState } from 'store'
-import { SyncLoader } from 'react-spinners'
-import ScorePopupComponent from '@/components/score/ScorePopupComponent'
-import axios from 'axios'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useNotificationSystem } from '@/libs/client/useNotifications'
+import { useRouter } from 'next/router'
 import RaScorePopupComponent from '@/components/score/RaScorePopupComponent'
+import { useNotificationSystem } from '@/libs/client/useNotifications'
+import axios from 'axios'
+import { useSelector } from 'react-redux'
+import { SyncLoader } from 'react-spinners'
+import { RootState } from 'store'
 
 interface Pattern {
   title: number
@@ -93,7 +92,24 @@ const Board = () => {
     return processedData
   }
 
-  const [boards, setBoards] = useState<string[]>(['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', 'MX', 'SC', 'SC5', 'SC10', 'SC15'])
+  const [boards, setBoards] = useState<string[]>([
+    '1',
+    '2',
+    '3',
+    '4',
+    '5',
+    '6',
+    '7',
+    '8',
+    '9',
+    '10',
+    '11',
+    'MX',
+    'SC',
+    'SC5',
+    'SC10',
+    'SC15',
+  ])
 
   useEffect(() => {
     setIsMounted(true)
@@ -107,10 +123,13 @@ const Board = () => {
         const baseSongData = processBaseSongData()
 
         // V-ARCHIVE API에서 점수 데이터 가져오기
-        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/v1/board/wjmax/${keyMode}/${board}/user/${userData.userNo}`, {
-          headers: { Authorization: `${userData.userNo}|${userData.userToken}` },
-          withCredentials: true,
-        })
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}/v1/board/wjmax/${keyMode}/${board}/user/${userData.userNo}`,
+          {
+            headers: { Authorization: `${userData.userNo}|${userData.userToken}` },
+            withCredentials: true,
+          },
+        )
 
         if (isMounted) {
           // API 응답 데이터와 기본 곡 데이터 결합
@@ -119,7 +138,9 @@ const Board = () => {
               floorNumber: floor.floorNumber,
               patterns: floor.patterns
                 .map((apiPattern) => {
-                  const basePattern = baseSongData.find((bp) => bp.title === apiPattern.title && bp.pattern === apiPattern.pattern)
+                  const basePattern = baseSongData.find(
+                    (bp) => bp.title === apiPattern.title && bp.pattern === apiPattern.pattern,
+                  )
                   if (!basePattern) return null
                   return {
                     ...basePattern,
@@ -320,13 +341,18 @@ const Board = () => {
     30: 'Lv.30',
   }
 
-  const [randomHeaderBg, setRandomHeaderBg] = useState(Math.floor(Math.random() * wjmaxSongData.length) + 1)
+  const [randomHeaderBg, setRandomHeaderBg] = useState(
+    Math.floor(Math.random() * wjmaxSongData.length) + 1,
+  )
   const { showNotification } = useNotificationSystem()
 
   useEffect(() => {
     if (userData.userName === '') {
       router.push('/')
-      showNotification('성과표 조회 기능은 로그인 또는 V-ARCHIVE 계정 연동이 필요합니다.', 'tw-bg-red-600')
+      showNotification(
+        '성과표 조회 기능은 로그인 또는 V-ARCHIVE 계정 연동이 필요합니다.',
+        'tw-bg-red-600',
+      )
     }
   }, [])
 
@@ -335,7 +361,8 @@ const Board = () => {
     const validPatterns = patterns.filter((p) => p.score != null && p.score > 0)
     if (validPatterns.length === 0) return null
 
-    const avgScore = validPatterns.reduce((sum, p) => sum + Number(p.score), 0) / validPatterns.length
+    const avgScore =
+      validPatterns.reduce((sum, p) => sum + Number(p.score), 0) / validPatterns.length
     return avgScore.toFixed(2)
   }
 
@@ -350,102 +377,123 @@ const Board = () => {
     <React.Fragment>
       <Head>
         <title>
-          {String(keyMode).replace('PLUS', '').replace('P', '').replace('B', '').replace('_', '')}B{String(keyMode).includes('P') ? '+' : ''} {board} 성과표 -
-          RACLA
+          {String(keyMode).replace('PLUS', '').replace('P', '').replace('B', '').replace('_', '')}B
+          {String(keyMode).includes('P') ? '+' : ''} {board} 성과표 - RACLA
         </title>
       </Head>
 
-      <div className="tw-flex tw-gap-4">
+      <div className='tw-flex tw-gap-4'>
         {/* 메인 콘텐츠 영역 (왼쪽) */}
-        <div className="tw-flex tw-flex-col tw-gap-4 tw-w-full">
+        <div className='tw-flex tw-flex-col tw-gap-4 tw-w-full'>
           {/* 통계 섹션 */}
           {!isLoading ? (
-            <div className="tw-flex tw-gap-4">
-              <div className="[text-shadow:_2px_2px_2px_rgb(0_0_0_/_90%),_4px_4px_4px_rgb(0_0_0_/_60%)] tw-relative tw-w-2/3 tw-h-[20rem] tw-rounded-lg tw-overflow-hidden">
+            <div className='tw-flex tw-gap-4'>
+              <div className='[text-shadow:_2px_2px_2px_rgb(0_0_0_/_90%),_4px_4px_4px_rgb(0_0_0_/_60%)] tw-relative tw-w-2/3 tw-h-[20rem] tw-rounded-lg tw-overflow-hidden'>
                 <Image
                   src={`/images/wjmax/jackets/${wjmaxSongData[randomHeaderBg - 1].folderName}.jpg`}
-                  alt="Background"
+                  alt='Background'
                   fill
-                  className="tw-object-cover tw-blur-md tw-opacity-50 tw-brightness-50"
+                  className='tw-object-cover tw-blur-md tw-opacity-50 tw-brightness-50'
                 />
                 {keyMode && (
-                  <div className="tw-absolute tw-inset-0 tw-p-4 tw-flex tw-flex-col tw-justify-between">
-                    <div className="tw-flex tw-justify-between tw-items-start">
-                      <span className="tw-flex tw-w-full tw-items-end tw-gap-1 tw-text-lg tw-font-bold [text-shadow:_2px_2px_2px_rgb(0_0_0_/_90%),_4px_4px_4px_rgb(0_0_0_/_60%)]">
-                        <span className="tw-text-4xl tw-font-bold tw-relative">{String(keyMode).replace('B', '').replace('_PLUS', '')}</span>{' '}
-                        <span className="tw-me-auto tw-flex tw-relative">
-                          Button <span className="tw-absolute tw-2xl tw-top-[-12px] tw-right-[-12px]">{String(keyMode).includes('B_PLUS') ? '+' : ''}</span>
+                  <div className='tw-absolute tw-inset-0 tw-p-4 tw-flex tw-flex-col tw-justify-between'>
+                    <div className='tw-flex tw-justify-between tw-items-start'>
+                      <span className='tw-flex tw-w-full tw-items-end tw-gap-1 tw-text-lg tw-font-bold [text-shadow:_2px_2px_2px_rgb(0_0_0_/_90%),_4px_4px_4px_rgb(0_0_0_/_60%)]'>
+                        <span className='tw-text-4xl tw-font-bold tw-relative'>
+                          {String(keyMode).replace('B', '').replace('_PLUS', '')}
                         </span>{' '}
-                        <span className="tw-text-2xl tw-font-bold">{String(keyBoardTitle[board as string])}</span>
+                        <span className='tw-me-auto tw-flex tw-relative'>
+                          Button{' '}
+                          <span className='tw-absolute tw-2xl tw-top-[-12px] tw-right-[-12px]'>
+                            {String(keyMode).includes('B_PLUS') ? '+' : ''}
+                          </span>
+                        </span>{' '}
+                        <span className='tw-text-2xl tw-font-bold'>
+                          {String(keyBoardTitle[board as string])}
+                        </span>
                       </span>
                     </div>
 
-                    <div className="tw-space-y-2">
-                      {Object.entries(calculateStats(floorData.flatMap((f) => f.patterns))).map(([key, value], _, entries) => {
-                        if (key === 'total') return null
-                        const totalPatterns = entries.find(([k]) => k === 'total')?.[1] || 0
-                        const percentage = (value / totalPatterns) * 100
+                    <div className='tw-space-y-2'>
+                      {Object.entries(calculateStats(floorData.flatMap((f) => f.patterns))).map(
+                        ([key, value], _, entries) => {
+                          if (key === 'total') return null
+                          const totalPatterns = entries.find(([k]) => k === 'total')?.[1] || 0
+                          const percentage = (value / totalPatterns) * 100
 
-                        return (
-                          <div key={key} className="tw-flex tw-items-center tw-gap-2">
-                            <span className="tw-w-32 tw-text-sm">{keyTitle[key] || key.charAt(0).toUpperCase() + key.slice(1)}</span>
-                            <div
-                              className={`tw-relative tw-flex-1 tw-h-6 tw-rounded-sm tw-overflow-hidden tw-cursor-pointer ${
-                                highlightCondition === key && highlightInverse ? 'tw-bg-gray-800' : 'tw-bg-gray-950'
-                              }`}
-                              onClick={(e) => {
-                                const rect = e.currentTarget.getBoundingClientRect()
-                                const clickX = e.clientX - rect.left
-                                const isLeftSide = clickX < rect.width * (percentage / 100)
-
-                                // 같은 조건을 다시 클릭했을 때 하이라이트 해제
-                                if (highlightCondition === key && highlightInverse === !isLeftSide) {
-                                  setHighlightCondition(null)
-                                  setHighlightInverse(false)
-                                } else {
-                                  setHighlightCondition(key)
-                                  setHighlightInverse(!isLeftSide)
-                                }
-                              }}
-                            >
+                          return (
+                            <div key={key} className='tw-flex tw-items-center tw-gap-2'>
+                              <span className='tw-w-32 tw-text-sm'>
+                                {keyTitle[key] || key.charAt(0).toUpperCase() + key.slice(1)}
+                              </span>
                               <div
-                                className={`tw-absolute tw-h-full tw-transition-all tw-duration-300 ${
-                                  key === 'maxCombo'
-                                    ? `tw-bg-green-500 hover:tw-bg-green-700 ${
-                                        highlightCondition === 'maxCombo' && !highlightInverse ? 'tw-brightness-200' : ''
-                                      }`
-                                    : key === 'perfect'
-                                    ? `tw-bg-red-500 hover:tw-bg-red-700 ${highlightCondition === 'perfect' && !highlightInverse ? 'tw-brightness-200' : ''}`
-                                    : key === 'clear'
-                                    ? `tw-bg-blue-500 hover:tw-bg-blue-700 ${highlightCondition === 'clear' && !highlightInverse ? 'tw-brightness-200' : ''}`
-                                    : `tw-bg-yellow-500 hover:tw-bg-yellow-700 ${
-                                        String(highlightCondition) === key && !highlightInverse ? 'tw-brightness-200' : ''
-                                      }`
+                                className={`tw-relative tw-flex-1 tw-h-6 tw-rounded-sm tw-overflow-hidden tw-cursor-pointer ${
+                                  highlightCondition === key && highlightInverse
+                                    ? 'tw-bg-gray-800'
+                                    : 'tw-bg-gray-950'
                                 }`}
-                                style={{ width: `${percentage}%` }}
-                              />
-                              <div className="tw-absolute tw-inset-0 tw-flex tw-items-center tw-justify-end tw-px-2 tw-text-xs tw-font-bold">
-                                {value} / {totalPatterns}
+                                onClick={(e) => {
+                                  const rect = e.currentTarget.getBoundingClientRect()
+                                  const clickX = e.clientX - rect.left
+                                  const isLeftSide = clickX < rect.width * (percentage / 100)
+
+                                  // 같은 조건을 다시 클릭했을 때 하이라이트 해제
+                                  if (
+                                    highlightCondition === key &&
+                                    highlightInverse === !isLeftSide
+                                  ) {
+                                    setHighlightCondition(null)
+                                    setHighlightInverse(false)
+                                  } else {
+                                    setHighlightCondition(key)
+                                    setHighlightInverse(!isLeftSide)
+                                  }
+                                }}
+                              >
+                                <div
+                                  className={`tw-absolute tw-h-full tw-transition-all tw-duration-300 ${
+                                    key === 'maxCombo'
+                                      ? `tw-bg-green-500 hover:tw-bg-green-700 ${
+                                          highlightCondition === 'maxCombo' && !highlightInverse
+                                            ? 'tw-brightness-200'
+                                            : ''
+                                        }`
+                                      : key === 'perfect'
+                                        ? `tw-bg-red-500 hover:tw-bg-red-700 ${highlightCondition === 'perfect' && !highlightInverse ? 'tw-brightness-200' : ''}`
+                                        : key === 'clear'
+                                          ? `tw-bg-blue-500 hover:tw-bg-blue-700 ${highlightCondition === 'clear' && !highlightInverse ? 'tw-brightness-200' : ''}`
+                                          : `tw-bg-yellow-500 hover:tw-bg-yellow-700 ${
+                                              String(highlightCondition) === key &&
+                                              !highlightInverse
+                                                ? 'tw-brightness-200'
+                                                : ''
+                                            }`
+                                  }`}
+                                  style={{ width: `${percentage}%` }}
+                                />
+                                <div className='tw-absolute tw-inset-0 tw-flex tw-items-center tw-justify-end tw-px-2 tw-text-xs tw-font-bold'>
+                                  {value} / {totalPatterns}
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        )
-                      })}
+                          )
+                        },
+                      )}
                     </div>
                   </div>
                 )}
               </div>
 
               {/* 키모드 & 레벨 선택 패널 */}
-              <div className="tw-flex tw-flex-col tw-gap-4 tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-shadow-lg tw-p-6 tw-w-1/3">
-                <div className="tw-flex tw-items-center tw-justify-between">
-                  <span className="tw-text-lg tw-font-bold">🎮 성과표 필터</span>
+              <div className='tw-flex tw-flex-col tw-gap-4 tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-shadow-lg tw-p-6 tw-w-1/3'>
+                <div className='tw-flex tw-items-center tw-justify-between'>
+                  <span className='tw-text-lg tw-font-bold'>🎮 성과표 필터</span>
                 </div>
 
                 {/* 키모드 설명 */}
-                <div className="tw-text-sm tw-text-gray-400 tw-font-medium">키(버튼) 선택</div>
+                <div className='tw-text-sm tw-text-gray-400 tw-font-medium'>키(버튼) 선택</div>
                 {/* 키모드 선택 버튼 */}
-                <div className="tw-flex tw-gap-2">
+                <div className='tw-flex tw-gap-2'>
                   {['4B', '4B_PLUS', '6B', '6B_PLUS'].map((mode) => (
                     <Link
                       key={`mode_${mode}`}
@@ -456,22 +504,28 @@ const Board = () => {
                           : 'tw-border-gray-600 tw-opacity-50 hover:tw-border-blue-400 hover:tw-bg-gray-700 hover:tw-bg-opacity-30 hover:tw-opacity-100'
                       }`}
                     >
-                      <div className={`tw-absolute tw-w-full tw-h-full tw-opacity-30 wjmax_bg_b${mode.replace('B', '').replace('_PLUS', '')}`} />
-                      <span className="tw-relative tw-text-base tw-font-bold">{mode.replace('_PLUS', '+')}</span>
+                      <div
+                        className={`tw-absolute tw-w-full tw-h-full tw-opacity-30 wjmax_bg_b${mode.replace('B', '').replace('_PLUS', '')}`}
+                      />
+                      <span className='tw-relative tw-text-base tw-font-bold'>
+                        {mode.replace('_PLUS', '+')}
+                      </span>
                     </Link>
                   ))}
                 </div>
 
                 {/* 레벨 선택 그리드 */}
-                <div className="tw-flex tw-flex-col tw-gap-2">
+                <div className='tw-flex tw-flex-col tw-gap-2'>
                   {/* 난이도 범위 설명 */}
-                  <div className="tw-text-sm tw-text-gray-400 tw-font-medium">레벨</div>
+                  <div className='tw-text-sm tw-text-gray-400 tw-font-medium'>레벨</div>
                   {/* 난이도 선택 탭 */}
-                  <div className="tw-flex tw-gap-2 tw-mb-1">
+                  <div className='tw-flex tw-gap-2 tw-mb-1'>
                     {levelGroups.map((group) => (
                       <button
                         key={group.name}
-                        onClick={() => setSelectedDifficulty(group.name as '1~10' | '11~20' | '21~30')}
+                        onClick={() =>
+                          setSelectedDifficulty(group.name as '1~10' | '11~20' | '21~30')
+                        }
                         className={`tw-flex-1 tw-px-4 tw-py-1.5 tw-rounded-md tw-text-sm tw-font-medium tw-transition-all
                           ${
                             selectedDifficulty === group.name
@@ -520,8 +574,8 @@ const Board = () => {
             }
           >
             {isLoading ? (
-              <div className="tw-flex tw-justify-center">
-                <SyncLoader color="#ffffff" size={8} />
+              <div className='tw-flex tw-justify-center'>
+                <SyncLoader color='#ffffff' size={8} />
               </div>
             ) : (
               floorData.map((floor) => {
@@ -533,40 +587,52 @@ const Board = () => {
                     key={`floor_${floor.floorNumber}`}
                     className={`tw-flex tw-gap-3 tw-my-3 ${floor !== floorData[floorData.length - 1] ? 'tw-border-b tw-border-gray-700 tw-pb-6' : ''}`}
                   >
-                    <span className="tw-font-bold tw-text-base tw-min-w-24 tw-text-right">
+                    <span className='tw-font-bold tw-text-base tw-min-w-24 tw-text-right'>
                       {floor.floorNumber !== 0 ? (
-                        <div className="tw-flex tw-flex-col tw-items-end tw-gap-1">
+                        <div className='tw-flex tw-flex-col tw-items-end tw-gap-1'>
                           <div>{Number(floor.floorNumber).toFixed(1)}</div>
-                          <div className="tw-flex tw-flex-col tw-items-end tw-gap-1">
+                          <div className='tw-flex tw-flex-col tw-items-end tw-gap-1'>
                             {calculateScoreStats(floor.patterns) && (
-                              <div className="tw-flex tw-flex-col tw-items-end">
-                                <span className="tw-text-sm tw-text-gray-400 tw-font-light">점수 평균</span>
-                                <div className="tw-text-sm tw-text-gray-200">{calculateScoreStats(floor.patterns)}%</div>
+                              <div className='tw-flex tw-flex-col tw-items-end'>
+                                <span className='tw-text-sm tw-text-gray-400 tw-font-light'>
+                                  점수 평균
+                                </span>
+                                <div className='tw-text-sm tw-text-gray-200'>
+                                  {calculateScoreStats(floor.patterns)}%
+                                </div>
                               </div>
                             )}
                           </div>
                         </div>
                       ) : (
-                        <div className="tw-flex tw-flex-col tw-items-end tw-gap-1">
+                        <div className='tw-flex tw-flex-col tw-items-end tw-gap-1'>
                           <div>미분류</div>
                           {calculateScoreStats(floor.patterns) && (
-                            <div className="tw-flex tw-flex-col tw-items-end">
-                              <span className="tw-text-sm tw-text-gray-400 tw-font-light">점수 평균</span>
-                              <div className="tw-text-sm tw-text-gray-200">{calculateScoreStats(floor.patterns)}%</div>
+                            <div className='tw-flex tw-flex-col tw-items-end'>
+                              <span className='tw-text-sm tw-text-gray-400 tw-font-light'>
+                                점수 평균
+                              </span>
+                              <div className='tw-text-sm tw-text-gray-200'>
+                                {calculateScoreStats(floor.patterns)}%
+                              </div>
                             </div>
                           )}
                         </div>
                       )}
                     </span>
-                    <div className="tw-flex tw-flex-wrap tw-gap-3">
+                    <div className='tw-flex tw-flex-wrap tw-gap-3'>
                       {sortedPatterns.map((pattern) => (
                         <div
                           key={`pattern_${pattern.title}_${pattern.pattern}`}
                           className={`tw-transition-opacity tw-duration-300 tw-w-72 tw-max-w-72 tw-flex tw-flex-col tw-bg-gray-700 tw-rounded-md tw-bg-opacity-50 tw-gap-2 tw-p-2 ${
-                            highlightCondition ? (shouldHighlight(pattern) ? 'tw-opacity-100' : 'tw-opacity-30') : 'tw-opacity-100'
+                            highlightCondition
+                              ? shouldHighlight(pattern)
+                                ? 'tw-opacity-100'
+                                : 'tw-opacity-30'
+                              : 'tw-opacity-100'
                           }`}
                         >
-                          <div className="tw-flex tw-gap-2">
+                          <div className='tw-flex tw-gap-2'>
                             <RaScorePopupComponent
                               songItem={pattern}
                               keyMode={String(keyMode).replace('B', '').replace('_PLUS', '')}
@@ -575,18 +641,22 @@ const Board = () => {
                               isVisibleCode={true}
                               isFlatten={true}
                             />
-                            <div className="tw-flex tw-flex-1 tw-flex-col tw-gap-2 tw-items-end tw-justify-center tw-bg-gray-950 tw-bg-opacity-50 tw-rounded-md tw-py-2 tw-px-3">
+                            <div className='tw-flex tw-flex-1 tw-flex-col tw-gap-2 tw-items-end tw-justify-center tw-bg-gray-950 tw-bg-opacity-50 tw-rounded-md tw-py-2 tw-px-3'>
                               {pattern.score ? (
                                 <>
-                                  <span className="tw-text-xs tw-text-gray-400">SCORE : {pattern.score ? pattern.score : 0}%</span>
-                                  {pattern?.maxCombo && <span className="tw-text-xs tw-text-yellow-400">MAX COMBO</span>}
+                                  <span className='tw-text-xs tw-text-gray-400'>
+                                    SCORE : {pattern.score ? pattern.score : 0}%
+                                  </span>
+                                  {pattern?.maxCombo && (
+                                    <span className='tw-text-xs tw-text-yellow-400'>MAX COMBO</span>
+                                  )}
                                 </>
                               ) : (
-                                <span className="tw-text-xs tw-text-gray-400">기록 미존재</span>
+                                <span className='tw-text-xs tw-text-gray-400'>기록 미존재</span>
                               )}
                             </div>
                           </div>
-                          <span className="tw-flex tw-flex-1 tw-bg-gray-950 tw-bg-opacity-50 tw-px-2 tw-py-1 tw-rounded-md tw-break-keep tw-justify-center tw-items-center tw-text-center tw-text-xs">
+                          <span className='tw-flex tw-flex-1 tw-bg-gray-950 tw-bg-opacity-50 tw-px-2 tw-py-1 tw-rounded-md tw-break-keep tw-justify-center tw-items-center tw-text-center tw-text-xs'>
                             {pattern.name}
                           </span>
                         </div>

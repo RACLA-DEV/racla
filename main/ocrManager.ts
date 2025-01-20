@@ -1,11 +1,11 @@
-import axios from 'axios'
-import sharp from 'sharp'
-import fs from 'fs'
-import { getSession } from './fsManager'
-import path from 'path'
-import moment from 'moment'
 import { randomUUID } from 'crypto'
+import fs from 'fs'
+import path from 'path'
+import axios from 'axios'
+import moment from 'moment'
+import sharp from 'sharp'
 import Tesseract from 'tesseract.js'
+import { getSession } from './fsManager'
 
 interface OCRRegion {
   width: number
@@ -82,7 +82,12 @@ class GameOCRProcessor {
     },
   }
 
-  constructor(private gameCode: string, private settingData: any, private mainWindow: any, private overlayWindow: any) {}
+  constructor(
+    private gameCode: string,
+    private settingData: any,
+    private mainWindow: any,
+    private overlayWindow: any,
+  ) {}
 
   async extractRegions(gameCode: string, imageBuffer: Buffer) {
     const regions: { [key: string]: Buffer } = {}
@@ -90,27 +95,52 @@ class GameOCRProcessor {
 
     if (gameCode === 'djmax_respect_v') {
       if (this.settingData.autoCaptureOcrResultRegion) {
-        regions.result = await this.extractRegion(imageBuffer, { width: 230, height: 24, left: 100, top: 236 })
+        regions.result = await this.extractRegion(imageBuffer, {
+          width: 230,
+          height: 24,
+          left: 100,
+          top: 236,
+        })
         texts.result = await this.recognizeText(regions.result)
       }
 
       if (this.settingData.autoCaptureOcrOpen3Region) {
-        regions.open3 = await this.extractRegion(imageBuffer, { width: 57, height: 26, left: 596, top: 470 })
+        regions.open3 = await this.extractRegion(imageBuffer, {
+          width: 57,
+          height: 26,
+          left: 596,
+          top: 470,
+        })
         texts.open3 = await this.recognizeText(regions.open3)
       }
 
       if (this.settingData.autoCaptureOcrOpen2Region) {
-        regions.open2 = await this.extractRegion(imageBuffer, { width: 60, height: 25, left: 693, top: 471 })
+        regions.open2 = await this.extractRegion(imageBuffer, {
+          width: 60,
+          height: 25,
+          left: 693,
+          top: 471,
+        })
         texts.open2 = await this.recognizeText(regions.open2)
       }
 
       if (this.settingData.autoCaptureOcrVersusRegion) {
-        regions.versus = await this.extractRegion(imageBuffer, { width: 142, height: 104, left: 755, top: 52 })
+        regions.versus = await this.extractRegion(imageBuffer, {
+          width: 142,
+          height: 104,
+          left: 755,
+          top: 52,
+        })
         texts.versus = await this.recognizeText(regions.versus)
       }
     } else if (gameCode === 'wjmax') {
       if (this.settingData.autoCaptureWjmaxOcrResultRegion) {
-        regions.result = await this.extractRegion(imageBuffer, { width: 135, height: 21, left: 1038, top: 307 })
+        regions.result = await this.extractRegion(imageBuffer, {
+          width: 135,
+          height: 21,
+          left: 1038,
+          top: 307,
+        })
         texts.result = await this.recognizeText(regions.result)
       }
     }
@@ -181,7 +211,9 @@ class GameOCRProcessor {
   }
 
   private checkResultKeywords(text: string, keywords: string[]): string[] {
-    return keywords.filter((value) => text.toUpperCase().trim().includes(value) && text.length !== 0)
+    return keywords.filter(
+      (value) => text.toUpperCase().trim().includes(value) && text.length !== 0,
+    )
   }
 }
 
@@ -189,11 +221,18 @@ class GameOCRProcessor {
 class ImageProcessor {
   private readonly profileRegions: GameRegions
 
-  constructor(private settingData: any, gameOcrProcessor: GameOCRProcessor) {
+  constructor(
+    private settingData: any,
+    gameOcrProcessor: GameOCRProcessor,
+  ) {
     this.profileRegions = gameOcrProcessor.profileRegions
   }
 
-  async applyProfileMask(imageBuffer: Buffer, gameCode: string, screenType: string): Promise<Buffer> {
+  async applyProfileMask(
+    imageBuffer: Buffer,
+    gameCode: string,
+    screenType: string,
+  ): Promise<Buffer> {
     try {
       const image = sharp(imageBuffer)
       const regions = this.getRegionsToMask(gameCode, screenType)
@@ -225,7 +264,11 @@ class ImageProcessor {
       if (screenType === 'result' || screenType === 'select' || screenType === 'collection') {
         regionsToMask = [regions.myProfile]
       } else if (screenType === 'openSelect') {
-        regionsToMask = [regions.myProfile, regions.otherProfile, { left: 58, top: 687, width: 524, height: 256 }]
+        regionsToMask = [
+          regions.myProfile,
+          regions.otherProfile,
+          { left: 58, top: 687, width: 524, height: 256 },
+        ]
       } else {
         regionsToMask = [regions.myProfile, regions.otherProfile]
       }
@@ -287,11 +330,17 @@ class ImageProcessor {
 
 // API 통신을 위한 클래스
 class OCRApiService {
-  constructor(private isProd: boolean, private isLogined: boolean, private gameCode: string) {}
+  constructor(
+    private isProd: boolean,
+    private isLogined: boolean,
+    private gameCode: string,
+  ) {}
 
   async uploadForOCR(formData: FormData, where: string): Promise<any> {
     const session = await this.getSession()
-    const baseUrl = this.isProd ? 'https://near.r-archive.zip/api' : 'https://noah.r-archive.zip/api'
+    const baseUrl = this.isProd
+      ? 'https://near.r-archive.zip/api'
+      : 'https://noah.r-archive.zip/api'
 
     try {
       const response = await axios.post(`${baseUrl}/v1/ocr/upload/${this.gameCode}`, formData, {
@@ -321,7 +370,11 @@ class OCRApiService {
 }
 
 // 메인 처리 함수
-export async function processResultScreen(imageBuffer: Buffer, options: ProcessOptions, appOptions: AppOptions) {
+export async function processResultScreen(
+  imageBuffer: Buffer,
+  options: ProcessOptions,
+  appOptions: AppOptions,
+) {
   const { isMenualUpload = false, isNotSaveImage = false, gameCode = 'djmax_respect_v' } = options
   const { app, settingData, mainWindow, overlayWindow, isProd, isLogined, isUploaded } = appOptions
 
@@ -333,8 +386,12 @@ export async function processResultScreen(imageBuffer: Buffer, options: ProcessO
     console.log('Client Side OCR isResultScreen Requested. Processing image data...')
 
     // 1. OCR 처리
-    const { texts } = !isMenualUpload ? await ocrProcessor.extractRegions(gameCode, imageBuffer) : { texts: null }
-    const resultInfo = !isMenualUpload ? await ocrProcessor.determineResultScreen(gameCode, texts) : { isResult: ['server'], text: 'server', where: 'server' }
+    const { texts } = !isMenualUpload
+      ? await ocrProcessor.extractRegions(gameCode, imageBuffer)
+      : { texts: null }
+    const resultInfo = !isMenualUpload
+      ? await ocrProcessor.determineResultScreen(gameCode, texts)
+      : { isResult: ['server'], text: 'server', where: 'server' }
 
     if (resultInfo.isResult.length === 0) {
       console.log('Waiting for Result Screen...')
@@ -368,15 +425,27 @@ export async function processResultScreen(imageBuffer: Buffer, options: ProcessO
         const { playData } = response
 
         // 3. 결과 처리
-        if (playData.isVerified || playData.screenType === 'versus' || playData.screenType === 'collection') {
+        if (
+          playData.isVerified ||
+          playData.screenType === 'versus' ||
+          playData.screenType === 'collection'
+        ) {
           // 이미지 저장 처리
           if (settingData.saveImageWhenCapture && !isNotSaveImage) {
-            const finalImageBuffer = await imageProcessor.applyProfileMask(imageBuffer, gameCode, playData.screenType)
+            const finalImageBuffer = await imageProcessor.applyProfileMask(
+              imageBuffer,
+              gameCode,
+              playData.screenType,
+            )
             await imageProcessor.saveImage(finalImageBuffer, getFilePath(playData, app))
           }
 
           await handleNotifications(gameCode, playData, mainWindow, overlayWindow, isProd)
-          return { ...response, filePath: settingData.saveImageWhenCapture ? getFilePath(playData, app) : null, isUploaded: true }
+          return {
+            ...response,
+            filePath: settingData.saveImageWhenCapture ? getFilePath(playData, app) : null,
+            isUploaded: true,
+          }
         }
       } catch (error) {
         handleError(error)
@@ -413,7 +482,13 @@ function handleError(error: any) {
   console.error('Error in processResultScreen:', error)
 }
 
-async function handleNotifications(gameCode: string, playData: any, mainWindow: any, overlayWindow: any, isProd: boolean) {
+async function handleNotifications(
+  gameCode: string,
+  playData: any,
+  mainWindow: any,
+  overlayWindow: any,
+  isProd: boolean,
+) {
   if (playData.screenType === 'versus') {
     await handleVersusNotifications(gameCode, playData, overlayWindow, isProd)
   } else if (playData.screenType === 'collection') {
@@ -425,7 +500,12 @@ async function handleNotifications(gameCode: string, playData: any, mainWindow: 
   }
 }
 
-async function handleRegularNotification(gameCode: string, playData: any, overlayWindow: any, isProd: boolean) {
+async function handleRegularNotification(
+  gameCode: string,
+  playData: any,
+  overlayWindow: any,
+  isProd: boolean,
+) {
   try {
     let lastScore = null
     if (gameCode === 'djmax_respect_v') {
@@ -435,7 +515,8 @@ async function handleRegularNotification(gameCode: string, playData: any, overla
           session.vArchiveUserName
         }/title/${playData.songData.title}`,
       )
-      lastScore = backupResponse.data?.patterns?.[`${playData.button}B`]?.[playData.pattern]?.score || null
+      lastScore =
+        backupResponse.data?.patterns?.[`${playData.button}B`]?.[playData.pattern]?.score || null
     }
 
     overlayWindow.webContents.send('IPC_RENDERER_GET_NOTIFICATION_DATA', {
@@ -450,7 +531,12 @@ async function handleRegularNotification(gameCode: string, playData: any, overla
   }
 }
 
-async function handleVersusNotifications(gameCode: string, playData: any, overlayWindow: any, isProd: boolean) {
+async function handleVersusNotifications(
+  gameCode: string,
+  playData: any,
+  overlayWindow: any,
+  isProd: boolean,
+) {
   playData.versusData.forEach(async (value: any, index: number) => {
     if (Number(value.score) > 0) {
       try {
@@ -462,7 +548,8 @@ async function handleVersusNotifications(gameCode: string, playData: any, overla
               session.vArchiveUserName
             }/title/${value.songData.title}`,
           )
-          lastScore = backupResponse.data?.patterns?.[`${value.button}B`]?.[value.pattern]?.score || null
+          lastScore =
+            backupResponse.data?.patterns?.[`${value.button}B`]?.[value.pattern]?.score || null
         }
 
         setTimeout(() => {
@@ -487,14 +574,16 @@ async function handleVersusNotifications(gameCode: string, playData: any, overla
 
 function handleCollectionNotification(overlayWindow: any) {
   overlayWindow.webContents.send('IPC_RENDERER_GET_NOTIFICATION_DATA', {
-    message: '컬렉션(COLLECTION) 화면 인식에 성공하였습니다. 결과는 RACLA 데스크톱 앱에서 확인해주세요.',
+    message:
+      '컬렉션(COLLECTION) 화면 인식에 성공하였습니다. 결과는 RACLA 데스크톱 앱에서 확인해주세요.',
     color: 'tw-bg-lime-600',
   })
 }
 
 function handleErrorNotification(overlayWindow: any) {
   overlayWindow.webContents.send('IPC_RENDERER_GET_NOTIFICATION_DATA', {
-    message: '게임 결과창이 아니거나 성과 기록 이미지를 처리 중에 오류가 발생하였습니다. 다시 시도해주시길 바랍니다.',
+    message:
+      '게임 결과창이 아니거나 성과 기록 이미지를 처리 중에 오류가 발생하였습니다. 다시 시도해주시길 바랍니다.',
     color: 'tw-bg-red-600',
   })
 }

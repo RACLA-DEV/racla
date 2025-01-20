@@ -1,8 +1,6 @@
-import path from 'path'
-import fs from 'fs'
-import { app, BrowserWindow, desktopCapturer, ipcMain, screen, session, shell, globalShortcut } from 'electron'
-import serve from 'electron-serve'
-import { createWindow } from './helpers'
+import 'moment/locale/ko'
+
+import { BrowserWindow, app, globalShortcut, ipcMain, screen, session, shell } from 'electron'
 import {
   clearSession,
   getSession,
@@ -10,24 +8,24 @@ import {
   getSongData,
   getWjmaxSongData,
   storeSession,
-  storeSettingData,
   storeSongData,
   storeWjmaxSongData,
 } from './fsManager'
+
+import { exec } from 'child_process'
+import serve from 'electron-serve'
 import { autoUpdater } from 'electron-updater'
-import sharp from 'sharp'
-import Tesseract from 'tesseract.js'
+import fs from 'fs'
 import moment from 'moment'
 import { Window } from 'node-screenshots'
-import { exec } from 'child_process'
-import 'moment/locale/ko'
-import FormData from 'form-data'
-import axios from 'axios'
-import { createDecipheriv, randomUUID } from 'crypto'
-import { settingsManager } from './settingsManager'
+import path from 'path'
+import sharp from 'sharp'
+import Tesseract from 'tesseract.js'
 import { promisify } from 'util'
-import { is, over } from 'ramda'
+import { createWindow } from './helpers'
 import { processResultScreen } from './ocrManager'
+import { settingsManager } from './settingsManager'
+
 const isProd = process.env.NODE_ENV === 'production'
 
 const execAsync = promisify(exec)
@@ -253,7 +251,9 @@ let windowMoveTimeout = null
       const focusedWindow = await getFocusedWindow()
 
       // 선택된 게임에 따라 게임 포커스 확인
-      let isGameFocused = (isGameRunning && focusedWindow === 'DJMAX RESPECT V') || (isWjmaxRunning && focusedWindow === 'WJMAX')
+      let isGameFocused =
+        (isGameRunning && focusedWindow === 'DJMAX RESPECT V') ||
+        (isWjmaxRunning && focusedWindow === 'WJMAX')
 
       if (gamePos && isGameFocused) {
         const display = screen.getDisplayNearestPoint({ x: gamePos.x, y: gamePos.y })
@@ -273,14 +273,23 @@ let windowMoveTimeout = null
           }
         } else {
           newBounds = {
-            x: (gamePos.width / 16) * 9 !== gamePos.height ? Math.round(gamePos.x / scaleFactor) + removedPixels : Math.round(gamePos.x / scaleFactor),
+            x:
+              (gamePos.width / 16) * 9 !== gamePos.height
+                ? Math.round(gamePos.x / scaleFactor) + removedPixels
+                : Math.round(gamePos.x / scaleFactor),
             y:
               Math.round(gamePos.y / scaleFactor) +
-              ((gamePos.width / 16) * 9 !== gamePos.height ? (gamePos.height - (gamePos.width / 16) * 9) / scaleFactor + 0 : 0),
-            width: (gamePos.width / 16) * 9 !== gamePos.height ? gamePos.width / scaleFactor - removedPixels * 2 : gamePos.width / scaleFactor,
+              ((gamePos.width / 16) * 9 !== gamePos.height
+                ? (gamePos.height - (gamePos.width / 16) * 9) / scaleFactor + 0
+                : 0),
+            width:
+              (gamePos.width / 16) * 9 !== gamePos.height
+                ? gamePos.width / scaleFactor - removedPixels * 2
+                : gamePos.width / scaleFactor,
             height:
               (gamePos.width / 16) * 9 !== gamePos.height
-                ? (gamePos.height - (gamePos.height - (gamePos.width / 16) * 9)) / scaleFactor - removedPixels
+                ? (gamePos.height - (gamePos.height - (gamePos.width / 16) * 9)) / scaleFactor -
+                  removedPixels
                 : gamePos.height / scaleFactor,
           }
         }
@@ -393,24 +402,42 @@ let windowMoveTimeout = null
   })
 
   // 세션 저장 처리
-  ipcMain.on('login', async (event, { userNo, userToken, vArchiveUserNo, vArchiveUserToken, vArchiveUserName }) => {
-    if (vArchiveUserNo && vArchiveUserToken) {
-      try {
-        storeSession({ vArchiveUserNo, vArchiveUserToken, vArchiveUserName, userNo: '', userToken: '' })
-        mainWindow.webContents.send('IPC_RENDERER_IS_LOGINED', true)
-      } catch (e) {
-        mainWindow.webContents.send('IPC_RENDERER_IS_LOGINED', false)
+  ipcMain.on(
+    'login',
+    async (
+      event,
+      { userNo, userToken, vArchiveUserNo, vArchiveUserToken, vArchiveUserName, discordUserNo },
+    ) => {
+      if (vArchiveUserNo && vArchiveUserToken) {
+        try {
+          storeSession({
+            vArchiveUserNo,
+            vArchiveUserToken,
+            vArchiveUserName,
+            userNo: '',
+            userToken: '',
+          })
+          mainWindow.webContents.send('IPC_RENDERER_IS_LOGINED', true)
+        } catch (e) {
+          mainWindow.webContents.send('IPC_RENDERER_IS_LOGINED', false)
+        }
       }
-    }
-    if (userNo && userToken) {
-      try {
-        storeSession({ vArchiveUserNo: '', vArchiveUserToken: '', vArchiveUserName: '', userNo, userToken })
-        mainWindow.webContents.send('IPC_RENDERER_IS_LOGINED', true)
-      } catch (e) {
-        mainWindow.webContents.send('IPC_RENDERER_IS_LOGINED', false)
+      if (userNo && userToken) {
+        try {
+          storeSession({
+            vArchiveUserNo: '',
+            vArchiveUserToken: '',
+            vArchiveUserName: '',
+            userNo,
+            userToken,
+          })
+          mainWindow.webContents.send('IPC_RENDERER_IS_LOGINED', true)
+        } catch (e) {
+          mainWindow.webContents.send('IPC_RENDERER_IS_LOGINED', false)
+        }
       }
-    }
-  })
+    },
+  )
 
   ipcMain.on('storeSession', async (event, value) => {
     storeSession(value)
@@ -451,7 +478,10 @@ let windowMoveTimeout = null
     } else if (gameCode === 'wjmax') {
       songData = await getWjmaxSongData()
     }
-    mainWindow.webContents.send('IPC_RENDERER_GET_SONG_DATA', songData ? { songData, gameCode } : null)
+    mainWindow.webContents.send(
+      'IPC_RENDERER_GET_SONG_DATA',
+      songData ? { songData, gameCode } : null,
+    )
   })
 
   ipcMain.on('openBrowser', (event, url) => {
@@ -475,9 +505,14 @@ let windowMoveTimeout = null
           console.log('Authorization Cookie Saved : ', userNo, userToken)
         })
     } else {
-      session.defaultSession.cookies.remove(isProd ? 'https://aosame-rain.r-archive.zip/' : 'https://kamome-sano.r-archive.zip/', 'Authorization').then(() => {
-        console.log('Authorization Cookie Removed.')
-      })
+      session.defaultSession.cookies
+        .remove(
+          isProd ? 'https://aosame-rain.r-archive.zip/' : 'https://kamome-sano.r-archive.zip/',
+          'Authorization',
+        )
+        .then(() => {
+          console.log('Authorization Cookie Removed.')
+        })
     }
   })
 
@@ -515,7 +550,8 @@ let windowMoveTimeout = null
           if (!isRunning) {
             shell.openExternal('steam://run/960170')
             mainWindow.webContents.send('pushNotification', {
-              message: '자동 시작 옵션이 활성화되어 DJMAX RESPECT V(게임)을 실행 중에 있습니다. 잠시만 기다려주세요.',
+              message:
+                '자동 시작 옵션이 활성화되어 DJMAX RESPECT V(게임)을 실행 중에 있습니다. 잠시만 기다려주세요.',
               color: 'tw-bg-blue-600',
             })
           }
@@ -623,7 +659,11 @@ let windowMoveTimeout = null
 
     console.log(imageBuffer)
 
-    const filePath = path.join(app.getPath('pictures'), 'RACLA', '화면 캡쳐-' + moment().utcOffset(9).format('YYYY-MM-DD-HH-mm-ss-SSS') + '.png')
+    const filePath = path.join(
+      app.getPath('pictures'),
+      'RACLA',
+      '화면 캡쳐-' + moment().utcOffset(9).format('YYYY-MM-DD-HH-mm-ss-SSS') + '.png',
+    )
 
     fs.writeFile(filePath, Buffer.from(imageBuffer), (err) => {
       if (err) {
@@ -645,7 +685,12 @@ let windowMoveTimeout = null
       try {
         isProcessing = true
         const croppedBuffer = await sharp(image)
-          .extract({ width: 1920, height: 1080, left: 0, top: resizedImageMetadata.height - (resizedImageMetadata.width / 16) * 9 })
+          .extract({
+            width: 1920,
+            height: 1080,
+            left: 0,
+            top: resizedImageMetadata.height - (resizedImageMetadata.width / 16) * 9,
+          })
           .toBuffer()
 
         const { playData } = await processResultScreen(
@@ -654,7 +699,12 @@ let windowMoveTimeout = null
           { app, settingData, mainWindow, overlayWindow, isProd, isLogined, isUploaded },
         )
         isProcessing = false
-        if (playData !== null && (playData.isVerified !== undefined || playData.screenType == 'versus' || playData.screenType == 'collection')) {
+        if (
+          playData !== null &&
+          (playData.isVerified !== undefined ||
+            playData.screenType == 'versus' ||
+            playData.screenType == 'collection')
+        ) {
           mainWindow.webContents.send('screenshot-uploaded', playData)
         }
       } catch (error) {
@@ -671,7 +721,12 @@ let windowMoveTimeout = null
           { app, settingData, mainWindow, overlayWindow, isProd, isLogined, isUploaded },
         )
         isProcessing = false
-        if (playData !== null && (playData.isVerified !== undefined || playData.screenType == 'versus' || playData.screenType == 'collection')) {
+        if (
+          playData !== null &&
+          (playData.isVerified !== undefined ||
+            playData.screenType == 'versus' ||
+            playData.screenType == 'collection')
+        ) {
           mainWindow.webContents.send('screenshot-uploaded', playData)
         }
       } catch (error) {
@@ -690,7 +745,10 @@ let windowMoveTimeout = null
           mainWindow.webContents.send('isDetectedGame', { status: false, game: '' })
           return
         }
-        mainWindow.webContents.send('isDetectedGame', { status: true, game: isRunning ? 'DJMAX RESPECT V' : 'WJMAX' })
+        mainWindow.webContents.send('isDetectedGame', {
+          status: true,
+          game: isRunning ? 'DJMAX RESPECT V' : 'WJMAX',
+        })
 
         if (isLogined && settingData.autoCaptureMode) {
           let focusedWindow = ''
@@ -714,13 +772,18 @@ let windowMoveTimeout = null
             return
           }
 
-          const isGameFocused = (focusedWindow === 'DJMAX RESPECT V' && isRunning) || (focusedWindow === 'WJMAX' && isRunningWjmax)
+          const isGameFocused =
+            (focusedWindow === 'DJMAX RESPECT V' && isRunning) ||
+            (focusedWindow === 'WJMAX' && isRunningWjmax)
 
           if (isGameFocused || !settingData.captureOnlyFocused) {
             if (!isProcessing) {
               try {
                 isProcessing = true
-                console.log('Powershell isGameFocused Result : Game is focused. Capturing...', `(${focusedWindow})`)
+                console.log(
+                  'Powershell isGameFocused Result : Game is focused. Capturing...',
+                  `(${focusedWindow})`,
+                )
 
                 const gameSource = await captureScreen(isRunning ? 'djmax_respect_v' : 'wjmax')
                 if (!gameSource) {
@@ -731,12 +794,24 @@ let windowMoveTimeout = null
 
                 const data = await processResultScreen(
                   gameSource,
-                  { isMenualUpload: false, isNotSaveImage: false, gameCode: isRunning ? 'djmax_respect_v' : 'wjmax' },
+                  {
+                    isMenualUpload: false,
+                    isNotSaveImage: false,
+                    gameCode: isRunning ? 'djmax_respect_v' : 'wjmax',
+                  },
                   { app, settingData, mainWindow, overlayWindow, isProd, isLogined, isUploaded },
                 )
                 isProcessing = false
-                if (data?.playData && (data.playData.isVerified !== null || data.playData.screenType == 'versus' || data.playData.screenType == 'collection')) {
-                  mainWindow.webContents.send('screenshot-uploaded', { ...data.playData, filePath: data.filePath })
+                if (
+                  data?.playData &&
+                  (data.playData.isVerified !== null ||
+                    data.playData.screenType == 'versus' ||
+                    data.playData.screenType == 'collection')
+                ) {
+                  mainWindow.webContents.send('screenshot-uploaded', {
+                    ...data.playData,
+                    filePath: data.filePath,
+                  })
                 }
                 if (data?.isUploaded != null || data?.playData?.isUploaded != null) {
                   isUploaded = data.isUploaded || data.playData.isUploaded
@@ -749,7 +824,10 @@ let windowMoveTimeout = null
               console.log('startCapturing : isProcessing is true. Skipping...')
             }
           } else {
-            console.log('Powershell isGameFocused Result : Game is not focused. Skipping...', `(${focusedWindow})`)
+            console.log(
+              'Powershell isGameFocused Result : Game is not focused. Skipping...',
+              `(${focusedWindow})`,
+            )
           }
         }
       } catch (error) {
@@ -760,7 +838,9 @@ let windowMoveTimeout = null
           clearTimeout(settingData.autoCaptureIntervalId)
           settingData.autoCaptureIntervalId = setTimeout(
             captureAndProcess,
-            [1000, 2000, 3000, 5000, 10000].includes(settingData.autoCaptureIntervalTime) ? settingData.autoCaptureIntervalTime : 3000,
+            [1000, 2000, 3000, 5000, 10000].includes(settingData.autoCaptureIntervalTime)
+              ? settingData.autoCaptureIntervalTime
+              : 3000,
           )
         } catch (error) {
           console.error('Error setting next capture interval:', error)
@@ -795,7 +875,11 @@ let windowMoveTimeout = null
 
           const data = await processResultScreen(
             gameSource,
-            { isMenualUpload: true, isNotSaveImage: false, gameCode: isRunning ? 'djmax_respect_v' : 'wjmax' },
+            {
+              isMenualUpload: true,
+              isNotSaveImage: false,
+              gameCode: isRunning ? 'djmax_respect_v' : 'wjmax',
+            },
             { app, settingData, mainWindow, overlayWindow, isProd, isLogined, isUploaded },
           )
           isProcessing = false
@@ -804,13 +888,19 @@ let windowMoveTimeout = null
             data !== undefined &&
             data !== '' &&
             data.playData &&
-            (data.playData.isVerified !== undefined || data.playData.screenType == 'versus' || data.playData.screenType == 'collection')
+            (data.playData.isVerified !== undefined ||
+              data.playData.screenType == 'versus' ||
+              data.playData.screenType == 'collection')
           ) {
-            mainWindow.webContents.send('screenshot-uploaded', { ...data.playData, filePath: data.filePath })
+            mainWindow.webContents.send('screenshot-uploaded', {
+              ...data.playData,
+              filePath: data.filePath,
+            })
           } else {
             if (settingData.resultOverlay) {
               overlayWindow.webContents.send('IPC_RENDERER_GET_NOTIFICATION_DATA', {
-                message: '게임 결과창이 아니거나 성과 기록 이미지를 처리 중에 오류가 발생하였습니다. 다시 시도해주시길 바랍니다.',
+                message:
+                  '게임 결과창이 아니거나 성과 기록 이미지를 처리 중에 오류가 발생하였습니다. 다시 시도해주시길 바랍니다.',
                 color: 'tw-bg-red-600',
               })
             }
@@ -862,14 +952,21 @@ async function captureScreen(gameCode) {
         try {
           isFullscreen = window.isMaximized
 
-          if (![640, 720, 800, 1024, 1128, 1280, 1366, 1600, 1680, 1760, 1920, 2048, 2288, 2560, 3072, 3200, 3840, 5120].includes(window.width)) {
+          if (
+            ![
+              640, 720, 800, 1024, 1128, 1280, 1366, 1600, 1680, 1760, 1920, 2048, 2288, 2560, 3072,
+              3200, 3840, 5120,
+            ].includes(window.width)
+          ) {
             try {
               const image = window.captureImageSync()
               const pngImage = await sharp(image.toPngSync()).toBuffer()
               const metadata = await sharp(pngImage).metadata()
 
               // 이미지의 실제 컨텐츠 영역을 찾기 위한 분석
-              const { data, info } = await sharp(pngImage).raw().toBuffer({ resolveWithObject: true })
+              const { data, info } = await sharp(pngImage)
+                .raw()
+                .toBuffer({ resolveWithObject: true })
 
               // 아래에서부터 검은색 픽셀(RGB: 0,0,0)이 아닌 첫 번째 행을 찾음
               let actualHeight = metadata.height
@@ -930,7 +1027,9 @@ async function captureScreen(gameCode) {
             }
           } else {
             try {
-              return await sharp(window.captureImageSync().toPngSync()).resize(1920, 1080).toBuffer()
+              return await sharp(window.captureImageSync().toPngSync())
+                .resize(1920, 1080)
+                .toBuffer()
             } catch (error) {
               console.error('Error capturing fullscreen image:', error)
               isProcessing = false

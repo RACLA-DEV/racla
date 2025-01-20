@@ -1,17 +1,13 @@
-import React, { useEffect, useRef, useState } from 'react'
-import Head from 'next/head'
-import Image from 'next/image'
 import * as R from 'ramda'
-import { FaLink, FaRotate, FaTriangleExclamation } from 'react-icons/fa6'
-import { OverlayTrigger, Tooltip } from 'react-bootstrap'
-import { globalDictionary } from '@/libs/server/globalDictionary'
-import { IconContext } from 'react-icons'
-import Link from 'next/link'
+
+import React, { useEffect, useState } from 'react'
+
 import ScorePopupComponent from '@/components/score/ScorePopupComponent'
+import { globalDictionary } from '@/libs/server/globalDictionary'
+import Head from 'next/head'
 import { useSelector } from 'react-redux'
-import { RootState } from 'store'
 import { SyncLoader } from 'react-spinners'
-import { calDjpower, perfectConst } from '@/libs/client/respectUtils'
+import { RootState } from 'store'
 
 export default function VArchiveDjPowerPage() {
   const [keyMode, setKeyMode] = useState<string>('4')
@@ -49,7 +45,9 @@ export default function VArchiveDjPowerPage() {
       }
 
       // SC 레벨을 추출하는 함수
-      const getSCLevel = R.path(['patterns', `${keyMode}B`, 'SC', 'level']) as (obj: any) => number | undefined
+      const getSCLevel = R.path(['patterns', `${keyMode}B`, 'SC', 'level']) as (
+        obj: any,
+      ) => number | undefined
 
       // dlcCode가 FAL, VL, CP인 항목과 name이 Kamui, BlueWhite인 항목을 필터링
       const filterExcludedItems = R.filter(
@@ -57,7 +55,8 @@ export default function VArchiveDjPowerPage() {
           const dlcCode = R.path(['dlcCode'], item)
           const name = R.path(['name'], item)
           return (
-            !['VL2', 'TEK'].includes(dlcCode) && !['Diomedes ~Extended Mix~', 'Kill Trap'].includes(name)
+            !['VL2', 'TEK'].includes(dlcCode) &&
+            !['Diomedes ~Extended Mix~', 'Kill Trap'].includes(name)
             // (!['FAL', 'VL', 'CP', 'TEK'].includes(dlcCode) && !['Kamui', 'BlueWhite'].includes(name))
           )
         }),
@@ -87,7 +86,10 @@ export default function VArchiveDjPowerPage() {
             const dlcCode = R.path(['dlcCode'], item)
             const name = R.path(['name'], item)
             // return (['FAL', 'VL', 'CP', 'TEK'].includes(dlcCode) || ['Kamui', 'BlueWhite'].includes(name)) && !['From Hell to Breakfast', 'SURVIVOR'].includes(name)
-            return ['VL2', 'TEK'].includes(dlcCode) || ['Diomedes ~Extended Mix~', 'Kill Trap'].includes(name)
+            return (
+              ['VL2', 'TEK'].includes(dlcCode) ||
+              ['Diomedes ~Extended Mix~', 'Kill Trap'].includes(name)
+            )
           }),
           data,
         )
@@ -179,7 +181,9 @@ export default function VArchiveDjPowerPage() {
 
   const loadDataWithScore = async (title) => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_PROXY_API_URL}?url=https://v-archive.net/api/archive/${vArchiveUserData.userName}/title/${title}`)
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_PROXY_API_URL}?url=https://v-archive.net/api/archive/${vArchiveUserData.userName}/title/${title}`,
+      )
       if (!response) {
         throw new Error('Network response was not ok')
       }
@@ -279,15 +283,15 @@ export default function VArchiveDjPowerPage() {
         <title>{keyMode}B MAX DJ POWER - RACLA</title>
       </Head>
 
-      <div id="ContentHeader" />
+      <div id='ContentHeader' />
       {/* 상단 설명 섹션 */}
-      <div className="tw-flex tw-gap-4">
+      <div className='tw-flex tw-gap-4'>
         {/* 메인 설명 섹션 */}
-        <div className="tw-flex tw-flex-col tw-gap-4 tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-shadow-lg tw-p-6 tw-mb-4 tw-flex-1">
+        <div className='tw-flex tw-flex-col tw-gap-4 tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-shadow-lg tw-p-6 tw-mb-4 tw-flex-1'>
           {/* 헤더 */}
-          <div className="tw-flex tw-w-full tw-items-end tw-justify-between">
-            <span className="tw-text-xl tw-font-bold tw-text-white">🙋‍♂️ MAX DJ POWER</span>
-            <div className="tw-flex tw-items-center tw-gap-2">
+          <div className='tw-flex tw-w-full tw-items-end tw-justify-between'>
+            <span className='tw-text-xl tw-font-bold tw-text-white'>🙋‍♂️ MAX DJ POWER</span>
+            <div className='tw-flex tw-items-center tw-gap-2'>
               {globalDictionary[selectedGame].keyModeList.map((mode) => (
                 <button
                   key={`mode_${mode}`}
@@ -298,56 +302,66 @@ export default function VArchiveDjPowerPage() {
                       : 'tw-border-gray-600 tw-opacity-50 hover:tw-border-blue-400 hover:tw-bg-gray-700 hover:tw-bg-opacity-30 hover:tw-opacity-100'
                   }`}
                 >
-                  <div className={`tw-absolute tw-w-full tw-h-full tw-opacity-30 respect_bg_b${mode}`} />
-                  <span className="tw-relative tw-text-base tw-font-bold">{mode}B</span>
+                  <div
+                    className={`tw-absolute tw-w-full tw-h-full tw-opacity-30 respect_bg_b${mode}`}
+                  />
+                  <span className='tw-relative tw-text-base tw-font-bold'>{mode}B</span>
                 </button>
               ))}
             </div>
           </div>
 
           {/* 설명 내용 */}
-          <div className="tw-bg-gray-700 tw-bg-opacity-30 tw-p-4 tw-rounded tw-space-y-2 tw-mb-auto">
-            <p className="tw-leading-relaxed">전 패턴을 퍼펙트 플레이를 하면 DJ CLASS 만점(이론치)을 달성할 수 있는 리스트입니다.</p>
-            <p className="tw-leading-relaxed">DJ CLASS 최상위 랭커를 노린다면 최소 BASIC 70패턴, NEW 30패턴을 플레이 해야합니다.</p>
-          </div>
-
-          {/* 하단 정보 */}
-          <div className="tw-flex tw-justify-end tw-gap-2 tw-items-center tw-text-xs tw-font-semibold">
-            <FaTriangleExclamation className=" tw-text-yellow-500" />
-            <div className="tw-flex tw-items-center tw-gap-1 tw-text-gray-300">
-              2024년 12월 22일 20시 51분 기준 V-ARCHIVE와 동기화됨 (
-              <span
-                className="tw-inline-flex tw-items-center tw-gap-1 tw-text-blue-400 hover:tw-text-blue-300 tw-cursor-pointer tw-transition-colors"
-                onClick={() => window.ipc.openBrowser(`https://v-archive.net/djpower/${keyMode}`)}
-              >
-                <FaLink className="tw-text-sm" />
-                V-ARCHIVE MAX DJ POWER 바로가기
-              </span>
-              )
-            </div>
+          <div className='tw-bg-gray-700 tw-bg-opacity-30 tw-p-4 tw-rounded tw-space-y-2 tw-mb-auto'>
+            <p className='tw-leading-relaxed'>
+              전 패턴을 퍼펙트 플레이를 하면 DJ CLASS 만점(이론치)을 달성할 수 있는 리스트입니다.
+            </p>
+            <p className='tw-leading-relaxed'>
+              DJ CLASS 최상위 랭커를 노린다면 최소 BASIC 70패턴, NEW 30패턴을 플레이 해야합니다.
+            </p>
           </div>
         </div>
       </div>
 
-      <div className="tw-flex tw-flex-col tw-gap-1 tw-bg-gray-600 tw-bg-opacity-10 tw-rounded-md p-4">
+      <div className='tw-flex tw-flex-col tw-gap-1 tw-bg-gray-600 tw-bg-opacity-10 tw-rounded-md p-4'>
         {songData.length > 0 && !isLoading && isScoredBaseSongData && isScoredNewSongData ? (
           [
             ...new Set(
-              [...new Set(R.map(R.path(['patterns', `${keyMode}B`, 'SC', 'level']))([...baseSongData, ...newSongData]))].map((levelValue) =>
-                String(levelValue).includes('.5') ? String(levelValue).replace('.5', '') : String(levelValue),
+              [
+                ...new Set(
+                  R.map(R.path(['patterns', `${keyMode}B`, 'SC', 'level']))([
+                    ...baseSongData,
+                    ...newSongData,
+                  ]),
+                ),
+              ].map((levelValue) =>
+                String(levelValue).includes('.5')
+                  ? String(levelValue).replace('.5', '')
+                  : String(levelValue),
               ),
             ),
           ].map((levelValue, index) => (
-            <div key={'DifficultyBody' + levelValue} className="tw-flex tw-flex-col tw-animate-fadeInLeft">
-              <span className="tw-text-2xl tw-py-2 tw-mb-3 tw-w-full tw-font-bold me-auto tw-border-b tw-border-gray-600 tw-border-opacity-50">
-                SC {Number(levelValue) == 8 ? String(levelValue) + ' + MX 15' : Number(levelValue) == 6 ? String(levelValue) + ' + MX 14' : String(levelValue)}
+            <div
+              key={'DifficultyBody' + levelValue}
+              className='tw-flex tw-flex-col tw-animate-fadeInLeft'
+            >
+              <span className='tw-text-2xl tw-py-2 tw-mb-3 tw-w-full tw-font-bold me-auto tw-border-b tw-border-gray-600 tw-border-opacity-50'>
+                SC{' '}
+                {Number(levelValue) == 8
+                  ? String(levelValue) + ' + MX 15'
+                  : Number(levelValue) == 6
+                    ? String(levelValue) + ' + MX 14'
+                    : String(levelValue)}
               </span>
-              <div className="tw-flex">
+              <div className='tw-flex'>
                 {[baseSongData, newSongData].map((songDataPack, songDataPackIndex) =>
                   songDataPack.length > 0 ? (
                     <div
                       key={'songDataPack' + songDataPackIndex}
-                      className={`tw-flex tw-flex-wrap tw-gap-3 tw-content-start` + (songDataPackIndex == 0 ? ' tw-w-8/12' : ' tw-w-4/12')}
+                      className={
+                        `tw-flex tw-flex-wrap tw-gap-3 tw-content-start` +
+                        (songDataPackIndex == 0 ? ' tw-w-8/12' : ' tw-w-4/12')
+                      }
                       style={{ flex: '0 0 auto' }}
                     >
                       {songDataPack
@@ -355,14 +369,16 @@ export default function VArchiveDjPowerPage() {
                           (songItem) =>
                             !isLoading &&
                             songItem.patterns[`${keyMode}B`].SC !== undefined &&
-                            String(songItem.patterns[`${keyMode}B`].SC.level).startsWith(String(levelValue)),
+                            String(songItem.patterns[`${keyMode}B`].SC.level).startsWith(
+                              String(levelValue),
+                            ),
                         )
                         .map((songItem, songItemIndex) => (
                           <div
                             key={`pattern_${songItem.title}_${songItem.patterns[`${keyMode}B`].SC.level}`}
-                            className="tw-transition-opacity tw-duration-300 tw-w-60 tw-max-w-60 tw-flex tw-flex-col tw-flex-grow-0 tw-shrink-0 tw-bg-gray-700 tw-rounded-md tw-bg-opacity-50 tw-gap-2 tw-p-2"
+                            className='tw-transition-opacity tw-duration-300 tw-w-60 tw-max-w-60 tw-flex tw-flex-col tw-flex-grow-0 tw-shrink-0 tw-bg-gray-700 tw-rounded-md tw-bg-opacity-50 tw-gap-2 tw-p-2'
                           >
-                            <div className="tw-flex tw-gap-2">
+                            <div className='tw-flex tw-gap-2'>
                               <ScorePopupComponent
                                 songItem={songItem}
                                 keyMode={keyMode}
@@ -370,29 +386,34 @@ export default function VArchiveDjPowerPage() {
                                 isVisibleCode={true}
                                 isFlatten={true}
                               />
-                              <div className="tw-flex tw-flex-1 tw-flex-col tw-gap-2 tw-items-end tw-justify-center tw-bg-gray-950 tw-bg-opacity-50 tw-rounded-md tw-py-2 tw-px-3">
-                                {songItem.patterns[`${keyMode}B`].SC?.score || songItem.patterns[`${keyMode}B`].MX?.score ? (
+                              <div className='tw-flex tw-flex-1 tw-flex-col tw-gap-2 tw-items-end tw-justify-center tw-bg-gray-950 tw-bg-opacity-50 tw-rounded-md tw-py-2 tw-px-3'>
+                                {songItem.patterns[`${keyMode}B`].SC?.score ||
+                                songItem.patterns[`${keyMode}B`].MX?.score ? (
                                   <>
-                                    <span className="tw-text-xs tw-text-gray-400">
+                                    <span className='tw-text-xs tw-text-gray-400'>
                                       SCORE :{' '}
-                                      {String(songItem.patterns[`${keyMode}B`].SC.level).includes('.5')
+                                      {String(songItem.patterns[`${keyMode}B`].SC.level).includes(
+                                        '.5',
+                                      )
                                         ? songItem.patterns[`${keyMode}B`].MX.score || '0'
                                         : songItem.patterns[`${keyMode}B`].SC.score || '0'}
                                       %
                                     </span>
-                                    <span className="tw-text-xs tw-text-gray-400">
+                                    <span className='tw-text-xs tw-text-gray-400'>
                                       TP :{' '}
-                                      {String(songItem.patterns[`${keyMode}B`].SC.level).includes('.5')
+                                      {String(songItem.patterns[`${keyMode}B`].SC.level).includes(
+                                        '.5',
+                                      )
                                         ? songItem.patterns[`${keyMode}B`].MX.rating || '0'
                                         : songItem.patterns[`${keyMode}B`].SC.rating || '0'}
                                     </span>
                                   </>
                                 ) : (
-                                  <span className="tw-text-xs tw-text-gray-400">기록 미존재</span>
+                                  <span className='tw-text-xs tw-text-gray-400'>기록 미존재</span>
                                 )}
                               </div>
                             </div>
-                            <span className="tw-flex tw-bg-gray-950 tw-bg-opacity-50 tw-px-2 tw-py-1 tw-rounded-md tw-break-keep tw-justify-center tw-items-center tw-text-center tw-text-xs">
+                            <span className='tw-flex tw-bg-gray-950 tw-bg-opacity-50 tw-px-2 tw-py-1 tw-rounded-md tw-break-keep tw-justify-center tw-items-center tw-text-center tw-text-xs'>
                               {songItem.name}
                             </span>
                           </div>
@@ -404,12 +425,12 @@ export default function VArchiveDjPowerPage() {
             </div>
           ))
         ) : (
-          <div className="tw-flex tw-justify-center tw-h-[calc(100vh-388px)] tw-items-center">
-            <SyncLoader color="#ffffff" size={8} />
+          <div className='tw-flex tw-justify-center tw-h-[calc(100vh-388px)] tw-items-center'>
+            <SyncLoader color='#ffffff' size={8} />
           </div>
         )}
       </div>
-      <div id="ContentFooter" />
+      <div id='ContentFooter' />
     </React.Fragment>
   )
 }
