@@ -77,6 +77,25 @@ const HeaderComponent: React.FC<IHeaderComponentProps> = ({
     console.log(selectedGame)
   }, [selectedGame])
 
+  useEffect(() => {
+    const audio = new Audio('https://ribbon.r-archive.zip/project_ra/notification.mp3')
+
+    const handleNotificationSound = () => {
+      audio.currentTime = 0
+      if (settingData.isNotificationSound) {
+        audio.play().catch((err) => console.error('Error playing notification:', err))
+      }
+    }
+
+    const cleanup = window.ipc.on('PLAY_NOTIFICATION_SOUND', handleNotificationSound)
+
+    return () => {
+      cleanup()
+      audio.pause()
+      audio.currentTime = 0
+    }
+  }, [settingData.isNotificationSound])
+
   return (
     <div className='tw-flex tw-fixed tw-w-full tw-bg-gray-900 tw-items-center tw-top-0 tw-h-12 tw-left-0 tw-bg-opacity-50 tw-px-2 tw-border-b tw-border-opacity-50 tw-border-gray-600 tw-z-[1000]'>
       {/* 홈 로고 */}

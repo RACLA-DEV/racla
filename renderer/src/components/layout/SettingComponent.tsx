@@ -332,6 +332,50 @@ const SettingComponent = () => {
       </div>
       <div className='tw-flex tw-flex-col tw-gap-1'>
         <div className='tw-flex tw-items-center'>
+          <span className='tw-text-sm'>트레이로 최소화</span>
+          <button
+            className={`tw-scale-50 tw-relative tw-inline-flex tw-items-center tw-h-8 tw-w-16 tw-rounded-full tw-transition-colors tw-duration-300 ${
+              settingData.closeToTray ? 'tw-bg-blue-600' : 'tw-bg-gray-600'
+            }`}
+            onClick={() => {
+              handleSettingChange({ closeToTray: !settingData.closeToTray })
+            }}
+          >
+            <span
+              className={`tw-inline-block tw-h-6 tw-w-6 tw-bg-white tw-rounded-full tw-absolute tw-shadow tw-transform tw-transition-all tw-duration-300 ${
+                settingData.closeToTray ? 'tw-right-1' : 'tw-left-1'
+              }`}
+            />
+          </button>
+        </div>
+        <span className='tw-text-sm tw-font-light tw-text-gray-400 tw-break-keep'>
+          닫기 버튼을 클릭 시 트레이로 최소화 합니다.
+        </span>
+      </div>
+      <div className='tw-flex tw-flex-col tw-gap-1'>
+        <div className='tw-flex tw-items-center'>
+          <span className='tw-text-sm'>성과 기록 등록 시 알림 사운드</span>
+          <button
+            className={`tw-scale-50 tw-relative tw-inline-flex tw-items-center tw-h-8 tw-w-16 tw-rounded-full tw-transition-colors tw-duration-300 ${
+              settingData.isNotificationSound ? 'tw-bg-blue-600' : 'tw-bg-gray-600'
+            }`}
+            onClick={() => {
+              handleSettingChange({ isNotificationSound: !settingData.isNotificationSound })
+            }}
+          >
+            <span
+              className={`tw-inline-block tw-h-6 tw-w-6 tw-bg-white tw-rounded-full tw-absolute tw-shadow tw-transform tw-transition-all tw-duration-300 ${
+                settingData.isNotificationSound ? 'tw-right-1' : 'tw-left-1'
+              }`}
+            />
+          </button>
+        </div>
+        <span className='tw-text-sm tw-font-light tw-text-gray-400 tw-break-keep'>
+          성과 기록 등록 시 알림 사운드를 활성화/비활성화 합니다.
+        </span>
+      </div>
+      <div className='tw-flex tw-flex-col tw-gap-1'>
+        <div className='tw-flex tw-items-center'>
           <span className='tw-text-sm'>상단바 홈 버튼을 오른쪽으로 정렬</span>
           <button
             className={`tw-scale-50 tw-relative tw-inline-flex tw-items-center tw-h-8 tw-w-16 tw-rounded-full tw-transition-colors tw-duration-300 ${
@@ -935,14 +979,14 @@ const SettingComponent = () => {
         <input
           className='tw-border tw-rounded-md tw-px-3 tw-py-1.5 tw-my-1 tw-text-sm tw-bg-gray-900 tw-bg-opacity-20 tw-text-gray-300 tw-w-36'
           // onChange={(e) => handleSettingChange({ removeBlackPixelPx: Number(e.currentTarget.value) })}
-          value={'Ctrl + Alt + Insert'}
+          value={'Alt + Insert'}
           type='text'
           disabled
         />
         <span className='tw-text-sm tw-font-light tw-text-gray-400'>
-          수동 캡쳐(업로드) 단축키를 설정합니다. 리절트(결과) 창에서만 사용할 수 있습니다. Ctrl +
-          Alt + Insert 키가 먼저 예약되어 있는 다른 애플리케이션 또는 프로그램과 동시 사용 시
-          정상적으로 동작하지 않습니다.
+          수동 캡쳐(업로드) 단축키를 설정합니다. 리절트(결과) 창에서만 사용할 수 있습니다. Alt +
+          Insert 키가 먼저 예약되어 있는 다른 애플리케이션 또는 프로그램과 동시 사용 시 정상적으로
+          동작하지 않습니다.
         </span>
         <span className='tw-text-sm tw-font-light tw-text-red-500'>
           해당 버전에서는 변경할 수 없는 설정값입니다. 현재 Ctrl + Alt + Insert 키로만 사용할 수

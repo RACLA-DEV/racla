@@ -314,15 +314,17 @@ export default function VArchiveDbPage() {
 
       // 난이도 필터
       const levelFilter =
-        selectedLevel === 'all' ||
-        (difficulty === 'all'
-          ? ['NM', 'HD', 'MX', 'SC'].some(
+        difficulty === 'all'
+          ? selectedLevel === 'all' ||
+            ['NM', 'HD', 'MX', 'SC'].some(
               (diff) =>
                 Math.floor(songItem.patterns[keyMode + 'B']?.[diff]?.level ?? 0) ===
                 parseInt(selectedLevel),
             )
-          : Math.floor(songItem.patterns[keyMode + 'B']?.['SC']?.level ?? 0) ===
-            parseInt(selectedLevel))
+          : songItem.patterns[keyMode + 'B']?.['SC']?.level && // SC 난이도 존재 확인
+            (selectedLevel === 'all' ||
+              Math.floor(songItem.patterns[keyMode + 'B']?.['SC']?.level) ===
+                parseInt(selectedLevel))
 
       // DLC 필터 추가
       const dlcFilter = selectedDlcCode === 'all' || songItem.dlcCode === selectedDlcCode
@@ -474,21 +476,27 @@ export default function VArchiveDbPage() {
                 {/* 헤더 */}
                 <div className='tw-flex tw-w-full tw-bg-gray-700 tw-bg-opacity-30 tw-rounded tw-overflow-x-auto tw-scroll-smooth'>
                   <div className='tw-flex tw-flex-col tw-gap-4 tw-p-4 tw-w-full'>
-                    <div className='tw-relative tw-w-full hover:tw-bg-opacity-10'>
+                    <div className='tw-flex tw-w-full tw-items-center tw-gap-2'>
+                      {/* 왼쪽 스크롤 버튼 */}
                       <button
                         onClick={() => handleCategoryScroll('left')}
-                        className='tw-absolute tw-left-0 tw-top-1/2 tw-transform -tw-translate-y-1/2 tw-z-10 tw-bg-gray-800 tw-bg-opacity-80 tw-p-2 tw-rounded-md hover:tw-bg-gray-700 tw-opacity-0 tw-transition-all tw-duration-300 [div:hover>&]:tw-opacity-100 [div:hover>&]:tw-block tw-hidden ease-in-out'
+                        className='tw-flex-none tw-p-2 tw-rounded-md tw-bg-gray-700 tw-bg-opacity-80 hover:tw-bg-gray-600'
                       >
                         <FaChevronLeft className='tw-text-gray-300' />
                       </button>
 
+                      {/* 스크롤 가능한 중앙 영역 */}
                       <div
                         ref={categoryScrollRef}
-                        className='tw-flex tw-gap-2 tw-overflow-x-auto tw-scroll-smooth tw-scrollbar-thin tw-scrollbar-thumb-gray-600 tw-scrollbar-track-transparent'
+                        className='tw-flex-1 tw-flex tw-gap-2 tw-overflow-x-auto tw-scroll-smooth tw-scrollbar-thin tw-scrollbar-thumb-gray-600 tw-scrollbar-track-transparent'
                       >
                         <button
                           onClick={() => setSelectedDlcCode('all')}
-                          className={`tw-p-2 tw-rounded-md tw-transition-all tw-min-w-20 ${selectedDlcCode === 'all' ? 'tw-bg-blue-500 tw-text-white' : 'tw-bg-gray-700 tw-text-gray-300 hover:tw-bg-gray-600'}`}
+                          className={`tw-flex-none tw-p-2 tw-rounded-md tw-transition-all tw-min-w-20 ${
+                            selectedDlcCode === 'all'
+                              ? 'tw-bg-blue-500 tw-text-white'
+                              : 'tw-bg-gray-700 tw-text-gray-300 hover:tw-bg-gray-600'
+                          }`}
                         >
                           전체 보기
                         </button>
@@ -496,7 +504,7 @@ export default function VArchiveDbPage() {
                           <button
                             key={item[0]}
                             onClick={() => setSelectedDlcCode(item[0])}
-                            className={`tw-p-2 tw-rounded-md tw-transition-all tw-min-w-12 ${
+                            className={`tw-flex-none tw-p-2 tw-rounded-md tw-transition-all tw-min-w-12 ${
                               selectedDlcCode === item[0]
                                 ? 'tw-bg-blue-500 tw-text-white'
                                 : 'tw-bg-gray-700 tw-text-gray-300 hover:tw-bg-gray-600'
@@ -507,9 +515,10 @@ export default function VArchiveDbPage() {
                         ))}
                       </div>
 
+                      {/* 오른쪽 스크롤 버튼 */}
                       <button
                         onClick={() => handleCategoryScroll('right')}
-                        className='tw-absolute tw-right-0 tw-top-1/2 tw-transform -tw-translate-y-1/2 tw-z-10 tw-bg-gray-800 tw-bg-opacity-80 tw-p-2 tw-rounded-md hover:tw-bg-gray-700 tw-opacity-0 tw-transition-all tw-duration-300 [div:hover>&]:tw-opacity-100 [div:hover>&]:tw-block tw-hidden ease-in-out'
+                        className='tw-flex-none tw-p-2 tw-rounded-md tw-bg-gray-700 tw-bg-opacity-80 hover:tw-bg-gray-600'
                       >
                         <FaChevronRight className='tw-text-gray-300' />
                       </button>

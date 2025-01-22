@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react'
-import Image from 'next/image'
-import { globalDictionary } from '@/libs/server/globalDictionary'
-import { IconContext } from 'react-icons'
 import { FaCircleCheck, FaCircleInfo, FaCircleXmark, FaCrown } from 'react-icons/fa6'
+
+import { globalDictionary } from '@/libs/server/globalDictionary'
+import Image from 'next/image'
+import { IconContext } from 'react-icons'
 import { useSelector } from 'react-redux'
 
-const Overlay = () => {
+const Overlay = ({ isNotificationSound }: { isNotificationSound: boolean }) => {
   const [notifications, setNotifications] = useState<Array<{ data: any; id: string }>>([])
   const [fadeOut, setFadeOut] = useState<{ [key: string]: boolean }>({})
 
@@ -93,9 +94,7 @@ const Overlay = () => {
           data.message ? (
             <div
               key={id}
-              className={`${data.color}
-            tw-min-w-[400px] tw-cursor-pointer tw-text-sm tw-bg-opacity-80 tw-relative tw-text-white tw-rounded-lg tw-overflow-hidden tw-shadow-lg
-          ${fadeOut[id] ? 'tw-animate-fadeOut' : 'tw-animate-fadeIn'}`}
+              className={`${data.color} tw-min-w-[400px] tw-cursor-pointer tw-text-sm tw-bg-opacity-80 tw-relative tw-text-white tw-rounded-lg tw-overflow-hidden tw-shadow-lg ${fadeOut[id] ? 'tw-animate-fadeOut' : 'tw-animate-fadeIn'}`}
             >
               <div className='tw-py-3 tw-px-3 tw-flex tw-gap-3 tw-bg-gray-900 tw-bg-opacity-50 tw-items-center'>
                 <div className='tw-flex tw-items-center tw-justify-center tw-h-14 tw-w-12 tw-min-h-14 tw-min-w-12 tw-max-h-14 tw-max-w-12'>
@@ -120,17 +119,14 @@ const Overlay = () => {
                 </div>
               </div>
               <div
-                className={`tw-absolute tw-bottom-0 tw-left-0 tw-h-1 tw-w-full tw-bg-white tw-bg-opacity-50 
-            ${fadeOut[id] ? 'tw-animate-fadeOut' : 'tw-animate-notificationProgress'}`}
+                className={`tw-absolute tw-bottom-0 tw-left-0 tw-h-1 tw-w-full tw-bg-white tw-bg-opacity-50 ${fadeOut[id] ? 'tw-animate-fadeOut' : 'tw-animate-notificationProgress'}`}
                 style={{ transform: 'translateX(-100%)' }}
               />
             </div>
           ) : data.gameCode == 'djmax_respect_v' ? (
             <div
               key={id}
-              className={`respect_dlc_${data.songData.dlcCode} respect_dlc_logo_${data.songData.dlcCode} respect_dlc_logo_BG_${data.songData.dlcCode}
-tw-min-w-[400px] tw-cursor-pointer tw-text-sm tw-bg-opacity-80 tw-relative tw-text-white tw-rounded-lg tw-overflow-hidden tw-shadow-lg
-${fadeOut[id] ? 'tw-animate-fadeOut' : 'tw-animate-fadeIn'}`}
+              className={`respect_dlc_${data.songData.dlcCode} respect_dlc_logo_${data.songData.dlcCode} respect_dlc_logo_BG_${data.songData.dlcCode} tw-min-w-[400px] tw-cursor-pointer tw-text-sm tw-bg-opacity-80 tw-relative tw-text-white tw-rounded-lg tw-overflow-hidden tw-shadow-lg ${fadeOut[id] ? 'tw-animate-fadeOut' : 'tw-animate-fadeIn'}`}
             >
               <div className='tw-absolute tw-inset-0 tw-overflow-hidden tw-rounded-md tw-z-0'>
                 <Image
@@ -197,17 +193,14 @@ ${fadeOut[id] ? 'tw-animate-fadeOut' : 'tw-animate-fadeIn'}`}
                 </div>
               </div>
               <div
-                className={`tw-absolute tw-bottom-0 tw-left-0 tw-h-1 tw-w-full tw-bg-white tw-bg-opacity-50 
-  ${fadeOut[id] ? 'tw-animate-fadeOut' : 'tw-animate-notificationProgress'}`}
+                className={`tw-absolute tw-bottom-0 tw-left-0 tw-h-1 tw-w-full tw-bg-white tw-bg-opacity-50 ${fadeOut[id] ? 'tw-animate-fadeOut' : 'tw-animate-notificationProgress'}`}
                 style={{ transform: 'translateX(-100%)' }}
               />
             </div>
           ) : (
             <div
               key={id}
-              className={`wjmax_dlc_${data.songData.dlcCode} wjmax_dlc_logo_${data.songData.dlcCode} wjmax_dlc_logo_BG_${data.songData.dlcCode}
-          tw-min-w-[400px] tw-cursor-pointer tw-text-sm tw-bg-opacity-80 tw-relative tw-text-white tw-rounded-lg tw-overflow-hidden tw-shadow-lg
-          ${fadeOut[id] ? 'tw-animate-fadeOut' : 'tw-animate-fadeIn'}`}
+              className={`wjmax_dlc_${data.songData.dlcCode} wjmax_dlc_logo_${data.songData.dlcCode} wjmax_dlc_logo_BG_${data.songData.dlcCode} tw-min-w-[400px] tw-cursor-pointer tw-text-sm tw-bg-opacity-80 tw-relative tw-text-white tw-rounded-lg tw-overflow-hidden tw-shadow-lg ${fadeOut[id] ? 'tw-animate-fadeOut' : 'tw-animate-fadeIn'}`}
             >
               <div className='tw-absolute tw-inset-0 tw-overflow-hidden tw-rounded-md tw-z-0'>
                 <Image
@@ -274,8 +267,7 @@ ${fadeOut[id] ? 'tw-animate-fadeOut' : 'tw-animate-fadeIn'}`}
                 </div>
               </div>
               <div
-                className={`tw-absolute tw-bottom-0 tw-left-0 tw-h-1 tw-w-full tw-z-10 tw-bg-white tw-bg-opacity-50 
-            ${fadeOut[id] ? 'tw-animate-fadeOut' : 'tw-animate-notificationProgress'}`}
+                className={`tw-absolute tw-bottom-0 tw-left-0 tw-h-1 tw-w-full tw-z-10 tw-bg-white tw-bg-opacity-50 ${fadeOut[id] ? 'tw-animate-fadeOut' : 'tw-animate-notificationProgress'}`}
                 style={{ transform: 'translateX(-100%)' }}
               />
             </div>

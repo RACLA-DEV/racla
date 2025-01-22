@@ -168,9 +168,9 @@ export default function LicensePage() {
                 <div>
                   <h3 className='tw-font-bold tw-mb-2'>제1조 (목적)</h3>
                   <p className='tw-leading-relaxed'>
-                    본 약관은 GGDRN0 STUDIO와 R-ARCHIVE TEAM(이하 "개발팀")이 제공하는 RACLA
-                    서비스(이하 "서비스")의 이용과 관련하여 개발팀과 이용자 간의 권리, 의무,
-                    책임사항 및 기타 필요한 사항을 규정함을 목적으로 합니다.
+                    본 약관은 GGDRN0 STUDIO와 R-ARCHIVE(이하 "개발팀")이 제공하는 RACLA 서비스(이하
+                    "서비스")의 이용과 관련하여 개발팀과 이용자 간의 권리, 의무, 책임사항 및 기타
+                    필요한 사항을 규정함을 목적으로 합니다.
                   </p>
                 </div>
 
@@ -178,8 +178,8 @@ export default function LicensePage() {
                   <h3 className='tw-font-bold tw-mb-2'>제2조 (정의)</h3>
                   <div className='tw-space-y-2'>
                     <p className='tw-leading-relaxed'>
-                      "서비스"란 GGDRN0 STUDIO에 소속된 R-ARCHIVE TEAM이 개발하여 제공하는 디지털
-                      콘텐츠 및 관련 서비스를 말합니다.
+                      "서비스"란 GGDRN0 STUDIO에 소속된 R-ARCHIVE가 개발하여 제공하는 디지털 콘텐츠
+                      및 관련 서비스를 말합니다.
                     </p>
                     <p className='tw-leading-relaxed'>
                       "이용자"란 본 약관에 동의하고 서비스를 이용하는 자를 의미합니다.
@@ -298,7 +298,7 @@ export default function LicensePage() {
 
                 <div>
                   <h3 className='tw-font-bold tw-mb-2'>부칙</h3>
-                  <p className='tw-leading-relaxed'>본 약관은 2024년 12월 25일부터 적용됩니다.</p>
+                  <p className='tw-leading-relaxed'>본 약관은 2025년 1월 21일부터 적용됩니다.</p>
                 </div>
               </div>
             </div>

@@ -1,6 +1,6 @@
 appId: zip.r-archive.racla-electron-app
 productName: RACLA for Desktop
-copyright: Copyright © 2024-2025 GGDRN0 STUDIO & R-ARCHIVE TEAM
+copyright: Copyright © 2024-2025 GGDRN0 STUDIO & R-ARCHIVE
 directories:
   output: dist
   buildResources: resources

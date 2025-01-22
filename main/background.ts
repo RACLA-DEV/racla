@@ -1,6 +1,24 @@
+declare global {
+  namespace Electron {
+    interface App {
+      isQuitting: boolean
+    }
+  }
+}
+
 import 'moment/locale/ko'
 
-import { BrowserWindow, app, globalShortcut, ipcMain, screen, session, shell } from 'electron'
+import {
+  BrowserWindow,
+  Menu,
+  Tray,
+  app,
+  globalShortcut,
+  ipcMain,
+  screen,
+  session,
+  shell,
+} from 'electron'
 import {
   clearSession,
   getSession,
@@ -56,6 +74,7 @@ let settingData: any = {
   autoRemoveBlackPixel: true,
   removeBlackPixelPx: 8,
   saveImageWhenCapture: true,
+  closeToTray: false,
 }
 let isUploaded = false
 let overlayWindow: BrowserWindow | null = null
@@ -78,6 +97,9 @@ if (!gotTheLock) {
 let isWindowMoving = false
 let windowMoveTimeout = null
 
+let tray: Tray | null = null
+let mainWindow: BrowserWindow | null = null
+
 ;(async () => {
   await app.whenReady()
 
@@ -95,7 +117,7 @@ let windowMoveTimeout = null
     globalShortcut.unregisterAll()
   })
 
-  const mainWindow = createWindow('main', {
+  mainWindow = createWindow('main', {
     width: 1280,
     height: 720,
     minWidth: 1280,
@@ -111,8 +133,79 @@ let windowMoveTimeout = null
     },
   })
 
-  mainWindow.on('closed', () => {
-    app.quit()
+  // 윈도우 닫기 버튼 클릭 시 설정에 따라 트레이로 최소화 또는 종료
+  mainWindow.on('close', (event) => {
+    if (!app.isQuitting && settingData.closeToTray) {
+      event.preventDefault()
+      mainWindow?.hide()
+      return false
+    }
+    return true
+  })
+
+  // 최소화 버튼 클릭 시 항상 작업 표시줄로 최소화
+  ipcMain.on('minimizeApp', () => {
+    mainWindow?.minimize()
+  })
+
+  // 트레이 아이콘 생성/제거 함수
+  const setupTray = () => {
+    if (settingData.closeToTray && !tray) {
+      tray = new Tray(path.join(__dirname + '/../resources/', 'icon.ico'))
+
+      const contextMenu = Menu.buildFromTemplate([
+        {
+          label: '열기',
+          click: () => {
+            mainWindow?.show()
+          },
+        },
+        {
+          label: '종료',
+          click: () => {
+            app.isQuitting = true
+            app.quit()
+          },
+        },
+      ])
+
+      tray.setToolTip('RACLA')
+      tray.setContextMenu(contextMenu)
+
+      tray.on('click', () => {
+        mainWindow?.show()
+      })
+    } else if (!settingData.closeToTray && tray) {
+      tray.destroy()
+      tray = null
+    }
+  }
+
+  // 설정 변경 시 트레이 아이콘 업데이트
+  ipcMain.on('changeSettingData', async (event, data) => {
+    const updatedSettings = await settingsManager.updateSettings(data)
+    settingData = updatedSettings
+
+    // closeToTray 설정이 변경되었을 때 트레이 아이콘 설정 업데이트
+    if ('closeToTray' in data) {
+      setupTray()
+    }
+
+    // 재시작이 필요한 설정이 변경되었는지 확인
+    if (settingsManager.requiresRestart(Object.keys(data))) {
+      app.relaunch()
+      app.exit()
+    }
+
+    mainWindow.webContents.send('IPC_RENDERER_GET_SETTING_DATA', updatedSettings)
+  })
+
+  // 초기 트레이 아이콘 설정
+  setupTray()
+
+  // 앱 종료 전 플래그 설정
+  app.on('before-quit', () => {
+    app.isQuitting = true
   })
 
   // 메인 윈도우 생성 부분에서 이벤트 리스너 추가
@@ -345,8 +438,88 @@ let windowMoveTimeout = null
   // 초기 체크 시작
   checkGameOverlayLoop()
 
+  ipcMain.on('hideToTray', () => {
+    if (!tray) {
+      tray = new Tray(path.join(__dirname + '/../resources/', 'icon.ico'))
+
+      const contextMenu = Menu.buildFromTemplate([
+        {
+          label: 'RACLA 데스크톱 앱',
+          enabled: false, // 클릭 불가능하게 설정
+        },
+        { type: 'separator' },
+        {
+          label: '열기',
+          click: () => {
+            showWindowAndRemoveTray()
+          },
+        },
+        {
+          label: '종료',
+          click: async () => {
+            try {
+              app.isQuitting = true
+
+              // 모든 IPC 리스너 제거
+              ipcMain.removeAllListeners()
+
+              // 오버레이 윈도우 정리
+              if (overlayWindow) {
+                overlayWindow.removeAllListeners()
+                overlayWindow.destroy()
+                overlayWindow = null
+              }
+
+              // 트레이 아이콘 정리
+              if (tray) {
+                tray.destroy()
+                tray = null
+              }
+
+              // 메인 윈도우 정리
+              if (mainWindow) {
+                mainWindow.removeAllListeners()
+                mainWindow.destroy()
+                mainWindow = null
+              }
+
+              // 잠시 대기 후 앱 종료
+              setTimeout(() => {
+                app.quit()
+              }, 100)
+            } catch (error) {
+              console.error('Error during app closure:', error)
+              app.exit(1)
+            }
+          },
+        },
+      ])
+
+      tray.setToolTip('RACLA')
+      tray.setContextMenu(contextMenu)
+
+      // 더블클릭 이벤트로 변경
+      tray.on('double-click', () => {
+        showWindowAndRemoveTray()
+      })
+    }
+
+    mainWindow?.hide()
+  })
+
+  // 윈도우를 보여주고 트레이 아이콘을 무조건 제거
+  const showWindowAndRemoveTray = () => {
+    mainWindow?.show()
+    if (tray) {
+      tray.destroy()
+      tray = null
+    }
+  }
+
   ipcMain.on('closeApp', async () => {
     try {
+      app.isQuitting = true
+
       // 모든 IPC 리스너 제거
       ipcMain.removeAllListeners()
 
@@ -357,10 +530,17 @@ let windowMoveTimeout = null
         overlayWindow = null
       }
 
+      // 트레이 아이콘 정리
+      if (tray) {
+        tray.destroy()
+        tray = null
+      }
+
       // 메인 윈도우 정리
       if (mainWindow) {
         mainWindow.removeAllListeners()
         mainWindow.destroy()
+        mainWindow = null
       }
 
       // 잠시 대기 후 앱 종료
@@ -369,7 +549,7 @@ let windowMoveTimeout = null
       }, 100)
     } catch (error) {
       console.error('Error during app closure:', error)
-      app.exit(1) // 강제 종료
+      app.exit(1)
     }
   })
 
@@ -380,11 +560,6 @@ let windowMoveTimeout = null
     } else {
       mainWindow.maximize()
     }
-  })
-
-  // 창 최소화 버튼 감지
-  ipcMain.on('minimizeApp', () => {
-    mainWindow.minimize()
   })
 
   // 창 크기 최대화 감지
@@ -520,19 +695,6 @@ let windowMoveTimeout = null
     await settingsManager.initializeSettings()
     const settingData = await getSettingData()
     mainWindow.webContents.send('IPC_RENDERER_GET_SETTING_DATA', settingData)
-  })
-
-  ipcMain.on('changeSettingData', async (event, data) => {
-    const updatedSettings = await settingsManager.updateSettings(data)
-    settingData = updatedSettings
-
-    // 재시작이 필요한 설정이 변경되었는지 확인
-    if (settingsManager.requiresRestart(Object.keys(data))) {
-      app.relaunch()
-      app.exit()
-    }
-
-    mainWindow.webContents.send('IPC_RENDERER_GET_SETTING_DATA', updatedSettings)
   })
 
   ipcMain.on('PROGRAM_LOADED', async () => {
@@ -705,6 +867,7 @@ let windowMoveTimeout = null
             playData.screenType == 'versus' ||
             playData.screenType == 'collection')
         ) {
+          overlayWindow.webContents.send('PLAY_NOTIFICATION_SOUND')
           mainWindow.webContents.send('screenshot-uploaded', playData)
         }
       } catch (error) {
@@ -1088,7 +1251,9 @@ app.on('will-quit', () => {
 })
 
 app.on('window-all-closed', () => {
-  app.quit()
+  if (process.platform !== 'darwin') {
+    app.quit()
+  }
 })
 
 ipcMain.on('message', async (event, arg) => {
@@ -1121,6 +1286,8 @@ ipcMain.on('update-app', () => {
 })
 
 app.on('before-quit', () => {
+  app.isQuitting = true
+
   // 전역 단축키 해제
   globalShortcut.unregisterAll()
 
@@ -1133,5 +1300,11 @@ app.on('before-quit', () => {
   if (overlayWindow) {
     overlayWindow.destroy()
     overlayWindow = null
+  }
+
+  // 트레이 아이콘 정리
+  if (tray) {
+    tray.destroy()
+    tray = null
   }
 })

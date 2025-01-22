@@ -1,8 +1,8 @@
+import axios from 'axios'
 import { randomUUID } from 'crypto'
 import fs from 'fs'
-import path from 'path'
-import axios from 'axios'
 import moment from 'moment'
+import path from 'path'
 import sharp from 'sharp'
 import Tesseract from 'tesseract.js'
 import { getSession } from './fsManager'
@@ -39,6 +39,16 @@ interface AppOptions {
   isProd: boolean
   isLogined: boolean
   isUploaded: boolean
+}
+
+// 알림음 재생을 위한 함수 추가
+function playNotificationSound() {
+  try {
+    const audio = new Audio(path.join(__dirname, '/../resources/', 'notification.mp3'))
+    audio.play().catch((err) => console.error('Error playing notification sound:', err))
+  } catch (error) {
+    console.error('Failed to play notification sound:', error)
+  }
 }
 
 // OCR 처리를 위한 클래스
@@ -490,11 +500,11 @@ async function handleNotifications(
   isProd: boolean,
 ) {
   if (playData.screenType === 'versus') {
-    await handleVersusNotifications(gameCode, playData, overlayWindow, isProd)
+    await handleVersusNotifications(gameCode, playData, overlayWindow, isProd, mainWindow)
   } else if (playData.screenType === 'collection') {
-    handleCollectionNotification(overlayWindow)
+    handleCollectionNotification(overlayWindow, mainWindow)
   } else if (playData.isVerified) {
-    await handleRegularNotification(gameCode, playData, overlayWindow, isProd)
+    await handleRegularNotification(gameCode, playData, overlayWindow, isProd, mainWindow)
   } else {
     handleErrorNotification(overlayWindow)
   }
@@ -505,6 +515,7 @@ async function handleRegularNotification(
   playData: any,
   overlayWindow: any,
   isProd: boolean,
+  mainWindow: any,
 ) {
   try {
     let lastScore = null
@@ -523,6 +534,7 @@ async function handleRegularNotification(
       ...playData,
       ...(gameCode === 'djmax_respect_v' ? { lastScore } : {}),
     })
+    mainWindow.webContents.send('PLAY_NOTIFICATION_SOUND')
   } catch (error) {
     console.error('Error fetching backup data:', error)
     overlayWindow.webContents.send('IPC_RENDERER_GET_NOTIFICATION_DATA', {
@@ -536,6 +548,7 @@ async function handleVersusNotifications(
   playData: any,
   overlayWindow: any,
   isProd: boolean,
+  mainWindow: any,
 ) {
   playData.versusData.forEach(async (value: any, index: number) => {
     if (Number(value.score) > 0) {
@@ -552,6 +565,7 @@ async function handleVersusNotifications(
             backupResponse.data?.patterns?.[`${value.button}B`]?.[value.pattern]?.score || null
         }
 
+        mainWindow.webContents.send('PLAY_NOTIFICATION_SOUND')
         setTimeout(() => {
           overlayWindow.webContents.send('IPC_RENDERER_GET_NOTIFICATION_DATA', {
             ...value,
@@ -572,7 +586,8 @@ async function handleVersusNotifications(
   })
 }
 
-function handleCollectionNotification(overlayWindow: any) {
+function handleCollectionNotification(overlayWindow: any, mainWindow: any) {
+  mainWindow.webContents.send('PLAY_NOTIFICATION_SOUND')
   overlayWindow.webContents.send('IPC_RENDERER_GET_NOTIFICATION_DATA', {
     message:
       '컬렉션(COLLECTION) 화면 인식에 성공하였습니다. 결과는 RACLA 데스크톱 앱에서 확인해주세요.',

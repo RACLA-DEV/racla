@@ -1,8 +1,13 @@
+import { FiMaximize, FiMinimize, FiMinus, FiX } from 'react-icons/fi'
 // renderUtilityButtons.tsx
 import { OverlayTrigger, Tooltip } from 'react-bootstrap'
-import { FiMaximize, FiMinimize, FiMinus, FiX } from 'react-icons/fi'
+
+import { useSelector } from 'react-redux'
+import { RootState } from 'store'
 
 export const renderUtilityButtons = (ipcRenderer, isMaximized, setIsMaximized) => {
+  const settingData = useSelector((state: RootState) => state.app.settingData)
+
   return (
     <div className='tw-flex tw-justify-center tw-items-center tw-gap-1 tw-h-8 tw-pr-1'>
       <OverlayTrigger
@@ -52,7 +57,11 @@ export const renderUtilityButtons = (ipcRenderer, isMaximized, setIsMaximized) =
         <button
           type='button'
           onClick={() => {
-            ipcRenderer.send('closeApp')
+            if (settingData.closeToTray) {
+              ipcRenderer.send('hideToTray')
+            } else {
+              ipcRenderer.send('closeApp')
+            }
           }}
           className='btn-ipc tw-text-md'
         >

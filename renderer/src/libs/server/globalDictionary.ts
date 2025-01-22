@@ -13,8 +13,11 @@ import {
   FaWindowMaximize,
 } from 'react-icons/fa6'
 
+import packageJson from '../../../../package.json'
+import { BUILD_DATE } from './buildInfo'
+
 export const globalDictionary = {
-  version: '0.7.2.20250000 0000-Dev',
+  version: `${packageJson.version}-${BUILD_DATE} ${process.env.NODE_ENV === 'development' ? 'Dev' : 'Main'}`,
   blurDataURL:
     'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDABQODxIPDRQSEBIXFRQdHx0fHRsdHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR3/2wBDAR0XFyAeIRshGxsdIR0hHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR3/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAb/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k=',
   settings: {
@@ -242,6 +245,22 @@ export const globalDictionary = {
         id: 'isMiniMode',
         name: '미니 모드',
         description: '미니 모드를 활성화/비활성화 합니다.',
+        defaultValue: false,
+        isEditable: true,
+        requiresRestart: false,
+      },
+      closeToTray: {
+        id: 'closeToTray',
+        name: '트레이로 최소화',
+        description: '트레이로 최소화 합니다.',
+        defaultValue: false,
+        isEditable: true,
+        requiresRestart: false,
+      },
+      isNotificationSound: {
+        id: 'isNotificationSound',
+        name: '성과 기록 등록 시 알림 사운드',
+        description: '성과 기록 등록 시 알림 사운드를 활성화/비활성화 합니다.',
         defaultValue: false,
         isEditable: true,
         requiresRestart: false,
