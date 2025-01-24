@@ -1,3 +1,4 @@
+import { OverlayTrigger, Tooltip } from 'react-bootstrap'
 import {
   getDifficultyClassName,
   getDifficultyStarImage,
@@ -6,15 +7,15 @@ import {
   getScoreDisplayText,
 } from '@/libs/client/respectUtils'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { OverlayTrigger, Tooltip } from 'react-bootstrap'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { globalDictionary } from '@/libs/server/globalDictionary'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useInView } from 'react-intersection-observer'
 import { RootState } from 'store'
+import { globalDictionary } from '@/libs/server/globalDictionary'
+import { logRendererError } from '@/libs/client/rendererLogger'
 import { setBackgroundBgaName } from 'store/slices/uiSlice'
+import { useInView } from 'react-intersection-observer'
 
 interface ScorePopupComponentProps {
   songItem?: any
@@ -91,6 +92,7 @@ const ScorePopupComponent = ({
             }
           }
         } catch (error) {
+          logRendererError(error, { message: 'Error fetching song data', ...userData })
           console.error('Error fetching song data:', error)
         }
 
@@ -107,6 +109,7 @@ const ScorePopupComponent = ({
               }
             }
           } catch (error) {
+            logRendererError(error, { message: 'Error fetching rival data', ...userData })
             console.error('Error fetching rival data:', error)
           }
         }

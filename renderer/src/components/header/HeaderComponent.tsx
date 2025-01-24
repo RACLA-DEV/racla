@@ -1,5 +1,3 @@
-import { useCallback, useEffect, useState } from 'react'
-import { OverlayTrigger, Tooltip } from 'react-bootstrap'
 import {
   FaArrowDown,
   FaArrowLeft,
@@ -9,19 +7,22 @@ import {
   FaPlay,
   FaRotate,
 } from 'react-icons/fa6'
+import { OverlayTrigger, Tooltip } from 'react-bootstrap'
+import { useCallback, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { globalDictionary } from '@/libs/server/globalDictionary'
+import HomePanelButton from '../layout/HomePanelButton'
 import Image from 'next/image'
 import Link from 'next/link'
 import type { RootState } from 'store'
-import { setSelectedGame } from 'store/slices/appSlice'
-import { setBackgroundBgaName } from 'store/slices/uiSlice'
-import HomePanelButton from '../layout/HomePanelButton'
+import { globalDictionary } from '@/libs/server/globalDictionary'
+// HeaderComponent.tsx
+import { logRendererError } from '@/libs/client/rendererLogger'
 import { renderGameButtons } from './renderGameButtons'
 import { renderUserDropdown } from './renderUserDropdown'
 import { renderUtilityButtons } from './renderUtilityButtons'
-// HeaderComponent.tsx
+import { setBackgroundBgaName } from 'store/slices/uiSlice'
+import { setSelectedGame } from 'store/slices/appSlice'
 import { useNotificationSystem } from '@/libs/client/useNotifications'
 import { useRouter } from 'next/router'
 
@@ -83,7 +84,10 @@ const HeaderComponent: React.FC<IHeaderComponentProps> = ({
     const handleNotificationSound = () => {
       audio.currentTime = 0
       if (settingData.isNotificationSound) {
-        audio.play().catch((err) => console.error('Error playing notification:', err))
+        audio.play().catch((error) => {
+          logRendererError(error, { message: 'Error playing notification', ...userData })
+          console.error('Error playing notification:', error)
+        })
       }
     }
 

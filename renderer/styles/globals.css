@@ -1823,11 +1823,13 @@
   background-color: rgba(31, 41, 55, 0); /* 완전 투명한 gray-800로 시작 */
 }
 
-.custom-scrollbar:hover::-webkit-scrollbar-thumb {
+.custom-scrollbar:hover::-webkit-scrollbar-thumb,
+.custom-scrollbar-always::-webkit-scrollbar-thumb {
   background-color: rgba(107, 114, 128, 0.4) !important; /* gray-500 */
 }
 
-.custom-scrollbar:hover::-webkit-scrollbar-thumb:hover {
+.custom-scrollbar:hover::-webkit-scrollbar-thumb:hover,
+.custom-scrollbar-always::-webkit-scrollbar-thumb:hover {
   transition: background-color 0.2s ease-in-out;
   background-color: rgba(156, 163, 175, 0.6) !important; /* gray-400 */
 }

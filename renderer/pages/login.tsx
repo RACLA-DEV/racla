@@ -1,15 +1,17 @@
+import { AnimatePresence, motion } from 'framer-motion'
+import { FaCircleInfo, FaDiscord, FaLink, FaV } from 'react-icons/fa6'
+import { IUserNameRequest, IUserNameResponse } from '@/types/IUserName'
 import React, { useEffect, useRef, useState } from 'react'
+import axios, { AxiosResponse } from 'axios'
+import { setUserData, setVArchiveUserData } from 'store/slices/appSlice'
+import { useDispatch, useSelector } from 'react-redux'
+
 import Head from 'next/head'
 import Image from 'next/image'
-import { useRouter } from 'next/router'
-import { useNotificationSystem } from '@/libs/client/useNotifications'
-import { IUserNameRequest, IUserNameResponse } from '@/types/IUserName'
-import axios, { AxiosResponse } from 'axios'
-import { AnimatePresence, motion } from 'framer-motion'
-import { FaCircleInfo, FaLink, FaV } from 'react-icons/fa6'
-import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from 'store'
-import { setUserData, setVArchiveUserData } from 'store/slices/appSlice'
+import { logRendererError } from '@/libs/client/rendererLogger'
+import { useNotificationSystem } from '@/libs/client/useNotifications'
+import { useRouter } from 'next/router'
 
 export default function VArchiveLoginPage() {
   const { showNotification } = useNotificationSystem()
@@ -95,7 +97,8 @@ export default function VArchiveLoginPage() {
         handleError(
           '유효하지 않은 사용자 정보입니다. RACLA 데스크톱 앱으로 생성한 로그인 데이터(player.txt) 파일을 선택해주세요.',
         )
-      } catch (e) {
+      } catch (error) {
+        logRendererError(error, { message: 'Error in onRaFileChange' })
         handleError(
           '유효하지 않은 사용자 정보입니다. RACLA 데스크톱 앱으로 생성한 로그인 데이터(player.txt) 파일을 선택해주세요.',
         )
@@ -104,6 +107,7 @@ export default function VArchiveLoginPage() {
     try {
       fileReader.readAsText(file)
     } catch (error) {
+      logRendererError(error, { message: 'Error in onRaFileChange' })
       handleError('알 수 없는 오류가 발생했습니다. 다시 시도해주세요. ' + String(error))
       if (raFileInputRef.current) {
         raFileInputRef.current.value = ''
@@ -162,8 +166,9 @@ export default function VArchiveLoginPage() {
             '유효하지 않은 사용자 정보입니다. V-ARCHIVE 공식 클라이언트로 생성한 로그인 데이터(account.txt) 파일을 선택해주세요.',
           )
         }
-      } catch (e) {
-        handleError('알 수 없는 오류가 발생했습니다. 다시 시도해주세요. ' + String(e))
+      } catch (error) {
+        logRendererError(error, { message: 'Error in onVArchiveFileChange' })
+        handleError('알 수 없는 오류가 발생했습니다. 다시 시도해주세요. ' + String(error))
         if (vArchiveFileInputRef.current) {
           vArchiveFileInputRef.current.value = ''
         }
@@ -175,6 +180,7 @@ export default function VArchiveLoginPage() {
     try {
       fileReader.readAsText(file)
     } catch (error) {
+      logRendererError(error, { message: 'Error in onVArchiveFileChange' })
       handleError(String(error))
     }
   }
@@ -197,6 +203,33 @@ export default function VArchiveLoginPage() {
       'tw-bg-blue-600',
     )
     vArchiveFileInputRef.current?.click()
+  }
+
+  const handleDiscordLogin = async () => {
+    try {
+      const code = await window.ipc.invoke('OPEN_DISCORD_LOGIN')
+      console.log('Received Discord OAuth Code:', code) // 받은 코드 확인
+
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/v1/user/login/oauth/discord`,
+        { code },
+      )
+
+      if (response.status === 200) {
+        const ipcResult = window.ipc.login({
+          userNo: response.data.userNo,
+          userToken: response.data.userToken,
+          vArchiveUserNo: null,
+          vArchiveUserToken: null,
+        })
+        setIsLogin(true)
+      }
+
+      console.log(response.data)
+    } catch (error) {
+      logRendererError(error, { message: 'Error in handleDiscordLogin' })
+      handleError('Discord로 로그인 중 오류가 발생했습니다.')
+    }
   }
 
   const handleRegister = async () => {
@@ -227,6 +260,7 @@ export default function VArchiveLoginPage() {
         setIsLogin(true)
       }
     } catch (error) {
+      logRendererError(error, { message: 'Error in handleRegister' })
       showNotification('계정 생성 중 오류가 발생했습니다.', 'tw-bg-red-600')
     }
     setIsRegistering(false)
@@ -301,19 +335,27 @@ export default function VArchiveLoginPage() {
                           <Image
                             src='/images/logo.svg'
                             alt='RACLA'
-                            width={20}
-                            height={20}
-                            className='tw-mt-1'
+                            width={18}
+                            height={18}
+                            className='tw-mt-0.5'
                           />
-                          RACLA 계정으로 로그인
+                          RACLA로 로그인
                         </button>
 
                         <button
                           onClick={handleVArchiveFileSelect}
-                          className='tw-w-full tw-mb-4 tw-flex tw-items-center tw-justify-center tw-gap-2 tw-px-4 tw-py-3 tw-rounded-md tw-bg-amber-600 hover:tw-bg-amber-700 tw-text-white tw-transition-colors'
+                          className='tw-w-full tw-flex tw-items-center tw-justify-center tw-gap-2 tw-px-4 tw-py-3 tw-rounded-md tw-bg-amber-600 hover:tw-bg-amber-700 tw-text-white tw-transition-colors'
                         >
-                          <FaV className='tw-text-lg' />
-                          V-ARCHIVE 계정으로 로그인
+                          <FaV className='tw-text-base' />
+                          V-ARCHIVE로 로그인
+                        </button>
+
+                        <button
+                          onClick={handleDiscordLogin}
+                          className='tw-w-full tw-flex tw-items-center tw-justify-center tw-gap-2 tw-px-4 tw-py-3 tw-rounded-md tw-bg-[#5865F2] hover:tw-bg-[#4752C4] tw-text-white tw-transition-colors'
+                        >
+                          <FaDiscord className='tw-text-lg' />
+                          Discord로 로그인
                         </button>
                       </div>
 
@@ -321,15 +363,15 @@ export default function VArchiveLoginPage() {
                         <FaCircleInfo className='tw-mt-1 tw-min-w-3 tw-text-blue-400' />
                         <div className='tw-flex tw-flex-col tw-gap-1 tw-break-keep'>
                           <span>
-                            RACLA는 DJMAX RESPECT V 서비스에 한하여 V-ARCHIVE의 사용자 데이터를 수집
-                            및 사용하고 있습니다.
+                            RACLA는 V-ARCHIVE와 Discord의 사용자 데이터를 수집 및 사용하고 있습니다.
                           </span>
                           <span>
-                            V-ARCHIVE 계정 미연동 시 DJMAX RESPECT V 서비스는 사용할 수 없습니다.
+                            V-ARCHIVE 계정 미연동 시 DJMAX RESPECT V 서비스 중 일부 기능은 사용할 수
+                            없습니다.
                           </span>
                           <span>
-                            V-ARCHIVE 계정으로 최초 로그인 시 자동으로 RACLA 계정이 자동으로
-                            생성되며 V-ARCHIVE 계정 정보와 연동됩니다.
+                            V-ARCHIVE 또는 Discord로 최초 로그인 시 자동으로 RACLA 계정이 생성되며
+                            해당되는 서비스의 계정 정보와 연동됩니다.
                           </span>
                           <span
                             className='tw-flex tw-items-center tw-gap-1 tw-text-blue-400 hover:tw-text-blue-300 tw-cursor-pointer tw-transition-colors'

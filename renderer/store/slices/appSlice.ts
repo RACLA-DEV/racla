@@ -9,6 +9,9 @@ interface AppState {
     userNo: string
     userToken: string
     randomTitle: string
+    discordUid: string
+    discordLinked: boolean
+    vArchiveLinked: boolean
   }
   vArchiveUserData: {
     userName: string
@@ -41,6 +44,9 @@ const initialState: AppState = {
     userNo: '',
     userToken: '',
     randomTitle: Math.floor(Math.random() * 652 + 1).toString(),
+    discordUid: '',
+    discordLinked: false,
+    vArchiveLinked: false,
   },
   vArchiveUserData: {
     userName: '',

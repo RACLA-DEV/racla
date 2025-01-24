@@ -29,20 +29,24 @@ import {
   storeSongData,
   storeWjmaxSongData,
 } from './fsManager'
+import path, { resolve } from 'path'
 
-import { exec } from 'child_process'
-import serve from 'electron-serve'
-import { autoUpdater } from 'electron-updater'
-import fs from 'fs'
-import moment from 'moment'
-import { Window } from 'node-screenshots'
-import path from 'path'
-import sharp from 'sharp'
 import Tesseract from 'tesseract.js'
-import { promisify } from 'util'
+import { Window } from 'node-screenshots'
+import { autoUpdater } from 'electron-updater'
 import { createWindow } from './helpers'
+import crypto from 'crypto'
+import { exec } from 'child_process'
+import fs from 'fs'
+import http from 'http'
+import { logMainError } from './mainLogger'
+import moment from 'moment'
+import net from 'net'
 import { processResultScreen } from './ocrManager'
+import { promisify } from 'util'
+import serve from 'electron-serve'
 import { settingsManager } from './settingsManager'
+import sharp from 'sharp'
 
 const isProd = process.env.NODE_ENV === 'production'
 
@@ -81,6 +85,10 @@ let overlayWindow: BrowserWindow | null = null
 let removedPixels = 0
 let isFullscreen = false
 let isProcessing = false
+let userData: any = {
+  userNo: '',
+  userToken: '',
+}
 const WJMAX_ENCRYPTION_KEY = '99FLKWJFL;l99r7@!()f09sodkjfs;a;o9fU#@'
 
 const gameList = { djmax_respect_v: 'DJMAX RESPECT V', wjmax: 'WJMAX' }
@@ -100,8 +108,30 @@ let windowMoveTimeout = null
 let tray: Tray | null = null
 let mainWindow: BrowserWindow | null = null
 
+// 사용 가능한 포트를 찾는 함수
+const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
+  return new Promise((resolve, reject) => {
+    const server = net.createServer()
+    server.unref()
+    server.on('error', () => {
+      // 포트가 사용 중이면 다음 포트 시도
+      getAvailablePort(startPort + 1).then(resolve, reject)
+    })
+    server.listen(startPort, () => {
+      server.close(() => resolve(startPort))
+    })
+  })
+}
+
 ;(async () => {
   await app.whenReady()
+
+  // 최상단에서 프로토콜 설정
+  if (process.defaultApp) {
+    app.setAsDefaultProtocolClient('racla', process.execPath, [resolve(process.argv[1])])
+  } else {
+    app.setAsDefaultProtocolClient('racla')
+  }
 
   const isRegistered = globalShortcut.register('Alt+Insert', () => {
     pressAltInsert()
@@ -154,6 +184,11 @@ let mainWindow: BrowserWindow | null = null
       tray = new Tray(path.join(__dirname + '/../resources/', 'icon.ico'))
 
       const contextMenu = Menu.buildFromTemplate([
+        {
+          label: 'RACLA 데스크톱 앱',
+          enabled: false,
+        },
+        { type: 'separator' },
         {
           label: '열기',
           click: () => {
@@ -303,13 +338,15 @@ let mainWindow: BrowserWindow | null = null
               height: gameWindow.height,
             }
             resolve(bounds)
-          } catch (innerError) {
-            console.error('Error processing window information:', innerError)
+          } catch (error) {
+            console.error('Error processing window information:', error)
+            logMainError(error, isLogined ? userData : null)
             resolve(null)
           }
         })
       } catch (error) {
         console.error('Error in findGameWindow:', error)
+        logMainError(error, isLogined ? userData : null)
         resolve(null)
       }
     })
@@ -398,6 +435,7 @@ let mainWindow: BrowserWindow | null = null
       }
     } catch (error) {
       console.error('Error checking game status:', error)
+      logMainError(error, isLogined ? userData : null)
     }
   }
 
@@ -418,6 +456,7 @@ let mainWindow: BrowserWindow | null = null
         )
       } catch (error) {
         console.error('Error in getFocusedWindow:', error)
+        logMainError(error, isLogined ? userData : null)
         resolve('')
       }
     })
@@ -429,6 +468,7 @@ let mainWindow: BrowserWindow | null = null
       await checkGameAndUpdateOverlay()
     } catch (error) {
       console.error('Error in game check loop:', error)
+      logMainError(error, isLogined ? userData : null)
     } finally {
       // 체크 간격을 100ms로 증가 (초당 10회)
       setTimeout(() => checkGameOverlayLoop(), 100)
@@ -489,6 +529,7 @@ let mainWindow: BrowserWindow | null = null
               }, 100)
             } catch (error) {
               console.error('Error during app closure:', error)
+              logMainError(error, isLogined ? userData : null)
               app.exit(1)
             }
           },
@@ -549,6 +590,7 @@ let mainWindow: BrowserWindow | null = null
       }, 100)
     } catch (error) {
       console.error('Error during app closure:', error)
+      logMainError(error, isLogined ? userData : null)
       app.exit(1)
     }
   })
@@ -571,6 +613,81 @@ let mainWindow: BrowserWindow | null = null
     }
   })
 
+  // Discord OAuth 관련 추가
+  app.setAsDefaultProtocolClient('app') // 기존 프로토콜
+
+  // Discord OAuth 콜백을 위한 새로운 엔드포인트
+  ipcMain.handle('OPEN_DISCORD_LOGIN', async () => {
+    const state = crypto.randomBytes(16).toString('hex')
+    const DISCORD_CLIENT_ID = process.env.DISCORD_CLIENT_ID || '1331547515744682036'
+    const REDIRECT_URI = 'http://localhost:54321/oauth/discord/callback'
+    let server: http.Server | null = null
+
+    return new Promise((resolve, reject) => {
+      server = http.createServer(async (req, res) => {
+        if (req.url?.startsWith('/oauth/discord/callback')) {
+          const urlObj = new URL(req.url, `http://localhost:54321`)
+          const code = urlObj.searchParams.get('code')
+          const returnedState = urlObj.searchParams.get('state')
+
+          if (code && returnedState === state) {
+            res.writeHead(302, {
+              Location: 'https://r-archive.zip/login/oauth/success',
+            })
+            res.end()
+
+            // 모든 연결 종료 후 서버 닫기
+            server?.closeAllConnections()
+            server?.close(() => {
+              server = null
+              resolve(code)
+            })
+          }
+        }
+      })
+
+      server.on('error', (e: any) => {
+        if (e.code === 'EADDRINUSE') {
+          mainWindow?.webContents.send('pushNotification', {
+            message:
+              '다른 프로그램에서 54321 포트를 사용하고 있어 Discord로 로그인을 할 수 없습니다.',
+            color: 'tw-bg-red-600',
+          })
+          reject(new Error('Port 54321 is already in use'))
+        } else {
+          mainWindow?.webContents.send('pushNotification', {
+            message: 'Discord로 로그인 중 오류가 발생했습니다.',
+            color: 'tw-bg-red-600',
+          })
+          reject(e)
+        }
+      })
+
+      server.listen(54321, () => {
+        const authUrl = new URL('https://discord.com/api/oauth2/authorize')
+        authUrl.searchParams.append('client_id', DISCORD_CLIENT_ID)
+        authUrl.searchParams.append('response_type', 'code')
+        authUrl.searchParams.append('redirect_uri', REDIRECT_URI)
+        authUrl.searchParams.append('scope', 'identify')
+        authUrl.searchParams.append('state', state)
+
+        console.log('Discord OAuth URL:', authUrl.toString())
+        shell.openExternal(authUrl.toString())
+      })
+
+      // 타임아웃 시 서버 정리
+      setTimeout(() => {
+        if (server) {
+          server.closeAllConnections()
+          server.close(() => {
+            server = null
+            reject(new Error('Discord login timeout'))
+          })
+        }
+      }, 300000)
+    })
+  })
+
   // 세션 저장 처리
   ipcMain.on('logined', async (event, value) => {
     isLogined = true
@@ -579,10 +696,7 @@ let mainWindow: BrowserWindow | null = null
   // 세션 저장 처리
   ipcMain.on(
     'login',
-    async (
-      event,
-      { userNo, userToken, vArchiveUserNo, vArchiveUserToken, vArchiveUserName, discordUserNo },
-    ) => {
+    async (event, { userNo, userToken, vArchiveUserNo, vArchiveUserToken, vArchiveUserName }) => {
       if (vArchiveUserNo && vArchiveUserToken) {
         try {
           storeSession({
@@ -593,8 +707,9 @@ let mainWindow: BrowserWindow | null = null
             userToken: '',
           })
           mainWindow.webContents.send('IPC_RENDERER_IS_LOGINED', true)
-        } catch (e) {
+        } catch (error) {
           mainWindow.webContents.send('IPC_RENDERER_IS_LOGINED', false)
+          logMainError(error, isLogined ? userData : null)
         }
       }
       if (userNo && userToken) {
@@ -607,8 +722,9 @@ let mainWindow: BrowserWindow | null = null
             userToken,
           })
           mainWindow.webContents.send('IPC_RENDERER_IS_LOGINED', true)
-        } catch (e) {
+        } catch (error) {
           mainWindow.webContents.send('IPC_RENDERER_IS_LOGINED', false)
+          logMainError(error, isLogined ? userData : null)
         }
       }
     },
@@ -622,6 +738,10 @@ let mainWindow: BrowserWindow | null = null
   ipcMain.on('logout', async (event) => {
     isLogined = false
     clearSession()
+    userData = {
+      userNo: '',
+      userToken: '',
+    }
     mainWindow.webContents.send('IPC_RENDERER_IS_LOGOUTED', { success: true })
   })
 
@@ -640,8 +760,9 @@ let mainWindow: BrowserWindow | null = null
         storeWjmaxSongData(songData)
       }
       mainWindow.webContents.send('IPC_RENDERER_IS_LOADED_SONG_DATA', true)
-    } catch (e) {
+    } catch (error) {
       mainWindow.webContents.send('IPC_RENDERER_IS_LOADED_SONG_DATA', false)
+      logMainError(error, isLogined ? userData : null)
     }
   })
 
@@ -665,6 +786,10 @@ let mainWindow: BrowserWindow | null = null
   })
 
   ipcMain.on('setAuthorization', async (event, { userNo, userToken }) => {
+    userData = {
+      userNo,
+      userToken,
+    }
     // 쿠키 설정
     if (userNo !== '' && userToken !== '') {
       session.defaultSession.cookies
@@ -855,45 +980,91 @@ let mainWindow: BrowserWindow | null = null
           })
           .toBuffer()
 
-        const { playData } = await processResultScreen(
+        const data = await processResultScreen(
           croppedBuffer,
           { isMenualUpload: true, isNotSaveImage: true, gameCode },
           { app, settingData, mainWindow, overlayWindow, isProd, isLogined, isUploaded },
+          userData,
         )
         isProcessing = false
         if (
-          playData !== null &&
-          (playData.isVerified !== undefined ||
-            playData.screenType == 'versus' ||
-            playData.screenType == 'collection')
+          data?.playData !== null &&
+          (data?.playData?.isVerified !== undefined ||
+            data?.playData?.screenType == 'versus' ||
+            data?.playData?.screenType == 'collection')
         ) {
           overlayWindow.webContents.send('PLAY_NOTIFICATION_SOUND')
-          mainWindow.webContents.send('screenshot-uploaded', playData)
+          mainWindow.webContents.send('screenshot-uploaded', data?.playData)
+        } else {
+          mainWindow.webContents.send('screenshot-uploaded', {
+            playData: { isVerified: false, screenType: 'unknown' },
+          })
+          if (settingData.resultOverlay) {
+            overlayWindow.webContents.send('IPC_RENDERER_GET_NOTIFICATION_DATA', {
+              message:
+                '게임 결과창이 아니거나 성과 기록 이미지를 처리 중에 오류가 발생하였습니다. 다시 시도해주시길 바랍니다.',
+              color: 'tw-bg-red-600',
+            })
+          }
         }
       } catch (error) {
+        mainWindow.webContents.send('screenshot-uploaded', {
+          playData: { isVerified: false, screenType: 'unknown' },
+        })
+        if (settingData.resultOverlay) {
+          overlayWindow.webContents.send('IPC_RENDERER_GET_NOTIFICATION_DATA', {
+            message:
+              '게임 결과창이 아니거나 성과 기록 이미지를 처리 중에 오류가 발생하였습니다. 다시 시도해주시길 바랍니다.',
+            color: 'tw-bg-red-600',
+          })
+        }
         console.error('Error processing capture:', error)
+        logMainError(error, isLogined ? userData : null)
         isProcessing = false
       }
     } else {
       console.log('Full Screen Image Detected.')
       try {
         isProcessing = true
-        const { playData } = await processResultScreen(
+        const data = await processResultScreen(
           image,
           { isMenualUpload: true, isNotSaveImage: true, gameCode },
           { app, settingData, mainWindow, overlayWindow, isProd, isLogined, isUploaded },
+          userData,
         )
         isProcessing = false
         if (
-          playData !== null &&
-          (playData.isVerified !== undefined ||
-            playData.screenType == 'versus' ||
-            playData.screenType == 'collection')
+          data?.playData !== null &&
+          (data?.playData?.isVerified !== undefined ||
+            data?.playData?.screenType == 'versus' ||
+            data?.playData?.screenType == 'collection')
         ) {
-          mainWindow.webContents.send('screenshot-uploaded', playData)
+          mainWindow.webContents.send('screenshot-uploaded', data?.playData)
+        } else {
+          mainWindow.webContents.send('screenshot-uploaded', {
+            playData: { isVerified: false, screenType: 'unknown' },
+          })
+          if (settingData.resultOverlay) {
+            overlayWindow.webContents.send('IPC_RENDERER_GET_NOTIFICATION_DATA', {
+              message:
+                '게임 결과창이 아니거나 성과 기록 이미지를 처리 중에 오류가 발생하였습니다. 다시 시도해주시길 바랍니다.',
+              color: 'tw-bg-red-600',
+            })
+          }
         }
       } catch (error) {
+        mainWindow.webContents.send('screenshot-uploaded', {
+          playData: { isVerified: false, screenType: 'unknown' },
+        })
+        if (settingData.resultOverlay) {
+          overlayWindow.webContents.send('IPC_RENDERER_GET_NOTIFICATION_DATA', {
+            message:
+              '게임 결과창이 아니거나 성과 기록 이미지를 처리 중에 오류가 발생하였습니다. 다시 시도해주시길 바랍니다.',
+            color: 'tw-bg-red-600',
+          })
+        }
         console.error('Error processing capture:', error)
+        logMainError(error, isLogined ? userData : null)
         isProcessing = false
       }
     }
@@ -931,6 +1102,7 @@ let mainWindow: BrowserWindow | null = null
             })
           } catch (error) {
             console.error('Failed to get focused window:', error)
+            logMainError(error, isLogined ? userData : null)
             isProcessing = false
             return
           }
@@ -963,6 +1135,7 @@ let mainWindow: BrowserWindow | null = null
                     gameCode: isRunning ? 'djmax_respect_v' : 'wjmax',
                   },
                   { app, settingData, mainWindow, overlayWindow, isProd, isLogined, isUploaded },
+                  userData,
                 )
                 isProcessing = false
                 if (
@@ -981,6 +1154,7 @@ let mainWindow: BrowserWindow | null = null
                 }
               } catch (error) {
                 console.error('Error in capture and process:', error)
+                logMainError(error, isLogined ? userData : null)
                 isProcessing = false
               }
             } else {
@@ -995,6 +1169,7 @@ let mainWindow: BrowserWindow | null = null
         }
       } catch (error) {
         console.error('Error in captureAndProcess:', error)
+        logMainError(error, isLogined ? userData : null)
         isProcessing = false
       } finally {
         try {
@@ -1007,6 +1182,7 @@ let mainWindow: BrowserWindow | null = null
           )
         } catch (error) {
           console.error('Error setting next capture interval:', error)
+          logMainError(error, isLogined ? userData : null)
           isProcessing = false
         }
       }
@@ -1044,22 +1220,26 @@ let mainWindow: BrowserWindow | null = null
               gameCode: isRunning ? 'djmax_respect_v' : 'wjmax',
             },
             { app, settingData, mainWindow, overlayWindow, isProd, isLogined, isUploaded },
+            userData,
           )
           isProcessing = false
           if (
             data !== null &&
             data !== undefined &&
             data !== '' &&
-            data.playData &&
-            (data.playData.isVerified !== undefined ||
-              data.playData.screenType == 'versus' ||
-              data.playData.screenType == 'collection')
+            data?.playData &&
+            (data?.playData?.isVerified !== undefined ||
+              data?.playData?.screenType == 'versus' ||
+              data?.playData?.screenType == 'collection')
           ) {
             mainWindow.webContents.send('screenshot-uploaded', {
-              ...data.playData,
-              filePath: data.filePath,
+              ...data?.playData,
+              filePath: data?.filePath,
             })
           } else {
+            mainWindow.webContents.send('screenshot-uploaded', {
+              playData: { isVerified: false, screenType: 'unknown' },
+            })
             if (settingData.resultOverlay) {
               overlayWindow.webContents.send('IPC_RENDERER_GET_NOTIFICATION_DATA', {
                 message:
@@ -1070,11 +1250,34 @@ let mainWindow: BrowserWindow | null = null
           }
         } catch (error) {
           isProcessing = false
+          mainWindow.webContents.send('screenshot-uploaded', {
+            playData: { isVerified: false, screenType: 'unknown' },
+          })
+          if (settingData.resultOverlay) {
+            overlayWindow.webContents.send('IPC_RENDERER_GET_NOTIFICATION_DATA', {
+              message:
+                '게임 결과창이 아니거나 성과 기록 이미지를 처리 중에 오류가 발생하였습니다. 다시 시도해주시길 바랍니다.',
+              color: 'tw-bg-red-600',
+            })
+          }
           console.error('Error processing capture:', error)
+          logMainError(error, isLogined ? userData : null)
         }
       }
     } catch (error) {
+      isProcessing = false
+      mainWindow.webContents.send('screenshot-uploaded', {
+        playData: { isVerified: false, screenType: 'unknown' },
+      })
+      if (settingData.resultOverlay) {
+        overlayWindow.webContents.send('IPC_RENDERER_GET_NOTIFICATION_DATA', {
+          message:
+            '게임 결과창이 아니거나 성과 기록 이미지를 처리 중에 오류가 발생하였습니다. 다시 시도해주시길 바랍니다.',
+          color: 'tw-bg-red-600',
+        })
+      }
       console.error('Error processing capture:', error)
+      logMainError(error, isLogined ? userData : null)
     }
   }
 
@@ -1180,11 +1383,13 @@ async function captureScreen(gameCode) {
                 return resizedImage
               } catch (error) {
                 console.error('Error processing image crop/resize:', error)
+                logMainError(error, isLogined ? userData : null)
                 isProcessing = false
                 return null
               }
             } catch (error) {
               console.error('Error capturing or processing initial image:', error)
+              logMainError(error, isLogined ? userData : null)
               isProcessing = false
               return null
             }
@@ -1195,12 +1400,14 @@ async function captureScreen(gameCode) {
                 .toBuffer()
             } catch (error) {
               console.error('Error capturing fullscreen image:', error)
+              logMainError(error, isLogined ? userData : null)
               isProcessing = false
               return null
             }
           }
         } catch (error) {
           console.error('Error processing window capture:', error)
+          logMainError(error, isLogined ? userData : null)
           isProcessing = false
           return null
         }
@@ -1212,6 +1419,7 @@ async function captureScreen(gameCode) {
     return null
   } catch (error) {
     console.error('Critical error in captureScreen:', error)
+    logMainError(error, isLogined ? userData : null)
     isProcessing = false
     return null
   }
@@ -1234,13 +1442,15 @@ async function recognizeText(imageBuffer, lang = 'eng') {
     return text || ''
   } catch (error) {
     console.error('Error in OCR text recognition:', error)
+    logMainError(error, isLogined ? userData : null)
     return ''
   } finally {
     if (worker) {
       try {
         await worker.terminate()
-      } catch (terminateError) {
-        console.error('Error terminating Tesseract worker:', terminateError)
+      } catch (error) {
+        console.error('Error terminating Tesseract worker:', error)
+        logMainError(error, isLogined ? userData : null)
       }
     }
   }
@@ -1307,4 +1517,13 @@ app.on('before-quit', () => {
     tray.destroy()
     tray = null
   }
+
+  // 혹시 남아있는 서버 정리
+  const connections = require('net')
+    .createServer()
+    .getConnections((err, count) => {
+      if (count > 0) {
+        console.log(`Cleaning up ${count} remaining connections...`)
+      }
+    })
 })

@@ -1,6 +1,7 @@
-import axios from 'axios'
-import { useSelector } from 'react-redux'
 import { RootState } from 'store'
+import axios from 'axios'
+import { logRendererError } from './rendererLogger'
+import { useSelector } from 'react-redux'
 // hooks/useRecentHistory.ts
 import { useState } from 'react'
 
@@ -56,6 +57,7 @@ export const useRecentHistory = () => {
         setErrorRecentHistory(response.data.message || '기록을 불러오는데 실패했습니다.')
       }
     } catch (error) {
+      logRendererError(error, { message: 'Error fetching recent history', ...userData })
       console.error('Recent history fetch error:', error)
       setErrorRecentHistory('기록을 불러오는 중 오류가 발생했습니다.')
     } finally {

@@ -1,22 +1,26 @@
 import 'moment/locale/ko'
+
+import * as R from 'ramda'
+
+import { FaChevronLeft, FaHeart, FaRegHeart } from 'react-icons/fa6'
 import React, { useEffect, useState } from 'react'
+import { setBackgroundBgaName, setIsDjCommentOpen } from 'store/slices/uiSlice'
+import { useDispatch, useSelector } from 'react-redux'
+
 import Head from 'next/head'
+import { IconContext } from 'react-icons'
 import Image from 'next/image'
-import { useParams } from 'next/navigation'
-import { useRouter } from 'next/router'
+import { RootState } from 'store'
 import ScoreEditComponent from '@/components/score/ScoreEditComponent'
 import ScorePopupComponent from '@/components/score/ScorePopupComponent'
-import { useNotificationSystem } from '@/libs/client/useNotifications'
-import { globalDictionary } from '@/libs/server/globalDictionary'
-import axios from 'axios'
-import moment from 'moment'
-import * as R from 'ramda'
-import { IconContext } from 'react-icons'
-import { FaChevronLeft, FaHeart, FaRegHeart } from 'react-icons/fa6'
-import { useDispatch, useSelector } from 'react-redux'
 import { SyncLoader } from 'react-spinners'
-import { RootState } from 'store'
-import { setBackgroundBgaName, setIsDjCommentOpen } from 'store/slices/uiSlice'
+import axios from 'axios'
+import { globalDictionary } from '@/libs/server/globalDictionary'
+import { logRendererError } from '@/libs/client/rendererLogger'
+import moment from 'moment'
+import { useNotificationSystem } from '@/libs/client/useNotifications'
+import { useParams } from 'next/navigation'
+import { useRouter } from 'next/router'
 
 export default function VArchiveDbTitlePage() {
   const { showNotification } = useNotificationSystem()
@@ -88,6 +92,7 @@ export default function VArchiveDbTitlePage() {
               setBaseSongData([data])
             })
             .catch((error) => {
+              logRendererError(error, { message: 'Error in fetchBaseSongData', ...userData })
               showNotification(
                 '수록곡의 데이터베이스를 V-ARCHIVE에서 가져오는 중에 문제가 발생하였습니다.',
                 'tw-bg-red-600',
@@ -96,6 +101,7 @@ export default function VArchiveDbTitlePage() {
               setBaseSongData(filteredData)
             })
         } catch (error) {
+          logRendererError(error, { message: 'Error in fetchBaseSongData', ...userData })
           showNotification(
             '수록곡의 데이터베이스를 V-ARCHIVE에서 가져오는 중에 문제가 발생하였습니다.',
             'tw-bg-red-600',
@@ -171,9 +177,11 @@ export default function VArchiveDbTitlePage() {
             }
           })
           .catch((error) => {
+            logRendererError(error, { message: 'Error in fetchUpdateScore', ...userData })
             // console.log(error)
           })
       } catch (error) {
+        logRendererError(error, { message: 'Error in fetchUpdateScore', ...userData })
         console.error('Error fetching data:', error)
       }
     } else {
@@ -207,6 +215,7 @@ export default function VArchiveDbTitlePage() {
         setSongItemData(result)
       }
     } catch (error) {
+      logRendererError(error, { message: 'Error in fetchSongItemData', ...userData })
       console.error('Error fetching data:', error)
     }
   }
@@ -227,6 +236,7 @@ export default function VArchiveDbTitlePage() {
         setCommentRivalSongItemData(result)
       }
     } catch (error) {
+      logRendererError(error, { message: 'Error in fetchCommentRivalSongItemData', ...userData })
       console.error('Error fetching data:', error)
     }
   }
@@ -266,9 +276,11 @@ export default function VArchiveDbTitlePage() {
           }
         })
         .catch((error) => {
+          logRendererError(error, { message: 'Error in updateCommentVote', ...userData })
           // console.log(error)
         })
     } catch (error) {
+      logRendererError(error, { message: 'Error in updateCommentVote', ...userData })
       console.error('Error fetching data:', error)
     }
   }
@@ -324,12 +336,14 @@ export default function VArchiveDbTitlePage() {
           }
         })
         .catch((error) => {
+          logRendererError(error, { message: 'Error in fetchCommentContent', ...userData })
           // console.log(error)
         })
         .finally(() => {
           setIsCommentUpdateMode(false)
         })
     } catch (error) {
+      logRendererError(error, { message: 'Error in fetchCommentContent', ...userData })
       console.error('Error fetching data:', error)
     }
   }
@@ -360,6 +374,7 @@ export default function VArchiveDbTitlePage() {
           }
         })
     } catch (error) {
+      logRendererError(error, { message: 'Error in fetchCommentData', ...userData })
       console.error('Error fetching data:', error)
     } finally {
       setIsFetchingCommentData(false)
@@ -420,6 +435,7 @@ export default function VArchiveDbTitlePage() {
         const data = await response.json()
         return data
       } catch (error) {
+        logRendererError(error, { message: 'Error in loadDataWithScore', ...userData })
         console.error('There has been a problem with your fetch operation:', error)
         return null
       }
@@ -562,17 +578,17 @@ export default function VArchiveDbTitlePage() {
         </Head>
         <div className='tw-flex tw-gap-4 vh-screen'>
           {/* 곡 데이터 */}
-          <div className={`tw-flex tw-flex-col tw-transition-all duration-300 tw-w-full`}>
+          <div className={`tw-flex tw-flex-col tw-transition-all tw-w-full duration-300`}>
             <div
               className={
-                'tw-flex tw-flex-col tw-gap-1 tw-bg-opacity-10 tw-rounded-md p-0 tw-mb-4 tw-h-auto ' +
+                'tw-flex tw-flex-col tw-gap-1 tw-bg-opacity-10 tw-rounded-md tw-mb-4 tw-h-auto p-0 ' +
                 ` respect_dlc_${baseSongData[0].dlcCode}} respect_dlc_logo_${baseSongData[0].dlcCode} respect_dlc_logo_BG_${baseSongData[0].dlcCode}`
               }
               onClick={() => {
                 setPatternCode('')
               }}
             >
-              <div className='tw-flex tw-justify-between tw-animate-fadeInLeft p-4 flex-equal tw-bg-gray-900 tw-bg-opacity-30 tw-rounded-md'>
+              <div className='tw-flex tw-justify-between tw-animate-fadeInLeft flex-equal tw-bg-gray-900 tw-bg-opacity-30 tw-rounded-md p-4'>
                 {/* 하단 */}
                 <div className='tw-flex tw-gap-3 tw-mt-auto tw-items-end'>
                   <Image
@@ -600,8 +616,8 @@ export default function VArchiveDbTitlePage() {
                 </div>
                 <div>
                   <div className='tw-flex'>
-                    <div className='tw-animate-fadeInLeft tw-rounded-md p-1 tw-bg-gray-950 tw-bg-opacity-75 tw-me-auto'>
-                      <span className='respect_dlc_code_wrap '>
+                    <div className='tw-animate-fadeInLeft tw-rounded-md tw-bg-gray-950 tw-bg-opacity-75 tw-me-auto p-1'>
+                      <span className='respect_dlc_code_wrap'>
                         <span
                           className={`respect_dlc_code respect_dlc_code_${baseSongData[0].dlcCode}`}
                         >
@@ -624,7 +640,7 @@ export default function VArchiveDbTitlePage() {
                     R.keys(baseSongData[0].patterns).map((patternName) => (
                       <React.Fragment key={String(patternName)}>
                         {/* Button Column */}
-                        <div className='tw-border-gray-600  tw-border-opacity-25 tw-flex tw-flex-col tw-justify-center tw-items-center tw-overflow-hidden tw-bg-gray-900 tw-bg-opacity-20 tw-rounded-lg'>
+                        <div className='tw-border-gray-600 tw-border-opacity-25 tw-flex tw-flex-col tw-justify-center tw-items-center tw-overflow-hidden tw-bg-gray-900 tw-bg-opacity-20 tw-rounded-lg'>
                           <div className='tw-relative tw-h-full tw-w-full tw-flex-1'>
                             <Image
                               loading='lazy'
@@ -639,7 +655,7 @@ export default function VArchiveDbTitlePage() {
                               className={`tw-absolute tw-inset-0 respect_db_button respect_bg_b${String(patternName).replace('B', '')} tw-rounded-lg`}
                             />
                             <span className='tw-absolute tw-inset-0 tw-font-extrabold tw-text-4xl tw-flex tw-items-center tw-justify-center'>
-                              <span className='tw-text-base tw-font-bold '>
+                              <span className='tw-text-base tw-font-bold'>
                                 <span className='tw-text-4xl tw-font-bold'>
                                   {String(patternName).replace('B', '')}
                                 </span>{' '}
@@ -656,7 +672,7 @@ export default function VArchiveDbTitlePage() {
                             baseSongData[0].patterns[patternName][difficultyCode] !== null ? (
                               <div
                                 key={`${String(patternName)}_${difficultyCode}`}
-                                className={`tw-border-gray-600 tw-border-opacity-25 tw-flex tw-flex-col tw-justify-center tw-items-center tw-p-2 tw-bg-gray-700 tw-bg-opacity-20 tw-rounded-lg  ${
+                                className={`tw-border-gray-600 tw-border-opacity-25 tw-flex tw-flex-col tw-justify-center tw-items-center tw-p-2 tw-bg-gray-700 tw-bg-opacity-20 tw-rounded-lg ${
                                   vArchiveUserData.userName !== ''
                                     ? 'tw-cursor-pointer hover:tw-bg-gray-600 hover:tw-bg-opacity-30'
                                     : ''
@@ -885,8 +901,7 @@ export default function VArchiveDbTitlePage() {
 
           {/* DJ 코멘트 패널 */}
           <div
-            className={`tw-fixed tw-top-12 tw-bottom-8 tw-p-4 tw-rounded-l-md tw-w-[calc(33.3%-6rem)] tw-transition-transform tw-duration-300 tw-ease-in-out tw-min-w-[30rem] tw-bg-gray-950 tw-bg-opacity-50 tw-backdrop-blur-xl tw-transform
-            ${isDjCommentOpen ? 'tw-translate-x-0 tw-right-0 ' : 'tw-translate-x-full tw-right-0'}`}
+            className={`tw-fixed tw-top-12 tw-bottom-8 tw-p-4 tw-rounded-l-md tw-w-[calc(33.3%-6rem)] tw-transition-transform tw-duration-300 tw-ease-in-out tw-min-w-[30rem] tw-bg-gray-950 tw-bg-opacity-50 tw-backdrop-blur-xl tw-transform ${isDjCommentOpen ? 'tw-translate-x-0 tw-right-0' : 'tw-translate-x-full tw-right-0'}`}
           >
             {!isLoading && !isFetchingCommentData ? (
               <div className='tw-flex tw-flex-col tw-h-full tw-overflow-hidden'>
@@ -1158,10 +1173,7 @@ export default function VArchiveDbTitlePage() {
                                 }}
                               >
                                 <div
-                                  className={`tw-flex tw-items-center tw-gap-1.5 tw-px-3 tw-py-1.5 tw-rounded-full tw-bg-gray-800 tw-bg-opacity-50 
-                                    ${commentItem.myVote === 1 ? 'tw-text-red-400 tw-border-red-400' : 'tw-text-gray-400 tw-border-gray-600'} 
-                                    tw-border tw-border-opacity-30 tw-transition-all
-                                    ${vArchiveUserData.userNo !== '' ? 'hover:tw-border-opacity-50' : ''}`}
+                                  className={`tw-flex tw-items-center tw-gap-1.5 tw-px-3 tw-py-1.5 tw-rounded-full tw-bg-gray-800 tw-bg-opacity-50 ${commentItem.myVote === 1 ? 'tw-text-red-400 tw-border-red-400' : 'tw-text-gray-400 tw-border-gray-600'} tw-border tw-border-opacity-30 tw-transition-all ${vArchiveUserData.userNo !== '' ? 'hover:tw-border-opacity-50' : ''}`}
                                 >
                                   <span>
                                     <IconContext.Provider

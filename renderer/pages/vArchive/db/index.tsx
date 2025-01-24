@@ -1,25 +1,26 @@
 import 'moment/locale/ko'
 
-import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { BsGrid, BsList } from 'react-icons/bs'
 import { FaChevronLeft, FaChevronRight, FaHeart, FaRegHeart } from 'react-icons/fa6'
-import { useDispatch, useSelector } from 'react-redux'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { setBackgroundBgaName, setIsDjCommentOpen } from 'store/slices/uiSlice'
+import { useDispatch, useSelector } from 'react-redux'
 
-import { useNotificationSystem } from '@/libs/client/useNotifications'
-import { globalDictionary } from '@/libs/server/globalDictionary'
-import axios from 'axios'
-import { motion } from 'framer-motion'
-import { debounce } from 'lodash'
-import moment from 'moment'
-import dynamic from 'next/dynamic'
 import Head from 'next/head'
-import Image from 'next/image'
-import { useRouter } from 'next/router'
 import { IconContext } from 'react-icons'
-import { useInView } from 'react-intersection-observer'
-import { SyncLoader } from 'react-spinners'
+import Image from 'next/image'
 import { RootState } from 'store'
+import { SyncLoader } from 'react-spinners'
+import axios from 'axios'
+import { debounce } from 'lodash'
+import dynamic from 'next/dynamic'
+import { globalDictionary } from '@/libs/server/globalDictionary'
+import { logRendererError } from '@/libs/client/rendererLogger'
+import moment from 'moment'
+import { motion } from 'framer-motion'
+import { useInView } from 'react-intersection-observer'
+import { useNotificationSystem } from '@/libs/client/useNotifications'
+import { useRouter } from 'next/router'
 
 // 동적 임포트로 ScorePopupComponent 지연 로딩
 const ScorePopupComponent = dynamic(() => import('@/components/score/ScorePopupComponent'), {
@@ -100,6 +101,7 @@ export default function VArchiveDbPage() {
         setSongItemData(result)
       }
     } catch (error) {
+      logRendererError(error, { message: 'Error in fetchSongItemData', ...userData })
       console.error('Error fetching data:', error)
     }
   }
@@ -118,6 +120,7 @@ export default function VArchiveDbPage() {
         setCommentRivalSongItemData(result)
       }
     } catch (error) {
+      logRendererError(error, { message: 'Error in fetchCommentRivalSongItemData', ...userData })
       console.error('Error fetching data:', error)
     }
   }
@@ -157,9 +160,11 @@ export default function VArchiveDbPage() {
           }
         })
         .catch((error) => {
+          logRendererError(error, { message: 'Error in updateCommentVote', ...userData })
           // console.log(error)
         })
     } catch (error) {
+      logRendererError(error, { message: 'Error in updateCommentVote', ...userData })
       console.error('Error fetching data:', error)
     }
   }
@@ -190,6 +195,7 @@ export default function VArchiveDbPage() {
           }
         })
     } catch (error) {
+      logRendererError(error, { message: 'Error in fetchCommentData', ...userData })
       console.error('Error fetching data:', error)
     } finally {
       setIsFetchingCommentData(false)

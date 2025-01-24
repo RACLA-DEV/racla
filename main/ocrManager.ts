@@ -1,11 +1,12 @@
-import axios from 'axios'
-import { randomUUID } from 'crypto'
+import Tesseract from 'tesseract.js'
+import { customAxios } from './axios'
 import fs from 'fs'
+import { getSession } from './fsManager'
+import { logMainError } from './mainLogger'
 import moment from 'moment'
 import path from 'path'
+import { randomUUID } from 'crypto'
 import sharp from 'sharp'
-import Tesseract from 'tesseract.js'
-import { getSession } from './fsManager'
 
 interface OCRRegion {
   width: number
@@ -39,16 +40,6 @@ interface AppOptions {
   isProd: boolean
   isLogined: boolean
   isUploaded: boolean
-}
-
-// 알림음 재생을 위한 함수 추가
-function playNotificationSound() {
-  try {
-    const audio = new Audio(path.join(__dirname, '/../resources/', 'notification.mp3'))
-    audio.play().catch((err) => console.error('Error playing notification sound:', err))
-  } catch (error) {
-    console.error('Failed to play notification sound:', error)
-  }
 }
 
 // OCR 처리를 위한 클래스
@@ -97,6 +88,7 @@ class GameOCRProcessor {
     private settingData: any,
     private mainWindow: any,
     private overlayWindow: any,
+    private userData: any,
   ) {}
 
   async extractRegions(gameCode: string, imageBuffer: Buffer) {
@@ -111,7 +103,7 @@ class GameOCRProcessor {
           left: 100,
           top: 236,
         })
-        texts.result = await this.recognizeText(regions.result)
+        texts.result = await this.recognizeText(regions.result, this.userData)
       }
 
       if (this.settingData.autoCaptureOcrOpen3Region) {
@@ -121,7 +113,7 @@ class GameOCRProcessor {
           left: 596,
           top: 470,
         })
-        texts.open3 = await this.recognizeText(regions.open3)
+        texts.open3 = await this.recognizeText(regions.open3, this.userData)
       }
 
       if (this.settingData.autoCaptureOcrOpen2Region) {
@@ -131,7 +123,7 @@ class GameOCRProcessor {
           left: 693,
           top: 471,
         })
-        texts.open2 = await this.recognizeText(regions.open2)
+        texts.open2 = await this.recognizeText(regions.open2, this.userData)
       }
 
       if (this.settingData.autoCaptureOcrVersusRegion) {
@@ -141,7 +133,7 @@ class GameOCRProcessor {
           left: 755,
           top: 52,
         })
-        texts.versus = await this.recognizeText(regions.versus)
+        texts.versus = await this.recognizeText(regions.versus, this.userData)
       }
     } else if (gameCode === 'wjmax') {
       if (this.settingData.autoCaptureWjmaxOcrResultRegion) {
@@ -151,7 +143,7 @@ class GameOCRProcessor {
           left: 1038,
           top: 307,
         })
-        texts.result = await this.recognizeText(regions.result)
+        texts.result = await this.recognizeText(regions.result, this.userData)
       }
     }
 
@@ -162,8 +154,8 @@ class GameOCRProcessor {
     return await sharp(imageBuffer).extract(region).grayscale().linear(1.5, 0).toBuffer()
   }
 
-  private async recognizeText(buffer: Buffer): Promise<string> {
-    return await recognizeText(buffer, 'eng')
+  private async recognizeText(buffer: Buffer, userData: any): Promise<string> {
+    return await recognizeText(buffer, 'eng', userData)
   }
 
   async determineResultScreen(gameCode: string, texts: any) {
@@ -242,6 +234,7 @@ class ImageProcessor {
     imageBuffer: Buffer,
     gameCode: string,
     screenType: string,
+    userData: any,
   ): Promise<Buffer> {
     try {
       const image = sharp(imageBuffer)
@@ -260,6 +253,7 @@ class ImageProcessor {
       return await image.composite(overlays).toBuffer()
     } catch (error) {
       console.error('Error applying profile mask:', error)
+      logMainError(error, userData.userNo !== '' && userData.userToken !== '' ? userData : null)
       return imageBuffer
     }
   }
@@ -344,6 +338,7 @@ class OCRApiService {
     private isProd: boolean,
     private isLogined: boolean,
     private gameCode: string,
+    private userData: any,
   ) {}
 
   async uploadForOCR(formData: FormData, where: string): Promise<any> {
@@ -353,22 +348,30 @@ class OCRApiService {
       : 'https://noah.r-archive.zip/api'
 
     try {
-      const response = await axios.post(`${baseUrl}/v1/ocr/upload/${this.gameCode}`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-          Authorization: this.isLogined
-            ? `${this.gameCode == 'djmax_respect_v' ? session.vArchiveUserNo : session.userNo}|${
-                this.gameCode == 'djmax_respect_v' ? session.vArchiveUserToken : session.userToken
-              }`
-            : '',
+      const response = await customAxios.post(
+        `${baseUrl}/v1/ocr/upload/${this.gameCode}`,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            Authorization: this.isLogined
+              ? `${this.gameCode == 'djmax_respect_v' ? session.vArchiveUserNo : session.userNo}|${
+                  this.gameCode == 'djmax_respect_v' ? session.vArchiveUserToken : session.userToken
+                }`
+              : '',
+          },
+          withCredentials: true,
         },
-        withCredentials: true,
-      })
+      )
 
       console.log('Server Side OCR Upload Result:', response.data)
       return response.data
     } catch (error) {
       console.error('Server Side OCR Upload Error:', error)
+      logMainError(
+        error,
+        this.userData.userNo !== '' && this.userData.userToken !== '' ? this.userData : null,
+      )
       throw error
     }
   }
@@ -384,13 +387,20 @@ export async function processResultScreen(
   imageBuffer: Buffer,
   options: ProcessOptions,
   appOptions: AppOptions,
+  userData: any,
 ) {
   const { isMenualUpload = false, isNotSaveImage = false, gameCode = 'djmax_respect_v' } = options
   const { app, settingData, mainWindow, overlayWindow, isProd, isLogined, isUploaded } = appOptions
 
-  const ocrProcessor = new GameOCRProcessor(gameCode, settingData, mainWindow, overlayWindow)
+  const ocrProcessor = new GameOCRProcessor(
+    gameCode,
+    settingData,
+    mainWindow,
+    overlayWindow,
+    userData,
+  )
   const imageProcessor = new ImageProcessor(settingData, ocrProcessor)
-  const apiService = new OCRApiService(isProd, isLogined, gameCode)
+  const apiService = new OCRApiService(isProd, isLogined, gameCode, userData)
 
   try {
     console.log('Client Side OCR isResultScreen Requested. Processing image data...')
@@ -446,11 +456,12 @@ export async function processResultScreen(
               imageBuffer,
               gameCode,
               playData.screenType,
+              userData,
             )
             await imageProcessor.saveImage(finalImageBuffer, getFilePath(playData, app))
           }
 
-          await handleNotifications(gameCode, playData, mainWindow, overlayWindow, isProd)
+          await handleNotifications(gameCode, playData, mainWindow, overlayWindow, isProd, userData)
           return {
             ...response,
             filePath: settingData.saveImageWhenCapture ? getFilePath(playData, app) : null,
@@ -458,6 +469,7 @@ export async function processResultScreen(
           }
         }
       } catch (error) {
+        logMainError(error, userData.userNo !== '' && userData.userToken !== '' ? userData : null)
         handleError(error)
       }
     } else {
@@ -465,6 +477,7 @@ export async function processResultScreen(
       return { playData: { isVerified: null } }
     }
   } catch (error) {
+    logMainError(error, userData.userNo !== '' && userData.userToken !== '' ? userData : null)
     handleError(error)
     return { playData: { isVerified: false, error: '처리 중 오류가 발생했습니다.' } }
   }
@@ -498,13 +511,14 @@ async function handleNotifications(
   mainWindow: any,
   overlayWindow: any,
   isProd: boolean,
+  userData: any,
 ) {
   if (playData.screenType === 'versus') {
     await handleVersusNotifications(gameCode, playData, overlayWindow, isProd, mainWindow)
   } else if (playData.screenType === 'collection') {
     handleCollectionNotification(overlayWindow, mainWindow)
   } else if (playData.isVerified) {
-    await handleRegularNotification(gameCode, playData, overlayWindow, isProd, mainWindow)
+    await handleRegularNotification(gameCode, playData, overlayWindow, isProd, mainWindow, userData)
   } else {
     handleErrorNotification(overlayWindow)
   }
@@ -516,12 +530,13 @@ async function handleRegularNotification(
   overlayWindow: any,
   isProd: boolean,
   mainWindow: any,
+  userData: any,
 ) {
   try {
     let lastScore = null
     if (gameCode === 'djmax_respect_v') {
       const session = await getSession()
-      const backupResponse = await axios.get(
+      const backupResponse = await customAxios.get(
         `${isProd ? 'https://aosame-rain.r-archive.zip/' : 'https://kamome-sano.r-archive.zip/'}?url=https://v-archive.net/api/archive/${
           session.vArchiveUserName
         }/title/${playData.songData.title}`,
@@ -537,6 +552,7 @@ async function handleRegularNotification(
     mainWindow.webContents.send('PLAY_NOTIFICATION_SOUND')
   } catch (error) {
     console.error('Error fetching backup data:', error)
+    logMainError(error, userData.userNo !== '' && userData.userToken !== '' ? userData : null)
     overlayWindow.webContents.send('IPC_RENDERER_GET_NOTIFICATION_DATA', {
       ...playData,
     })
@@ -550,13 +566,13 @@ async function handleVersusNotifications(
   isProd: boolean,
   mainWindow: any,
 ) {
-  playData.versusData.forEach(async (value: any, index: number) => {
+  playData.versusData.forEach(async (value: any, index: number, userData: any) => {
     if (Number(value.score) > 0) {
       try {
         let lastScore = null
         if (gameCode === 'djmax_respect_v') {
           const session = await getSession()
-          const backupResponse = await axios.get(
+          const backupResponse = await customAxios.get(
             `${isProd ? 'https://aosame-rain.r-archive.zip/' : 'https://kamome-sano.r-archive.zip/'}?url=https://v-archive.net/api/archive/${
               session.vArchiveUserName
             }/title/${value.songData.title}`,
@@ -575,6 +591,7 @@ async function handleVersusNotifications(
         }, 2000 * index)
       } catch (error) {
         console.error('Error fetching backup data:', error)
+        logMainError(error, userData.userNo !== '' && userData.userToken !== '' ? userData : null)
         setTimeout(() => {
           overlayWindow.webContents.send('IPC_RENDERER_GET_NOTIFICATION_DATA', {
             ...value,
@@ -603,7 +620,7 @@ function handleErrorNotification(overlayWindow: any) {
   })
 }
 
-async function recognizeText(imageBuffer, lang = 'eng') {
+async function recognizeText(imageBuffer, lang = 'eng', userData) {
   let worker = null
   try {
     worker = await Tesseract.createWorker('eng')
@@ -619,13 +636,15 @@ async function recognizeText(imageBuffer, lang = 'eng') {
     return text || ''
   } catch (error) {
     console.error('Error in OCR text recognition:', error)
+    logMainError(error, userData.userNo !== '' && userData.userToken !== '' ? userData : null)
     return ''
   } finally {
     if (worker) {
       try {
         await worker.terminate()
-      } catch (terminateError) {
-        console.error('Error terminating Tesseract worker:', terminateError)
+      } catch (error) {
+        logMainError(error, userData.userNo !== '' && userData.userToken !== '' ? userData : null)
+        console.error('Error terminating Tesseract worker:', error)
       }
     }
   }

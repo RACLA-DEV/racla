@@ -1,14 +1,20 @@
+import { FaDiscord, FaGear, FaV } from 'react-icons/fa6'
 import { IUserNameRequest, IUserNameResponse } from '@/types/IUserName'
 import axios, { AxiosResponse } from 'axios'
-import { useEffect, useRef, useState } from 'react'
+import {
+  setIsSetting,
+  setSettingData,
+  setUserData,
+  setVArchiveUserData,
+} from 'store/slices/appSlice'
 import { useDispatch, useSelector } from 'react-redux'
-import { setIsSetting, setSettingData, setVArchiveUserData } from 'store/slices/appSlice'
+import { useEffect, useRef, useState } from 'react'
 
-import { useNotificationSystem } from '@/libs/client/useNotifications'
-import { globalDictionary } from '@/libs/server/globalDictionary'
-import { FaGear } from 'react-icons/fa6'
 import { FiX } from 'react-icons/fi'
 import type { RootState } from 'store'
+import { globalDictionary } from '@/libs/server/globalDictionary'
+import { logRendererError } from '@/libs/client/rendererLogger'
+import { useNotificationSystem } from '@/libs/client/useNotifications'
 
 const SettingComponent = () => {
   const dispatch = useDispatch()
@@ -166,8 +172,12 @@ const SettingComponent = () => {
                     handleError('알 수 없는 오류가 발생했습니다. 다시 시도해주세요.')
                   }
                 })
-                .catch((e) => {
-                  handleError('알 수 없는 오류가 발생했습니다. 다시 시도해주세요. ' + String(e))
+                .catch((error) => {
+                  logRendererError(error, {
+                    message: 'Error linking V-ARCHIVE account',
+                    ...userData,
+                  })
+                  handleError('알 수 없는 오류가 발생했습니다. 다시 시도해주세요. ' + String(error))
                 })
             } else {
               handleError(
@@ -180,16 +190,57 @@ const SettingComponent = () => {
             '유효하지 않은 사용자 정보입니다. V-ARCHIVE 공식 클라이언트로 생성한 로그인 데이터(account.txt) 파일을 선택해주세요.',
           )
         }
-      } catch (e) {
-        handleError('알 수 없는 오류가 발생했습니다. 다시 시도해주세요. ' + String(e))
+      } catch (error) {
+        logRendererError(error, { message: 'Error linking V-ARCHIVE account', ...userData })
+        handleError('알 수 없는 오류가 발생했습니다. 다시 시도해주세요. ' + String(error))
       }
     }
     try {
       fileReader.readAsText(file)
     } catch (error) {
+      logRendererError(error, { message: 'Error reading V-ARCHIVE account file', ...userData })
       handleError(String(error))
     } finally {
       vArchiveFileInputRef.current.value = ''
+    }
+  }
+
+  const handleDiscordLink = async () => {
+    try {
+      const code = await window.ipc.invoke('OPEN_DISCORD_LOGIN')
+
+      const linkResult = await axios
+        .post(`${process.env.NEXT_PUBLIC_API_URL}/v1/user/link/oauth/discord`, {
+          userNo: userData.userNo,
+          userToken: userData.userToken,
+          serviceUserToken: code,
+          service: 'discord',
+        })
+        .then((data) => {
+          if (data.data.ok && data.data.result === 'success') {
+            showNotification('Discord 계정 연동이 완료되었습니다.', 'tw-bg-lime-600')
+            dispatch(
+              setUserData({
+                ...userData,
+                discordUid: String(data.data.discordUid),
+                discordLinked: true,
+              }),
+            )
+          } else if (!data.data.ok && data.data.result === 'notfound') {
+            handleError('Discord 계정 연동에 실패했습니다. 존재하지 않는 계정 정보입니다.')
+          } else if (!data.data.ok && data.data.result === 'already') {
+            handleError('Discord 계정 연동에 실패했습니다. 이미 연동된 계정 정보입니다.')
+          } else {
+            handleError('알 수 없는 오류가 발생했습니다. 다시 시도해주세요.')
+          }
+        })
+        .catch((error) => {
+          logRendererError(error, { message: 'Error linking Discord account', ...userData })
+          handleError('알 수 없는 오류가 발생했습니다. 다시 시도해주세요. ' + String(error))
+        })
+    } catch (error) {
+      logRendererError(error, { message: 'Error linking Discord account', ...userData })
+      handleError('Discord 계정 연동 중 오류가 발생했습니다.')
     }
   }
 
@@ -1022,8 +1073,8 @@ const SettingComponent = () => {
           </span>
         </span>
         <span className='tw-text-sm tw-font-light tw-text-red-500 tw-break-keep'>
-          노출되는 정보는 RACLA에서 로그인 데이터로 사용되는 계정 번호와 계정 토큰입니다. 계정
-          번호와 계정 토큰은 외부에 노출되지 않도록 주의해주세요.
+          노출되는 정보는 RACLA에서 로그인 데이터로 사용되는 계정 번호(userNo)와 계정
+          토큰(userToken)입니다. 계정 번호와 계정 토큰은 외부에 노출되지 않도록 주의해주세요.
         </span>
       </div>
       <div className='tw-flex tw-flex-col tw-gap-2'>
@@ -1050,14 +1101,49 @@ const SettingComponent = () => {
           <>
             <button
               onClick={handleVArchiveFileSelect}
-              className='tw-px-3 tw-py-2 tw-bg-blue-600 tw-text-sm tw-shadow-sm tw-rounded-md tw-w-48 tw-mt-1'
+              className='tw-flex tw-items-center tw-justify-center tw-gap-2 tw-px-3 tw-py-2 tw-bg-blue-600 hover:tw-bg-blue-700 tw-text-sm tw-shadow-sm tw-rounded-md tw-w-48 tw-mt-1'
             >
-              V-ARCHIVE 계정 연동하기
+              <FaV className='tw-text-base' />
+              V-ARCHIVE 로그인 연동하기
             </button>
             <span className='tw-text-sm tw-font-light tw-text-gray-400 tw-break-keep'>
-              V-ARCHIVE 계정 연동이 되어 있지 않습니다. DJMAX RESPECT V 서비스를 이용하시려면
+              V-ARCHIVE 로그인 연동이 되어 있지 않습니다. DJMAX RESPECT V 서비스를 이용하시려면
               연동하기 버튼을 눌러 V-ARCHIVE 공식 클라이언트에서 생성한 로그인 데이터(account.txt)를
               첨부하여 연동을 진행해주세요.
+            </span>
+            <span className='tw-text-sm tw-font-light tw-text-red-500 tw-break-keep'>
+              {errorMessage}
+            </span>
+          </>
+        )}
+      </div>
+      <div className='tw-flex tw-flex-col tw-gap-2'>
+        <span className='tw-text-sm'>Discord 연동 정보</span>
+        {userData.discordUid && userData.discordLinked ? (
+          <>
+            <span className='tw-text-sm tw-font-light tw-text-gray-400'>
+              사용자 고유 번호 :{' '}
+              <span className='tw-blur-sm hover:tw-blur-none tw-transition-all tw-duration-300'>
+                {userData.discordUid}
+              </span>
+            </span>
+            <span className='tw-text-sm tw-font-light tw-text-red-500 tw-break-keep'>
+              노출되는 정보는 연동된 Discord 계정의 사용자 고유 번호(UID)입니다. 사용자 고유 번호가
+              외부에 노출되지 않도록 주의해주세요.
+            </span>
+          </>
+        ) : (
+          <>
+            <button
+              onClick={handleDiscordLink}
+              className='tw-flex tw-items-center tw-justify-center tw-gap-2 tw-px-3 tw-py-2 tw-bg-[#5865F2] hover:tw-bg-[#4752C4] tw-text-sm tw-shadow-sm tw-rounded-md tw-w-48 tw-mt-1'
+            >
+              <FaDiscord className='tw-text-base' />
+              Discord 로그인 연동하기
+            </button>
+            <span className='tw-text-sm tw-font-light tw-text-gray-400 tw-break-keep'>
+              Discord 로그인 연동이 되어 있지 않습니다. 연동 후 Discord를 통한 로그인과 추가로
+              업데이트될 전일 아카이브 기능을 이용할 수 있습니다.
             </span>
             <span className='tw-text-sm tw-font-light tw-text-red-500 tw-break-keep'>
               {errorMessage}

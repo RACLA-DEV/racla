@@ -5,14 +5,15 @@ import * as R from 'ramda'
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
-import ScorePopupComponent from '@/components/score/ScorePopupComponent'
-import { globalDictionary } from '@/libs/server/globalDictionary'
 import Head from 'next/head'
+import { RootState } from 'store'
+import ScorePopupComponent from '@/components/score/ScorePopupComponent'
+import { SyncLoader } from 'react-spinners'
+import { globalDictionary } from '@/libs/server/globalDictionary'
+import { logRendererError } from '@/libs/client/rendererLogger'
+import { setBackgroundBgaName } from 'store/slices/uiSlice'
 import { useParams } from 'next/navigation'
 import { useRouter } from 'next/router'
-import { SyncLoader } from 'react-spinners'
-import { RootState } from 'store'
-import { setBackgroundBgaName } from 'store/slices/uiSlice'
 
 interface SongItem {
   title: number
@@ -62,6 +63,7 @@ export default function VArchiveDbPage() {
         setSongItemData(result)
       }
     } catch (error) {
+      logRendererError(error, { message: 'Error in fetchSongItemData', ...userData })
       console.error('Error fetching data:', error)
     }
   }
@@ -80,6 +82,7 @@ export default function VArchiveDbPage() {
         setCommentRivalSongItemData(result)
       }
     } catch (error) {
+      logRendererError(error, { message: 'Error in fetchCommentRivalSongItemData', ...userData })
       console.error('Error fetching data:', error)
     }
   }

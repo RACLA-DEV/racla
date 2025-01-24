@@ -2,13 +2,14 @@ import { ArcElement, Chart as ChartJS, Legend, Tooltip } from 'chart.js'
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
-import axios from 'axios'
-import { motion } from 'framer-motion'
-import Image from 'next/image'
 import { Doughnut } from 'react-chartjs-2'
-import { SyncLoader } from 'react-spinners'
-import { RootState } from 'store'
+import Image from 'next/image'
 import RaScorePopupComponent from '../score/RaScorePopupComponent'
+import { RootState } from 'store'
+import { SyncLoader } from 'react-spinners'
+import axios from 'axios'
+import { logRendererError } from '@/libs/client/rendererLogger'
+import { motion } from 'framer-motion'
 
 ChartJS.register(ArcElement, Tooltip, Legend)
 
@@ -174,6 +175,7 @@ export default function WjmaxHomeComponent() {
                   ) || []
                 )
               } catch (error) {
+                logRendererError(error, { message: 'Error fetching board data', ...userData })
                 console.error(`Error fetching ${boardType}:`, error)
                 return []
               }
@@ -224,6 +226,7 @@ export default function WjmaxHomeComponent() {
 
         setKeyModeData(allKeyModeData)
       } catch (error) {
+        logRendererError(error, { message: 'Error fetching all data', ...userData })
         console.error('Error fetching all data:', error)
       } finally {
         setIsLoading(false)

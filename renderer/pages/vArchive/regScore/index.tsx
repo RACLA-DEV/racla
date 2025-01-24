@@ -1,19 +1,6 @@
 import 'moment/locale/ko'
+
 import React, { useEffect, useState } from 'react'
-import Head from 'next/head'
-import Image from 'next/image'
-import { useRouter } from 'next/router'
-import ScorePopupComponent from '@/components/score/ScorePopupComponent'
-import { useNotificationSystem } from '@/libs/client/useNotifications'
-import { useRecentHistory } from '@/libs/client/useRecentHistory'
-import axios from 'axios'
-import moment from 'moment'
-import { IconContext } from 'react-icons'
-import { FaCloudArrowUp } from 'react-icons/fa6'
-import { FiTriangle } from 'react-icons/fi'
-import { useDispatch, useSelector } from 'react-redux'
-import { SyncLoader } from 'react-spinners'
-import { RootState } from 'store'
 import {
   clearVArchiveData,
   setBackupData,
@@ -23,7 +10,23 @@ import {
   setVArchivePattern,
   setVArchiveUploadedPageData,
 } from 'store/slices/appSlice'
+import { useDispatch, useSelector } from 'react-redux'
+
+import { FaCloudArrowUp } from 'react-icons/fa6'
+import { FiTriangle } from 'react-icons/fi'
+import Head from 'next/head'
+import { IconContext } from 'react-icons'
+import Image from 'next/image'
+import { RootState } from 'store'
+import ScorePopupComponent from '@/components/score/ScorePopupComponent'
+import { SyncLoader } from 'react-spinners'
+import axios from 'axios'
+import { logRendererError } from '@/libs/client/rendererLogger'
+import moment from 'moment'
 import { setBackgroundBgaName } from 'store/slices/uiSlice'
+import { useNotificationSystem } from '@/libs/client/useNotifications'
+import { useRecentHistory } from '@/libs/client/useRecentHistory'
+import { useRouter } from 'next/router'
 
 export default function VArchiveRegScorePage() {
   const { showNotification } = useNotificationSystem()
@@ -170,6 +173,7 @@ export default function VArchiveRegScorePage() {
                   )
                 }
               } catch (error) {
+                logRendererError(error, { message: 'Error in processVersusData', ...userData })
                 backupDataArray.push(null)
                 showNotification(
                   `${playerData.songData.name} 곡의 성과 기록 갱신 중 오류가 발생했습니다.`,
@@ -230,6 +234,7 @@ export default function VArchiveRegScorePage() {
                   updatedCollectionData.push({ ...playerData, status: 'noUpdate' })
                 }
               } catch (error) {
+                logRendererError(error, { message: 'Error in processCollectionData', ...userData })
                 backupDataArray.push(null)
                 showNotification(
                   `${playerData.songData.name} 곡의 성과 기록 갱신 중 오류가 발생했습니다.`,
@@ -424,6 +429,7 @@ export default function VArchiveRegScorePage() {
                       ) || []
                     )
                   } catch (error) {
+                    logRendererError(error, { message: 'Error in fetchUpdateScore', ...userData })
                     console.error(`Error fetching ${boardType}:`, error)
                     return []
                   }
@@ -462,6 +468,7 @@ export default function VArchiveRegScorePage() {
                 })
               }
             } catch (error) {
+              logRendererError(error, { message: 'Error checking TOP50', ...userData })
               console.error('Error checking TOP50:', error)
             }
           }, 1000)
@@ -480,6 +487,7 @@ export default function VArchiveRegScorePage() {
         setIsCanRollback(false)
       }
     } catch (error) {
+      logRendererError(error, { message: 'Error in fetchUpdateScore', ...userData })
       console.error('Error fetching data:', error)
       showNotification(
         '알 수 없는 오류가 발생하여 성과 기록 갱신에 실패하였습니다. 다시 시도해주시길 바랍니다.',
@@ -528,12 +536,14 @@ export default function VArchiveRegScorePage() {
             }
           })
           .catch((error) => {
+            logRendererError(error, { message: 'Error in handleRollback', ...userData })
             showNotification(
               '알 수 없는 오류가 발생하여 성과 기록 롤백에 실패하였습니다. 다시 시도해주시길 바랍니다.',
               'tw-bg-red-600',
             )
           })
       } catch (error) {
+        logRendererError(error, { message: 'Error in handleRollback', ...userData })
         console.error('Error fetching data:', error)
       }
     } else {
@@ -630,14 +640,14 @@ export default function VArchiveRegScorePage() {
                         <div
                           key={index}
                           className={
-                            'tw-flex tw-flex-col tw-gap-1 tw-bg-opacity-10 tw-rounded-md p-0 tw-h-60 ' +
+                            'tw-flex tw-flex-col tw-gap-1 tw-bg-opacity-10 tw-rounded-md tw-h-60 p-0 ' +
                             ` respect_dlc_${playerData.songData.dlcCode} respect_dlc_logo_${playerData.songData.dlcCode} respect_dlc_logo_BG_${playerData.songData.dlcCode}`
                           }
                         >
-                          <div className='tw-flex tw-flex-col tw-animate-fadeInLeft p-4 flex-equal tw-bg-gray-900 tw-bg-opacity-30 tw-rounded-md'>
+                          <div className='tw-flex tw-flex-col tw-animate-fadeInLeft flex-equal tw-bg-gray-900 tw-bg-opacity-30 tw-rounded-md p-4'>
                             {/* 상단 정보 */}
                             <div className='tw-flex tw-flex-col tw-gap-2'>
-                              <div className='tw-animate-fadeInLeft tw-rounded-md p-1 tw-bg-gray-950 tw-bg-opacity-75 tw-h-8 tw-flex tw-items-center tw-me-auto'>
+                              <div className='tw-animate-fadeInLeft tw-rounded-md tw-bg-gray-950 tw-bg-opacity-75 tw-h-8 tw-flex tw-items-center tw-me-auto p-1'>
                                 <span className='respect_dlc_code_wrap'>
                                   <span
                                     className={`respect_dlc_code respect_dlc_code_${playerData.songData.dlcCode}`}
@@ -667,7 +677,7 @@ export default function VArchiveRegScorePage() {
                             </div>
                           </div>
                         </div>
-                        <div className='tw-flex tw-flex-col tw-w-full tw-flex-1 tw-relative tw-animate-fadeInLeft tw-bg-gray-600 tw-bg-opacity-10 tw-rounded-md p-4 tw-gap-2'>
+                        <div className='tw-flex tw-flex-col tw-w-full tw-flex-1 tw-relative tw-animate-fadeInLeft tw-bg-gray-600 tw-bg-opacity-10 tw-rounded-md tw-gap-2 p-4'>
                           <div className='tw-flex tw-flex-col tw-gap-4 tw-items-center tw-justify-center tw-h-12 tw-text-xl tw-font-bold'>
                             {index + 1 === vArchiveUploadedPageData.versusData.length
                               ? 'FINAL ROUND'
@@ -778,7 +788,7 @@ export default function VArchiveRegScorePage() {
                             </div>
                           </div>
                           <div className='tw-flex tw-gap-2 tw-justify-center'>
-                            <div className='tw-animate-fadeInLeft tw-rounded-md p-1 tw-bg-gray-950 tw-bg-opacity-50 px-3 tw-flex tw-items-center tw-gap-2'>
+                            <div className='tw-animate-fadeInLeft tw-rounded-md tw-bg-gray-950 tw-bg-opacity-50 tw-flex tw-items-center tw-gap-2 p-1 px-3'>
                               <span
                                 className={
                                   'tw-text-base text-stroke-100 tw-font-extrabold tw-text-gray-50'
@@ -787,7 +797,7 @@ export default function VArchiveRegScorePage() {
                                 {playerData.button}B
                               </span>
                             </div>
-                            <div className='tw-animate-fadeInLeft tw-rounded-md p-1 tw-bg-gray-950 tw-bg-opacity-50 px-3 tw-flex tw-items-center tw-gap-2'>
+                            <div className='tw-animate-fadeInLeft tw-rounded-md tw-bg-gray-950 tw-bg-opacity-50 tw-flex tw-items-center tw-gap-2 p-1 px-3'>
                               <span
                                 className={
                                   playerData.songData.patterns[`${playerData.button}B`][
@@ -813,7 +823,7 @@ export default function VArchiveRegScorePage() {
                                 {playerData.pattern}
                               </span>
                             </div>
-                            <div className='tw-animate-fadeInLeft tw-rounded-md p-1 tw-bg-gray-950 tw-bg-opacity-50 px-3 tw-flex tw-items-center tw-gap-2'>
+                            <div className='tw-animate-fadeInLeft tw-rounded-md tw-bg-gray-950 tw-bg-opacity-50 tw-flex tw-items-center tw-gap-2 p-1 px-3'>
                               <div>
                                 <Image
                                   loading='lazy' // "lazy" | "eager"
@@ -872,11 +882,11 @@ export default function VArchiveRegScorePage() {
                   <>
                     <div
                       className={
-                        'tw-flex tw-flex-col tw-gap-1 tw-bg-opacity-10 tw-rounded-md p-0 tw-mb-4 tw-h-auto ' +
+                        'tw-flex tw-flex-col tw-gap-1 tw-bg-opacity-10 tw-rounded-md tw-mb-4 tw-h-auto p-0 ' +
                         ` respect_dlc_${vArchiveUploadedPageData.songData.dlcCode} respect_dlc_logo_${vArchiveUploadedPageData.songData.dlcCode} respect_dlc_logo_BG_${vArchiveUploadedPageData.songData.dlcCode}`
                       }
                     >
-                      <div className='tw-flex tw-flex-col tw-animate-fadeInLeft p-4 flex-equal tw-bg-gray-900 tw-bg-opacity-30 tw-rounded-md'>
+                      <div className='tw-flex tw-flex-col tw-animate-fadeInLeft flex-equal tw-bg-gray-900 tw-bg-opacity-30 tw-rounded-md p-4'>
                         {/* 하단 */}
                         <div className='tw-flex tw-justify-between'>
                           <div className='tw-flex tw-gap-3 tw-mt-auto tw-items-end'>
@@ -974,8 +984,8 @@ export default function VArchiveRegScorePage() {
                                   {vArchiveUploadedPageData.songData.patterns[`${vArchiveUploadedPageData.button}B`][pattern].level}
                                 </span>
                               </div> */}
-                              <div className='tw-animate-fadeInLeft tw-rounded-md p-1 tw-bg-gray-950 tw-bg-opacity-75'>
-                                <span className='respect_dlc_code_wrap '>
+                              <div className='tw-animate-fadeInLeft tw-rounded-md tw-bg-gray-950 tw-bg-opacity-75 p-1'>
+                                <span className='respect_dlc_code_wrap'>
                                   <span
                                     className={`respect_dlc_code respect_dlc_code_${vArchiveUploadedPageData.songData.dlcCode}`}
                                   >
@@ -990,7 +1000,7 @@ export default function VArchiveRegScorePage() {
                     </div>
 
                     {vArchiveUploadedPageData.screenType != 'collection' && (
-                      <div className='tw-flex tw-flex-col tw-w-full tw-relative tw-animate-fadeInLeft tw-bg-gray-600 tw-bg-opacity-10 tw-rounded-md p-4 tw-gap-2 tw-mb-4'>
+                      <div className='tw-flex tw-flex-col tw-w-full tw-relative tw-animate-fadeInLeft tw-bg-gray-600 tw-bg-opacity-10 tw-rounded-md tw-gap-2 tw-mb-4 p-4'>
                         <div className='tw-flex tw-justify-between tw-items-center'>
                           <div className='tw-flex tw-flex-col tw-gap-2'>
                             <span className='tw-text-base tw-font-light'>BUTTON</span>
@@ -1204,7 +1214,7 @@ export default function VArchiveRegScorePage() {
 
                     <div className='tw-flex tw-gap-4 tw-w-full tw-flex-1 tw-overflow-hidden'>
                       {vArchiveUploadedPageData.screenType == 'collection' && (
-                        <div className='tw-flex tw-flex-col tw-w-1/2 tw-relative tw-animate-fadeInLeft tw-bg-gray-600 tw-bg-opacity-10 tw-rounded-md p-4 tw-gap-2'>
+                        <div className='tw-flex tw-flex-col tw-w-1/2 tw-relative tw-animate-fadeInLeft tw-bg-gray-600 tw-bg-opacity-10 tw-rounded-md tw-gap-2 p-4'>
                           <div className='tw-flex tw-w-full tw-mb-2 tw-items-center tw-justify-between'>
                             <span className='tw-text-lg tw-font-bold me-auto'>
                               컬렉션 처리 결과
@@ -1301,7 +1311,7 @@ export default function VArchiveRegScorePage() {
                       )}
 
                       {/* 최근 기록 섹션 */}
-                      <div className='tw-flex tw-flex-col tw-w-1/2 tw-relative tw-animate-fadeInLeft tw-bg-gray-600 tw-bg-opacity-10 tw-rounded-md p-4 tw-gap-2'>
+                      <div className='tw-flex tw-flex-col tw-w-1/2 tw-relative tw-animate-fadeInLeft tw-bg-gray-600 tw-bg-opacity-10 tw-rounded-md tw-gap-2 p-4'>
                         <div className='tw-flex tw-w-full tw-mb-2 tw-items-center tw-justify-between'>
                           <span className='tw-text-lg tw-font-bold me-auto'>최근 기록</span>
                           <span className='tw-text-sm tw-text-gray-400'>*RACLA 기록</span>
@@ -1362,7 +1372,7 @@ export default function VArchiveRegScorePage() {
 
                       {/* 추천 옵션 섹션 */}
                       {vArchiveUploadedPageData.screenType != 'collection' && (
-                        <div className='tw-flex tw-flex-col tw-w-1/2 tw-relative tw-animate-fadeInRight tw-bg-gray-600 tw-bg-opacity-10 tw-rounded-md p-4 tw-gap-2'>
+                        <div className='tw-flex tw-flex-col tw-w-1/2 tw-relative tw-animate-fadeInRight tw-bg-gray-600 tw-bg-opacity-10 tw-rounded-md tw-gap-2 p-4'>
                           <div className='tw-flex tw-w-full tw-mb-2 tw-items-center'>
                             <span className='tw-text-lg tw-font-bold me-auto'>팁 & 추천 옵션</span>
                           </div>

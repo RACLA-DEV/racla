@@ -2,12 +2,13 @@ import * as R from 'ramda'
 
 import React, { useEffect, useState } from 'react'
 
-import ScorePopupComponent from '@/components/score/ScorePopupComponent'
-import { globalDictionary } from '@/libs/server/globalDictionary'
 import Head from 'next/head'
-import { useSelector } from 'react-redux'
-import { SyncLoader } from 'react-spinners'
 import { RootState } from 'store'
+import ScorePopupComponent from '@/components/score/ScorePopupComponent'
+import { SyncLoader } from 'react-spinners'
+import { globalDictionary } from '@/libs/server/globalDictionary'
+import { logRendererError } from '@/libs/client/rendererLogger'
+import { useSelector } from 'react-redux'
 
 export default function VArchiveDjPowerPage() {
   const [keyMode, setKeyMode] = useState<string>('4')
@@ -190,6 +191,7 @@ export default function VArchiveDjPowerPage() {
       const data = await response.json()
       return data
     } catch (error) {
+      logRendererError(error, { message: 'Error in loadDataWithScore', ...userData })
       console.error('There has been a problem with your fetch operation:', error)
       return null
     }
@@ -345,7 +347,7 @@ export default function VArchiveDjPowerPage() {
               key={'DifficultyBody' + levelValue}
               className='tw-flex tw-flex-col tw-animate-fadeInLeft'
             >
-              <span className='tw-text-2xl tw-py-2 tw-mb-3 tw-w-full tw-font-bold me-auto tw-border-b tw-border-gray-600 tw-border-opacity-50'>
+              <span className='tw-text-2xl tw-py-2 tw-mb-3 tw-w-full tw-font-bold tw-border-b tw-border-gray-600 tw-border-opacity-50 me-auto'>
                 SC{' '}
                 {Number(levelValue) == 8
                   ? String(levelValue) + ' + MX 15'

@@ -1,4 +1,4 @@
-import { contextBridge, desktopCapturer, ipcRenderer, IpcRendererEvent } from 'electron'
+import { IpcRendererEvent, contextBridge, desktopCapturer, ipcRenderer } from 'electron'
 
 const handler = {
   send(channel: string, value?: unknown) {
@@ -30,6 +30,11 @@ const handler = {
   desktopCapturer: (options) => desktopCapturer.getSources(options),
   removeListener: (channel: string, callback: (...args: unknown[]) => void) =>
     ipcRenderer.removeListener(channel, callback),
+  invoke: (channel: string, ...args: unknown[]) => {
+    if (channel === 'OPEN_DISCORD_LOGIN') {
+      return ipcRenderer.invoke(channel, ...args)
+    }
+  },
 }
 
 contextBridge.exposeInMainWorld('ipc', handler)

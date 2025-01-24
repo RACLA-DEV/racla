@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from 'react'
+
 import Head from 'next/head'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useRouter } from 'next/router'
 import RaScorePopupComponent from '@/components/score/RaScorePopupComponent'
-import { useNotificationSystem } from '@/libs/client/useNotifications'
-import axios from 'axios'
-import { useSelector } from 'react-redux'
-import { SyncLoader } from 'react-spinners'
 import { RootState } from 'store'
+import { SyncLoader } from 'react-spinners'
+import axios from 'axios'
+import { logRendererError } from '@/libs/client/rendererLogger'
+import { useNotificationSystem } from '@/libs/client/useNotifications'
+import { useRouter } from 'next/router'
+import { useSelector } from 'react-redux'
 
 interface Pattern {
   title: number
@@ -157,6 +159,7 @@ const Board = () => {
           setFloorData(combinedFloors)
         }
       } catch (error) {
+        logRendererError(error, { message: 'Error in fetchBoardData', ...userData })
         console.error('Error fetching board data:', error)
       } finally {
         if (isMounted) {
@@ -388,7 +391,7 @@ const Board = () => {
           {/* 통계 섹션 */}
           {!isLoading ? (
             <div className='tw-flex tw-gap-4'>
-              <div className='[text-shadow:_2px_2px_2px_rgb(0_0_0_/_90%),_4px_4px_4px_rgb(0_0_0_/_60%)] tw-relative tw-w-2/3 tw-h-[20rem] tw-rounded-lg tw-overflow-hidden'>
+              <div className='tw-relative tw-w-2/3 tw-h-[20rem] tw-rounded-lg tw-overflow-hidden [text-shadow:_2px_2px_2px_rgb(0_0_0_/_90%),_4px_4px_4px_rgb(0_0_0_/_60%)]'>
                 <Image
                   src={`/images/wjmax/jackets/${wjmaxSongData[randomHeaderBg - 1].folderName}.jpg`}
                   alt='Background'
@@ -526,12 +529,11 @@ const Board = () => {
                         onClick={() =>
                           setSelectedDifficulty(group.name as '1~10' | '11~20' | '21~30')
                         }
-                        className={`tw-flex-1 tw-px-4 tw-py-1.5 tw-rounded-md tw-text-sm tw-font-medium tw-transition-all
-                          ${
-                            selectedDifficulty === group.name
-                              ? 'tw-bg-blue-900/50 tw-text-blue-200 tw-border tw-border-blue-500'
-                              : 'tw-bg-gray-800/30 hover:tw-bg-gray-700/50 tw-text-gray-400'
-                          }`}
+                        className={`tw-flex-1 tw-px-4 tw-py-1.5 tw-rounded-md tw-text-sm tw-font-medium tw-transition-all ${
+                          selectedDifficulty === group.name
+                            ? 'tw-bg-blue-900/50 tw-text-blue-200 tw-border tw-border-blue-500'
+                            : 'tw-bg-gray-800/30 hover:tw-bg-gray-700/50 tw-text-gray-400'
+                        }`}
                       >
                         Lv.{group.name}
                       </button>
@@ -541,20 +543,17 @@ const Board = () => {
                   {levelGroups.map((group) => (
                     <div
                       key={group.name}
-                      className={`tw-grid tw-grid-cols-5 tw-gap-1 tw-transition-all tw-duration-300
-                        ${selectedDifficulty === group.name ? 'tw-block' : 'tw-hidden'}`}
+                      className={`tw-grid tw-grid-cols-5 tw-gap-1 tw-transition-all tw-duration-300 ${selectedDifficulty === group.name ? 'tw-block' : 'tw-hidden'}`}
                     >
                       {group.levels.map((level) => (
                         <Link
                           key={`level_${level}`}
                           href={`/projectRa/wjmax/board/${keyMode}/${level}`}
-                          className={`tw-flex tw-items-center tw-justify-center tw-relative tw-h-8 
-                            tw-transition-all tw-duration-300 tw-rounded-md 
-                            ${
-                              level === board
-                                ? 'tw-bg-blue-900/50 tw-text-blue-200 tw-border tw-border-blue-500'
-                                : 'tw-bg-gray-800/30 hover:tw-bg-gray-700/50 tw-text-gray-400'
-                            } tw-text-sm tw-font-medium`}
+                          className={`tw-flex tw-items-center tw-justify-center tw-relative tw-h-8 tw-transition-all tw-duration-300 tw-rounded-md ${
+                            level === board
+                              ? 'tw-bg-blue-900/50 tw-text-blue-200 tw-border tw-border-blue-500'
+                              : 'tw-bg-gray-800/30 hover:tw-bg-gray-700/50 tw-text-gray-400'
+                          } tw-text-sm tw-font-medium`}
                         >
                           Lv.{level}
                         </Link>

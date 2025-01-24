@@ -5,6 +5,7 @@ import '@styles/globals.css';
 
 import { AnimatePresence, motion } from 'framer-motion'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
+import { addNotification, removeNotification } from 'store/slices/notificationSlice'
 import {
   setCollectionData,
   setIsDetectedGame,
@@ -20,28 +21,28 @@ import {
   setVArchiveUserData,
   setWjmaxSongData,
 } from 'store/slices/appSlice'
-import { addNotification, removeNotification } from 'store/slices/notificationSlice'
 import { setFontFamily, setIsDjCommentOpen } from 'store/slices/uiSlice'
 
+import type { AppProps } from 'next/app'
+import BackgroundVideoComponent from '@/components/layout/BackgroundVideoComponent'
 import FooterComponent from '@/components/footer/FooterComponent'
 import HeaderComponent from '@/components/header/HeaderComponent'
-import BackgroundVideoComponent from '@/components/layout/BackgroundVideoComponent'
 import HomePanelComponent from '@/components/layout/HomePanelComponent'
+import { IUserNameResponse } from '@/types/IUserName'
+import Image from 'next/image'
 import ImageViewerComponent from '@/components/layout/ImageViewerComponent'
 import NotificationComponent from '@/components/notification/NotificationComponent'
-import { IUserNameResponse } from '@/types/IUserName'
-import type { AppProps } from 'next/app'
-import Image from 'next/image'
 import { Provider } from 'react-redux'
 // import { setIsDetectedGame, setSettingData, setUserData, setUploadedData, setVArchiveSongData } from 'store/slices/appSlice'
 import SettingComponent from '@/components/layout/SettingComponent'
 import SidebarComponent from '@/components/sidebar/SidebarComponent'
+import { SyncLoader } from 'react-spinners'
 import axios from 'axios'
 import localFont from 'next/font/local'
+import { logRendererError } from '@/libs/client/rendererLogger'
+import { store } from 'store'
 import { useParams } from 'next/navigation'
 import { useRouter } from 'next/router'
-import { SyncLoader } from 'react-spinners'
-import { store } from 'store'
 import { v4 as uuidv4 } from 'uuid'
 
 const noto = localFont({
@@ -64,6 +65,7 @@ function MyApp({ Component, pageProps }: AppProps) {
   const [vArchiveUserNo, setVArchiveUserNo] = useState<string>('')
   const [vArchiveUserToken, setVArchiveUserToken] = useState<string>('')
   const [vArchiveUserName, setVArchiveUserName] = useState<string>('')
+  const [discordUid, setDiscordUid] = useState<string>('')
   const [settingDataApp, setSettingDataApp] = useState<any>(null)
 
   useEffect(() => {
@@ -199,11 +201,17 @@ function MyApp({ Component, pageProps }: AppProps) {
         return data
       } catch (error) {
         console.error('Error fetching processed song data:', error)
+        logRendererError(
+          error,
+          userNo != '' && userToken != ''
+            ? { userNo, userToken, message: 'Error fetching processed song data' }
+            : { message: 'Error fetching processed song data' },
+        )
         throw error
       }
     }
 
-    fetchData().catch(() => {
+    fetchData().catch((error) => {
       // 서버 요청 실패시 로컬 데이터 사용
       window.ipc.getSongData('djmax_respect_v')
 
@@ -229,6 +237,12 @@ function MyApp({ Component, pageProps }: AppProps) {
         return data
       } catch (error) {
         console.error('Error fetching processed song data:', error)
+        logRendererError(
+          error,
+          userNo != '' && userToken != ''
+            ? { userNo, userToken, message: 'Error fetching processed song data' }
+            : { message: 'Error fetching processed song data' },
+        )
         throw error
       }
     }
@@ -303,6 +317,9 @@ function MyApp({ Component, pageProps }: AppProps) {
             setVArchiveUserToken(data.vArchiveUserToken)
             setVArchiveUserName(data.vArchiveUserName)
           }
+          if (data.discordUid !== '') {
+            setDiscordUid(data.discordUid)
+          }
         })
       }
     }
@@ -338,7 +355,7 @@ function MyApp({ Component, pageProps }: AppProps) {
   }, [params, router])
 
   // 로그인 타입 정의
-  type LoginType = 'vArchive' | 'normal'
+  type LoginType = 'vArchive' | 'normal' | 'discord'
 
   // 로그인 함수 분리
   const handleLogin = async (
@@ -349,7 +366,12 @@ function MyApp({ Component, pageProps }: AppProps) {
 
     try {
       // RACLA API 로그인
-      const endpoint = loginType === 'vArchive' ? '/v1/user/login/oauth/vArchive' : '/v1/user/login'
+      const endpoint =
+        loginType === 'vArchive'
+          ? '/v1/user/login/oauth/vArchive'
+          : loginType === 'discord'
+            ? '/v1/user/login/oauth/discord'
+            : '/v1/user/login'
 
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}${endpoint}`,
@@ -359,6 +381,8 @@ function MyApp({ Component, pageProps }: AppProps) {
       if (!response.data) {
         throw new Error('유효하지 않은 사용자 세션입니다.')
       }
+
+      console.log(response.data)
 
       // 기본 사용자 데이터 저장
       showNotification(
@@ -371,10 +395,16 @@ function MyApp({ Component, pageProps }: AppProps) {
           userName: response.data.userName,
           userNo: response.data.userNo,
           userToken: response.data.userToken,
+          discordUid: response.data.discordUid,
+          discordLinked: response.data.discordLinked || false,
           randomTitle: Math.floor(Math.random() * 652 + 1).toString(),
           vArchiveLinked: response.data.varchiveLinked || false,
         }),
       )
+
+      if (response.data.discordLinked) {
+        setDiscordUid(response.data.discordUid)
+      }
 
       // V-ARCHIVE 연동 처리
       if (response.data.varchiveLinked) {
@@ -426,13 +456,21 @@ function MyApp({ Component, pageProps }: AppProps) {
         })
       } else {
         showNotification(
-          'DJMAX RESPECT V 서비스를 이용하시려면 V-ARCHIVE 계정 연동이 필요합니다. 설정에서 연동을 진행해주세요.',
-          'tw-bg-yellow-600',
+          'DJMAX RESPECT V 서비스를 이용하시려면 V-ARCHIVE 계정 연동이 필요합니다. 사이드바에 위치한 설정 -> 내 계정 탭에서 연동을 진행해주세요.',
+          'tw-bg-amber-600',
+        )
+      }
+
+      if (!response.data.discordLinked) {
+        showNotification(
+          'Discord 계정 연동이 되어 있지 않습니다. 사이드바에 위치한 설정 -> 내 계정 탭에서 연동을 진행해주세요.',
+          'tw-bg-amber-600',
         )
       }
 
       window.ipc.send('logined')
     } catch (error) {
+      logRendererError(error, { message: 'Error in handleLogin' })
       window.ipc.logout()
       if (loginType === 'vArchive') {
         setVArchiveUserNo('')
@@ -787,7 +825,7 @@ function MyApp({ Component, pageProps }: AppProps) {
             <div className={`tw-w-full tw-transition-all tw-h-full ${noto.className}`}>
               <BackgroundVideoComponent />
               <main
-                className='tw-pr-2 tw-mx-2 tw-text-sm tw-transition-all tw-overflow-x-hidden custom-scrollbar'
+                className='tw-pr-2 tw-mx-2 tw-text-sm tw-transition-all tw-overflow-x-hidden custom-scrollbar custom-scrollbar-always'
                 style={{
                   marginLeft: settingDataApp.isMiniMode ? '4.25rem' : '14rem',
                   marginBottom: '3rem',

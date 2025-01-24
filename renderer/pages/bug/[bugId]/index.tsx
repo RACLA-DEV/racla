@@ -1,9 +1,13 @@
 import 'moment/locale/ko'
-import { useEffect, useState } from 'react'
-import { useRouter } from 'next/router'
+
+import React, { useEffect, useState } from 'react'
+
+import { logRendererError } from '@/libs/client/rendererLogger'
 import axios from 'axios'
 import { motion } from 'framer-motion'
 import moment from 'moment'
+import Head from 'next/head'
+import { useRouter } from 'next/router'
 import { useSelector } from 'react-redux'
 import { SyncLoader } from 'react-spinners'
 import { RootState } from 'store'
@@ -44,7 +48,9 @@ export default function BugDetail() {
       })
       const data = await response.data
       setBug(data)
-    } catch (error) {}
+    } catch (error) {
+      logRendererError(error, { message: 'Error in fetchBugDetail', ...userData })
+    }
   }
 
   useEffect(() => {
@@ -70,6 +76,7 @@ export default function BugDetail() {
         fetchBugDetail()
       }
     } catch (error) {
+      logRendererError(error, { message: 'Error in handleAddComment', ...userData })
     } finally {
       setLoading(false)
     }
@@ -84,91 +91,96 @@ export default function BugDetail() {
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0, x: 20 }}
-      animate={{ opacity: 1, x: 0 }}
-      className='tw-space-y-6'
-    >
-      <div className='tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-p-6'>
-        <div className='tw-flex tw-items-center tw-justify-between tw-mb-4'>
-          <h1 className='tw-text-2xl tw-font-bold'>{bug.title}</h1>
-          <button
-            type='button'
-            className='tw-px-4 tw-py-1.5 tw-text-sm tw-bg-blue-600 tw-rounded hover:tw-bg-blue-700 tw-transition-colors'
-            onClick={() => router.push('/bug')}
-          >
-            피드백 센터로 돌아가기
-          </button>
-        </div>
-
-        <div className='tw-space-y-2 tw-mb-4'>
-          <p className='tw-text-gray-400'>
-            <span className='tw-font-semibold'>상태:</span> {bug.status}
-          </p>
-          <p className='tw-text-gray-400'>
-            <span className='tw-font-semibold'>작성자:</span> {bug.reporterName}
-          </p>
-          <p className='tw-text-gray-400'>
-            <span className='tw-font-semibold'>작성 시간:</span>{' '}
-            {moment(bug.createdAt).format('YYYY-MM-DD HH:mm:ss')}
-          </p>
-          <div className='tw-bg-gray-800 tw-p-6 tw-rounded-lg tw-space-y-4'>
-            <p className='tw-whitespace-pre-wrap'>{bug.description}</p>
+    <React.Fragment>
+      <Head>
+        <title>피드백 센터 - RACLA</title>
+      </Head>
+      <motion.div
+        initial={{ opacity: 0, x: 20 }}
+        animate={{ opacity: 1, x: 0 }}
+        className='tw-space-y-6'
+      >
+        <div className='tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-p-6'>
+          <div className='tw-flex tw-items-center tw-justify-between tw-mb-4'>
+            <h1 className='tw-text-2xl tw-font-bold'>{bug.title}</h1>
+            <button
+              type='button'
+              className='tw-px-4 tw-py-1.5 tw-text-sm tw-bg-blue-600 tw-rounded hover:tw-bg-blue-700 tw-transition-colors'
+              onClick={() => router.push('/bug')}
+            >
+              피드백 센터로 돌아가기
+            </button>
           </div>
-        </div>
 
-        <div className='tw-space-y-4'>
-          <h2 className='tw-text-lg tw-font-semibold'>추가 의견</h2>
-
-          {userData.userName !== '' ? (
-            bug.status !== 'CLOSED' ? (
-              <div className='tw-mb-4'>
-                <div className='tw-flex tw-gap-2'>
-                  <textarea
-                    value={newComment}
-                    onChange={(e) => setNewComment(e.target.value)}
-                    className='tw-flex-1 tw-bg-gray-700 tw-rounded tw-px-3 tw-py-2 focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-blue-500'
-                    placeholder='추가 의견을 작성해주세요. 부적절한 언어 사용과 문제 발생 시 피드백 센터의 이용 제한 조치가 이루어질 수 있습니다.'
-                    rows={3}
-                  />
-                  <button
-                    onClick={handleAddComment}
-                    disabled={loading || !newComment.trim()}
-                    className='tw-px-4 tw-py-2 tw-bg-blue-600 tw-rounded hover:tw-bg-blue-700 tw-transition-colors disabled:tw-opacity-50'
-                  >
-                    {loading ? <SyncLoader size={8} color='#ffffff' /> : '작성하기'}
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <div className='tw-bg-gray-800 tw-p-6 tw-rounded-lg tw-space-y-4 tw-text-center'>
-                <p className='tw-whitespace-pre-wrap'>
-                  관리자가 해당 피드백의 상태를 CLOSED로 변경하여 추가 의견을 더 이상 작성할 수
-                  없습니다.
-                </p>
-              </div>
-            )
-          ) : (
-            <div className='tw-bg-gray-800 tw-p-6 tw-rounded-lg tw-space-y-4 tw-text-center'>
-              <p className='tw-whitespace-pre-wrap'>추가 의견 작성은 로그인이 필요합니다.</p>
+          <div className='tw-space-y-2 tw-mb-4'>
+            <p className='tw-text-gray-400'>
+              <span className='tw-font-semibold'>상태:</span> {bug.status}
+            </p>
+            <p className='tw-text-gray-400'>
+              <span className='tw-font-semibold'>작성자:</span> {bug.reporterName}
+            </p>
+            <p className='tw-text-gray-400'>
+              <span className='tw-font-semibold'>작성 시간:</span>{' '}
+              {moment(bug.createdAt).format('YYYY-MM-DD HH:mm:ss')}
+            </p>
+            <div className='tw-bg-gray-800 tw-p-6 tw-rounded-lg tw-space-y-4'>
+              <p className='tw-whitespace-pre-wrap'>{bug.description}</p>
             </div>
-          )}
+          </div>
 
           <div className='tw-space-y-4'>
-            {bug.comments.map((comment) => (
-              <div key={comment.id} className='tw-bg-gray-700 tw-bg-opacity-50 tw-rounded tw-p-4'>
-                <div className='tw-flex tw-justify-between tw-items-center tw-mb-2'>
-                  <span className='tw-font-medium'>{comment.commenterName}</span>
-                  <span className='tw-text-sm tw-text-gray-400'>
-                    {moment(comment.createdAt).format('YYYY-MM-DD HH:mm:ss')}
-                  </span>
+            <h2 className='tw-text-lg tw-font-semibold'>추가 의견</h2>
+
+            {userData.userName !== '' ? (
+              bug.status !== 'CLOSED' ? (
+                <div className='tw-mb-4'>
+                  <div className='tw-flex tw-gap-2'>
+                    <textarea
+                      value={newComment}
+                      onChange={(e) => setNewComment(e.target.value)}
+                      className='tw-flex-1 tw-bg-gray-700 tw-rounded tw-px-3 tw-py-2 focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-blue-500'
+                      placeholder='추가 의견을 작성해주세요. 부적절한 언어 사용과 문제 발생 시 피드백 센터의 이용 제한 조치가 이루어질 수 있습니다.'
+                      rows={3}
+                    />
+                    <button
+                      onClick={handleAddComment}
+                      disabled={loading || !newComment.trim()}
+                      className='tw-px-4 tw-py-2 tw-bg-blue-600 tw-rounded hover:tw-bg-blue-700 tw-transition-colors disabled:tw-opacity-50'
+                    >
+                      {loading ? <SyncLoader size={8} color='#ffffff' /> : '작성하기'}
+                    </button>
+                  </div>
                 </div>
-                <p className='tw-whitespace-pre-wrap'>{comment.content}</p>
+              ) : (
+                <div className='tw-bg-gray-800 tw-p-6 tw-rounded-lg tw-space-y-4 tw-text-center'>
+                  <p className='tw-whitespace-pre-wrap'>
+                    관리자가 해당 피드백의 상태를 CLOSED로 변경하여 추가 의견을 더 이상 작성할 수
+                    없습니다.
+                  </p>
+                </div>
+              )
+            ) : (
+              <div className='tw-bg-gray-800 tw-p-6 tw-rounded-lg tw-space-y-4 tw-text-center'>
+                <p className='tw-whitespace-pre-wrap'>추가 의견 작성은 로그인이 필요합니다.</p>
               </div>
-            ))}
+            )}
+
+            <div className='tw-space-y-4'>
+              {bug.comments.map((comment) => (
+                <div key={comment.id} className='tw-bg-gray-700 tw-bg-opacity-50 tw-rounded tw-p-4'>
+                  <div className='tw-flex tw-justify-between tw-items-center tw-mb-2'>
+                    <span className='tw-font-medium'>{comment.commenterName}</span>
+                    <span className='tw-text-sm tw-text-gray-400'>
+                      {moment(comment.createdAt).format('YYYY-MM-DD HH:mm:ss')}
+                    </span>
+                  </div>
+                  <p className='tw-whitespace-pre-wrap'>{comment.content}</p>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
-      </div>
-    </motion.div>
+      </motion.div>
+    </React.Fragment>
   )
 }

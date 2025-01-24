@@ -13,8 +13,8 @@ import {
   FaWindowMaximize,
 } from 'react-icons/fa6'
 
-import packageJson from '../../../../package.json'
 import { BUILD_DATE } from './buildInfo'
+import packageJson from '../../../../package.json'
 
 export const globalDictionary = {
   version: `${packageJson.version}-${BUILD_DATE} ${process.env.NODE_ENV === 'development' ? 'Dev' : 'Main'}`,

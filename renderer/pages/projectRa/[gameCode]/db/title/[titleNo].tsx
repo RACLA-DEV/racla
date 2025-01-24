@@ -1,21 +1,25 @@
 import 'moment/locale/ko'
+
+import * as R from 'ramda'
+
 import React, { useEffect, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+
+import { FaYoutube } from 'react-icons/fa6'
 import Head from 'next/head'
 import Image from 'next/image'
+import { RootState } from 'store'
+import ScoreEditComponent from '@/components/score/ScoreEditComponent'
+import { SyncLoader } from 'react-spinners'
+import WjmaxChartComponent from '@/components/chart/WjmaxChartComponent'
+import axios from 'axios'
+import { globalDictionary } from '@/libs/server/globalDictionary'
+import { logRendererError } from '@/libs/client/rendererLogger'
+import moment from 'moment'
+import { setBackgroundBgaName } from 'store/slices/uiSlice'
+import { useNotificationSystem } from '@/libs/client/useNotifications'
 import { useParams } from 'next/navigation'
 import { useRouter } from 'next/router'
-import WjmaxChartComponent from '@/components/chart/WjmaxChartComponent'
-import ScoreEditComponent from '@/components/score/ScoreEditComponent'
-import { useNotificationSystem } from '@/libs/client/useNotifications'
-import { globalDictionary } from '@/libs/server/globalDictionary'
-import axios from 'axios'
-import moment from 'moment'
-import * as R from 'ramda'
-import { FaYoutube } from 'react-icons/fa6'
-import { useDispatch, useSelector } from 'react-redux'
-import { SyncLoader } from 'react-spinners'
-import { RootState } from 'store'
-import { setBackgroundBgaName } from 'store/slices/uiSlice'
 
 export default function VArchiveDbTitlePage() {
   const { showNotification } = useNotificationSystem()
@@ -85,6 +89,7 @@ export default function VArchiveDbTitlePage() {
             patterns: newPatterns,
           })
         } catch (error) {
+          logRendererError(error, { message: 'Error in fetchUserSongData', ...userData })
           console.error('Error fetching user song data:', error)
           setBaseSongData(filteredData)
         }
@@ -180,12 +185,14 @@ export default function VArchiveDbTitlePage() {
             }
           })
           .catch((error) => {
+            logRendererError(error, { message: 'Error in fetchUpdateScore', ...userData })
             showNotification(
               '성과 기록 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
               'tw-bg-red-600',
             )
           })
       } catch (error) {
+        logRendererError(error, { message: 'Error in fetchUpdateScore', ...userData })
         console.error('Error fetching data:', error)
       }
     } else {
@@ -229,6 +236,7 @@ export default function VArchiveDbTitlePage() {
         setSongItemData(result)
       }
     } catch (error) {
+      logRendererError(error, { message: 'Error in fetchSongItemData', ...userData })
       console.error('Error fetching data:', error)
     }
   }
@@ -266,6 +274,7 @@ export default function VArchiveDbTitlePage() {
         const { data } = response
         return data
       } catch (error) {
+        logRendererError(error, { message: 'Error in loadDataWithScore', ...userData })
         console.error('There has been a problem with your fetch operation:', error)
         return null
       }
@@ -334,6 +343,7 @@ export default function VArchiveDbTitlePage() {
       setPatternViewerData(jsonData)
       setShowPatternViewer(true)
     } catch (error) {
+      logRendererError(error, { message: 'Error in fetchPatternData', ...userData })
       console.error('Error fetching pattern data:', error)
       showNotification('패턴 데이터를 불러오는데 실패했습니다.', 'tw-bg-red-600')
     }
@@ -354,7 +364,7 @@ export default function VArchiveDbTitlePage() {
           >
             <div
               className={
-                'tw-flex tw-flex-col tw-gap-4 tw-bg-opacity-10 tw-rounded-md p-0 tw-mb-4 tw-h-auto tw-relative ' +
+                'tw-flex tw-flex-col tw-gap-4 tw-bg-opacity-10 tw-rounded-md tw-mb-4 tw-h-auto tw-relative p-0 ' +
                 ` wjmax${baseSongData[0].dlcCode}} wjmax_dlc_logo_${baseSongData[0].dlcCode} wjmax_dlc_logo_BG_${baseSongData[0].dlcCode}`
               }
               onClick={() => {
@@ -373,7 +383,7 @@ export default function VArchiveDbTitlePage() {
                 <div className='tw-absolute tw-inset-0 tw-bg-black tw-bg-opacity-50' />
               </div>
 
-              <div className='tw-flex tw-justify-between tw-gap-4 tw-animate-fadeInLeft p-4 flex-equal tw-bg-gray-900 tw-bg-opacity-30 tw-rounded-md'>
+              <div className='tw-flex tw-justify-between tw-gap-4 tw-animate-fadeInLeft flex-equal tw-bg-gray-900 tw-bg-opacity-30 tw-rounded-md p-4'>
                 {/* 하단 */}
                 <div className='tw-flex tw-gap-3 tw-mt-auto tw-items-end'>
                   <Image
@@ -409,15 +419,15 @@ export default function VArchiveDbTitlePage() {
                   <div className='tw-flex tw-gap-2'>
                     {String(baseSongData[0].bgaUrl).trim() !== '' && (
                       <button
-                        className='tw-inline-flex tw-items-center tw-gap-2 tw-animate-fadeInLeft p-1 px-2 tw-bg-gray-950 tw-bg-opacity-75 tw-rounded-md hover:tw-bg-gray-700 tw-transition-colors tw-text-sm'
+                        className='tw-inline-flex tw-items-center tw-gap-2 tw-animate-fadeInLeft tw-bg-gray-950 tw-bg-opacity-75 tw-rounded-md hover:tw-bg-gray-700 tw-transition-colors tw-text-sm p-1 px-2'
                         onClick={() => window.ipc.openBrowser(baseSongData[0].bgaUrl)}
                       >
                         <FaYoutube className='tw-text-red-500 tw-mt-0.5' />
                         <span className='tw-text-gray-300'>BGA 영상 바로가기</span>
                       </button>
                     )}
-                    <div className='tw-animate-fadeInLeft tw-rounded-md p-1 tw-bg-gray-950 tw-bg-opacity-75'>
-                      <span className='wjmax_dlc_code_wrap '>
+                    <div className='tw-animate-fadeInLeft tw-rounded-md tw-bg-gray-950 tw-bg-opacity-75 p-1'>
+                      <span className='wjmax_dlc_code_wrap'>
                         <span
                           className={`wjmax_dlc_code wjmax_dlc_code_${baseSongData[0].dlcCode}`}
                         >
@@ -447,8 +457,8 @@ export default function VArchiveDbTitlePage() {
                       .map((patternName) => (
                         <React.Fragment key={String(patternName)}>
                           {/* Button Column */}
-                          <div className='tw-flex tw-flex-1'>
-                            <div className='tw-min-w-20 tw-border-gray-600  tw-border-opacity-25 tw-flex tw-flex-col tw-justify-center tw-items-center tw-overflow-hidden tw-bg-gray-900 tw-bg-opacity-20 tw-rounded-lg'>
+                          <div className='tw-flex tw-flex-1 tw-gap-2'>
+                            <div className='tw-min-w-20 tw-border-gray-600 tw-border-opacity-25 tw-flex tw-flex-col tw-justify-center tw-items-center tw-overflow-hidden tw-bg-gray-900 tw-bg-opacity-20 tw-rounded-lg'>
                               <div className='tw-relative tw-h-full tw-w-full tw-flex-1'>
                                 <div
                                   className={`tw-absolute tw-inset-0 wjmax_db_button wjmax_bg_b${String(
@@ -489,7 +499,7 @@ export default function VArchiveDbTitlePage() {
                                 </button> */}
                                     <div
                                       key={`${String(patternName)}_${difficultyCode}`}
-                                      className={`tw-border-gray-600 tw-border-opacity-25 tw-flex tw-h-full tw-flex-col tw-justify-center tw-items-center tw-p-2 tw-bg-gray-700 tw-bg-opacity-20 tw-rounded-lg  ${
+                                      className={`tw-border-gray-600 tw-border-opacity-25 tw-flex tw-h-full tw-flex-col tw-justify-center tw-items-center tw-p-2 tw-bg-gray-700 tw-bg-opacity-20 tw-rounded-lg ${
                                         userData.userName !== ''
                                           ? 'tw-cursor-pointer hover:tw-bg-gray-600 hover:tw-bg-opacity-30'
                                           : ''

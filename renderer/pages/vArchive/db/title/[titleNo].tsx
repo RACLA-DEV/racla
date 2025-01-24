@@ -2,24 +2,25 @@ import 'moment/locale/ko'
 
 import * as R from 'ramda'
 
-import React, { useEffect, useState } from 'react'
 import { FaChevronLeft, FaHeart, FaRegHeart } from 'react-icons/fa6'
-import { useDispatch, useSelector } from 'react-redux'
+import React, { useEffect, useState } from 'react'
 import { setBackgroundBgaName, setIsDjCommentOpen } from 'store/slices/uiSlice'
+import { useDispatch, useSelector } from 'react-redux'
 
+import Head from 'next/head'
+import { IconContext } from 'react-icons'
+import Image from 'next/image'
+import { RootState } from 'store'
 import ScoreEditComponent from '@/components/score/ScoreEditComponent'
 import ScorePopupComponent from '@/components/score/ScorePopupComponent'
-import { useNotificationSystem } from '@/libs/client/useNotifications'
-import { globalDictionary } from '@/libs/server/globalDictionary'
+import { SyncLoader } from 'react-spinners'
 import axios from 'axios'
+import { globalDictionary } from '@/libs/server/globalDictionary'
+import { logRendererError } from '@/libs/client/rendererLogger'
 import moment from 'moment'
-import Head from 'next/head'
-import Image from 'next/image'
+import { useNotificationSystem } from '@/libs/client/useNotifications'
 import { useParams } from 'next/navigation'
 import { useRouter } from 'next/router'
-import { IconContext } from 'react-icons'
-import { SyncLoader } from 'react-spinners'
-import { RootState } from 'store'
 
 export default function VArchiveDbTitlePage() {
   const { showNotification } = useNotificationSystem()
@@ -91,6 +92,7 @@ export default function VArchiveDbTitlePage() {
               setBaseSongData([data])
             })
             .catch((error) => {
+              logRendererError(error, { message: 'Error in fetchUserSongData', ...userData })
               showNotification(
                 '수록곡의 데이터베이스를 V-ARCHIVE에서 가져오는 중에 문제가 발생하였습니다.',
                 'tw-bg-red-600',
@@ -99,6 +101,7 @@ export default function VArchiveDbTitlePage() {
               setBaseSongData(filteredData)
             })
         } catch (error) {
+          logRendererError(error, { message: 'Error in fetchUserSongData', ...userData })
           showNotification(
             '수록곡의 데이터베이스를 V-ARCHIVE에서 가져오는 중에 문제가 발생하였습니다.',
             'tw-bg-red-600',
@@ -174,9 +177,11 @@ export default function VArchiveDbTitlePage() {
             }
           })
           .catch((error) => {
+            logRendererError(error, { message: 'Error in fetchUpdateScore', ...userData })
             // console.log(error)
           })
       } catch (error) {
+        logRendererError(error, { message: 'Error in fetchUpdateScore', ...userData })
         console.error('Error fetching data:', error)
       }
     } else {
@@ -210,6 +215,7 @@ export default function VArchiveDbTitlePage() {
         setSongItemData(result)
       }
     } catch (error) {
+      logRendererError(error, { message: 'Error in fetchSongItemData', ...userData })
       console.error('Error fetching data:', error)
     }
   }
@@ -230,6 +236,7 @@ export default function VArchiveDbTitlePage() {
         setCommentRivalSongItemData(result)
       }
     } catch (error) {
+      logRendererError(error, { message: 'Error in fetchCommentRivalSongItemData', ...userData })
       console.error('Error fetching data:', error)
     }
   }
@@ -269,9 +276,11 @@ export default function VArchiveDbTitlePage() {
           }
         })
         .catch((error) => {
+          logRendererError(error, { message: 'Error in updateCommentVote', ...userData })
           // console.log(error)
         })
     } catch (error) {
+      logRendererError(error, { message: 'Error in updateCommentVote', ...userData })
       console.error('Error fetching data:', error)
     }
   }
@@ -327,12 +336,14 @@ export default function VArchiveDbTitlePage() {
           }
         })
         .catch((error) => {
+          logRendererError(error, { message: 'Error in fetchCommentContent', ...userData })
           // console.log(error)
         })
         .finally(() => {
           setIsCommentUpdateMode(false)
         })
     } catch (error) {
+      logRendererError(error, { message: 'Error in fetchCommentContent', ...userData })
       console.error('Error fetching data:', error)
     }
   }
@@ -363,6 +374,7 @@ export default function VArchiveDbTitlePage() {
           }
         })
     } catch (error) {
+      logRendererError(error, { message: 'Error in fetchCommentData', ...userData })
       console.error('Error fetching data:', error)
     } finally {
       setIsFetchingCommentData(false)
@@ -423,6 +435,7 @@ export default function VArchiveDbTitlePage() {
         const data = await response.json()
         return data
       } catch (error) {
+        logRendererError(error, { message: 'Error in loadDataWithScore', ...userData })
         console.error('There has been a problem with your fetch operation:', error)
         return null
       }
