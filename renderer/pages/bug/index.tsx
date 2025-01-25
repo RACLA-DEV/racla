@@ -1,18 +1,18 @@
-import React, {useEffect, useState} from 'react'
+import React, { useEffect, useState } from 'react'
 
-import Modal from '@/components/common/Modal'
-import {logRendererError} from '@/libs/client/rendererLogger'
-import {useNotificationSystem} from '@/libs/client/useNotifications'
+import { CKEditor } from '@ckeditor/ckeditor5-react'
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic'
-import {CKEditor} from '@ckeditor/ckeditor5-react'
-import axios from 'axios'
-import {motion} from 'framer-motion'
-import moment from 'moment'
 import Head from 'next/head'
-import {useRouter} from 'next/router'
-import {useSelector} from 'react-redux'
-import {SyncLoader} from 'react-spinners'
-import {RootState} from 'store'
+import Modal from '@/components/common/Modal'
+import { RootState } from 'store'
+import { SyncLoader } from 'react-spinners'
+import axios from 'axios'
+import { logRendererError } from '@/libs/client/rendererLogger'
+import moment from 'moment'
+import { motion } from 'framer-motion'
+import { useNotificationSystem } from '@/libs/client/useNotifications'
+import { useRouter } from 'next/router'
+import { useSelector } from 'react-redux'
 
 interface Bug {
   id: number
@@ -23,6 +23,7 @@ interface Bug {
   reporterName: string
   comments: any[]
   createdAt: string
+  category: string
 }
 
 interface BugListResponse {
@@ -44,19 +45,20 @@ export default function BugList() {
     total: 0,
   })
   const [isModalVisible, setIsModalVisible] = useState(false)
-  const [newBug, setNewBug] = useState({title: '', description: ''})
+  const [newBug, setNewBug] = useState({ title: '', description: '' })
   const [loading, setLoading] = useState(false)
-  const {userData} = useSelector((state: RootState) => state.app)
+  const { userData } = useSelector((state: RootState) => state.app)
 
-  const {showNotification} = useNotificationSystem()
+  const { showNotification } = useNotificationSystem()
 
   const fetchBugs = async (page = 0) => {
     try {
       const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/v1/bug?page=${page}`, {
-        headers: {Authorization: `${userData.userNo}|${userData.userToken}'`},
+        headers: { Authorization: `${userData.userNo}|${userData.userToken}` },
         withCredentials: true,
       })
       const data: BugListResponse = await response.data
+      console.log(data)
       setBugs(data.content)
       setPagination({
         ...pagination,
@@ -65,7 +67,7 @@ export default function BugList() {
         pageSize: data.pageSize,
       })
     } catch (error) {
-      logRendererError(error, {message: 'Error in fetchBugs', ...userData})
+      logRendererError(error, { message: 'Error in fetchBugs', ...userData })
       showNotification('피드백 리스트를 가져오는 중에 오류가 발생했습니다.', 'tw-bg-red-600')
     }
   }
@@ -73,15 +75,15 @@ export default function BugList() {
   const fetchNotices = async () => {
     try {
       const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/v1/bug/pinned`, {
-        headers: {Authorization: `${userData.userNo}|${userData.userToken}`},
+        headers: { Authorization: `${userData.userNo}|${userData.userToken}` },
         withCredentials: true,
-      });
-      setNotices(response.data);
+      })
+      setNotices(response.data)
     } catch (error) {
-      logRendererError(error, {message: 'Error in fetchNotices', ...userData});
-      console.error('Failed to fetch pinned notices:', error);
+      logRendererError(error, { message: 'Error in fetchNotices', ...userData })
+      console.error('Failed to fetch pinned notices:', error)
     }
-  };
+  }
 
   useEffect(() => {
     fetchBugs()
@@ -105,15 +107,15 @@ export default function BugList() {
     try {
       setLoading(true)
       const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/v1/bug`, newBug, {
-        headers: {Authorization: `${userData.userNo}|${userData.userToken}'`},
+        headers: { Authorization: `${userData.userNo}|${userData.userToken}` },
         withCredentials: true,
       })
       const data = await response.data
       setIsModalVisible(false)
-      setNewBug({title: '', description: ''})
+      setNewBug({ title: '', description: '' })
       router.push(`/bug/${data.id}`)
     } catch (error) {
-      logRendererError(error, {message: 'Error in handleCreateBug', ...userData})
+      logRendererError(error, { message: 'Error in handleCreateBug', ...userData })
       showNotification('피드백 생성 중 오류가 발생했습니다.', 'tw-bg-red-600')
     } finally {
       setLoading(false)
@@ -149,7 +151,7 @@ export default function BugList() {
                 })
               })
               .catch((error) => {
-                logRendererError(error, {message: 'Error in customUploadAdapter', ...userData})
+                logRendererError(error, { message: 'Error in customUploadAdapter', ...userData })
                 reject(error)
               })
           })
@@ -188,14 +190,42 @@ export default function BugList() {
     },
   }
 
+  const categoryCodeToName = (category: string) => {
+    switch (category) {
+      case 'NOTICE':
+        return '공지사항'
+      case 'BUG':
+        return '버그 제보'
+      case 'FEATURE_REQUEST':
+        return '기능 요청'
+      case 'QUESTION':
+        return '질문'
+      case 'OTHER':
+        return '기타'
+      default:
+        return category
+    }
+  }
+
+  const statusCodeToName = (status: string) => {
+    switch (status) {
+      case 'OPEN':
+        return '신규'
+      case 'IN_PROGRESS':
+        return '처리중'
+      case 'CLOSED':
+        return '완료'
+    }
+  }
+
   return (
     <React.Fragment>
       <Head>
         <title>피드백 센터 - RACLA</title>
       </Head>
       <motion.div
-        initial={{opacity: 0, x: 20}}
-        animate={{opacity: 1, x: 0}}
+        initial={{ opacity: 0, x: 20 }}
+        animate={{ opacity: 1, x: 0 }}
         className='tw-flex tw-flex-col tw-gap-4'
       >
         <div className='tw-flex tw-flex-col tw-gap-4 tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-shadow-lg p-4'>
@@ -219,14 +249,14 @@ export default function BugList() {
               버그 신고, 의견 제공 등의 피드백을 작성 및 확인 할 수 있는 공간입니다. 부적절한 언어
               사용과 문제 발생 시 피드백 센터의 이용 제한 조치가 이루어질 수 있습니다.
             </p>
-            <p className='tw-leading-relaxed'>
+            {/* <p className='tw-leading-relaxed'>
               OPEN 상태는 아직 개발자가 확인하지 않은 단계를 의미하며 해당 내용이 확인된 경우
               IN_PROGRESS 상태로 전환됩니다.{' '}
             </p>
             <p className='tw-leading-relaxed'>
               CLOSED 상태인 경우 해당 피드백에 대한 조치가 완료 되었다는 것을 의미하며 원본 내용을
               유지하기 위해 추가 의견을 작성할 수 없습니다.
-            </p>
+            </p> */}
           </div>
 
           {notices.length > 0 && (
@@ -234,29 +264,31 @@ export default function BugList() {
               <h2 className='tw-text-xl tw-font-bold'>고정됨</h2>
 
               <div className='tw-flex tw-flex-col tw-bg-gray-600 tw-bg-opacity-10 tw-rounded-md tw-px-4 tw-py-2'>
-                <div
-                  className='tw-flex tw-items-center tw-gap-4 tw-p-2 tw-border-b tw-border-gray-600 tw-text-gray-400 tw-font-bold tw-text-sm'>
-                  <div className='tw-w-32'>#</div>
+                <div className='tw-flex tw-items-center tw-gap-4 tw-p-2 tw-border-b tw-border-gray-600 tw-text-gray-400 tw-font-bold tw-text-sm'>
+                  <div className='tw-w-20'>카테고리</div>
                   <div className='tw-flex-1'>제목</div>
-                  <div className='tw-w-32'>상태</div>
+                  <div className='tw-w-16'>상태</div>
                   <div className='tw-w-32'>작성자</div>
-                  <div className='tw-w-32'>작성일</div>
+                  {/* <div className='tw-w-32'>수정자</div> */}
+                  <div className='tw-w-24'>작성일</div>
                 </div>
                 {notices.map((notice, index) => (
                   <motion.div
                     key={notice.id}
-                    initial={{opacity: 0}}
-                    animate={{opacity: 1}}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
                     className={
                       'tw-flex tw-items-center tw-gap-4 tw-px-2 tw-py-4 tw-text-sm tw-cursor-pointer tw-border-gray-600 tw-border-opacity-50 hover:tw-bg-gray-700 tw-transition-all ' +
                       (notices.length - 1 != index ? 'tw-border-b' : '')
                     }
                     onClick={() => router.push(`/bug/${notice.id}`)}
                   >
-                    <div className='tw-w-32 tw-text-gray-400'>#{notice.id}</div>
+                    <div className='tw-w-20 tw-text-gray-400'>
+                      {categoryCodeToName(notice.category)}
+                    </div>
                     <div className='tw-flex-1 tw-text-white'>{notice.title}</div>
                     <div
-                      className={`tw-w-32 ${
+                      className={`tw-w-16 ${
                         notice.status === 'OPEN'
                           ? 'tw-text-green-500'
                           : notice.status === 'IN_PROGRESS'
@@ -264,10 +296,23 @@ export default function BugList() {
                             : 'tw-text-red-500'
                       }`}
                     >
-                      {notice.status}
+                      {statusCodeToName(notice.status)}
                     </div>
                     <div className='tw-w-32 tw-text-gray-400'>{notice.reporterName}</div>
-                    <div className='tw-w-32 tw-text-gray-400'>
+                    {/* <div className='tw-w-32 tw-text-gray-400'>
+                      {notice.comments &&
+                      notice.comments.filter((data) => data.commenterName != notice.reporterName)
+                        .length > 0
+                        ? notice.comments.filter(
+                            (data) => data.commenterName != notice.reporterName,
+                          )[
+                            notice.comments.filter(
+                              (data) => data.commenterName != notice.reporterName,
+                            ).length - 1
+                          ]?.commenterName
+                        : '없음'}
+                    </div> */}
+                    <div className='tw-w-24 tw-text-gray-400'>
                       {moment(notice.createdAt).format('YYYY-MM-DD')}
                     </div>
                   </motion.div>
@@ -278,40 +323,52 @@ export default function BugList() {
 
           {loading ? (
             <div className='tw-flex tw-justify-center tw-items-center tw-h-64'>
-              <SyncLoader color='#ffffff' size={8}/>
+              <SyncLoader color='#ffffff' size={8} />
             </div>
           ) : (
             <>
               <h2 className='tw-text-xl tw-font-bold'>목록</h2>
               <div className='tw-flex tw-flex-col tw-bg-gray-600 tw-bg-opacity-10 tw-rounded-md tw-px-4 tw-py-2'>
-                <div
-                  className='tw-flex tw-items-center tw-gap-4 tw-p-2 tw-border-b tw-border-gray-600 tw-text-gray-400 tw-font-bold tw-text-sm'>
-                  <div className='tw-w-32'>#</div>
+                <div className='tw-flex tw-items-center tw-gap-4 tw-p-2 tw-border-b tw-border-gray-600 tw-text-gray-400 tw-font-bold tw-text-sm'>
+                  <div className='tw-w-20'>카테고리</div>
                   <div className='tw-flex-1'>제목</div>
-                  <div className='tw-w-32'>상태</div>
+                  <div className='tw-w-16'>상태</div>
                   <div className='tw-w-32'>작성자</div>
-                  <div className='tw-w-32'>작성일</div>
+                  {/* <div className='tw-w-32'>수정자</div> */}
+                  <div className='tw-w-24'>작성일</div>
                 </div>
                 {bugs.map((bug, index) => (
                   <motion.div
                     key={bug.id}
-                    initial={{opacity: 0}}
-                    animate={{opacity: 1}}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
                     className={
                       'tw-flex tw-items-center tw-gap-4 tw-px-2 tw-py-4 tw-text-sm hover:tw-bg-gray-700 tw-cursor-pointer tw-transition-all tw-border-opacity-50 tw-border-gray-600 ' +
                       (bugs.length - 1 != index ? 'tw-border-b' : '')
                     }
                     onClick={() => router.push(`/bug/${bug.id}`)}
                   >
-                    <div className='tw-w-32 tw-text-gray-400'>#{bug.id}</div>
+                    <div className='tw-w-20 tw-text-gray-400'>
+                      {categoryCodeToName(bug.category)}
+                    </div>
                     <div className='tw-flex-1 tw-text-white'>{bug.title}</div>
                     <div
-                      className={`tw-w-32 ${bug.status === 'OPEN' ? 'tw-text-green-500' : bug.status === 'IN_PROGRESS' ? 'tw-text-blue-500' : 'tw-text-red-500'}`}
+                      className={`tw-w-16 ${bug.status === 'OPEN' ? 'tw-text-green-500' : bug.status === 'IN_PROGRESS' ? 'tw-text-blue-500' : 'tw-text-red-500'}`}
                     >
-                      {bug.status}
+                      {statusCodeToName(bug.status)}
                     </div>
                     <div className='tw-w-32 tw-text-gray-400'>{bug.reporterName}</div>
-                    <div className='tw-w-32 tw-text-gray-400'>
+                    {/* <div className='tw-w-32 tw-text-gray-400'>
+                      {bug.comments &&
+                      bug.comments.filter((data) => data.commenterName != bug.reporterName).length >
+                        0
+                        ? bug.comments.filter((data) => data.commenterName != bug.reporterName)[
+                            bug.comments.filter((data) => data.commenterName != bug.reporterName)
+                              .length - 1
+                          ]?.commenterName
+                        : '없음'}
+                    </div> */}
+                    <div className='tw-w-24 tw-text-gray-400'>
                       {moment(bug.createdAt).format('YYYY-MM-DD')}
                     </div>
                   </motion.div>
@@ -351,7 +408,7 @@ export default function BugList() {
                 <input
                   type='text'
                   value={newBug.title}
-                  onChange={(e) => setNewBug({...newBug, title: e.target.value})}
+                  onChange={(e) => setNewBug({ ...newBug, title: e.target.value })}
                   className='tw-w-full tw-bg-gray-700 tw-rounded tw-px-3 tw-py-2 focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-blue-500'
                   placeholder='제목을 입력하세요'
                 />
@@ -366,7 +423,7 @@ export default function BugList() {
                     config={editorConfiguration}
                     onChange={(event, editor) => {
                       const data = editor.getData()
-                      setNewBug({...newBug, description: data})
+                      setNewBug({ ...newBug, description: data })
                     }}
                   />
                 </div>
@@ -384,7 +441,7 @@ export default function BugList() {
                   disabled={loading}
                   className='tw-px-4 tw-py-2 tw-bg-blue-600 tw-rounded hover:tw-bg-blue-700 tw-transition-colors disabled:tw-opacity-50'
                 >
-                  {loading ? <SyncLoader size={8} color='#ffffff'/> : '작성하기'}
+                  {loading ? <SyncLoader size={8} color='#ffffff' /> : '작성하기'}
                 </button>
               </div>
             </div>

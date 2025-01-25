@@ -6,6 +6,7 @@ import {
   FaGamepad,
   FaPlay,
   FaRotate,
+  FaUser,
 } from 'react-icons/fa6'
 import { OverlayTrigger, Tooltip } from 'react-bootstrap'
 import { useCallback, useEffect, useState } from 'react'
@@ -286,7 +287,7 @@ const HeaderComponent: React.FC<IHeaderComponentProps> = ({
 
       <button
         className={
-          'btn btn-secondary btn-select-game active tw-text-xs tw-mr-2 tw-flex tw-items-center tw-gap-1 tw-rounded-sm tw-border-0 tw-h-8 dropdown-toggle'
+          'btn btn-secondary btn-select-game active tw-text-xs tw-mr-2 tw-flex tw-items-center tw-gap-1 tw-rounded-sm tw-border-0 tw-h-8'
         }
         type='button'
         id='btn-nav-user'
@@ -305,10 +306,13 @@ const HeaderComponent: React.FC<IHeaderComponentProps> = ({
               alt='Profile Image'
             />
             {userData.userName}
-            {vArchiveUserData.userName !== '' ? `(${vArchiveUserData.userName})` : ''}
+            {/* {vArchiveUserData.userName !== '' ? `(${vArchiveUserData.userName})` : ''} */}
           </>
         ) : (
-          '로그인'
+          <>
+            <FaUser className='tw-text-xs' />
+            <span className='tw-text-xs'>로그인</span>
+          </>
         )}
       </button>
       {renderUserDropdown(
