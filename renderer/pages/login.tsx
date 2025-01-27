@@ -1,17 +1,17 @@
-import { AnimatePresence, motion } from 'framer-motion'
-import { FaCircleInfo, FaDiscord, FaLink, FaV } from 'react-icons/fa6'
 import { IUserNameRequest, IUserNameResponse } from '@/types/IUserName'
-import React, { useEffect, useRef, useState } from 'react'
 import axios, { AxiosResponse } from 'axios'
-import { setUserData, setVArchiveUserData } from 'store/slices/appSlice'
+import { AnimatePresence, motion } from 'framer-motion'
+import React, { useEffect, useRef, useState } from 'react'
+import { FaCircleInfo, FaDiscord, FaLink, FaV } from 'react-icons/fa6'
 import { useDispatch, useSelector } from 'react-redux'
+import { setUserData, setVArchiveUserData } from 'store/slices/appSlice'
 
-import Head from 'next/head'
-import Image from 'next/image'
-import { RootState } from 'store'
 import { logRendererError } from '@/libs/client/rendererLogger'
 import { useNotificationSystem } from '@/libs/client/useNotifications'
+import Head from 'next/head'
+import Image from 'next/image'
 import { useRouter } from 'next/router'
+import { RootState } from 'store'
 
 export default function VArchiveLoginPage() {
   const { showNotification } = useNotificationSystem()
@@ -372,6 +372,10 @@ export default function VArchiveLoginPage() {
                           <span>
                             V-ARCHIVE 또는 Discord로 최초 로그인 시 자동으로 RACLA 계정이 생성되며
                             해당되는 서비스의 계정 정보와 연동됩니다.
+                          </span>
+                          <span>
+                            연동 관련 설정은 기존에 방법으로 로그인 후 설정 페이지에서 확인할 수
+                            있습니다.
                           </span>
                           <span
                             className='tw-flex tw-items-center tw-gap-1 tw-text-blue-400 hover:tw-text-blue-300 tw-cursor-pointer tw-transition-colors'

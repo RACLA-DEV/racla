@@ -48,16 +48,7 @@ export const renderUserDropdown = (
       <li>
         <hr className='dropdown-divider tw-m-0' />
       </li>
-      <li>
-        <button
-          className='dropdown-item tw-py-2 tw-rounded-t-md'
-          onClick={() => {
-            ipcRenderer.send('openBrowser', 'https://v-archive.net/')
-          }}
-        >
-          V-ARCHIVE 바로가기
-        </button>
-      </li>
+
       {vArchiveUserData.userNo !== '' &&
       vArchiveUserData.userToken !== '' &&
       vArchiveUserData.userName !== '' ? (
@@ -71,10 +62,34 @@ export const renderUserDropdown = (
               )
             }}
           >
-            내 성과표(V-ARCHIVE) 바로가기
+            V-ARCHIVE 바로가기
           </button>
         </li>
-      ) : null}
+      ) : (
+        <li>
+          <button
+            className='dropdown-item tw-py-2 tw-rounded-t-md'
+            onClick={() => {
+              ipcRenderer.send('openBrowser', 'https://v-archive.net/')
+            }}
+          >
+            V-ARCHIVE 바로가기
+          </button>
+        </li>
+      )}
+      <li>
+        <hr className='dropdown-divider tw-m-0' />
+      </li>
+      <li>
+        <button
+          className='dropdown-item tw-py-2'
+          onClick={() => {
+            ipcRenderer.send('openBrowser', 'https://hard-archive.com')
+          }}
+        >
+          전일 아카이브 바로가기
+        </button>
+      </li>
       <li>
         <hr className='dropdown-divider tw-m-0' />
       </li>

@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react'
+import { globalDictionary } from '@/libs/server/globalDictionary'
 import Head from 'next/head'
 import Image from 'next/image'
-import { globalDictionary } from '@/libs/server/globalDictionary'
+import { useEffect, useState } from 'react'
 import { IconContext } from 'react-icons'
 import { FaCircleCheck, FaCircleInfo, FaCircleXmark, FaCrown } from 'react-icons/fa6'
 import { useDispatch, useSelector } from 'react-redux'
@@ -15,7 +15,7 @@ const OverlaySetting = () => {
 
   useEffect(() => {
     if (songData) {
-      setData(songData[Math.floor(Math.random() * songData.length)])
+      setData(songData[16])
     }
   }, [songData])
 
@@ -52,7 +52,7 @@ const OverlaySetting = () => {
           </div>
         </div>
 
-        <div className='tw-flex tw-flex-col tw-gap-1 tw-bg-gray-600 tw-bg-opacity-10 tw-rounded-md p-4 tw-mb-4'>
+        <div className='tw-flex tw-flex-col tw-gap-1 tw-bg-gray-600 tw-bg-opacity-10 tw-rounded-md tw-mb-4 p-4'>
           <div className='tw-flex tw-flex-col tw-gap-1'>
             <div className='tw-flex tw-items-center'>
               <span className='tw-text-sm'>결과 오버레이 표시</span>
@@ -82,8 +82,7 @@ const OverlaySetting = () => {
         <div className='tw-flex tw-flex-col tw-gap-1 tw-bg-gray-600 tw-bg-opacity-10 tw-rounded-md p-4'>
           <div className='tw-flex tw-gap-2'>
             <div
-              className={`tw-bg-lime-600
-            tw-flex-1 tw-text-xs tw-bg-opacity-80 tw-relative tw-text-white tw-rounded-lg tw-overflow-hidden tw-shadow-lg tw-mb-2`}
+              className={`tw-bg-lime-600 tw-flex-1 tw-text-xs tw-bg-opacity-80 tw-relative tw-text-white tw-rounded-lg tw-overflow-hidden tw-shadow-lg tw-mb-2`}
             >
               <div className='tw-py-3 tw-px-3 tw-flex tw-gap-3 tw-bg-gray-900 tw-bg-opacity-50 tw-items-center'>
                 <IconContext.Provider value={{ size: '60px', className: 'tw-text-gray-200' }}>
@@ -103,8 +102,7 @@ const OverlaySetting = () => {
               />
             </div>
             <div
-              className={`tw-bg-blue-600 tw-flex-1
-            tw-text-xs tw-bg-opacity-80 tw-relative tw-text-white tw-rounded-lg tw-overflow-hidden tw-shadow-lg tw-mb-2`}
+              className={`tw-bg-blue-600 tw-flex-1 tw-text-xs tw-bg-opacity-80 tw-relative tw-text-white tw-rounded-lg tw-overflow-hidden tw-shadow-lg tw-mb-2`}
             >
               <div className='tw-py-3 tw-px-3 tw-flex tw-gap-3 tw-bg-gray-900 tw-bg-opacity-50 tw-items-center'>
                 <IconContext.Provider value={{ size: '60px', className: 'tw-text-gray-200' }}>
@@ -128,8 +126,7 @@ const OverlaySetting = () => {
           </div>
           <div className='tw-flex tw-gap-2'>
             <div
-              className={`tw-bg-red-600 tw-flex-1
-            tw-text-xs tw-bg-opacity-80 tw-relative tw-text-white tw-rounded-lg tw-overflow-hidden tw-shadow-lg`}
+              className={`tw-bg-red-600 tw-flex-1 tw-text-xs tw-bg-opacity-80 tw-relative tw-text-white tw-rounded-lg tw-overflow-hidden tw-shadow-lg`}
             >
               <div className='tw-py-3 tw-px-3 tw-flex tw-gap-3 tw-bg-gray-900 tw-bg-opacity-50 tw-items-center'>
                 <IconContext.Provider value={{ size: '60px', className: 'tw-text-gray-200' }}>
@@ -151,8 +148,7 @@ const OverlaySetting = () => {
               />
             </div>
             <div
-              className={`tw-bg-yellow-700 tw-flex-1
-            tw-text-xs tw-bg-opacity-80 tw-relative tw-text-white tw-rounded-lg tw-overflow-hidden tw-shadow-lg`}
+              className={`tw-bg-yellow-700 tw-flex-1 tw-text-xs tw-bg-opacity-80 tw-relative tw-text-white tw-rounded-lg tw-overflow-hidden tw-shadow-lg`}
             >
               <div className='tw-py-3 tw-px-3 tw-flex tw-gap-3 tw-bg-gray-900 tw-bg-opacity-50 tw-items-center'>
                 <IconContext.Provider value={{ size: '60px', className: 'tw-text-gray-200' }}>
@@ -172,8 +168,7 @@ const OverlaySetting = () => {
               />
             </div>
             <div
-              className={`respect_dlc_${data.dlcCode} respect_dlc_logo_${data.dlcCode} respect_dlc_logo_BG_${data.dlcCode}
-            tw-text-xs tw-bg-opacity-80 tw-relative tw-text-white tw-rounded-lg tw-overflow-hidden tw-shadow-lg tw-flex-1`}
+              className={`respect_dlc_${data.dlcCode} respect_dlc_logo_${data.dlcCode} respect_dlc_logo_BG_${data.dlcCode} tw-text-xs tw-bg-opacity-80 tw-relative tw-text-white tw-rounded-lg tw-overflow-hidden tw-shadow-lg tw-flex-1`}
             >
               <div className='tw-py-3 tw-px-3 tw-flex tw-gap-3 tw-bg-gray-900 tw-bg-opacity-50 tw-items-center'>
                 <Image
@@ -210,6 +205,37 @@ const OverlaySetting = () => {
                 className={`tw-absolute tw-bottom-0 tw-left-0 tw-h-1 tw-w-full tw-bg-white tw-bg-opacity-50`}
               />
             </div>
+          </div>
+        </div>
+
+        <div className='tw-mt-4 tw-flex tw-flex-col tw-gap-1 tw-bg-gray-600 tw-bg-opacity-10 tw-rounded-md tw-mb-4 p-4'>
+          <div className='tw-flex tw-flex-col tw-gap-1'>
+            <div className='tw-flex tw-items-center'>
+              <span className='tw-text-sm'>결과 오버레이 표시 시 전일 기록 오버레이 표시</span>
+              <button
+                disabled={true}
+                className={`tw-scale-50 tw-relative tw-inline-flex tw-items-center tw-h-8 tw-w-16 tw-rounded-full tw-transition-colors tw-duration-300 ${
+                  true ? 'tw-bg-blue-600' : 'tw-bg-gray-600'
+                }`}
+                onClick={() => {
+                  // handleSettingChange({ resultOverlay: !settingData.resultOverlay })
+                }}
+              >
+                <span
+                  className={`tw-inline-block tw-h-6 tw-w-6 tw-bg-white tw-rounded-full tw-absolute tw-shadow tw-transform tw-transition-all tw-duration-300 ${
+                    true ? 'tw-right-1' : 'tw-left-1'
+                  }`}
+                />
+              </button>
+            </div>
+            <span className='tw-text-sm tw-font-light tw-text-gray-400 tw-break-keep tw-mb-2'>
+              DJMAX RESPECT V의 결과 오버레이 표시 시 전일 아카이브의 전일 기록 정보를 표시합니다.
+              해당 정보는 다른 사용자가 갱신한 기록으로서 사용자가 관련 정보를 참고하기 위해
+              사용되며 추후 전일 아카이브와 기록 등록 등의 연동 기능이 추가되는 경우 사용자의
+              기록으로 대체될 수 있습니다. <br />
+              해당 옵션은 RACLA 0.7.2 버전 기준 전일 아카이브 연동 초기 기능으로 통계 데이터 수집을
+              위해 강제적으로 활성화되며 비활성화할 수 없습니다.
+            </span>
           </div>
         </div>
         <div id='ContentFooter' />

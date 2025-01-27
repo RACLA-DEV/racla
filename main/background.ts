@@ -165,6 +165,40 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
     },
   })
 
+  // mainWindow 생성 후에 이벤트 리스너 추가
+  mainWindow.on('closed', () => {
+    // 전역 단축키 해제
+    globalShortcut.unregisterAll()
+
+    // 자동 캡처 인터벌 정리
+    if (settingData.autoCaptureIntervalId) {
+      clearTimeout(settingData.autoCaptureIntervalId)
+    }
+
+    // 오버레이 윈도우 정리
+    if (overlayWindow) {
+      overlayWindow.destroy()
+      overlayWindow = null
+    }
+
+    // 트레이 아이콘 정리
+    if (tray) {
+      tray.destroy()
+      tray = null
+    }
+
+    // 혹시 남아있는 서버 정리
+    const connections = require('net')
+      .createServer()
+      .getConnections((err, count) => {
+        if (count > 0) {
+          console.log(`Cleaning up ${count} remaining connections...`)
+        }
+      })
+
+    mainWindow = null
+  })
+
   // 윈도우 닫기 버튼 클릭 시 설정에 따라 트레이로 최소화 또는 종료
   mainWindow.on('close', (event) => {
     if (!app.isQuitting && settingData.closeToTray) {
@@ -278,7 +312,7 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
     hasShadow: false,
     webPreferences: {
       nodeIntegration: true,
-      devTools: false,
+      devTools: !isProd,
       preload: path.join(__dirname, 'preload.js'),
     },
     autoHideMenuBar: true,
@@ -1177,11 +1211,12 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
         logMainError(error, isLogined ? userData : null)
         isProcessing = false
       } finally {
+        // 알파메일 요청 사항
         try {
           clearTimeout(settingData.autoCaptureIntervalId)
           settingData.autoCaptureIntervalId = setTimeout(
             captureAndProcess,
-            [1000, 2000, 3000, 5000, 10000].includes(settingData.autoCaptureIntervalTime)
+            [1, 1000, 2000, 3000, 5000, 10000].includes(settingData.autoCaptureIntervalTime)
               ? settingData.autoCaptureIntervalTime
               : 3000,
           )

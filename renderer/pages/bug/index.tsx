@@ -1,10 +1,8 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 
 import Modal from '@/components/common/Modal'
 import { logRendererError } from '@/libs/client/rendererLogger'
 import { useNotificationSystem } from '@/libs/client/useNotifications'
-import ClassicEditor from '@ckeditor/ckeditor5-build-classic'
-import { CKEditor } from '@ckeditor/ckeditor5-react'
 import axios from 'axios'
 import { motion } from 'framer-motion'
 import moment from 'moment'
@@ -50,6 +48,18 @@ export default function BugList() {
   const { userData } = useSelector((state: RootState) => state.app)
 
   const { showNotification } = useNotificationSystem()
+
+  const editorRef = useRef<any>({})
+  const [editorLoaded, setEditorLoaded] = useState(false)
+  const { CKEditor, ClassicEditor } = editorRef.current || {}
+
+  useEffect(() => {
+    editorRef.current = {
+      CKEditor: require('@ckeditor/ckeditor5-react').CKEditor,
+      ClassicEditor: require('@ckeditor/ckeditor5-build-classic'),
+    }
+    setEditorLoaded(true)
+  }, [])
 
   const fetchBugs = async (page = 0) => {
     try {
@@ -432,15 +442,19 @@ export default function BugList() {
 
               <div className='tw-flex-1 tw-min-h-0 tw-text-gray-950 tw-rounded'>
                 <label className='tw-block tw-mb-2 tw-text-gray-200'>내용</label>
-                <CKEditor
-                  editor={ClassicEditor}
-                  data={newBug.description}
-                  config={editorConfiguration}
-                  onChange={(event, editor) => {
-                    const data = editor.getData()
-                    setNewBug({ ...newBug, description: data })
-                  }}
-                />
+                {editorLoaded ? (
+                  <CKEditor
+                    editor={ClassicEditor}
+                    data={newBug.description}
+                    config={editorConfiguration}
+                    onChange={(event: any, editor: any) => {
+                      const data = editor.getData()
+                      setNewBug({ ...newBug, description: data })
+                    }}
+                  />
+                ) : (
+                  <div>Editor loading...</div>
+                )}
               </div>
 
               <div className='tw-shrink-0 tw-mt-4 tw-flex tw-justify-end tw-gap-2'>

@@ -1,20 +1,20 @@
-import { FaDiscord, FaGear, FaV } from 'react-icons/fa6'
 import { IUserNameRequest, IUserNameResponse } from '@/types/IUserName'
 import axios, { AxiosResponse } from 'axios'
+import { useEffect, useRef, useState } from 'react'
+import { FaDiscord, FaGear, FaV } from 'react-icons/fa6'
+import { useDispatch, useSelector } from 'react-redux'
 import {
   setIsSetting,
   setSettingData,
   setUserData,
   setVArchiveUserData,
 } from 'store/slices/appSlice'
-import { useDispatch, useSelector } from 'react-redux'
-import { useEffect, useRef, useState } from 'react'
 
-import { FiX } from 'react-icons/fi'
-import type { RootState } from 'store'
-import { globalDictionary } from '@/libs/server/globalDictionary'
 import { logRendererError } from '@/libs/client/rendererLogger'
 import { useNotificationSystem } from '@/libs/client/useNotifications'
+import { globalDictionary } from '@/libs/server/globalDictionary'
+import { FiX } from 'react-icons/fi'
+import type { RootState } from 'store'
 
 const SettingComponent = () => {
   const dispatch = useDispatch()
@@ -615,7 +615,7 @@ const SettingComponent = () => {
       </div>
 
       <div className='tw-flex tw-flex-col tw-gap-1'>
-        <span className='tw-text-sm'>캡쳐 주기</span>
+        <span className='tw-text-sm'>캡쳐 딜레이</span>
         <select
           className='form-select tw-my-1 tw-text-sm tw-bg-gray-900 tw-bg-opacity-20 tw-text-gray-300 tw-w-36'
           onChange={(e) =>
@@ -623,6 +623,7 @@ const SettingComponent = () => {
           }
           value={String(settingData.autoCaptureIntervalTime)}
         >
+          <option value='1'>0.001초(알파메일 옵션)</option>
           <option value='1000'>1초(상남자 옵션)</option>
           <option value='2000'>2초</option>
           <option value='3000'>3초(추천)</option>

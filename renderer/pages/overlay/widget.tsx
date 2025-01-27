@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { FaCircleCheck, FaCircleInfo, FaCircleXmark, FaCrown } from 'react-icons/fa6'
 
 import { globalDictionary } from '@/libs/server/globalDictionary'
+import axios from 'axios'
 import Image from 'next/image'
 import { IconContext } from 'react-icons'
 import { useSelector } from 'react-redux'
@@ -10,10 +11,71 @@ const Overlay = ({ isNotificationSound }: { isNotificationSound: boolean }) => {
   const [notifications, setNotifications] = useState<Array<{ data: any; id: string }>>([])
   const [fadeOut, setFadeOut] = useState<{ [key: string]: boolean }>({})
 
+  const fetchHighScore = async (
+    button: string,
+    level: number,
+    songId: string,
+    judge: 'hard' | 'max',
+  ) => {
+    try {
+      if (songId) {
+        const response = await axios.post(`${process.env.NEXT_PUBLIC_PROXY_API_URL}`, {
+          url: `https://hard-archive.com/api/v2/record`,
+          queryString: `button=${button}B&lv=SC${level}&judge=${judge}&song=${songId}`,
+        })
+        const data = response.data.data
+        // 전체 데이터 객체 반환 (rate와 max_combo 포함)
+        return data[0] || null
+      } else {
+        return null
+      }
+    } catch (error) {
+      console.error(`${judge} 판정 최고 점수 조회 실패:`, error)
+      return null
+    }
+  }
+
   useEffect(() => {
-    const handlePlayData = (data: any) => {
+    const handlePlayData = async (data: any) => {
+      let scoreData = { ...data }
+
+      // DJMAX RESPECT V 게임인 경우
+      if (data.gameCode === 'djmax_respect_v') {
+        const currentLevel = getCurrentPatternLevel(data.songData, `${data.button}B`, data.pattern)
+
+        // SC 패턴이고 레벨이 8 이상일 때만 최고 기록 조회
+        if (patternToCode(data.pattern) === 'SC' && currentLevel && Number(currentLevel) >= 8) {
+          try {
+            const [hardScore, maxScore] = await Promise.allSettled([
+              fetchHighScore(data.button, currentLevel, data.songData.hardArchiveTitle, 'hard'),
+              fetchHighScore(data.button, currentLevel, data.songData.hardArchiveTitle, 'max'),
+            ])
+
+            scoreData = {
+              ...scoreData,
+              hardScore: hardScore.status === 'fulfilled' ? hardScore.value : null,
+              maxScore: maxScore.status === 'fulfilled' ? maxScore.value : null,
+            }
+          } catch (error) {
+            console.error('점수 조회 중 오류 발생:', error)
+            scoreData = {
+              ...scoreData,
+              hardScore: null,
+              maxScore: null,
+            }
+          }
+        } else {
+          // SC8 이상이 아닌 경우 점수를 명시적으로 null로 설정
+          scoreData = {
+            ...scoreData,
+            hardScore: null,
+            maxScore: null,
+          }
+        }
+      }
+
       const newNotification = {
-        data,
+        data: scoreData,
         id: crypto.randomUUID(),
       }
 
@@ -85,6 +147,16 @@ const Overlay = ({ isNotificationSound }: { isNotificationSound: boolean }) => {
 
   const fontFamily = useSelector((state: any) => state.ui.fontFamily)
 
+  const getCurrentPatternLevel = (songData: any, keyMode: string, pattern: string) => {
+    if (!songData?.patterns?.[keyMode]) return null
+
+    const patternCode = patternToCode(pattern)
+    // 객체에서 직접 패턴 코드로 접근
+    const patternData = songData.patterns[keyMode][patternCode]
+
+    return patternData?.level || null
+  }
+
   return (
     <div
       className={`tw-flex tw-h-screen tw-p-3 tw-pb-5 tw-justify-end tw-items-center tw-w-full tw-flex-col tw-gap-2 ${fontFamily}`}
@@ -137,7 +209,7 @@ const Overlay = ({ isNotificationSound }: { isNotificationSound: boolean }) => {
                   className='tw-opacity-75 tw-blur-xl'
                 />
               </div>
-              <div className='tw-py-3 tw-px-3 tw-flex tw-gap-3 tw-bg-gray-900 tw-bg-opacity-75 tw-items-center'>
+              <div className='tw-py-3 tw-px-3 tw-flex tw-gap-3 tw-relative tw-bg-gray-900 tw-bg-opacity-75 tw-items-center tw-z-10'>
                 <Image
                   loading='lazy'
                   blurDataURL={globalDictionary.blurDataURL}
@@ -193,7 +265,7 @@ const Overlay = ({ isNotificationSound }: { isNotificationSound: boolean }) => {
                 </div>
               </div>
               <div
-                className={`tw-absolute tw-bottom-0 tw-left-0 tw-h-1 tw-w-full tw-bg-white tw-bg-opacity-50 ${fadeOut[id] ? 'tw-animate-fadeOut' : 'tw-animate-notificationProgress'}`}
+                className={`tw-absolute tw-bottom-0 tw-left-0 tw-h-1 tw-w-full tw-z-10 tw-bg-white tw-bg-opacity-50 ${fadeOut[id] ? 'tw-animate-fadeOut' : 'tw-animate-notificationProgress'}`}
                 style={{ transform: 'translateX(-100%)' }}
               />
             </div>
@@ -274,6 +346,72 @@ const Overlay = ({ isNotificationSound }: { isNotificationSound: boolean }) => {
           ),
         )}
       </div>
+
+      {/* 전일 기록 알림 - 별도의 fixed 포지션 */}
+      {notifications.map(
+        ({ data, id }) =>
+          data.gameCode === 'djmax_respect_v' &&
+          (() => {
+            const currentLevel = getCurrentPatternLevel(
+              data.songData,
+              `${data.button}B`,
+              data.pattern,
+            )
+
+            return (
+              patternToCode(data.pattern) === 'SC' &&
+              currentLevel &&
+              Number(currentLevel) >= 8 && (
+                <div
+                  key={`archive-${id}`}
+                  className={`tw-fixed tw-bottom-4 tw-right-4 tw-bg-gray-900/90 tw-rounded-lg tw-p-3 tw-shadow-lg ${fadeOut[id] ? 'tw-animate-fadeOut' : 'tw-animate-fadeIn'} `}
+                >
+                  <div className='tw-flex tw-items-center tw-gap-2 tw-mb-2'>
+                    <IconContext.Provider value={{ size: '20px', className: 'tw-text-amber-400' }}>
+                      <FaCrown />
+                    </IconContext.Provider>
+                    <span className='tw-text-sm tw-font-bold tw-text-amber-400'>
+                      전일 기록{' '}
+                      <sup className='tw-font-light tw-text-gray-200'>Powered by 전일 아카이브</sup>
+                    </span>
+                  </div>
+                  <div className='tw-flex tw-flex-col tw-gap-2'>
+                    {data.hardScore && (
+                      <div className='tw-bg-gray-600/25 tw-rounded tw-p-2'>
+                        <div className='tw-text-xs tw-font-bold tw-text-gray-200'>HARD</div>
+                        <div className='tw-flex tw-justify-between'>
+                          <div className='tw-text-sm tw-font-bold tw-text-gray-200'>
+                            {Number(data.hardScore.rate).toFixed(2)}%
+                          </div>
+                          {data.hardScore.max_combo && (
+                            <div className='tw-text-xs tw-font-bold tw-text-amber-400'>
+                              MAX COMBO
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                    {data.maxScore && (
+                      <div className='tw-bg-gray-600/25 tw-rounded tw-p-2'>
+                        <div className='tw-text-xs tw-font-bold tw-text-gray-200'>MAX</div>
+                        <div className='tw-flex tw-justify-between'>
+                          <div className='tw-text-sm tw-font-bold tw-text-gray-200'>
+                            {Number(data.maxScore.rate).toFixed(2)}%
+                          </div>
+                          {data.maxScore.max_combo && (
+                            <div className='tw-text-xs tw-font-bold tw-text-amber-400'>
+                              MAX COMBO
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )
+            )
+          })(),
+      )}
     </div>
   )
 }
