@@ -3,6 +3,7 @@ import { FaCircleCheck, FaCircleInfo, FaCircleXmark, FaCrown } from 'react-icons
 
 import { globalDictionary } from '@/libs/server/globalDictionary'
 import axios from 'axios'
+import dayjs from 'dayjs'
 import Image from 'next/image'
 import { IconContext } from 'react-icons'
 import { useSelector } from 'react-redux'
@@ -35,41 +36,70 @@ const Overlay = ({ isNotificationSound }: { isNotificationSound: boolean }) => {
     }
   }
 
+  // 세션 데이터를 가져오는 함수
+  const getSessionData = () => {
+    return new Promise((resolve) => {
+      const handleSession = (data: any) => {
+        window.ipc.removeListener('IPC_RENDERER_GET_SESSION_TO_WIDGET', handleSession)
+        resolve(data)
+      }
+
+      window.ipc.on('IPC_RENDERER_GET_SESSION_TO_WIDGET', handleSession)
+      window.ipc.getSessionToWidget()
+    })
+  }
+
   useEffect(() => {
     const handlePlayData = async (data: any) => {
+      const sessionData: any = await getSessionData()
       let scoreData = { ...data }
 
-      // DJMAX RESPECT V 게임인 경우
       if (data.gameCode === 'djmax_respect_v') {
-        const currentLevel = getCurrentPatternLevel(data.songData, `${data.button}B`, data.pattern)
+        try {
+          const currentLevel = getCurrentPatternLevel(
+            data.songData,
+            `${data.button}B`,
+            data.pattern,
+          )
 
-        // SC 패턴이고 레벨이 8 이상일 때만 최고 기록 조회
-        if (patternToCode(data.pattern) === 'SC' && currentLevel && Number(currentLevel) >= 8) {
-          try {
+          // 하드 아카이브는 SC + 레벨 8이상 조건 체크
+          const shouldShowHardArchive =
+            patternToCode(data.pattern) === 'SC' && currentLevel && Number(currentLevel) >= 8
+
+          if (shouldShowHardArchive) {
             const [hardScore, maxScore] = await Promise.allSettled([
               fetchHighScore(data.button, currentLevel, data.songData.hardArchiveTitle, 'hard'),
               fetchHighScore(data.button, currentLevel, data.songData.hardArchiveTitle, 'max'),
             ])
-
-            scoreData = {
-              ...scoreData,
-              hardScore: hardScore.status === 'fulfilled' ? hardScore.value : null,
-              maxScore: maxScore.status === 'fulfilled' ? maxScore.value : null,
-            }
-          } catch (error) {
-            console.error('점수 조회 중 오류 발생:', error)
-            scoreData = {
-              ...scoreData,
-              hardScore: null,
-              maxScore: null,
-            }
+            scoreData.hardScore = hardScore.status === 'fulfilled' ? hardScore.value : null
+            scoreData.maxScore = maxScore.status === 'fulfilled' ? maxScore.value : null
           }
-        } else {
-          // SC8 이상이 아닌 경우 점수를 명시적으로 null로 설정
+
+          // 최근 기록은 difficultyType만 포함하고 레벨 조건 없이 조회
+          const recentResponse = await axios.get(
+            `https://noah.r-archive.zip/api/v2/play/history/${sessionData.userNo}/${data.gameCode}/${data.songData.title as string}/${String(data.button).replace('B', '')}B/${patternToCode(data.pattern)}`,
+            {
+              headers: {
+                Authorization: `${sessionData.userNo}|${sessionData.userToken}`,
+              },
+              withCredentials: true,
+            },
+          )
+
+          scoreData = {
+            ...scoreData,
+            recentHistory:
+              recentResponse.data.success && recentResponse.data.recentHistory.length > 0
+                ? recentResponse.data.recentHistory
+                : null,
+          }
+        } catch (error) {
+          console.error('점수 조회 중 오류 발생:', error)
           scoreData = {
             ...scoreData,
             hardScore: null,
             maxScore: null,
+            recentHistory: null,
           }
         }
       }
@@ -161,12 +191,12 @@ const Overlay = ({ isNotificationSound }: { isNotificationSound: boolean }) => {
     <div
       className={`tw-flex tw-h-screen tw-p-3 tw-pb-5 tw-justify-end tw-items-center tw-w-full tw-flex-col tw-gap-2 ${fontFamily}`}
     >
-      <div className='tw-flex tw-max-w-[600px] tw-flex-col tw-gap-2 tw-items-center tw-justify-end'>
+      <div className='tw-flex tw-flex-col tw-gap-2 tw-items-center tw-justify-end tw-min-w-[400px]'>
         {notifications.map(({ data, id }) =>
           data.message ? (
             <div
               key={id}
-              className={`${data.color} tw-min-w-[400px] tw-cursor-pointer tw-text-sm tw-bg-opacity-80 tw-relative tw-text-white tw-rounded-lg tw-overflow-hidden tw-shadow-lg ${fadeOut[id] ? 'tw-animate-fadeOut' : 'tw-animate-fadeIn'}`}
+              className={`${data.color} tw-w-full tw-cursor-pointer tw-text-sm tw-bg-opacity-80 tw-relative tw-text-white tw-rounded-lg tw-overflow-hidden tw-shadow-lg ${fadeOut[id] ? 'tw-animate-fadeOut' : 'tw-animate-fadeIn'}`}
             >
               <div className='tw-py-3 tw-px-3 tw-flex tw-gap-3 tw-bg-gray-900 tw-bg-opacity-50 tw-items-center'>
                 <div className='tw-flex tw-items-center tw-justify-center tw-h-14 tw-w-12 tw-min-h-14 tw-min-w-12 tw-max-h-14 tw-max-w-12'>
@@ -183,7 +213,7 @@ const Overlay = ({ isNotificationSound }: { isNotificationSound: boolean }) => {
                   </IconContext.Provider>
                 </div>
                 <div className='tw-flex tw-flex-col tw-gap-1'>
-                  <div className='tw-flex tw-gap-3'>
+                  <div className='tw-flex tw-gap-3 tw-max-w-[360px]'>
                     <span className='tw-text-sm tw-font-bold tw-text-gray-200 tw-break-keep'>
                       {data.message}
                     </span>
@@ -198,7 +228,7 @@ const Overlay = ({ isNotificationSound }: { isNotificationSound: boolean }) => {
           ) : data.gameCode == 'djmax_respect_v' ? (
             <div
               key={id}
-              className={`tw-min-w-[400px] tw-cursor-pointer tw-text-sm tw-bg-opacity-80 tw-relative tw-text-white tw-rounded-lg tw-overflow-hidden tw-shadow-lg ${fadeOut[id] ? 'tw-animate-fadeOut' : 'tw-animate-fadeIn'}`}
+              className={`tw-w-full tw-cursor-pointer tw-text-sm tw-bg-opacity-80 tw-relative tw-text-white tw-rounded-lg tw-overflow-hidden tw-shadow-lg ${fadeOut[id] ? 'tw-animate-fadeOut' : 'tw-animate-fadeIn'}`}
             >
               <div className='tw-absolute tw-inset-0 tw-overflow-hidden tw-rounded-md tw-z-0'>
                 <Image
@@ -361,10 +391,11 @@ const Overlay = ({ isNotificationSound }: { isNotificationSound: boolean }) => {
             return (
               patternToCode(data.pattern) === 'SC' &&
               currentLevel &&
-              Number(currentLevel) >= 8 && (
+              Number(currentLevel) >= 8 &&
+              (data.hardScore || data.maxScore) && (
                 <div
                   key={`archive-${id}`}
-                  className={`tw-fixed tw-bottom-4 tw-right-4 tw-bg-gray-900/90 tw-rounded-lg tw-p-3 tw-shadow-lg ${fadeOut[id] ? 'tw-animate-fadeOut' : 'tw-animate-fadeIn'} `}
+                  className={`tw-fixed tw-bottom-4 tw-right-4 tw-bg-gray-900/90 tw-rounded-lg tw-p-3 tw-shadow-lg tw-min-w-[300px] tw-max-w-[300px] ${fadeOut[id] ? 'tw-animate-fadeOut' : 'tw-animate-fadeIn'} `}
                 >
                   <div className='tw-flex tw-items-center tw-gap-2 tw-mb-2'>
                     <IconContext.Provider value={{ size: '20px', className: 'tw-text-amber-400' }}>
@@ -411,6 +442,58 @@ const Overlay = ({ isNotificationSound }: { isNotificationSound: boolean }) => {
               )
             )
           })(),
+      )}
+
+      {/* 최근 기록 알림 - 별도의 fixed 포지션 */}
+      {notifications.map(
+        ({ data, id }) =>
+          data.gameCode === 'djmax_respect_v' &&
+          data.recentHistory && (
+            <div
+              key={`recent-${id}`}
+              className={`tw-fixed tw-bottom-4 tw-left-4 tw-bg-gray-900/90 tw-rounded-lg tw-p-3 tw-shadow-lg tw-min-w-[300px] tw-max-w-[300px] ${
+                fadeOut[id] ? 'tw-animate-fadeOut' : 'tw-animate-fadeIn'
+              }`}
+            >
+              <div className='tw-flex tw-items-center tw-gap-2 tw-mb-2'>
+                <IconContext.Provider value={{ size: '20px', className: 'tw-text-blue-400' }}>
+                  <FaCircleInfo />
+                </IconContext.Provider>
+                <span className='tw-text-sm tw-font-bold tw-text-blue-400'>최근 기록</span>
+              </div>
+              <div className='tw-flex tw-flex-col tw-gap-2'>
+                {data.recentHistory.length > 0 ? (
+                  // 최대 5개까지만 표시하고 역순으로 정렬
+                  [...data.recentHistory]
+                    .slice(0, 5)
+                    .reverse()
+                    .map((history, index) => (
+                      <div key={history.historyId} className='tw-bg-gray-600/25 tw-rounded tw-p-2'>
+                        <div className='tw-flex tw-flex-col tw-gap-1'>
+                          <div className='tw-text-xs tw-font-bold tw-text-gray-200'>
+                            {dayjs(history.playedAt).format('YYYY-MM-DD HH:mm:ss')}
+                          </div>
+                          <div className='tw-flex tw-justify-between tw-items-center'>
+                            <div className='tw-text-sm tw-font-bold tw-text-gray-200'>
+                              {Number(history.score).toFixed(2)}%
+                            </div>
+                            {history.maxCombo && (
+                              <div className='tw-text-xs tw-font-bold tw-text-amber-400'>
+                                MAX COMBO
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                ) : (
+                  <div className='tw-text-sm tw-text-gray-400 tw-text-center tw-py-2'>
+                    RACLA 데이터베이스에 해당 수록곡의 사용자 최근 기록이 없습니다.
+                  </div>
+                )}
+              </div>
+            </div>
+          ),
       )}
     </div>
   )

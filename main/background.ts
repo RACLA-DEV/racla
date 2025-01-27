@@ -165,47 +165,160 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
     },
   })
 
-  // mainWindow 생성 후에 이벤트 리스너 추가
-  mainWindow.on('closed', () => {
-    // 전역 단축키 해제
-    globalShortcut.unregisterAll()
+  mainWindow.webContents.on('before-input-event', (event, input) => {
+    if (input.key === 'F4' && input.alt) {
+      event.preventDefault()
+      if (!app.isQuitting && settingData.closeToTray) {
+        if (!tray) {
+          tray = new Tray(
+            path.join(isProd ? baseDir : __dirname, isProd ? 'icon.ico' : '/../resources/icon.ico'),
+          )
 
-    // 자동 캡처 인터벌 정리
-    if (settingData.autoCaptureIntervalId) {
-      clearTimeout(settingData.autoCaptureIntervalId)
-    }
+          const contextMenu = Menu.buildFromTemplate([
+            {
+              label: 'RACLA 데스크톱 앱',
+              enabled: false, // 클릭 불가능하게 설정
+            },
+            { type: 'separator' },
+            {
+              label: '열기',
+              click: () => {
+                showWindowAndRemoveTray()
+              },
+            },
+            {
+              label: '종료',
+              click: async () => {
+                try {
+                  app.isQuitting = true
 
-    // 오버레이 윈도우 정리
-    if (overlayWindow) {
-      overlayWindow.destroy()
-      overlayWindow = null
-    }
+                  // 모든 IPC 리스너 제거
+                  ipcMain.removeAllListeners()
 
-    // 트레이 아이콘 정리
-    if (tray) {
-      tray.destroy()
-      tray = null
-    }
+                  // 오버레이 윈도우 정리
+                  if (overlayWindow) {
+                    overlayWindow.removeAllListeners()
+                    overlayWindow.destroy()
+                    overlayWindow = null
+                  }
 
-    // 혹시 남아있는 서버 정리
-    const connections = require('net')
-      .createServer()
-      .getConnections((err, count) => {
-        if (count > 0) {
-          console.log(`Cleaning up ${count} remaining connections...`)
+                  // 트레이 아이콘 정리
+                  if (tray) {
+                    tray.destroy()
+                    tray = null
+                  }
+
+                  // 메인 윈도우 정리
+                  if (mainWindow) {
+                    mainWindow.removeAllListeners()
+                    mainWindow.destroy()
+                    mainWindow = null
+                  }
+
+                  // 잠시 대기 후 앱 종료
+                  setTimeout(() => {
+                    app.quit()
+                  }, 100)
+                } catch (error) {
+                  console.error('Error during app closure:', error)
+                  logMainError(error, isLogined ? userData : null)
+                  app.exit(1)
+                }
+              },
+            },
+          ])
+
+          tray.setToolTip('RACLA')
+          tray.setContextMenu(contextMenu)
+
+          // 더블클릭 이벤트로 변경
+          tray.on('double-click', () => {
+            showWindowAndRemoveTray()
+          })
         }
-      })
-
-    mainWindow = null
+        mainWindow?.hide()
+      } else {
+        app.quit()
+      }
+    }
   })
 
   // 윈도우 닫기 버튼 클릭 시 설정에 따라 트레이로 최소화 또는 종료
   mainWindow.on('close', (event) => {
     if (!app.isQuitting && settingData.closeToTray) {
       event.preventDefault()
+      if (!tray) {
+        tray = new Tray(
+          path.join(isProd ? baseDir : __dirname, isProd ? 'icon.ico' : '/../resources/icon.ico'),
+        )
+
+        const contextMenu = Menu.buildFromTemplate([
+          {
+            label: 'RACLA 데스크톱 앱',
+            enabled: false,
+          },
+          { type: 'separator' },
+          {
+            label: '열기',
+            click: () => {
+              showWindowAndRemoveTray()
+            },
+          },
+          {
+            label: '종료',
+            click: async () => {
+              try {
+                app.isQuitting = true
+
+                // 모든 IPC 리스너 제거
+                ipcMain.removeAllListeners()
+
+                // 오버레이 윈도우 정리
+                if (overlayWindow) {
+                  overlayWindow.removeAllListeners()
+                  overlayWindow.destroy()
+                  overlayWindow = null
+                }
+
+                // 트레이 아이콘 정리
+                if (tray) {
+                  tray.destroy()
+                  tray = null
+                }
+
+                // 메인 윈도우 정리
+                if (mainWindow) {
+                  mainWindow.removeAllListeners()
+                  mainWindow.destroy()
+                  mainWindow = null
+                }
+
+                // 잠시 대기 후 앱 종료
+                setTimeout(() => {
+                  app.quit()
+                }, 100)
+              } catch (error) {
+                console.error('Error during app closure:', error)
+                logMainError(error, isLogined ? userData : null)
+                app.exit(1)
+              }
+            },
+          },
+        ])
+
+        tray.setToolTip('RACLA')
+        tray.setContextMenu(contextMenu)
+
+        // 더블클릭 이벤트로 변경
+        tray.on('double-click', () => {
+          showWindowAndRemoveTray()
+        })
+      }
       mainWindow?.hide()
       return false
     }
+    app.isQuitting = true
+    app.quit()
     return true
   })
 
@@ -217,7 +330,9 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
   // 트레이 아이콘 생성/제거 함수
   const setupTray = () => {
     if (settingData.closeToTray && !tray) {
-      tray = new Tray(path.join(__dirname + '/../resources/', 'icon.ico'))
+      tray = new Tray(
+        path.join(isProd ? baseDir : __dirname, isProd ? 'icon.ico' : '/../resources/icon.ico'),
+      )
 
       const contextMenu = Menu.buildFromTemplate([
         {
@@ -516,7 +631,9 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
 
   ipcMain.on('hideToTray', () => {
     if (!tray) {
-      tray = new Tray(path.join(__dirname + '/../resources/', 'icon.ico'))
+      tray = new Tray(
+        path.join(isProd ? baseDir : __dirname, isProd ? 'icon.ico' : '/../resources/icon.ico'),
+      )
 
       const contextMenu = Menu.buildFromTemplate([
         {
@@ -785,6 +902,11 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
   ipcMain.on('getSession', async (event) => {
     const session = await getSession()
     mainWindow.webContents.send('IPC_RENDERER_GET_SESSION', session ? session : null)
+  })
+
+  ipcMain.on('getSessionToWidget', async (event) => {
+    const session = await getSession()
+    overlayWindow.webContents.send('IPC_RENDERER_GET_SESSION_TO_WIDGET', session ? session : null)
   })
 
   // 곡 데이터 저장 처리

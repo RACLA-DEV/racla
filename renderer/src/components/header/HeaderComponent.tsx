@@ -1,3 +1,5 @@
+import { useCallback, useEffect, useState } from 'react'
+import { OverlayTrigger, Tooltip } from 'react-bootstrap'
 import {
   FaArrowDown,
   FaArrowLeft,
@@ -8,24 +10,22 @@ import {
   FaRotate,
   FaUser,
 } from 'react-icons/fa6'
-import { OverlayTrigger, Tooltip } from 'react-bootstrap'
-import { useCallback, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
-import HomePanelButton from '../layout/HomePanelButton'
+import { globalDictionary } from '@/libs/server/globalDictionary'
 import Image from 'next/image'
 import Link from 'next/link'
 import type { RootState } from 'store'
-import { globalDictionary } from '@/libs/server/globalDictionary'
+import HomePanelButton from '../layout/HomePanelButton'
 // HeaderComponent.tsx
 import { logRendererError } from '@/libs/client/rendererLogger'
+import { useNotificationSystem } from '@/libs/client/useNotifications'
+import { useRouter } from 'next/router'
+import { setSelectedGame } from 'store/slices/appSlice'
+import { setBackgroundBgaName } from 'store/slices/uiSlice'
 import { renderGameButtons } from './renderGameButtons'
 import { renderUserDropdown } from './renderUserDropdown'
 import { renderUtilityButtons } from './renderUtilityButtons'
-import { setBackgroundBgaName } from 'store/slices/uiSlice'
-import { setSelectedGame } from 'store/slices/appSlice'
-import { useNotificationSystem } from '@/libs/client/useNotifications'
-import { useRouter } from 'next/router'
 
 interface IHeaderComponentProps {
   className?: string
@@ -120,7 +120,7 @@ const HeaderComponent: React.FC<IHeaderComponentProps> = ({
             href='/'
             className='tw-px-2 tw-py-2 btn-ipc tw-mr-2'
           >
-            <Image src='/images/logo.svg' height={24} width={24} alt='Logo' />
+            <Image src='/images/logo.svg' color='white' height={24} width={24} alt='Logo' />
           </Link>
         </OverlayTrigger>
       )}
@@ -193,7 +193,7 @@ const HeaderComponent: React.FC<IHeaderComponentProps> = ({
           }
         >
           <Link href='/' className='tw-px-2 tw-py-2 btn-ipc tw-mr-2'>
-            <Image src='/images/logo.svg' height={24} width={24} alt='Logo' />
+            <Image src='/images/logo.svg' color='white' height={24} width={24} alt='Logo' />
           </Link>
         </OverlayTrigger>
       ) : null}

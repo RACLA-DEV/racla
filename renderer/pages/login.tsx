@@ -334,6 +334,7 @@ export default function VArchiveLoginPage() {
                         >
                           <Image
                             src='/images/logo.svg'
+                            color='white'
                             alt='RACLA'
                             width={18}
                             height={18}
