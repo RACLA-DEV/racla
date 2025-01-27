@@ -13,8 +13,8 @@ import {
   FaWindowMaximize,
 } from 'react-icons/fa6'
 
-import { BUILD_DATE } from './buildInfo'
 import packageJson from '../../../../package.json'
+import { BUILD_DATE } from './buildInfo'
 
 export const globalDictionary = {
   version: `${packageJson.version}-${BUILD_DATE} ${process.env.NODE_ENV === 'development' ? 'Dev' : 'Main'}`,
@@ -554,7 +554,7 @@ export const globalDictionary = {
               base: '서열표',
               lastWithSup: '',
             },
-            description: '전일 아카이브 서열표(하판/맥저)',
+            description: '전일 아카이브 하드 판정 서열표(SC8/MX15+)',
             icon: FaRankingStar,
             isDisplay: true,
             isOpenBrowser: false,
@@ -569,7 +569,7 @@ export const globalDictionary = {
               base: '데이터베이스',
               lastWithSup: '',
             },
-            description: '전일 아카이브 데이터베이스(SC8/MX15+)',
+            description: '전일 아카이브 하드 판정 기록 데이터베이스(SC8/MX15+)',
             icon: FaDatabase,
             isDisplay: true,
             isOpenBrowser: false,

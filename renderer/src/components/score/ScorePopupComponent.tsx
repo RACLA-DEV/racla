@@ -385,7 +385,7 @@ const ScorePopupComponent = ({
                 </div>
                 {rivalName !== '' && (
                   <span className='tw-text-xs tw-font-light tw-text-gray-300 tw-my-2'>
-                    <span className=''>{rivalName}</span>님의 성과 기록
+                    <span className=''>{rivalName}</span>님의 V-ARCHIVE 성과 기록
                   </span>
                 )}
               </div>

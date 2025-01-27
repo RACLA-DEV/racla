@@ -1,6 +1,7 @@
 import 'moment/locale/ko'
 
 import React, { useEffect, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import {
   clearVArchiveData,
   setBackupData,
@@ -10,23 +11,22 @@ import {
   setVArchivePattern,
   setVArchiveUploadedPageData,
 } from 'store/slices/appSlice'
-import { useDispatch, useSelector } from 'react-redux'
 
-import { FaCloudArrowUp } from 'react-icons/fa6'
-import { FiTriangle } from 'react-icons/fi'
-import Head from 'next/head'
-import { IconContext } from 'react-icons'
-import Image from 'next/image'
-import { RootState } from 'store'
 import ScorePopupComponent from '@/components/score/ScorePopupComponent'
-import { SyncLoader } from 'react-spinners'
-import axios from 'axios'
 import { logRendererError } from '@/libs/client/rendererLogger'
-import moment from 'moment'
-import { setBackgroundBgaName } from 'store/slices/uiSlice'
 import { useNotificationSystem } from '@/libs/client/useNotifications'
 import { useRecentHistory } from '@/libs/client/useRecentHistory'
+import axios from 'axios'
+import moment from 'moment'
+import Head from 'next/head'
+import Image from 'next/image'
 import { useRouter } from 'next/router'
+import { IconContext } from 'react-icons'
+import { FaCloudArrowUp } from 'react-icons/fa6'
+import { FiTriangle } from 'react-icons/fi'
+import { SyncLoader } from 'react-spinners'
+import { RootState } from 'store'
+import { setBackgroundBgaName } from 'store/slices/uiSlice'
 
 export default function VArchiveRegScorePage() {
   const { showNotification } = useNotificationSystem()
@@ -640,10 +640,20 @@ export default function VArchiveRegScorePage() {
                         <div
                           key={index}
                           className={
-                            'tw-flex tw-flex-col tw-gap-1 tw-bg-opacity-10 tw-rounded-md tw-h-60 p-0 ' +
+                            'tw-flex tw-relative tw-flex-col tw-gap-1 tw-bg-opacity-10 tw-rounded-md tw-h-60 p-0 ' +
                             ` respect_dlc_${playerData.songData.dlcCode} respect_dlc_logo_${playerData.songData.dlcCode} respect_dlc_logo_BG_${playerData.songData.dlcCode}`
                           }
                         >
+                          <div className='tw-absolute tw-inset-0 tw-overflow-hidden tw-rounded-md'>
+                            <Image
+                              src={`/images/djmax_respect_v/jackets/${String(playerData.songData.title)}.jpg`}
+                              layout='fill'
+                              objectFit='cover'
+                              alt=''
+                              className='tw-opacity-50 tw-blur-xl'
+                            />
+                            <div className='tw-absolute tw-inset-0 tw-bg-gray-950 tw-bg-opacity-50' />
+                          </div>
                           <div className='tw-flex tw-flex-col tw-animate-fadeInLeft flex-equal tw-bg-gray-900 tw-bg-opacity-30 tw-rounded-md p-4'>
                             {/* 상단 정보 */}
                             <div className='tw-flex tw-flex-col tw-gap-2'>
@@ -882,10 +892,19 @@ export default function VArchiveRegScorePage() {
                   <>
                     <div
                       className={
-                        'tw-flex tw-flex-col tw-gap-1 tw-bg-opacity-10 tw-rounded-md tw-mb-4 tw-h-auto p-0 ' +
-                        ` respect_dlc_${vArchiveUploadedPageData.songData.dlcCode} respect_dlc_logo_${vArchiveUploadedPageData.songData.dlcCode} respect_dlc_logo_BG_${vArchiveUploadedPageData.songData.dlcCode}`
+                        'tw-flex tw-relative tw-flex-col tw-gap-1 tw-bg-opacity-10 tw-rounded-md tw-mb-4 tw-h-auto p-0'
                       }
                     >
+                      <div className='tw-absolute tw-inset-0 tw-overflow-hidden tw-rounded-md'>
+                        <Image
+                          src={`/images/djmax_respect_v/jackets/${String(vArchiveUploadedPageData.songData.title)}.jpg`}
+                          layout='fill'
+                          objectFit='cover'
+                          alt=''
+                          className='tw-opacity-50 tw-blur-xl'
+                        />
+                        <div className='tw-absolute tw-inset-0 tw-bg-gray-950 tw-bg-opacity-50' />
+                      </div>
                       <div className='tw-flex tw-flex-col tw-animate-fadeInLeft flex-equal tw-bg-gray-900 tw-bg-opacity-30 tw-rounded-md p-4'>
                         {/* 하단 */}
                         <div className='tw-flex tw-justify-between'>

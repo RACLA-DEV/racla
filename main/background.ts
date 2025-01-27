@@ -19,6 +19,7 @@ import {
   session,
   shell,
 } from 'electron'
+import path, { resolve } from 'path'
 import {
   clearSession,
   getSession,
@@ -29,24 +30,23 @@ import {
   storeSongData,
   storeWjmaxSongData,
 } from './fsManager'
-import path, { resolve } from 'path'
 
-import Tesseract from 'tesseract.js'
-import { Window } from 'node-screenshots'
-import { autoUpdater } from 'electron-updater'
-import { createWindow } from './helpers'
-import crypto from 'crypto'
 import { exec } from 'child_process'
+import crypto from 'crypto'
+import serve from 'electron-serve'
+import { autoUpdater } from 'electron-updater'
 import fs from 'fs'
 import http from 'http'
-import { logMainError } from './mainLogger'
 import moment from 'moment'
 import net from 'net'
-import { processResultScreen } from './ocrManager'
-import { promisify } from 'util'
-import serve from 'electron-serve'
-import { settingsManager } from './settingsManager'
+import { Window } from 'node-screenshots'
 import sharp from 'sharp'
+import Tesseract from 'tesseract.js'
+import { promisify } from 'util'
+import { createWindow } from './helpers'
+import { logMainError } from './mainLogger'
+import { processResultScreen } from './ocrManager'
+import { settingsManager } from './settingsManager'
 
 const isProd = process.env.NODE_ENV === 'production'
 
@@ -132,6 +132,8 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
   } else {
     app.setAsDefaultProtocolClient('racla')
   }
+
+  app.setAppUserModelId('RACLA')
 
   const isRegistered = globalShortcut.register('Alt+Insert', () => {
     pressAltInsert()
@@ -827,7 +829,10 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
       // 자동 업데이트 체크
       settingData = await getSettingData()
       if (settingData.autoUpdate) {
-        autoUpdater.checkForUpdatesAndNotify()
+        autoUpdater.checkForUpdatesAndNotify({
+          title: 'RACLA 데스크톱 앱 업데이트가 준비되었습니다.',
+          body: '업데이트를 적용하기 위해 앱을 종료하고 다시 실행하거나 해당 알림을 클릭해주세요.',
+        })
       }
       startCapturing()
       isLoaded = true

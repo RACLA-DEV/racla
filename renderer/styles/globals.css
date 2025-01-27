@@ -1852,3 +1852,56 @@ textarea.ant-input::placeholder {
   opacity: 0.7 !important;
   color: rgb(229 231 235) !important;
 }
+
+.ck-editor__editable {
+  border: 1px solid #374151 !important;
+  background-color: #374151 !important;
+  min-height: calc(100vh - 344px);
+  max-height: calc(100vh - 344px);
+  overflow-y: auto;
+  color: white !important;
+}
+
+.ck-editor__editable:focus {
+  outline: 1px solid #3b82f6 !important;
+  border: 1px solid #3b82f6 !important;
+}
+
+/* 커스텀 스크롤바 스타일 */
+.ck-editor__editable::-webkit-scrollbar {
+  width: 6px;
+}
+
+.ck-editor__editable::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.ck-editor__editable::-webkit-scrollbar-thumb {
+  border-radius: 3px;
+  background-color: rgba(156, 163, 175, 0.3);
+}
+
+.ck-editor__editable::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(156, 163, 175, 0.5);
+}
+
+.ck.ck-balloon-panel {
+  display: none !important;
+}
+
+.ck.ck-sticky-panel__content {
+  border-top: 1px solid #374151 !important;
+  border-right: 1px solid #374151 !important;
+  border-bottom: 1px solid #9ca3af !important;
+  border-left: 1px solid #374151 !important;
+}
+
+.ck.ck-toolbar {
+  background-color: #374151 !important;
+  color: white !important;
+}
+
+.ck.ck-button {
+  background-color: #374151 !important;
+  color: white !important;
+}

@@ -3,23 +3,23 @@ import 'moment/locale/ko'
 import * as R from 'ramda'
 
 import React, { useEffect, useState } from 'react'
+import { FaTable, FaYoutube } from 'react-icons/fa6'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { FaYoutube } from 'react-icons/fa6'
+import WjmaxChartComponent from '@/components/chart/WjmaxChartComponent'
+import ScoreEditComponent from '@/components/score/ScoreEditComponent'
+import { logRendererError } from '@/libs/client/rendererLogger'
+import { useNotificationSystem } from '@/libs/client/useNotifications'
+import { globalDictionary } from '@/libs/server/globalDictionary'
+import axios from 'axios'
+import moment from 'moment'
 import Head from 'next/head'
 import Image from 'next/image'
-import { RootState } from 'store'
-import ScoreEditComponent from '@/components/score/ScoreEditComponent'
-import { SyncLoader } from 'react-spinners'
-import WjmaxChartComponent from '@/components/chart/WjmaxChartComponent'
-import axios from 'axios'
-import { globalDictionary } from '@/libs/server/globalDictionary'
-import { logRendererError } from '@/libs/client/rendererLogger'
-import moment from 'moment'
-import { setBackgroundBgaName } from 'store/slices/uiSlice'
-import { useNotificationSystem } from '@/libs/client/useNotifications'
 import { useParams } from 'next/navigation'
 import { useRouter } from 'next/router'
+import { SyncLoader } from 'react-spinners'
+import { RootState } from 'store'
+import { setBackgroundBgaName } from 'store/slices/uiSlice'
 
 export default function VArchiveDbTitlePage() {
   const { showNotification } = useNotificationSystem()
@@ -364,8 +364,7 @@ export default function VArchiveDbTitlePage() {
           >
             <div
               className={
-                'tw-flex tw-flex-col tw-gap-4 tw-bg-opacity-10 tw-rounded-md tw-mb-4 tw-h-auto tw-relative p-0 ' +
-                ` wjmax${baseSongData[0].dlcCode}} wjmax_dlc_logo_${baseSongData[0].dlcCode} wjmax_dlc_logo_BG_${baseSongData[0].dlcCode}`
+                'tw-flex tw-flex-col tw-gap-4 tw-bg-opacity-10 tw-rounded-md tw-mb-4 tw-h-auto tw-relative p-0'
               }
               onClick={() => {
                 setPatternCode('')
@@ -378,9 +377,9 @@ export default function VArchiveDbTitlePage() {
                   layout='fill'
                   objectFit='cover'
                   alt=''
-                  className='tw-opacity-30 tw-blur-xl'
+                  className='tw-opacity-50 tw-blur-xl'
                 />
-                <div className='tw-absolute tw-inset-0 tw-bg-black tw-bg-opacity-50' />
+                <div className='tw-absolute tw-inset-0 tw-bg-gray-950 tw-bg-opacity-50' />
               </div>
 
               <div className='tw-flex tw-justify-between tw-gap-4 tw-animate-fadeInLeft flex-equal tw-bg-gray-900 tw-bg-opacity-30 tw-rounded-md p-4'>
@@ -423,7 +422,7 @@ export default function VArchiveDbTitlePage() {
                         onClick={() => window.ipc.openBrowser(baseSongData[0].bgaUrl)}
                       >
                         <FaYoutube className='tw-text-red-500 tw-mt-0.5' />
-                        <span className='tw-text-gray-300'>BGA 영상 바로가기</span>
+                        <span className='tw-text-gray-300'>BGA 영상</span>
                       </button>
                     )}
                     <div className='tw-animate-fadeInLeft tw-rounded-md tw-bg-gray-950 tw-bg-opacity-75 p-1'>
@@ -457,7 +456,7 @@ export default function VArchiveDbTitlePage() {
                       .map((patternName) => (
                         <React.Fragment key={String(patternName)}>
                           {/* Button Column */}
-                          <div className='tw-flex tw-flex-1 tw-gap-2'>
+                          <div className='tw-flex tw-flex-1 tw-gap-4'>
                             <div className='tw-min-w-20 tw-border-gray-600 tw-border-opacity-25 tw-flex tw-flex-col tw-justify-center tw-items-center tw-overflow-hidden tw-bg-gray-900 tw-bg-opacity-20 tw-rounded-lg'>
                               <div className='tw-relative tw-h-full tw-w-full tw-flex-1'>
                                 <div
@@ -485,18 +484,19 @@ export default function VArchiveDbTitlePage() {
                                   undefined &&
                                 baseSongData[0].patterns[patternName][difficultyCode] !== null ? (
                                   <div className='tw-relative tw-h-full'>
-                                    {/* <button
-                                  className="tw-absolute tw-right-2 tw-z-[100] tw-top-2 tw-flex-1 tw-px-2 tw-py-2 tw-bg-blue-600 tw-text-white tw-rounded-md hover:tw-bg-blue-500 tw-transition-all tw-text-sm"
-                                  onClick={() =>
-                                    fetchPatternData(
-                                      baseSongData[0].folderName,
-                                      baseSongData[0].patterns[patternName][difficultyCode].patternName,
-                                      String(patternName).includes('6B'),
-                                    )
-                                  }
-                                >
-                                  <FaTable />
-                                </button> */}
+                                    <button
+                                      className='tw-absolute tw-right-2 tw-z-[100] tw-top-2 tw-flex-1 tw-px-2 tw-py-2 tw-bg-blue-600 tw-text-white tw-rounded-md hover:tw-bg-blue-500 tw-transition-all tw-text-sm'
+                                      onClick={() =>
+                                        fetchPatternData(
+                                          baseSongData[0].folderName,
+                                          baseSongData[0].patterns[patternName][difficultyCode]
+                                            .patternName,
+                                          String(patternName).includes('6B'),
+                                        )
+                                      }
+                                    >
+                                      <FaTable />
+                                    </button>
                                     <div
                                       key={`${String(patternName)}_${difficultyCode}`}
                                       className={`tw-border-gray-600 tw-border-opacity-25 tw-flex tw-h-full tw-flex-col tw-justify-center tw-items-center tw-p-2 tw-bg-gray-700 tw-bg-opacity-20 tw-rounded-lg ${

@@ -1,26 +1,26 @@
 import 'moment/locale/ko'
 
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { BsGrid, BsList } from 'react-icons/bs'
 import { FaChevronLeft, FaChevronRight, FaHeart, FaRegHeart } from 'react-icons/fa6'
-import React, { useEffect, useMemo, useRef, useState } from 'react'
-import { setBackgroundBgaName, setIsDjCommentOpen } from 'store/slices/uiSlice'
 import { useDispatch, useSelector } from 'react-redux'
+import { setBackgroundBgaName, setIsDjCommentOpen } from 'store/slices/uiSlice'
 
-import Head from 'next/head'
-import { IconContext } from 'react-icons'
-import Image from 'next/image'
-import { RootState } from 'store'
-import { SyncLoader } from 'react-spinners'
-import axios from 'axios'
-import { debounce } from 'lodash'
-import dynamic from 'next/dynamic'
-import { globalDictionary } from '@/libs/server/globalDictionary'
 import { logRendererError } from '@/libs/client/rendererLogger'
-import moment from 'moment'
-import { motion } from 'framer-motion'
-import { useInView } from 'react-intersection-observer'
 import { useNotificationSystem } from '@/libs/client/useNotifications'
+import { globalDictionary } from '@/libs/server/globalDictionary'
+import axios from 'axios'
+import { motion } from 'framer-motion'
+import { debounce } from 'lodash'
+import moment from 'moment'
+import dynamic from 'next/dynamic'
+import Head from 'next/head'
+import Image from 'next/image'
 import { useRouter } from 'next/router'
+import { IconContext } from 'react-icons'
+import { useInView } from 'react-intersection-observer'
+import { SyncLoader } from 'react-spinners'
+import { RootState } from 'store'
 
 // 동적 임포트로 ScorePopupComponent 지연 로딩
 const ScorePopupComponent = dynamic(() => import('@/components/score/ScorePopupComponent'), {
@@ -644,12 +644,12 @@ export default function VArchiveDbPage() {
           {/* 메인 콘텐츠 영역 */}
           {/* 메인 콘텐츠 영역 */}
           <div className='tw-flex-1 tw-overflow-hidden tw-transition-all tw-w-full duration-300'>
-            <div className='tw-h-full tw-overflow-y-auto tw-scroll-smooth'>
+            <div className='tw-h-full tw-overflow-y-auto tw-scroll-smooth custom-scrollbar custom-scrollbar-always'>
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3 }}
-                className='tw-flex tw-flex-col tw-gap-1 tw-bg-gray-600 tw-bg-opacity-10 tw-rounded-md tw-p-4'
+                className='tw-flex tw-mr-2 tw-flex-col tw-gap-1 tw-bg-gray-600 tw-bg-opacity-10 tw-rounded-md tw-p-4'
               >
                 <div
                   className={`tw-w-full ${viewMode === 'grid' ? 'tw-flex tw-gap-3 tw-flex-wrap tw-justify-between' : 'tw-flex tw-flex-col'}`}
@@ -679,6 +679,9 @@ export default function VArchiveDbPage() {
                         className={`tw-flex tw-items-center tw-gap-4 tw-p-2 tw-border-b tw-border-gray-700 tw-relative tw-overflow-hidden tw-cursor-pointer ${hoveredTitle === songItem.title ? 'tw-bg-gray-700 tw-bg-opacity-30' : ''} hover:tw-bg-gray-700 hover:tw-bg-opacity-30`}
                         onMouseEnter={() => handleMouseEnter(songItem)}
                         onMouseLeave={handleMouseLeave}
+                        onClick={() => {
+                          router.push(`/vArchive/db/title/${songItem.title}`)
+                        }}
                       >
                         {/* 애니메이션 배경 레이어 */}
                         <div
@@ -738,7 +741,7 @@ export default function VArchiveDbPage() {
                                       </div>
                                     </div>
                                   ) : (
-                                    <div className='tw-opacity-30 tw-text-center'>
+                                    <div key={diff} className='tw-opacity-30 tw-text-center'>
                                       <div className='tw-text-base tw-font-extrabold'>-</div>
                                     </div>
                                   )}

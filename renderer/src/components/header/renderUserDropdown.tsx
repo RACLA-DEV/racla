@@ -71,7 +71,7 @@ export const renderUserDropdown = (
               )
             }}
           >
-            성과표(V-ARCHIVE) 바로가기
+            내 성과표(V-ARCHIVE) 바로가기
           </button>
         </li>
       ) : null}

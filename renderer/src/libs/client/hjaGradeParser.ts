@@ -1,0 +1,2755 @@
+interface RawGradeData {
+  '4': string
+  '5': string
+  '6': string
+  '8': string
+}
+
+interface GradeTableItem {
+  name: string
+  keyMode: string
+  pattern: string
+  level: number
+  floor: number
+  dlc: string
+}
+
+export const rawGradeData: RawGradeData = {
+  '4': `
+V EXTENSION 4
+DIE IN 4B SC15
+13
+PORTABLE 3
+Gone Astray 4B SC13
+12
+V EXTENSION 4
+Hell'o 4B SC14
+12
+EZ2ON REBOOT : R
+LIMBO 4B SC15
+12
+MUSE DASH
+PUPA 4B SC15
+12
+V EXTENSION 3
+Zero-Break 4B SC15
+12
+V EXTENSION 3
+Bright Future 4B SC14
+11
+RESPECT
+Daylight 4B SC13
+11
+V EXTENSION 3
+Emerge 4B SC12
+11
+V EXTENSION 3
+Fundamental 4B SC13
+11
+BLACK SQUARE
+In my Dream 4B SC13
+11
+V EXTENSION 4
+Love.Game.Money 4B SC14
+11
+PORTABLE 2
+Nightmare 4B SC15
+11
+GROOVE COASTER
+ouroboros -twin stroke of the end- 4B SC14
+11
+TRILOGY
+Ventilator 4B SC14
+11
+V EXTENSION 2
+Won't Back Down 4B SC13
+11
+EZ2ON REBOOT : R
+Zeroize 4B SC14
+11
+V EXTENSION 4
+!!New Game Start!! 4B SC13
+10
+TECHNIKA 3
+Bamboo on Bamboo 4B SC12
+10
+PORTABLE 2
+Brain Storm 4B SC11
+10
+V EXTENSION 4
+DIE IN 4B MX15
+10
+PORTABLE 1
+HAMSIN 4B SC14
+10
+PORTABLE 2
+Higher 4B SC10
+10
+V EXTENSION 3
+KICK IT 4B SC13
+10
+EZ2ON REBOOT : R
+Metagalactic 4B SC11
+10
+V EXTENSION 3
+Plasma Sphere 4B SC11
+10
+EZ2ON REBOOT : R
+Sparrow 4B SC8
+10
+V EXTENSION 4
+Stolen Memory 4B SC11
+10
+V EXTENSION 4
+Vertical Eclipse 4B SC13
+10
+RESPECT
+We're All Gonna Die 4B SC13
+10
+V EXTENSION 2
+Zero to the hunnit 4B SC11
+10
+NEXON
+카트라이더, 크레이지아케이드, 버블파이터 Main theme ~CHUCK Remix~ 4B SC12
+10
+RESPECT
+Can We Talk (Broken Dog Leg Mix) 4B SC8
+9
+TECHNIKA 2
+D2 4B SC12
+9
+RESPECT
+Dark Lightning 4B SC9
+9
+CHUNITHM
+Garakuta Doll Play 4B SC13
+9
+V EXTENSION
+Kensei 4B SC12
+9
+RESPECT
+KILLER BEE 4B SC12
+9
+CYTUS
+L 4B SC11
+9
+V EXTENSION 3
+Misty E'ra 'Mui' 4B SC11
+9
+V EXTENSION 3
+NB RANGERS - 운명의 Destiny 4B SC12
+9
+EZ2ON REBOOT : R
+Nihilism 4B SC13
+9
+V EXTENSION 2
+Odysseus 4B SC13
+9
+MAPLESTORY
+Story of Maple 4B SC12
+9
+TECHNIKA 3
+Supersonic 2011 4B SC10
+9
+CHUNITHM
+Trrricksters!! 4B SC12
+9
+RESPECT
+v o l d e n u i t 4B SC13
+9
+EZ2ON REBOOT : R
+Weird Wave 4B SC11
+9
+NEXON
+카트라이더 Mashup ~Pure 100% Remix~ 4B SC12
+9
+RESPECT
+ANALYS 4B SC12
+8
+MAPLESTORY
+Ariant ~ned Remix~ 4B SC10
+8
+V EXTENSION 2
+Cocked Pistol 4B SC13
+8
+EZ2ON REBOOT : R
+Complex 4B SC9
+8
+RESPECT
+Dance of the Dead 4B SC10
+8
+V EXTENSION 4
+Deadly Bomber 4B SC10
+8
+MUSE DASH
+ENERGY SYNERGY MATRIX 4B SC11
+8
+RESPECT
+Enter The Universe 4B SC12
+8
+BLACK SQUARE
+Fermion 4B SC12
+8
+RESPECT
+I'M ALIVE 4B SC11
+8
+MUSE DASH
+Lights of Muse 4B SC13
+8
+PORTABLE 2
+SQUEEZE 4B SC10
+8
+V EXTENSION 4
+Stay Alive 4B SC11
+8
+MAPLESTORY
+The Tune of the Azure Light ~Parang Remix~ 4B SC12
+8
+RESPECT
+Watch Your Step 4B SC9
+8
+NEXON
+전설이 시작된 곳 ~VoidRover Remix~ 4B SC11
+8
+DEEMO
+ANiMA 4B SC11
+7
+V EXTENSION 4
+Back to the oldschool 4B SC12
+7
+MUSE DASH
+Comet Coaster 4B SC11
+7
+MUSE DASH
+Cthugha 4B SC13
+7
+BLACK SQUARE
+Cypher Gate 4B SC9
+7
+V EXTENSION 3
+Disappearing Act 4B SC12
+7
+MAPLESTORY
+Fairytale ~Pan Remix~ 4B SC9
+7
+V EXTENSION 4
+Hyper Drive 4B SC10
+7
+RESPECT
+Mr.Lonely 4B SC11
+7
+TECHNIKA 3
+Out of CTRL 4B SC10
+7
+TECHNIKA 2
+Rage Of Demon 4B SC12
+7
+RESPECT
+Ruti'n (GOTH Wild Electro Remix) 4B SC10
+7
+EZ2ON REBOOT : R
+Sand Storm 4B SC11
+7
+RESPECT
+Airlock 4B SC12
+6
+BLACK SQUARE
+Beat U Down 4B SC11
+6
+MUSE DASH
+DataErr0r 4B SC9
+6
+MUSE DASH
+Dysthymia 4B SC11
+6
+CLAZZIQUAI
+Electronics 4B SC9
+6
+V EXTENSION 4
+Gloxinia 4B SC10
+6
+BLACK SQUARE
+Grave Consequence 4B SC11
+6
+V EXTENSION
+Lost Temple 4B SC10
+6
+TRILOGY
+Mind Control 4B SC12
+6
+PORTABLE 1
+Minimal Life 4B SC10
+6
+MAPLESTORY
+Missing You ~SOPHI Remix~ 4B SC9
+6
+MAPLESTORY
+Moonlight Shadow ~Paul Bazooka Remix~ 4B SC11
+6
+RESPECT
+Nevermind 4B SC12
+6
+GROOVE COASTER
+ouroboros -twin stroke of the end- 4B MX15
+6
+PORTABLE 1
+SIN 4B SC10
+6
+MAPLESTORY
+The Lake of Oblivion ~jam-jam Remix~ 4B SC8
+6
+TRILOGY
+Ventilator 4B MX15
+6
+V EXTENSION
+WONDER $LOT 777 4B SC10
+6
+V EXTENSION 3
+#mine (feat. Riho Iwamoto) 4B SC8
+5
+TECHNIKA 2
+Dream of Winds 4B SC11
+5
+PORTABLE 1
+Extreme Z4 4B SC11
+5
+BLACK SQUARE
+Heart of Witch 4B SC11
+5
+TECHNIKA TUNE & Q
+Kal_wrnw 4B SC10
+5
+PORTABLE 2
+NB POWER 4B SC9
+5
+V EXTENSION 4
+New World 4B SC9
+5
+TECHNIKA 1
+SON OF SUN 4B SC11
+5
+PORTABLE 3
+The Rain Maker 4B SC11
+5
+TECHNIKA TUNE & Q
+VORTEX 4B SC9
+5
+V EXTENSION 4
+Weaponize 4B SC9
+5
+TECHNIKA 3
+Xeus 4B SC10
+5
+NEXON
+광명의 루 : 루 라바다 4B SC9
+5
+TECHNIKA 3
+AD2222 4B SC11
+4
+RESPECT
+Binary World 4B SC10
+4
+RESPECT
+Chemical Slave 4B SC10
+4
+RESPECT
+Child of Night 4B SC8
+4
+V EXTENSION 2
+Forgotten 4B SC9
+4
+CLEAR PASS+
+From Hell to Breakfast 4B SC8
+4
+TECHNIKA 1
+HEXAD 4B SC9
+4
+Emotional Sense
+Knowledge System 4B SC11
+4
+GUILTY GEAR
+Marionette 4B SC9
+4
+V EXTENSION 3
+Moment (feat. Nauts) 4B SC8
+4
+PORTABLE 2
+NB Rangers : Returns 4B SC9
+4
+V EXTENSION
+Never Die 4B SC9
+4
+V EXTENSION 2
+Never let you go 4B SC7
+4
+RESPECT
+OrBiTal 4B SC10
+4
+MUSE DASH
+PUPA 4B MX15
+4
+PORTABLE 1
+Road Of Death 4B SC10
+4
+Emotional Sense
+Super lovely 4B MX15
+4
+V EXTENSION 4
+The Four Seasons : Summer 2017 4B SC9
+4
+RESPECT
+U.A.D 4B SC9
+4
+V EXTENSION 3
+Winners 4B SC10
+4
+MUSE DASH
+XING 4B SC10
+4
+NEXON
+부여성 ~Blosso Remix~ 4B SC9
+4
+NEXON
+카트라이더 Mashup ~Cosmograph Remix~ 4B SC10
+4
+EZ2ON REBOOT : R
+A Site De La Rue 4B SC10
+3
+TECHNIKA 2
+Airwave 4B SC11
+3
+RESPECT
+ALiCE 4B SC8
+3
+EZ2ON REBOOT : R
+Aquaris 4B SC8
+3
+TECHNIKA 1
+Beyond the Future 4B SC10
+3
+PORTABLE 2
+Chain of Gravity 4B SC9
+3
+CLAZZIQUAI
+Dark ENVY 4B SC11
+3
+RESPECT
+Don't Die 4B SC9
+3
+PORTABLE 1
+Dreadnought 4B SC9
+3
+GIRLS'FRONTLINE
+Frontline 4B SC8
+3
+GROOVE COASTER
+Groove Prayer 4B SC10
+3
+CHUNITHM
+Ikazuchi 4B MX15
+3
+V EXTENSION 2
+Imaginary dance 4B SC9
+3
+RESPECT
+Liar 4B SC9
+3
+EZ2ON REBOOT : R
+LIMBO 4B MX15
+3
+TECHNIKA 1
+Melody 4B SC9
+3
+RESPECT
+NB RANGER - Virgin Force 4B SC10
+3
+V EXTENSION 2
+Odysseus 4B MX15
+3
+RESPECT
+quixotic 4B SC9
+3
+CHUNITHM
+Ray Tuning 4B SC9
+3
+PORTABLE 1
+Rock Or Die 4B SC9
+3
+CLEAR PASS+
+SURVIVOR 4B SC7
+3
+RESPECT
+Techno Racer 4B SC9
+3
+TECHNIKA 2
+XLASHER 4B SC10
+3
+NEXON
+공성전 ~Pierre Blanche, Yonce Remix~ 4B SC10
+3
+PORTABLE 1
+바람에게 부탁해 ~Live Mix~ 4B SC8
+3
+NEXON
+죽음의 신 : 크로우 크루아흐 4B SC10
+3
+GUILTY GEAR
+Break a Spell 4B SC10
+2
+CYTUS
+CODE NAME : ZERO 4B SC9
+2
+TECHNIKA 3
+Dark Prism 4B SC9
+2
+TECHNIKA 2
+Dual Strikers 4B SC10
+2
+V EXTENSION
+FIGHT NIGHT (feat. Calyae) 4B SC8
+2
+TECHNIKA 3
+Over the Rainbow 4B SC10
+2
+TECHNIKA 2
+Rage Of Demon 4B MX15
+2
+TECHNIKA TUNE & Q
+Renovation 4B SC8
+2
+PORTABLE 2
+Seeker 4B SC9
+2
+TECHNIKA TUNE & Q
+Silent Clarity 4B SC7
+2
+PORTABLE 1
+SIN ~The Last Scene~ 4B SC9
+2
+TECHNIKA 1
+SuperSonic 4B SC8
+2
+TECHNIKA 3
+Bamboo on Bamboo 4B MX15
+1
+MUSE DASH
+Cthugha 4B MX15
+1
+CLAZZIQUAI
+Dark ENVY 4B MX15
+1
+CYTUS
+Entrance 4B MX15
+1
+PORTABLE 1
+HAMSIN 4B MX15
+1
+CYTUS
+Mammal 4B MX15
+1
+NEXON
+전설이 시작된 곳 ~VoidRover Remix~ 4B MX15
+1
+  `,
+  '5': `
+V EXTENSION 4
+DIE IN 5B SC15
+13
+V EXTENSION 3
+Fundamental 5B SC14
+12
+V EXTENSION 4
+Hell'o 5B SC15
+12
+EZ2ON REBOOT : R
+LIMBO 5B SC14
+12
+GROOVE COASTER
+ouroboros -twin stroke of the end- 5B SC14
+12
+MUSE DASH
+PUPA 5B SC14
+12
+V EXTENSION 4
+Vertical Eclipse 5B SC15
+12
+V EXTENSION 4
+!!New Game Start!! 5B SC13
+11
+TECHNIKA 2
+D2 5B SC12
+11
+CHUNITHM
+Ikazuchi 5B SC14
+11
+V EXTENSION 4
+Love.Game.Money 5B SC14
+11
+V EXTENSION 2
+Over Me 5B SC13
+11
+V EXTENSION 2
+Red Eyes 5B SC13
+11
+RESPECT
+v o l d e n u i t 5B SC14
+11
+TRILOGY
+Ventilator 5B SC13
+11
+V EXTENSION 3
+Zero-Break 5B SC13
+11
+EZ2ON REBOOT : R
+Zeroize 5B SC13
+11
+NEXON
+카트라이더 Mashup ~Cosmograph Remix~ 5B SC14
+11
+NEXON
+카트라이더, 크레이지아케이드, 버블파이터 Main theme ~CHUCK Remix~ 5B SC13
+11
+EZ2ON REBOOT : R
+A Site De La Rue 5B SC13
+10
+RESPECT
+ANALYS 5B SC13
+10
+MAPLESTORY
+Ariant ~ned Remix~ 5B SC13
+10
+MUSE DASH
+Cthugha 5B SC13
+10
+V EXTENSION 4
+Deadly Bomber 5B SC13
+10
+V EXTENSION 3
+Disappearing Act 5B SC14
+10
+PORTABLE 2
+Dream of You 5B SC9
+10
+TECHNIKA 3
+Emblem 5B SC12
+10
+BLACK SQUARE
+Fermion 5B SC13
+10
+GROOVE COASTER
+Good Night, Bad Luck. 5B SC12
+10
+GROOVE COASTER
+Marry me, Nightmare 5B SC11
+10
+EZ2ON REBOOT : R
+Metagalactic 5B SC11
+10
+MAPLESTORY
+Missing You ~SOPHI Remix~ 5B SC14
+10
+PORTABLE 2
+Nightmare 5B SC14
+10
+EZ2ON REBOOT : R
+Nihilism 5B SC13
+10
+V EXTENSION 2
+Odysseus 5B SC13
+10
+TECHNIKA 2
+Rage Of Demon 5B SC13
+10
+V EXTENSION 4
+Stay Alive 5B SC13
+10
+RESPECT
+We're All Gonna Die 5B SC14
+10
+V EXTENSION 4
+Weaponize 5B SC13
+10
+TECHNIKA 2
+XLASHER 5B SC13
+10
+TECHNIKA 3
+Bamboo on Bamboo 5B SC13
+9
+EZ2ON REBOOT : R
+Complex 5B SC11
+9
+CLAZZIQUAI
+Dark ENVY 5B SC12
+9
+MUSE DASH
+DataErr0r 5B SC11
+9
+V EXTENSION 2
+Daydream 5B SC12
+9
+CYTUS
+EMber 5B SC10
+9
+V EXTENSION 3
+Emerge 5B SC11
+9
+PORTABLE 3
+Enemy Storm ~Dark Jungle Mix~ 5B SC13
+9
+V EXTENSION 4
+Gloxinia 5B SC11
+9
+BLACK SQUARE
+In my Dream 5B SC10
+9
+V EXTENSION 3
+KICK IT 5B SC12
+9
+RESPECT
+Remains Of Doom 5B SC12
+9
+V EXTENSION 4
+Stolen Memory 5B SC14
+9
+Emotional Sense
+Super lovely 5B SC13
+9
+MAPLESTORY
+The Tune of the Azure Light ~Parang Remix~ 5B SC14
+9
+EZ2ON REBOOT : R
+Weird Wave 5B SC12
+9
+NEXON
+전설이 시작된 곳 ~VoidRover Remix~ 5B SC13
+9
+PORTABLE 1
+피아노 협주곡 1번 5B SC11
+9
+DEEMO
+ANiMA 5B SC11
+8
+V EXTENSION 4
+Back to the oldschool 5B SC11
+8
+PORTABLE 1
+BlythE 5B SC10
+8
+V EXTENSION 3
+Bright Future 5B SC12
+8
+V EXTENSION 2
+Cocked Pistol 5B SC10
+8
+MUSE DASH
+Comet Coaster 5B SC11
+8
+CYTUS
+conflict 5B SC10
+8
+RESPECT
+Dark Lightning 5B SC8
+8
+RESPECT
+Daylight 5B SC11
+8
+MUSE DASH
+ENERGY SYNERGY MATRIX 5B SC11
+8
+CLEAR PASS+
+From Hell to Breakfast 5B SC11
+8
+BLACK SQUARE
+Grave Consequence 5B SC11
+8
+BLACK SQUARE
+Heart of Witch 5B SC12
+8
+V EXTENSION
+Kensei 5B SC11
+8
+TECHNIKA 2
+La Campanella : Nu Rave 5B SC10
+8
+MUSE DASH
+Lights of Muse 5B SC11
+8
+V EXTENSION 3
+Misty E'ra 'Mui' 5B SC12
+8
+RESPECT
+Mulch 5B SC12
+8
+RESPECT
+NB RANGER - Virgin Force 5B SC11
+8
+V EXTENSION 3
+NB RANGERS - 운명의 Destiny 5B SC11
+8
+V EXTENSION 3
+Plasma Sphere 5B SC11
+8
+TECHNIKA 3
+Supernova 5B SC11
+8
+TECHNIKA 3
+Supersonic 2011 5B SC10
+8
+V EXTENSION 3
+Winners 5B SC11
+8
+V EXTENSION 2
+Won't Back Down 5B SC10
+8
+NEXON
+소년 모험가 ~SiNA Remix~ 5B SC9
+8
+PORTABLE 1
+Astro Fight 5B SC11
+7
+BLACK SQUARE
+Cypher Gate 5B SC10
+7
+V EXTENSION 4
+DIE IN 5B MX15
+7
+RESPECT
+Enter The Universe 5B SC11
+7
+MAPLESTORY
+Fairytale ~Pan Remix~ 5B SC11
+7
+V EXTENSION 4
+Hyper Drive 5B SC10
+7
+PORTABLE 3
+Leave me alone 5B SC10
+7
+V EXTENSION
+Lisrim 5B SC10
+7
+CYTUS
+Mammal 5B SC11
+7
+RESPECT
+Nevermind 5B SC12
+7
+V EXTENSION 4
+New World 5B SC10
+7
+PORTABLE 1
+OBLIVION (Rockin' Night Style) 5B SC10
+7
+TECHNIKA 3
+Out of CTRL 5B SC11
+7
+PORTABLE 1
+SIN 5B SC11
+7
+Emotional Sense
+Space of Soul 5B SC10
+7
+EZ2ON REBOOT : R
+Sparrow 5B SC9
+7
+V EXTENSION 3
+STEP 5B SC11
+7
+V EXTENSION 4
+The Four Seasons : Summer 2017 5B SC12
+7
+MAPLESTORY
+The Lake of Oblivion ~jam-jam Remix~ 5B SC10
+7
+PORTABLE 2
+Your Own Miracle 5B SC10
+7
+NEXON
+공성전 ~Pierre Blanche, Yonce Remix~ 5B SC11
+7
+NEXON
+카트라이더 Mashup ~Pure 100% Remix~ 5B SC11
+7
+TECHNIKA 3
+AD2222 5B SC10
+6
+RESPECT
+Airlock 5B SC11
+6
+BLACK SQUARE
+Beat U Down 5B SC10
+6
+RESPECT
+Beyond Yourself 5B SC12
+6
+CHUNITHM
+Cyberozar 5B SC9
+6
+TECHNIKA 2
+Dream of Winds 5B SC10
+6
+GROOVE COASTER
+Got more raves? 5B SC10
+6
+ESTIMATE
+HELIX 5B SC11
+6
+RESPECT
+I'M ALIVE 5B SC10
+6
+TECHNIKA TUNE & Q
+Kal_wrnw 5B SC9
+6
+V EXTENSION
+Never Die 5B SC11
+6
+V EXTENSION 2
+Red Eyes 5B MX15
+6
+PORTABLE 1
+Road Of Death 5B SC13
+6
+RESPECT
+Ruti'n (GOTH Wild Electro Remix) 5B SC11
+6
+EZ2ON REBOOT : R
+Sand Storm 5B SC10
+6
+TECHNIKA 3
+Xeus 5B SC11
+6
+NEXON
+광명의 루 : 루 라바다 5B SC9
+6
+RESPECT
+너로피어오라 5B SC9
+6
+GIRLS'FRONTLINE
+Barbarous Funera 5B SC9
+5
+GUILTY GEAR
+Break a Spell 5B SC9
+5
+PORTABLE 1
+Extreme Z4 5B SC9
+5
+CHUNITHM
+Garakuta Doll Play 5B MX15
+5
+PORTABLE 3
+Hanz up! 5B SC9
+5
+TECHNIKA 1
+HEXAD 5B SC9
+5
+V EXTENSION 2
+I’ve got a feeling 5B SC10
+5
+GUILTY GEAR
+Marionette 5B SC9
+5
+PORTABLE 1
+Minimal Life 5B SC10
+5
+MAPLESTORY
+Moonlight Shadow ~Paul Bazooka Remix~ 5B SC9
+5
+PORTABLE 1
+OBLIVION 5B SC10
+5
+TECHNIKA TUNE & Q
+Renovation 5B SC11
+5
+TECHNIKA 1
+SON OF SUN 5B SC11
+5
+TRILOGY
+The One 5B SC11
+5
+V EXTENSION
+WONDER $LOT 777 5B SC8
+5
+NEXON
+부여성 ~Blosso Remix~ 5B SC9
+5
+DEEMO
+Angelic Sphere 5B SC9
+4
+EZ2ON REBOOT : R
+Aquaris 5B SC9
+4
+V EXTENSION
+Attack 5B SC10
+4
+RESPECT
+Binary World 5B SC9
+4
+TECHNIKA 2
+Dual Strikers 5B SC9
+4
+V EXTENSION 2
+Forgotten 5B SC10
+4
+PORTABLE 1
+JBG 5B SC9
+4
+RESPECT
+Liar 5B SC9
+4
+EZ2ON REBOOT : R
+LIMBO 5B MX15
+4
+TECHNIKA 1
+Melody 5B SC9
+4
+TRILOGY
+Mind Control 5B SC10
+4
+TRILOGY
+NB Girls 5B SC9
+4
+PORTABLE 1
+NB RANGER 5B SC9
+4
+V EXTENSION 2
+Odysseus 5B MX15
+4
+RESPECT
+Runaway 5B SC9
+4
+V EXTENSION
+Space Challenger 5B SC10
+4
+PORTABLE 2
+STALKER 5B SC9
+4
+CLAZZIQUAI
+The Clear Blue Sky 5B SC11
+4
+CHUNITHM
+The wheel to the right 5B SC9
+4
+RESPECT
+U.A.D 5B SC9
+4
+V EXTENSION 2
+Vertical Floating 5B SC10
+4
+TECHNIKA TUNE & Q
+VORTEX 5B SC10
+4
+GIRLS'FRONTLINE
+What am I fighting for? 5B SC9
+4
+PORTABLE 3
+ZET ~Mr.Funky Remix~ 5B SC9
+4
+RESPECT
+모짜르트 교향곡 40번 1악장 5B SC9
+4
+TECHNIKA 3
+Angel 5B SC9
+3
+V EXTENSION
+BLACK GOLD 5B SC8
+3
+PORTABLE 2
+Brain Storm 5B MX15
+3
+RESPECT
+Celestial Tears 5B SC9
+3
+CLAZZIQUAI
+Color 5B SC9
+3
+RESPECT
+Dancin' Planet 5B SC9
+3
+TECHNIKA 3
+Dark Prism 5B SC9
+3
+V EXTENSION 2
+Daydream 5B MX15
+3
+TECHNIKA TUNE & Q
+Deborah 5B SC9
+3
+RESPECT
+Grid System 5B SC9
+3
+V EXTENSION 4
+Hypernaid 5B SC8
+3
+CHUNITHM
+Ikazuchi 5B MX15
+3
+PORTABLE 1
+MASAI 5B SC9
+3
+CYTUS
+Myosotis 5B SC7
+3
+GROOVE COASTER
+ouroboros -twin stroke of the end- 5B MX15
+3
+MUSE DASH
+PUPA 5B MX15
+3
+PORTABLE 1
+Ray of Illuminati 5B SC7
+3
+V EXTENSION
+Remember Me 5B SC7
+3
+TECHNIKA TUNE & Q
+Retention 5B SC8
+3
+PORTABLE 2
+Rolling On the Duck 5B SC9
+3
+RESPECT
+Royal Clown 5B SC7
+3
+V EXTENSION 3
+Set Me Free 5B SC9
+3
+TECHNIKA 3
+Showdown 5B SC10
+3
+TECHNIKA 3
+SigNalize 5B SC9
+3
+NEXON
+Start The Adventure ~SOPHI Remix~ 5B SC9
+3
+V EXTENSION 4
+Stay Alive 5B MX15
+3
+Emotional Sense
+Super lovely 5B MX15
+3
+CLEAR PASS+
+SURVIVOR 5B SC7
+3
+RESPECT
+Techno Racer 5B SC9
+3
+V EXTENSION 3
+Zero-Break 5B MX15
+3
+TRILOGY
+ZET 5B SC9
+3
+PORTABLE 1
+복수혈전 5B SC9
+3
+NEXON
+연합군과 제국군 5B SC9
+3
+RESPECT
+염라 5B SC8
+3
+NEXON
+죽음의 신 : 크로우 크루아흐 5B SC10
+3
+DEEMO
+ANiMA 5B MX15
+2
+MAPLESTORY
+Ariant ~ned Remix~ 5B MX15
+2
+TECHNIKA 3
+Bamboo on Bamboo 5B MX15
+2
+TECHNIKA 2
+BEE-U-TIFUL 5B SC8
+2
+RESPECT
+Boom! 5B SC6
+2
+MUSE DASH
+Cthugha 5B MX15
+2
+RESPECT
+Enter The Universe 5B MX15
+2
+NEXON
+It's my war now 5B SC9
+2
+CYTUS
+Mammal 5B MX15
+2
+PORTABLE 2
+Nightmare 5B MX15
+2
+EZ2ON REBOOT : R
+Nihilism 5B MX15
+2
+RESPECT
+OrBiTal 5B SC9
+2
+TECHNIKA 2
+Rage Of Demon 5B MX15
+2
+MAPLESTORY
+Story of Maple 5B SC8
+2
+MAPLESTORY
+The Tune of the Azure Light ~Parang Remix~ 5B MX15
+2
+RESPECT
+Waiting for you 5B SC9
+2
+GROOVE COASTER
+Warrior 5B MX15
+2
+RESPECT
+Watch Your Step 5B SC8
+2
+NEXON
+전설이 시작된 곳 ~VoidRover Remix~ 5B MX15
+2
+CYTUS
+CODE NAME : ZERO 5B MX15
+1
+MUSE DASH
+Dysthymia 5B MX15
+1
+PORTABLE 3
+Enemy Storm ~Dark Jungle Mix~ 5B MX15
+1
+BLACK SQUARE
+Heart of Witch 5B MX15
+1
+RESPECT
+NB RANGER - Virgin Force 5B MX15
+1
+CHUNITHM
+Trrricksters!! 5B MX15
+1
+PORTABLE 2
+WhiteBlue 5B SC8
+1
+NEXON
+죽음의 신 : 크로우 크루아흐 5B MX15
+1
+`,
+  '6': `
+V EXTENSION 4
+DIE IN 6B SC15
+13
+DEEMO
+ANiMA 6B SC14
+12
+V EXTENSION 4
+Hell'o 6B SC15
+12
+CHUNITHM
+Ikazuchi 6B SC14
+12
+V EXTENSION 3
+KICK IT 6B SC13
+12
+EZ2ON REBOOT : R
+LIMBO 6B SC15
+12
+GROOVE COASTER
+ouroboros -twin stroke of the end- 6B SC13
+12
+MUSE DASH
+PUPA 6B SC15
+12
+V EXTENSION 3
+Zero-Break 6B SC14
+12
+V EXTENSION 4
+!!New Game Start!! 6B SC12
+11
+EZ2ON REBOOT : R
+A Site De La Rue 6B SC13
+11
+MAPLESTORY
+Ariant ~ned Remix~ 6B SC14
+11
+TECHNIKA 3
+Black Swan 6B SC11
+11
+CHUNITHM
+Garakuta Doll Play 6B SC14
+11
+BLACK SQUARE
+In my Dream 6B SC13
+11
+CYTUS
+L 6B SC14
+11
+GROOVE COASTER
+Marry me, Nightmare 6B SC12
+11
+TRILOGY
+Mind Control 6B SC12
+11
+V EXTENSION 2
+Odysseus 6B SC14
+11
+V EXTENSION 2
+Red Eyes 6B SC12
+11
+V EXTENSION 2
+Won't Back Down 6B SC13
+11
+GROOVE COASTER
+Black MInD 6B SC13
+10
+RESPECT
+Can We Talk (Broken Dog Leg Mix) 6B SC9
+10
+MUSE DASH
+Cthugha 6B SC13
+10
+V EXTENSION 3
+Disappearing Act 6B SC14
+10
+V EXTENSION 3
+Emerge 6B SC11
+10
+TECHNIKA TUNE & Q
+Festa Nova 6B SC11
+10
+V EXTENSION 3
+Fundamental 6B SC12
+10
+RESPECT
+I'M ALIVE 6B SC12
+10
+EZ2ON REBOOT : R
+Metagalactic 6B SC11
+10
+EZ2ON REBOOT : R
+Nihilism 6B SC11
+10
+V EXTENSION 2
+Over Me 6B SC11
+10
+TECHNIKA 2
+Rage Of Demon 6B SC14
+10
+Emotional Sense
+Space of Soul 6B SC11
+10
+EZ2ON REBOOT : R
+Sparrow 6B SC9
+10
+MAPLESTORY
+The Tune of the Azure Light ~Parang Remix~ 6B SC12
+10
+Emotional Sense
+Urban Night 6B SC10
+10
+TRILOGY
+Ventilator 6B SC12
+10
+V EXTENSION
+Vile Requiem 6B SC10
+10
+V EXTENSION 4
+Weaponize 6B SC13
+10
+EZ2ON REBOOT : R
+Zeroize 6B SC13
+10
+NEXON
+전설이 시작된 곳 ~VoidRover Remix~ 6B SC13
+10
+PORTABLE 1
+피아노 협주곡 1번 6B SC11
+10
+CYTUS
+conflict 6B SC12
+9
+CLAZZIQUAI
+Dark ENVY 6B SC12
+9
+RESPECT
+Dark Lightning 6B SC10
+9
+MUSE DASH
+DataErr0r 6B SC12
+9
+V EXTENSION 4
+DIE IN 6B MX15
+9
+CLEAR PASS+
+From Hell to Breakfast 6B SC11
+9
+PORTABLE 3
+Gone Astray 6B SC11
+9
+BLACK SQUARE
+Grave Consequence 6B SC13
+9
+MUSE DASH
+Lights of Muse 6B SC13
+9
+V EXTENSION 4
+Love.Game.Money 6B SC12
+9
+V EXTENSION 4
+Stay Alive 6B SC12
+9
+V EXTENSION 4
+Stolen Memory 6B SC12
+9
+MAPLESTORY
+Story of Maple 6B SC11
+9
+Emotional Sense
+Super lovely 6B SC12
+9
+MAPLESTORY
+The Lake of Oblivion ~jam-jam Remix~ 6B SC11
+9
+CHUNITHM
+Trrricksters!! 6B SC13
+9
+RESPECT
+v o l d e n u i t 6B SC12
+9
+RESPECT
+We're All Gonna Die 6B SC13
+9
+NEXON
+카트라이더, 크레이지아케이드, 버블파이터 Main theme ~CHUCK Remix~ 6B SC12
+9
+RESPECT
+ANALYS 6B SC10
+8
+TECHNIKA 3
+Bamboo on Bamboo 6B SC12
+8
+GIRLS'FRONTLINE
+Barbarous Funera 6B SC10
+8
+MUSE DASH
+Comet Coaster 6B SC11
+8
+EZ2ON REBOOT : R
+Complex 6B SC9
+8
+RESPECT
+Daylight 6B SC11
+8
+V EXTENSION 4
+Deadly Bomber 6B SC11
+8
+RESPECT
+Enter The Universe 6B SC11
+8
+CYTUS
+Entrance 6B SC13
+8
+MAPLESTORY
+Fairytale ~Pan Remix~ 6B SC10
+8
+TRILOGY
+For Seasons ~Air Guitar Mix~ 6B SC9
+8
+V EXTENSION 4
+Gloxinia 6B SC10
+8
+V EXTENSION
+Kensei 6B SC11
+8
+RESPECT
+Nevermind 6B SC12
+8
+PORTABLE 1
+Para-Q 6B SC10
+8
+RESPECT
+Secret Dejavu 6B SC9
+8
+V EXTENSION 3
+Tic! Tac! Toe! 6B SC9
+8
+V EXTENSION 4
+Vertical Eclipse 6B SC12
+8
+V EXTENSION 2
+Vertical Floating 6B SC11
+8
+GROOVE COASTER
+Warrior 6B SC11
+8
+EZ2ON REBOOT : R
+Weird Wave 6B SC11
+8
+V EXTENSION
+WONDER $LOT 777 6B SC10
+8
+NEXON
+소년 모험가 ~SiNA Remix~ 6B SC10
+8
+V EXTENSION 4
+!!New Game Start!! 6B MX15
+7
+TECHNIKA 3
+AD2222 6B SC11
+7
+RESPECT
+Airlock 6B SC11
+7
+RESPECT
+Aurora Borealis 6B SC11
+7
+V EXTENSION 4
+Back to the oldschool 6B SC11
+7
+RESPECT
+Beyond Yourself 6B SC12
+7
+PORTABLE 1
+BlythE 6B SC10
+7
+V EXTENSION 2
+Cocked Pistol 6B SC10
+7
+MUSE DASH
+Dysthymia 6B SC11
+7
+TECHNIKA 3
+Emblem 6B SC10
+7
+PORTABLE 3
+Enemy Storm ~Dark Jungle Mix~ 6B SC12
+7
+BLACK SQUARE
+Fermion 6B SC11
+7
+BLACK SQUARE
+Heart of Witch 6B SC12
+7
+TECHNIKA 1
+HEXAD 6B SC11
+7
+V EXTENSION 4
+Hyper Drive 6B SC9
+7
+V EXTENSION 2
+Imaginary dance 6B SC11
+7
+V EXTENSION 3
+Moment (feat. Nauts) 6B SC9
+7
+MAPLESTORY
+Moonlight Shadow ~Paul Bazooka Remix~ 6B SC11
+7
+V EXTENSION 3
+NB RANGERS - 운명의 Destiny 6B SC10
+7
+V EXTENSION 3
+Plasma Sphere 6B SC9
+7
+TECHNIKA TUNE & Q
+VORTEX 6B SC10
+7
+V EXTENSION 3
+Winners 6B SC10
+7
+RESPECT
+너로피어오라 6B SC9
+7
+TECHNIKA 2
+Airwave 6B SC11
+6
+CYTUS
+AXION 6B SC10
+6
+V EXTENSION 3
+Bright Future 6B SC12
+6
+CHUNITHM
+Cyberozar 6B SC9
+6
+BLACK SQUARE
+Cypher Gate 6B SC10
+6
+V EXTENSION 2
+Daydream 6B SC9
+6
+PORTABLE 2
+For the IKARUS 6B SC10
+6
+GIRLS'FRONTLINE
+Frontline 6B SC10
+6
+RESPECT
+glory day (Mintorment Remix) 6B SC9
+6
+GROOVE COASTER
+Got more raves? 6B SC10
+6
+NEXON
+It's my war now 6B SC9
+6
+V EXTENSION 2
+I’ve got a feeling 6B SC9
+6
+TECHNIKA TUNE & Q
+Kal_wrnw 6B SC10
+6
+PORTABLE 3
+Leave me alone 6B SC9
+6
+V EXTENSION
+Lisrim 6B SC8
+6
+GUILTY GEAR
+Marionette 6B SC10
+6
+MAPLESTORY
+Missing You ~SOPHI Remix~ 6B SC10
+6
+V EXTENSION 3
+Misty E'ra 'Mui' 6B SC10
+6
+RESPECT
+Mr.Lonely 6B SC10
+6
+PORTABLE 1
+NB RANGER 6B SC10
+6
+GROOVE COASTER
+OVER THE NIGHT 6B SC11
+6
+EZ2ON REBOOT : R
+Sand Storm 6B SC10
+6
+TECHNIKA 1
+SON OF SUN 6B SC12
+6
+NEXON
+Start The Adventure ~SOPHI Remix~ 6B SC10
+6
+CHUNITHM
+The wheel to the right 6B SC10
+6
+TECHNIKA 3
+Xeus 6B SC12
+6
+NEXON
+죽음의 신 : 크로우 크루아흐 6B SC12
+6
+RESPECT
+ALiCE 6B SC9
+5
+EZ2ON REBOOT : R
+Aquaris 6B SC10
+5
+RESPECT
+Chemical Slave 6B SC9
+5
+RESPECT
+Child of Night 6B SC8
+5
+V EXTENSION 2
+Chrysanthemum 6B SC9
+5
+RESPECT
+Grid System 6B SC10
+5
+ESTIMATE
+HELIX 6B SC9
+5
+CYTUS
+L 6B MX15
+5
+TECHNIKA 1
+Landscape 6B SC10
+5
+V EXTENSION
+Lost Temple 6B SC8
+5
+PORTABLE 2
+Mess it Up 6B SC9
+5
+RESPECT
+NB RANGER - Virgin Force 6B SC10
+5
+V EXTENSION 2
+Never let you go 6B SC9
+5
+TECHNIKA TUNE & Q
+Renovation 6B SC11
+5
+RESPECT
+Rising The Sonic 6B SC9
+5
+PORTABLE 1
+Road Of Death 6B MX15
+5
+RESPECT
+Ruti'n (GOTH Wild Electro Remix) 6B SC10
+5
+V EXTENSION
+Space Challenger 6B SC10
+5
+PORTABLE 2
+STALKER 6B SC9
+5
+TRILOGY
+The One 6B SC10
+5
+TECHNIKA 1
+Thor 6B SC10
+5
+CLAZZIQUAI
+Y (CE Style) 6B SC8
+5
+TRILOGY
+Yo Creo Que Si ~Live House Version~ 6B SC8
+5
+NEXON
+광명의 루 : 루 라바다 6B SC12
+5
+RESPECT
+모짜르트 교향곡 40번 1악장 6B SC9
+5
+DEEMO
+Angelic Sphere 6B SC9
+4
+BLACK SQUARE
+Beat U Down 6B SC9
+4
+RESPECT
+Boom! 6B SC11
+4
+GUILTY GEAR
+Break a Spell 6B SC10
+4
+TECHNIKA 3
+Dark Prism 6B SC11
+4
+TECHNIKA 2
+Dream of Winds 6B SC10
+4
+V EXTENSION 2
+Forgotten 6B SC9
+4
+TECHNIKA 1
+Fury 6B SC9
+4
+PORTABLE 3
+Hanz up! 6B SC10
+4
+PORTABLE 1
+JBG 6B SC8
+4
+PORTABLE 1
+KUDA 6B SC9
+4
+PORTABLE 2
+Midnight Blood 6B SC10
+4
+RESPECT
+Mulch 6B SC11
+4
+V EXTENSION
+Never Die 6B SC11
+4
+V EXTENSION 4
+New World 6B SC8
+4
+RESPECT
+OrBiTal 6B SC9
+4
+GROOVE COASTER
+ouroboros -twin stroke of the end- 6B MX15
+4
+PORTABLE 3
+Out Law : Reborn 6B SC10
+4
+RESPECT
+Remains Of Doom 6B MX15
+4
+RESPECT
+Runaway 6B SC9
+4
+V EXTENSION 3
+STEP 6B SC9
+4
+RESPECT
+Techno Racer 6B SC9
+4
+RESPECT
+The Feelings 6B SC8
+4
+V EXTENSION 4
+The Four Seasons : Summer 2017 6B SC10
+4
+PORTABLE 3
+The Rain Maker 6B SC9
+4
+RESPECT
+We're All Gonna Die 6B MX15
+4
+GIRLS'FRONTLINE
+What am I fighting for? 6B SC10
+4
+MUSE DASH
+XING 6B SC9
+4
+TECHNIKA 2
+XLASHER 6B SC9
+4
+NEXON
+공성전 ~Pierre Blanche, Yonce Remix~ 6B SC10
+4
+RESPECT
+염라 6B SC7
+4
+DEEMO
+ANiMA 6B MX15
+3
+TECHNIKA 2
+BEE-U-TIFUL 6B SC9
+3
+V EXTENSION
+BLACK GOLD 6B SC8
+3
+RESPECT
+Celestial Tears 6B SC10
+3
+CYTUS
+CODE NAME : ZERO 6B SC11
+3
+TECHNIKA 2
+D2 6B MX15
+3
+RESPECT
+Don't Die 6B SC10
+3
+PORTABLE 1
+Dreadnought 6B SC8
+3
+TECHNIKA 2
+Dual Strikers 6B SC9
+3
+V EXTENSION 4
+Hypernaid 6B SC6
+3
+RESPECT
+I want You ~반짝 반짝 Sunshine~ 6B SC9
+3
+CHUNITHM
+Ikazuchi 6B MX15
+3
+RESPECT
+Liar 6B SC9
+3
+EZ2ON REBOOT : R
+LIMBO 6B MX15
+3
+TECHNIKA 3
+Over the Rainbow 6B SC11
+3
+TECHNIKA 3
+Right Back 6B SC8
+3
+RESPECT
+Royal Clown 6B SC9
+3
+Emotional Sense
+Super lovely 6B MX15
+3
+V EXTENSION 4
+Vertical Eclipse 6B MX15
+3
+PORTABLE 2
+WhiteBlue 6B SC9
+3
+TRILOGY
+ZET 6B SC9
+3
+NEXON
+부여성 ~Blosso Remix~ 6B SC10
+3
+TECHNIKA 3
+Bamboo on Bamboo 6B MX15
+2
+RESPECT
+Binary World 6B SC10
+2
+PORTABLE 2
+Chain of Gravity 6B SC8
+2
+MUSE DASH
+Cthugha 6B MX15
+2
+RESPECT
+Dancin' Planet 6B SC8
+2
+TECHNIKA TUNE & Q
+Deborah 6B SC8
+2
+V EXTENSION
+Dream it 6B SC6
+2
+CHUNITHM
+Garakuta Doll Play 6B MX15
+2
+BLACK SQUARE
+Keys to the World 6B SC8
+2
+PORTABLE 1
+Lemonade 6B SC8
+2
+TECHNIKA 1
+Melody 6B SC8
+2
+PORTABLE 2
+Nightmare 6B MX15
+2
+V EXTENSION 2
+Odysseus 6B MX15
+2
+RESPECT
+quixotic 6B SC9
+2
+TECHNIKA 2
+Rage Of Demon 6B MX15
+2
+PORTABLE 1
+SIN ~The Last Scene~ 6B SC9
+2
+CHUNITHM
+Trrricksters!! 6B MX15
+2
+PORTABLE 3
+Break! 6B SC8
+1
+V EXTENSION 3
+Disappearing Act 6B MX15
+1
+CYTUS
+Entrance 6B MX15
+1
+PORTABLE 2
+Seeker 6B SC9
+1
+TECHNIKA TUNE & Q
+Silent Clarity 6B SC10
+1
+CHUNITHM
+The wheel to the right 6B MX15
+1
+NEXON
+전설이 시작된 곳 ~VoidRover Remix~ 6B MX15
+1
+  `,
+  '8': `
+V EXTENSION 4
+DIE IN 8B SC15
+13
+TECHNIKA 3
+Bamboo on Bamboo 8B SC15
+12
+CHUNITHM
+Ikazuchi 8B SC14
+12
+BLACK SQUARE
+In my Dream 8B SC13
+12
+V EXTENSION 3
+KICK IT 8B SC14
+12
+EZ2ON REBOOT : R
+LIMBO 8B SC14
+12
+V EXTENSION 2
+Odysseus 8B SC14
+12
+PORTABLE 1
+Road Of Death 8B SC14
+12
+RESPECT
+v o l d e n u i t 8B SC14
+12
+RESPECT
+We're All Gonna Die 8B SC15
+12
+V EXTENSION 3
+Zero-Break 8B SC15
+12
+V EXTENSION 4
+!!New Game Start!! 8B SC12
+11
+EZ2ON REBOOT : R
+A Site De La Rue 8B SC13
+11
+DEEMO
+ANiMA 8B SC15
+11
+MAPLESTORY
+Ariant ~ned Remix~ 8B SC14
+11
+TECHNIKA 3
+Black Swan 8B SC11
+11
+TECHNIKA 2
+D2 8B SC13
+11
+V EXTENSION 4
+DIE IN 8B MX15
+11
+CYTUS
+Entrance 8B SC13
+11
+V EXTENSION 3
+Fundamental 8B SC14
+11
+GROOVE COASTER
+Good Night, Bad Luck. 8B SC12
+11
+V EXTENSION 4
+Hell'o 8B SC14
+11
+RESPECT
+Nevermind 8B SC13
+11
+PORTABLE 2
+Nightmare 8B SC14
+11
+V EXTENSION 2
+Red Eyes 8B SC12
+11
+CHUNITHM
+Trrricksters!! 8B SC13
+11
+V EXTENSION 2
+Won't Back Down 8B SC11
+11
+TECHNIKA 3
+Xeus 8B SC14
+11
+EZ2ON REBOOT : R
+Zeroize 8B SC13
+11
+RESPECT
+ANALYS 8B SC11
+10
+V EXTENSION 4
+Deadly Bomber 8B SC14
+10
+V EXTENSION 3
+Emerge 8B SC11
+10
+RESPECT
+Enter The Universe 8B SC13
+10
+BLACK SQUARE
+Heart of Witch 8B SC13
+10
+TECHNIKA 1
+HEXAD 8B SC11
+10
+CYTUS
+L 8B SC12
+10
+TECHNIKA 2
+La Campanella : Nu Rave 8B SC10
+10
+V EXTENSION 4
+Love.Game.Money 8B SC12
+10
+EZ2ON REBOOT : R
+Metagalactic 8B SC12
+10
+V EXTENSION 3
+Misty E'ra 'Mui' 8B SC10
+10
+V EXTENSION 2
+Over Me 8B SC11
+10
+V EXTENSION 3
+Plasma Sphere 8B SC11
+10
+MUSE DASH
+PUPA 8B SC13
+10
+RESPECT
+Secret Dejavu 8B SC9
+10
+V EXTENSION 4
+Stolen Memory 8B SC12
+10
+MAPLESTORY
+The Lake of Oblivion ~jam-jam Remix~ 8B SC11
+10
+MAPLESTORY
+The Tune of the Azure Light ~Parang Remix~ 8B SC13
+10
+TRILOGY
+Ventilator 8B SC12
+10
+EZ2ON REBOOT : R
+Weird Wave 8B SC13
+10
+NEXON
+카트라이더, 크레이지아케이드, 버블파이터 Main theme ~CHUCK Remix~ 8B SC12
+10
+RESPECT
+Airlock 8B SC12
+9
+V EXTENSION 3
+Bright Future 8B SC12
+9
+RESPECT
+Can We Talk (Broken Dog Leg Mix) 8B SC9
+9
+EZ2ON REBOOT : R
+Complex 8B SC11
+9
+MUSE DASH
+Cthugha 8B SC12
+9
+RESPECT
+Dance of the Dead 8B SC10
+9
+V EXTENSION 3
+Disappearing Act 8B SC12
+9
+TECHNIKA 2
+Dream of Winds 8B SC11
+9
+MUSE DASH
+Dysthymia 8B SC11
+9
+CYTUS
+EMber 8B SC10
+9
+MAPLESTORY
+Fairytale ~Pan Remix~ 8B SC11
+9
+TECHNIKA 3
+Feel Ma Beat 8B SC10
+9
+TECHNIKA TUNE & Q
+Festa Nova 8B SC11
+9
+CLEAR PASS+
+From Hell to Breakfast 8B SC11
+9
+CHUNITHM
+Garakuta Doll Play 8B SC10
+9
+RESPECT
+glory day -JHS Remix- 8B SC10
+9
+V EXTENSION 4
+Hyper Drive 8B SC11
+9
+RESPECT
+I'M ALIVE 8B SC11
+9
+V EXTENSION 2
+Imaginary dance 8B SC11
+9
+V EXTENSION
+Kensei 8B SC12
+9
+V EXTENSION 2
+Never let you go 8B SC12
+9
+EZ2ON REBOOT : R
+Nihilism 8B SC13
+9
+PORTABLE 1
+Para-Q 8B SC11
+9
+EZ2ON REBOOT : R
+Sand Storm 8B SC12
+9
+V EXTENSION 3
+Set Me Free 8B SC12
+9
+TECHNIKA 1
+SON OF SUN 8B SC13
+9
+V EXTENSION 4
+Stay Alive 8B SC11
+9
+TECHNIKA 3
+Supernova 8B SC11
+9
+V EXTENSION 4
+Vertical Eclipse 8B SC13
+9
+GROOVE COASTER
+Warrior 8B SC10
+9
+V EXTENSION 3
+Winners 8B SC12
+9
+TECHNIKA 2
+XLASHER 8B SC11
+9
+TECHNIKA 3
+AD2222 8B SC11
+8
+V EXTENSION 4
+Back to the oldschool 8B SC12
+8
+GROOVE COASTER
+Black MInD 8B SC11
+8
+PORTABLE 2
+Brain Storm 8B MX15
+8
+V EXTENSION 2
+Cocked Pistol 8B SC10
+8
+BLACK SQUARE
+Colours of Sorrow 8B SC10
+8
+CLAZZIQUAI
+Dark ENVY 8B SC12
+8
+RESPECT
+Daylight 8B SC11
+8
+BLACK SQUARE
+Fermion 8B SC11
+8
+MUSE DASH
+Lights of Muse 8B SC11
+8
+GUILTY GEAR
+Marionette 8B SC12
+8
+MAPLESTORY
+Missing You ~SOPHI Remix~ 8B SC10
+8
+V EXTENSION 3
+Moment (feat. Nauts) 8B SC9
+8
+CYTUS
+Myosotis 8B SC10
+8
+TRILOGY
+NB Girls 8B SC10
+8
+RESPECT
+NB RANGER - Virgin Force 8B SC12
+8
+TECHNIKA 2
+Rage Of Demon 8B SC12
+8
+V EXTENSION 2
+Red Eyes 8B MX15
+8
+RESPECT
+Remains Of Doom 8B SC10
+8
+EZ2ON REBOOT : R
+Sparrow 8B SC7
+8
+PORTABLE 2
+STALKER 8B MX15
+8
+V EXTENSION 4
+The Four Seasons : Summer 2017 8B SC12
+8
+V EXTENSION 2
+Vertical Floating 8B SC11
+8
+NEXON
+전설이 시작된 곳 ~VoidRover Remix~ 8B SC11
+8
+NEXON
+죽음의 신 : 크로우 크루아흐 8B SC12
+8
+NEXON
+카트라이더 Mashup ~Cosmograph Remix~ 8B SC11
+8
+GIRLS'FRONTLINE
+Barbarous Funera 8B SC10
+7
+BLACK SQUARE
+Beat U Down 8B SC11
+7
+PORTABLE 2
+Brain Storm 8B SC9
+7
+MUSE DASH
+Comet Coaster 8B SC10
+7
+RESPECT
+Dark Lightning 8B SC9
+7
+RESPECT
+glory day (Mintorment Remix) 8B SC10
+7
+V EXTENSION 4
+Gloxinia 8B SC10
+7
+BLACK SQUARE
+In my Dream 8B MX15
+7
+PORTABLE 1
+Light House 8B SC11
+7
+DEEMO
+Magnolia 8B SC12
+7
+CYTUS
+Mammal 8B SC11
+7
+TRILOGY
+Mind Control 8B SC9
+7
+RESPECT
+Mr.Lonely 8B SC9
+7
+V EXTENSION 4
+New World 8B SC10
+7
+RESPECT
+Ruti'n (GOTH Wild Electro Remix) 8B SC10
+7
+TECHNIKA 3
+Showdown 8B SC10
+7
+MAPLESTORY
+Smile 8B SC8
+7
+V EXTENSION 3
+STEP 8B SC8
+7
+TRILOGY
+Syriana ~Blast Wave Mix~ 8B SC9
+7
+NEXON
+The Raindrop Flower ~jam-jam Remix~ 8B SC9
+7
+TECHNIKA 1
+Thor 8B SC11
+7
+V EXTENSION 4
+Weaponize 8B SC10
+7
+V EXTENSION
+WONDER $LOT 777 8B SC9
+7
+V EXTENSION 2
+Zero to the hunnit 8B SC11
+7
+RESPECT
+너로피어오라 8B SC8
+7
+NEXON
+소년 모험가 ~SiNA Remix~ 8B SC9
+7
+RESPECT
+ALiCE 8B SC9
+6
+DEEMO
+Angelic Sphere 8B SC10
+6
+DEEMO
+ANiMA 8B MX15
+6
+GUILTY GEAR
+Break a Spell 8B SC11
+6
+V EXTENSION 2
+Chrysanthemum 8B SC9
+6
+BLACK SQUARE
+Cypher Gate 8B SC10
+6
+MUSE DASH
+DataErr0r 8B MX15
+6
+V EXTENSION 2
+Daydream 8B SC11
+6
+V EXTENSION 4
+Deadly Bomber 8B MX15
+6
+MUSE DASH
+ENERGY SYNERGY MATRIX 8B SC10
+6
+BLACK SQUARE
+Fermion 8B MX15
+6
+V EXTENSION 2
+Forgotten 8B SC10
+6
+TECHNIKA 1
+Fury 8B SC10
+6
+CHUNITHM
+Garakuta Doll Play 8B MX15
+6
+ESTIMATE
+HELIX 8B SC10
+6
+NEXON
+It's my war now 8B SC8
+6
+V EXTENSION 3
+KICK IT 8B MX15
+6
+TECHNIKA 1
+Landscape 8B SC9
+6
+MAPLESTORY
+Moonlight Shadow ~Paul Bazooka Remix~ 8B SC10
+6
+V EXTENSION 3
+NB RANGERS - 운명의 Destiny 8B SC9
+6
+PORTABLE 1
+OBLIVION (Rockin' Night Style) 8B SC9
+6
+RESPECT
+OrBiTal 8B SC10
+6
+PORTABLE 3
+Out Law : Reborn 8B SC10
+6
+MUSE DASH
+PUPA 8B MX15
+6
+RESPECT
+Rising The Sonic 8B SC10
+6
+MAPLESTORY
+Story of Maple 8B SC11
+6
+RESPECT
+Techno Racer 8B SC9
+6
+TECHNIKA TUNE & Q
+VORTEX 8B SC10
+6
+GIRLS'FRONTLINE
+What am I fighting for? 8B SC10
+6
+EZ2ON REBOOT : R
+Zeroize 8B MX15
+6
+NEXON
+광명의 루 : 루 라바다 8B SC9
+6
+RESPECT
+모짜르트 교향곡 40번 1악장 8B SC11
+6
+NEXON
+카트라이더 Mashup ~Pure 100% Remix~ 8B SC10
+6
+RESPECT
+Angelic Tears 8B SC10
+5
+EZ2ON REBOOT : R
+Aquaris 8B SC9
+5
+PORTABLE 1
+Astro Fight 8B SC10
+5
+V EXTENSION
+Attack 8B SC8
+5
+RESPECT
+Aurora Borealis 8B SC9
+5
+TECHNIKA 2
+BEE-U-TIFUL 8B SC10
+5
+TECHNIKA 1
+Beyond the Future 8B SC9
+5
+MAPLESTORY
+Catch Your Dreams! 8B SC8
+5
+RESPECT
+Dancin' Planet 8B SC8
+5
+TECHNIKA 3
+Dark Prism 8B SC10
+5
+MUSE DASH
+Dysthymia 8B MX15
+5
+CLAZZIQUAI
+Electronics 8B SC8
+5
+GIRLS'FRONTLINE
+Frontline 8B SC9
+5
+PORTABLE 1
+HAMSIN 8B SC9
+5
+RESPECT
+KILLER BEE 8B SC8
+5
+CYTUS
+L 8B MX15
+5
+PORTABLE 3
+Leave me alone 8B SC9
+5
+EZ2ON REBOOT : R
+LIMBO 8B MX15
+5
+V EXTENSION 2
+Melonaid 8B SC8
+5
+V EXTENSION
+Never Die 8B SC8
+5
+RESPECT
+Nevermind 8B MX15
+5
+GROOVE COASTER
+ouroboros -twin stroke of the end- 8B MX15
+5
+TECHNIKA 2
+Puzzler 8B SC9
+5
+TECHNIKA TUNE & Q
+Renovation 8B SC8
+5
+NEXON
+Start The Adventure ~SOPHI Remix~ 8B SC11
+5
+TECHNIKA 2
+The Guilty 8B SC8
+5
+RESPECT
+Watch Your Step 8B SC8
+5
+NEXON
+최종무곡 8B SC9
+5
+TECHNIKA 2
+D2 8B MX15
+4
+CYTUS
+EMber 8B MX15
+4
+PORTABLE 3
+Enemy Storm ~Dark Jungle Mix~ 8B MX15
+4
+V EXTENSION 3
+Fundamental 8B MX15
+4
+GUILTY GEAR
+Holy Orders (Be Just Or Be Dead) 8B SC8
+4
+CHUNITHM
+Ikazuchi 8B MX15
+4
+Emotional Sense
+Knowledge System 8B SC9
+4
+RESPECT
+Kung Brother 8B SC10
+4
+PORTABLE 2
+Minus 3 8B SC8
+4
+MUSE DASH
+MUSEDASH!!!! 8B SC9
+4
+PORTABLE 2
+NB Rangers : Returns 8B SC9
+4
+Emotional Sense
+Real Over Drive 8B SC9
+4
+TECHNIKA 3
+Right Back 8B SC9
+4
+EZ2ON REBOOT : R
+Stay 8B SC5
+4
+CLEAR PASS+
+SURVIVOR 8B SC9
+4
+RESPECT
+The Obliterator 8B SC9
+4
+RESPECT
+We're All Gonna Die 8B MX15
+4
+NEXON
+공성전 ~Pierre Blanche, Yonce Remix~ 8B SC8
+4
+EZ2ON REBOOT : R
+A Site De La Rue 8B MX15
+3
+RESPECT
+Celestial Tears 8B SC9
+3
+MUSE DASH
+Cthugha 8B MX15
+3
+TECHNIKA TUNE & Q
+Deborah 8B SC8
+3
+BLACK SQUARE
+Desperado 8B SC9
+3
+V EXTENSION 3
+Disappearing Act 8B MX15
+3
+BLACK SQUARE
+Heart of Witch 8B MX15
+3
+V EXTENSION 4
+Hypernaid 8B SC7
+3
+CYTUS
+Mammal 8B MX15
+3
+PORTABLE 2
+NB POWER 8B SC8
+3
+ESTIMATE
+Obelisque 8B SC9
+3
+V EXTENSION 2
+Odysseus 8B MX15
+3
+CYTUS
+Old Gold 8B SC9
+3
+TECHNIKA 3
+Out of CTRL 8B SC9
+3
+PORTABLE 1
+Rock Or Die 8B SC9
+3
+PORTABLE 2
+Rolling On the Duck 8B SC9
+3
+TECHNIKA 1
+SON OF SUN 8B MX15
+3
+Emotional Sense
+Super lovely 8B MX15
+3
+CHUNITHM
+Trrricksters!! 8B MX15
+3
+NEXON
+죽음의 신 : 크로우 크루아흐 8B MX15
+3
+TECHNIKA 3
+Bamboo on Bamboo 8B MX15
+2
+V EXTENSION 2
+Daydream 8B MX15
+2
+CYTUS
+Entrance 8B MX15
+2
+MUSE DASH
+Lights of Muse 8B MX15
+2
+RESPECT
+Mulch 8B MX15
+2
+PORTABLE 2
+Nightmare 8B MX15
+2
+PORTABLE 1
+SIN 8B MX15
+2
+TECHNIKA 1
+SuperSonic 8B SC8
+2
+CHUNITHM
+The wheel to the right 8B MX15
+2
+V EXTENSION 4
+Vertical Eclipse 8B MX15
+2
+RESPECT
+비상 ~Stay With Me~ 8B SC8
+2
+NEXON
+카트라이더 Mashup ~Cosmograph Remix~ 8B MX15
+2
+RESPECT
+Binary World 8B SC7
+1
+TECHNIKA 2
+Burn it Down 8B SC8
+1
+RESPECT
+NB RANGER - Virgin Force 8B MX15
+1
+TECHNIKA 2
+Rage Of Demon 8B MX15
+1
+TECHNIKA TUNE & Q
+Silent Clarity 8B SC7
+1
+  `,
+}
+
+export function parseGradeData(rawData: string, keyMode: string): GradeTableItem[] {
+  const lines = rawData
+    .trim()
+    .split('\n')
+    .map((line) => line.trim())
+    .filter(Boolean)
+  const result: GradeTableItem[] = []
+  let currentDlc = ''
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i]
+
+    // DLC 라인 체크
+    if (!line.includes('B') && !/^\d+$/.test(line)) {
+      currentDlc = line
+      continue
+    }
+
+    // 곡 정보 라인 체크
+    if (line.includes('B')) {
+      const nextLine = lines[i + 1]
+      const floor = parseInt(nextLine)
+
+      // 패턴 정보 추출 (SC15 또는 MX15)
+      const patternMatch = line.match(/([A-Z]+)(\d+)$/)
+      if (!patternMatch) continue
+
+      const [_, pattern, level] = patternMatch
+      const name = line.split(keyMode + 'B')[0].trim()
+
+      result.push({
+        name,
+        keyMode,
+        pattern,
+        level: parseInt(level),
+        floor,
+        dlc: currentDlc,
+      })
+
+      i++ // floor 라인 건너뛰기
+    }
+  }
+
+  return result
+}
+
+// 사용 예시
+export function getGradeTableData(keyMode: string): GradeTableItem[] {
+  const rawData = rawGradeData[keyMode]
+  if (!rawData) return []
+  return parseGradeData(rawData, keyMode)
+}

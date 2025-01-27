@@ -124,7 +124,10 @@ export default function BugDetail() {
               {moment(bug.createdAt).format('YYYY-MM-DD HH:mm:ss')}
             </p>
             <div className='tw-bg-gray-800 tw-p-6 tw-rounded-lg tw-space-y-4'>
-              <p className='tw-whitespace-pre-wrap'>{bug.description}</p>
+              <p
+                className='tw-whitespace-pre-wrap'
+                dangerouslySetInnerHTML={{ __html: bug.description }}
+              />
             </div>
           </div>
 

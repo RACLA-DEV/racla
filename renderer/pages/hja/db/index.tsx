@@ -1,33 +1,38 @@
 import 'moment/locale/ko'
 
-import { BsGrid, BsList } from 'react-icons/bs'
-import { FaChevronLeft, FaChevronRight, FaHeart, FaRegHeart } from 'react-icons/fa6'
 import React, { useEffect, useMemo, useRef, useState } from 'react'
-import { setBackgroundBgaName, setIsDjCommentOpen } from 'store/slices/uiSlice'
+import { BsGrid, BsList } from 'react-icons/bs'
 import { useDispatch, useSelector } from 'react-redux'
 
-import Head from 'next/head'
-import { IconContext } from 'react-icons'
-import Image from 'next/image'
-import { RootState } from 'store'
-import { SyncLoader } from 'react-spinners'
-import axios from 'axios'
+import HjaScorePopupComponent from '@/components/score/HjaScorePopupComponent'
+import { logRendererError } from '@/libs/client/rendererLogger'
+import { useNotificationSystem } from '@/libs/client/useNotifications'
+import { globalDictionary } from '@/libs/server/globalDictionary'
+import { motion } from 'framer-motion'
 import { debounce } from 'lodash'
 import dynamic from 'next/dynamic'
-import { globalDictionary } from '@/libs/server/globalDictionary'
-import { logRendererError } from '@/libs/client/rendererLogger'
-import moment from 'moment'
-import { motion } from 'framer-motion'
-import { useInView } from 'react-intersection-observer'
-import { useNotificationSystem } from '@/libs/client/useNotifications'
+import Head from 'next/head'
+import Image from 'next/image'
 import { useRouter } from 'next/router'
+import { useInView } from 'react-intersection-observer'
+import { RootState } from 'store'
+import { setBackgroundBgaName } from 'store/slices/uiSlice'
 
 // 동적 임포트로 ScorePopupComponent 지연 로딩
 const ScorePopupComponent = dynamic(() => import('@/components/score/ScorePopupComponent'), {
   loading: () => <div className='tw-w-[80px] tw-h-[80px] tw-bg-gray-600 tw-bg-opacity-10' />,
 })
 
-export default function VArchiveDbPage() {
+// DLC 카테고리 매핑 추가
+const DLC_CATEGORY_MAPPING = {
+  LEGACY: ['P1', 'P2', 'P3', 'CE', 'BS', 'TR', 'T1', 'T2', 'T3'],
+  RESPECT: ['R'],
+  EXTENSION: ['VE', 'VE1', 'VE2', 'VE3', 'VE4', 'VE5'],
+  LIBERTY: ['VL', 'VL1', 'VL2'],
+  COLLABORATION: ['COLLABORATION'],
+}
+
+export default function HjaDbPage() {
   const { showNotification } = useNotificationSystem()
   const dispatch = useDispatch()
   const { songData, userData, vArchiveUserData } = useSelector((state: RootState) => state.app)
@@ -66,25 +71,10 @@ export default function VArchiveDbPage() {
 
   const router = useRouter()
 
-  // URL 패턴을 정규식으로 정의
-  const urlPattern = /https?:\/\/[^\s]+/g
-
-  // 문자열에서 URL을 링크로 변환하고 줄바꿈을 처리하는 함수
-  const parseText = (text) => {
-    // 줄바꿈을 <br /> 태그로 변환
-    const newText = text.replace(/\n/g, '<br>').replace(urlPattern, (url) => {
-      // URL을 링크로 변환
-      const splited = String(url).split('<br>')
-
-      return `<a href="#" onclick="window.ipc.openBrowser('${splited.length > 1 ? String(url).split('<br>')[0] : String(url)}'); return false;">${
-        splited.length > 1 ? String(url).split('<br>')[0] : String(url)
-      }(<svg style="display: inline;" stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 640 512" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M579.8 267.7c56.5-56.5 56.5-148 0-204.5c-50-50-128.8-56.5-186.3-15.4l-1.6 1.1c-14.4 10.3-17.7 30.3-7.4 44.6s30.3 17.7 44.6 7.4l1.6-1.1c32.1-22.9 76-19.3 103.8 8.6c31.5 31.5 31.5 82.5 0 114L422.3 334.8c-31.5 31.5-82.5 31.5-114 0c-27.9-27.9-31.5-71.8-8.6-103.8l1.1-1.6c10.3-14.4 6.9-34.4-7.4-44.6s-34.4-6.9-44.6 7.4l-1.1 1.6C206.5 251.2 213 330 263 380c56.5 56.5 148 56.5 204.5 0L579.8 267.7zM60.2 244.3c-56.5 56.5-56.5 148 0 204.5c50 50 128.8 56.5 186.3 15.4l1.6-1.1c14.4-10.3 17.7-30.3 7.4-44.6s-30.3-17.7-44.6-7.4l-1.6 1.1c-32.1 22.9-76 19.3-103.8-8.6C74 372 74 321 105.5 289.5L217.7 177.2c31.5-31.5 82.5-31.5 114 0c27.9 27.9 31.5 71.8 8.6 103.9l-1.1 1.6c-10.3 14.4-6.9 34.4 7.4 44.6s34.4 6.9 44.6-7.4l1.1-1.6C433.5 260.8 427 182 377 132c-56.5-56.5-148-56.5-204.5 0L60.2 244.3z"></path></svg>)</a>${
-        splited.length > 1 ? '<br>' + splited.filter((v, index) => index != 0).join('<br>') : ''
-      }`
-    })
-
-    return newText
-  }
+  // selectedDlcCode 상태를 카테고리로 변경
+  const [selectedCategory, setSelectedCategory] = useState<
+    'all' | 'LEGACY' | 'RESPECT' | 'EXTENSION' | 'LIBERTY' | 'COLLABORATION'
+  >('LEGACY')
 
   const fetchSongItemData = async (title) => {
     try {
@@ -105,112 +95,11 @@ export default function VArchiveDbPage() {
     }
   }
 
-  const fetchCommentRivalSongItemData = async (title) => {
-    try {
-      if (commentRivalName !== '') {
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_PROXY_API_URL}?url=https://v-archive.net/api/archive/${commentRivalName}/title/${hoveredTitle}`,
-        )
-        const result = await response.json()
-        setCommentRivalSongItemData(result)
-      } else {
-        const response = songData.filter((songData) => String(songData.title) == String(title))
-        const result = response.length > 0 ? response[0] : []
-        setCommentRivalSongItemData(result)
-      }
-    } catch (error) {
-      logRendererError(error, { message: 'Error in fetchCommentRivalSongItemData', ...userData })
-      console.error('Error fetching data:', error)
-    }
-  }
-
-  const [voteComment, setVoteComment] = useState<number>(null)
-
-  const updateCommentVote = async (title, cmtNo, cmd) => {
-    try {
-      const response = await axios
-        .post(
-          `${process.env.NEXT_PUBLIC_PROXY_API_URL}?url=https://v-archive.net/api/db/title/${title}/comment/${cmtNo}/vote`,
-          {
-            vote: 1,
-            cmd,
-          },
-          {
-            method: 'POST',
-            headers: {
-              Authorization: `${vArchiveUserData.userNo}|${vArchiveUserData.userToken}`,
-              'Content-Type': 'application/json',
-            },
-            withCredentials: true,
-          },
-        )
-        .then((data) => {
-          if (data.data.success) {
-            setVoteComment(cmtNo)
-            setCommentData(
-              commentData.map((commentItem) => {
-                if (commentItem.cmtNo === cmtNo) {
-                  return data.data.comment
-                } else {
-                  return commentItem
-                }
-              }),
-            )
-          }
-        })
-        .catch((error) => {
-          logRendererError(error, { message: 'Error in updateCommentVote', ...userData })
-          // console.log(error)
-        })
-    } catch (error) {
-      logRendererError(error, { message: 'Error in updateCommentVote', ...userData })
-      console.error('Error fetching data:', error)
-    }
-  }
-
-  // DJ 코멘트 데이터 가져오기 함수
-  const fetchCommentData = async () => {
-    if (isFetchingCommentData) return // 이미 데이터를 가져오는 중이면 종료
-    setIsFetchingCommentData(true)
-
-    try {
-      const response = await axios
-        .get(
-          `${process.env.NEXT_PUBLIC_PROXY_API_URL}?url=https://v-archive.net/api/db/comments?page=${commentPage}&order=ymdt`,
-          {
-            headers: {
-              Authorization: `${vArchiveUserData.userNo}|${vArchiveUserData.userToken}`,
-              'Content-Type': 'application/json',
-            },
-            withCredentials: true,
-          },
-        )
-        .then((result) => {
-          if (result.data.success) {
-            // console.log(result.data.commentList)
-            setCommentData((prevData) => [...prevData, ...result.data.commentList])
-            setCommentPage((prevPage) => prevPage + 1)
-            setHasNextCommentData(result.data.hasNext)
-          }
-        })
-    } catch (error) {
-      logRendererError(error, { message: 'Error in fetchCommentData', ...userData })
-      console.error('Error fetching data:', error)
-    } finally {
-      setIsFetchingCommentData(false)
-    }
-  }
-
-  useEffect(() => {
-    fetchCommentData()
-  }, [])
-
   useEffect(() => {
     let timer
     if (hoveredTitle) {
       timer = setTimeout(() => {
         fetchSongItemData(hoveredTitle)
-        fetchCommentRivalSongItemData(hoveredTitle)
         dispatch(setBackgroundBgaName(String(hoveredTitle)))
       }, 500)
     }
@@ -311,28 +200,38 @@ export default function VArchiveDbPage() {
     }
   }
 
-  // 필터링된 곡 데이터 계산
+  // 필터링된 곡 데이터 계산 수정
   const filteredSongData = useMemo(() => {
     const filtered = songData.filter((songItem) => {
+      const patterns = songItem.patterns[keyMode + 'B']
+      const scLevel = patterns?.['SC']?.level ?? 0
+      const mxLevel = patterns?.['MX']?.level ?? 0
+
       // 검색어 필터
       const searchFilter = searchName === '' || searchSong(songItem, searchName)
 
-      // 난이도 필터
-      const levelFilter =
-        selectedLevel === 'all' ||
-        ['NM', 'HD', 'MX', 'SC'].some(
-          (difficulty) =>
-            Math.floor(songItem.patterns[keyMode + 'B']?.[difficulty]?.level ?? 0) ===
-            parseInt(selectedLevel),
-        )
+      // 레벨 필터
+      let levelFilter = false
+      if (selectedLevel === 'all') {
+        // 전체 보기: SC8 이상 또는 MX15 이상
+        levelFilter = scLevel >= 8 || mxLevel >= 15
+      } else if (selectedLevel === '8') {
+        // 레벨 8: SC8 또는 MX15 이상
+        levelFilter = (scLevel >= 8 && Math.floor(scLevel) === 8) || mxLevel >= 15
+      } else {
+        // 그 외 레벨: 해당 레벨의 SC만
+        levelFilter = Math.floor(scLevel) === parseInt(selectedLevel)
+      }
 
-      // DLC 필터 추가
-      const dlcFilter = selectedDlcCode === 'all' || songItem.dlcCode === selectedDlcCode
+      // DLC 카테고리 필터
+      const categoryFilter =
+        selectedCategory === 'all' ||
+        DLC_CATEGORY_MAPPING[selectedCategory]?.includes(songItem.dlcCode) ||
+        DLC_CATEGORY_MAPPING[selectedCategory]?.includes(songItem.dlc)
 
-      return searchFilter && levelFilter && dlcFilter
+      return searchFilter && levelFilter && categoryFilter
     })
 
-    // 정렬 적용
     return [...filtered].sort((a, b) => {
       if (sortOrder === 'asc') {
         return a.name.localeCompare(b.name)
@@ -340,7 +239,7 @@ export default function VArchiveDbPage() {
         return b.name.localeCompare(a.name)
       }
     })
-  }, [songData, searchName, selectedLevel, keyMode, sortOrder, selectedDlcCode])
+  }, [songData, searchName, selectedLevel, keyMode, sortOrder, selectedCategory])
 
   // 스크롤 시 더 많은 아이템 로드
   useEffect(() => {
@@ -476,45 +375,39 @@ export default function VArchiveDbPage() {
                 {/* 헤더 */}
                 <div className='tw-flex tw-w-full tw-bg-gray-700 tw-bg-opacity-30 tw-rounded tw-overflow-x-auto tw-scroll-smooth'>
                   <div className='tw-flex tw-flex-col tw-gap-4 tw-p-4 tw-w-full'>
-                    <div className='tw-relative tw-w-full hover:tw-bg-opacity-10'>
-                      <button
-                        onClick={() => handleCategoryScroll('left')}
-                        className='tw-absolute tw-left-0 tw-top-1/2 tw-transform -tw-translate-y-1/2 tw-z-10 tw-bg-gray-800 tw-bg-opacity-80 tw-p-2 tw-rounded-md hover:tw-bg-gray-700 tw-opacity-0 tw-transition-all tw-duration-300 [div:hover>&]:tw-opacity-100 [div:hover>&]:tw-block tw-hidden ease-in-out'
-                      >
-                        <FaChevronLeft className='tw-text-gray-300' />
-                      </button>
-
-                      <div
-                        ref={categoryScrollRef}
-                        className='tw-flex tw-gap-2 tw-overflow-x-auto tw-scroll-smooth tw-scrollbar-thin tw-scrollbar-thumb-gray-600 tw-scrollbar-track-transparent'
-                      >
-                        <button
-                          onClick={() => setSelectedDlcCode('all')}
-                          className={`tw-p-2 tw-rounded-md tw-transition-all tw-min-w-20 ${selectedDlcCode === 'all' ? 'tw-bg-blue-500 tw-text-white' : 'tw-bg-gray-700 tw-text-gray-300 hover:tw-bg-gray-600'}`}
-                        >
-                          전체 보기
-                        </button>
-                        {globalDictionary.djmax_respect_v.dlcList.map((item, index) => (
+                    {/* 카테고리 영역 */}
+                    <div className='tw-flex tw-w-full tw-items-center tw-gap-2'>
+                      <div className='tw-flex tw-w-full tw-bg-gray-700 tw-bg-opacity-30 tw-rounded tw-overflow-x-auto tw-scroll-smooth'>
+                        <div className='tw-flex tw-items-center tw-w-full'>
                           <button
-                            key={item[0]}
-                            onClick={() => setSelectedDlcCode(item[0])}
-                            className={`tw-p-2 tw-rounded-md tw-transition-all tw-min-w-12 ${
-                              selectedDlcCode === item[0]
-                                ? 'tw-bg-blue-500 tw-text-white'
-                                : 'tw-bg-gray-700 tw-text-gray-300 hover:tw-bg-gray-600'
+                            onClick={() => setSelectedCategory('all')}
+                            className={`tw-py-2 tw-flex-1 tw-min-w-0 tw-text-sm tw-font-medium tw-whitespace-nowrap tw-relative tw-transition-all tw-duration-300 ${
+                              selectedCategory === 'all'
+                                ? 'tw-text-white tw-bg-blue-500'
+                                : 'tw-text-gray-400 hover:tw-text-gray-200 hover:tw-bg-gray-600 hover:tw-bg-opacity-30'
                             }`}
                           >
-                            {item[0]}
+                            전체
                           </button>
-                        ))}
+                          {['LEGACY', 'RESPECT', 'EXTENSION', 'LIBERTY', 'COLLABORATION'].map(
+                            (category) => (
+                              <button
+                                key={category}
+                                onClick={() =>
+                                  setSelectedCategory(category as typeof selectedCategory)
+                                }
+                                className={`tw-py-2 tw-flex-1 tw-min-w-0 tw-text-sm tw-font-medium tw-whitespace-nowrap tw-relative tw-transition-all tw-duration-300 ${
+                                  selectedCategory === category
+                                    ? 'tw-text-white tw-bg-blue-500'
+                                    : 'tw-text-gray-400 hover:tw-text-gray-200 hover:tw-bg-gray-600 hover:tw-bg-opacity-30'
+                                }`}
+                              >
+                                {category}
+                              </button>
+                            ),
+                          )}
+                        </div>
                       </div>
-
-                      <button
-                        onClick={() => handleCategoryScroll('right')}
-                        className='tw-absolute tw-right-0 tw-top-1/2 tw-transform -tw-translate-y-1/2 tw-z-10 tw-bg-gray-800 tw-bg-opacity-80 tw-p-2 tw-rounded-md hover:tw-bg-gray-700 tw-opacity-0 tw-transition-all tw-duration-300 [div:hover>&]:tw-opacity-100 [div:hover>&]:tw-block tw-hidden ease-in-out'
-                      >
-                        <FaChevronRight className='tw-text-gray-300' />
-                      </button>
                     </div>
                     <div className='tw-flex tw-items-center tw-justify-between'>
                       <div className='tw-flex tw-gap-2'>
@@ -555,9 +448,10 @@ export default function VArchiveDbPage() {
                           className='form-select tw-text-sm tw-bg-gray-900 tw-bg-opacity-80 tw-w-36 tw-border tw-border-gray-600 tw-border-opacity-50 focus:tw-border-blue-400 focus:tw-ring-2 focus:tw-ring-blue-400 focus:tw-ring-opacity-20 tw-transition-all'
                         >
                           <option value='all'>모든 난이도</option>
-                          {Array.from({ length: 15 }, (_, i) => i + 1).map((level) => (
+                          {Array.from({ length: 8 }, (_, i) => i + 8).map((level) => (
                             <option key={level} value={level.toString()}>
-                              Lv.{level}
+                              SC {level}
+                              {level === 8 ? ' + MX 15' : ''}
                             </option>
                           ))}
                         </select>
@@ -615,14 +509,13 @@ export default function VArchiveDbPage() {
           </div>
 
           {/* 메인 콘텐츠 영역 */}
-          {/* 메인 콘텐츠 영역 */}
           <div className='tw-flex-1 tw-overflow-hidden tw-transition-all tw-w-full duration-300'>
-            <div className='tw-h-full tw-overflow-y-auto tw-scroll-smooth'>
+            <div className='tw-h-full tw-overflow-y-auto tw-scroll-smooth custom-scrollbar custom-scrollbar-always'>
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3 }}
-                className='tw-flex tw-flex-col tw-gap-1 tw-bg-gray-600 tw-bg-opacity-10 tw-rounded-md tw-p-4'
+                className='tw-flex tw-mr-2 tw-flex-col tw-gap-1 tw-bg-gray-600 tw-bg-opacity-10 tw-rounded-md tw-p-4'
               >
                 <div
                   className={`tw-w-full ${viewMode === 'grid' ? 'tw-flex tw-gap-3 tw-flex-wrap tw-justify-between' : 'tw-flex tw-flex-col'}`}
@@ -632,14 +525,14 @@ export default function VArchiveDbPage() {
                       <div className='tw-w-[80px] tw-text-center'>곡 이미지</div>
                       <div className='tw-flex tw-flex-1'>
                         <div className='tw-flex-1'>곡 정보</div>
-                        <div className='tw-w-96 tw-text-center'>난이도</div>
+                        <div className='tw-w-48 tw-text-center'>난이도</div>
                       </div>
                     </div>
                   )}
 
                   {filteredSongData.map((songItem, songItemIndex) =>
                     viewMode === 'grid' ? (
-                      <ScorePopupComponent
+                      <HjaScorePopupComponent
                         isVisibleCode={true}
                         key={songItem.title}
                         songItem={songItem}
@@ -652,6 +545,16 @@ export default function VArchiveDbPage() {
                         className={`tw-flex tw-items-center tw-gap-4 tw-p-2 tw-border-b tw-border-gray-700 tw-relative tw-overflow-hidden tw-cursor-pointer ${hoveredTitle === songItem.title ? 'tw-bg-gray-700 tw-bg-opacity-30' : ''} hover:tw-bg-gray-700 hover:tw-bg-opacity-30`}
                         onMouseEnter={() => handleMouseEnter(songItem)}
                         onMouseLeave={handleMouseLeave}
+                        onClick={() => {
+                          if (songItem.hardArchiveTitle) {
+                            router.push(`/hja/db/title/${songItem.title}`)
+                          } else {
+                            showNotification(
+                              '전일 아카이브 수록곡 고유 ID(UUID) 정보가 없습니다. 피드백 센터로 해당 수록곡의 데이터 갱신 요청을 문의해주세요.',
+                              'tw-bg-red-600',
+                            )
+                          }
+                        }}
                       >
                         {/* 애니메이션 배경 레이어 */}
                         <div
@@ -660,7 +563,7 @@ export default function VArchiveDbPage() {
 
                         {/* 곡 정보 */}
                         <div className='tw-relative tw-z-10 tw-w-full tw-flex tw-items-center tw-gap-4'>
-                          <ScorePopupComponent
+                          <HjaScorePopupComponent
                             isVisibleCode={true}
                             key={songItem.title}
                             songItem={songItem}
@@ -675,19 +578,30 @@ export default function VArchiveDbPage() {
                             </div>
                             {/* 난이도별 고정 칸 */}
                             <div className='tw-flex tw-gap-4 tw-items-center justify-center'>
-                              {['NM', 'HD', 'MX', 'SC'].map((diff) => (
-                                <div key={diff} className='tw-w-20 tw-text-center'>
-                                  {songItem.patterns[`${keyMode.replace('P', '')}B`]?.[diff] ? (
+                              {['MX', 'SC'].map((diff) => {
+                                const pattern =
+                                  songItem.patterns[`${keyMode.replace('P', '')}B`]?.[diff]
+                                const level = pattern?.level
+
+                                // 기본 표시 조건
+                                const baseShowCondition =
+                                  (diff === 'MX' && level >= 15) || (diff === 'SC' && level >= 8)
+
+                                // 하이라이트 조건 수정
+                                const shouldHighlight =
+                                  (diff === 'SC' &&
+                                    (selectedLevel === 'all' ||
+                                      Math.floor(level) === parseInt(selectedLevel))) || // SC 하이라이트 조건
+                                  (diff === 'MX' &&
+                                    level >= 15 &&
+                                    (selectedLevel === 'all' || selectedLevel === '8')) // MX 하이라이트 조건
+
+                                const opacity = !shouldHighlight ? 'tw-opacity-30' : ''
+
+                                return baseShowCondition ? (
+                                  <div key={diff} className='tw-w-20 tw-text-center'>
                                     <div
-                                      className={`tw-flex tw-justify-center tw-items-center tw-gap-1 tw-font-extrabold ${
-                                        selectedLevel === 'all' ||
-                                        Math.floor(
-                                          songItem.patterns[`${keyMode.replace('P', '')}B`][diff]
-                                            .level,
-                                        ) == Number(selectedLevel)
-                                          ? ''
-                                          : 'tw-opacity-30'
-                                      } ${diff === 'NM' && 'tw-text-respect-nm-5'} ${diff === 'HD' && 'tw-text-respect-nm-10'} ${diff === 'MX' && 'tw-text-respect-nm-15'} ${diff === 'SC' && 'tw-text-respect-sc-15'} `}
+                                      className={`tw-flex tw-justify-center tw-items-center tw-gap-1 tw-font-extrabold ${diff === 'MX' && 'tw-text-respect-nm-15'} ${diff === 'SC' && 'tw-text-respect-sc-15'} ${opacity}`}
                                     >
                                       <Image
                                         src={`/images/djmax_respect_v/nm_${diff}_star.png`}
@@ -695,20 +609,15 @@ export default function VArchiveDbPage() {
                                         height={16}
                                         alt={diff}
                                       />
-                                      <div className='tw-text-base'>
-                                        {
-                                          songItem.patterns[`${keyMode.replace('P', '')}B`][diff]
-                                            .level
-                                        }
-                                      </div>
+                                      <div className='tw-text-base'>{level}</div>
                                     </div>
-                                  ) : (
-                                    <div className='tw-opacity-30 tw-text-center'>
-                                      <div className='tw-text-base tw-font-extrabold'>-</div>
-                                    </div>
-                                  )}
-                                </div>
-                              ))}
+                                  </div>
+                                ) : (
+                                  <div key={diff} className='tw-opacity-30'>
+                                    <div className='tw-text-base tw-font-extrabold'>-</div>
+                                  </div>
+                                )
+                              })}
                             </div>
                           </div>
                         </div>
@@ -721,145 +630,6 @@ export default function VArchiveDbPage() {
                     ))}
                 </div>
               </motion.div>
-            </div>
-          </div>
-
-          <button
-            onClick={() => dispatch(setIsDjCommentOpen(!isDjCommentOpen))}
-            className='tw-fixed tw-right-0 tw-top-1/2 tw-transform -tw-translate-y-1/2 tw-bg-gray-600 tw-bg-opacity-50 tw-p-2 tw-h-8 tw-w-7 tw-rounded-l-md tw-z-50'
-          >
-            <FaChevronLeft
-              className={`tw-transition-transform ${isDjCommentOpen ? 'tw-rotate-180' : ''}`}
-            />
-          </button>
-
-          {/* DJ 코멘트 패널 */}
-          <div
-            className={`tw-fixed tw-z-[49] tw-top-12 tw-bottom-8 tw-p-4 tw-rounded-l-md tw-w-[calc(33.3%-6rem)] tw-transition-transform tw-duration-300 tw-ease-in-out tw-min-w-[30rem] tw-bg-gray-950 tw-bg-opacity-50 tw-backdrop-blur-xl tw-transform ${isDjCommentOpen ? 'tw-translate-x-0 tw-right-0' : 'tw-translate-x-full tw-right-0'}`}
-          >
-            <div
-              className={
-                'tw-flex tw-flex-col tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-shadow-lg ' +
-                (vArchiveUserData.userName !== '' ? 'tw-h-full' : 'tw-h-full')
-              }
-            >
-              <div className='tw-flex tw-items-center tw-justify-between tw-p-6 tw-pb-0'>
-                <span className='tw-text-lg tw-font-bold tw-text-white'>💬 DJ 코멘트</span>
-              </div>
-
-              <div className='tw-flex tw-flex-col tw-gap-4 tw-p-6 tw-overflow-y-auto'>
-                {commentData.length > 0 ? (
-                  commentData
-                    .filter((commentItem) => commentItem.nickname !== vArchiveUserData.userName)
-                    .map((commentItem) => (
-                      <div
-                        key={commentItem.cmtNo}
-                        className='tw-flex tw-w-full tw-gap-1 tw-bg-gray-700 tw-bg-opacity-30 tw-rounded-lg tw-p-4 hover:tw-bg-opacity-40 tw-transition-all'
-                        onMouseEnter={() => {
-                          setHoveredTitle(String(commentItem.title))
-                          setSongItemData(null)
-                        }}
-                        onMouseLeave={() => {
-                          setHoveredTitle(null)
-                          dispatch(setBackgroundBgaName(''))
-                        }}
-                      >
-                        <ScorePopupComponent
-                          songItemTitle={commentItem.title}
-                          keyMode={keyMode}
-                          rivalName={commentItem.nickname}
-                          delay={{ show: vArchiveUserData.userName !== '' ? 500 : 500, hide: 0 }}
-                        />
-                        <div className='tw-flex tw-flex-col tw-gap-2 flex-equal'>
-                          <div className='tw-flex tw-gap-2 tw-items-center tw-animate-fadeInOnly'>
-                            <span className='tw-font-extrabold tw-text-base'>
-                              {commentItem.nickname}
-                            </span>
-                            <span className='tw-font-light tw-text-xs tw-text-gray-400'>
-                              {moment(commentItem.ymdt).locale('ko').format('LL')}
-                            </span>
-                          </div>
-                          <span
-                            className='tw-animate-fadeInDown'
-                            dangerouslySetInnerHTML={{
-                              __html: `
-                                        ${parseText(commentItem.comment)}
-                                        `,
-                            }}
-                          />
-                          <div
-                            className={`tw-flex tw-items-center tw-justify-end tw-gap-2 tw-mt-2 tw-transition-all ${
-                              vArchiveUserData.userNo !== ''
-                                ? 'tw-cursor-pointer hover:tw-text-red-400'
-                                : ''
-                            }`}
-                            onClick={() => {
-                              if (
-                                vArchiveUserData.userNo !== '' &&
-                                vArchiveUserData.userToken !== '' &&
-                                vArchiveUserData.userName !== ''
-                              ) {
-                                if (commentItem.myVote === 1) {
-                                  updateCommentVote(commentItem.title, commentItem.cmtNo, 'DELETE')
-                                } else {
-                                  updateCommentVote(commentItem.title, commentItem.cmtNo, 'POST')
-                                }
-                              } else {
-                                showNotification(
-                                  'DJ 코멘트 좋아요 기능은 로그인 또는 V-ARCHIVE 계정 연동이 필요합니다.',
-                                  'tw-bg-red-600',
-                                )
-                              }
-                            }}
-                          >
-                            <div
-                              className={`tw-flex tw-items-center tw-gap-1.5 tw-px-3 tw-py-1.5 tw-rounded-full tw-bg-gray-800 tw-bg-opacity-50 ${commentItem.myVote === 1 ? 'tw-text-red-400 tw-border-red-400' : 'tw-text-gray-400 tw-border-gray-600'} tw-border tw-border-opacity-30 tw-transition-all ${vArchiveUserData.userNo !== '' ? 'hover:tw-border-opacity-50' : ''}`}
-                            >
-                              <span>
-                                <IconContext.Provider
-                                  value={{
-                                    className: `tw-text-sm ${
-                                      voteComment === commentItem.cmtNo && commentItem.myVote === 1
-                                        ? 'tw-animate-scaleUpAndScaleDown'
-                                        : voteComment === commentItem.cmtNo &&
-                                            commentItem.myVote === 0
-                                          ? 'tw-animate-scaleDownAndScaleUp'
-                                          : ''
-                                    }`,
-                                  }}
-                                >
-                                  {commentItem.myVote === 1 ? <FaHeart /> : <FaRegHeart />}
-                                </IconContext.Provider>
-                              </span>
-                              <span
-                                className={`tw-text-sm tw-font-medium ${commentItem.myVote === 1 ? 'tw-text-red-400' : 'tw-text-gray-400'}`}
-                              >
-                                {commentItem.vote}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    ))
-                ) : isFetchingCommentData ? (
-                  <div className='tw-flex tw-justify-center tw-items-center tw-py-8'>
-                    <SyncLoader color='#ffffff' size={8} />
-                  </div>
-                ) : !hasNextCommentData ? (
-                  <div className='tw-flex tw-justify-center tw-items-center tw-py-8 tw-text-gray-400'>
-                    등록된 DJ 코멘트가 없습니다.
-                  </div>
-                ) : null}
-
-                {commentData.length > 0 && hasNextCommentData && (
-                  <button
-                    onClick={() => fetchCommentData()}
-                    className='tw-mt-2 tw-bg-gray-700 tw-bg-opacity-30 tw-rounded-lg tw-p-3 tw-font-bold hover:tw-bg-opacity-40 tw-transition-all'
-                  >
-                    더보기
-                  </button>
-                )}
-              </div>
             </div>
           </div>
         </div>

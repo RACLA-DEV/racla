@@ -1,18 +1,8 @@
 import 'moment/locale/ko'
+
 import React, { useEffect, useState } from 'react'
-import Head from 'next/head'
-import Image from 'next/image'
-import { useRouter } from 'next/router'
-import RaScorePopupComponent from '@/components/score/RaScorePopupComponent'
-import { useNotificationSystem } from '@/libs/client/useNotifications'
-import { useRecentHistory } from '@/libs/client/useRecentHistory'
-import moment from 'moment'
-import { IconContext } from 'react-icons'
 import { FaCloudArrowUp, FaYoutube } from 'react-icons/fa6'
-import { FiTriangle } from 'react-icons/fi'
 import { useDispatch, useSelector } from 'react-redux'
-import { SyncLoader } from 'react-spinners'
-import { RootState } from 'store'
 import {
   clearProjectRaData,
   setIsUploading,
@@ -20,6 +10,18 @@ import {
   setProjectRaUploadedPageData,
   setUploadedDataProcessed,
 } from 'store/slices/appSlice'
+
+import RaScorePopupComponent from '@/components/score/RaScorePopupComponent'
+import { useNotificationSystem } from '@/libs/client/useNotifications'
+import { useRecentHistory } from '@/libs/client/useRecentHistory'
+import moment from 'moment'
+import Head from 'next/head'
+import Image from 'next/image'
+import { useRouter } from 'next/router'
+import { IconContext } from 'react-icons'
+import { FiTriangle } from 'react-icons/fi'
+import { SyncLoader } from 'react-spinners'
+import { RootState } from 'store'
 import { setBackgroundBgaName } from 'store/slices/uiSlice'
 
 export default function VArchiveRegScorePage() {
@@ -300,8 +302,7 @@ export default function VArchiveRegScorePage() {
                   <>
                     <div
                       className={
-                        'tw-flex tw-relative tw-flex-col tw-gap-1 tw-bg-opacity-10 tw-rounded-md p-0 tw-mb-4 tw-h-auto ' +
-                        ` wjmax_dlc_${projectRaUploadedPageData.songData.dlcCode} wjmax_dlc_logo_${projectRaUploadedPageData.songData.dlcCode} wjmax_dlc_logo_BG_${projectRaUploadedPageData.songData.dlcCode}`
+                        'tw-flex tw-relative tw-flex-col tw-gap-1 tw-bg-opacity-10 tw-rounded-md tw-mb-4 tw-h-auto p-0'
                       }
                     >
                       <div className='tw-absolute tw-inset-0 tw-overflow-hidden tw-rounded-md'>
@@ -310,11 +311,11 @@ export default function VArchiveRegScorePage() {
                           layout='fill'
                           objectFit='cover'
                           alt=''
-                          className='tw-opacity-30 tw-blur-xl'
+                          className='tw-opacity-50 tw-blur-xl'
                         />
-                        <div className='tw-absolute tw-inset-0 tw-bg-black tw-bg-opacity-50' />
+                        <div className='tw-absolute tw-inset-0 tw-bg-gray-950 tw-bg-opacity-50' />
                       </div>
-                      <div className='tw-flex tw-flex-col tw-animate-fadeInLeft p-4 flex-equal tw-bg-gray-900 tw-bg-opacity-30 tw-rounded-md'>
+                      <div className='tw-flex tw-flex-col tw-animate-fadeInLeft flex-equal tw-bg-gray-900 tw-bg-opacity-30 tw-rounded-md p-4'>
                         {/* 하단 */}
                         <div className='tw-flex tw-justify-between'>
                           <div className='tw-flex tw-gap-3 tw-mt-auto tw-items-end'>
@@ -351,7 +352,7 @@ export default function VArchiveRegScorePage() {
                             <div className='tw-flex tw-gap-2'>
                               {String(projectRaUploadedPageData.songData.bgaUrl).trim() !== '' && (
                                 <button
-                                  className='tw-inline-flex tw-items-center tw-gap-2 tw-animate-fadeInLeft p-1 px-2 tw-bg-gray-950 tw-bg-opacity-75 tw-rounded-md hover:tw-bg-gray-700 tw-transition-colors tw-text-sm'
+                                  className='tw-inline-flex tw-items-center tw-gap-2 tw-animate-fadeInLeft tw-bg-gray-950 tw-bg-opacity-75 tw-rounded-md hover:tw-bg-gray-700 tw-transition-colors tw-text-sm p-1 px-2'
                                   onClick={() =>
                                     window.ipc.openBrowser(
                                       projectRaUploadedPageData.songData.bgaUrl,
@@ -359,11 +360,11 @@ export default function VArchiveRegScorePage() {
                                   }
                                 >
                                   <FaYoutube className='tw-text-red-500 tw-mt-0.5' />
-                                  <span className='tw-text-gray-300'>BGA 영상 바로가기</span>
+                                  <span className='tw-text-gray-300'>BGA 영상</span>
                                 </button>
                               )}
-                              <div className='tw-animate-fadeInLeft tw-rounded-md p-1 tw-bg-gray-950 tw-bg-opacity-75'>
-                                <span className='wjmax_dlc_code_wrap '>
+                              <div className='tw-animate-fadeInLeft tw-rounded-md tw-bg-gray-950 tw-bg-opacity-75 p-1'>
+                                <span className='wjmax_dlc_code_wrap'>
                                   <span
                                     className={`wjmax_dlc_code wjmax_dlc_code_${projectRaUploadedPageData.songData.dlcCode}`}
                                   >
@@ -377,7 +378,7 @@ export default function VArchiveRegScorePage() {
                       </div>
                     </div>
 
-                    <div className='tw-flex tw-flex-col tw-w-full tw-relative tw-animate-fadeInLeft tw-bg-gray-600 tw-bg-opacity-10 tw-rounded-md p-4 tw-gap-2 tw-mb-4'>
+                    <div className='tw-flex tw-flex-col tw-w-full tw-relative tw-animate-fadeInLeft tw-bg-gray-600 tw-bg-opacity-10 tw-rounded-md tw-gap-2 tw-mb-4 p-4'>
                       <div className='tw-flex tw-justify-between tw-items-center'>
                         <div className='tw-flex tw-flex-col tw-gap-2'>
                           <span className='tw-text-base tw-font-light'>BUTTON</span>
@@ -481,7 +482,7 @@ export default function VArchiveRegScorePage() {
 
                     <div className='tw-flex tw-gap-4 tw-w-full tw-flex-1 tw-overflow-hidden'>
                       {/* 최근 기록 섹션 */}
-                      <div className='tw-flex tw-flex-col tw-w-1/2 tw-relative tw-animate-fadeInLeft tw-bg-gray-600 tw-bg-opacity-10 tw-rounded-md p-4 tw-gap-2'>
+                      <div className='tw-flex tw-flex-col tw-w-1/2 tw-relative tw-animate-fadeInLeft tw-bg-gray-600 tw-bg-opacity-10 tw-rounded-md tw-gap-2 p-4'>
                         <div className='tw-flex tw-w-full tw-mb-2 tw-items-center tw-justify-between'>
                           <span className='tw-text-lg tw-font-bold me-auto'>최근 기록</span>
                         </div>
@@ -544,7 +545,7 @@ export default function VArchiveRegScorePage() {
                       </div>
 
                       {/* 추천 옵션 섹션 */}
-                      <div className='tw-flex tw-flex-col tw-w-1/2 tw-relative tw-animate-fadeInRight tw-bg-gray-600 tw-bg-opacity-10 tw-rounded-md p-4 tw-gap-2'>
+                      <div className='tw-flex tw-flex-col tw-w-1/2 tw-relative tw-animate-fadeInRight tw-bg-gray-600 tw-bg-opacity-10 tw-rounded-md tw-gap-2 p-4'>
                         <div className='tw-flex tw-w-full tw-mb-2 tw-items-center'>
                           <span className='tw-text-lg tw-font-bold me-auto'>팁 & 추천 옵션</span>
                         </div>

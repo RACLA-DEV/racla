@@ -126,7 +126,7 @@ const Overlay = ({ isNotificationSound }: { isNotificationSound: boolean }) => {
           ) : data.gameCode == 'djmax_respect_v' ? (
             <div
               key={id}
-              className={`respect_dlc_${data.songData.dlcCode} respect_dlc_logo_${data.songData.dlcCode} respect_dlc_logo_BG_${data.songData.dlcCode} tw-min-w-[400px] tw-cursor-pointer tw-text-sm tw-bg-opacity-80 tw-relative tw-text-white tw-rounded-lg tw-overflow-hidden tw-shadow-lg ${fadeOut[id] ? 'tw-animate-fadeOut' : 'tw-animate-fadeIn'}`}
+              className={`tw-min-w-[400px] tw-cursor-pointer tw-text-sm tw-bg-opacity-80 tw-relative tw-text-white tw-rounded-lg tw-overflow-hidden tw-shadow-lg ${fadeOut[id] ? 'tw-animate-fadeOut' : 'tw-animate-fadeIn'}`}
             >
               <div className='tw-absolute tw-inset-0 tw-overflow-hidden tw-rounded-md tw-z-0'>
                 <Image

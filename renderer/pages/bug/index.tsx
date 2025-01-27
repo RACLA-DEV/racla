@@ -1,18 +1,18 @@
 import React, { useEffect, useState } from 'react'
 
-import { CKEditor } from '@ckeditor/ckeditor5-react'
-import ClassicEditor from '@ckeditor/ckeditor5-build-classic'
-import Head from 'next/head'
 import Modal from '@/components/common/Modal'
-import { RootState } from 'store'
-import { SyncLoader } from 'react-spinners'
-import axios from 'axios'
 import { logRendererError } from '@/libs/client/rendererLogger'
-import moment from 'moment'
-import { motion } from 'framer-motion'
 import { useNotificationSystem } from '@/libs/client/useNotifications'
+import ClassicEditor from '@ckeditor/ckeditor5-build-classic'
+import { CKEditor } from '@ckeditor/ckeditor5-react'
+import axios from 'axios'
+import { motion } from 'framer-motion'
+import moment from 'moment'
+import Head from 'next/head'
 import { useRouter } from 'next/router'
 import { useSelector } from 'react-redux'
+import { SyncLoader } from 'react-spinners'
+import { RootState } from 'store'
 
 interface Bug {
   id: number
@@ -45,7 +45,7 @@ export default function BugList() {
     total: 0,
   })
   const [isModalVisible, setIsModalVisible] = useState(false)
-  const [newBug, setNewBug] = useState({ title: '', description: '' })
+  const [newBug, setNewBug] = useState({ title: '', description: '', category: 'OTHER' })
   const [loading, setLoading] = useState(false)
   const { userData } = useSelector((state: RootState) => state.app)
 
@@ -112,7 +112,7 @@ export default function BugList() {
       })
       const data = await response.data
       setIsModalVisible(false)
-      setNewBug({ title: '', description: '' })
+      setNewBug({ title: '', description: '', category: 'OTHER' })
       router.push(`/bug/${data.id}`)
     } catch (error) {
       logRendererError(error, { message: 'Error in handleCreateBug', ...userData })
@@ -167,6 +167,7 @@ export default function BugList() {
 
   const editorConfiguration = {
     licenseKey: 'GPL',
+    height: '600px',
     toolbar: [
       'heading',
       '|',
@@ -403,30 +404,43 @@ export default function BugList() {
             title='피드백 작성하기'
           >
             <div className='tw-flex tw-flex-col tw-h-full'>
-              <div className='tw-shrink-0 tw-mb-4'>
-                <label className='tw-block tw-mb-2'>제목</label>
-                <input
-                  type='text'
-                  value={newBug.title}
-                  onChange={(e) => setNewBug({ ...newBug, title: e.target.value })}
-                  className='tw-w-full tw-bg-gray-700 tw-rounded tw-px-3 tw-py-2 focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-blue-500'
-                  placeholder='제목을 입력하세요'
-                />
-              </div>
-
-              <div className='tw-flex-1 tw-min-h-0'>
-                <label className='tw-block tw-mb-2'>내용</label>
-                <div className='tw-h-full tw-bg-gray-700 tw-rounded tw-overflow-y-auto'>
-                  <CKEditor
-                    editor={ClassicEditor}
-                    data={newBug.description}
-                    config={editorConfiguration}
-                    onChange={(event, editor) => {
-                      const data = editor.getData()
-                      setNewBug({ ...newBug, description: data })
-                    }}
+              <div className='tw-shrink-0 tw-mb-4 tw-flex tw-gap-4'>
+                <div className='tw-flex-1'>
+                  <label className='tw-block tw-mb-2'>제목</label>
+                  <input
+                    type='text'
+                    value={newBug.title}
+                    onChange={(e) => setNewBug({ ...newBug, title: e.target.value })}
+                    className='tw-w-full tw-bg-gray-700 tw-rounded-sm tw-px-3 tw-py-2 focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-blue-500'
+                    placeholder='제목을 입력하세요'
                   />
                 </div>
+                <div className='tw-flex-1'>
+                  <label className='tw-block tw-mb-2'>카테고리</label>
+                  <select
+                    value={newBug.category}
+                    onChange={(e) => setNewBug({ ...newBug, category: e.target.value })}
+                    className='tw-w-full tw-bg-gray-700 tw-rounded-sm tw-h-9 tw-px-3 tw-py-2 focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-blue-500'
+                  >
+                    <option value='BUG'>버그 제보</option>
+                    <option value='FEATURE_REQUEST'>기능 요청</option>
+                    <option value='QUESTION'>질문</option>
+                    <option value='OTHER'>기타</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className='tw-flex-1 tw-min-h-0 tw-text-gray-950 tw-rounded'>
+                <label className='tw-block tw-mb-2 tw-text-gray-200'>내용</label>
+                <CKEditor
+                  editor={ClassicEditor}
+                  data={newBug.description}
+                  config={editorConfiguration}
+                  onChange={(event, editor) => {
+                    const data = editor.getData()
+                    setNewBug({ ...newBug, description: data })
+                  }}
+                />
               </div>
 
               <div className='tw-shrink-0 tw-mt-4 tw-flex tw-justify-end tw-gap-2'>

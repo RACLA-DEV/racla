@@ -1,4 +1,3 @@
-import { OverlayTrigger, Tooltip } from 'react-bootstrap'
 import {
   getDifficultyClassName,
   getDifficultyStarImage,
@@ -7,15 +6,17 @@ import {
   getScoreDisplayText,
 } from '@/libs/client/respectUtils'
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { OverlayTrigger, Tooltip } from 'react-bootstrap'
 import { useDispatch, useSelector } from 'react-redux'
 
-import Image from 'next/image'
-import Link from 'next/link'
-import { RootState } from 'store'
-import { globalDictionary } from '@/libs/server/globalDictionary'
 import { logRendererError } from '@/libs/client/rendererLogger'
-import { setBackgroundBgaName } from 'store/slices/uiSlice'
+import { useNotificationSystem } from '@/libs/client/useNotifications'
+import { globalDictionary } from '@/libs/server/globalDictionary'
+import Image from 'next/image'
+import { useRouter } from 'next/router'
 import { useInView } from 'react-intersection-observer'
+import { RootState } from 'store'
+import { setBackgroundBgaName } from 'store/slices/uiSlice'
 
 interface ScorePopupComponentProps {
   songItem?: any
@@ -32,7 +33,7 @@ interface ScorePopupComponentProps {
   size?: number
 }
 
-const ScorePopupComponent = ({
+const HjaScorePopupComponent = ({
   songItem,
   songItemTitle,
   keyMode,
@@ -46,6 +47,7 @@ const ScorePopupComponent = ({
   size = 80,
 }: ScorePopupComponentProps) => {
   const dispatch = useDispatch()
+  const { showNotification } = useNotificationSystem()
   const fontFamily = useSelector((state: RootState) => state.ui.fontFamily)
   const userData = useSelector((state: RootState) => state.app.vArchiveUserData)
   const vArchiveUserData = useSelector((state: RootState) => state.app.vArchiveUserData)
@@ -62,6 +64,7 @@ const ScorePopupComponent = ({
     threshold: 0,
     triggerOnce: true,
   })
+  const router = useRouter()
   const handleImageLoad = useCallback(() => {
     setImageLoaded(true)
   }, [])
@@ -281,7 +284,7 @@ const ScorePopupComponent = ({
               </div>
               {vArchiveUserData.userName !== '' && (
                 <span className='tw-text-xs tw-font-light tw-text-gray-300 tw-my-2'>
-                  <span className=''>{vArchiveUserData.userName}</span>님의 성과 기록(V-ARCHIVE)
+                  <span className=''>{vArchiveUserData.userName}</span>님의 V-ARCHIVE 성과 기록
                 </span>
               )}
             </div>
@@ -385,7 +388,7 @@ const ScorePopupComponent = ({
                 </div>
                 {rivalName !== '' && (
                   <span className='tw-text-xs tw-font-light tw-text-gray-300 tw-my-2'>
-                    <span className=''>{rivalName}</span>님의 성과 기록
+                    <span className=''>{rivalName}</span>님의 전일 아카이브 성과 기록
                   </span>
                 )}
               </div>
@@ -400,10 +403,23 @@ const ScorePopupComponent = ({
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >
-        <Link
-          href={`/hja/db/title/${displayData?.title ?? songItemTitle}`}
+        <div
           className='tw-relative tw-rounded-md hover-scale-110 respect_record tw-cursor-pointer'
           style={{ width: size, height: size }}
+          onClick={() => {
+            if (displayData?.hardArchiveTitle) {
+              if (displayData?.pattern) {
+                router.push(`/hja/db/title/${displayData?.title ?? songItemTitle}`)
+              } else {
+                router.push(`/hja/db/title/${displayData?.title ?? songItemTitle}`)
+              }
+            } else {
+              showNotification(
+                '전일 아카이브 수록곡 고유 ID(UUID) 정보가 없습니다. 피드백 센터로 해당 수록곡의 데이터 갱신 요청을 문의해주세요.',
+                'tw-bg-red-600',
+              )
+            }
+          }}
         >
           {inView && (
             <Image
@@ -433,7 +449,7 @@ const ScorePopupComponent = ({
               </span>
             </span>
           )}
-        </Link>
+        </div>
         {vArchiveUserData.userName !== '' && isScored && displayData ? (
           <span
             className={
@@ -448,4 +464,4 @@ const ScorePopupComponent = ({
   )
 }
 
-export default ScorePopupComponent
+export default HjaScorePopupComponent

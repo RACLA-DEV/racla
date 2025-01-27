@@ -464,7 +464,7 @@ export default function VArchiveDbPage() {
           <div
             className={`tw-flex-1 tw-overflow-hidden tw-transition-all tw-w-full'} duration-300`}
           >
-            <div className='tw-h-full tw-overflow-y-auto tw-scroll-smooth'>
+            <div className='tw-h-full tw-overflow-y-auto custom-scrollbar custom-scrollbar-always tw-scroll-smooth'>
               <AnimatePresence mode='wait'>
                 <motion.div
                   key={selectedDlcCode} // 키가 변경될 때마다 애니메이션 트리거
@@ -472,7 +472,7 @@ export default function VArchiveDbPage() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
                   transition={{ duration: 0.3 }}
-                  className='tw-flex tw-flex-col tw-gap-1 tw-bg-gray-600 tw-bg-opacity-10 tw-rounded-md tw-p-4'
+                  className='tw-flex tw-flex-col tw-mr-2 tw-gap-1 tw-bg-gray-600 tw-bg-opacity-10 tw-rounded-md tw-p-4'
                 >
                   <div
                     className={`tw-w-full ${viewMode === 'grid' ? 'tw-flex tw-gap-3 tw-flex-wrap tw-justify-between' : 'tw-flex tw-flex-col'}`}
@@ -569,7 +569,7 @@ export default function VArchiveDbPage() {
                                         </div>
                                       </div>
                                     ) : (
-                                      <div className='tw-opacity-30'>
+                                      <div key={diff} className='tw-opacity-30'>
                                         <div className='tw-text-base tw-font-extrabold'>-</div>
                                       </div>
                                     )}

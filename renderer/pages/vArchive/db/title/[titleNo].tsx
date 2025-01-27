@@ -2,25 +2,26 @@ import 'moment/locale/ko'
 
 import * as R from 'ramda'
 
-import { FaChevronLeft, FaHeart, FaRegHeart } from 'react-icons/fa6'
 import React, { useEffect, useState } from 'react'
-import { setBackgroundBgaName, setIsDjCommentOpen } from 'store/slices/uiSlice'
+import { FaChevronLeft, FaDatabase, FaHeart, FaRegHeart } from 'react-icons/fa6'
 import { useDispatch, useSelector } from 'react-redux'
+import { setBackgroundBgaName, setIsDjCommentOpen } from 'store/slices/uiSlice'
 
-import Head from 'next/head'
-import { IconContext } from 'react-icons'
-import Image from 'next/image'
-import { RootState } from 'store'
 import ScoreEditComponent from '@/components/score/ScoreEditComponent'
 import ScorePopupComponent from '@/components/score/ScorePopupComponent'
-import { SyncLoader } from 'react-spinners'
-import axios from 'axios'
-import { globalDictionary } from '@/libs/server/globalDictionary'
 import { logRendererError } from '@/libs/client/rendererLogger'
-import moment from 'moment'
 import { useNotificationSystem } from '@/libs/client/useNotifications'
+import { globalDictionary } from '@/libs/server/globalDictionary'
+import axios from 'axios'
+import moment from 'moment'
+import Head from 'next/head'
+import Image from 'next/image'
+import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { useRouter } from 'next/router'
+import { IconContext } from 'react-icons'
+import { SyncLoader } from 'react-spinners'
+import { RootState } from 'store'
 
 export default function VArchiveDbTitlePage() {
   const { showNotification } = useNotificationSystem()
@@ -89,7 +90,12 @@ export default function VArchiveDbTitlePage() {
             )
             .then((response) => {
               const data = response.data
-              setBaseSongData([data])
+              setBaseSongData([
+                {
+                  ...songData.filter((value) => value.title == params?.titleNo)[0],
+                  ...data,
+                },
+              ])
             })
             .catch((error) => {
               logRendererError(error, { message: 'Error in fetchUserSongData', ...userData })
@@ -170,7 +176,7 @@ export default function VArchiveDbTitlePage() {
               )
               const result = await response.json()
 
-              setBaseSongData([result])
+              setBaseSongData([{ ...baseSongData[0], ...result }])
               setFetchingUpdateScore(false)
               setPatternCode('')
               showNotification('성과 기록을 정상적으로 저장하였습니다.', 'tw-bg-lime-600')
@@ -581,13 +587,23 @@ export default function VArchiveDbTitlePage() {
           <div className={`tw-flex tw-flex-col tw-transition-all tw-w-full duration-300`}>
             <div
               className={
-                'tw-flex tw-flex-col tw-gap-1 tw-bg-opacity-10 tw-rounded-md tw-mb-4 tw-h-auto p-0 ' +
-                ` respect_dlc_${baseSongData[0].dlcCode}} respect_dlc_logo_${baseSongData[0].dlcCode} respect_dlc_logo_BG_${baseSongData[0].dlcCode}`
+                'tw-flex tw-flex-col tw-gap-1 tw-relative tw-bg-opacity-10 tw-rounded-md tw-mb-4 tw-h-auto p-0'
               }
               onClick={() => {
                 setPatternCode('')
               }}
             >
+              <div className='tw-absolute tw-inset-0 tw-overflow-hidden tw-rounded-md'>
+                <Image
+                  src={`/images/djmax_respect_v/jackets/${baseSongData[0].title}.jpg`}
+                  layout='fill'
+                  objectFit='cover'
+                  alt=''
+                  className='tw-opacity-50 tw-blur-xl'
+                />
+                <div className='tw-absolute tw-inset-0 tw-bg-gray-950 tw-bg-opacity-50' />
+              </div>
+
               <div className='tw-flex tw-justify-between tw-animate-fadeInLeft flex-equal tw-bg-gray-900 tw-bg-opacity-30 tw-rounded-md p-4'>
                 {/* 하단 */}
                 <div className='tw-flex tw-gap-3 tw-mt-auto tw-items-end'>
@@ -614,9 +630,20 @@ export default function VArchiveDbTitlePage() {
                     </span>
                   </div>
                 </div>
-                <div>
-                  <div className='tw-flex'>
-                    <div className='tw-animate-fadeInLeft tw-rounded-md tw-bg-gray-950 tw-bg-opacity-75 tw-me-auto p-1'>
+                <div className='tw-relative'>
+                  <div className='tw-absolute tw-w-96 tw-top-0 tw-right-0 tw-flex tw-gap-2'>
+                    {baseSongData[0]?.hardArchiveTitle && (
+                      <Link
+                        href={`/hja/db/title/${baseSongData[0].title}`}
+                        className='tw-ms-auto tw-inline-flex tw-items-center tw-gap-2 tw-animate-fadeInLeft tw-bg-gray-950 tw-bg-opacity-75 tw-rounded-md hover:tw-bg-gray-700 tw-transition-colors tw-text-sm p-1 px-2'
+                      >
+                        <FaDatabase className='tw-text-gray-300 tw-mt-0.5' />
+                        <span className='tw-text-gray-300'>전일 기록(전일 아카이브)</span>
+                      </Link>
+                    )}
+                    <div
+                      className={`tw-animate-fadeInLeft tw-rounded-md tw-bg-gray-950 tw-bg-opacity-75 p-1 ${!baseSongData[0]?.hardArchiveTitle ? 'tw-ms-auto' : ''}`}
+                    >
                       <span className='respect_dlc_code_wrap'>
                         <span
                           className={`respect_dlc_code respect_dlc_code_${baseSongData[0].dlcCode}`}
