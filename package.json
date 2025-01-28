@@ -2,7 +2,7 @@
   "private": true,
   "name": "racla-electron-app",
   "description": "RACLA for Desktop",
-  "version": "0.7.2",
+  "version": "0.7.3",
   "author": "Developed by GGDRN0 STUDIO & R-ARCHIVE. Produced by LunaticaLuna.",
   "main": "app/background.js",
   "scripts": {

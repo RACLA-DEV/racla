@@ -345,7 +345,10 @@ export default function VArchiveDbTitlePage() {
     } catch (error) {
       logRendererError(error, { message: 'Error in fetchPatternData', ...userData })
       console.error('Error fetching pattern data:', error)
-      showNotification('패턴 데이터를 불러오는데 실패했습니다.', 'tw-bg-red-600')
+      showNotification(
+        '해당 수록곡은 패턴 데이터가 존재하지 않습니다. 피드백 센터를 통해 패턴 데이터 추가 요청을 해주세요.',
+        'tw-bg-red-600',
+      )
     }
   }
 

@@ -409,7 +409,9 @@ const Overlay = ({ isNotificationSound }: { isNotificationSound: boolean }) => {
                   <div className='tw-flex tw-flex-col tw-gap-2'>
                     {data.hardScore && (
                       <div className='tw-bg-gray-600/25 tw-rounded tw-p-2'>
-                        <div className='tw-text-xs tw-font-bold tw-text-gray-200'>HARD</div>
+                        <div className='tw-text-xs tw-font-bold tw-text-gray-200'>
+                          HARD JUDGEMENT
+                        </div>
                         <div className='tw-flex tw-justify-between'>
                           <div className='tw-text-sm tw-font-bold tw-text-gray-200'>
                             {Number(data.hardScore.rate).toFixed(2)}%
@@ -424,7 +426,9 @@ const Overlay = ({ isNotificationSound }: { isNotificationSound: boolean }) => {
                     )}
                     {data.maxScore && (
                       <div className='tw-bg-gray-600/25 tw-rounded tw-p-2'>
-                        <div className='tw-text-xs tw-font-bold tw-text-gray-200'>MAX</div>
+                        <div className='tw-text-xs tw-font-bold tw-text-gray-200'>
+                          MAX JUDGEMENT
+                        </div>
                         <div className='tw-flex tw-justify-between'>
                           <div className='tw-text-sm tw-font-bold tw-text-gray-200'>
                             {Number(data.maxScore.rate).toFixed(2)}%
