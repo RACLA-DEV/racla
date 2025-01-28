@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { FaCircleCheck, FaCircleInfo, FaCircleXmark, FaCrown } from 'react-icons/fa6'
+import { FaCircleCheck, FaCircleInfo, FaCircleXmark, FaCrown, FaDatabase } from 'react-icons/fa6'
 
 import { globalDictionary } from '@/libs/server/globalDictionary'
 import axios from 'axios'
@@ -11,6 +11,13 @@ import { useSelector } from 'react-redux'
 const Overlay = ({ isNotificationSound }: { isNotificationSound: boolean }) => {
   const [notifications, setNotifications] = useState<Array<{ data: any; id: string }>>([])
   const [fadeOut, setFadeOut] = useState<{ [key: string]: boolean }>({})
+  const [settings, setSettings] = useState<{
+    recentOverlay: boolean
+    hjaOverlay: boolean
+  }>({
+    recentOverlay: false,
+    hjaOverlay: false,
+  })
 
   const fetchHighScore = async (
     button: string,
@@ -49,8 +56,30 @@ const Overlay = ({ isNotificationSound }: { isNotificationSound: boolean }) => {
     })
   }
 
+  // 설정 데이터를 가져오는 함수
+  const getSettingData = () => {
+    return new Promise((resolve) => {
+      const handleSettings = (data: any) => {
+        window.ipc.removeListener('IPC_RENDERER_GET_SETTING_DATA_TO_WIDGET', handleSettings)
+        resolve(data)
+      }
+
+      window.ipc.on('IPC_RENDERER_GET_SETTING_DATA_TO_WIDGET', handleSettings)
+      window.ipc.getSettingToWidget()
+    })
+  }
+
   useEffect(() => {
     const handlePlayData = async (data: any) => {
+      // 매 알림마다 설정값 새로 가져오기
+      const settingData: any = await getSettingData()
+
+      console.log(settingData)
+      setSettings({
+        recentOverlay: settingData.recentOverlay ?? false,
+        hjaOverlay: settingData.hjaOverlay ?? false,
+      })
+
       const sessionData: any = await getSessionData()
       let scoreData = { ...data }
 
@@ -62,9 +91,12 @@ const Overlay = ({ isNotificationSound }: { isNotificationSound: boolean }) => {
             data.pattern,
           )
 
-          // 하드 아카이브는 SC + 레벨 8이상 조건 체크
+          // 하드 아카이브는 SC + 레벨 8이상 조건 체크 + 설정값 체크
           const shouldShowHardArchive =
-            patternToCode(data.pattern) === 'SC' && currentLevel && Number(currentLevel) >= 8
+            settingData.hjaOverlay &&
+            patternToCode(data.pattern) === 'SC' &&
+            currentLevel &&
+            Number(currentLevel) >= 8
 
           if (shouldShowHardArchive) {
             const [hardScore, maxScore] = await Promise.allSettled([
@@ -73,25 +105,35 @@ const Overlay = ({ isNotificationSound }: { isNotificationSound: boolean }) => {
             ])
             scoreData.hardScore = hardScore.status === 'fulfilled' ? hardScore.value : null
             scoreData.maxScore = maxScore.status === 'fulfilled' ? maxScore.value : null
+          } else {
+            scoreData.hardScore = null
+            scoreData.maxScore = null
           }
 
-          // 최근 기록은 difficultyType만 포함하고 레벨 조건 없이 조회
-          const recentResponse = await axios.get(
-            `https://noah.r-archive.zip/api/v2/play/history/${sessionData.userNo}/${data.gameCode}/${data.songData.title as string}/${String(data.button).replace('B', '')}B/${patternToCode(data.pattern)}`,
-            {
-              headers: {
-                Authorization: `${sessionData.userNo}|${sessionData.userToken}`,
+          // 최근 기록은 설정값 체크 후 조회
+          if (settingData.recentOverlay) {
+            const recentResponse = await axios.get(
+              `https://noah.r-archive.zip/api/v2/play/history/${sessionData.userNo}/${data.gameCode}/${data.songData.title as string}/${String(data.button).replace('B', '')}B/${patternToCode(data.pattern)}`,
+              {
+                headers: {
+                  Authorization: `${sessionData.userNo}|${sessionData.userToken}`,
+                },
+                withCredentials: true,
               },
-              withCredentials: true,
-            },
-          )
+            )
 
-          scoreData = {
-            ...scoreData,
-            recentHistory:
-              recentResponse.data.success && recentResponse.data.recentHistory.length > 0
-                ? recentResponse.data.recentHistory
-                : null,
+            scoreData = {
+              ...scoreData,
+              recentHistory:
+                recentResponse.data.success && recentResponse.data.recentHistory.length > 0
+                  ? recentResponse.data.recentHistory
+                  : null,
+            }
+          } else {
+            scoreData = {
+              ...scoreData,
+              recentHistory: null,
+            }
           }
         } catch (error) {
           console.error('점수 조회 중 오류 발생:', error)
@@ -196,7 +238,7 @@ const Overlay = ({ isNotificationSound }: { isNotificationSound: boolean }) => {
           data.message ? (
             <div
               key={id}
-              className={`${data.color} tw-w-full tw-cursor-pointer tw-text-sm tw-bg-opacity-80 tw-relative tw-text-white tw-rounded-lg tw-overflow-hidden tw-shadow-lg ${fadeOut[id] ? 'tw-animate-fadeOut' : 'tw-animate-fadeIn'}`}
+              className={`${data.color} tw-bg-gray-950 tw-w-full tw-cursor-pointer tw-text-sm tw-bg-opacity-80 tw-relative tw-text-white tw-rounded-lg tw-overflow-hidden tw-shadow-lg ${fadeOut[id] ? 'tw-animate-fadeOut' : 'tw-animate-fadeIn'}`}
             >
               <div className='tw-py-3 tw-px-3 tw-flex tw-gap-3 tw-bg-gray-900 tw-bg-opacity-50 tw-items-center'>
                 <div className='tw-flex tw-items-center tw-justify-center tw-h-14 tw-w-12 tw-min-h-14 tw-min-w-12 tw-max-h-14 tw-max-w-12'>
@@ -228,7 +270,7 @@ const Overlay = ({ isNotificationSound }: { isNotificationSound: boolean }) => {
           ) : data.gameCode == 'djmax_respect_v' ? (
             <div
               key={id}
-              className={`tw-w-full tw-cursor-pointer tw-text-sm tw-bg-opacity-80 tw-relative tw-text-white tw-rounded-lg tw-overflow-hidden tw-shadow-lg ${fadeOut[id] ? 'tw-animate-fadeOut' : 'tw-animate-fadeIn'}`}
+              className={`tw-w-full tw-bg-gray-950 tw-cursor-pointer tw-text-sm tw-bg-opacity-80 tw-relative tw-text-white tw-rounded-lg tw-overflow-hidden tw-shadow-lg ${fadeOut[id] ? 'tw-animate-fadeOut' : 'tw-animate-fadeIn'}`}
             >
               <div className='tw-absolute tw-inset-0 tw-overflow-hidden tw-rounded-md tw-z-0'>
                 <Image
@@ -302,7 +344,7 @@ const Overlay = ({ isNotificationSound }: { isNotificationSound: boolean }) => {
           ) : (
             <div
               key={id}
-              className={`wjmax_dlc_${data.songData.dlcCode} wjmax_dlc_logo_${data.songData.dlcCode} wjmax_dlc_logo_BG_${data.songData.dlcCode} tw-min-w-[400px] tw-cursor-pointer tw-text-sm tw-bg-opacity-80 tw-relative tw-text-white tw-rounded-lg tw-overflow-hidden tw-shadow-lg ${fadeOut[id] ? 'tw-animate-fadeOut' : 'tw-animate-fadeIn'}`}
+              className={`tw-bg-gray-950 wjmax_dlc_${data.songData.dlcCode} wjmax_dlc_logo_${data.songData.dlcCode} wjmax_dlc_logo_BG_${data.songData.dlcCode} tw-min-w-[400px] tw-cursor-pointer tw-text-sm tw-bg-opacity-80 tw-relative tw-text-white tw-rounded-lg tw-overflow-hidden tw-shadow-lg ${fadeOut[id] ? 'tw-animate-fadeOut' : 'tw-animate-fadeIn'}`}
             >
               <div className='tw-absolute tw-inset-0 tw-overflow-hidden tw-rounded-md tw-z-0'>
                 <Image
@@ -377,125 +419,189 @@ const Overlay = ({ isNotificationSound }: { isNotificationSound: boolean }) => {
         )}
       </div>
 
-      {/* 전일 기록 알림 - 별도의 fixed 포지션 */}
+      {/* 전일 기록과 최근 기록 알림 */}
       {notifications.map(
         ({ data, id }) =>
           data.gameCode === 'djmax_respect_v' &&
-          (() => {
-            const currentLevel = getCurrentPatternLevel(
-              data.songData,
-              `${data.button}B`,
-              data.pattern,
-            )
-
-            return (
-              patternToCode(data.pattern) === 'SC' &&
-              currentLevel &&
-              Number(currentLevel) >= 8 &&
-              (data.hardScore || data.maxScore) && (
-                <div
-                  key={`archive-${id}`}
-                  className={`tw-fixed tw-bottom-4 tw-right-4 tw-bg-gray-900/90 tw-rounded-lg tw-p-3 tw-shadow-lg tw-min-w-[300px] tw-max-w-[300px] ${fadeOut[id] ? 'tw-animate-fadeOut' : 'tw-animate-fadeIn'} `}
-                >
-                  <div className='tw-flex tw-items-center tw-gap-2 tw-mb-2'>
-                    <IconContext.Provider value={{ size: '20px', className: 'tw-text-amber-400' }}>
-                      <FaCrown />
-                    </IconContext.Provider>
-                    <span className='tw-text-sm tw-font-bold tw-text-amber-400'>
-                      전일 기록{' '}
-                      <sup className='tw-font-light tw-text-gray-200'>Powered by 전일 아카이브</sup>
-                    </span>
-                  </div>
-                  <div className='tw-flex tw-flex-col tw-gap-2'>
-                    {data.hardScore && (
-                      <div className='tw-bg-gray-600/25 tw-rounded tw-p-2'>
-                        <div className='tw-text-xs tw-font-bold tw-text-gray-200'>
-                          HARD JUDGEMENT
-                        </div>
-                        <div className='tw-flex tw-justify-between'>
-                          <div className='tw-text-sm tw-font-bold tw-text-gray-200'>
-                            {Number(data.hardScore.rate).toFixed(2)}%
-                          </div>
-                          {data.hardScore.max_combo && (
-                            <div className='tw-text-xs tw-font-bold tw-text-amber-400'>
-                              MAX COMBO
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    )}
-                    {data.maxScore && (
-                      <div className='tw-bg-gray-600/25 tw-rounded tw-p-2'>
-                        <div className='tw-text-xs tw-font-bold tw-text-gray-200'>
-                          MAX JUDGEMENT
-                        </div>
-                        <div className='tw-flex tw-justify-between'>
-                          <div className='tw-text-sm tw-font-bold tw-text-gray-200'>
-                            {Number(data.maxScore.rate).toFixed(2)}%
-                          </div>
-                          {data.maxScore.max_combo && (
-                            <div className='tw-text-xs tw-font-bold tw-text-amber-400'>
-                              MAX COMBO
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )
-            )
-          })(),
-      )}
-
-      {/* 최근 기록 알림 - 별도의 fixed 포지션 */}
-      {notifications.map(
-        ({ data, id }) =>
-          data.gameCode === 'djmax_respect_v' &&
-          data.recentHistory && (
+          (data.hardScore || data.maxScore || data.recentHistory) && (
             <div
-              key={`recent-${id}`}
-              className={`tw-fixed tw-bottom-4 tw-left-4 tw-bg-gray-900/90 tw-rounded-lg tw-p-3 tw-shadow-lg tw-min-w-[300px] tw-max-w-[300px] ${
-                fadeOut[id] ? 'tw-animate-fadeOut' : 'tw-animate-fadeIn'
+              key={`records-${id}`}
+              className={`tw-fixed tw-flex-col tw-right-4 tw-top-1/2 tw-flex tw-gap-2 ${
+                fadeOut[id] ? 'tw-animate-slideOutRight' : 'tw-animate-slideInRight'
               }`}
             >
-              <div className='tw-flex tw-items-center tw-gap-2 tw-mb-2'>
-                <IconContext.Provider value={{ size: '20px', className: 'tw-text-blue-400' }}>
-                  <FaCircleInfo />
-                </IconContext.Provider>
-                <span className='tw-text-sm tw-font-bold tw-text-blue-400'>최근 기록</span>
-              </div>
-              <div className='tw-flex tw-flex-col tw-gap-2'>
-                {data.recentHistory.length > 0 ? (
-                  // 최대 5개까지만 표시하고 역순으로 정렬
-                  [...data.recentHistory]
-                    .slice(0, 5)
-                    .reverse()
-                    .map((history, index) => (
-                      <div key={history.historyId} className='tw-bg-gray-600/25 tw-rounded tw-p-2'>
-                        <div className='tw-flex tw-flex-col tw-gap-1'>
-                          <div className='tw-text-xs tw-font-bold tw-text-gray-200'>
-                            {dayjs(history.playedAt).format('YYYY-MM-DD HH:mm:ss')}
-                          </div>
-                          <div className='tw-flex tw-justify-between tw-items-center'>
-                            <div className='tw-text-sm tw-font-bold tw-text-gray-200'>
-                              {Number(history.score).toFixed(2)}%
-                            </div>
-                            {history.maxCombo && (
-                              <div className='tw-text-xs tw-font-bold tw-text-amber-400'>
-                                MAX COMBO
+              {/* 전일 기록 */}
+              {(() => {
+                const currentLevel = getCurrentPatternLevel(
+                  data.songData,
+                  `${data.button}B`,
+                  data.pattern,
+                )
+
+                return (
+                  patternToCode(data.pattern) === 'SC' &&
+                  currentLevel &&
+                  Number(currentLevel) >= 8 &&
+                  (data.hardScore || data.maxScore) && (
+                    <div className='tw-bg-gray-950 tw-rounded-lg tw-shadow-lg tw-min-w-[320px] tw-max-w-[320px] tw-relative tw-overflow-hidden tw-flex tw-flex-col tw-gap-2'>
+                      <div className='tw-absolute tw-inset-0 tw-overflow-hidden tw-rounded-md tw-z-0'>
+                        <Image
+                          src={`/images/djmax_respect_v/jackets/${data.songData.title}.jpg`}
+                          layout='fill'
+                          objectFit='cover'
+                          alt=''
+                          className='tw-opacity-75 tw-blur-xl'
+                        />
+                      </div>
+                      <div className='tw-p-3 tw-relative tw-z-10 tw-bg-gray-950 tw-bg-opacity-75'>
+                        <div className='tw-flex tw-items-center tw-gap-2 tw-mb-2'>
+                          <IconContext.Provider
+                            value={{ size: '16px', className: 'tw-text-amber-400' }}
+                          >
+                            <FaCrown />
+                          </IconContext.Provider>
+                          <span className='tw-text-sm tw-font-bold tw-text-amber-400'>
+                            전일 기록{' '}
+                            {/* <sup className='tw-font-light tw-text-gray-400'>
+                              Powered by 전일 아카이브
+                            </sup> */}
+                          </span>
+                        </div>
+                        <div className='tw-flex tw-flex-col tw-gap-2'>
+                          {data.hardScore && (
+                            <div className='tw-bg-gray-900/50 tw-rounded tw-p-2 tw-flex tw-flex-col tw-gap-2'>
+                              <div className='tw-flex tw-items-center tw-gap-2'>
+                                <div className='tw-flex tw-items-center tw-gap-2'>
+                                  <div className='tw-flex tw-items-center tw-gap-1 tw-px-2 tw-py-1 tw-rounded-md tw-bg-gray-600/25 tw-bg-opacity-75 tw-min-w-12 tw-text-center tw-justify-center'>
+                                    <span className='tw-text-xs tw-font-bold'>
+                                      {String(data.button).replace('B', '')}B
+                                    </span>
+                                  </div>
+                                  <div className='tw-flex tw-items-center tw-gap-1 tw-px-2 tw-py-1 tw-rounded-md tw-bg-gray-600/25 tw-bg-opacity-75 tw-min-w-20 tw-text-center tw-justify-center'>
+                                    <span className='tw-text-xs tw-font-bold'>{data.pattern}</span>
+                                  </div>
+                                  <div className='tw-flex tw-items-center tw-gap-1 tw-px-2 tw-py-1 tw-rounded-md tw-bg-gray-600/25 tw-bg-opacity-75 tw-min-w-20 tw-text-center tw-justify-center'>
+                                    <span className='tw-text-xs tw-font-bold'>HARD JUDGE</span>
+                                  </div>
+                                </div>
                               </div>
-                            )}
-                          </div>
+                              <div className='tw-flex tw-justify-between tw-items-center'>
+                                <div className='tw-text-sm tw-font-bold tw-text-gray-200'>
+                                  {Number(data.hardScore.rate).toFixed(2)}%
+                                  {data.hardScore.max_combo && (
+                                    <span className='tw-text-xs tw-font-bold tw-text-amber-400'>
+                                      {' '}
+                                      (MAX COMBO)
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                          {data.maxScore && (
+                            <div className='tw-bg-gray-900/50 tw-rounded tw-p-2 tw-flex tw-flex-col tw-gap-2'>
+                              <div className='tw-flex tw-items-center tw-gap-2'>
+                                <div className='tw-flex tw-items-center tw-gap-2'>
+                                  <div className='tw-flex tw-items-center tw-gap-1 tw-px-2 tw-py-1 tw-rounded-md tw-bg-gray-600/25 tw-bg-opacity-75 tw-min-w-12 tw-text-center tw-justify-center'>
+                                    <span className='tw-text-xs tw-font-bold'>
+                                      {String(data.button).replace('B', '')}B
+                                    </span>
+                                  </div>
+                                  <div className='tw-flex tw-items-center tw-gap-1 tw-px-2 tw-py-1 tw-rounded-md tw-bg-gray-600/25 tw-bg-opacity-75 tw-min-w-20 tw-text-center tw-justify-center'>
+                                    <span className='tw-text-xs tw-font-bold'>{data.pattern}</span>
+                                  </div>
+                                  <div className='tw-flex tw-items-center tw-gap-1 tw-px-2 tw-py-1 tw-rounded-md tw-bg-gray-600/25 tw-bg-opacity-75 tw-min-w-20 tw-text-center tw-justify-center'>
+                                    <span className='tw-text-xs tw-font-bold'>MAX JUDGE</span>
+                                  </div>
+                                </div>
+                              </div>
+                              <div className='tw-flex tw-justify-between tw-items-center'>
+                                <div className='tw-text-sm tw-font-bold tw-text-gray-200'>
+                                  {Number(data.maxScore.rate).toFixed(2)}%
+                                  {data.maxScore.max_combo && (
+                                    <span className='tw-text-xs tw-font-bold tw-text-amber-400'>
+                                      {' '}
+                                      (MAX COMBO)
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          )}
                         </div>
                       </div>
-                    ))
-                ) : (
-                  <div className='tw-text-sm tw-text-gray-400 tw-text-center tw-py-2'>
-                    RACLA 데이터베이스에 해당 수록곡의 사용자 최근 기록이 없습니다.
+                    </div>
+                  )
+                )
+              })()}
+
+              {/* 최근 기록 */}
+              {data.recentHistory && (
+                <div className='tw-bg-gray-950 tw-rounded-lg tw-shadow-lg tw-min-w-[320px] tw-max-w-[320px] tw-relative tw-overflow-hidden'>
+                  <div className='tw-absolute tw-inset-0 tw-overflow-hidden tw-rounded-md tw-z-0'>
+                    <Image
+                      src={`/images/djmax_respect_v/jackets/${data.songData.title}.jpg`}
+                      layout='fill'
+                      objectFit='cover'
+                      alt=''
+                      className='tw-opacity-75 tw-blur-xl'
+                    />
                   </div>
-                )}
-              </div>
+                  <div className='tw-p-3 tw-relative tw-z-10 tw-bg-gray-950 tw-bg-opacity-75'>
+                    <div className='tw-flex tw-items-center tw-gap-2 tw-mb-2'>
+                      <IconContext.Provider value={{ size: '16px', className: 'tw-text-blue-400' }}>
+                        <FaDatabase />
+                      </IconContext.Provider>
+                      <span className='tw-text-sm tw-font-bold tw-text-blue-400'>최근 기록</span>
+                    </div>
+                    <div className='tw-flex tw-flex-col tw-gap-2'>
+                      {data.recentHistory.length > 0 ? (
+                        [...data.recentHistory]
+                          .slice(0, 5)
+                          .reverse()
+                          .map((history) => (
+                            <div
+                              key={history.historyId}
+                              className='tw-bg-gray-900/50 tw-rounded tw-p-2 tw-flex tw-flex-col tw-gap-2'
+                            >
+                              <div className='tw-flex tw-items-center tw-gap-2'>
+                                <div className='tw-flex tw-items-center tw-gap-2'>
+                                  <div className='tw-flex tw-items-center tw-gap-1 tw-px-2 tw-py-1 tw-rounded-md tw-bg-gray-600/25 tw-bg-opacity-75 tw-min-w-12 tw-text-center tw-justify-center'>
+                                    <span className='tw-text-xs tw-font-bold'>
+                                      {String(data.button).replace('B', '')}B
+                                    </span>
+                                  </div>
+                                  <div className='tw-flex tw-items-center tw-gap-1 tw-px-2 tw-py-1 tw-rounded-md tw-bg-gray-600/25 tw-bg-opacity-75 tw-min-w-20 tw-text-center tw-justify-center'>
+                                    <span className='tw-text-xs tw-font-bold'>{data.pattern}</span>
+                                  </div>
+                                </div>
+                              </div>
+                              <div className='tw-flex tw-justify-between tw-items-center'>
+                                <div className='tw-text-sm tw-font-bold tw-text-gray-200'>
+                                  {Number(history.score).toFixed(2)}%
+                                  {history.maxCombo && (
+                                    <span className='tw-text-xs tw-font-bold tw-text-amber-400'>
+                                      {' '}
+                                      (MAX COMBO)
+                                    </span>
+                                  )}
+                                </div>
+
+                                <div className='tw-text-xs tw-font-bold tw-text-gray-400'>
+                                  {dayjs(history.playedAt).format('YYYY-MM-DD HH:mm:ss')}
+                                </div>
+                              </div>
+                            </div>
+                          ))
+                      ) : (
+                        <div className='tw-text-sm tw-text-gray-400 tw-text-center tw-py-2'>
+                          RACLA 데이터베이스에 해당 수록곡의 사용자 최근 기록이 없습니다.
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           ),
       )}

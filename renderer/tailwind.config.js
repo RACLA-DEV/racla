@@ -2,7 +2,11 @@ const colors = require('tailwindcss/colors')
 
 module.exports = {
   prefix: 'tw-',
-  content: ['./renderer/pages/**/*.{js,ts,jsx,tsx}', './renderer/src/components/**/*.{js,ts,jsx,tsx}', './renderer/src/layout/**/*.{js,ts,jsx,tsx}'],
+  content: [
+    './renderer/pages/**/*.{js,ts,jsx,tsx}',
+    './renderer/src/components/**/*.{js,ts,jsx,tsx}',
+    './renderer/src/layout/**/*.{js,ts,jsx,tsx}',
+  ],
   theme: {
     colors: {
       // use colors only specified
@@ -48,7 +52,8 @@ module.exports = {
     safelist: ['tw-text-wjmax-nm', 'tw-text-wjmax-hd', 'tw-text-wjmax-mx', 'tw-text-wjmax-sc'],
     extend: {
       textShadow: {
-        outline: '-1px -1px 3px rgba(0, 0, 0, 0.75), 1px -1px 3px rgba(0, 0, 0, 0.75), -1px 1px 3px rgba(0, 0, 0, 0.75), 1px 1px 3px rgba(0, 0, 0, 0.75)',
+        outline:
+          '-1px -1px 3px rgba(0, 0, 0, 0.75), 1px -1px 3px rgba(0, 0, 0, 0.75), -1px 1px 3px rgba(0, 0, 0, 0.75), 1px 1px 3px rgba(0, 0, 0, 0.75)',
       },
       animation: {
         fadeInDown: 'fadeInDown 0.5s ease-out forwards',
@@ -63,6 +68,8 @@ module.exports = {
         fadeInSlideRight: 'fadeInSlideRight 0.4s ease-out',
         fadeOutSlideRight: 'fadeOutSlideRight 0.4s ease-in forwards',
         gradientSlide: 'gradientSlide 10s ease infinite',
+        slideInRight: 'slideInRight 0.5s ease-out forwards',
+        slideOutRight: 'slideOutRight 0.5s ease-in forwards',
       },
       keyframes: {
         gradientSlide: {
@@ -120,6 +127,26 @@ module.exports = {
           },
           '100%': {
             transform: 'translateX(100%)',
+            opacity: '0',
+          },
+        },
+        slideInRight: {
+          '0%': {
+            transform: 'translateX(100%) translateY(-50%)',
+            opacity: '0',
+          },
+          '100%': {
+            transform: 'translateX(0) translateY(-50%)',
+            opacity: '1',
+          },
+        },
+        slideOutRight: {
+          '0%': {
+            transform: 'translateX(0) translateY(-50%)',
+            opacity: '1',
+          },
+          '100%': {
+            transform: 'translateX(100%) translateY(-50%)',
             opacity: '0',
           },
         },

@@ -22,6 +22,7 @@ const handler = {
   getSetting: () => ipcRenderer.send('getSetting'),
   getSession: () => ipcRenderer.send('getSession'),
   getSessionToWidget: () => ipcRenderer.send('getSessionToWidget'),
+  getSettingToWidget: () => ipcRenderer.send('getSettingToWidget'),
   putSongData: (songData: any, gameCode: string) =>
     ipcRenderer.send('putSongData', { songData, gameCode }),
   getSongData: (gameCode: string) => ipcRenderer.send('getSongData', gameCode),

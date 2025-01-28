@@ -1,17 +1,16 @@
-import { globalDictionary } from '@/libs/server/globalDictionary'
 import Head from 'next/head'
 import Image from 'next/image'
 import { useEffect, useState } from 'react'
-import { IconContext } from 'react-icons'
-import { FaCircleCheck, FaCircleInfo, FaCircleXmark, FaCrown } from 'react-icons/fa6'
+import { FaCircleInfo } from 'react-icons/fa6'
 import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from 'store'
 import { setSettingData } from 'store/slices/appSlice'
 
-const OverlaySetting = () => {
+const OverlaySetting = ({ setSelectedImage }: { setSelectedImage: (image: string) => void }) => {
   const dispatch = useDispatch()
   const { settingData, songData } = useSelector((state: RootState) => state.app)
   const [data, setData] = useState<any | null>(null)
+  const [image, setImage] = useState<string | null>('RESULT_OVERLAY_EXAMPLE.png')
 
   useEffect(() => {
     if (songData) {
@@ -51,191 +50,171 @@ const OverlaySetting = () => {
             </div>
           </div>
         </div>
+        <div className='tw-flex tw-gap-4'>
+          <div className='tw-flex tw-flex-col tw-gap-4 tw-flex-1'>
+            <div
+              className='tw-flex-1 tw-flex tw-flex-col tw-gap-1 tw-bg-gray-600 tw-bg-opacity-10 tw-rounded-md p-4'
+              onMouseEnter={() => setImage('RESULT_OVERLAY_EXAMPLE_UPLOAD.png')}
+              onMouseLeave={() => setImage('RESULT_OVERLAY_EXAMPLE.png')}
+            >
+              <div className='tw-flex tw-flex-col tw-gap-1'>
+                <div className='tw-flex tw-items-center'>
+                  <span className='tw-text-sm'>결과 오버레이 표시</span>
+                  <button
+                    className={`tw-scale-50 tw-relative tw-inline-flex tw-items-center tw-h-8 tw-w-16 tw-rounded-full tw-transition-colors tw-duration-300 ${
+                      settingData.resultOverlay ? 'tw-bg-blue-600' : 'tw-bg-gray-600'
+                    }`}
+                    onClick={() => {
+                      handleSettingChange({ resultOverlay: !settingData.resultOverlay })
+                    }}
+                  >
+                    <span
+                      className={`tw-inline-block tw-h-6 tw-w-6 tw-bg-white tw-rounded-full tw-absolute tw-shadow tw-transform tw-transition-all tw-duration-300 ${
+                        settingData.resultOverlay ? 'tw-right-1' : 'tw-left-1'
+                      }`}
+                    />
+                  </button>
+                </div>
+                <span className='tw-text-sm tw-font-light tw-text-gray-400 tw-break-keep tw-mb-2'>
+                  DJMAX RESPECT V, WJMAX 에서 자동 캡쳐 또는 수동 캡쳐 모드에서 캡쳐한 결과와 처리
+                  과정을 인게임 오버레이로 표시합니다. DJMAX RESPECT V는 V-ARCHIVE와 연동이
+                  필요하며, 버서스/래더 매치 화면은 지원하지 않습니다.
+                </span>
+              </div>
+            </div>
 
-        <div className='tw-flex tw-flex-col tw-gap-1 tw-bg-gray-600 tw-bg-opacity-10 tw-rounded-md tw-mb-4 p-4'>
-          <div className='tw-flex tw-flex-col tw-gap-1'>
-            <div className='tw-flex tw-items-center'>
-              <span className='tw-text-sm'>결과 오버레이 표시</span>
-              <button
-                className={`tw-scale-50 tw-relative tw-inline-flex tw-items-center tw-h-8 tw-w-16 tw-rounded-full tw-transition-colors tw-duration-300 ${
-                  settingData.resultOverlay ? 'tw-bg-blue-600' : 'tw-bg-gray-600'
-                }`}
-                onClick={() => {
-                  handleSettingChange({ resultOverlay: !settingData.resultOverlay })
-                }}
-              >
-                <span
-                  className={`tw-inline-block tw-h-6 tw-w-6 tw-bg-white tw-rounded-full tw-absolute tw-shadow tw-transform tw-transition-all tw-duration-300 ${
-                    settingData.resultOverlay ? 'tw-right-1' : 'tw-left-1'
-                  }`}
-                />
-              </button>
+            <div
+              className='tw-flex-1 tw-flex tw-flex-col tw-gap-1 tw-bg-gray-600 tw-bg-opacity-10 tw-rounded-md p-4'
+              onMouseEnter={() => setImage('RESULT_OVERLAY_EXAMPLE_HJA.png')}
+              onMouseLeave={() => setImage('RESULT_OVERLAY_EXAMPLE.png')}
+            >
+              <div className='tw-flex tw-flex-col tw-gap-1'>
+                <div className='tw-flex tw-items-center'>
+                  <span className='tw-text-sm'>결과 오버레이 표시 시 전일 기록 오버레이 표시</span>
+                  <button
+                    className={`tw-scale-50 tw-relative tw-inline-flex tw-items-center tw-h-8 tw-w-16 tw-rounded-full tw-transition-colors tw-duration-300 ${
+                      settingData.hjaOverlay ? 'tw-bg-blue-600' : 'tw-bg-gray-600'
+                    }`}
+                    onClick={() => {
+                      handleSettingChange({ hjaOverlay: !settingData.hjaOverlay })
+                    }}
+                  >
+                    <span
+                      className={`tw-inline-block tw-h-6 tw-w-6 tw-bg-white tw-rounded-full tw-absolute tw-shadow tw-transform tw-transition-all tw-duration-300 ${
+                        settingData.hjaOverlay ? 'tw-right-1' : 'tw-left-1'
+                      }`}
+                    />
+                  </button>
+                </div>
+                <span className='tw-text-sm tw-font-light tw-text-gray-400 tw-break-keep tw-mb-2'>
+                  DJMAX RESPECT V의 결과 오버레이 표시 시 전일 아카이브에 등록된 최고 기록 정보를
+                  표시합니다.
+                </span>
+              </div>
             </div>
-            <span className='tw-text-sm tw-font-light tw-text-gray-400 tw-break-keep tw-mb-2'>
-              자동 캡쳐 또는 수동 캡쳐 모드에서 캡쳐한 결과와 처리 과정을 예시와 같이 인게임
-              오버레이(중앙 하단 최대 600px)로 표시합니다. 단 버서스/래더 매치 화면은 지원하지
-              않습니다.
-            </span>
-          </div>
-        </div>
 
-        <div className='tw-flex tw-flex-col tw-gap-1 tw-bg-gray-600 tw-bg-opacity-10 tw-rounded-md p-4'>
-          <div className='tw-flex tw-gap-2'>
             <div
-              className={`tw-bg-lime-600 tw-flex-1 tw-text-xs tw-bg-opacity-80 tw-relative tw-text-white tw-rounded-lg tw-overflow-hidden tw-shadow-lg tw-mb-2`}
+              className='tw-flex-1 tw-flex tw-flex-col tw-gap-1 tw-bg-gray-600 tw-bg-opacity-10 tw-rounded-md p-4'
+              onMouseEnter={() => setImage('RESULT_OVERLAY_EXAMPLE_RECENT.png')}
+              onMouseLeave={() => setImage('RESULT_OVERLAY_EXAMPLE.png')}
             >
-              <div className='tw-py-3 tw-px-3 tw-flex tw-gap-3 tw-bg-gray-900 tw-bg-opacity-50 tw-items-center'>
-                <IconContext.Provider value={{ size: '60px', className: 'tw-text-gray-200' }}>
-                  <FaCircleCheck />
-                </IconContext.Provider>
-                <div className='tw-flex tw-flex-col tw-gap-1'>
-                  <div className='tw-flex tw-gap-3'>
-                    <span className='tw-text-sm tw-font-light tw-text-gray-200 tw-break-keep'>
-                      게임 화면 인식을 시작합니다. 잠시만 기다려주세요.
-                    </span>
-                  </div>
+              <div className='tw-flex tw-flex-col tw-gap-1'>
+                <div className='tw-flex tw-items-center'>
+                  <span className='tw-text-sm'>결과 오버레이 표시 시 최근 기록 오버레이 표시</span>
+                  <button
+                    className={`tw-scale-50 tw-relative tw-inline-flex tw-items-center tw-h-8 tw-w-16 tw-rounded-full tw-transition-colors tw-duration-300 ${
+                      settingData.recentOverlay ? 'tw-bg-blue-600' : 'tw-bg-gray-600'
+                    }`}
+                    onClick={() => {
+                      handleSettingChange({ recentOverlay: !settingData.recentOverlay })
+                    }}
+                  >
+                    <span
+                      className={`tw-inline-block tw-h-6 tw-w-6 tw-bg-white tw-rounded-full tw-absolute tw-shadow tw-transform tw-transition-all tw-duration-300 ${
+                        settingData.recentOverlay ? 'tw-right-1' : 'tw-left-1'
+                      }`}
+                    />
+                  </button>
                 </div>
+                <span className='tw-text-sm tw-font-light tw-text-gray-400 tw-break-keep tw-mb-2'>
+                  DJMAX RESPECT V의 결과 오버레이 표시 시 해당 수록곡 패턴의 RACLA 최근 기록 정보를
+                  표시합니다.
+                </span>
               </div>
-              <div
-                className={`tw-absolute tw-bottom-0 tw-left-0 tw-h-1 tw-w-full tw-bg-white tw-bg-opacity-50`}
-                style={{ transform: 'translateX(-100%)' }}
-              />
-            </div>
-            <div
-              className={`tw-bg-blue-600 tw-flex-1 tw-text-xs tw-bg-opacity-80 tw-relative tw-text-white tw-rounded-lg tw-overflow-hidden tw-shadow-lg tw-mb-2`}
-            >
-              <div className='tw-py-3 tw-px-3 tw-flex tw-gap-3 tw-bg-gray-900 tw-bg-opacity-50 tw-items-center'>
-                <IconContext.Provider value={{ size: '60px', className: 'tw-text-gray-200' }}>
-                  <FaCircleInfo />
-                </IconContext.Provider>
-                <div className='tw-flex tw-flex-col tw-gap-1'>
-                  <div className='tw-flex tw-gap-3'>
-                    <span className='tw-text-sm tw-font-light tw-text-gray-200 tw-break-keep'>
-                      DJMAX RESPECT V(게임)의 게임 결과창이 자동 인식되어 성과 기록 이미지를 처리
-                      중에 있습니다. <br />
-                      잠시만 기다려주세요.
-                    </span>
-                  </div>
-                </div>
-              </div>
-              <div
-                className={`tw-absolute tw-bottom-0 tw-left-0 tw-h-1 tw-w-full tw-bg-white tw-bg-opacity-50`}
-                style={{ transform: 'translateX(-100%)' }}
-              />
             </div>
           </div>
-          <div className='tw-flex tw-gap-2'>
-            <div
-              className={`tw-bg-red-600 tw-flex-1 tw-text-xs tw-bg-opacity-80 tw-relative tw-text-white tw-rounded-lg tw-overflow-hidden tw-shadow-lg`}
-            >
-              <div className='tw-py-3 tw-px-3 tw-flex tw-gap-3 tw-bg-gray-900 tw-bg-opacity-50 tw-items-center'>
-                <IconContext.Provider value={{ size: '60px', className: 'tw-text-gray-200' }}>
-                  <FaCircleXmark />
-                </IconContext.Provider>
-                <div className='tw-flex tw-flex-col tw-gap-1'>
-                  <div className='tw-flex tw-gap-3'>
-                    <span className='tw-text-sm tw-font-light tw-text-gray-200 tw-break-keep'>
-                      게임 결과창이 아니거나 성과 기록 이미지를 처리 중에 오류가 발생하였습니다.{' '}
-                      <br />
-                      다시 시도해주시길 바랍니다.
-                    </span>
-                  </div>
-                </div>
-              </div>
-              <div
-                className={`tw-absolute tw-bottom-0 tw-left-0 tw-h-1 tw-w-full tw-bg-white tw-bg-opacity-50`}
-                style={{ transform: 'translateX(-100%)' }}
-              />
-            </div>
-            <div
-              className={`tw-bg-yellow-700 tw-flex-1 tw-text-xs tw-bg-opacity-80 tw-relative tw-text-white tw-rounded-lg tw-overflow-hidden tw-shadow-lg`}
-            >
-              <div className='tw-py-3 tw-px-3 tw-flex tw-gap-3 tw-bg-gray-900 tw-bg-opacity-50 tw-items-center'>
-                <IconContext.Provider value={{ size: '60px', className: 'tw-text-gray-200' }}>
-                  <FaCrown />
-                </IconContext.Provider>
-                <div className='tw-flex tw-flex-col tw-gap-1'>
-                  <div className='tw-flex tw-gap-3'>
-                    <span className='tw-text-sm tw-font-light tw-text-gray-200 tw-break-keep'>
-                      방금 전 업로드된 곡의 성과로 TOP50이 갱신되었습니다.
-                    </span>
-                  </div>
-                </div>
-              </div>
-              <div
-                className={`tw-absolute tw-bottom-0 tw-left-0 tw-h-1 tw-w-full tw-bg-white tw-bg-opacity-50`}
-                style={{ transform: 'translateX(-100%)' }}
-              />
-            </div>
-            <div
-              className={`respect_dlc_${data.dlcCode} respect_dlc_logo_${data.dlcCode} respect_dlc_logo_BG_${data.dlcCode} tw-text-xs tw-bg-opacity-80 tw-relative tw-text-white tw-rounded-lg tw-overflow-hidden tw-shadow-lg tw-flex-1`}
-            >
-              <div className='tw-py-3 tw-px-3 tw-flex tw-gap-3 tw-bg-gray-900 tw-bg-opacity-50 tw-items-center'>
+          <div className='tw-flex tw-flex-col tw-gap-1 tw-justify-center tw-items-center tw-bg-gray-600 tw-bg-opacity-10 tw-rounded-md p-4'>
+            <div className='tw-min-w-[512px] tw-w-[512px] tw-max-w-[512px] tw-min-h-[384px] tw-h-[384px] tw-max-h-[384px]'>
+              <div className='tw-relative tw-w-full tw-h-full tw-rounded tw-overflow-hidden'>
                 <Image
-                  loading='lazy' // "lazy" | "eager"
-                  blurDataURL={globalDictionary.blurDataURL}
-                  src={`/images/djmax_respect_v/jackets/${data.title}.jpg`}
-                  alt='title'
-                  width={60}
-                  height={60}
-                  className='tw-rounded-lg'
+                  src='https://ribbon.r-archive.zip/project_ra/RESULT_OVERLAY_EXAMPLE.png'
+                  alt='overlay-base'
+                  className='tw-cursor-pointer tw-rounded-lg tw-transition-opacity tw-duration-300'
+                  fill
+                  style={{
+                    objectFit: 'contain',
+                    opacity: image !== 'RESULT_OVERLAY_EXAMPLE.png' ? 0 : 1,
+                  }}
+                  onClick={() =>
+                    setSelectedImage(
+                      `https://ribbon.r-archive.zip/project_ra/RESULT_OVERLAY_EXAMPLE.png?full=1`,
+                    )
+                  }
+                  referrerPolicy='origin'
                 />
-                <div className='tw-flex tw-flex-col tw-gap-1 tw-flex-1'>
-                  <span className='tw-text-lg tw-font-bold'>{data.name}</span>
-                  <div className='tw-flex tw-gap-3 tw-flex-1'>
-                    <span className='tw-text-sm tw-font-light tw-text-gray-200'>4B</span>
-                    <span className='tw-text-sm tw-font-light tw-text-gray-200'>SC</span>
-                    {100 === 100 ? (
-                      <span className='tw-text-sm tw-font-light tw-text-gray-200'>PERFECT</span>
-                    ) : (
-                      <>
-                        <span className='tw-text-sm tw-font-light tw-text-gray-200'>100.00%</span>
-                        <span className='tw-text-sm tw-font-light tw-text-gray-200'>
-                          {1 === 1 ? 'MAX COMBO' : ''}
-                        </span>
-                      </>
-                    )}
-                    <span className='tw-ms-auto tw-text-sm tw-font-light tw-text-gray-200'>
-                      업로드 성공
-                    </span>
-                  </div>
-                </div>
-              </div>
-              <div
-                className={`tw-absolute tw-bottom-0 tw-left-0 tw-h-1 tw-w-full tw-bg-white tw-bg-opacity-50`}
-              />
-            </div>
-          </div>
-        </div>
 
-        <div className='tw-mt-4 tw-flex tw-flex-col tw-gap-1 tw-bg-gray-600 tw-bg-opacity-10 tw-rounded-md tw-mb-4 p-4'>
-          <div className='tw-flex tw-flex-col tw-gap-1'>
-            <div className='tw-flex tw-items-center'>
-              <span className='tw-text-sm'>결과 오버레이 표시 시 전일 기록 오버레이 표시</span>
-              <button
-                disabled={true}
-                className={`tw-scale-50 tw-relative tw-inline-flex tw-items-center tw-h-8 tw-w-16 tw-rounded-full tw-transition-colors tw-duration-300 ${
-                  true ? 'tw-bg-blue-600' : 'tw-bg-gray-600'
-                }`}
-                onClick={() => {
-                  // handleSettingChange({ resultOverlay: !settingData.resultOverlay })
-                }}
-              >
-                <span
-                  className={`tw-inline-block tw-h-6 tw-w-6 tw-bg-white tw-rounded-full tw-absolute tw-shadow tw-transform tw-transition-all tw-duration-300 ${
-                    true ? 'tw-right-1' : 'tw-left-1'
-                  }`}
+                <Image
+                  src='https://ribbon.r-archive.zip/project_ra/RESULT_OVERLAY_EXAMPLE_UPLOAD.png'
+                  alt='overlay-upload'
+                  className='tw-cursor-pointer tw-rounded-lg tw-transition-opacity tw-duration-300 tw-absolute tw-inset-0'
+                  style={{
+                    objectFit: 'contain',
+                    opacity: image !== 'RESULT_OVERLAY_EXAMPLE_UPLOAD.png' ? 0 : 1,
+                  }}
+                  fill
+                  onClick={() =>
+                    setSelectedImage(
+                      `https://ribbon.r-archive.zip/project_ra/RESULT_OVERLAY_EXAMPLE.png?full=1`,
+                    )
+                  }
+                  referrerPolicy='origin'
                 />
-              </button>
+
+                <Image
+                  src='https://ribbon.r-archive.zip/project_ra/RESULT_OVERLAY_EXAMPLE_HJA.png'
+                  alt='overlay-hja'
+                  className='tw-cursor-pointer tw-rounded-lg tw-transition-opacity tw-duration-300 tw-absolute tw-inset-0'
+                  style={{
+                    objectFit: 'contain',
+                    opacity: image !== 'RESULT_OVERLAY_EXAMPLE_HJA.png' ? 0 : 1,
+                  }}
+                  fill
+                  onClick={() =>
+                    setSelectedImage(
+                      `https://ribbon.r-archive.zip/project_ra/RESULT_OVERLAY_EXAMPLE.png?full=1`,
+                    )
+                  }
+                  referrerPolicy='origin'
+                />
+
+                <Image
+                  src='https://ribbon.r-archive.zip/project_ra/RESULT_OVERLAY_EXAMPLE_RECENT.png'
+                  alt='overlay-recent'
+                  className='tw-cursor-pointer tw-rounded-lg tw-transition-opacity tw-duration-300 tw-absolute tw-inset-0'
+                  style={{
+                    objectFit: 'contain',
+                    opacity: image !== 'RESULT_OVERLAY_EXAMPLE_RECENT.png' ? 0 : 1,
+                  }}
+                  fill
+                  onClick={() =>
+                    setSelectedImage(
+                      `https://ribbon.r-archive.zip/project_ra/RESULT_OVERLAY_EXAMPLE.png?full=1`,
+                    )
+                  }
+                  referrerPolicy='origin'
+                />
+              </div>
             </div>
-            <span className='tw-text-sm tw-font-light tw-text-gray-400 tw-break-keep tw-mb-2'>
-              DJMAX RESPECT V의 결과 오버레이 표시 시 전일 아카이브의 전일 기록 정보를 표시합니다.
-              해당 정보는 다른 사용자가 갱신한 기록으로서 사용자가 관련 정보를 참고하기 위해
-              사용되며 추후 전일 아카이브와 기록 등록 등의 연동 기능이 추가되는 경우 사용자의
-              기록으로 대체될 수 있습니다. <br />
-              해당 옵션은 RACLA 0.7.2 버전 기준 전일 아카이브 연동 초기 기능으로 통계 데이터 수집을
-              위해 강제적으로 활성화되며 비활성화할 수 없습니다.
-            </span>
           </div>
         </div>
         <div id='ContentFooter' />

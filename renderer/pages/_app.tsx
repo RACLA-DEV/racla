@@ -5,7 +5,6 @@ import '@styles/globals.css';
 
 import { AnimatePresence, motion } from 'framer-motion'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { addNotification, removeNotification } from 'store/slices/notificationSlice'
 import {
   setCollectionData,
   setIsDetectedGame,
@@ -21,28 +20,29 @@ import {
   setVArchiveUserData,
   setWjmaxSongData,
 } from 'store/slices/appSlice'
+import { addNotification, removeNotification } from 'store/slices/notificationSlice'
 import { setFontFamily, setIsDjCommentOpen } from 'store/slices/uiSlice'
 
-import type { AppProps } from 'next/app'
-import BackgroundVideoComponent from '@/components/layout/BackgroundVideoComponent'
 import FooterComponent from '@/components/footer/FooterComponent'
 import HeaderComponent from '@/components/header/HeaderComponent'
+import BackgroundVideoComponent from '@/components/layout/BackgroundVideoComponent'
 import HomePanelComponent from '@/components/layout/HomePanelComponent'
-import { IUserNameResponse } from '@/types/IUserName'
-import Image from 'next/image'
 import ImageViewerComponent from '@/components/layout/ImageViewerComponent'
 import NotificationComponent from '@/components/notification/NotificationComponent'
+import { IUserNameResponse } from '@/types/IUserName'
+import type { AppProps } from 'next/app'
+import Image from 'next/image'
 import { Provider } from 'react-redux'
 // import { setIsDetectedGame, setSettingData, setUserData, setUploadedData, setVArchiveSongData } from 'store/slices/appSlice'
 import SettingComponent from '@/components/layout/SettingComponent'
 import SidebarComponent from '@/components/sidebar/SidebarComponent'
-import { SyncLoader } from 'react-spinners'
+import { logRendererError } from '@/libs/client/rendererLogger'
 import axios from 'axios'
 import localFont from 'next/font/local'
-import { logRendererError } from '@/libs/client/rendererLogger'
-import { store } from 'store'
 import { useParams } from 'next/navigation'
 import { useRouter } from 'next/router'
+import { SyncLoader } from 'react-spinners'
+import { store } from 'store'
 import { v4 as uuidv4 } from 'uuid'
 
 const noto = localFont({
@@ -843,7 +843,7 @@ function MyApp({ Component, pageProps }: AppProps) {
                     style={{ width: '100%' }}
                     className='tw-overflow-x-hidden'
                   >
-                    <Component {...pageProps} />
+                    <Component {...pageProps} setSelectedImage={setSelectedImage} />
                   </motion.div>
                 </AnimatePresence>
 

@@ -1856,6 +1856,8 @@ textarea.ant-input::placeholder {
 .ck-editor__editable {
   border: 1px solid #374151 !important;
   background-color: #374151 !important;
+  padding-right: 24px !important;
+  padding-left: 24px !important;
   min-height: calc(100vh - 344px);
   max-height: calc(100vh - 344px);
   overflow-y: auto;

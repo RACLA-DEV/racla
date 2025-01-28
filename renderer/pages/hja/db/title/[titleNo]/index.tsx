@@ -314,7 +314,7 @@ export default function VArchiveDbTitlePage() {
                                 return (
                                   <div
                                     key={key}
-                                    className='tw-bg-gray-700 tw-bg-opacity-25 tw-rounded-lg tw-flex tw-flex-col tw-gap-2 tw-p-3 tw-h-[166px]'
+                                    className='tw-bg-gray-700 tw-bg-opacity-25 tw-rounded-lg tw-flex tw-flex-col tw-gap-2 tw-p-3 tw-h-[190px]'
                                   >
                                     {/* 기존 패턴 표시 코드 유지 */}
                                     <div className='tw-border-gray-700 tw-text-center'>
@@ -346,6 +346,9 @@ export default function VArchiveDbTitlePage() {
                                         </div>
                                         {record?.hard ? (
                                           <div className='tw-flex tw-flex-col tw-gap-1'>
+                                            <div className='tw-font-bold'>
+                                              {record.hard.nickname}
+                                            </div>
                                             <div className='tw-font-bold'>
                                               {record.hard.score.toLocaleString()}
                                             </div>
@@ -384,6 +387,9 @@ export default function VArchiveDbTitlePage() {
                                         {record?.max ? (
                                           <div className='tw-flex tw-flex-col tw-gap-1'>
                                             <div className='tw-font-bold'>
+                                              {record.max.nickname}
+                                            </div>
+                                            <div className='tw-font-bold'>
                                               {record.max.score.toLocaleString()}
                                             </div>
                                             <div className='tw-text-sm'>
@@ -404,7 +410,7 @@ export default function VArchiveDbTitlePage() {
                                 )
                               })
                             ) : (
-                              <div className='tw-text-center tw-text-gray-500 tw-bg-gray-900 tw-bg-opacity-50 tw-flex tw-items-center tw-justify-center tw-break-keep tw-rounded-lg tw-p-3 tw-h-[166px]'>
+                              <div className='tw-text-center tw-text-gray-500 tw-bg-gray-900 tw-bg-opacity-50 tw-flex tw-items-center tw-justify-center tw-break-keep tw-rounded-lg tw-p-3 tw-h-[190px]'>
                                 해당 수록곡의 {buttonType} 모드는 SC8(MX15) 이상의 패턴이 존재하지
                                 않거나 전일 아카이브에 등록되지 않은 패턴으로 조회 결과가 없습니다.
                               </div>

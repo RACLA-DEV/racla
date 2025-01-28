@@ -150,7 +150,10 @@ export default function LicensePage() {
                   6. 매달 50 SGD 상당의 서버 자산을 정기적으로 후원해주시는 KIHARU 후원자님
                 </p>
                 <p className='tw-leading-relaxed'>
-                  7. 마지막으로 RACLA를 사용해주시는 모든 사용자 여러분들께 감사합니다.
+                  7. RACLA 서비스에서 가장 많은 기여도를 주신 HanA 사용자님
+                </p>
+                <p className='tw-leading-relaxed'>
+                  8. 마지막으로 RACLA를 사용해주시는 모든 사용자 여러분들께 감사합니다.
                 </p>
               </div>
             </div>

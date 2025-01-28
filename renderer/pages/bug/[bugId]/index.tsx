@@ -123,12 +123,10 @@ export default function BugDetail() {
               <span className='tw-font-semibold'>작성 시간:</span>{' '}
               {moment(bug.createdAt).format('YYYY-MM-DD HH:mm:ss')}
             </p>
-            <div className='tw-bg-gray-800 tw-p-6 tw-rounded-lg tw-space-y-4'>
-              <p
-                className='tw-whitespace-pre-wrap'
-                dangerouslySetInnerHTML={{ __html: bug.description }}
-              />
-            </div>
+            <div
+              className='tw-bg-gray-800 tw-p-6 tw-rounded-lg tw-space-y-4 [&_ol]:tw-list-decimal [&_ol]:tw-ml-4 [&_ol]:tw-my-4 [&_ol>li]:tw-mb-4 [&_ol>li]:tw-leading-relaxed [&_ol_ol]:tw-list-disc [&_ol_ol]:tw-ml-8 [&_ol_ol]:tw-mt-2 [&_ol_ol>li]:tw-mb-2 [&_ol_ol>li]:tw-leading-relaxed [&_p]:tw-mb-6 [&_p]:tw-leading-relaxed [&_strong]:tw-block [&_strong]:tw-mb-4'
+              dangerouslySetInnerHTML={{ __html: bug.description }}
+            />
           </div>
 
           <div className='tw-space-y-4'>

@@ -980,6 +980,11 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
     mainWindow.webContents.send('IPC_RENDERER_GET_SETTING_DATA', settingData)
   })
 
+  ipcMain.on('getSettingToWidget', async (event) => {
+    const settingData = await getSettingData()
+    overlayWindow.webContents.send('IPC_RENDERER_GET_SETTING_DATA_TO_WIDGET', settingData)
+  })
+
   ipcMain.on('PROGRAM_LOADED', async () => {
     if (!isLoaded) {
       // 자동 업데이트 체크
@@ -1075,6 +1080,9 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
     if (mainWindow) {
       if (mainWindow.isMinimized()) {
         mainWindow.restore()
+      }
+      if (!mainWindow.isVisible) {
+        mainWindow.show()
       }
       mainWindow.focus()
 

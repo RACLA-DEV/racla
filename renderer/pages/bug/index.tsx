@@ -88,7 +88,7 @@ export default function BugList() {
         headers: { Authorization: `${userData.userNo}|${userData.userToken}` },
         withCredentials: true,
       })
-      setNotices(response.data)
+      setNotices((response.data as Bug[]).reverse())
     } catch (error) {
       logRendererError(error, { message: 'Error in fetchNotices', ...userData })
       console.error('Failed to fetch pinned notices:', error)
@@ -179,8 +179,6 @@ export default function BugList() {
     licenseKey: 'GPL',
     height: '600px',
     toolbar: [
-      'heading',
-      '|',
       'bold',
       'italic',
       'link',
