@@ -1,11 +1,9 @@
-import 'moment/locale/ko'
-
 import React, { useEffect, useState } from 'react'
 
 import { logRendererError } from '@/libs/client/rendererLogger'
 import axios from 'axios'
+import dayjs from 'dayjs'
 import { motion } from 'framer-motion'
-import moment from 'moment'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import { useSelector } from 'react-redux'
@@ -84,7 +82,7 @@ export default function BugDetail() {
 
   if (!bug) {
     return (
-      <div className='tw-min-h-screen tw-bg-gray-800 tw-bg-opacity-50 tw-flex tw-justify-center tw-items-center'>
+      <div className='tw-min-h-screen tw-bg-gray-600 tw-bg-opacity-20 tw-flex tw-justify-center tw-items-center'>
         <SyncLoader color='#ffffff' size={8} />
       </div>
     )
@@ -100,7 +98,7 @@ export default function BugDetail() {
         animate={{ opacity: 1, x: 0 }}
         className='tw-space-y-6'
       >
-        <div className='tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-p-6'>
+        <div className='tw-bg-gray-600 tw-bg-opacity-20 tw-rounded-lg tw-p-6'>
           <div className='tw-flex tw-items-center tw-justify-between tw-mb-4'>
             <h1 className='tw-text-2xl tw-font-bold'>{bug.title}</h1>
             <button
@@ -121,7 +119,7 @@ export default function BugDetail() {
             </p>
             <p className='tw-text-gray-400'>
               <span className='tw-font-semibold'>작성 시간:</span>{' '}
-              {moment(bug.createdAt).format('YYYY-MM-DD HH:mm:ss')}
+              {dayjs(bug.createdAt).format('YYYY-MM-DD HH:mm:ss')}
             </p>
             <div
               className='tw-bg-gray-800 tw-p-6 tw-rounded-lg tw-space-y-4 [&_ol]:tw-list-decimal [&_ol]:tw-ml-4 [&_ol]:tw-my-4 [&_ol>li]:tw-mb-4 [&_ol>li]:tw-leading-relaxed [&_ol_ol]:tw-list-disc [&_ol_ol]:tw-ml-8 [&_ol_ol]:tw-mt-2 [&_ol_ol>li]:tw-mb-2 [&_ol_ol>li]:tw-leading-relaxed [&_p]:tw-mb-6 [&_p]:tw-leading-relaxed [&_strong]:tw-block [&_strong]:tw-mb-4'
@@ -172,7 +170,7 @@ export default function BugDetail() {
                   <div className='tw-flex tw-justify-between tw-items-center tw-mb-2'>
                     <span className='tw-font-medium'>{comment.commenterName}</span>
                     <span className='tw-text-sm tw-text-gray-400'>
-                      {moment(comment.createdAt).format('YYYY-MM-DD HH:mm:ss')}
+                      {dayjs(comment.createdAt).format('YYYY-MM-DD HH:mm:ss')}
                     </span>
                   </div>
                   <p className='tw-whitespace-pre-wrap'>{comment.content}</p>

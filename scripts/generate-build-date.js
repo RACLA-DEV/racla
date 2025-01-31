@@ -1,8 +1,8 @@
 const fs = require('fs')
 
-const moment = require('moment')
+const dayjs = require('dayjs')
 
-const buildTime = moment().format('YYYYMMDDHHmm')
+const buildTime = dayjs().format('YYYYMMDDHHmm')
 
 fs.writeFileSync(
   './renderer/src/libs/server/buildInfo.ts',

@@ -1,10 +1,10 @@
 export const getDifficultyStarImage = (level: number, difficultyType: string): string => {
   const baseType = difficultyType === 'SC' ? 'nm' : 'nm'
 
-  if (level <= 5) return `/images/wjmax/${baseType}_5_star.png`
-  if (level <= 10) return `/images/wjmax/${baseType}_10_star.png`
-  if (level <= 15) return `/images/wjmax/${baseType}_15_star.png`
-  if (level <= 20) return `/images/wjmax/${baseType}_20_star.png`
+  if (difficultyType === 'NM') return `/images/wjmax/${baseType}_5_star.png`
+  if (difficultyType === 'HD') return `/images/wjmax/${baseType}_10_star.png`
+  if (difficultyType === 'MX') return `/images/wjmax/${baseType}_15_star.png`
+  if (difficultyType === 'SC') return `/images/wjmax/${baseType}_20_star.png`
   return `/images/wjmax/${baseType}_25_star.png`
 }
 
@@ -12,10 +12,10 @@ export const getDifficultyClassName = (level: number, difficultyType: string): s
   const baseClass = 'tw-text-base text-stroke-100 tw-font-extrabold'
   const difficultyClass = 'tw-text-wjmax'
 
-  if (level <= 5) return `${baseClass} ${difficultyClass}-nm`
-  if (level <= 10) return `${baseClass} ${difficultyClass}-hd`
-  if (level <= 15) return `${baseClass} ${difficultyClass}-mx`
-  if (level <= 20) return `${baseClass} ${difficultyClass}-sc`
+  if (difficultyType === 'NM') return `${baseClass} ${difficultyClass}-nm`
+  if (difficultyType === 'HD') return `${baseClass} ${difficultyClass}-hd`
+  if (difficultyType === 'MX') return `${baseClass} ${difficultyClass}-mx`
+  if (difficultyType === 'SC') return `${baseClass} ${difficultyClass}-sc`
   return `${baseClass} ${difficultyClass}-dpc`
 }
 

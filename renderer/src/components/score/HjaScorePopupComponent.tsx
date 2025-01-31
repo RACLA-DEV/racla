@@ -173,20 +173,20 @@ const HjaScorePopupComponent = ({
       overlay={
         <Tooltip
           id='btn-nav-home'
-          className={`tw-bg-gray-950 tw-bg-opacity-100 tw-text-xs tw-min-h-48 ${fontFamily}`}
+          className={`tw-bg-gray-900 tw-bg-opacity-100 tw-text-xs tw-min-h-48 ${fontFamily}`}
         >
           <div className='tw-flex tw-gap-2'>
             <style jsx global>{`
               .tooltip-inner {
                 opacity: 1 !important;
-                background-color: rgb(3 7 18) !important;
+                background-color: rgb(17 24 39) !important;
               }
               .tooltip.show {
                 opacity: 1 !important;
               }
             `}</style>
             <div className='tw-flex tw-flex-col'>
-              <div className='tw-flex tw-flex-col tw-w-80 tw-h-32 tw-relative tw-mb-2 tw-mt-1 tw-bg-gray-900 tw-bg-opacity-100 tw-overflow-hidden tw-rounded-md'>
+              <div className='tw-flex tw-flex-col tw-w-80 tw-h-32 tw-relative tw-mb-2 tw-mt-1 tw-bg-gray-800 tw-bg-opacity-100 tw-overflow-hidden tw-rounded-md'>
                 {inView && (
                   <Image
                     loading='lazy'
@@ -205,7 +205,7 @@ const HjaScorePopupComponent = ({
                   <br />
                   <span className='tw-text-xl'>{displayData?.name}</span>
                 </span>
-                <span className='tw-absolute tw-top-1 tw-right-1 respect_dlc_code_wrap tw-animate-fadeInLeft tw-rounded-md tw-bg-gray-950 p-1'>
+                <span className='tw-absolute tw-top-1 tw-right-1 respect_dlc_code_wrap tw-animate-fadeInLeft tw-rounded-md tw-bg-gray-900 p-1'>
                   <span
                     className={`respect_dlc_code respect_dlc_code_${displayData?.dlcCode ?? ''}`}
                   >
@@ -263,13 +263,13 @@ const HjaScorePopupComponent = ({
                                   : '0%',
                                 backgroundColor:
                                   value === 'NM'
-                                    ? '#f5bb01' // respect-nm-5
+                                    ? '#f6c700' // respect-nm-5
                                     : value === 'HD'
-                                      ? '#f95b08aa' // respect-nm-10
+                                      ? '#f9a06a' // respect-nm-10
                                       : value === 'MX'
-                                        ? '#f30253aa' // respect-nm-15
+                                        ? '#f57b8a' // respect-nm-15
                                         : value === 'SC'
-                                          ? '#3d66ff'
+                                          ? '#6a9eff'
                                           : '', // respect-sc-15
                               }}
                             />
@@ -367,13 +367,13 @@ const HjaScorePopupComponent = ({
                                     : '0%',
                                   backgroundColor:
                                     value === 'NM'
-                                      ? '#f5bb01' // respect-nm-5
+                                      ? '#f6c700' // respect-nm-5
                                       : value === 'HD'
-                                        ? '#f95b08aa' // respect-nm-10
+                                        ? '#f9a06a' // respect-nm-10
                                         : value === 'MX'
-                                          ? '#f30253aa' // respect-nm-15
+                                          ? '#f57b8a' // respect-nm-15
                                           : value === 'SC'
-                                            ? '#3d66ff'
+                                            ? '#6a9eff'
                                             : '', // respect-sc-15
                                 }}
                               />

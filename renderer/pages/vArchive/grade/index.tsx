@@ -1,19 +1,17 @@
-import 'moment/locale/ko'
-
 import * as R from 'ramda'
 
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
-import Head from 'next/head'
-import { RootState } from 'store'
 import ScorePopupComponent from '@/components/score/ScorePopupComponent'
-import { SyncLoader } from 'react-spinners'
-import { globalDictionary } from '@/libs/server/globalDictionary'
 import { logRendererError } from '@/libs/client/rendererLogger'
-import { setBackgroundBgaName } from 'store/slices/uiSlice'
+import { globalDictionary } from '@/libs/server/globalDictionary'
+import Head from 'next/head'
 import { useParams } from 'next/navigation'
 import { useRouter } from 'next/router'
+import { SyncLoader } from 'react-spinners'
+import { RootState } from 'store'
+import { setBackgroundBgaName } from 'store/slices/uiSlice'
 
 interface SongItem {
   title: number
@@ -283,7 +281,7 @@ export default function VArchiveDbPage() {
         <div className='tw-flex tw-flex-col tw-w-full tw-relative'>
           {/* 상단 설명 섹션 */}
           <div className='tw-flex tw-gap-4'>
-            <div className='tw-flex tw-flex-col tw-gap-4 tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-shadow-lg tw-p-6 tw-mb-4 tw-flex-1'>
+            <div className='tw-flex tw-flex-col tw-gap-4 tw-bg-gray-600 tw-bg-opacity-20 tw-rounded-lg tw-shadow-lg tw-p-6 tw-mb-4 tw-flex-1'>
               {/* 헤더 */}
               <div className='tw-flex tw-w-full tw-items-end tw-justify-between'>
                 <span className='tw-text-xl tw-font-bold tw-text-white'>🛝 서열표</span>
@@ -301,7 +299,7 @@ export default function VArchiveDbPage() {
 
             {/* 필터 섹션 */}
             <div
-              className='tw-flex tw-flex-col tw-gap-4 tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-shadow-lg tw-p-6 tw-mb-4'
+              className='tw-flex tw-flex-col tw-gap-4 tw-bg-gray-600 tw-bg-opacity-20 tw-rounded-lg tw-shadow-lg tw-p-6 tw-mb-4'
               style={{ width: '520px' }}
             >
               {/* 헤더 */}
@@ -403,7 +401,7 @@ export default function VArchiveDbPage() {
           </div>
 
           {/* 기존 필터 버튼들 */}
-          <div className='tw-flex tw-flex-col tw-gap-1 tw-bg-gray-600 tw-bg-opacity-10 tw-rounded-md p-4'>
+          <div className='tw-flex tw-flex-col tw-gap-1 tw-bg-gray-600 tw-bg-opacity-20 tw-rounded-md p-4'>
             {baseSongData.length > 0 && !isLoading ? (
               baseSongData.map((levelData) => (
                 <div

@@ -2,15 +2,15 @@ import { ArcElement, Chart as ChartJS, Legend, Tooltip } from 'chart.js'
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { Doughnut } from 'react-chartjs-2'
-import Image from 'next/image'
-import { RootState } from 'store'
 import ScorePopupComponent from '@/components/score/ScorePopupComponent'
-import { SyncLoader } from 'react-spinners'
-import axios from 'axios'
-import { globalDictionary } from '@/libs/server/globalDictionary'
 import { logRendererError } from '@/libs/client/rendererLogger'
+import { globalDictionary } from '@/libs/server/globalDictionary'
+import axios from 'axios'
 import { motion } from 'framer-motion'
+import Image from 'next/image'
+import { Doughnut } from 'react-chartjs-2'
+import { SyncLoader } from 'react-spinners'
+import { RootState } from 'store'
 
 ChartJS.register(ArcElement, Tooltip, Legend)
 
@@ -57,6 +57,10 @@ export default function DjmaxHomeComponent() {
     maxCombo: 0,
     clear: 0,
     totalPatterns: 0,
+    over999: 0,
+    over995: 0,
+    over99: 0,
+    over97: 0,
   })
 
   const [boards, setBoards] = useState<string[]>([
@@ -249,28 +253,46 @@ export default function DjmaxHomeComponent() {
       maxCombo: 0,
       clear: 0,
       totalPatterns: 0,
+      over999: 0,
+      over995: 0,
+      over99: 0,
+      over97: 0,
     }
 
     // 모든 키모드의 데이터를
     Object.values(keyModeData).forEach((patterns) => {
       patterns.forEach((pattern) => {
-        // 전체 패턴 수 증가
         stats.totalPatterns++
 
-        // PERFECT 체크 (score가 100인 경우)
-        if (pattern.score == 100) {
+        // 점수를 숫자로 변환
+        const score = typeof pattern.score === 'string' ? parseFloat(pattern.score) : pattern.score
+
+        if (pattern?.maxCombo === 1 || score === 100.0) stats.maxCombo++
+
+        // 점수 기준을 중첩되게 처리
+        if (score === 100.0) {
           stats.perfect++
+          stats.over999++
+          stats.over995++
+          stats.over99++
+          stats.over97++
+        } else if (score >= 99.9) {
+          stats.over999++
+          stats.over995++
+          stats.over99++
+          stats.over97++
+        } else if (score >= 99.5) {
+          stats.over995++
+          stats.over99++
+          stats.over97++
+        } else if (score >= 99.0) {
+          stats.over99++
+          stats.over97++
+        } else if (score >= 97.0) {
+          stats.over97++
         }
 
-        // MAX COMBO 체크 (maxCombo가 1인 경우)
-        if (pattern.maxCombo === 1) {
-          stats.maxCombo++
-        }
-
-        // CLEAR 체크 (score가 존재하고 0보다 큰 경우)
-        if (pattern.score !== null && pattern.score > 0) {
-          stats.clear++
-        }
+        if (score !== null && score > 0) stats.clear++
       })
     })
 
@@ -349,52 +371,46 @@ export default function DjmaxHomeComponent() {
     '8': 9741,
   }
 
-  // 난이도 표시 관련 함수 추가
-  const getDifficultyClassName = (pattern: Pattern) => {
-    if (pattern.floor != null && pattern.floor != 0) return 'SC'
-    return pattern.pattern || 'NM'
-  }
-
   const getLevelDisplay = (pattern: Pattern) => {
-    const getFloorGroup = (value: number) => {
-      if (value <= 5) return 5
-      if (value <= 10) return 10
-      return 15 // 15보다 큰 값도 모두 15로 처리
+    if (pattern?.level) {
+      if (pattern.pattern === 'SC') {
+        return (
+          <span
+            className={`tw-flex tw-gap-2 tw-font-extrabold tw-items-center tw-text-respect-sc-15`}
+          >
+            <Image
+              src={`/images/djmax_respect_v/sc_15_star.png`}
+              alt='difficulty'
+              width={16}
+              height={16}
+              className='tw-w-4 tw-h-4'
+            />
+            <span className='tw-font-extrabold tw-mb-0.5'>
+              {pattern.floor != null && pattern.floor !== 0 ? pattern.floor + 'F' : pattern.level}
+            </span>
+          </span>
+        )
+      }
+
+      const difficultyClass =
+        pattern.pattern === 'HD' ? 'nm-10' : pattern.pattern === 'MX' ? 'nm-15' : 'nm-5' // 기본값
+
+      return (
+        <span
+          className={`tw-flex tw-gap-2 tw-font-extrabold tw-items-center tw-text-respect-${difficultyClass}`}
+        >
+          <Image
+            src={`/images/djmax_respect_v/nm_${difficultyClass.split('-')[1]}_star.png`}
+            alt='difficulty'
+            width={16}
+            height={16}
+            className='tw-w-4 tw-h-4'
+          />
+          <span className='tw-font-extrabold tw-mb-0.5'>{`${pattern.floor != null && pattern.floor !== 0 ? pattern.floor + 'F' : pattern.level}`}</span>
+        </span>
+      )
     }
 
-    if (pattern.floor != null && pattern.floor != 0) {
-      const floorGroup = getFloorGroup(pattern.floor)
-      return (
-        <span
-          className={`tw-flex tw-gap-2 tw-font-extrabold tw-items-center tw-text-respect-${pattern.floor ? 'sc' : 'nm'}-${floorGroup}`}
-        >
-          <Image
-            src={`/images/djmax_respect_v/${pattern.floor ? 'sc' : 'nm'}_${floorGroup}_star.png`}
-            alt='difficulty'
-            width={16}
-            height={16}
-            className='tw-w-4 tw-h-4'
-          />
-          <span className='tw-font-extrabold tw-mb-0.5'>{`${pattern.floor}`}F</span>
-        </span>
-      )
-    }
-    if (pattern.level != null) {
-      return (
-        <span
-          className={`tw-flex tw-gap-2 tw-font-extrabold tw-items-center tw-text-respect-nm-${Math.ceil((pattern.level || 0) / 5) * 5}`}
-        >
-          <Image
-            src={`/images/djmax_respect_v/nm_${Math.ceil((pattern.level || 0) / 5) * 5}_star.png`}
-            alt='difficulty'
-            width={16}
-            height={16}
-            className='tw-w-4 tw-h-4'
-          />
-          <span className='tw-font-extrabold tw-mb-0.5'>{`${pattern.level}`}</span>
-        </span>
-      )
-    }
     return '난이도 정보 없음'
   }
 
@@ -579,7 +595,7 @@ export default function DjmaxHomeComponent() {
       // 점수를 숫자로 변환
       const score = typeof pattern.score === 'string' ? parseFloat(pattern.score) : pattern.score
 
-      if (pattern?.maxCombo === 1) stats.maxCombo++
+      if (pattern?.maxCombo === 1 || score === 100.0) stats.maxCombo++
 
       // 점수 기준을 중첩되게 처리
       if (score === 100.0) {
@@ -720,7 +736,7 @@ export default function DjmaxHomeComponent() {
       {selectedGame === 'djmax_respect_v' && (
         <>
           {isLoading ? (
-            <div className='tw-flex tw-items-center tw-justify-center tw-h-screen tw-flex-1 tw-bg-gray-800 tw-bg-opacity-40 tw-rounded-lg'>
+            <div className='tw-flex tw-items-center tw-justify-center tw-h-screen tw-flex-1 tw-bg-gray-600 tw-bg-opacity-20 tw-rounded-lg'>
               <SyncLoader color='#ffffff' size={8} />
             </div>
           ) : (
@@ -730,7 +746,7 @@ export default function DjmaxHomeComponent() {
               transition={{ duration: 0.5, ease: 'easeOut' }}
             >
               {/* 헤더 섹션 */}
-              <div className='tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-shadow-lg tw-p-4 tw-mb-4'>
+              <div className='tw-bg-gray-600 tw-bg-opacity-20 tw-rounded-lg tw-shadow-lg tw-p-4 tw-mb-4'>
                 <div className='tw-flex tw-justify-between tw-items-center'>
                   <span className='tw-text-xl tw-font-bold'>
                     {userData.userName !== '' && vArchiveUserData.userName !== ''
@@ -749,7 +765,7 @@ export default function DjmaxHomeComponent() {
                 <div className='tw-flex tw-flex-col tw-gap-4 tw-w-3/5'>
                   {/* Button Mode Panel */}
                   <div className='tw-flex tw-flex-col tw-gap-4'>
-                    <div className='tw-flex tw-justify-between tw-items-end tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-shadow-lg tw-p-4'>
+                    <div className='tw-flex tw-justify-between tw-items-end tw-bg-gray-600 tw-bg-opacity-20 tw-rounded-lg tw-shadow-lg tw-p-4'>
                       <span className='tw-flex tw-w-full tw-items-center tw-gap-1'>
                         <span className='tw-text-xl tw-font-bold tw-me-auto'>
                           {selectedKeyMode}B 통계
@@ -761,21 +777,22 @@ export default function DjmaxHomeComponent() {
                     </div>
 
                     {/* 통계 정보 */}
-                    <div className='tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-p-4'>
+                    <div className='tw-bg-gray-600 tw-bg-opacity-20 tw-rounded-lg tw-p-4'>
                       {/* 상단 통계 요약 */}
                       <div className='tw-grid tw-grid-cols-7 tw-gap-2 tw-mb-8'>
                         {[
-                          { key: 'maxCombo', label: '맥스 콤보', color: 'tw-text-green-500' },
+                          { key: 'clear', label: '클리어', color: 'tw-text-blue-500' },
+
                           { key: 'perfect', label: '퍼펙트', color: 'tw-text-red-500' },
                           { key: 'over999', label: '99.9%+', color: 'tw-text-yellow-500' },
                           { key: 'over995', label: '99.5%+', color: 'tw-text-yellow-400' },
                           { key: 'over99', label: '99.0%+', color: 'tw-text-yellow-300' },
                           { key: 'over97', label: '97.0%+', color: 'tw-text-yellow-200' },
-                          { key: 'clear', label: '클리어', color: 'tw-text-blue-500' },
+                          { key: 'maxCombo', label: '맥스 콤보', color: 'tw-text-green-500' },
                         ].map(({ key, label, color }) => (
                           <div
                             key={key}
-                            className='tw-text-center tw-p-3 tw-bg-gray-950 tw-bg-opacity-50 tw-rounded-lg'
+                            className='tw-text-center tw-p-3 tw-bg-gray-900 tw-bg-opacity-50 tw-rounded-lg'
                           >
                             <div className={`tw-text-lg tw-font-bold ${color}`}>
                               {calculateStats(keyModeData[selectedKeyMode])[key]}
@@ -787,105 +804,202 @@ export default function DjmaxHomeComponent() {
 
                       {/* 도넛 차트 */}
                       <div className='tw-relative tw-w-full tw-h-44 tw-flex tw-items-center tw-justify-center'>
-                        {/* 중앙 전체 곡 수 표시 - z-index 낮춤 */}
-                        <div className='tw-absolute tw-top-1/2 tw-left-1/2 tw-transform -tw-translate-x-1/2 -tw-translate-y-1/2 tw-text-center tw-w-20 tw-h-20 tw-bg-gray-950 tw-bg-opacity-50 tw-rounded-full tw-p-4 tw-pointer-events-none tw-z-0'>
-                          <div className='tw-text-lg tw-font-bold'>
-                            {calculateStats(keyModeData[selectedKeyMode]).total}
-                          </div>
-                          <div className='tw-text-xs tw-text-gray-300'>전체</div>
-                        </div>
+                        <div className='tw-flex tw-justify-between tw-w-full tw-h-full'>
+                          {/* 차트 1: 클리어 / 미클리어 */}
+                          <div className='tw-relative tw-w-1/3 tw-flex tw-items-center tw-justify-center'>
+                            {/* 도넛 차트 안에 정보 표시 */}
+                            <div className='tw-absolute tw-top-1/2 tw-left-1/2 tw-transform -tw-translate-x-1/2 -tw-translate-y-1/2 tw-text-center tw-w-[88px] tw-h-[88px] tw-bg-gray-900 tw-bg-opacity-50 tw-rounded-full tw-flex tw-flex-col tw-justify-center tw-items-center tw-z-0'>
+                              <div className='tw-text-lg tw-font-bold'>
+                                {calculateStats(keyModeData[selectedKeyMode]).total}
+                              </div>
+                              <div className='tw-text-xs tw-text-gray-300'>전체</div>
+                            </div>
+                            <div className='tw-relative tw-z-1'>
+                              <Doughnut
+                                data={{
+                                  labels: ['클리어', '미클리어(기록 없음)'],
+                                  datasets: [
+                                    {
+                                      data: [
+                                        calculateStats(keyModeData[selectedKeyMode]).clear,
+                                        calculateStats(keyModeData[selectedKeyMode]).total -
+                                          calculateStats(keyModeData[selectedKeyMode]).clear,
+                                      ],
+                                      backgroundColor: [
+                                        'rgba(59, 130, 246, 0.8)',
+                                        'rgba(3, 7, 18, 0.5)',
+                                      ],
 
-                        {/* 도넛 차트를 위로 올림 */}
-                        <div className='tw-relative tw-z-10 tw-w-full tw-h-full'>
-                          <Doughnut
-                            data={{
-                              labels: [
-                                'MAX COMBO',
-                                'PERFECT',
-                                '99.9%+',
-                                '99.5%+',
-                                '99.0%+',
-                                '97.0%+',
-                                'CLEAR',
-                              ],
-                              datasets: [
-                                {
-                                  data: [
-                                    calculateStats(keyModeData[selectedKeyMode]).maxCombo,
-                                    calculateStats(keyModeData[selectedKeyMode]).perfect,
-                                    calculateStats(keyModeData[selectedKeyMode]).over999,
-                                    calculateStats(keyModeData[selectedKeyMode]).over995,
-                                    calculateStats(keyModeData[selectedKeyMode]).over99,
-                                    calculateStats(keyModeData[selectedKeyMode]).over97,
-                                    calculateStats(keyModeData[selectedKeyMode]).clear,
+                                      borderColor: [
+                                        'rgba(59, 130, 246, 0.8)',
+                                        'rgba(3, 7, 18, 0.5)',
+                                      ],
+                                      borderWidth: 1,
+                                    },
                                   ],
-                                  backgroundColor: [
-                                    'rgba(34, 197, 94, 0.8)',
-                                    'rgba(239, 68, 68, 0.8)',
-                                    'rgba(234, 179, 8, 0.8)',
-                                    'rgba(234, 179, 8, 0.6)',
-                                    'rgba(234, 179, 8, 0.4)',
-                                    'rgba(234, 179, 8, 0.2)',
-                                    'rgba(59, 130, 246, 0.8)',
-                                  ],
-                                  borderColor: [
-                                    'rgba(34, 197, 94, 1)',
-                                    'rgba(239, 68, 68, 1)',
-                                    'rgba(234, 179, 8, 1)',
-                                    'rgba(234, 179, 8, 0.8)',
-                                    'rgba(234, 179, 8, 0.6)',
-                                    'rgba(234, 179, 8, 0.4)',
-                                    'rgba(59, 130, 246, 1)',
-                                  ],
-                                  borderWidth: 1,
-                                },
-                              ],
-                            }}
-                            options={{
-                              responsive: true,
-                              maintainAspectRatio: false,
-                              cutout: '60%',
-                              plugins: {
-                                legend: {
-                                  display: false,
-                                },
-                                tooltip: {
-                                  position: 'nearest',
-                                  callbacks: {
-                                    label: (context: any) => {
-                                      const label = context.label || ''
-                                      const value = context.raw || 0
-                                      const total = calculateStats(
-                                        keyModeData[selectedKeyMode],
-                                      ).total
-                                      const percentage = ((value / total) * 100).toFixed(1)
-                                      return `${label}: ${value} (${percentage}%)`
+                                }}
+                                options={{
+                                  responsive: true,
+                                  maintainAspectRatio: false,
+                                  cutout: '60%',
+                                  plugins: {
+                                    legend: { display: false },
+                                    tooltip: {
+                                      callbacks: {
+                                        label: (context: any) => {
+                                          const label = context.label || ''
+                                          const value = context.raw || 0
+                                          return `${label}: ${value}`
+                                        },
+                                      },
                                     },
                                   },
-                                },
-                              },
-                            }}
-                          />
+                                }}
+                              />
+                            </div>
+                          </div>
+
+                          {/* 차트 3: 퍼펙트 점수 구간 (클리어한 것만) */}
+                          <div className='tw-relative tw-w-1/3 tw-flex tw-items-center tw-justify-center'>
+                            {/* 도넛 차트 안에 정보 표시 */}
+                            <div className='tw-absolute tw-top-1/2 tw-left-1/2 tw-transform -tw-translate-x-1/2 -tw-translate-y-1/2 tw-text-center tw-w-[88px] tw-h-[88px] tw-bg-gray-900 tw-bg-opacity-50 tw-rounded-full tw-flex tw-flex-col tw-justify-center tw-items-center tw-z-0'>
+                              <div className='tw-text-lg tw-font-bold'>
+                                {calculateStats(keyModeData[selectedKeyMode]).clear}
+                              </div>
+                              <div className='tw-text-xs tw-text-gray-300'>클리어</div>
+                            </div>
+                            <div className='tw-relative tw-z-1'>
+                              <Doughnut
+                                data={{
+                                  labels: [
+                                    '퍼펙트',
+                                    '스코어 99.9% 이상',
+                                    '스코어 99.5% 이상',
+                                    '스코어 99.0% 이상',
+                                    '스코어 97.0% 이상',
+                                    '스코어 97.0% 이하',
+                                  ],
+                                  datasets: [
+                                    {
+                                      data: [
+                                        calculateStats(keyModeData[selectedKeyMode]).perfect,
+                                        calculateStats(keyModeData[selectedKeyMode]).over999,
+                                        calculateStats(keyModeData[selectedKeyMode]).over995,
+                                        calculateStats(keyModeData[selectedKeyMode]).over99,
+                                        calculateStats(keyModeData[selectedKeyMode]).over97,
+                                        calculateStats(keyModeData[selectedKeyMode]).clear -
+                                          calculateStats(keyModeData[selectedKeyMode]).over97,
+                                      ],
+                                      backgroundColor: [
+                                        'rgba(239, 68, 68, 0.8)',
+                                        'rgba(234, 179, 8, 0.8)',
+                                        'rgba(234, 179, 8, 0.6)',
+                                        'rgba(234, 179, 8, 0.4)',
+                                        'rgba(234, 179, 8, 0.2)',
+                                        'rgba(3, 7, 18, 0.5)',
+                                      ],
+                                      borderColor: [
+                                        'rgba(239, 68, 68, 1)',
+                                        'rgba(234, 179, 8, 1)',
+                                        'rgba(234, 179, 8, 1)',
+                                        'rgba(234, 179, 8, 1)',
+                                        'rgba(234,179,8,1)',
+                                        'rgba(3, 7, 18, 0.5)',
+                                      ],
+                                      borderWidth: 1,
+                                    },
+                                  ],
+                                }}
+                                options={{
+                                  responsive: true,
+                                  maintainAspectRatio: false,
+                                  cutout: '60%',
+                                  plugins: {
+                                    legend: { display: false },
+                                    tooltip: {
+                                      callbacks: {
+                                        label: (context: any) => {
+                                          const label = context.label || ''
+                                          const value = context.raw || 0
+                                          return `${label}: ${value}`
+                                        },
+                                      },
+                                    },
+                                  },
+                                }}
+                              />
+                            </div>
+                          </div>
+
+                          {/* 차트 2: 퍼펙트 or 풀콤보 / 해당되지 않는 것 (클리어한 것만) */}
+                          <div className='tw-relative tw-w-1/3 tw-flex tw-items-center tw-justify-center'>
+                            {/* 도넛 차트 안에 정보 표시 */}
+                            <div className='tw-absolute tw-top-1/2 tw-left-1/2 tw-transform -tw-translate-x-1/2 -tw-translate-y-1/2 tw-text-center tw-w-[88px] tw-h-[88px] tw-bg-gray-900 tw-bg-opacity-50 tw-rounded-full tw-flex tw-flex-col tw-justify-center tw-items-center tw-z-0'>
+                              <div className='tw-text-lg tw-font-bold'>
+                                {calculateStats(keyModeData[selectedKeyMode]).maxCombo}
+                              </div>
+                              <div className='tw-text-xs tw-text-gray-300'>맥스 콤보</div>
+                            </div>
+                            <div className='tw-relative tw-z-1'>
+                              <Doughnut
+                                data={{
+                                  labels: ['맥스 콤보', '맥스 콤보 외 클리어'],
+                                  datasets: [
+                                    {
+                                      data: [
+                                        calculateStats(keyModeData[selectedKeyMode]).maxCombo,
+                                        calculateStats(keyModeData[selectedKeyMode]).clear -
+                                          calculateStats(keyModeData[selectedKeyMode]).maxCombo,
+                                      ],
+                                      backgroundColor: [
+                                        'rgba(34, 197, 94, 0.8)',
+                                        'rgba(3, 7, 18, 0.5)',
+                                      ],
+                                      borderColor: ['rgba(34, 197, 94, 1)', 'rgba(3, 7, 18, 0.5)'],
+                                      borderWidth: 1,
+                                    },
+                                  ],
+                                }}
+                                options={{
+                                  responsive: true,
+                                  maintainAspectRatio: false,
+                                  cutout: '60%',
+                                  plugins: {
+                                    legend: { display: false },
+                                    tooltip: {
+                                      callbacks: {
+                                        label: (context: any) => {
+                                          const label = context.label || ''
+                                          const value = context.raw || 0
+                                          return `${label}: ${value}`
+                                        },
+                                      },
+                                    },
+                                  },
+                                }}
+                              />
+                            </div>
+                          </div>
                         </div>
                       </div>
                       <div className='tw-flex tw-flex-col tw-justify-center tw-items-center tw-gap-1 tw-text-xs tw-rounded-lg tw-mt-8'>
                         <div className='tw-flex tw-justify-center tw-gap-1 tw-w-full'>
-                          <span className='tw-p-1 tw-px-4 tw-bg-gray-950 tw-bg-opacity-50 tw-rounded-md tw-font-extrabold tw-text-green-700'>
+                          <span className='tw-p-1 tw-px-4 tw-bg-gray-900 tw-bg-opacity-50 tw-rounded-md tw-font-extrabold tw-text-green-700'>
                             NEW 30
                           </span>
-                          <span className='tw-p-1 tw-px-4 tw-bg-gray-950 tw-bg-opacity-50 tw-rounded-md tw-text-white'>
+                          <span className='tw-p-1 tw-px-4 tw-bg-gray-900 tw-bg-opacity-50 tw-rounded-md tw-text-white'>
                             {cutoffScores[selectedKeyMode]?.new30.toFixed(3)} DP
                           </span>
-                          <span className='tw-p-1 tw-px-4 tw-bg-gray-950 tw-bg-opacity-50 tw-rounded-md tw-font-extrabold tw-text-yellow-500'>
+                          <span className='tw-p-1 tw-px-4 tw-bg-gray-900 tw-bg-opacity-50 tw-rounded-md tw-font-extrabold tw-text-yellow-500'>
                             BASIC 70
                           </span>
-                          <span className='tw-p-1 tw-px-4 tw-bg-gray-950 tw-bg-opacity-50 tw-rounded-md tw-text-white'>
+                          <span className='tw-p-1 tw-px-4 tw-bg-gray-900 tw-bg-opacity-50 tw-rounded-md tw-text-white'>
                             {cutoffScores[selectedKeyMode]?.basic70.toFixed(3)} DP
                           </span>
-                          <span className='tw-p-1 tw-px-4 tw-bg-gray-950 tw-bg-opacity-50 tw-rounded-md tw-font-extrabold tw-text-red-500'>
+                          <span className='tw-p-1 tw-px-4 tw-bg-gray-900 tw-bg-opacity-50 tw-rounded-md tw-font-extrabold tw-text-red-500'>
                             TOP 50
                           </span>
-                          <span className='tw-p-1 tw-px-4 tw-bg-gray-950 tw-bg-opacity-50 tw-rounded-md tw-text-white'>
+                          <span className='tw-p-1 tw-px-4 tw-bg-gray-900 tw-bg-opacity-50 tw-rounded-md tw-text-white'>
                             {cutoffScores[selectedKeyMode]?.top50.toFixed(3)} TP
                           </span>
                         </div>
@@ -895,23 +1009,28 @@ export default function DjmaxHomeComponent() {
 
                   {/* Total Overall Panel */}
                   <div className='tw-flex tw-flex-col tw-gap-4'>
-                    <div className='tw-flex tw-justify-between tw-items-end tw-bg-gray-800 tw-bg-opacity-40 tw-rounded-lg tw-p-4'>
+                    <div className='tw-bg-gray-600 tw-bg-opacity-20 tw-flex tw-justify-between tw-items-end tw-rounded-lg tw-p-4'>
                       <div className='tw-flex tw-flex-col'>
                         <span className='tw-text-xl tw-font-bold'>전체 통계</span>
                       </div>
                     </div>
 
-                    <div className='tw-bg-gray-800 tw-bg-opacity-40 tw-rounded-lg tw-p-4 tw-pb-8'>
+                    <div className='tw-bg-gray-600 tw-bg-opacity-20 tw-rounded-lg tw-p-4 tw-pb-8'>
                       {/* 상단 통계 요약 */}
-                      <div className='tw-grid tw-grid-cols-3 tw-gap-2 tw-mb-8'>
+                      <div className='tw-grid tw-grid-cols-7 tw-gap-2 tw-mb-8'>
                         {[
-                          { key: 'maxCombo', label: '맥스 콤보', color: 'tw-text-green-500' },
-                          { key: 'perfect', label: '퍼펙트', color: 'tw-text-red-500' },
                           { key: 'clear', label: '클리어', color: 'tw-text-blue-500' },
+
+                          { key: 'perfect', label: '퍼펙트', color: 'tw-text-red-500' },
+                          { key: 'over999', label: '99.9%+', color: 'tw-text-yellow-500' },
+                          { key: 'over995', label: '99.5%+', color: 'tw-text-yellow-400' },
+                          { key: 'over99', label: '99.0%+', color: 'tw-text-yellow-300' },
+                          { key: 'over97', label: '97.0%+', color: 'tw-text-yellow-200' },
+                          { key: 'maxCombo', label: '맥스 콤보', color: 'tw-text-green-500' },
                         ].map(({ key, label, color }) => (
                           <div
                             key={key}
-                            className='tw-text-center tw-p-3 tw-bg-gray-950 tw-bg-opacity-50 tw-rounded-lg'
+                            className='tw-text-center tw-p-3 tw-bg-gray-900 tw-bg-opacity-50 tw-rounded-lg'
                           >
                             <div className={`tw-text-lg tw-font-bold ${color}`}>
                               {totalStats[key]}
@@ -923,65 +1042,175 @@ export default function DjmaxHomeComponent() {
 
                       {/* 도넛 차트 */}
                       <div className='tw-relative tw-w-full tw-h-44 tw-flex tw-items-center tw-justify-center'>
-                        <div className='tw-absolute tw-top-1/2 tw-left-1/2 tw-transform -tw-translate-x-1/2 -tw-translate-y-1/2 tw-text-center tw-w-20 tw-h-20 tw-bg-gray-950 tw-bg-opacity-50 tw-rounded-full tw-p-4 tw-pointer-events-none tw-z-0'>
-                          <div className='tw-text-lg tw-font-bold'>{totalStats.totalPatterns}</div>
-                          <div className='tw-text-xs tw-text-gray-300'>전체</div>
-                        </div>
+                        <div className='tw-flex tw-justify-between tw-w-full tw-h-full'>
+                          {/* 차트 1: 클리어 / 미클리어 */}
+                          <div className='tw-relative tw-w-1/3 tw-flex tw-items-center tw-justify-center'>
+                            {/* 도넛 차트 안에 정보 표시 */}
+                            <div className='tw-absolute tw-top-1/2 tw-left-1/2 tw-transform -tw-translate-x-1/2 -tw-translate-y-1/2 tw-text-center tw-w-[88px] tw-h-[88px] tw-bg-gray-900 tw-bg-opacity-50 tw-rounded-full tw-flex tw-flex-col tw-justify-center tw-items-center tw-z-0'>
+                              <div className='tw-text-lg tw-font-bold'>
+                                {totalStats.totalPatterns}
+                              </div>
+                              <div className='tw-text-xs tw-text-gray-300'>전체</div>
+                            </div>
+                            <div className='tw-relative tw-z-1'>
+                              <Doughnut
+                                data={{
+                                  labels: ['클리어', '미클리어(기록 없음)'],
+                                  datasets: [
+                                    {
+                                      data: [
+                                        totalStats.clear,
+                                        totalStats.totalPatterns - totalStats.clear,
+                                      ],
+                                      backgroundColor: [
+                                        'rgba(59, 130, 246, 0.8)',
+                                        'rgba(3, 7, 18, 0.5)',
+                                      ],
 
-                        <div className='tw-relative tw-z-10 tw-w-full tw-h-full'>
-                          <Doughnut
-                            data={{
-                              labels: [
-                                'MAX COMBO',
-                                'PERFECT',
-                                '99.9%+',
-                                '99.5%+',
-                                '99.0%+',
-                                '97.0%+',
-                                'CLEAR',
-                              ],
-                              datasets: [
-                                {
-                                  data: [totalStats.maxCombo, totalStats.perfect, totalStats.clear],
-                                  backgroundColor: [
-                                    'rgba(34, 197, 94, 0.8)',
-                                    'rgba(239, 68, 68, 0.8)',
-                                    'rgba(59, 130, 246, 0.8)',
+                                      borderColor: [
+                                        'rgba(59, 130, 246, 0.8)',
+                                        'rgba(3, 7, 18, 0.5)',
+                                      ],
+                                      borderWidth: 1,
+                                    },
                                   ],
-                                  borderColor: [
-                                    'rgba(34, 197, 94, 1)',
-                                    'rgba(239, 68, 68, 1)',
-                                    'rgba(59, 130, 246, 1)',
-                                  ],
-                                  borderWidth: 1,
-                                },
-                              ],
-                            }}
-                            options={{
-                              responsive: true,
-                              maintainAspectRatio: false,
-                              cutout: '60%',
-                              plugins: {
-                                legend: {
-                                  display: false,
-                                },
-                                tooltip: {
-                                  position: 'nearest',
-                                  callbacks: {
-                                    label: (context: any) => {
-                                      const label = context.label || ''
-                                      const value = context.raw || 0
-                                      const percentage = (
-                                        (value / totalStats.totalPatterns) *
-                                        100
-                                      ).toFixed(1)
-                                      return `${label}: ${value} (${percentage}%)`
+                                }}
+                                options={{
+                                  responsive: true,
+                                  maintainAspectRatio: false,
+                                  cutout: '60%',
+                                  plugins: {
+                                    legend: { display: false },
+                                    tooltip: {
+                                      callbacks: {
+                                        label: (context: any) => {
+                                          const label = context.label || ''
+                                          const value = context.raw || 0
+                                          return `${label}: ${value}`
+                                        },
+                                      },
                                     },
                                   },
-                                },
-                              },
-                            }}
-                          />
+                                }}
+                              />
+                            </div>
+                          </div>
+
+                          {/* 차트 3: 퍼펙트 점수 구간 (클리어한 것만) */}
+                          <div className='tw-relative tw-w-1/3 tw-flex tw-items-center tw-justify-center'>
+                            {/* 도넛 차트 안에 정보 표시 */}
+                            <div className='tw-absolute tw-top-1/2 tw-left-1/2 tw-transform -tw-translate-x-1/2 -tw-translate-y-1/2 tw-text-center tw-w-[88px] tw-h-[88px] tw-bg-gray-900 tw-bg-opacity-50 tw-rounded-full tw-flex tw-flex-col tw-justify-center tw-items-center tw-z-0'>
+                              <div className='tw-text-lg tw-font-bold'>{totalStats.clear}</div>
+                              <div className='tw-text-xs tw-text-gray-300'>클리어</div>
+                            </div>
+                            <div className='tw-relative tw-z-1'>
+                              <Doughnut
+                                data={{
+                                  labels: [
+                                    '퍼펙트',
+                                    '스코어 99.9% 이상',
+                                    '스코어 99.5% 이상',
+                                    '스코어 99.0% 이상',
+                                    '스코어 97.0% 이상',
+                                    '스코어 97.0% 이하',
+                                  ],
+                                  datasets: [
+                                    {
+                                      data: [
+                                        totalStats.perfect,
+                                        totalStats.over999,
+                                        totalStats.over995,
+                                        totalStats.over99,
+                                        totalStats.over97,
+                                        totalStats.clear - totalStats.over97,
+                                      ],
+                                      backgroundColor: [
+                                        'rgba(239, 68, 68, 0.8)',
+                                        'rgba(234, 179, 8, 0.8)',
+                                        'rgba(234, 179, 8, 0.6)',
+                                        'rgba(234, 179, 8, 0.4)',
+                                        'rgba(234, 179, 8, 0.2)',
+                                        'rgba(3, 7, 18, 0.5)',
+                                      ],
+                                      borderColor: [
+                                        'rgba(239, 68, 68, 1)',
+                                        'rgba(234, 179, 8, 1)',
+                                        'rgba(234, 179, 8, 1)',
+                                        'rgba(234, 179, 8, 1)',
+                                        'rgba(234,179,8,1)',
+                                        'rgba(3, 7, 18, 0.5)',
+                                      ],
+                                      borderWidth: 1,
+                                    },
+                                  ],
+                                }}
+                                options={{
+                                  responsive: true,
+                                  maintainAspectRatio: false,
+                                  cutout: '60%',
+                                  plugins: {
+                                    legend: { display: false },
+                                    tooltip: {
+                                      callbacks: {
+                                        label: (context: any) => {
+                                          const label = context.label || ''
+                                          const value = context.raw || 0
+                                          return `${label}: ${value}`
+                                        },
+                                      },
+                                    },
+                                  },
+                                }}
+                              />
+                            </div>
+                          </div>
+
+                          {/* 차트 2: 퍼펙트 or 풀콤보 / 해당되지 않는 것 (클리어한 것만) */}
+                          <div className='tw-relative tw-w-1/3 tw-flex tw-items-center tw-justify-center'>
+                            {/* 도넛 차트 안에 정보 표시 */}
+                            <div className='tw-absolute tw-top-1/2 tw-left-1/2 tw-transform -tw-translate-x-1/2 -tw-translate-y-1/2 tw-text-center tw-w-[88px] tw-h-[88px] tw-bg-gray-900 tw-bg-opacity-50 tw-rounded-full tw-flex tw-flex-col tw-justify-center tw-items-center tw-z-0'>
+                              <div className='tw-text-lg tw-font-bold'>{totalStats.maxCombo}</div>
+                              <div className='tw-text-xs tw-text-gray-300'>맥스 콤보</div>
+                            </div>
+                            <div className='tw-relative tw-z-1'>
+                              <Doughnut
+                                data={{
+                                  labels: ['맥스 콤보', '맥스 콤보 외 클리어'],
+                                  datasets: [
+                                    {
+                                      data: [
+                                        totalStats.maxCombo,
+                                        totalStats.clear - totalStats.maxCombo,
+                                      ],
+                                      backgroundColor: [
+                                        'rgba(34, 197, 94, 0.8)',
+                                        'rgba(3, 7, 18, 0.5)',
+                                      ],
+                                      borderColor: ['rgba(34, 197, 94, 1)', 'rgba(3, 7, 18, 0.5)'],
+                                      borderWidth: 1,
+                                    },
+                                  ],
+                                }}
+                                options={{
+                                  responsive: true,
+                                  maintainAspectRatio: false,
+                                  cutout: '60%',
+                                  plugins: {
+                                    legend: { display: false },
+                                    tooltip: {
+                                      callbacks: {
+                                        label: (context: any) => {
+                                          const label = context.label || ''
+                                          const value = context.raw || 0
+                                          return `${label}: ${value}`
+                                        },
+                                      },
+                                    },
+                                  },
+                                }}
+                              />
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -990,7 +1219,7 @@ export default function DjmaxHomeComponent() {
 
                 {/* 최고 성과 패널 */}
                 <div className='tw-w-2/5'>
-                  <div className='tw-flex tw-flex-col tw-gap-4 tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-shadow-lg tw-p-4'>
+                  <div className='tw-flex tw-flex-col tw-gap-4 tw-bg-gray-600 tw-bg-opacity-20 tw-rounded-lg tw-shadow-lg tw-p-4'>
                     <span className='tw-text-lg tw-font-bold'>
                       🎯 {selectedKeyMode}B 최고 성과 기록
                     </span>
@@ -1055,7 +1284,7 @@ export default function DjmaxHomeComponent() {
                                 songItemTitle={String(highestPattern.title)}
                                 keyMode={selectedKeyMode}
                               />
-                              <div className='tw-flex tw-flex-col tw-gap-1 tw-bg-gray-950 tw-bg-opacity-50 tw-rounded-md tw-p-3 tw-flex-1'>
+                              <div className='tw-flex tw-flex-col tw-gap-1 tw-bg-gray-900 tw-bg-opacity-50 tw-rounded-md tw-p-3 tw-flex-1'>
                                 <div className='tw-flex tw-justify-between tw-items-center'>
                                   <span className='tw-text-sm tw-font-bold'>{label}</span>
                                   <span className='tw-text-sm tw-font-extrabold'>
@@ -1075,51 +1304,13 @@ export default function DjmaxHomeComponent() {
                 </div>
               </div>
 
-              <div className='tw-flex tw-gap-4'>
-                {/* <div className="tw-flex tw-flex-col tw-gap-4 tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-shadow-lg tw-p-6 tw-flex-1">
-                      <div className="tw-flex tw-items-center tw-justify-between">
-                        <span className="tw-text-lg tw-font-bold">🎮 성과표 바로가기</span>
-                      </div>
-                      <div className="tw-grid tw-grid-cols-4 tw-gap-2 tw-flex-1">
-                        {['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', 'MX', 'SC', 'SC5', 'SC10', 'SC15'].map((level) => (
-                          <Link
-                            key={`level_${level}`}
-                            href={`/vArchive/board/${selectedKeyMode}/${level}`}
-                            className={`${
-                              vArchiveUserData.userName !== '' ? '' : 'tw-blur-sm tw-cursor-not-allowed'
-                            } tw-flex tw-items-center tw-justify-center tw-relative tw-px-3 tw-py-1.5 tw-border tw-border-opacity-50 tw-transition-all tw-duration-500 tw-rounded-md tw-border-gray-600 hover:tw-border-blue-400 hover:tw-bg-gray-700 hover:tw-bg-opacity-30`}
-                          >
-                            <div className="tw-absolute tw-w-full tw-h-full tw-opacity-30" />
-                            <span className="tw-relative tw-text-sm tw-font-bold">{keyBoardTitle[level]}</span>
-                          </Link>
-                        ))}
-                      </div>
-                    </div> */}
-              </div>
+              <div className='tw-flex tw-gap-4'></div>
             </motion.div>
           )}
-
-          {/* 하단 고문 */}
-          {/* <span className="tw-flex tw-justify-end tw-gap-2 tw-items-center tw-text-sm tw-font-semibold tw-mt-4">
-                <FaTriangleExclamation />
-                <div className="tw-flex tw-flex-col">
-                  <span>해당 버전은 최종적인 버전이 아닙니다.</span>
-                  <span>추가적인 개발, 피드백 반영 사항 등에 따라 기능이 일부 변경될 수 있습니다.</span>
-                </div>
-              </span> */}
         </>
       )}
 
       <div id='ContentFooter' />
-
-      {/* <div className="tw-flex tw-items-center tw-justify-between tw-mb-4">
-        <span className="tw-text-lg tw-font-bold">📊 통계</span>
-        <button onClick={() => setIsStatsModalOpen(true)} className="tw-px-4 tw-py-2 tw-bg-blue-500 tw-rounded-md hover:tw-bg-blue-600 tw-transition-colors">
-          자세히 보기
-        </button>
-      </div>
-
-      <StatsModal isOpen={isStatsModalOpen} onClose={() => setIsStatsModalOpen(false)} stats={calculateStats(keyModeData[selectedKeyMode])} /> */}
     </React.Fragment>
   )
 }

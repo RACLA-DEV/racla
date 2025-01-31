@@ -33,16 +33,20 @@ module.exports = {
       fuchsia: colors.fuchsia,
       pink: colors.pink,
       rose: colors.rose,
-      'respect-nm-0': '#f5bb01',
-      'respect-nm-5': '#f5bb01',
-      'respect-nm-10': '#f95b08aa',
-      'respect-nm-15': '#f30253aa',
-      'respect-nm-20': '#f30253aa',
+      // f5bb01
+      'respect-nm-0': '#f6c700',
+      'respect-nm-5': '#f6c700',
+      // 'respect-nm-10': '#f95b08',
+      // 'respect-nm-15': '#f30253',
+      'respect-nm-10': '#f9a06a', // 파스텔 톤 주황색
+      'respect-nm-15': '#f57b8a', // 파스텔 톤 핑크색
+      'respect-nm-20': '#f30253',
       'respect-sc-0': '#df0074',
       'respect-sc-5': '#df0074',
       'respect-sc-10': '#c604e4',
-      'respect-sc-15': '#3d66ff',
-      'respect-sc-20': '#3d66ff',
+      //#3d66ff
+      'respect-sc-15': '#6a9eff',
+      'respect-sc-20': '#6a9eff',
       'wjmax-nm': '#c79b61',
       'wjmax-hd': '#9696ff',
       'wjmax-mx': '#78ff91',

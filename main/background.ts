@@ -6,8 +6,6 @@ declare global {
   }
 }
 
-import 'moment/locale/ko'
-
 import {
   BrowserWindow,
   Menu,
@@ -31,26 +29,39 @@ import {
   storeWjmaxSongData,
 } from './fsManager'
 
+import activeWindow from 'active-win'
 import { exec } from 'child_process'
 import crypto from 'crypto'
+import dayjs from 'dayjs'
+import log from 'electron-log/main'
 import serve from 'electron-serve'
 import { autoUpdater } from 'electron-updater'
 import fs from 'fs'
 import http from 'http'
-import moment from 'moment'
 import net from 'net'
+import { GlobalKeyboardListener } from 'node-global-key-listener'
 import { Window } from 'node-screenshots'
+import psList from 'ps-list'
 import sharp from 'sharp'
-import Tesseract from 'tesseract.js'
 import { promisify } from 'util'
+import { discordManager } from './discordManager'
 import { createWindow } from './helpers'
 import { logMainError } from './mainLogger'
 import { processResultScreen } from './ocrManager'
 import { settingsManager } from './settingsManager'
-
+const globalKeyboardListener = new GlobalKeyboardListener()
 const isProd = process.env.NODE_ENV === 'production'
 
 const execAsync = promisify(exec)
+
+log.initialize()
+
+log.transports.console.format = '[{y}-{m}-{d} {h}:{i}:{s}.{ms}] [{level}] {text}'
+log.transports.file.level = 'info'
+log.transports.file.resolvePathFn = () => {
+  const dateString = dayjs().format('YYYY-MM-DD')
+  return path.join(app.getPath('documents'), 'RACLA', 'logs', `main_${dateString}.log`)
+}
 
 if (isProd) {
   serve({ directory: 'app' })
@@ -67,7 +78,7 @@ let settingData: any = {
   hardwareAcceleration: true,
   homeButtonAlignRight: false,
   autoCaptureMode: false,
-  autoCaptureIntervalTime: 3000,
+  autoCaptureIntervalTime: 1000,
   autoCaptureApi: 'xcap-api',
   visibleBga: true,
   language: 'ko',
@@ -79,6 +90,12 @@ let settingData: any = {
   removeBlackPixelPx: 8,
   saveImageWhenCapture: true,
   closeToTray: false,
+  alwaysOverlay: false,
+  autoCaptureOcrResultRegion: true,
+  autoCaptureOcrOpen3Region: false,
+  autoCaptureOcrOpen2Region: false,
+  autoCaptureOcrVersusRegion: false,
+  autoCaptureWjmaxOcrResultRegion: true,
 }
 let isUploaded = false
 let overlayWindow: BrowserWindow | null = null
@@ -89,14 +106,23 @@ let userData: any = {
   userNo: '',
   userToken: '',
 }
+let currentFocusedWindow = ''
+let currentGameSource: Buffer | null = null
 const WJMAX_ENCRYPTION_KEY = '99FLKWJFL;l99r7@!()f09sodkjfs;a;o9fU#@'
+const discordRPC = discordManager
+
+let isRunningDjmax = false
+let isRunningWjmax = false
+let gameStatusCheckInterval: NodeJS.Timeout | null = null
+let bounds: { x: number; y: number; width: number; height: number } | null = null
 
 const gameList = { djmax_respect_v: 'DJMAX RESPECT V', wjmax: 'WJMAX' }
 
 const gotTheLock = app.requestSingleInstanceLock()
-console.log('gotTheLock', gotTheLock)
+log.info('gotTheLock', gotTheLock)
 
 if (!gotTheLock) {
+  discordRPC.destroy()
   app.quit()
   process.exit(0)
 }
@@ -126,6 +152,14 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
 ;(async () => {
   await app.whenReady()
 
+  // globalKeyboardListener.addListener(function (e, down) {
+  //   log.debug(
+  //     `GlobalKeyboardListener: ${e.name} ${e.state == 'DOWN' ? 'DOWN' : 'UP  '} [${e.rawKey._nameRaw}]`,
+  //   )
+  // })
+
+  await discordRPC.initialize(isLogined ? userData : null)
+
   // 최상단에서 프로토콜 설정
   if (process.defaultApp) {
     app.setAsDefaultProtocolClient('racla', process.execPath, [resolve(process.argv[1])])
@@ -140,9 +174,9 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
   })
 
   if (!isRegistered) {
-    console.error('Global shortcut registration failed')
+    log.error('Global shortcut registration failed')
   } else {
-    console.log('Global shortcut registered successfully')
+    log.info('Global shortcut registered successfully')
   }
 
   app.on('will-quit', () => {
@@ -215,12 +249,16 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
                     mainWindow = null
                   }
 
+                  if (discordRPC) {
+                    discordRPC.destroy()
+                  }
+
                   // 잠시 대기 후 앱 종료
                   setTimeout(() => {
                     app.quit()
                   }, 100)
                 } catch (error) {
-                  console.error('Error during app closure:', error)
+                  log.error('before-input-event - Error during app closure:', error)
                   logMainError(error, isLogined ? userData : null)
                   app.exit(1)
                 }
@@ -228,7 +266,7 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
             },
           ])
 
-          tray.setToolTip('RACLA')
+          tray.setToolTip('RACLA for Desktop')
           tray.setContextMenu(contextMenu)
 
           // 더블클릭 이벤트로 변경
@@ -293,12 +331,16 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
                   mainWindow = null
                 }
 
+                if (discordRPC) {
+                  discordRPC.destroy()
+                }
+
                 // 잠시 대기 후 앱 종료
                 setTimeout(() => {
                   app.quit()
                 }, 100)
               } catch (error) {
-                console.error('Error during app closure:', error)
+                log.error('close - Error during app closure:', error)
                 logMainError(error, isLogined ? userData : null)
                 app.exit(1)
               }
@@ -306,7 +348,7 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
           },
         ])
 
-        tray.setToolTip('RACLA')
+        tray.setToolTip('RACLA for Desktop')
         tray.setContextMenu(contextMenu)
 
         // 더블클릭 이벤트로 변경
@@ -355,7 +397,7 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
         },
       ])
 
-      tray.setToolTip('RACLA')
+      tray.setToolTip('RACLA for Desktop')
       tray.setContextMenu(contextMenu)
 
       tray.on('click', () => {
@@ -453,50 +495,42 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
   }
 
   // findGameWindow 함수 수정
-  async function findGameWindow(gameCode) {
-    return new Promise((resolve, reject) => {
+  async function findGameWindow(gameCode: string) {
+    return new Promise((resolve) => {
       try {
-        const processName = gameCode === 'djmax_respect_v' ? 'DJMAX' : 'WJMAX'
+        // 전역 변수 사용하여 게임 실행 여부 확인
+        const isRunning = gameCode === 'djmax_respect_v' ? isRunningDjmax : isRunningWjmax
 
-        exec(`tasklist /FI "IMAGENAME eq ${processName}*" /FO CSV`, (err, stdout, stderr) => {
-          try {
-            if (err) {
-              console.error('Error checking game process:', err)
-              return resolve(null)
-            }
+        if (!isRunning) {
+          log.debug(`findGameWindow - ${gameList[gameCode]} is not running`)
+          return resolve(null)
+        }
 
-            if (!stdout.toLowerCase().includes(processName.toLowerCase())) {
-              console.log(`${processName} process not found`)
-              return resolve(null)
-            }
-
-            const windows = Window.all()
-            if (!windows || windows.length === 0) {
-              console.log('No windows found')
-              return resolve(null)
-            }
-
-            const gameWindow = windows.find((w) => w.title.includes(gameList[gameCode]))
-            if (!gameWindow) {
-              console.log(`${gameList[gameCode]} window not found`)
-              return resolve(null)
-            }
-
-            const bounds = {
-              x: gameWindow.x,
-              y: gameWindow.y,
-              width: gameWindow.width,
-              height: gameWindow.height,
-            }
-            resolve(bounds)
-          } catch (error) {
-            console.error('Error processing window information:', error)
-            logMainError(error, isLogined ? userData : null)
-            resolve(null)
+        if (settingData.captureOnlyFocused) {
+          resolve(bounds)
+        } else {
+          const windows = Window.all()
+          if (!windows || windows.length === 0) {
+            log.debug('findGameWindow - No windows found')
+            return resolve(null)
           }
-        })
+
+          const gameWindow = windows.find((w) => w.title.includes(gameList[gameCode]))
+          if (!gameWindow) {
+            log.debug(`findGameWindow - ${gameList[gameCode]} window not found`)
+            return resolve(null)
+          }
+
+          const bounds = {
+            x: gameWindow.x,
+            y: gameWindow.y,
+            width: gameWindow.width,
+            height: gameWindow.height,
+          }
+          resolve(bounds)
+        }
       } catch (error) {
-        console.error('Error in findGameWindow:', error)
+        log.error('findGameWindow - Error processing window information:', error)
         logMainError(error, isLogined ? userData : null)
         resolve(null)
       }
@@ -509,12 +543,8 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
       if (isWindowMoving) {
         return
       }
-
-      const isGameRunning = await isDjmaxRunning('djmax_respect_v')
-      const isWjmaxRunning = await isDjmaxRunning('wjmax')
-
       // 게임이 실행중이지 않으면 오버레이 숨기고 early return
-      if (!isGameRunning && !isWjmaxRunning) {
+      if (!isRunningDjmax && !isRunningWjmax) {
         if (overlayWindow.isVisible()) {
           overlayWindow.hide()
         }
@@ -528,13 +558,12 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
         return
       }
 
-      const gamePos: any = await findGameWindow(isGameRunning ? 'djmax_respect_v' : 'wjmax')
-      const focusedWindow = await getFocusedWindow()
+      const gamePos: any = await findGameWindow(isRunningDjmax ? 'djmax_respect_v' : 'wjmax')
 
       // 선택된 게임에 따라 게임 포커스 확인
       let isGameFocused =
-        (isGameRunning && focusedWindow === 'DJMAX RESPECT V') ||
-        (isWjmaxRunning && focusedWindow === 'WJMAX')
+        (isRunningDjmax && currentFocusedWindow === 'DJMAX RESPECT V') ||
+        (isRunningWjmax && currentFocusedWindow === 'WJMAX')
 
       if (gamePos && isGameFocused) {
         const display = screen.getDisplayNearestPoint({ x: gamePos.x, y: gamePos.y })
@@ -585,32 +614,42 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
         }
       }
     } catch (error) {
-      console.error('Error checking game status:', error)
+      log.error('checkGameAndUpdateOverlay - Error checking game status:', error)
       logMainError(error, isLogined ? userData : null)
     }
   }
 
   // getFocusedWindow 함수 수정
   async function getFocusedWindow(): Promise<string> {
-    return new Promise((resolve) => {
+    try {
+      const result = await activeWindow()
+      bounds = result?.bounds
+      return result?.title || ''
+    } catch (error) {
+      log.error('getFocusedWindow - Error getting active window:', error)
+      return ''
+    }
+  }
+
+  async function startFocusedWindowCheck() {
+    log.info('startFocusedWindowCheck - Focused Window Check Started')
+    const checkFocusedWindow = async () => {
       try {
-        exec(
-          'powershell -command "Add-Type -TypeDefinition \'using System; using System.Runtime.InteropServices; public class Window { [DllImport(\\"user32.dll\\")] public static extern IntPtr GetForegroundWindow(); [DllImport(\\"user32.dll\\")] public static extern int GetWindowText(IntPtr hWnd, System.Text.StringBuilder text, int count); }\' ; $window = [Window]::GetForegroundWindow(); $buffer = New-Object System.Text.StringBuilder(256); [Window]::GetWindowText($window, $buffer, 256) > $null; $buffer.ToString()"',
-          (err, stdout) => {
-            if (err) {
-              console.error('Error getting focused window:', err)
-              resolve('')
-              return
-            }
-            resolve(stdout.trim())
-          },
-        )
+        if (isRunningDjmax || isRunningWjmax) {
+          const focusedWindow = await getFocusedWindow()
+          currentFocusedWindow = focusedWindow
+        } else {
+          currentFocusedWindow = ''
+        }
+        setTimeout(checkFocusedWindow, 1000) // 100ms마다 체크
       } catch (error) {
-        console.error('Error in getFocusedWindow:', error)
+        log.error('startFocusedWindowCheck - Error checking focused window:', error)
         logMainError(error, isLogined ? userData : null)
-        resolve('')
+        setTimeout(checkFocusedWindow, 1000)
       }
-    })
+    }
+
+    checkFocusedWindow()
   }
 
   // checkGameOverlayLoop 함수 수정 - 체크 간격 조가
@@ -618,7 +657,7 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
     try {
       await checkGameAndUpdateOverlay()
     } catch (error) {
-      console.error('Error in game check loop:', error)
+      log.error('checkGameOverlayLoop - Error in game check loop:', error)
       logMainError(error, isLogined ? userData : null)
     } finally {
       // 체크 간격을 100ms로 증가 (초당 10회)
@@ -676,12 +715,16 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
                 mainWindow = null
               }
 
+              if (discordRPC) {
+                discordRPC.destroy()
+              }
+
               // 잠시 대기 후 앱 종료
               setTimeout(() => {
                 app.quit()
               }, 100)
             } catch (error) {
-              console.error('Error during app closure:', error)
+              log.error('hideToTray - Error during app closure:', error)
               logMainError(error, isLogined ? userData : null)
               app.exit(1)
             }
@@ -689,7 +732,7 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
         },
       ])
 
-      tray.setToolTip('RACLA')
+      tray.setToolTip('RACLA for Desktop')
       tray.setContextMenu(contextMenu)
 
       // 더블클릭 이벤트로 변경
@@ -742,7 +785,7 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
         app.quit()
       }, 100)
     } catch (error) {
-      console.error('Error during app closure:', error)
+      log.error('closeApp - Error during app closure:', error)
       logMainError(error, isLogined ? userData : null)
       app.exit(1)
     }
@@ -824,7 +867,7 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
         authUrl.searchParams.append('scope', 'identify')
         authUrl.searchParams.append('state', state)
 
-        console.log('Discord OAuth URL:', authUrl.toString())
+        log.debug('openDiscordLogin - Discord OAuth URL:', authUrl.toString())
         shell.openExternal(authUrl.toString())
       })
 
@@ -844,6 +887,7 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
   // 세션 저장 처리
   ipcMain.on('logined', async (event, value) => {
     isLogined = true
+    discordManager.initialize(value)
   })
 
   // 세션 저장 처리
@@ -891,6 +935,10 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
   ipcMain.on('logout', async (event) => {
     isLogined = false
     clearSession()
+    discordManager.initialize({
+      userNo: '',
+      userToken: '',
+    })
     userData = {
       userNo: '',
       userToken: '',
@@ -960,7 +1008,7 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
           sameSite: 'no_restriction',
         })
         .then(() => {
-          console.log('Authorization Cookie Saved : ', userNo, userToken)
+          log.info('setAuthorization - Authorization Cookie Saved : ', userNo, userToken)
         })
     } else {
       session.defaultSession.cookies
@@ -969,7 +1017,7 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
           'Authorization',
         )
         .then(() => {
-          console.log('Authorization Cookie Removed.')
+          log.info('setAuthorization - Authorization Cookie Removed.')
         })
     }
   })
@@ -990,17 +1038,21 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
       // 자동 업데이트 체크
       settingData = await getSettingData()
       if (settingData.autoUpdate) {
+        log.info('PROGRAM_LOADED - Auto Update Checking')
         autoUpdater.checkForUpdatesAndNotify({
           title: 'RACLA 데스크톱 앱 업데이트가 준비되었습니다.',
-          body: '업데이트를 적용하기 위해 앱을 종료하고 다시 실행하거나 해당 알림을 클릭해주세요.',
+          body: '업데이트를 적용하기 위해 앱을 종료하고 다시 실행해주세요.',
         })
       }
-      startCapturing()
+      startGameStatusCheck()
+      startFocusedWindowCheck()
+      startGameCapture()
       isLoaded = true
+
       if (settingData.autoStartGame) {
         if (settingData.autoStartGameDjmaxRespectV) {
-          const isRunning = await isDjmaxRunning('djmax_respect_v')
-          if (!isRunning) {
+          if (!isRunningDjmax) {
+            log.info('PROGRAM_LOADED - Auto Start Game DJMAX RESPECT V')
             shell.openExternal('steam://run/960170')
             mainWindow.webContents.send('pushNotification', {
               message:
@@ -1009,8 +1061,8 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
             })
           }
         } else if (settingData.autoStartGameWjmax) {
-          const isRunning = await isDjmaxRunning('wjmax')
-          if (!isRunning) {
+          if (!isRunningWjmax) {
+            log.info('PROGRAM_LOADED - Auto Start Game WJMAX')
             shell.openExternal(settingData.autoStartGameWjmaxPath)
             mainWindow.webContents.send('pushNotification', {
               message: `자동 시작 옵션이 활성화되어 WJMAX(게임)을 실행 중에 있습니다. 잠시만 기다려주세요.`,
@@ -1023,8 +1075,8 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
   })
 
   ipcMain.on('startGameDjmaxRespectV', async () => {
-    const isRunning = await isDjmaxRunning('djmax_respect_v')
-    if (!isRunning) {
+    if (!isRunningDjmax) {
+      log.info('startGameDjmaxRespectV - Start Game DJMAX RESPECT V')
       shell.openExternal('steam://run/960170')
       mainWindow.webContents.send('pushNotification', {
         message: `DJMAX RESPECT V(게임)을 실행 중에 있습니다. 잠시만 기다려주세요.`,
@@ -1034,8 +1086,8 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
   })
 
   ipcMain.on('startGameWjmax', async () => {
-    const isRunning = await isDjmaxRunning('wjmax')
-    if (!isRunning) {
+    if (!isRunningWjmax) {
+      log.info('startGameWjmax - Start Game WJMAX')
       shell.openExternal(settingData.autoStartGameWjmaxPath)
       mainWindow.webContents.send('pushNotification', {
         message: `WJMAX(게임)을 실행 중에 있습니다. 잠시만 기다려주세요.`,
@@ -1056,13 +1108,13 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
 
   // 업데이트 가용 시 버전 정보를 렌더러 프로세스로 전송
   autoUpdater.on('update-available', (info) => {
-    console.log('Update Available :', info)
+    log.info('Update Available :', info)
     mainWindow.webContents.send('update-available', info.version)
   })
 
   // 다운로드 진행 상황을 렌더러 프로세스로 전송
   autoUpdater.on('download-progress', (progress) => {
-    console.log('Update Download Progress :', progress)
+    log.info('Update Download Progress :', progress)
     mainWindow.webContents.send('download-progress', {
       percent: progress.percent,
       transferred: progress.transferred,
@@ -1072,7 +1124,7 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
 
   // 업데이트 다운로드 완료 시 렌더러 프로세스로 이벤트 전송
   autoUpdater.on('update-downloaded', (info) => {
-    console.log('Update Downloaded :', info)
+    log.info('Update Downloaded :', info)
     mainWindow.webContents.send('update-downloaded', info.version)
   })
 
@@ -1101,7 +1153,7 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
 
     fs.writeFile(filePath, `${userNo}|${userToken}`, (err) => {
       if (err) {
-        console.error('Failed to save file:', err)
+        log.error('create-player-file - Failed to save file:', err)
       } else {
         shell.showItemInFolder(filePath)
       }
@@ -1109,23 +1161,21 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
   })
 
   ipcMain.on('captureTest', async (event, data) => {
-    const isRunning = await isDjmaxRunning('djmax_respect_v')
+    const imageBuffer = await captureScreen(isRunningDjmax ? 'djmax_respect_v' : 'wjmax')
 
-    const imageBuffer = await captureScreen(isRunning ? 'djmax_respect_v' : 'wjmax')
-
-    console.log(imageBuffer)
+    log.info('captureTest - imageBuffer:', imageBuffer)
 
     const filePath = path.join(
       app.getPath('pictures'),
       'RACLA',
-      '화면 캡쳐-' + moment().utcOffset(9).format('YYYY-MM-DD-HH-mm-ss-SSS') + '.png',
+      '화면 캡쳐-' + dayjs().format('YYYY-MM-DD-HH-mm-ss-SSS') + '.png',
     )
 
     fs.writeFile(filePath, Buffer.from(imageBuffer), (err) => {
       if (err) {
-        console.error('Failed to save file:', err)
+        log.error('captureTest - Failed to save file:', err)
       } else {
-        console.log('File saved to', filePath)
+        log.info('captureTest - File saved to', filePath)
         shell.showItemInFolder(filePath)
       }
     })
@@ -1137,7 +1187,7 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
     const resizedImageMetadata = await sharp(image).metadata()
 
     if (resizedImageMetadata.height !== (resizedImageMetadata.width / 16) * 9) {
-      console.log('Windowed Image Detected.')
+      log.info('screenshot-upload - Windowed Image Detected.')
       try {
         isProcessing = true
         const croppedBuffer = await sharp(image)
@@ -1152,7 +1202,16 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
         const data = await processResultScreen(
           croppedBuffer,
           { isMenualUpload: true, isNotSaveImage: true, gameCode },
-          { app, settingData, mainWindow, overlayWindow, isProd, isLogined, isUploaded },
+          {
+            app,
+            settingData,
+            mainWindow,
+            overlayWindow,
+            isProd,
+            isLogined,
+            isUploaded,
+            discordManager: discordRPC,
+          },
           userData,
         )
         isProcessing = false
@@ -1187,18 +1246,27 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
             color: 'tw-bg-red-600',
           })
         }
-        console.error('Error processing capture:', error)
+        log.error('screenshot-upload - Error processing capture:', error)
         logMainError(error, isLogined ? userData : null)
         isProcessing = false
       }
     } else {
-      console.log('Full Screen Image Detected.')
+      log.info('screenshot-upload - Full Screen Image Detected.')
       try {
         isProcessing = true
         const data = await processResultScreen(
           image,
           { isMenualUpload: true, isNotSaveImage: true, gameCode },
-          { app, settingData, mainWindow, overlayWindow, isProd, isLogined, isUploaded },
+          {
+            app,
+            settingData,
+            mainWindow,
+            overlayWindow,
+            isProd,
+            isLogined,
+            isUploaded,
+            discordManager: discordRPC,
+          },
           userData,
         )
         isProcessing = false
@@ -1232,152 +1300,145 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
             color: 'tw-bg-red-600',
           })
         }
-        console.error('Error processing capture:', error)
+        log.error('screenshot-upload - Error processing capture:', error)
         logMainError(error, isLogined ? userData : null)
         isProcessing = false
       }
     }
   })
 
-  async function startCapturing() {
-    const captureAndProcess = async () => {
+  async function startGameCapture() {
+    log.info('startGameCapture - Game Capture Started')
+    const captureGame = async () => {
       try {
-        const isRunning = await isDjmaxRunning('djmax_respect_v')
-        const isRunningWjmax = await isDjmaxRunning('wjmax')
-        if (!isRunning && !isRunningWjmax) {
-          mainWindow.webContents.send('isDetectedGame', { status: false, game: '' })
-          return
-        }
-        mainWindow.webContents.send('isDetectedGame', {
-          status: true,
-          game: isRunning ? 'DJMAX RESPECT V' : 'WJMAX',
-        })
-
-        if (isLogined && settingData.autoCaptureMode) {
-          let focusedWindow = ''
-          try {
-            focusedWindow = await new Promise<string>((resolve, reject) => {
-              exec(
-                'powershell -command "Add-Type -TypeDefinition \'using System; using System.Runtime.InteropServices; public class Window { [DllImport(\\"user32.dll\\")] public static extern IntPtr GetForegroundWindow(); [DllImport(\\"user32.dll\\")] public static extern int GetWindowText(IntPtr hWnd, System.Text.StringBuilder text, int count); }\' ; $window = [Window]::GetForegroundWindow(); $buffer = New-Object System.Text.StringBuilder(256); [Window]::GetWindowText($window, $buffer, 256) > $null; $buffer.ToString()"',
-                (err, stdout) => {
-                  if (err) {
-                    console.error('Error getting focused window:', err)
-                    reject(err)
-                    return
-                  }
-                  resolve(stdout.trim())
-                },
-              )
-            })
-          } catch (error) {
-            console.error('Failed to get focused window:', error)
-            logMainError(error, isLogined ? userData : null)
-            isProcessing = false
-            return
-          }
-
-          const isGameFocused =
-            (focusedWindow === 'DJMAX RESPECT V' && isRunning) ||
-            (focusedWindow === 'WJMAX' && isRunningWjmax)
-
-          if (isGameFocused || !settingData.captureOnlyFocused) {
-            if (!isProcessing) {
-              try {
-                isProcessing = true
-                console.log(
-                  'Powershell isGameFocused Result : Game is focused. Capturing...',
-                  `(${focusedWindow})`,
-                )
-
-                const gameSource = await captureScreen(isRunning ? 'djmax_respect_v' : 'wjmax')
-                if (!gameSource) {
-                  console.error('Failed to capture game screen')
-                  isProcessing = false
-                  return
-                }
-
-                const data = await processResultScreen(
-                  gameSource,
-                  {
-                    isMenualUpload: false,
-                    isNotSaveImage: false,
-                    gameCode: isRunning ? 'djmax_respect_v' : 'wjmax',
-                  },
-                  { app, settingData, mainWindow, overlayWindow, isProd, isLogined, isUploaded },
-                  userData,
-                )
-                isProcessing = false
-                if (
-                  data?.playData &&
-                  (data.playData.isVerified !== null ||
-                    data.playData.screenType == 'versus' ||
-                    data.playData.screenType == 'collection')
-                ) {
-                  mainWindow.webContents.send('screenshot-uploaded', {
-                    ...data.playData,
-                    filePath: data.filePath,
-                  })
-                }
-                if (data?.isUploaded != null || data?.playData?.isUploaded != null) {
-                  isUploaded = data.isUploaded || data.playData.isUploaded
-                }
-              } catch (error) {
-                console.error('Error in capture and process:', error)
-                logMainError(error, isLogined ? userData : null)
-                isProcessing = false
-              }
-            } else {
-              console.log('startCapturing : isProcessing is true. Skipping...')
+        const isGameFocused =
+          (currentFocusedWindow === 'DJMAX RESPECT V' && isRunningDjmax) ||
+          (currentFocusedWindow === 'WJMAX' && isRunningWjmax)
+        if (
+          isLogined &&
+          settingData.autoCaptureMode &&
+          (!settingData.captureOnlyFocused || isGameFocused)
+        ) {
+          const gameSource = await captureScreen(isRunningDjmax ? 'djmax_respect_v' : 'wjmax')
+          if (gameSource) {
+            currentGameSource = gameSource
+            if (
+              settingData.autoCaptureOcrResultRegion ||
+              settingData.autoCaptureOcrOpen3Region ||
+              settingData.autoCaptureOcrOpen2Region ||
+              settingData.autoCaptureOcrVersusRegion ||
+              settingData.autoCaptureWjmaxOcrResultRegion
+            ) {
+              processScreen()
             }
-          } else {
-            console.log(
-              'Powershell isGameFocused Result : Game is not focused. Skipping...',
-              `(${focusedWindow})`,
-            )
+            if (settingData.alwaysOverlay) {
+              // asdf
+            }
           }
         }
       } catch (error) {
-        console.error('Error in captureAndProcess:', error)
+        log.error('startGameCapture - Error capturing game screen:', error)
         logMainError(error, isLogined ? userData : null)
-        isProcessing = false
       } finally {
-        // 알파메일 요청 사항
-        try {
-          clearTimeout(settingData.autoCaptureIntervalId)
-          settingData.autoCaptureIntervalId = setTimeout(
-            captureAndProcess,
-            [1, 1000, 2000, 3000, 5000, 10000].includes(settingData.autoCaptureIntervalTime)
-              ? settingData.autoCaptureIntervalTime
-              : 3000,
-          )
-        } catch (error) {
-          console.error('Error setting next capture interval:', error)
-          logMainError(error, isLogined ? userData : null)
-          isProcessing = false
-        }
+        setTimeout(captureGame, settingData.autoCaptureIntervalTime)
       }
     }
 
-    captureAndProcess()
+    captureGame()
   }
+
+  const processScreen = async () => {
+    try {
+      const isGameFocused =
+        (currentFocusedWindow === 'DJMAX RESPECT V' && isRunningDjmax) ||
+        (currentFocusedWindow === 'WJMAX' && isRunningWjmax)
+
+      if (isGameFocused || !settingData.captureOnlyFocused) {
+        if (!isProcessing && currentGameSource) {
+          try {
+            isProcessing = true
+            log.debug(
+              'startProcessResultScreen - Game is focused. Processing...',
+              `(${currentFocusedWindow})`,
+            )
+
+            const data = await processResultScreen(
+              currentGameSource,
+              {
+                isMenualUpload: false,
+                isNotSaveImage: false,
+                gameCode: isRunningDjmax ? 'djmax_respect_v' : 'wjmax',
+              },
+
+              {
+                app,
+                settingData,
+                mainWindow,
+                overlayWindow,
+                isProd,
+                isLogined,
+                isUploaded,
+                discordManager: discordRPC,
+              },
+              userData,
+            )
+            isProcessing = false
+            if (
+              data?.playData &&
+              (data.playData.isVerified !== null ||
+                data.playData.screenType == 'versus' ||
+                data.playData.screenType == 'collection')
+            ) {
+              mainWindow.webContents.send('screenshot-uploaded', {
+                ...data.playData,
+                filePath: data.filePath,
+              })
+            }
+            if (data?.isUploaded != null || data?.playData?.isUploaded != null) {
+              isUploaded = data.isUploaded || data.playData.isUploaded
+            }
+          } catch (error) {
+            log.error('startProcessResultScreen - Error in process:', error)
+            logMainError(error, isLogined ? userData : null)
+            isProcessing = false
+          }
+        } else {
+          log.debug('startProcessResultScreen - Processing is already in progress. Skipping...')
+        }
+      } else {
+        log.debug(
+          'startProcessResultScreen - Game is not focused. Skipping...',
+          `(${currentFocusedWindow})`,
+        )
+      }
+    } catch (error) {
+      log.error('startProcessResultScreen - Error in processScreen:', error)
+      logMainError(error, isLogined ? userData : null)
+      isProcessing = false
+    }
+  }
+
   const pressAltInsert = async () => {
     try {
-      console.log('Pressed Alt+Insert Key')
+      log.info('pressAltInsert - Pressed Alt+Insert Key')
       if (settingData.resultOverlay) {
         overlayWindow.webContents.send('IPC_RENDERER_GET_NOTIFICATION_DATA', {
           message: '게임 화면 인식을 시작합니다. 잠시만 기다려주세요.',
           color: 'tw-bg-lime-600',
         })
       }
-      const isRunning = await isDjmaxRunning('djmax_respect_v')
-      const isRunningWjmax = await isDjmaxRunning('wjmax')
-      console.log('isRunning:', isRunning, 'isRunningWjmax:', isRunningWjmax)
-      if ((isRunning || isRunningWjmax) && isLogined) {
+      log.info(
+        'pressAltInsert - isRunningDjmax:',
+        isRunningDjmax,
+        'isRunningWjmax:',
+        isRunningWjmax,
+      )
+      if ((isRunningDjmax || isRunningWjmax) && isLogined) {
         try {
           isProcessing = true
-          const gameSource = await captureScreen(isRunning ? 'djmax_respect_v' : 'wjmax')
+          const gameSource = await captureScreen(isRunningDjmax ? 'djmax_respect_v' : 'wjmax')
           if (!gameSource) {
-            console.error('Failed to capture game screen')
+            log.error('pressAltInsert - Failed to capture game screen')
             isProcessing = false
             return
           }
@@ -1387,9 +1448,19 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
             {
               isMenualUpload: true,
               isNotSaveImage: false,
-              gameCode: isRunning ? 'djmax_respect_v' : 'wjmax',
+              gameCode: isRunningDjmax ? 'djmax_respect_v' : 'wjmax',
             },
-            { app, settingData, mainWindow, overlayWindow, isProd, isLogined, isUploaded },
+
+            {
+              app,
+              settingData,
+              mainWindow,
+              overlayWindow,
+              isProd,
+              isLogined,
+              isUploaded,
+              discordManager: discordRPC,
+            },
             userData,
           )
           isProcessing = false
@@ -1430,7 +1501,7 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
               color: 'tw-bg-red-600',
             })
           }
-          console.error('Error processing capture:', error)
+          log.error('pressAltInsert - Error processing capture:', error)
           logMainError(error, isLogined ? userData : null)
         }
       }
@@ -1446,7 +1517,7 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
           color: 'tw-bg-red-600',
         })
       }
-      console.error('Error processing capture:', error)
+      log.error('pressAltInsert - Error processing capture:', error)
       logMainError(error, isLogined ? userData : null)
     }
   }
@@ -1456,30 +1527,62 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
   })
 })()
 
-// isDjmaxRunning 함수 수정
-const isDjmaxRunning = (gameCode) => {
-  return new Promise((resolve, reject) => {
-    if (gameCode === 'djmax_respect_v') {
-      exec('tasklist /FI "IMAGENAME eq DJMAX*" /FO CSV', (err, stdout, stderr) => {
-        if (err) return reject(err)
-        const isRunning = stdout.toLowerCase().includes('djmax')
-        resolve(isRunning)
-      })
-    } else if (gameCode === 'wjmax') {
-      exec('tasklist /FI "IMAGENAME eq WJMAX*" /FO CSV', (err, stdout, stderr) => {
-        if (err) return reject(err)
-        const isRunning = stdout.toLowerCase().includes('wjmax')
-        resolve(isRunning)
-      })
+// isDjmaxRunning 함수 개선
+const isDjmaxRunning = async (gameCode: string): Promise<boolean> => {
+  try {
+    const processes = await psList()
+    const targetProcess = gameCode === 'djmax_respect_v' ? 'DJMAX' : 'WJMAX'
+    return processes.some((proc) =>
+      proc.name?.toLowerCase().startsWith(targetProcess.toLowerCase()),
+    )
+  } catch (error) {
+    log.error('isDjmaxRunning - Error checking process:', error)
+    return false
+  }
+}
+
+function startGameStatusCheck() {
+  log.info('startGameStatusCheck - Game Status Check Started')
+  const checkInterval = 1000 // 5초 간격으로 체크
+  gameStatusCheckInterval = setInterval(async () => {
+    try {
+      const djmaxRunning = await isDjmaxRunning('djmax_respect_v')
+      const wjmaxRunning = await isDjmaxRunning('wjmax')
+
+      if (!isRunningDjmax && !isRunningWjmax) {
+        mainWindow.webContents.send('isDetectedGame', { status: false, game: '' })
+      } else {
+        mainWindow.webContents.send('isDetectedGame', {
+          status: true,
+          game: isRunningDjmax ? 'DJMAX RESPECT V' : 'WJMAX',
+        })
+      }
+
+      if (djmaxRunning) {
+        isRunningDjmax = true
+      } else {
+        isRunningDjmax = false
+      }
+
+      if (wjmaxRunning) {
+        isRunningWjmax = true
+      } else {
+        isRunningWjmax = false
+      }
+    } catch (error) {
+      log.error('startGameStatusCheck - Game status check error:', error)
+      logMainError(error, isLogined ? userData : null)
     }
-  })
+  }, checkInterval)
 }
 
 // captureScreen 함수 수정
 async function captureScreen(gameCode) {
   try {
     if (['eapi', 'xcap-api', 'napi'].includes(settingData.autoCaptureApi)) {
-      console.log(settingData.autoCaptureApi.toUpperCase() + ': Game Window Captured')
+      log.debug(
+        'captureScreen - ' + settingData.autoCaptureApi.toUpperCase() + ': Game Window Captured',
+      )
 
       let windows = Window.all().filter((value) => value.title.includes(gameList[gameCode]))
 
@@ -1525,7 +1628,7 @@ async function captureScreen(gameCode) {
               if (!isUploaded) {
                 removedPixels = metadata.height - actualHeight
               }
-              console.log(`Removed Black Pixels: ${removedPixels}px`)
+              log.debug(`captureScreen - Removed Black Pixels: ${removedPixels}px`)
 
               // 검은색 여백을 제거한 이미지 생성
               try {
@@ -1552,13 +1655,13 @@ async function captureScreen(gameCode) {
 
                 return resizedImage
               } catch (error) {
-                console.error('Error processing image crop/resize:', error)
+                log.error('captureScreen - Error processing image crop/resize:', error)
                 logMainError(error, isLogined ? userData : null)
                 isProcessing = false
                 return null
               }
             } catch (error) {
-              console.error('Error capturing or processing initial image:', error)
+              log.error('captureScreen - Error capturing or processing initial image:', error)
               logMainError(error, isLogined ? userData : null)
               isProcessing = false
               return null
@@ -1569,60 +1672,29 @@ async function captureScreen(gameCode) {
                 .resize(1920, 1080)
                 .toBuffer()
             } catch (error) {
-              console.error('Error capturing fullscreen image:', error)
+              log.error('captureScreen - Error capturing fullscreen image:', error)
               logMainError(error, isLogined ? userData : null)
               isProcessing = false
               return null
             }
           }
         } catch (error) {
-          console.error('Error processing window capture:', error)
+          log.error('captureScreen - Error processing window capture:', error)
           logMainError(error, isLogined ? userData : null)
           isProcessing = false
           return null
         }
       } else {
-        console.log('No matching game window found')
+        log.info('captureScreen - No matching game window found')
         return null
       }
     }
     return null
   } catch (error) {
-    console.error('Critical error in captureScreen:', error)
+    log.error('captureScreen - Critical error in captureScreen:', error)
     logMainError(error, isLogined ? userData : null)
     isProcessing = false
     return null
-  }
-}
-
-// OCR 실행 함수
-async function recognizeText(imageBuffer, lang = 'eng') {
-  let worker = null
-  try {
-    worker = await Tesseract.createWorker('eng')
-
-    await worker.setParameters({
-      tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ ',
-    })
-
-    const {
-      data: { text },
-    } = await worker.recognize(imageBuffer)
-
-    return text || ''
-  } catch (error) {
-    console.error('Error in OCR text recognition:', error)
-    logMainError(error, isLogined ? userData : null)
-    return ''
-  } finally {
-    if (worker) {
-      try {
-        await worker.terminate()
-      } catch (error) {
-        console.error('Error terminating Tesseract worker:', error)
-        logMainError(error, isLogined ? userData : null)
-      }
-    }
   }
 }
 
@@ -1656,6 +1728,10 @@ ipcMain.on('update-app', () => {
   // 자동 캡처 인터벌 정리
   if (settingData.autoCaptureIntervalId) {
     clearTimeout(settingData.autoCaptureIntervalId)
+  }
+
+  if (discordRPC) {
+    discordRPC.destroy()
   }
 
   // 전역 단축키 해제
@@ -1693,7 +1769,7 @@ app.on('before-quit', () => {
     .createServer()
     .getConnections((err, count) => {
       if (count > 0) {
-        console.log(`Cleaning up ${count} remaining connections...`)
+        log.info(`Cleaning up ${count} remaining connections...`)
       }
     })
 })

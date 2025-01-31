@@ -1,8 +1,9 @@
 export const getDifficultyStarImage = (level: number, difficultyType: string): string => {
   const baseType = difficultyType === 'SC' ? 'sc' : 'nm'
 
-  if (level <= 5) return `/images/djmax_respect_v/${baseType}_5_star.png`
-  if (level <= 10) return `/images/djmax_respect_v/${baseType}_10_star.png`
+  if (difficultyType === 'SC') return `/images/djmax_respect_v/${baseType}_15_star.png`
+  if (difficultyType === 'NM') return `/images/djmax_respect_v/${baseType}_5_star.png`
+  if (difficultyType === 'HD') return `/images/djmax_respect_v/${baseType}_10_star.png`
   return `/images/djmax_respect_v/${baseType}_15_star.png`
 }
 
@@ -10,8 +11,9 @@ export const getDifficultyClassName = (level: number, difficultyType: string): s
   const baseClass = 'tw-text-base text-stroke-100 tw-font-extrabold'
   const difficultyClass = difficultyType === 'SC' ? 'tw-text-respect-sc' : 'tw-text-respect-nm'
 
-  if (level <= 5) return `${baseClass} ${difficultyClass}-5`
-  if (level <= 10) return `${baseClass} ${difficultyClass}-10`
+  if (difficultyType === 'SC') return `${baseClass} ${difficultyClass}-15`
+  if (difficultyType === 'NM') return `${baseClass} ${difficultyClass}-5`
+  if (difficultyType === 'HD') return `${baseClass} ${difficultyClass}-10`
   return `${baseClass} ${difficultyClass}-15`
 }
 

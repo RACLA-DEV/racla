@@ -1,4 +1,3 @@
-import { OverlayTrigger, Tooltip } from 'react-bootstrap'
 import {
   getDifficultyClassName,
   getDifficultyStarImage,
@@ -6,16 +5,17 @@ import {
   getScoreDisplayText,
 } from '@/libs/client/wjmaxUtils'
 import { useCallback, useEffect, useState } from 'react'
+import { OverlayTrigger, Tooltip } from 'react-bootstrap'
 import { useDispatch, useSelector } from 'react-redux'
 
+import { logRendererError } from '@/libs/client/rendererLogger'
+import { globalDictionary } from '@/libs/server/globalDictionary'
+import axios from 'axios'
 import Image from 'next/image'
 import Link from 'next/link'
-import { RootState } from 'store'
-import axios from 'axios'
-import { globalDictionary } from '@/libs/server/globalDictionary'
-import { logRendererError } from '@/libs/client/rendererLogger'
-import { setBackgroundBgaName } from 'store/slices/uiSlice'
 import { useInView } from 'react-intersection-observer'
+import { RootState } from 'store'
+import { setBackgroundBgaName } from 'store/slices/uiSlice'
 
 interface RaScorePopupComponentProps {
   songItem?: any
@@ -172,6 +172,14 @@ const RaScorePopupComponent = ({
     if (songItem) {
       dispatch(setBackgroundBgaName(String(`${songItem?.folderName}_preview`)))
     }
+    if (songItemTitle) {
+      dispatch(
+        setBackgroundBgaName(
+          wjmaxSongData.filter((song) => String(song.title) === String(songItemTitle))?.[0]
+            ?.folderName + '_preview',
+        ),
+      )
+    }
   }
 
   const handleMouseLeave = () => {
@@ -199,20 +207,20 @@ const RaScorePopupComponent = ({
       overlay={
         <Tooltip
           id='btn-nav-home'
-          className={`tw-bg-gray-950 tw-bg-opacity-100 tw-text-xs tw-min-h-48 ${fontFamily}`}
+          className={`tw-bg-gray-900 tw-bg-opacity-100 tw-text-xs tw-min-h-48 ${fontFamily}`}
         >
           <div className='tw-flex tw-gap-2'>
             <style jsx global>{`
               .tooltip-inner {
                 opacity: 1 !important;
-                background-color: rgb(3 7 18) !important;
+                background-color: rgb(17 24 39) !important;
               }
               .tooltip.show {
                 opacity: 1 !important;
               }
             `}</style>
             <div className='tw-flex tw-flex-col'>
-              <div className='tw-flex tw-flex-col tw-w-80 tw-h-32 tw-relative tw-mb-2 tw-mt-1 tw-bg-gray-900 tw-bg-opacity-100 tw-overflow-hidden tw-rounded-md'>
+              <div className='tw-flex tw-flex-col tw-w-80 tw-h-32 tw-relative tw-mb-2 tw-mt-1 tw-bg-gray-800 tw-bg-opacity-100 tw-overflow-hidden tw-rounded-md'>
                 <Image
                   loading='lazy' // "lazy" | "eager"
                   blurDataURL={globalDictionary.blurDataURL}
@@ -237,7 +245,7 @@ const RaScorePopupComponent = ({
                   <br />
                   <span className='tw-text-xl'>{displayData?.name}</span>
                 </span>
-                <span className='tw-absolute tw-top-1 tw-right-1 wjmax_dlc_code_wrap tw-animate-fadeInLeft tw-rounded-md tw-bg-gray-950 p-1'>
+                <span className='tw-absolute tw-top-1 tw-right-1 wjmax_dlc_code_wrap tw-animate-fadeInLeft tw-rounded-md tw-bg-gray-900 p-1'>
                   <span className={`wjmax_dlc_code wjmax_dlc_code_${displayData?.dlcCode ?? ''}`}>
                     {displayData?.dlc ?? ''}
                   </span>

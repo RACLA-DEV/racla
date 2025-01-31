@@ -1,5 +1,3 @@
-import 'moment/locale/ko'
-
 import * as R from 'ramda'
 
 import React, { useEffect, useState } from 'react'
@@ -12,14 +10,20 @@ import { logRendererError } from '@/libs/client/rendererLogger'
 import { useNotificationSystem } from '@/libs/client/useNotifications'
 import { globalDictionary } from '@/libs/server/globalDictionary'
 import axios from 'axios'
-import moment from 'moment'
+import dayjs from 'dayjs'
+import utc from 'dayjs/plugin/utc'
 import Head from 'next/head'
 import Image from 'next/image'
 import { useParams } from 'next/navigation'
 import { useRouter } from 'next/router'
 import { SyncLoader } from 'react-spinners'
+
 import { RootState } from 'store'
 import { setBackgroundBgaName } from 'store/slices/uiSlice'
+
+import 'dayjs/locale/ko'
+dayjs.locale('ko')
+dayjs.extend(utc)
 
 export default function VArchiveDbTitlePage() {
   const { showNotification } = useNotificationSystem()
@@ -382,7 +386,7 @@ export default function VArchiveDbTitlePage() {
                   alt=''
                   className='tw-opacity-50 tw-blur-xl'
                 />
-                <div className='tw-absolute tw-inset-0 tw-bg-gray-950 tw-bg-opacity-50' />
+                <div className='tw-absolute tw-inset-0 tw-bg-gray-900 tw-bg-opacity-50' />
               </div>
 
               <div className='tw-flex tw-justify-between tw-gap-4 tw-animate-fadeInLeft flex-equal tw-bg-gray-900 tw-bg-opacity-30 tw-rounded-md p-4'>
@@ -406,10 +410,14 @@ export default function VArchiveDbTitlePage() {
                         baseSongData[0].bpm +
                         ' BPM' +
                         ' / ' +
-                        moment.utc(baseSongData[0].time * 1000).format('m분 s초')}
+                        dayjs
+                          .utc(baseSongData[0].time * 1000)
+                          .locale('ko')
+                          .format('m분 s초')}
                     </span>
                     <span className='tw-text-lg tw-font-bold me-auto'>
                       {baseSongData[0].name}
+
                       <sup className='tw-text-xs tw-font-light tw-text-gray-300'>
                         {' '}
                         (RACLA : {baseSongData[0].title})
@@ -446,7 +454,7 @@ export default function VArchiveDbTitlePage() {
             </div>
 
             {!isLoading && (
-              <div className='tw-w-full tw-h-full tw-overflow-y-auto tw-p-4 tw-rounded-md tw-text-center tw-shadow-lg tw-bg-gray-800 tw-bg-opacity-50'>
+              <div className='tw-w-full tw-h-full tw-overflow-y-auto tw-p-4 tw-rounded-md tw-text-center tw-shadow-lg tw-bg-gray-600 tw-bg-opacity-20'>
                 <div className='tw-flex tw-flex-col tw-gap-4 tw-h-full'>
                   {baseSongData.length !== 0 && !isLoading ? (
                     Object.keys(baseSongData[0].patterns)
@@ -469,7 +477,7 @@ export default function VArchiveDbTitlePage() {
                                     .replace('B', '')
                                     .toLowerCase()} tw-rounded-lg`}
                                 />
-                                <span className='tw-aboslute tw-h-full tw-w-full tw-bg-gray-950 tw-bg-opacity-50 tw-rounded-lg tw-font-extrabold tw-text-4xl tw-flex tw-items-center tw-justify-center'>
+                                <span className='tw-aboslute tw-h-full tw-w-full tw-bg-gray-900 tw-bg-opacity-50 tw-rounded-lg tw-font-extrabold tw-text-4xl tw-flex tw-items-center tw-justify-center'>
                                   <span className='tw-text-lg tw-font-bold tw-relative'>
                                     <span className='tw-text-2xl tw-font-bold'>
                                       {String(patternName).replace('B', '').replace('_PLUS', '')}B

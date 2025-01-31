@@ -11,7 +11,7 @@ export default function LicensePage() {
 
       <div className='tw-w-full tw-flex tw-flex-col tw-items-center tw-justify-center tw-gap-4'>
         <div className='tw-w-full tw-max-w-4xl'>
-          <div className='tw-flex tw-flex-col tw-gap-6 tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-shadow-lg tw-p-8'>
+          <div className='tw-flex tw-flex-col tw-gap-6 tw-bg-gray-600 tw-bg-opacity-20 tw-rounded-lg tw-shadow-lg tw-p-8'>
             {/* 헤더 */}
             <div className='tw-flex tw-w-full tw-mb-2'>
               <span className='tw-text-2xl tw-font-bold tw-text-white'>라이선스</span>
@@ -145,13 +145,16 @@ export default function LicensePage() {
                 <p className='tw-leading-relaxed'>
                   4. 리소스 사용을 허락해주신 WJMAX 개발자님을 포함한 WJMAX STUDIO 관계자분들
                 </p>
-                <p className='tw-leading-relaxed'>5. RACLA 운영과 개발을 도와주는 회사와 팀원들</p>
                 <p className='tw-leading-relaxed'>
-                  6. 매달 50 SGD 상당의 서버 자산을 정기적으로 후원해주시는 KIHARU 후원자님
+                  5. RACLA 서비스를 함께 만들어가는 GGDRN0 STUDIO와 R-ARCHIVE 팀원들
                 </p>
                 <p className='tw-leading-relaxed'>
-                  7. RACLA 서비스에서 가장 많은 기여도를 주신 HanA 사용자님
+                  6. RACLA 서비스에서 가장 많은 기여도를 주신 HanA 사용자님
                 </p>
+                <p className='tw-leading-relaxed'>
+                  7. 매달 50 SGD 상당의 서버 자산을 정기적으로 후원해주시는 KIHARU 후원자님
+                </p>
+
                 <p className='tw-leading-relaxed'>
                   8. 마지막으로 RACLA를 사용해주시는 모든 사용자 여러분들께 감사합니다.
                 </p>
@@ -160,7 +163,7 @@ export default function LicensePage() {
           </div>
         </div>
         <div className='tw-w-full tw-max-w-4xl'>
-          <div className='tw-flex tw-flex-col tw-gap-6 tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-shadow-lg tw-p-8'>
+          <div className='tw-flex tw-flex-col tw-gap-6 tw-bg-gray-600 tw-bg-opacity-20 tw-rounded-lg tw-shadow-lg tw-p-8'>
             {/* 헤더 */}
             <div className='tw-flex tw-w-full tw-mb-2'>
               <span className='tw-text-2xl tw-font-bold tw-text-white'>이용약관</span>
@@ -231,9 +234,20 @@ export default function LicensePage() {
                       항목은 다음과 같습니다:
                     </p>
                     <ul className='tw-list-disc tw-ml-6 tw-space-y-1'>
+                      <li>
+                        아이디(서비스의 이용자 고유 번호 또는 제3자 연동 서비스의 이용자 고유 번호)
+                      </li>
+                      <li>비밀번호</li>
                       <li>닉네임</li>
                       <li>게임 플레이 데이터</li>
-                      <li>IP 주소</li>
+                      <li>
+                        접속 환경(IP 주소, 접속 일시, 접속 URL와 브라우저에서 제공되는 브라우저
+                        정보, 운영체제 정보, 접속 기기)
+                      </li>
+                      <li>
+                        키 입력 데이터(서비스의 자동 캡쳐 모드와 상시 오버레이 표시 기능 활성화 후
+                        지원하는 게임 창을 활성화(포커스)시에만 별도 동의 하에 수집)
+                      </li>
                     </ul>
                     <p className='tw-leading-relaxed'>
                       수집된 개인정보는 서비스 제공 및 통계 분석 목적으로만 사용됩니다.
@@ -301,7 +315,7 @@ export default function LicensePage() {
 
                 <div>
                   <h3 className='tw-font-bold tw-mb-2'>부칙</h3>
-                  <p className='tw-leading-relaxed'>본 약관은 2025년 1월 21일부터 적용됩니다.</p>
+                  <p className='tw-leading-relaxed'>본 약관은 2025년 1월 31일부터 적용됩니다.</p>
                 </div>
               </div>
             </div>

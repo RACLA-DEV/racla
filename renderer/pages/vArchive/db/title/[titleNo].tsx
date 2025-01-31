@@ -1,5 +1,3 @@
-import 'moment/locale/ko'
-
 import * as R from 'ramda'
 
 import React, { useEffect, useState } from 'react'
@@ -13,7 +11,9 @@ import { logRendererError } from '@/libs/client/rendererLogger'
 import { useNotificationSystem } from '@/libs/client/useNotifications'
 import { globalDictionary } from '@/libs/server/globalDictionary'
 import axios from 'axios'
-import moment from 'moment'
+import dayjs from 'dayjs'
+import 'dayjs/locale/ko'
+import LocalizedFormat from 'dayjs/plugin/localizedFormat'
 import Head from 'next/head'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -22,6 +22,9 @@ import { useRouter } from 'next/router'
 import { IconContext } from 'react-icons'
 import { SyncLoader } from 'react-spinners'
 import { RootState } from 'store'
+
+dayjs.locale('ko')
+dayjs.extend(LocalizedFormat)
 
 export default function VArchiveDbTitlePage() {
   const { showNotification } = useNotificationSystem()
@@ -601,7 +604,7 @@ export default function VArchiveDbTitlePage() {
                   alt=''
                   className='tw-opacity-50 tw-blur-xl'
                 />
-                <div className='tw-absolute tw-inset-0 tw-bg-gray-950 tw-bg-opacity-50' />
+                <div className='tw-absolute tw-inset-0 tw-bg-gray-900 tw-bg-opacity-50' />
               </div>
 
               <div className='tw-flex tw-justify-between tw-animate-fadeInLeft flex-equal tw-bg-gray-900 tw-bg-opacity-30 tw-rounded-md p-4'>
@@ -661,7 +664,7 @@ export default function VArchiveDbTitlePage() {
             </div>
 
             {!isLoading && (
-              <div className='tw-w-full tw-h-full tw-overflow-hidden tw-p-4 tw-rounded-md tw-text-center tw-shadow-lg tw-bg-gray-800 tw-bg-opacity-50'>
+              <div className='tw-w-full tw-h-full tw-overflow-hidden tw-p-4 tw-rounded-md tw-text-center tw-shadow-lg tw-bg-gray-600 tw-bg-opacity-20'>
                 <div className='tw-grid tw-grid-cols-5 tw-auto-rows-fr tw-gap-4 tw-h-full'>
                   {baseSongData.length !== 0 && !isLoading ? (
                     R.keys(baseSongData[0].patterns).map((patternName) => (
@@ -677,7 +680,7 @@ export default function VArchiveDbTitlePage() {
                               fill
                               className='tw-absolute tw-rounded-lg tw-object-cover'
                             />
-                            <div className='tw-absolute tw-inset-0 tw-bg-gray-950 tw-bg-opacity-50 tw-rounded-lg tw-backdrop-blur-md' />
+                            <div className='tw-absolute tw-inset-0 tw-bg-gray-900 tw-bg-opacity-50 tw-rounded-lg tw-backdrop-blur-md' />
                             <div
                               className={`tw-absolute tw-inset-0 respect_db_button respect_bg_b${String(patternName).replace('B', '')} tw-rounded-lg`}
                             />
@@ -737,35 +740,27 @@ export default function VArchiveDbTitlePage() {
                                   <div className='tw-w-flex tw-flex-col tw-justify-center tw-items-center'>
                                     <span
                                       className={
-                                        baseSongData[0].patterns[patternName][difficultyCode]
-                                          .level <= 5
-                                          ? 'tw-flex tw-justify-center tw-items-center tw-gap-2 tw-text-base tw-font-extrabold text-stroke-100 ' +
-                                            (difficultyCode === 'SC'
-                                              ? ' tw-text-respect-sc-5'
-                                              : ' tw-text-respect-nm-5')
-                                          : baseSongData[0].patterns[patternName][difficultyCode]
-                                                .level <= 10
-                                            ? 'tw-flex tw-justify-center tw-items-center tw-gap-2 tw-text-base tw-font-extrabold text-stroke-100 ' +
-                                              (difficultyCode === 'SC'
-                                                ? ' tw-text-respect-sc-10'
-                                                : ' tw-text-respect-nm-10')
-                                            : 'tw-flex tw-justify-center tw-items-center tw-gap-2 tw-text-base tw-font-extrabold text-stroke-100 ' +
-                                              (difficultyCode === 'SC'
-                                                ? ' tw-text-respect-sc-15'
-                                                : ' tw-text-respect-nm-15')
+                                        'tw-flex tw-justify-center tw-items-center tw-gap-2 tw-text-base tw-font-extrabold text-stroke-100 ' +
+                                        (difficultyCode === 'SC'
+                                          ? 'tw-text-respect-sc-15'
+                                          : difficultyCode === 'HD'
+                                            ? 'tw-text-respect-nm-10'
+                                            : difficultyCode === 'MX'
+                                              ? 'tw-text-respect-nm-15'
+                                              : 'tw-text-respect-nm-5') // 기본값
                                       }
                                     >
                                       <Image
                                         loading='lazy'
                                         blurDataURL={globalDictionary.blurDataURL}
                                         src={
-                                          baseSongData[0].patterns[patternName][difficultyCode]
-                                            .level <= 5
-                                            ? `/images/djmax_respect_v/${difficultyCode === 'SC' ? 'sc' : 'nm'}_5_star.png`
-                                            : baseSongData[0].patterns[patternName][difficultyCode]
-                                                  .level <= 10
-                                              ? `/images/djmax_respect_v/${difficultyCode === 'SC' ? 'sc' : 'nm'}_10_star.png`
-                                              : `/images/djmax_respect_v/${difficultyCode === 'SC' ? 'sc' : 'nm'}_15_star.png`
+                                          difficultyCode === 'SC'
+                                            ? `/images/djmax_respect_v/sc_15_star.png`
+                                            : difficultyCode === 'HD'
+                                              ? `/images/djmax_respect_v/nm_10_star.png`
+                                              : difficultyCode === 'MX'
+                                                ? `/images/djmax_respect_v/nm_15_star.png`
+                                                : `/images/djmax_respect_v/nm_5_star.png` // 기본값
                                         }
                                         height={16}
                                         width={16}
@@ -780,23 +775,14 @@ export default function VArchiveDbTitlePage() {
                                       ) > 0 && (
                                         <span
                                           className={
-                                            baseSongData[0].patterns[patternName][difficultyCode]
-                                              .level <= 5
-                                              ? 'tw-font-light tw-text-sm ' +
-                                                (difficultyCode === 'SC'
-                                                  ? 'tw-text-respect-sc-5'
-                                                  : 'tw-text-respect-nm-5')
-                                              : baseSongData[0].patterns[patternName][
-                                                    difficultyCode
-                                                  ].level <= 10
-                                                ? 'tw-font-light tw-text-sm ' +
-                                                  (difficultyCode === 'SC'
-                                                    ? 'tw-text-respect-sc-10'
-                                                    : 'tw-text-respect-nm-10')
-                                                : 'tw-font-light tw-text-sm ' +
-                                                  (difficultyCode === 'SC'
-                                                    ? 'tw-text-respect-sc-15'
-                                                    : 'tw-text-respect-nm-15')
+                                            'tw-font-light tw-text-sm ' +
+                                            (difficultyCode === 'SC'
+                                              ? 'tw-text-respect-sc-15'
+                                              : difficultyCode === 'HD'
+                                                ? 'tw-text-respect-nm-10'
+                                                : difficultyCode === 'MX'
+                                                  ? 'tw-text-respect-nm-15'
+                                                  : 'tw-text-respect-nm-5') // 기본값
                                           }
                                         >
                                           (
@@ -928,14 +914,14 @@ export default function VArchiveDbTitlePage() {
 
           {/* DJ 코멘트 패널 */}
           <div
-            className={`tw-fixed tw-top-12 tw-bottom-8 tw-p-4 tw-rounded-l-md tw-w-[calc(33.3%-6rem)] tw-transition-transform tw-duration-300 tw-ease-in-out tw-min-w-[30rem] tw-bg-gray-950 tw-bg-opacity-50 tw-backdrop-blur-xl tw-transform ${isDjCommentOpen ? 'tw-translate-x-0 tw-right-0' : 'tw-translate-x-full tw-right-0'}`}
+            className={`tw-fixed tw-top-12 tw-bottom-8 tw-p-4 tw-rounded-l-md tw-w-[calc(33.3%-6rem)] tw-transition-transform tw-duration-300 tw-ease-in-out tw-min-w-[30rem] tw-bg-gray-900 tw-bg-opacity-50 tw-backdrop-blur-xl tw-transform ${isDjCommentOpen ? 'tw-translate-x-0 tw-right-0' : 'tw-translate-x-full tw-right-0'}`}
           >
             {!isLoading && !isFetchingCommentData ? (
               <div className='tw-flex tw-flex-col tw-h-full tw-overflow-hidden'>
                 {vArchiveUserData.userNo !== '' &&
                 vArchiveUserData.userToken !== '' &&
                 vArchiveUserData.userName !== '' ? (
-                  <div className='tw-flex tw-flex-col tw-gap-4 tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-shadow-lg tw-p-6 tw-mb-4 tw-h-auto tw-min-h-[208px] tw-overflow-hidden'>
+                  <div className='tw-flex tw-flex-col tw-gap-4 tw-bg-gray-600 tw-bg-opacity-20 tw-rounded-lg tw-shadow-lg tw-p-6 tw-mb-4 tw-h-auto tw-min-h-[208px] tw-overflow-hidden'>
                     <div className='tw-flex tw-items-center tw-justify-between'>
                       <span className='tw-text-base tw-font-bold tw-text-white'>✏️ 내 코멘트</span>
                       <div className='tw-flex tw-gap-2 tw-items-center'>
@@ -1007,7 +993,7 @@ export default function VArchiveDbTitlePage() {
                                 }
                               </span>
                               <span className='tw-font-light tw-text-sm tw-text-gray-400 tw-me-auto'>
-                                {moment(
+                                {dayjs(
                                   commentData.filter(
                                     (commentItem) =>
                                       commentItem.nickname === vArchiveUserData.userName,
@@ -1116,7 +1102,7 @@ export default function VArchiveDbTitlePage() {
                 {/* 전체 DJ 코멘트 섹션 */}
                 <div
                   className={
-                    'tw-flex tw-flex-col tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-shadow-lg tw-overflow-hidden ' +
+                    'tw-flex tw-flex-col tw-bg-gray-600 tw-bg-opacity-20 tw-rounded-lg tw-shadow-lg tw-overflow-hidden ' +
                     (vArchiveUserData.userName !== '' ? '' : 'tw-h-full')
                   }
                 >
@@ -1155,7 +1141,7 @@ export default function VArchiveDbTitlePage() {
                                   {commentItem.nickname}
                                 </span>
                                 <span className='tw-font-light tw-text-xs tw-text-gray-400'>
-                                  {moment(commentItem.ymdt).locale('ko').format('LL')}
+                                  {dayjs(commentItem.ymdt).locale('ko').format('LL')}
                                 </span>
                               </div>
                               <span
@@ -1200,7 +1186,7 @@ export default function VArchiveDbTitlePage() {
                                 }}
                               >
                                 <div
-                                  className={`tw-flex tw-items-center tw-gap-1.5 tw-px-3 tw-py-1.5 tw-rounded-full tw-bg-gray-800 tw-bg-opacity-50 ${commentItem.myVote === 1 ? 'tw-text-red-400 tw-border-red-400' : 'tw-text-gray-400 tw-border-gray-600'} tw-border tw-border-opacity-30 tw-transition-all ${vArchiveUserData.userNo !== '' ? 'hover:tw-border-opacity-50' : ''}`}
+                                  className={`tw-flex tw-items-center tw-gap-1.5 tw-px-3 tw-py-1.5 tw-rounded-full tw-bg-gray-600 tw-bg-opacity-20 ${commentItem.myVote === 1 ? 'tw-text-red-400 tw-border-red-400' : 'tw-text-gray-400 tw-border-gray-600'} tw-border tw-border-opacity-30 tw-transition-all ${vArchiveUserData.userNo !== '' ? 'hover:tw-border-opacity-50' : ''}`}
                                 >
                                   <span>
                                     <IconContext.Provider

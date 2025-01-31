@@ -273,7 +273,7 @@ export default function VArchiveLoginPage() {
       </Head>
       <div className='tw-h-[calc(100vh-7rem)] tw-flex tw-items-center tw-justify-center tw-py-12 tw-px-4'>
         <div className='tw-w-full tw-max-w-md'>
-          <div className='tw-flex tw-flex-col tw-gap-1 tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-shadow-lg tw-p-8 tw-overflow-hidden'>
+          <div className='tw-flex tw-flex-col tw-gap-1 tw-bg-gray-600 tw-bg-opacity-20 tw-rounded-lg tw-shadow-lg tw-p-8 tw-overflow-hidden'>
             {/* 상단 */}
             <div className='tw-flex tw-w-full tw-mb-6'>
               <AnimatePresence mode='wait'>
@@ -288,12 +288,12 @@ export default function VArchiveLoginPage() {
                   {isLoginView ? '로그인' : '계정 생성'}
                 </motion.span>
               </AnimatePresence>
-              <button
+              {/* <button
                 onClick={() => setIsLoginView(!isLoginView)}
                 className='tw-text-sm tw-text-gray-300 hover:tw-text-white tw-transition-colors'
               >
                 {isLoginView ? '계정 생성' : '로그인으로 돌아가기'}
-              </button>
+              </button> */}
             </div>
 
             {/* 컨텐츠 */}
@@ -328,6 +328,23 @@ export default function VArchiveLoginPage() {
                         />
 
                         {/* 커스텀 버튼 */}
+
+                        <button
+                          onClick={handleDiscordLogin}
+                          className='tw-w-full tw-flex tw-items-center tw-justify-center tw-gap-2 tw-px-4 tw-py-3 tw-rounded-md tw-bg-[#5865F2] hover:tw-bg-[#4752C4] tw-text-white tw-transition-colors'
+                        >
+                          <FaDiscord className='tw-text-lg' />
+                          Discord로 로그인
+                        </button>
+
+                        <button
+                          onClick={handleVArchiveFileSelect}
+                          className='tw-w-full tw-flex tw-items-center tw-justify-center tw-gap-2 tw-px-4 tw-py-3 tw-rounded-md tw-bg-amber-600 hover:tw-bg-amber-700 tw-text-white tw-transition-colors'
+                        >
+                          <FaV className='tw-text-base' />
+                          V-ARCHIVE로 로그인
+                        </button>
+
                         <button
                           onClick={handleRaFileSelect}
                           className='tw-w-full tw-flex tw-items-center tw-justify-center tw-gap-2 tw-px-4 tw-py-3 tw-rounded-md tw-bg-blue-600 hover:tw-bg-blue-700 tw-text-white tw-transition-colors'
@@ -341,22 +358,6 @@ export default function VArchiveLoginPage() {
                             className='tw-mt-0.5'
                           />
                           RACLA로 로그인
-                        </button>
-
-                        <button
-                          onClick={handleVArchiveFileSelect}
-                          className='tw-w-full tw-flex tw-items-center tw-justify-center tw-gap-2 tw-px-4 tw-py-3 tw-rounded-md tw-bg-amber-600 hover:tw-bg-amber-700 tw-text-white tw-transition-colors'
-                        >
-                          <FaV className='tw-text-base' />
-                          V-ARCHIVE로 로그인
-                        </button>
-
-                        <button
-                          onClick={handleDiscordLogin}
-                          className='tw-w-full tw-flex tw-items-center tw-justify-center tw-gap-2 tw-px-4 tw-py-3 tw-rounded-md tw-bg-[#5865F2] hover:tw-bg-[#4752C4] tw-text-white tw-transition-colors'
-                        >
-                          <FaDiscord className='tw-text-lg' />
-                          Discord로 로그인
                         </button>
                       </div>
 
@@ -375,8 +376,7 @@ export default function VArchiveLoginPage() {
                             해당되는 서비스의 계정 정보와 연동됩니다.
                           </span>
                           <span>
-                            연동 관련 설정은 기존에 방법으로 로그인 후 설정 페이지에서 확인할 수
-                            있습니다.
+                            연동 관련 설정은 로그인 후 설정 페이지에서 확인할 수 있습니다.
                           </span>
                           <span
                             className='tw-flex tw-items-center tw-gap-1 tw-text-blue-400 hover:tw-text-blue-300 tw-cursor-pointer tw-transition-colors'

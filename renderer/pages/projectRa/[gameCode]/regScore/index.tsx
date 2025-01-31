@@ -1,5 +1,3 @@
-import 'moment/locale/ko'
-
 import React, { useEffect, useState } from 'react'
 import { FaCloudArrowUp, FaYoutube } from 'react-icons/fa6'
 import { useDispatch, useSelector } from 'react-redux'
@@ -14,15 +12,21 @@ import {
 import RaScorePopupComponent from '@/components/score/RaScorePopupComponent'
 import { useNotificationSystem } from '@/libs/client/useNotifications'
 import { useRecentHistory } from '@/libs/client/useRecentHistory'
-import moment from 'moment'
+import dayjs from 'dayjs'
+import utc from 'dayjs/plugin/utc'
 import Head from 'next/head'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
 import { IconContext } from 'react-icons'
 import { FiTriangle } from 'react-icons/fi'
 import { SyncLoader } from 'react-spinners'
+
 import { RootState } from 'store'
 import { setBackgroundBgaName } from 'store/slices/uiSlice'
+
+import 'dayjs/locale/ko'
+dayjs.locale('ko')
+dayjs.extend(utc)
 
 export default function VArchiveRegScorePage() {
   const { showNotification } = useNotificationSystem()
@@ -313,7 +317,7 @@ export default function VArchiveRegScorePage() {
                           alt=''
                           className='tw-opacity-50 tw-blur-xl'
                         />
-                        <div className='tw-absolute tw-inset-0 tw-bg-gray-950 tw-bg-opacity-50' />
+                        <div className='tw-absolute tw-inset-0 tw-bg-gray-900 tw-bg-opacity-50' />
                       </div>
                       <div className='tw-flex tw-flex-col tw-animate-fadeInLeft flex-equal tw-bg-gray-900 tw-bg-opacity-30 tw-rounded-md p-4'>
                         {/* 하단 */}
@@ -333,8 +337,9 @@ export default function VArchiveRegScorePage() {
                                     : '') +
                                   ' / ' +
                                   (projectRaUploadedPageData.songData.bpm + ' BPM / ') +
-                                  moment
+                                  dayjs
                                     .utc(projectRaUploadedPageData.songData.time * 1000)
+                                    .locale('ko')
                                     .format('m분 s초')}
                               </span>
                               <div className='tw-flex'>
@@ -378,7 +383,7 @@ export default function VArchiveRegScorePage() {
                       </div>
                     </div>
 
-                    <div className='tw-flex tw-flex-col tw-w-full tw-relative tw-animate-fadeInLeft tw-bg-gray-600 tw-bg-opacity-10 tw-rounded-md tw-gap-2 tw-mb-4 p-4'>
+                    <div className='tw-flex tw-flex-col tw-w-full tw-relative tw-animate-fadeInLeft tw-bg-gray-600 tw-bg-opacity-20 tw-rounded-md tw-gap-2 tw-mb-4 p-4'>
                       <div className='tw-flex tw-justify-between tw-items-center'>
                         <div className='tw-flex tw-flex-col tw-gap-2'>
                           <span className='tw-text-base tw-font-light'>BUTTON</span>
@@ -482,7 +487,7 @@ export default function VArchiveRegScorePage() {
 
                     <div className='tw-flex tw-gap-4 tw-w-full tw-flex-1 tw-overflow-hidden'>
                       {/* 최근 기록 섹션 */}
-                      <div className='tw-flex tw-flex-col tw-w-1/2 tw-relative tw-animate-fadeInLeft tw-bg-gray-600 tw-bg-opacity-10 tw-rounded-md tw-gap-2 p-4'>
+                      <div className='tw-flex tw-flex-col tw-w-1/2 tw-relative tw-animate-fadeInLeft tw-bg-gray-600 tw-bg-opacity-20 tw-rounded-md tw-gap-2 p-4'>
                         <div className='tw-flex tw-w-full tw-mb-2 tw-items-center tw-justify-between'>
                           <span className='tw-text-lg tw-font-bold me-auto'>최근 기록</span>
                         </div>
@@ -545,7 +550,7 @@ export default function VArchiveRegScorePage() {
                       </div>
 
                       {/* 추천 옵션 섹션 */}
-                      <div className='tw-flex tw-flex-col tw-w-1/2 tw-relative tw-animate-fadeInRight tw-bg-gray-600 tw-bg-opacity-10 tw-rounded-md tw-gap-2 p-4'>
+                      <div className='tw-flex tw-flex-col tw-w-1/2 tw-relative tw-animate-fadeInRight tw-bg-gray-600 tw-bg-opacity-20 tw-rounded-md tw-gap-2 p-4'>
                         <div className='tw-flex tw-w-full tw-mb-2 tw-items-center'>
                           <span className='tw-text-lg tw-font-bold me-auto'>팁 & 추천 옵션</span>
                         </div>
@@ -562,7 +567,7 @@ export default function VArchiveRegScorePage() {
                 ) : null}
               </>
             ) : isUploading ? (
-              <div className='tw-flex tw-flex-col tw-w-full tw-relative tw-animate-fadeInLeft tw-h-full tw-justify-center tw-items-center tw-bg-gray-600 tw-bg-opacity-10 tw-rounded-md'>
+              <div className='tw-flex tw-flex-col tw-w-full tw-relative tw-animate-fadeInLeft tw-h-full tw-justify-center tw-items-center tw-bg-gray-600 tw-bg-opacity-20 tw-rounded-md'>
                 <SyncLoader color='#ffffff' size={8} />
               </div>
             ) : (

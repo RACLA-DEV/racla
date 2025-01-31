@@ -1,5 +1,7 @@
+import log from 'electron-log/main'
 import { globalDictionary } from '../renderer/src/libs/server/globalDictionary'
 import { getSettingData, storeSettingData } from './fsManager'
+log.transports.console.format = '[{y}-{m}-{d} {h}:{i}:{s}.{ms}] [{level}] {text}'
 
 export const settingsManager = {
   // 초기 설정값 생성
@@ -29,14 +31,14 @@ export const settingsManager = {
       if (currentSettings[key] === undefined) {
         currentSettings[key] = value
         hasNewSettings = true
-        console.log(`New setting added: ${key} = ${value}`)
+        log.info(`New setting added: ${key} = ${value}`)
       }
     })
 
     // 새로운 설정이 추가된 경우에만 파일 업데이트
     if (hasNewSettings) {
       await storeSettingData(currentSettings)
-      console.log('Settings file updated with new settings')
+      log.info('Settings file updated with new settings')
     }
   },
 

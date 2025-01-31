@@ -468,7 +468,10 @@ function MyApp({ Component, pageProps }: AppProps) {
         )
       }
 
-      window.ipc.send('logined')
+      window.ipc.send('logined', {
+        userNo: response.data.userNo,
+        userToken: response.data.userToken,
+      })
     } catch (error) {
       logRendererError(error, { message: 'Error in handleLogin' })
       window.ipc.logout()
@@ -578,7 +581,7 @@ function MyApp({ Component, pageProps }: AppProps) {
 
   const noticeSection = (
     <div className='tw-flex tw-flex-col tw-gap-8'>
-      <div className='tw-flex tw-flex-col tw-gap-8 tw-p-6 tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-text-sm'>
+      <div className='tw-flex tw-flex-col tw-gap-8 tw-p-6 tw-bg-gray-600 tw-bg-opacity-20 tw-rounded-lg tw-text-sm'>
         <div className='tw-flex tw-flex-col tw-gap-4 tw-w-full'>
           <div className='tw-flex tw-flex-col tw-gap-2 tw-w-full tw-leading-relaxed'>
             <div className='tw-bg-yellow-900 tw-bg-opacity-20 tw-p-4 tw-rounded tw-border-l-4 tw-border-yellow-500'>
@@ -597,7 +600,7 @@ function MyApp({ Component, pageProps }: AppProps) {
         </div>
       </div>
 
-      <div className='tw-flex tw-flex-col tw-gap-8 tw-p-6 tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-text-sm'>
+      <div className='tw-flex tw-flex-col tw-gap-8 tw-p-6 tw-bg-gray-600 tw-bg-opacity-20 tw-rounded-lg tw-text-sm'>
         <div className='tw-flex tw-flex-col tw-gap-4 tw-w-full'>
           <div className='tw-flex tw-flex-col tw-gap-2 tw-w-full tw-leading-relaxed'>
             <div className='tw-bg-blue-900 tw-bg-opacity-20 tw-p-4 tw-rounded tw-border-l-4 tw-border-blue-500'>
@@ -616,7 +619,7 @@ function MyApp({ Component, pageProps }: AppProps) {
         </div>
       </div>
 
-      <div className='tw-flex tw-flex-col tw-gap-8 tw-p-6 tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-text-sm'>
+      <div className='tw-flex tw-flex-col tw-gap-8 tw-p-6 tw-bg-gray-600 tw-bg-opacity-20 tw-rounded-lg tw-text-sm'>
         <div className='tw-flex tw-flex-col tw-gap-4 tw-w-full'>
           <div className='tw-flex tw-flex-col tw-gap-2 tw-w-full tw-leading-relaxed'>
             <div className='tw-bg-blue-900 tw-bg-opacity-20 tw-p-4 tw-rounded tw-border-l-4 tw-border-blue-500'>
@@ -637,7 +640,7 @@ function MyApp({ Component, pageProps }: AppProps) {
 
   const updateSection = (
     <div className='tw-flex tw-flex-col tw-gap-4 tw-break-keep'>
-      <div className='tw-flex tw-flex-col tw-gap-8 tw-p-6 tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-text-sm'>
+      <div className='tw-flex tw-flex-col tw-gap-8 tw-p-6 tw-bg-gray-600 tw-bg-opacity-20 tw-rounded-lg tw-text-sm'>
         <div className='tw-flex tw-flex-col tw-gap-4 tw-w-full'>
           <div className='tw-flex tw-flex-col tw-gap-6 tw-w-full tw-leading-relaxed'>
             {/* 첫 번째 설명 블록 */}
@@ -939,7 +942,7 @@ function MyApp({ Component, pageProps }: AppProps) {
                   본 서비스에서 제공되는 리소스는 각 저작권자로부터 별도의 라이선스를 부여받지 않았습니다. 비상업적인 용도로만 사용할 수 있습니다.
                 </span> */}
                 <span className='tw-text-xs tw-font-light tw-text-gray-200 tw-text-opacity-50'>
-                  Developed by GGDRN0 STUDIO & R-ARCHIVE. Produced by LunaticaLuna.
+                  Developed by GGDRN0 STUDIO & R-ARCHIVE
                 </span>
               </div>
             </div>

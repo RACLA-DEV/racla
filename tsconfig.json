@@ -9,7 +9,7 @@
     "noEmit": true,
     "incremental": true,
     "esModuleInterop": true,
-    "module": "esnext",
+    "module": "es2022",
     "moduleResolution": "node",
     "downlevelIteration": true,
     "resolveJsonModule": true,

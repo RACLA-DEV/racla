@@ -1,12 +1,14 @@
+import { randomUUID } from 'crypto'
+import dayjs from 'dayjs'
+import log from 'electron-log/main'
+import fs from 'fs'
+import path from 'path'
+import sharp from 'sharp'
 import Tesseract from 'tesseract.js'
 import { customAxios } from './axios'
-import fs from 'fs'
 import { getSession } from './fsManager'
 import { logMainError } from './mainLogger'
-import moment from 'moment'
-import path from 'path'
-import { randomUUID } from 'crypto'
-import sharp from 'sharp'
+log.transports.console.format = '[{y}-{m}-{d} {h}:{i}:{s}.{ms}] [{level}] {text}'
 
 interface OCRRegion {
   width: number
@@ -89,6 +91,7 @@ class GameOCRProcessor {
     private mainWindow: any,
     private overlayWindow: any,
     private userData: any,
+    private discordManager?: any,
   ) {}
 
   async extractRegions(gameCode: string, imageBuffer: Buffer) {
@@ -252,7 +255,7 @@ class ImageProcessor {
 
       return await image.composite(overlays).toBuffer()
     } catch (error) {
-      console.error('Error applying profile mask:', error)
+      log.error('Error applying profile mask:', error)
       logMainError(error, userData.userNo !== '' && userData.userToken !== '' ? userData : null)
       return imageBuffer
     }
@@ -321,10 +324,10 @@ class ImageProcessor {
     return new Promise((resolve, reject) => {
       fs.writeFile(filePath, imageBuffer, (err) => {
         if (err) {
-          console.error('Failed to save file:', err)
+          log.error('Failed to save file:', err)
           reject(err)
         } else {
-          console.log('File saved to', filePath)
+          log.info('File saved to', filePath)
           resolve()
         }
       })
@@ -364,10 +367,10 @@ class OCRApiService {
         },
       )
 
-      console.log('Server Side OCR Upload Result:', response.data)
+      log.debug('Server Side OCR Upload Result:', response.data)
       return response.data
     } catch (error) {
-      console.error('Server Side OCR Upload Error:', error)
+      log.error('Server Side OCR Upload Error:', error)
       logMainError(
         error,
         this.userData.userNo !== '' && this.userData.userToken !== '' ? this.userData : null,
@@ -386,11 +389,20 @@ class OCRApiService {
 export async function processResultScreen(
   imageBuffer: Buffer,
   options: ProcessOptions,
-  appOptions: AppOptions,
+  appOptions: AppOptions & { discordManager?: any },
   userData: any,
 ) {
   const { isMenualUpload = false, isNotSaveImage = false, gameCode = 'djmax_respect_v' } = options
-  const { app, settingData, mainWindow, overlayWindow, isProd, isLogined, isUploaded } = appOptions
+  const {
+    app,
+    settingData,
+    mainWindow,
+    overlayWindow,
+    isProd,
+    isLogined,
+    isUploaded,
+    discordManager,
+  } = appOptions
 
   const ocrProcessor = new GameOCRProcessor(
     gameCode,
@@ -398,12 +410,13 @@ export async function processResultScreen(
     mainWindow,
     overlayWindow,
     userData,
+    discordManager,
   )
   const imageProcessor = new ImageProcessor(settingData, ocrProcessor)
   const apiService = new OCRApiService(isProd, isLogined, gameCode, userData)
 
   try {
-    console.log('Client Side OCR isResultScreen Requested. Processing image data...')
+    log.debug('Client Side OCR isResultScreen Requested. Processing image data...')
 
     // 1. OCR 처리
     const { texts } = !isMenualUpload
@@ -414,7 +427,7 @@ export async function processResultScreen(
       : { isResult: ['server'], text: 'server', where: 'server' }
 
     if (resultInfo.isResult.length === 0) {
-      console.log('Waiting for Result Screen...')
+      log.debug('Waiting for Result Screen...')
       return { playData: { isVerified: null }, isUploaded: false }
     }
 
@@ -423,7 +436,7 @@ export async function processResultScreen(
       try {
         if (!isMenualUpload) {
           mainWindow.webContents.send('pushNotification', {
-            time: moment().utcOffset(9).format('YYYY-MM-DD-HH-mm-ss'),
+            time: dayjs().format('YYYY-MM-DD-HH-mm-ss'),
             message: `${
               gameCode == 'djmax_respect_v' ? 'DJMAX RESPECT V' : 'WJMAX'
             }의 게임 결과창이 자동 인식되어 성과 기록 이미지를 처리 중에 있습니다. 잠시만 기다려주세요.`,
@@ -462,6 +475,19 @@ export async function processResultScreen(
           }
 
           await handleNotifications(gameCode, playData, mainWindow, overlayWindow, isProd, userData)
+
+          // Discord RPC 업데이트
+          if (discordManager) {
+            await discordManager.updatePresence({
+              songName: playData.songData.name,
+              button: playData.button,
+              pattern: playData.pattern,
+              score: playData.score,
+              maxCombo: playData.maxCombo,
+              gameCode: playData.gameCode,
+            })
+          }
+
           return {
             ...response,
             filePath: settingData.saveImageWhenCapture ? getFilePath(playData, app) : null,
@@ -473,7 +499,7 @@ export async function processResultScreen(
         handleError(error)
       }
     } else {
-      console.log('Waiting for Exit Result Screen...')
+      log.debug('Waiting for Exit Result Screen...')
       return { playData: { isVerified: null } }
     }
   } catch (error) {
@@ -488,7 +514,7 @@ function getFilePath(playData: any, app: any): string {
   return path.join(
     app.getPath('pictures'),
     'RACLA',
-    `${playData.gameCode.toUpperCase().replaceAll('_', ' ')}-${getFileNamePart(playData)}-${moment().utcOffset(9).format('YYYY-MM-DD-HH-mm-ss')}.png`,
+    `${playData.gameCode.toUpperCase().replaceAll('_', ' ')}-${getFileNamePart(playData)}-${dayjs().format('YYYY-MM-DD-HH-mm-ss')}.png`,
   )
 }
 
@@ -502,7 +528,7 @@ function getFileNamePart(playData: any): string {
 }
 
 function handleError(error: any) {
-  console.error('Error in processResultScreen:', error)
+  log.error('Error in processResultScreen:', error)
 }
 
 async function handleNotifications(
@@ -551,7 +577,7 @@ async function handleRegularNotification(
     })
     mainWindow.webContents.send('PLAY_NOTIFICATION_SOUND')
   } catch (error) {
-    console.error('Error fetching backup data:', error)
+    log.error('Error fetching backup data:', error)
     logMainError(error, userData.userNo !== '' && userData.userToken !== '' ? userData : null)
     overlayWindow.webContents.send('IPC_RENDERER_GET_NOTIFICATION_DATA', {
       ...playData,
@@ -590,7 +616,7 @@ async function handleVersusNotifications(
           })
         }, 2000 * index)
       } catch (error) {
-        console.error('Error fetching backup data:', error)
+        log.error('Error fetching backup data:', error)
         logMainError(error, userData.userNo !== '' && userData.userToken !== '' ? userData : null)
         setTimeout(() => {
           overlayWindow.webContents.send('IPC_RENDERER_GET_NOTIFICATION_DATA', {
@@ -635,7 +661,7 @@ async function recognizeText(imageBuffer, lang = 'eng', userData) {
 
     return text || ''
   } catch (error) {
-    console.error('Error in OCR text recognition:', error)
+    log.error('Error in OCR text recognition:', error)
     logMainError(error, userData.userNo !== '' && userData.userToken !== '' ? userData : null)
     return ''
   } finally {
@@ -644,7 +670,7 @@ async function recognizeText(imageBuffer, lang = 'eng', userData) {
         await worker.terminate()
       } catch (error) {
         logMainError(error, userData.userNo !== '' && userData.userToken !== '' ? userData : null)
-        console.error('Error terminating Tesseract worker:', error)
+        log.error('Error terminating Tesseract worker:', error)
       }
     }
   }

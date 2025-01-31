@@ -1,11 +1,13 @@
-import 'moment/locale/ko'
-
 import React, { useEffect, useState } from 'react'
 
 import axios from 'axios'
-import moment from 'moment'
+import dayjs from 'dayjs'
+import 'dayjs/locale/ko'
+import LocalizedFormat from 'dayjs/plugin/localizedFormat'
 import Head from 'next/head'
 import { SyncLoader } from 'react-spinners'
+dayjs.locale('ko')
+dayjs.extend(LocalizedFormat)
 
 interface Score {
   a: number
@@ -192,7 +194,7 @@ const HjaRankingPage = () => {
       <Head>
         <title>전일 아카이브 랭킹 - RACLA</title>
       </Head>
-      <div className='tw-flex tw-flex-col tw-gap-4 tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-shadow-lg p-4'>
+      <div className='tw-flex tw-flex-col tw-gap-4 tw-bg-gray-600 tw-bg-opacity-20 tw-rounded-lg tw-shadow-lg p-4'>
         <div className='tw-flex tw-justify-between tw-items-center'>
           <div className='tw-flex tw-items-center tw-gap-4'>
             <h1 className='tw-text-3xl tw-font-bold tw-text-white'>랭킹</h1>
@@ -230,11 +232,13 @@ const HjaRankingPage = () => {
         <div className='tw-flex tw-items-center'>
           {selectedRanking === 'daily' && dailyRankingData?.renew_time ? (
             <span className='tw-ms-auto tw-text-gray-400 tw-text-sm'>
-              전일 랭킹 최종 업데이트: {moment.unix(dailyRankingData.renew_time).format('LLL')}
+              전일 랭킹 최종 업데이트:{' '}
+              {dayjs.unix(dailyRankingData.renew_time).locale('ko').format('LLL')}
             </span>
           ) : selectedRanking === 'total' && totalRankingData?.renew_time ? (
             <span className='tw-ms-auto tw-text-gray-400 tw-text-sm'>
-              종합 랭킹 최종 업데이트: {moment.unix(totalRankingData.renew_time).format('LLL')}
+              종합 랭킹 최종 업데이트:{' '}
+              {dayjs.unix(totalRankingData.renew_time).locale('ko').format('LLL')}
             </span>
           ) : null}
         </div>

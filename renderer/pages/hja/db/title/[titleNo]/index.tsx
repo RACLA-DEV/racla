@@ -1,5 +1,3 @@
-import 'moment/locale/ko'
-
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -226,7 +224,7 @@ export default function VArchiveDbTitlePage() {
                   alt=''
                   className='tw-opacity-50 tw-blur-xl'
                 />
-                <div className='tw-absolute tw-inset-0 tw-bg-gray-950 tw-bg-opacity-50' />
+                <div className='tw-absolute tw-inset-0 tw-bg-gray-900 tw-bg-opacity-50' />
               </div>
 
               <div className='tw-flex tw-justify-between tw-animate-fadeInLeft flex-equal tw-bg-gray-900 tw-bg-opacity-30 tw-rounded-md p-4'>
@@ -280,7 +278,7 @@ export default function VArchiveDbTitlePage() {
             </div>
 
             {!isLoading && (
-              <div className='tw-w-full tw-h-full tw-overflow-hidden tw-p-4 tw-rounded-md tw-shadow-lg tw-bg-gray-800 tw-bg-opacity-50'>
+              <div className='tw-w-full tw-h-full tw-overflow-hidden tw-p-4 tw-rounded-md tw-shadow-lg tw-bg-gray-600 tw-bg-opacity-20'>
                 <div className='tw-grid tw-grid-cols-4 tw-gap-4 tw-h-full'>
                   {['4B', '5B', '6B', '8B'].map((buttonType) => {
                     // 해당 키모드의 패턴들 필터링
@@ -346,7 +344,7 @@ export default function VArchiveDbTitlePage() {
                                         </div>
                                         {record?.hard ? (
                                           <div className='tw-flex tw-flex-col tw-gap-1'>
-                                            <div className='tw-font-bold'>
+                                            <div className='tw-font-bold tw-text-cyan-200'>
                                               {record.hard.nickname}
                                             </div>
                                             <div className='tw-font-bold'>
@@ -386,7 +384,7 @@ export default function VArchiveDbTitlePage() {
                                         </div>
                                         {record?.max ? (
                                           <div className='tw-flex tw-flex-col tw-gap-1'>
-                                            <div className='tw-font-bold'>
+                                            <div className='tw-font-bold tw-text-cyan-200'>
                                               {record.max.nickname}
                                             </div>
                                             <div className='tw-font-bold'>

@@ -1,5 +1,7 @@
-import { customAxios } from './axios'
+import log from 'electron-log/main'
 import packageJson from '../package.json'
+import { customAxios } from './axios'
+log.transports.console.format = '[{y}-{m}-{d} {h}:{i}:{s}.{ms}] [{level}] {text}'
 
 interface ErrorLogData {
   clientPlatform?: string
@@ -33,6 +35,6 @@ export const logMainError = async (error: Error, context?: any) => {
       errorData,
     )
   } catch (loggingError) {
-    console.error('Failed to log error:', loggingError)
+    log.error('Failed to log error:', loggingError)
   }
 }

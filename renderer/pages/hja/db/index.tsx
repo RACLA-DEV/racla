@@ -1,5 +1,3 @@
-import 'moment/locale/ko'
-
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { BsGrid, BsList } from 'react-icons/bs'
 import { useDispatch, useSelector } from 'react-redux'
@@ -20,7 +18,7 @@ import { setBackgroundBgaName } from 'store/slices/uiSlice'
 
 // 동적 임포트로 ScorePopupComponent 지연 로딩
 const ScorePopupComponent = dynamic(() => import('@/components/score/ScorePopupComponent'), {
-  loading: () => <div className='tw-w-[80px] tw-h-[80px] tw-bg-gray-600 tw-bg-opacity-10' />,
+  loading: () => <div className='tw-w-[80px] tw-h-[80px] tw-bg-gray-600 tw-bg-opacity-20' />,
 })
 
 // DLC 카테고리 매핑 추가
@@ -371,7 +369,7 @@ export default function HjaDbPage() {
           {/* 상단 영역 */}
           <div className='tw-flex tw-flex-col tw-gap-4 tw-transition-all tw-w-full duration-300'>
             <div className='tw-flex tw-w-full tw-gap-4'>
-              <div className='tw-flex tw-w-full tw-flex-col tw-gap-4 tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-shadow-lg tw-p-4'>
+              <div className='tw-flex tw-w-full tw-flex-col tw-gap-4 tw-bg-gray-600 tw-bg-opacity-20 tw-rounded-lg tw-shadow-lg tw-p-4'>
                 {/* 헤더 */}
                 <div className='tw-flex tw-w-full tw-bg-gray-700 tw-bg-opacity-30 tw-rounded tw-overflow-x-auto tw-scroll-smooth'>
                   <div className='tw-flex tw-flex-col tw-gap-4 tw-p-4 tw-w-full'>
@@ -515,7 +513,7 @@ export default function HjaDbPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3 }}
-                className='tw-flex tw-mr-2 tw-flex-col tw-gap-1 tw-bg-gray-600 tw-bg-opacity-10 tw-rounded-md tw-p-4'
+                className='tw-flex tw-mr-2 tw-flex-col tw-gap-1 tw-bg-gray-600 tw-bg-opacity-20 tw-rounded-md tw-p-4'
               >
                 <div
                   className={`tw-w-full ${viewMode === 'grid' ? 'tw-flex tw-gap-3 tw-flex-wrap tw-justify-between' : 'tw-flex tw-flex-col'}`}

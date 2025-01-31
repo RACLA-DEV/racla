@@ -31,7 +31,7 @@ const OverlaySetting = ({ setSelectedImage }: { setSelectedImage: (image: string
         </Head>
         <div id='ContentHeader' />
         <div className='tw-flex tw-gap-4'>
-          <div className='tw-flex tw-flex-col tw-gap-4 tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-shadow-lg tw-p-6 tw-mb-4 tw-flex-1'>
+          <div className='tw-flex tw-flex-col tw-gap-4 tw-bg-gray-600 tw-bg-opacity-20 tw-rounded-lg tw-shadow-lg tw-p-6 tw-mb-4 tw-flex-1'>
             <div className='tw-flex tw-w-full tw-items-end tw-justify-between'>
               <span className='tw-text-xl tw-font-bold tw-text-white'>🎮 오버레이 설정</span>
             </div>
@@ -53,7 +53,7 @@ const OverlaySetting = ({ setSelectedImage }: { setSelectedImage: (image: string
         <div className='tw-flex tw-gap-4'>
           <div className='tw-flex tw-flex-col tw-gap-4 tw-flex-1'>
             <div
-              className='tw-flex-1 tw-flex tw-flex-col tw-gap-1 tw-bg-gray-600 tw-bg-opacity-10 tw-rounded-md p-4'
+              className='tw-flex-1 tw-flex tw-flex-col tw-gap-1 tw-bg-gray-600 tw-bg-opacity-20 tw-rounded-md p-4'
               onMouseEnter={() => setImage('RESULT_OVERLAY_EXAMPLE_UPLOAD.png')}
               onMouseLeave={() => setImage('RESULT_OVERLAY_EXAMPLE.png')}
             >
@@ -84,7 +84,7 @@ const OverlaySetting = ({ setSelectedImage }: { setSelectedImage: (image: string
             </div>
 
             <div
-              className='tw-flex-1 tw-flex tw-flex-col tw-gap-1 tw-bg-gray-600 tw-bg-opacity-10 tw-rounded-md p-4'
+              className='tw-flex-1 tw-flex tw-flex-col tw-gap-1 tw-bg-gray-600 tw-bg-opacity-20 tw-rounded-md p-4'
               onMouseEnter={() => setImage('RESULT_OVERLAY_EXAMPLE_HJA.png')}
               onMouseLeave={() => setImage('RESULT_OVERLAY_EXAMPLE.png')}
             >
@@ -108,13 +108,13 @@ const OverlaySetting = ({ setSelectedImage }: { setSelectedImage: (image: string
                 </div>
                 <span className='tw-text-sm tw-font-light tw-text-gray-400 tw-break-keep tw-mb-2'>
                   DJMAX RESPECT V의 결과 오버레이 표시 시 전일 아카이브에 등록된 최고 기록 정보를
-                  표시합니다.
+                  표시합니다. WJMAX는 RACLA 기록을 바탕으로로 추후 지원 예정입니다.
                 </span>
               </div>
             </div>
 
             <div
-              className='tw-flex-1 tw-flex tw-flex-col tw-gap-1 tw-bg-gray-600 tw-bg-opacity-10 tw-rounded-md p-4'
+              className='tw-flex-1 tw-flex tw-flex-col tw-gap-1 tw-bg-gray-600 tw-bg-opacity-20 tw-rounded-md p-4'
               onMouseEnter={() => setImage('RESULT_OVERLAY_EXAMPLE_RECENT.png')}
               onMouseLeave={() => setImage('RESULT_OVERLAY_EXAMPLE.png')}
             >
@@ -138,12 +138,12 @@ const OverlaySetting = ({ setSelectedImage }: { setSelectedImage: (image: string
                 </div>
                 <span className='tw-text-sm tw-font-light tw-text-gray-400 tw-break-keep tw-mb-2'>
                   DJMAX RESPECT V의 결과 오버레이 표시 시 해당 수록곡 패턴의 RACLA 최근 기록 정보를
-                  표시합니다.
+                  표시합니다. WJMAX는 RACLA 기록을 바탕으로 추후 지원 예정입니다.
                 </span>
               </div>
             </div>
           </div>
-          <div className='tw-flex tw-flex-col tw-gap-1 tw-justify-center tw-items-center tw-bg-gray-600 tw-bg-opacity-10 tw-rounded-md p-4'>
+          <div className='tw-flex tw-flex-col tw-gap-1 tw-justify-center tw-items-center tw-bg-gray-600 tw-bg-opacity-20 tw-rounded-md p-4'>
             <div className='tw-min-w-[512px] tw-w-[512px] tw-max-w-[512px] tw-min-h-[384px] tw-h-[384px] tw-max-h-[384px]'>
               <div className='tw-relative tw-w-full tw-h-full tw-rounded tw-overflow-hidden'>
                 <Image

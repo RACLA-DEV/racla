@@ -59,7 +59,7 @@ const SidebarComponent: React.FC = () => {
   return (
     <>
       <div
-        className={`tw-flex tw-fixed tw-animate-fadeInLeft tw-transition-all tw-flex-col tw-bg-gray-600 tw-bg-opacity-10 ${
+        className={`tw-flex tw-fixed tw-animate-fadeInLeft tw-transition-all tw-flex-col tw-bg-gray-700 tw-bg-opacity-20 ${
           isMiniMode
             ? 'tw-w-auto tw-pl-2.5 tw-pr-0.5 tw-py-2'
             : 'tw-w-52 tw-py-4 tw-pl-4 tw-pr-3 tw-mr-1'

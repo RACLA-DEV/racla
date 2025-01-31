@@ -1,19 +1,21 @@
 import { app } from 'electron'
+import log from 'electron-log/main'
+import fs from 'fs'
+import path from 'path'
 
-// sessionManager.js
-const fs = require('fs')
-const path = require('path')
+log.transports.console.format = '[{y}-{m}-{d} {h}:{i}:{s}.{ms}] [{level}] {text}'
 
 /**
  * 폴더가 존재하는지 확인하고, 없으면 새로 생성합니다.
  * @param {string} dirPath - 폴더 경로
  */
-function ensureDirectoryExists(dirPath) {
+export function ensureDirectoryExists(dirPath) {
   // 폴더 경로를 절대 경로로 변환합니다.
   const absolutePath = path.resolve(dirPath)
   const parentDir = path.dirname(absolutePath)
   const oldFolderName = 'PROJECT-RA'
   const oldFolderName2 = 'R-ARCHIVE'
+
   const oldPath = path.join(parentDir, oldFolderName)
   const oldPath2 = path.join(parentDir, oldFolderName2)
 
@@ -42,11 +44,11 @@ function ensureDirectoryExists(dirPath) {
       // RACLA 폴더가 이미 존재하면 데이터 병합
       copyFolderRecursive(oldPath, absolutePath)
       fs.rmSync(oldPath, { recursive: true })
-      console.log(`Merged data from ${oldPath} to ${absolutePath}`)
+      log.info(`Merged data from ${oldPath} to ${absolutePath}`)
     } else {
       // RACLA 폴더가 없으면 이름만 변경
       fs.renameSync(oldPath, absolutePath)
-      console.log(`Folder Renamed: ${oldPath} -> ${absolutePath}`)
+      log.info(`Folder Renamed: ${oldPath} -> ${absolutePath}`)
     }
     return
   }
@@ -56,11 +58,11 @@ function ensureDirectoryExists(dirPath) {
       // RACLA 폴더가 이미 존재하면 데이터 병합
       copyFolderRecursive(oldPath2, absolutePath)
       fs.rmSync(oldPath2, { recursive: true })
-      console.log(`Merged data from ${oldPath2} to ${absolutePath}`)
+      log.info(`Merged data from ${oldPath2} to ${absolutePath}`)
     } else {
       // RACLA 폴더가 없으면 이름만 변경
       fs.renameSync(oldPath2, absolutePath)
-      console.log(`Folder Renamed: ${oldPath2} -> ${absolutePath}`)
+      log.info(`Folder Renamed: ${oldPath2} -> ${absolutePath}`)
     }
     return
   }
@@ -69,9 +71,9 @@ function ensureDirectoryExists(dirPath) {
   if (!fs.existsSync(absolutePath)) {
     // 폴더가 없으면 새로 생성합니다.
     fs.mkdirSync(absolutePath, { recursive: true })
-    console.log(`Folder Created: ${absolutePath}`)
+    log.info(`Folder Created: ${absolutePath}`)
   } else {
-    console.log(`Folder Already Exists: ${absolutePath}`)
+    log.info(`Folder Already Exists: ${absolutePath}`)
   }
 }
 
@@ -88,7 +90,9 @@ const settingDataFile = path.join(documentPath, 'settings.json')
 
 // 세션 저장
 export function storeSession(session) {
-  console.log('session Saved:', sessionFile, session)
+  process.env.NODE_ENV === 'production'
+    ? log.info('session Saved:', sessionFile)
+    : log.debug('session Saved:', sessionFile, session)
   fs.writeFileSync(sessionFile, JSON.stringify(session), 'utf-8')
 }
 
@@ -114,7 +118,7 @@ export function clearSession() {
 
 // 곡 데이터 저장
 export function storeSongData(songData) {
-  console.log('songData Saved:', songDataFile)
+  log.info('songData Saved:', songDataFile)
   fs.writeFileSync(songDataFile, JSON.stringify(songData), 'utf-8')
 }
 
@@ -129,7 +133,7 @@ export function getSongData() {
 
 // wjmax 곡 데이터 저장
 export function storeWjmaxSongData(wjmaxSongData) {
-  console.log('wjmaxSongData Saved:', wjmaxSongDataFile)
+  log.info('wjmaxSongData Saved:', wjmaxSongDataFile)
   fs.writeFileSync(wjmaxSongDataFile, JSON.stringify(wjmaxSongData), 'utf-8')
 }
 
@@ -144,7 +148,7 @@ export function getWjmaxSongData() {
 
 // 설정 파일 저장
 export function storeSettingData(settingData) {
-  console.log('settingData Saved:', settingDataFile, settingData)
+  log.info('settingData Saved:', settingDataFile, settingData)
   fs.writeFileSync(settingDataFile, JSON.stringify(settingData), 'utf-8')
 }
 
@@ -158,22 +162,22 @@ export function getSettingData() {
 }
 
 if (getSession() === undefined || getSession() === null) {
-  console.log('File Created: ', sessionFile)
+  log.info('File Created: ', sessionFile)
   storeSession({ userNo: '', userToken: '' })
 }
 
 if (getSongData() === undefined || getSongData() === null) {
-  console.log('File Created: ', songDataFile)
+  log.info('File Created: ', songDataFile)
   storeSongData([{}])
 }
 
 if (getWjmaxSongData() === undefined || getWjmaxSongData() === null) {
-  console.log('File Created: ', wjmaxSongDataFile)
+  log.info('File Created: ', wjmaxSongDataFile)
   storeWjmaxSongData([{}])
 }
 
 if (getSettingData() === undefined || getSettingData() === null) {
-  console.log('File Created: ', settingDataFile)
+  log.info('File Created: ', settingDataFile)
   storeSettingData({
     hardwareAcceleration: true,
     homeButtonAlignRight: false,

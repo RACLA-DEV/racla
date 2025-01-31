@@ -1,5 +1,3 @@
-import 'moment/locale/ko'
-
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { BsGrid, BsList } from 'react-icons/bs'
 import { FaChevronLeft, FaChevronRight, FaHeart, FaRegHeart } from 'react-icons/fa6'
@@ -10,9 +8,11 @@ import { logRendererError } from '@/libs/client/rendererLogger'
 import { useNotificationSystem } from '@/libs/client/useNotifications'
 import { globalDictionary } from '@/libs/server/globalDictionary'
 import axios from 'axios'
+import dayjs from 'dayjs'
+import 'dayjs/locale/ko'
+import LocalizedFormat from 'dayjs/plugin/localizedFormat'
 import { motion } from 'framer-motion'
 import { debounce } from 'lodash'
-import moment from 'moment'
 import dynamic from 'next/dynamic'
 import Head from 'next/head'
 import Image from 'next/image'
@@ -22,9 +22,12 @@ import { useInView } from 'react-intersection-observer'
 import { SyncLoader } from 'react-spinners'
 import { RootState } from 'store'
 
+dayjs.locale('ko')
+dayjs.extend(LocalizedFormat)
+
 // 동적 임포트로 ScorePopupComponent 지연 로딩
 const ScorePopupComponent = dynamic(() => import('@/components/score/ScorePopupComponent'), {
-  loading: () => <div className='tw-w-[80px] tw-h-[80px] tw-bg-gray-600 tw-bg-opacity-10' />,
+  loading: () => <div className='tw-w-[80px] tw-h-[80px] tw-bg-gray-600 tw-bg-opacity-20' />,
 })
 
 export default function VArchiveDbPage() {
@@ -478,7 +481,7 @@ export default function VArchiveDbPage() {
           {/* 상단 영역 */}
           <div className='tw-flex tw-flex-col tw-gap-4 tw-transition-all tw-w-full duration-300'>
             <div className='tw-flex tw-w-full tw-gap-4'>
-              <div className='tw-flex tw-w-full tw-flex-col tw-gap-4 tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-shadow-lg tw-p-4'>
+              <div className='tw-flex tw-w-full tw-flex-col tw-gap-4 tw-bg-gray-600 tw-bg-opacity-20 tw-rounded-lg tw-shadow-lg tw-p-4'>
                 {/* 헤더 */}
                 <div className='tw-flex tw-w-full tw-bg-gray-700 tw-bg-opacity-30 tw-rounded tw-overflow-x-auto tw-scroll-smooth'>
                   <div className='tw-flex tw-flex-col tw-gap-4 tw-p-4 tw-w-full'>
@@ -649,7 +652,7 @@ export default function VArchiveDbPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3 }}
-                className='tw-flex tw-mr-2 tw-flex-col tw-gap-1 tw-bg-gray-600 tw-bg-opacity-10 tw-rounded-md tw-p-4'
+                className='tw-flex tw-mr-2 tw-flex-col tw-gap-1 tw-bg-gray-600 tw-bg-opacity-20 tw-rounded-md tw-p-4'
               >
                 <div
                   className={`tw-w-full ${viewMode === 'grid' ? 'tw-flex tw-gap-3 tw-flex-wrap tw-justify-between' : 'tw-flex tw-flex-col'}`}
@@ -773,11 +776,11 @@ export default function VArchiveDbPage() {
 
           {/* DJ 코멘트 패널 */}
           <div
-            className={`tw-fixed tw-z-[49] tw-top-12 tw-bottom-8 tw-p-4 tw-rounded-l-md tw-w-[calc(33.3%-6rem)] tw-transition-transform tw-duration-300 tw-ease-in-out tw-min-w-[30rem] tw-bg-gray-950 tw-bg-opacity-50 tw-backdrop-blur-xl tw-transform ${isDjCommentOpen ? 'tw-translate-x-0 tw-right-0' : 'tw-translate-x-full tw-right-0'}`}
+            className={`tw-fixed tw-z-[49] tw-top-12 tw-bottom-8 tw-p-4 tw-rounded-l-md tw-w-[calc(33.3%-6rem)] tw-transition-transform tw-duration-300 tw-ease-in-out tw-min-w-[30rem] tw-bg-gray-900 tw-bg-opacity-50 tw-backdrop-blur-xl tw-transform ${isDjCommentOpen ? 'tw-translate-x-0 tw-right-0' : 'tw-translate-x-full tw-right-0'}`}
           >
             <div
               className={
-                'tw-flex tw-flex-col tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-shadow-lg ' +
+                'tw-flex tw-flex-col tw-bg-gray-600 tw-bg-opacity-20 tw-rounded-lg tw-shadow-lg ' +
                 (vArchiveUserData.userName !== '' ? 'tw-h-full' : 'tw-h-full')
               }
             >
@@ -814,7 +817,7 @@ export default function VArchiveDbPage() {
                               {commentItem.nickname}
                             </span>
                             <span className='tw-font-light tw-text-xs tw-text-gray-400'>
-                              {moment(commentItem.ymdt).locale('ko').format('LL')}
+                              {dayjs(commentItem.ymdt).locale('ko').format('LL')}
                             </span>
                           </div>
                           <span
@@ -851,7 +854,7 @@ export default function VArchiveDbPage() {
                             }}
                           >
                             <div
-                              className={`tw-flex tw-items-center tw-gap-1.5 tw-px-3 tw-py-1.5 tw-rounded-full tw-bg-gray-800 tw-bg-opacity-50 ${commentItem.myVote === 1 ? 'tw-text-red-400 tw-border-red-400' : 'tw-text-gray-400 tw-border-gray-600'} tw-border tw-border-opacity-30 tw-transition-all ${vArchiveUserData.userNo !== '' ? 'hover:tw-border-opacity-50' : ''}`}
+                              className={`tw-flex tw-items-center tw-gap-1.5 tw-px-3 tw-py-1.5 tw-rounded-full tw-bg-gray-600 tw-bg-opacity-20 ${commentItem.myVote === 1 ? 'tw-text-red-400 tw-border-red-400' : 'tw-text-gray-400 tw-border-gray-600'} tw-border tw-border-opacity-30 tw-transition-all ${vArchiveUserData.userNo !== '' ? 'hover:tw-border-opacity-50' : ''}`}
                             >
                               <span>
                                 <IconContext.Provider

@@ -113,7 +113,7 @@ const Overlay = ({ isNotificationSound }: { isNotificationSound: boolean }) => {
           // 최근 기록은 설정값 체크 후 조회
           if (settingData.recentOverlay) {
             const recentResponse = await axios.get(
-              `https://noah.r-archive.zip/api/v2/play/history/${sessionData.userNo}/${data.gameCode}/${data.songData.title as string}/${String(data.button).replace('B', '')}B/${patternToCode(data.pattern)}`,
+              `${process.env.NEXT_PUBLIC_API_URL}/v2/play/history/${sessionData.userNo}/${data.gameCode}/${data.songData.title as string}/${String(data.button).replace('B', '')}B/${patternToCode(data.pattern)}`,
               {
                 headers: {
                   Authorization: `${sessionData.userNo}|${sessionData.userToken}`,
@@ -430,6 +430,71 @@ const Overlay = ({ isNotificationSound }: { isNotificationSound: boolean }) => {
                 fadeOut[id] ? 'tw-animate-slideOutRight' : 'tw-animate-slideInRight'
               }`}
             >
+              {/* 최근 기록 */}
+              {data.recentHistory && (
+                <div className='tw-bg-gray-950 tw-rounded-lg tw-shadow-lg tw-min-w-[320px] tw-max-w-[320px] tw-relative tw-overflow-hidden'>
+                  <div className='tw-absolute tw-inset-0 tw-overflow-hidden tw-rounded-md tw-z-0'>
+                    <Image
+                      src={`/images/djmax_respect_v/jackets/${data.songData.title}.jpg`}
+                      layout='fill'
+                      objectFit='cover'
+                      alt=''
+                      className='tw-opacity-75 tw-blur-xl'
+                    />
+                  </div>
+                  <div className='tw-p-3 tw-relative tw-z-10 tw-bg-gray-950 tw-bg-opacity-75'>
+                    <div className='tw-flex tw-items-center tw-gap-2 tw-mb-2'>
+                      <IconContext.Provider value={{ size: '16px', className: 'tw-text-blue-400' }}>
+                        <FaDatabase />
+                      </IconContext.Provider>
+                      <span className='tw-text-sm tw-font-bold tw-text-blue-400'>최근 기록</span>
+                    </div>
+                    <div className='tw-flex tw-flex-col tw-gap-2'>
+                      {data.recentHistory.length > 0 ? (
+                        [...data.recentHistory].slice(0, 5).map((history) => (
+                          <div
+                            key={history.historyId}
+                            className='tw-bg-gray-900/50 tw-rounded tw-p-2 tw-flex tw-flex-col tw-gap-2'
+                          >
+                            <div className='tw-flex tw-items-center tw-gap-2'>
+                              <div className='tw-flex tw-items-center tw-gap-2'>
+                                <div className='tw-flex tw-items-center tw-gap-1 tw-px-2 tw-py-1 tw-rounded-md tw-bg-gray-600/25 tw-bg-opacity-75 tw-min-w-12 tw-text-center tw-justify-center'>
+                                  <span className='tw-text-xs tw-font-bold'>
+                                    {String(data.button).replace('B', '')}B
+                                  </span>
+                                </div>
+                                <div className='tw-flex tw-items-center tw-gap-1 tw-px-2 tw-py-1 tw-rounded-md tw-bg-gray-600/25 tw-bg-opacity-75 tw-min-w-20 tw-text-center tw-justify-center'>
+                                  <span className='tw-text-xs tw-font-bold'>{data.pattern}</span>
+                                </div>
+                              </div>
+                            </div>
+                            <div className='tw-flex tw-justify-between tw-items-center'>
+                              <div className='tw-text-sm tw-font-bold tw-text-gray-200'>
+                                {Number(history.score).toFixed(2)}%
+                                {history.maxCombo && (
+                                  <span className='tw-text-xs tw-font-bold tw-text-amber-400'>
+                                    {' '}
+                                    (MAX COMBO)
+                                  </span>
+                                )}
+                              </div>
+
+                              <div className='tw-text-xs tw-font-bold tw-text-gray-400'>
+                                {dayjs(history.playedAt).format('YYYY-MM-DD HH:mm:ss')}
+                              </div>
+                            </div>
+                          </div>
+                        ))
+                      ) : (
+                        <div className='tw-text-sm tw-text-gray-400 tw-text-center tw-py-2'>
+                          RACLA 데이터베이스에 해당 수록곡의 사용자 최근 기록이 없습니다.
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* 전일 기록 */}
               {(() => {
                 const currentLevel = getCurrentPatternLevel(
@@ -534,74 +599,6 @@ const Overlay = ({ isNotificationSound }: { isNotificationSound: boolean }) => {
                   )
                 )
               })()}
-
-              {/* 최근 기록 */}
-              {data.recentHistory && (
-                <div className='tw-bg-gray-950 tw-rounded-lg tw-shadow-lg tw-min-w-[320px] tw-max-w-[320px] tw-relative tw-overflow-hidden'>
-                  <div className='tw-absolute tw-inset-0 tw-overflow-hidden tw-rounded-md tw-z-0'>
-                    <Image
-                      src={`/images/djmax_respect_v/jackets/${data.songData.title}.jpg`}
-                      layout='fill'
-                      objectFit='cover'
-                      alt=''
-                      className='tw-opacity-75 tw-blur-xl'
-                    />
-                  </div>
-                  <div className='tw-p-3 tw-relative tw-z-10 tw-bg-gray-950 tw-bg-opacity-75'>
-                    <div className='tw-flex tw-items-center tw-gap-2 tw-mb-2'>
-                      <IconContext.Provider value={{ size: '16px', className: 'tw-text-blue-400' }}>
-                        <FaDatabase />
-                      </IconContext.Provider>
-                      <span className='tw-text-sm tw-font-bold tw-text-blue-400'>최근 기록</span>
-                    </div>
-                    <div className='tw-flex tw-flex-col tw-gap-2'>
-                      {data.recentHistory.length > 0 ? (
-                        [...data.recentHistory]
-                          .slice(0, 5)
-                          .reverse()
-                          .map((history) => (
-                            <div
-                              key={history.historyId}
-                              className='tw-bg-gray-900/50 tw-rounded tw-p-2 tw-flex tw-flex-col tw-gap-2'
-                            >
-                              <div className='tw-flex tw-items-center tw-gap-2'>
-                                <div className='tw-flex tw-items-center tw-gap-2'>
-                                  <div className='tw-flex tw-items-center tw-gap-1 tw-px-2 tw-py-1 tw-rounded-md tw-bg-gray-600/25 tw-bg-opacity-75 tw-min-w-12 tw-text-center tw-justify-center'>
-                                    <span className='tw-text-xs tw-font-bold'>
-                                      {String(data.button).replace('B', '')}B
-                                    </span>
-                                  </div>
-                                  <div className='tw-flex tw-items-center tw-gap-1 tw-px-2 tw-py-1 tw-rounded-md tw-bg-gray-600/25 tw-bg-opacity-75 tw-min-w-20 tw-text-center tw-justify-center'>
-                                    <span className='tw-text-xs tw-font-bold'>{data.pattern}</span>
-                                  </div>
-                                </div>
-                              </div>
-                              <div className='tw-flex tw-justify-between tw-items-center'>
-                                <div className='tw-text-sm tw-font-bold tw-text-gray-200'>
-                                  {Number(history.score).toFixed(2)}%
-                                  {history.maxCombo && (
-                                    <span className='tw-text-xs tw-font-bold tw-text-amber-400'>
-                                      {' '}
-                                      (MAX COMBO)
-                                    </span>
-                                  )}
-                                </div>
-
-                                <div className='tw-text-xs tw-font-bold tw-text-gray-400'>
-                                  {dayjs(history.playedAt).format('YYYY-MM-DD HH:mm:ss')}
-                                </div>
-                              </div>
-                            </div>
-                          ))
-                      ) : (
-                        <div className='tw-text-sm tw-text-gray-400 tw-text-center tw-py-2'>
-                          RACLA 데이터베이스에 해당 수록곡의 사용자 최근 기록이 없습니다.
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              )}
             </div>
           ),
       )}

@@ -1,13 +1,12 @@
-import 'moment/locale/ko'
-
 import { AnimatePresence, motion } from 'framer-motion'
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { BsGrid, BsList } from 'react-icons/bs'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { globalDictionary } from '@/libs/server/globalDictionary'
+import dayjs from 'dayjs'
+import utc from 'dayjs/plugin/utc'
 import { debounce } from 'lodash'
-import moment from 'moment'
 import dynamic from 'next/dynamic'
 import Head from 'next/head'
 import Image from 'next/image'
@@ -16,9 +15,13 @@ import { FaCircleCheck } from 'react-icons/fa6'
 import { RootState } from 'store'
 import { setBackgroundBgaName } from 'store/slices/uiSlice'
 
+import 'dayjs/locale/ko'
+dayjs.locale('ko')
+dayjs.extend(utc)
+
 // 동적 임포트로 ScorePopupComponent 지연 로딩
 const RaScorePopupComponent = dynamic(() => import('@/components/score/RaScorePopupComponent'), {
-  loading: () => <div className='tw-w-[80px] tw-h-[80px] tw-bg-gray-600 tw-bg-opacity-10' />,
+  loading: () => <div className='tw-w-[80px] tw-h-[80px] tw-bg-gray-600 tw-bg-opacity-20' />,
 })
 
 export default function VArchiveDbPage() {
@@ -337,7 +340,7 @@ export default function VArchiveDbPage() {
           {/* 상단 영역 */}
           <div className={`tw-flex tw-flex-col tw-gap-4 tw-transition-all w-w-full'} duration-300`}>
             <div className='tw-flex tw-w-full tw-gap-4'>
-              <div className='tw-flex tw-w-full tw-flex-col tw-gap-4 tw-bg-gray-800 tw-bg-opacity-50 tw-rounded-lg tw-shadow-lg tw-p-4'>
+              <div className='tw-flex tw-w-full tw-flex-col tw-gap-4 tw-bg-gray-600 tw-bg-opacity-20 tw-rounded-lg tw-shadow-lg tw-p-4'>
                 {/* 헤더 */}
 
                 <div className='tw-flex tw-w-full tw-bg-gray-700 tw-bg-opacity-30 tw-rounded tw-overflow-x-auto tw-scroll-smooth'>
@@ -472,7 +475,7 @@ export default function VArchiveDbPage() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
                   transition={{ duration: 0.3 }}
-                  className='tw-flex tw-flex-col tw-mr-2 tw-gap-1 tw-bg-gray-600 tw-bg-opacity-10 tw-rounded-md tw-p-4'
+                  className='tw-flex tw-flex-col tw-mr-2 tw-gap-1 tw-bg-gray-600 tw-bg-opacity-20 tw-rounded-md tw-p-4'
                 >
                   <div
                     className={`tw-w-full ${viewMode === 'grid' ? 'tw-flex tw-gap-3 tw-flex-wrap tw-justify-between' : 'tw-flex tw-flex-col'}`}
@@ -534,7 +537,10 @@ export default function VArchiveDbPage() {
                                       ' / ' +
                                       songItem.bpm +
                                       ' BPM / ' +
-                                      moment.utc(songItem.time * 1000).format('m분 s초')}
+                                      dayjs
+                                        .utc(songItem.time * 1000)
+                                        .locale('ko')
+                                        .format('m분 s초')}
                                   </div>
                                   {/* <div className="tw-text-blue-400">{songItem.dlc || ''}</div> */}
                                 </div>
