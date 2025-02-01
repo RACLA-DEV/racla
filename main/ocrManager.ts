@@ -111,10 +111,10 @@ class GameOCRProcessor {
 
       if (this.settingData.autoCaptureOcrOpen3Region) {
         regions.open3 = await this.extractRegion(imageBuffer, {
-          width: 57,
-          height: 26,
-          left: 596,
-          top: 470,
+          width: 78,
+          height: 24,
+          left: 236,
+          top: 724,
         })
         texts.open3 = await this.recognizeText(regions.open3, this.userData)
       }
@@ -179,7 +179,10 @@ class GameOCRProcessor {
       }
 
       if (!resultInfo.where && this.settingData.autoCaptureOcrOpen3Region && texts.open3) {
-        if (texts.open3.trim().toUpperCase() === 'MAX') {
+        if (
+          texts.open3.trim().replaceAll(' ', '').toUpperCase().includes('SCORE') ||
+          texts.open3.trim().replaceAll(' ', '').toUpperCase().includes('ORE')
+        ) {
           resultInfo.where = 'open3'
           resultInfo.isResult = ['open3']
           resultInfo.text = texts.open3

@@ -1,1 +1,1 @@
-export const BUILD_DATE = '202501311804';
+export const BUILD_DATE = '202502010222 Dev (개발자 빌드)';
