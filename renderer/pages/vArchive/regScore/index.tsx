@@ -638,8 +638,7 @@ export default function VArchiveRegScorePage() {
                         <div
                           key={index}
                           className={
-                            'tw-flex tw-relative tw-flex-col tw-gap-1 tw-bg-opacity-10 tw-rounded-md tw-h-60 p-0 ' +
-                            ` respect_dlc_${playerData.songData.dlcCode} respect_dlc_logo_${playerData.songData.dlcCode} respect_dlc_logo_BG_${playerData.songData.dlcCode}`
+                            'tw-flex tw-relative tw-flex-col tw-gap-1 tw-bg-opacity-10 tw-rounded-md tw-h-60 p-0'
                           }
                         >
                           <div className='tw-absolute tw-inset-0 tw-overflow-hidden tw-rounded-md'>
@@ -810,14 +809,14 @@ export default function VArchiveRegScorePage() {
                                 className={
                                   playerData.songData.patterns[`${playerData.button}B`][
                                     patternToCode(playerData.pattern)
-                                  ].level <= 5
+                                  ]?.level <= 5
                                     ? 'tw-text-base text-stroke-100 tw-font-extrabold ' +
                                       (patternToCode(playerData.pattern) === 'SC'
                                         ? ' tw-text-respect-sc-5'
                                         : ' tw-text-respect-nm-5')
                                     : playerData.songData.patterns[`${playerData.button}B`][
                                           patternToCode(playerData.pattern)
-                                        ].level <= 10
+                                        ]?.level <= 10
                                       ? 'tw-text-base text-stroke-100 tw-font-extrabold ' +
                                         (patternToCode(playerData.pattern) === 'SC'
                                           ? ' tw-text-respect-sc-10'
@@ -838,11 +837,11 @@ export default function VArchiveRegScorePage() {
                                   src={
                                     playerData.songData.patterns[`${playerData.button}B`][
                                       patternToCode(playerData.pattern)
-                                    ].level <= 5
+                                    ]?.level <= 5
                                       ? `/images/djmax_respect_v/${patternToCode(playerData.pattern) === 'SC' ? 'sc' : 'nm'}_5_star.png`
                                       : playerData.songData.patterns[`${playerData.button}B`][
                                             patternToCode(playerData.pattern)
-                                          ].level <= 10
+                                          ]?.level <= 10
                                         ? `/images/djmax_respect_v/${patternToCode(playerData.pattern) === 'SC' ? 'sc' : 'nm'}_10_star.png`
                                         : `/images/djmax_respect_v/${patternToCode(playerData.pattern) === 'SC' ? 'sc' : 'nm'}_15_star.png`
                                   }
@@ -855,14 +854,14 @@ export default function VArchiveRegScorePage() {
                                 className={
                                   playerData.songData.patterns[`${playerData.button}B`][
                                     patternToCode(playerData.pattern)
-                                  ].level <= 5
+                                  ]?.level <= 5
                                     ? 'tw-text-base text-stroke-100 tw-font-extrabold ' +
                                       (patternToCode(playerData.pattern) === 'SC'
                                         ? ' tw-text-respect-sc-5'
                                         : ' tw-text-respect-nm-5')
                                     : playerData.songData.patterns[`${playerData.button}B`][
                                           patternToCode(playerData.pattern)
-                                        ].level <= 10
+                                        ]?.level <= 10
                                       ? 'tw-text-base text-stroke-100 tw-font-extrabold ' +
                                         (patternToCode(playerData.pattern) === 'SC'
                                           ? ' tw-text-respect-sc-10'
@@ -876,7 +875,7 @@ export default function VArchiveRegScorePage() {
                                 {
                                   playerData.songData.patterns[`${playerData.button}B`][
                                     patternToCode(playerData.pattern)
-                                  ].level
+                                  ]?.level
                                 }
                               </span>
                             </div>

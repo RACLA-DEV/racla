@@ -109,6 +109,16 @@ class GameOCRProcessor {
         texts.result = await this.recognizeText(regions.result, this.userData)
       }
 
+      if (this.settingData.autoCaptureOcrVersusRegion) {
+        regions.versus = await this.extractRegion(imageBuffer, {
+          width: 151,
+          height: 106,
+          left: 748,
+          top: 45,
+        })
+        texts.versus = await this.recognizeText(regions.versus, this.userData)
+      }
+
       if (this.settingData.autoCaptureOcrOpen3Region) {
         regions.open3 = await this.extractRegion(imageBuffer, {
           width: 78,
@@ -121,22 +131,12 @@ class GameOCRProcessor {
 
       if (this.settingData.autoCaptureOcrOpen2Region) {
         regions.open2 = await this.extractRegion(imageBuffer, {
-          width: 60,
-          height: 25,
-          left: 693,
-          top: 471,
+          width: 80,
+          height: 26,
+          left: 335,
+          top: 723,
         })
         texts.open2 = await this.recognizeText(regions.open2, this.userData)
-      }
-
-      if (this.settingData.autoCaptureOcrVersusRegion) {
-        regions.versus = await this.extractRegion(imageBuffer, {
-          width: 142,
-          height: 104,
-          left: 755,
-          top: 52,
-        })
-        texts.versus = await this.recognizeText(regions.versus, this.userData)
       }
     } else if (gameCode === 'wjmax') {
       if (this.settingData.autoCaptureWjmaxOcrResultRegion) {
@@ -178,6 +178,14 @@ class GameOCRProcessor {
         }
       }
 
+      if (!resultInfo.where && this.settingData.autoCaptureOcrVersusRegion && texts.versus) {
+        if (texts.versus.trim().toUpperCase().replaceAll(' ', '') === 'RE') {
+          resultInfo.where = 'versus'
+          resultInfo.isResult = ['versus']
+          resultInfo.text = texts.versus
+        }
+      }
+
       if (!resultInfo.where && this.settingData.autoCaptureOcrOpen3Region && texts.open3) {
         if (
           texts.open3.trim().replaceAll(' ', '').toUpperCase().includes('SCORE') ||
@@ -190,18 +198,13 @@ class GameOCRProcessor {
       }
 
       if (!resultInfo.where && this.settingData.autoCaptureOcrOpen2Region && texts.open2) {
-        if (texts.open2.trim().toUpperCase() === 'MAX') {
+        if (
+          texts.open2.trim().replaceAll(' ', '').toUpperCase().includes('SCORE') ||
+          texts.open2.trim().replaceAll(' ', '').toUpperCase().includes('ORE')
+        ) {
           resultInfo.where = 'open2'
           resultInfo.isResult = ['open2']
           resultInfo.text = texts.open2
-        }
-      }
-
-      if (!resultInfo.where && this.settingData.autoCaptureOcrVersusRegion && texts.versus) {
-        if (texts.versus.trim().toUpperCase().replaceAll(' ', '') === 'RE') {
-          resultInfo.where = 'versus'
-          resultInfo.isResult = ['versus']
-          resultInfo.text = texts.versus
         }
       }
     } else if (gameCode === 'wjmax') {
@@ -479,16 +482,18 @@ export async function processResultScreen(
 
           await handleNotifications(gameCode, playData, mainWindow, overlayWindow, isProd, userData)
 
-          // Discord RPC 업데이트
-          if (discordManager) {
-            await discordManager.updatePresence({
-              songName: playData.songData.name,
-              button: playData.button,
-              pattern: playData.pattern,
-              score: playData.score,
-              maxCombo: playData.maxCombo,
-              gameCode: playData.gameCode,
-            })
+          if (playData.screenType !== 'versus' && playData.screenType !== 'collection') {
+            // Discord RPC 업데이트
+            if (discordManager) {
+              await discordManager.updatePresence({
+                songName: playData.songData.name,
+                button: playData.button,
+                pattern: playData.pattern,
+                score: playData.score,
+                maxCombo: playData.maxCombo,
+                gameCode: playData.gameCode,
+              })
+            }
           }
 
           return {
@@ -503,7 +508,7 @@ export async function processResultScreen(
       }
     } else {
       log.debug('Waiting for Exit Result Screen...')
-      return { playData: { isVerified: null } }
+      return { playData: { isVerified: null }, isUploaded: true }
     }
   } catch (error) {
     logMainError(error, userData.userNo !== '' && userData.userToken !== '' ? userData : null)

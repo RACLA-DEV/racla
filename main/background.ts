@@ -1340,7 +1340,10 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
         log.error('startGameCapture - Error capturing game screen:', error)
         logMainError(error, isLogined ? userData : null)
       } finally {
-        setTimeout(captureGame, settingData.autoCaptureIntervalTime)
+        setTimeout(
+          captureGame,
+          settingData.autoCaptureIntervalTime < 1000 ? 1000 : settingData.autoCaptureIntervalTime,
+        )
       }
     }
 
@@ -1354,7 +1357,7 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
         (currentFocusedWindow === 'WJMAX' && isRunningWjmax)
 
       if (isGameFocused || !settingData.captureOnlyFocused) {
-        if (!isProcessing && currentGameSource) {
+        if (currentGameSource && !isProcessing) {
           try {
             isProcessing = true
             log.debug(
@@ -1386,16 +1389,17 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
             if (
               data?.playData &&
               (data.playData.isVerified !== null ||
-                data.playData.screenType == 'versus' ||
-                data.playData.screenType == 'collection')
+                data.screenType == 'versus' ||
+                data.screenType == 'collection')
             ) {
               mainWindow.webContents.send('screenshot-uploaded', {
                 ...data.playData,
                 filePath: data.filePath,
               })
             }
-            if (data?.isUploaded != null || data?.playData?.isUploaded != null) {
-              isUploaded = data.isUploaded || data.playData.isUploaded
+            if (data?.isUploaded != null) {
+              log.debug('startProcessResultScreen - isUploaded:', data.isUploaded)
+              isUploaded = data.isUploaded
             }
           } catch (error) {
             log.error('startProcessResultScreen - Error in process:', error)
