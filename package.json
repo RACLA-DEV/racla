@@ -31,6 +31,7 @@
     "axios": "^1.7.3",
     "bootstrap": "^5.3.3",
     "chart.js": "^4.4.7",
+    "ckeditor5": "^44.1.0",
     "dayjs": "^1.11.13",
     "discord-rpc": "^4.0.1",
     "dmg-builder": "24.13.3",

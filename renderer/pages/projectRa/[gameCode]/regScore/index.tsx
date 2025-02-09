@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react'
+import 'dayjs/locale/ko'
+
 import { FaCloudArrowUp, FaYoutube } from 'react-icons/fa6'
-import { useDispatch, useSelector } from 'react-redux'
+import React, { useEffect, useState } from 'react'
 import {
   clearProjectRaData,
   setIsUploading,
@@ -8,23 +9,22 @@ import {
   setProjectRaUploadedPageData,
   setUploadedDataProcessed,
 } from 'store/slices/appSlice'
+import { useDispatch, useSelector } from 'react-redux'
 
-import RaScorePopupComponent from '@/components/score/RaScorePopupComponent'
-import { useNotificationSystem } from '@/libs/client/useNotifications'
-import { useRecentHistory } from '@/libs/client/useRecentHistory'
-import dayjs from 'dayjs'
-import utc from 'dayjs/plugin/utc'
-import Head from 'next/head'
-import Image from 'next/image'
-import { useRouter } from 'next/router'
-import { IconContext } from 'react-icons'
 import { FiTriangle } from 'react-icons/fi'
-import { SyncLoader } from 'react-spinners'
-
+import Head from 'next/head'
+import { IconContext } from 'react-icons'
+import Image from 'next/image'
+import RaScorePopupComponent from '@/components/score/popup/ScorePopupRacla'
 import { RootState } from 'store'
+import { SyncLoader } from 'react-spinners'
+import dayjs from 'dayjs'
 import { setBackgroundBgaName } from 'store/slices/uiSlice'
+import { useNotificationSystem } from '@hooks/useNotifications'
+import { useRecentHistory } from '@hooks/useRecentHistory'
+import { useRouter } from 'next/router'
+import utc from 'dayjs/plugin/utc'
 
-import 'dayjs/locale/ko'
 dayjs.locale('ko')
 dayjs.extend(utc)
 

@@ -3142,7 +3142,7 @@ ci-info@^3.2.0:
   resolved "https://registry.yarnpkg.com/ci-info/-/ci-info-3.9.0.tgz#4279a62028a7b1f262f3473fc9605f5e218c59b4"
   integrity sha512-NIxF55hv4nSqQswkAeiOi1r83xy8JldOFDTWiug55KBu9Jnblncd2U6ViHmYgHf01TPZS77NJBhBMKdWj9HQMQ==
 
-ckeditor5@44.1.0:
+ckeditor5@44.1.0, ckeditor5@^44.1.0:
   version "44.1.0"
   resolved "https://registry.yarnpkg.com/ckeditor5/-/ckeditor5-44.1.0.tgz#347f2023feee71882593e969b5c653445f43094c"
   integrity sha512-6e1KFUE2giaSI0ZOKfAAFF5Tk7PF5DCyKVROPY9/46tti9AZpUFUzr7NhBsZjyMiMX1eqxqfsSZT7f9tKgcVAQ==

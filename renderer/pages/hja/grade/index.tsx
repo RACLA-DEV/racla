@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
-import HjaScorePopupComponent from '@/components/score/HjaScorePopupComponent'
-import { getGradeTableData } from '@/libs/client/hjaGradeParser'
 import Head from 'next/head'
+import HjaScorePopupComponent from '@/components/score/popup/ScorePopupHja'
+import { RootState } from 'store'
+import { SyncLoader } from 'react-spinners'
+import { getGradeTableData } from '@utils/hjaGradeParserUtils'
 import { useParams } from 'next/navigation'
 import { useRouter } from 'next/router'
-import { SyncLoader } from 'react-spinners'
-import { RootState } from 'store'
 
 interface SongItem {
   title: number

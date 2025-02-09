@@ -2,13 +2,13 @@ import * as R from 'ramda'
 
 import React, { useEffect, useState } from 'react'
 
-import ScorePopupComponent from '@/components/score/ScorePopupComponent'
-import { logRendererError } from '@/libs/client/rendererLogger'
-import { globalDictionary } from '@/libs/server/globalDictionary'
 import Head from 'next/head'
-import { useSelector } from 'react-redux'
-import { SyncLoader } from 'react-spinners'
 import { RootState } from 'store'
+import ScorePopupComponent from '@/components/score/popup/ScorePopupDjmax'
+import { SyncLoader } from 'react-spinners'
+import { globalDictionary } from '@constants/globalDictionary'
+import { logRendererError } from '@utils/rendererLoggerUtils'
+import { useSelector } from 'react-redux'
 
 export default function VArchiveDjPowerPage() {
   const [keyMode, setKeyMode] = useState<string>('4')

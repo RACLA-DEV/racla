@@ -49,6 +49,7 @@ import { createWindow } from './helpers'
 import { logMainError } from './mainLogger'
 import { processResultScreen } from './ocrManager'
 import { settingsManager } from './settingsManager'
+
 const globalKeyboardListener = new GlobalKeyboardListener()
 const isProd = process.env.NODE_ENV === 'production'
 

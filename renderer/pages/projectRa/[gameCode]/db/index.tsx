@@ -1,26 +1,27 @@
+import 'dayjs/locale/ko'
+
 import { AnimatePresence, motion } from 'framer-motion'
-import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { BsGrid, BsList } from 'react-icons/bs'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { globalDictionary } from '@/libs/server/globalDictionary'
-import dayjs from 'dayjs'
-import utc from 'dayjs/plugin/utc'
-import { debounce } from 'lodash'
-import dynamic from 'next/dynamic'
+import { FaCircleCheck } from 'react-icons/fa6'
 import Head from 'next/head'
 import Image from 'next/image'
-import { useRouter } from 'next/router'
-import { FaCircleCheck } from 'react-icons/fa6'
 import { RootState } from 'store'
+import dayjs from 'dayjs'
+import { debounce } from 'lodash'
+import dynamic from 'next/dynamic'
+import { globalDictionary } from '@constants/globalDictionary'
 import { setBackgroundBgaName } from 'store/slices/uiSlice'
+import { useRouter } from 'next/router'
+import utc from 'dayjs/plugin/utc'
 
-import 'dayjs/locale/ko'
 dayjs.locale('ko')
 dayjs.extend(utc)
 
 // 동적 임포트로 ScorePopupComponent 지연 로딩
-const RaScorePopupComponent = dynamic(() => import('@/components/score/RaScorePopupComponent'), {
+const RaScorePopupComponent = dynamic(() => import('@/components/score/popup/ScorePopupRacla'), {
   loading: () => <div className='tw-w-[80px] tw-h-[80px] tw-bg-gray-600 tw-bg-opacity-20' />,
 })
 

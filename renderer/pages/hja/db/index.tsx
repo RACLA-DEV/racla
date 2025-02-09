@@ -2,22 +2,23 @@ import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { BsGrid, BsList } from 'react-icons/bs'
 import { useDispatch, useSelector } from 'react-redux'
 
-import HjaScorePopupComponent from '@/components/score/HjaScorePopupComponent'
-import { logRendererError } from '@/libs/client/rendererLogger'
-import { useNotificationSystem } from '@/libs/client/useNotifications'
-import { globalDictionary } from '@/libs/server/globalDictionary'
+import HjaScorePopupComponent from '@/components/score/popup/ScorePopupHja'
+import { globalDictionary } from '@constants/globalDictionary'
+import { logRendererError } from '@utils/rendererLoggerUtils'
 import { motion } from 'framer-motion'
 import { debounce } from 'lodash'
 import dynamic from 'next/dynamic'
 import Head from 'next/head'
 import Image from 'next/image'
-import { useRouter } from 'next/router'
 import { useInView } from 'react-intersection-observer'
 import { RootState } from 'store'
 import { setBackgroundBgaName } from 'store/slices/uiSlice'
 
+import { useNotificationSystem } from '@hooks/useNotifications'
+import { useRouter } from 'next/router'
+
 // 동적 임포트로 ScorePopupComponent 지연 로딩
-const ScorePopupComponent = dynamic(() => import('@/components/score/ScorePopupComponent'), {
+const ScorePopupComponent = dynamic(() => import('@/components/score/popup/ScorePopupDjmax'), {
   loading: () => <div className='tw-w-[80px] tw-h-[80px] tw-bg-gray-600 tw-bg-opacity-20' />,
 })
 

@@ -1,27 +1,27 @@
+import 'dayjs/locale/ko'
+
 import * as R from 'ramda'
 
-import React, { useEffect, useState } from 'react'
 import { FaTable, FaYoutube } from 'react-icons/fa6'
+import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
-import WjmaxChartComponent from '@/components/chart/WjmaxChartComponent'
-import ScoreEditComponent from '@/components/score/ScoreEditComponent'
-import { logRendererError } from '@/libs/client/rendererLogger'
-import { useNotificationSystem } from '@/libs/client/useNotifications'
-import { globalDictionary } from '@/libs/server/globalDictionary'
-import axios from 'axios'
-import dayjs from 'dayjs'
-import utc from 'dayjs/plugin/utc'
 import Head from 'next/head'
 import Image from 'next/image'
+import { RootState } from 'store'
+import ScoreEditComponent from '@/components/score/ScoreEditModal'
+import { SyncLoader } from 'react-spinners'
+import WjmaxChartComponent from '@/components/common/PatternViewer'
+import axios from 'axios'
+import dayjs from 'dayjs'
+import { globalDictionary } from '@constants/globalDictionary'
+import { logRendererError } from '@utils/rendererLoggerUtils'
+import { setBackgroundBgaName } from 'store/slices/uiSlice'
+import { useNotificationSystem } from '@hooks/useNotifications'
 import { useParams } from 'next/navigation'
 import { useRouter } from 'next/router'
-import { SyncLoader } from 'react-spinners'
+import utc from 'dayjs/plugin/utc'
 
-import { RootState } from 'store'
-import { setBackgroundBgaName } from 'store/slices/uiSlice'
-
-import 'dayjs/locale/ko'
 dayjs.locale('ko')
 dayjs.extend(utc)
 

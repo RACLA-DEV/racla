@@ -1,6 +1,8 @@
-import log from 'electron-log/main'
-import { globalDictionary } from '../renderer/src/libs/server/globalDictionary'
 import { getSettingData, storeSettingData } from './fsManager'
+
+import { globalDictionary } from '../renderer/constants/globalDictionary'
+import log from 'electron-log/main'
+
 log.transports.console.format = '[{y}-{m}-{d} {h}:{i}:{s}.{ms}] [{level}] {text}'
 
 export const settingsManager = {

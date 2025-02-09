@@ -3,15 +3,15 @@ import * as R from 'ramda'
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
-import ScorePopupComponent from '@/components/score/ScorePopupComponent'
-import { logRendererError } from '@/libs/client/rendererLogger'
-import { globalDictionary } from '@/libs/server/globalDictionary'
 import Head from 'next/head'
+import { RootState } from 'store'
+import ScorePopupComponent from '@/components/score/popup/ScorePopupDjmax'
+import { SyncLoader } from 'react-spinners'
+import { globalDictionary } from '@constants/globalDictionary'
+import { logRendererError } from '@utils/rendererLoggerUtils'
+import { setBackgroundBgaName } from 'store/slices/uiSlice'
 import { useParams } from 'next/navigation'
 import { useRouter } from 'next/router'
-import { SyncLoader } from 'react-spinners'
-import { RootState } from 'store'
-import { setBackgroundBgaName } from 'store/slices/uiSlice'
 
 interface SongItem {
   title: number

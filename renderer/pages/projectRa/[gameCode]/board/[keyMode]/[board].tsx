@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from 'react'
 
-import RaScorePopupComponent from '@/components/score/RaScorePopupComponent'
-import { logRendererError } from '@/libs/client/rendererLogger'
-import { useNotificationSystem } from '@/libs/client/useNotifications'
-import axios from 'axios'
 import Head from 'next/head'
 import Image from 'next/image'
 import Link from 'next/link'
+import RaScorePopupComponent from '@components/score/popup/ScorePopupRacla'
+import { RootState } from 'store'
+import { SyncLoader } from 'react-spinners'
+import axios from 'axios'
+import { logRendererError } from '@utils/rendererLoggerUtils'
+import { useNotificationSystem } from '@hooks/useNotifications'
 import { useRouter } from 'next/router'
 import { useSelector } from 'react-redux'
-import { SyncLoader } from 'react-spinners'
-import { RootState } from 'store'
 
 interface Pattern {
   title: number

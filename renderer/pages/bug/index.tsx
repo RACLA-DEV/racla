@@ -1,16 +1,16 @@
 import React, { useEffect, useRef, useState } from 'react'
 
-import Modal from '@/components/common/Modal'
-import { logRendererError } from '@/libs/client/rendererLogger'
-import { useNotificationSystem } from '@/libs/client/useNotifications'
+import Head from 'next/head'
+import Modal from '@components/common/CreateModal'
+import { RootState } from 'store'
+import { SyncLoader } from 'react-spinners'
 import axios from 'axios'
 import dayjs from 'dayjs'
+import { logRendererError } from '@utils/rendererLoggerUtils'
 import { motion } from 'framer-motion'
-import Head from 'next/head'
+import { useNotificationSystem } from '@hooks/useNotifications'
 import { useRouter } from 'next/router'
 import { useSelector } from 'react-redux'
-import { SyncLoader } from 'react-spinners'
-import { RootState } from 'store'
 
 interface Bug {
   id: number

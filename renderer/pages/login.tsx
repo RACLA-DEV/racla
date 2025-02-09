@@ -1,17 +1,17 @@
-import { IUserNameRequest, IUserNameResponse } from '@/types/IUserName'
-import axios, { AxiosResponse } from 'axios'
 import { AnimatePresence, motion } from 'framer-motion'
-import React, { useEffect, useRef, useState } from 'react'
 import { FaCircleInfo, FaDiscord, FaLink, FaV } from 'react-icons/fa6'
-import { useDispatch, useSelector } from 'react-redux'
+import { IUserNameRequest, IUserNameResponse } from '@/types/IUserName'
+import React, { useEffect, useRef, useState } from 'react'
+import axios, { AxiosResponse } from 'axios'
 import { setUserData, setVArchiveUserData } from 'store/slices/appSlice'
+import { useDispatch, useSelector } from 'react-redux'
 
-import { logRendererError } from '@/libs/client/rendererLogger'
-import { useNotificationSystem } from '@/libs/client/useNotifications'
 import Head from 'next/head'
 import Image from 'next/image'
-import { useRouter } from 'next/router'
 import { RootState } from 'store'
+import { logRendererError } from '@utils/rendererLoggerUtils'
+import { useNotificationSystem } from '@hooks/useNotifications'
+import { useRouter } from 'next/router'
 
 export default function VArchiveLoginPage() {
   const { showNotification } = useNotificationSystem()

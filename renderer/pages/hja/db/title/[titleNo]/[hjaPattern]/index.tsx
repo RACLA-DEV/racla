@@ -1,17 +1,17 @@
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { useNotificationSystem } from '@/libs/client/useNotifications'
-import { globalDictionary } from '@/libs/server/globalDictionary'
-import axios from 'axios'
+import { FaDatabase } from 'react-icons/fa6'
 import Head from 'next/head'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useParams } from 'next/navigation'
-import { FaDatabase } from 'react-icons/fa6'
-import { SyncLoader } from 'react-spinners'
 import { RootState } from 'store'
+import { SyncLoader } from 'react-spinners'
+import axios from 'axios'
+import { globalDictionary } from '@constants/globalDictionary'
 import { setBackgroundBgaName } from 'store/slices/uiSlice'
+import { useNotificationSystem } from '@hooks/useNotifications'
+import { useParams } from 'next/navigation'
 
 interface RankingEntry {
   nickname: string

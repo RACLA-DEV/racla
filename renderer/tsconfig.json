@@ -3,33 +3,25 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@/*": [
-        "src/*"
-      ],
-      "@libs/*": [
-        "src/libs/*"
-      ],
-      "@components/*": [
-        "src/components/*"
-      ],
-      "@styles/*": [
-        "styles/*"
-      ],
-      "@image/*": [
-        "public/images/*"
-      ],
-      "@fonts/*": [
-        "public/fonts/*"
-      ]
+      "@/*": ["*"],
+      "@components/*": ["components/*"],
+      "@styles/*": ["styles/*"],
+      "@image/*": ["public/images/*"],
+      "@fonts/*": ["public/fonts/*"],
+      "@hooks/*": ["hooks/*"],
+      "@constants/*": ["constants/*"],
+      "@types/*": ["types/*"],
+      "@utils/*": ["utils/*"]
     },
     "module": "esnext"
   },
   "include": [
     "next-env.d.ts",
     "**/*.ts",
-    "**/*.tsx"
+    "**/*.tsx",
+    "hooks/useNotifications.ts",
+    "hooks/useRecentHistory.ts",
+    "hooks/useWindowSize.ts"
   ],
-  "exclude": [
-    "node_modules"
-  ]
+  "exclude": ["node_modules"]
 }

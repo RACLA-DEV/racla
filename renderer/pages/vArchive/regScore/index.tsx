@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
 import {
   clearVArchiveData,
   setBackupData,
@@ -9,22 +8,23 @@ import {
   setVArchivePattern,
   setVArchiveUploadedPageData,
 } from 'store/slices/appSlice'
+import { useDispatch, useSelector } from 'react-redux'
 
-import ScorePopupComponent from '@/components/score/ScorePopupComponent'
-import { logRendererError } from '@/libs/client/rendererLogger'
-import { useNotificationSystem } from '@/libs/client/useNotifications'
-import { useRecentHistory } from '@/libs/client/useRecentHistory'
-import axios from 'axios'
-import dayjs from 'dayjs'
-import Head from 'next/head'
-import Image from 'next/image'
-import { useRouter } from 'next/router'
-import { IconContext } from 'react-icons'
 import { FaCloudArrowUp } from 'react-icons/fa6'
 import { FiTriangle } from 'react-icons/fi'
-import { SyncLoader } from 'react-spinners'
+import Head from 'next/head'
+import { IconContext } from 'react-icons'
+import Image from 'next/image'
 import { RootState } from 'store'
+import ScorePopupComponent from '@/components/score/popup/ScorePopupDjmax'
+import { SyncLoader } from 'react-spinners'
+import axios from 'axios'
+import dayjs from 'dayjs'
+import { logRendererError } from '@utils/rendererLoggerUtils'
 import { setBackgroundBgaName } from 'store/slices/uiSlice'
+import { useNotificationSystem } from '@hooks/useNotifications'
+import { useRecentHistory } from '@hooks/useRecentHistory'
+import { useRouter } from 'next/router'
 
 export default function VArchiveRegScorePage() {
   const { showNotification } = useNotificationSystem()

@@ -1,7 +1,5 @@
-//prettier-ignore
-import 'bootstrap/dist/css/bootstrap.min.css';
-//prettier-ignore
-import '@styles/globals.css';
+import 'bootstrap/dist/css/bootstrap.min.css'
+import 'styles/globals.css'
 
 import { AnimatePresence, motion } from 'framer-motion'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
@@ -23,27 +21,30 @@ import {
 import { addNotification, removeNotification } from 'store/slices/notificationSlice'
 import { setFontFamily, setIsDjCommentOpen } from 'store/slices/uiSlice'
 
-import FooterComponent from '@/components/footer/FooterComponent'
-import HeaderComponent from '@/components/header/HeaderComponent'
-import BackgroundVideoComponent from '@/components/layout/BackgroundVideoComponent'
-import HomePanelComponent from '@/components/layout/HomePanelComponent'
-import ImageViewerComponent from '@/components/layout/ImageViewerComponent'
-import NotificationComponent from '@/components/notification/NotificationComponent'
+import BackgroundVideoComponent from '@/components/background/BackgroundVideo'
+import ImageViewerComponent from '@/components/common/ImageViewer'
+import HomePanelComponent from '@/components/common/ImportantModal'
+import NotificationComponent from '@/components/common/NotificationModal'
+import SettingComponent from '@/components/common/SettingModal'
+import FooterComponent from '@/components/layout/footer/Footer'
+import HeaderComponent from '@/components/layout/header/Header'
+import SidebarComponent from '@/components/layout/sidebar/Sidebar'
 import { IUserNameResponse } from '@/types/IUserName'
-import type { AppProps } from 'next/app'
-import Image from 'next/image'
-import { Provider } from 'react-redux'
-// import { setIsDetectedGame, setSettingData, setUserData, setUploadedData, setVArchiveSongData } from 'store/slices/appSlice'
-import SettingComponent from '@/components/layout/SettingComponent'
-import SidebarComponent from '@/components/sidebar/SidebarComponent'
-import { logRendererError } from '@/libs/client/rendererLogger'
+import { logRendererError } from '@utils/rendererLoggerUtils'
 import axios from 'axios'
+import type { AppProps } from 'next/app'
 import localFont from 'next/font/local'
+import Image from 'next/image'
 import { useParams } from 'next/navigation'
 import { useRouter } from 'next/router'
+import { Provider } from 'react-redux'
 import { SyncLoader } from 'react-spinners'
 import { store } from 'store'
 import { v4 as uuidv4 } from 'uuid'
+
+// prettier-ignore
+
+// import { setIsDetectedGame, setSettingData, setUserData, setUploadedData, setVArchiveSongData } from 'store/slices/appSlice'
 
 const noto = localFont({
   src: '../public/fonts/PretendardVariable.woff2',

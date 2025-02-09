@@ -1,9 +1,9 @@
-import { useEffect } from 'react'
 import Head from 'next/head'
-import { useRouter } from 'next/router'
-import { useNotificationSystem } from '@/libs/client/useNotifications'
-import { useSelector } from 'react-redux'
 import { RootState } from 'store'
+import { useEffect } from 'react'
+import { useNotificationSystem } from '@hooks/useNotifications'
+import { useRouter } from 'next/router'
+import { useSelector } from 'react-redux'
 
 const BoardHome = () => {
   const router = useRouter()

@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react'
 
-import { logRendererError } from '@/libs/client/rendererLogger'
+import Head from 'next/head'
+import { RootState } from 'store'
+import { SyncLoader } from 'react-spinners'
 import axios from 'axios'
 import dayjs from 'dayjs'
+import { logRendererError } from '@utils/rendererLoggerUtils'
 import { motion } from 'framer-motion'
-import Head from 'next/head'
 import { useRouter } from 'next/router'
 import { useSelector } from 'react-redux'
-import { SyncLoader } from 'react-spinners'
-import { RootState } from 'store'
 
 interface Comment {
   id: number

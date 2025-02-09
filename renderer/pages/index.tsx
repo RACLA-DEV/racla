@@ -1,8 +1,8 @@
+import DjmaxHomeComponent from '@/components/home/DjmaxSection'
 import Head from 'next/head'
-import DjmaxHomeComponent from '@/components/Home/DjmaxHomeComponent'
-import WjmaxHomeComponent from '@/components/Home/WjmaxHomeComponent'
-import { useSelector } from 'react-redux'
 import { RootState } from 'store'
+import WjmaxHomeComponent from '@/components/home/WjmaxSection'
+import { useSelector } from 'react-redux'
 
 const Home = () => {
   const selectedGame = useSelector((state: RootState) => state.app.selectedGame)

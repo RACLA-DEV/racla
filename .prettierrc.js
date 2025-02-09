@@ -1,7 +1,6 @@
 module.exports = {
   useTabs: false,
   plugins: [
-    '@ianvs/prettier-plugin-sort-imports',
     'prettier-plugin-organize-imports',
     'prettier-plugin-tailwindcss',
     'prettier-plugin-style-order',
@@ -21,7 +20,7 @@ module.exports = {
     '<THIRD_PARTY_MODULES>',
     '^(?!.*[.]css$)[./].*$',
     'bootstrap/dist/css/bootstrap.min.css$',
-    '@styles/globals.css$',
+    '.*/globals.css$|@styles/globals.css$',
   ],
   importOrderParserPlugins: ['typescript', 'jsx', 'decorators-legacy'],
   importOrderTypeScriptVersion: '5.0.0',

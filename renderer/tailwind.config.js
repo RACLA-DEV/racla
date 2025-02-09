@@ -4,12 +4,21 @@ module.exports = {
   prefix: 'tw-',
   content: [
     './renderer/pages/**/*.{js,ts,jsx,tsx}',
-    './renderer/src/components/**/*.{js,ts,jsx,tsx}',
-    './renderer/src/layout/**/*.{js,ts,jsx,tsx}',
+    './renderer/components/**/*.{js,ts,jsx,tsx}',
+    './renderer/hooks/**/*.{js,ts,jsx,tsx}',
+    './renderer/constants/**/*.{js,ts,jsx,tsx}',
+    './renderer/types/**/*.{js,ts,jsx,tsx}',
+    './renderer/utils/**/*.{js,ts,jsx,tsx}',
+    './renderer/styles/**/*.{js,ts,jsx,tsx}',
+    './renderer/public/**/*.{js,ts,jsx,tsx}',
+    './renderer/libs/**/*.{js,ts,jsx,tsx}',
+    './renderer/store/**/*.{js,ts,jsx,tsx}',
+    './renderer/layout/**/*.{js,ts,jsx,tsx}',
   ],
   theme: {
     colors: {
       // use colors only specified
+
       white: colors.white,
       gray: colors.gray,
       blue: colors.blue,

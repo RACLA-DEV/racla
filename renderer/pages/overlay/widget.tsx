@@ -1,11 +1,11 @@
-import { useEffect, useState } from 'react'
 import { FaCircleCheck, FaCircleInfo, FaCircleXmark, FaCrown, FaDatabase } from 'react-icons/fa6'
+import { useEffect, useState } from 'react'
 
-import { globalDictionary } from '@/libs/server/globalDictionary'
+import { IconContext } from 'react-icons'
+import Image from 'next/image'
 import axios from 'axios'
 import dayjs from 'dayjs'
-import Image from 'next/image'
-import { IconContext } from 'react-icons'
+import { globalDictionary } from '@constants/globalDictionary'
 import { useSelector } from 'react-redux'
 
 const Overlay = ({ isNotificationSound }: { isNotificationSound: boolean }) => {

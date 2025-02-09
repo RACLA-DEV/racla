@@ -1,32 +1,33 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import 'dayjs/locale/ko'
+
 import { BsGrid, BsList } from 'react-icons/bs'
 import { FaChevronLeft, FaChevronRight, FaHeart, FaRegHeart } from 'react-icons/fa6'
-import { useDispatch, useSelector } from 'react-redux'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { setBackgroundBgaName, setIsDjCommentOpen } from 'store/slices/uiSlice'
+import { useDispatch, useSelector } from 'react-redux'
 
-import { logRendererError } from '@/libs/client/rendererLogger'
-import { useNotificationSystem } from '@/libs/client/useNotifications'
-import { globalDictionary } from '@/libs/server/globalDictionary'
+import Head from 'next/head'
+import { IconContext } from 'react-icons'
+import Image from 'next/image'
+import LocalizedFormat from 'dayjs/plugin/localizedFormat'
+import { RootState } from 'store'
+import { SyncLoader } from 'react-spinners'
 import axios from 'axios'
 import dayjs from 'dayjs'
-import 'dayjs/locale/ko'
-import LocalizedFormat from 'dayjs/plugin/localizedFormat'
-import { motion } from 'framer-motion'
 import { debounce } from 'lodash'
 import dynamic from 'next/dynamic'
-import Head from 'next/head'
-import Image from 'next/image'
-import { useRouter } from 'next/router'
-import { IconContext } from 'react-icons'
+import { globalDictionary } from '@constants/globalDictionary'
+import { logRendererError } from '@utils/rendererLoggerUtils'
+import { motion } from 'framer-motion'
 import { useInView } from 'react-intersection-observer'
-import { SyncLoader } from 'react-spinners'
-import { RootState } from 'store'
+import { useNotificationSystem } from '@hooks/useNotifications'
+import { useRouter } from 'next/router'
 
 dayjs.locale('ko')
 dayjs.extend(LocalizedFormat)
 
 // 동적 임포트로 ScorePopupComponent 지연 로딩
-const ScorePopupComponent = dynamic(() => import('@/components/score/ScorePopupComponent'), {
+const ScorePopupComponent = dynamic(() => import('@/components/score/popup/ScorePopupDjmax'), {
   loading: () => <div className='tw-w-[80px] tw-h-[80px] tw-bg-gray-600 tw-bg-opacity-20' />,
 })
 
