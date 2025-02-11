@@ -29,6 +29,9 @@ mac:
   target:
     - dmg
     - zip
+  extendInfo:
+    LSUIElement: false
+  category: public.app-category.utilities
 win:
   target:
     - nsis
@@ -38,3 +41,8 @@ win:
 linux:
   target:
     - AppImage
+
+asar: true
+asarUnpack:
+  - '**/node_modules/sharp/**/*'
+  - '**/node_modules/@img/**/*'

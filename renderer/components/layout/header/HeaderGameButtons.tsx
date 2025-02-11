@@ -1,7 +1,7 @@
 import { OverlayTrigger, Tooltip } from 'react-bootstrap'
 
-import Image from 'next/image'
 import { globalDictionary } from '@constants/globalDictionary'
+import Image from 'next/image'
 
 export const renderGameButtons = (game, logoPath, gameName, selectedGame, handleGameSelection) => {
   return (
@@ -19,7 +19,7 @@ export const renderGameButtons = (game, logoPath, gameName, selectedGame, handle
         onClick={() => handleGameSelection(game)}
         type='button'
         className={
-          'tw-flex tw-justify-center tw-items-center btn-select-game tw-gap-1 tw-rounded-sm tw-text-xs tw-bg-gray-800 ' +
+          'tw-flex tw-justify-center tw-items-center btn-select-game tw-gap-1 tw-rounded-sm tw-text-xs ' +
           (selectedGame === game ? 'active' : '')
         }
       >

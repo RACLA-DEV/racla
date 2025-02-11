@@ -153,6 +153,11 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
 ;(async () => {
   await app.whenReady()
 
+  // macOS에서 dock 아이콘 활성화
+  if (process.platform === 'darwin') {
+    app.dock.show()
+  }
+
   // globalKeyboardListener.addListener(function (e, down) {
   //   log.debug(
   //     `GlobalKeyboardListener: ${e.name} ${e.state == 'DOWN' ? 'DOWN' : 'UP  '} [${e.rawKey._nameRaw}]`,
@@ -198,6 +203,9 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
       devTools: !isProd,
       preload: path.join(__dirname, 'preload.js'),
     },
+    // macOS에서 창 타입과 트래픽 라이트 버튼 위치 설정
+    titleBarStyle: process.platform === 'darwin' ? 'hidden' : undefined,
+    trafficLightPosition: process.platform === 'darwin' ? { x: 16, y: 16 } : undefined,
   })
 
   mainWindow.webContents.on('before-input-event', (event, input) => {
@@ -1790,4 +1798,28 @@ app.on('before-quit', () => {
         log.info(`Cleaning up ${count} remaining connections...`)
       }
     })
+})
+
+// macOS 특화 이벤트 핸들러 추가
+app.on('activate', () => {
+  if (mainWindow === null) {
+    mainWindow = createWindow('main', {
+      width: 1280,
+      height: 720,
+      minWidth: 1280,
+      minHeight: 720,
+      frame: false,
+      center: true,
+      icon: path.join(__dirname + '/../resources/', 'icon.ico'),
+      webPreferences: {
+        webviewTag: true,
+        nodeIntegration: true,
+        devTools: !isProd,
+        preload: path.join(__dirname, 'preload.js'),
+      },
+      // macOS에서 창 타입과 트래픽 라이트 버튼 위치 설정
+      titleBarStyle: process.platform === 'darwin' ? 'hidden' : undefined,
+      trafficLightPosition: process.platform === 'darwin' ? { x: 16, y: 16 } : undefined,
+    })
+  }
 })

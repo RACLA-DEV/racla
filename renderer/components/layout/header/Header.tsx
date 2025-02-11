@@ -1,3 +1,5 @@
+import { useCallback, useEffect, useState } from 'react'
+import { OverlayTrigger, Tooltip } from 'react-bootstrap'
 import {
   FaArrowDown,
   FaArrowLeft,
@@ -8,23 +10,21 @@ import {
   FaRotate,
   FaUser,
 } from 'react-icons/fa6'
-import { OverlayTrigger, Tooltip } from 'react-bootstrap'
-import { useCallback, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
-import HomePanelButton from './HeaderImportantModalButton'
+import { globalDictionary } from '@constants/globalDictionary'
+import { useNotificationSystem } from '@hooks/useNotifications'
+import { logRendererError } from '@utils/rendererLoggerUtils'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useRouter } from 'next/router'
 import type { RootState } from 'store'
-import { globalDictionary } from '@constants/globalDictionary'
-import { logRendererError } from '@utils/rendererLoggerUtils'
+import { setSelectedGame } from 'store/slices/appSlice'
+import { setBackgroundBgaName } from 'store/slices/uiSlice'
 import { renderGameButtons } from './HeaderGameButtons'
+import HomePanelButton from './HeaderImportantModalButton'
 import { renderUserDropdown } from './HeaderUserDropdown'
 import { renderUtilityButtons } from './HeaderUtilityButtons'
-import { setBackgroundBgaName } from 'store/slices/uiSlice'
-import { setSelectedGame } from 'store/slices/appSlice'
-import { useNotificationSystem } from '@hooks/useNotifications'
-import { useRouter } from 'next/router'
 
 // HeaderComponent.tsx
 
@@ -42,7 +42,7 @@ const HeaderComponent: React.FC<IHeaderComponentProps> = ({
   const { showNotification } = useNotificationSystem()
   const router = useRouter()
   const dispatch = useDispatch()
-  const { selectedGame, settingData, userData, isDetectedGame } = useSelector(
+  const { selectedGame, settingData, userData, isDetectedGame, isMiniMode } = useSelector(
     (state: RootState) => state.app,
   )
   const [isMaximized, setIsMaximized] = useState(false)
@@ -103,101 +103,113 @@ const HeaderComponent: React.FC<IHeaderComponentProps> = ({
   }, [settingData.isNotificationSound])
 
   return (
-    <div className='tw-flex tw-fixed tw-w-full tw-bg-gray-800 tw-bg-opacity-90 tw-backdrop-blur-lg tw-border-b tw-border-gray-700 tw-items-center tw-top-0 tw-h-12 tw-left-0 tw-px-2 tw-z-[1000]'>
-      {/* 홈 로고 */}
-      {settingData.homeButtonAlignRight ? null : (
-        <OverlayTrigger
-          placement='bottom'
-          overlay={
-            <Tooltip id='btn-nav-home' className={className + ' tw-text-xs'}>
-              홈으로 돌아가기
-            </Tooltip>
-          }
-        >
-          <Link
-            onClick={() => {
-              dispatch(setSelectedGame('djmax_respect_v'))
-            }}
-            href='/'
-            className='tw-px-2 tw-py-2 btn-ipc tw-mr-2'
+    <div
+      className={`tw-flex tw-transition-all tw-duration-300 tw-fixed tw-w-full tw-bg-gray-800 tw-bg-opacity-90 tw-backdrop-blur-lg tw-border-b tw-border-gray-700 tw-items-center tw-top-0 tw-h-12 tw-left-0 tw-z-[1000] ${
+        settingData.platform === 'darwin'
+          ? isMiniMode
+            ? 'tw-pl-[5.25rem]'
+            : 'tw-pl-52'
+          : 'tw-px-2'
+      }`}
+    >
+      {settingData.platform !== 'darwin' && (
+        <>
+          {/* 홈 로고 */}
+          {!settingData.homeButtonAlignRight && settingData.platform !== 'darwin' && (
+            <OverlayTrigger
+              placement='bottom'
+              overlay={
+                <Tooltip id='btn-nav-home' className={className + ' tw-text-xs'}>
+                  홈으로 돌아가기
+                </Tooltip>
+              }
+            >
+              <Link
+                onClick={() => {
+                  dispatch(setSelectedGame('djmax_respect_v'))
+                }}
+                href='/'
+                className='tw-px-2 tw-py-2 btn-ipc tw-mr-2'
+              >
+                <Image src='/images/logo.svg' color='white' height={24} width={24} alt='Logo' />
+              </Link>
+            </OverlayTrigger>
+          )}
+
+          {/* 뒤로가기 */}
+          <OverlayTrigger
+            placement='bottom'
+            overlay={
+              <Tooltip id='btn-nav-back' className={className + ' tw-text-xs'}>
+                뒤로가기
+              </Tooltip>
+            }
           >
-            <Image src='/images/logo.svg' color='white' height={24} width={24} alt='Logo' />
-          </Link>
-        </OverlayTrigger>
+            <button type='button' className='tw-px-2 tw-py-2 btn-ipc tw-mr-2' onClick={handleBack}>
+              <FaArrowLeft />
+            </button>
+          </OverlayTrigger>
+
+          {/* 새로고침 */}
+          <OverlayTrigger
+            placement='bottom'
+            overlay={
+              <Tooltip id='btn-nav-refresh' className={className + ' tw-text-xs'}>
+                새로고침
+              </Tooltip>
+            }
+          >
+            <button
+              type='button'
+              className='tw-px-2 tw-py-2 btn-ipc tw-mr-2'
+              onClick={refreshComponent}
+            >
+              <FaRotate />
+            </button>
+          </OverlayTrigger>
+
+          <OverlayTrigger
+            placement='bottom'
+            overlay={
+              <Tooltip id='btn-nav-top' className={className + ' tw-text-xs'}>
+                콘텐츠 최상단으로 이동
+              </Tooltip>
+            }
+          >
+            <a href='#ContentHeader' className='tw-px-2 tw-py-2 btn-ipc tw-mr-2'>
+              <FaArrowUp />
+            </a>
+          </OverlayTrigger>
+
+          <OverlayTrigger
+            placement='bottom'
+            overlay={
+              <Tooltip id='btn-nav-bottom' className={className + ' tw-text-xs'}>
+                콘텐츠 최하단으로 이동
+              </Tooltip>
+            }
+          >
+            <a href='#ContentFooter' className='tw-px-2 tw-py-2 btn-ipc tw-mr-2'>
+              <FaArrowDown />
+            </a>
+          </OverlayTrigger>
+
+          {settingData.homeButtonAlignRight && settingData.platform !== 'darwin' && (
+            <OverlayTrigger
+              placement='bottom'
+              overlay={
+                <Tooltip id='btn-nav-home' className={className + ' tw-text-xs'}>
+                  홈으로 돌아가기
+                </Tooltip>
+              }
+            >
+              <Link href='/' className='tw-px-2 tw-py-2 btn-ipc tw-mr-2'>
+                <Image src='/images/logo.svg' color='white' height={24} width={24} alt='Logo' />
+              </Link>
+            </OverlayTrigger>
+          )}
+        </>
       )}
-
-      {/* 뒤로가기 */}
-      <OverlayTrigger
-        placement='bottom'
-        overlay={
-          <Tooltip id='btn-nav-home' className={className + ' tw-text-xs'}>
-            뒤로가기
-          </Tooltip>
-        }
-      >
-        <button type='button' className='tw-px-2 tw-py-2 btn-ipc tw-mr-2' onClick={handleBack}>
-          <FaArrowLeft />
-        </button>
-      </OverlayTrigger>
-
-      {/* 새로고침 */}
-      <OverlayTrigger
-        placement='bottom'
-        overlay={
-          <Tooltip id='btn-nav-home' className={className + ' tw-text-xs'}>
-            새로고침
-          </Tooltip>
-        }
-      >
-        <button
-          type='button'
-          className='tw-px-2 tw-py-2 btn-ipc tw-mr-2'
-          onClick={refreshComponent}
-        >
-          <FaRotate />
-        </button>
-      </OverlayTrigger>
-
-      <OverlayTrigger
-        placement='bottom'
-        overlay={
-          <Tooltip id='btn-nav-home' className={className + ' tw-text-xs'}>
-            콘텐츠 최상단으로 이동
-          </Tooltip>
-        }
-      >
-        <a href={`#ContentHeader`} className='tw-px-2 tw-py-2 btn-ipc tw-mr-2'>
-          <FaArrowUp />
-        </a>
-      </OverlayTrigger>
-
-      <OverlayTrigger
-        placement='bottom'
-        overlay={
-          <Tooltip id='btn-nav-home' className={className + ' tw-text-xs'}>
-            콘텐츠 최하단으로 이동
-          </Tooltip>
-        }
-      >
-        <a href={`#ContentFooter`} type='button' className='tw-px-2 tw-py-2 btn-ipc tw-mr-2'>
-          <FaArrowDown />
-        </a>
-      </OverlayTrigger>
-
-      {settingData.homeButtonAlignRight ? (
-        <OverlayTrigger
-          placement='bottom'
-          overlay={
-            <Tooltip id='btn-nav-home' className={className + ' tw-text-xs'}>
-              홈으로 돌아가기
-            </Tooltip>
-          }
-        >
-          <Link href='/' className='tw-px-2 tw-py-2 btn-ipc tw-mr-2'>
-            <Image src='/images/logo.svg' color='white' height={24} width={24} alt='Logo' />
-          </Link>
-        </OverlayTrigger>
-      ) : null}
 
       {/* 창 드래그 할당 부분 */}
       <div
@@ -234,7 +246,7 @@ const HeaderComponent: React.FC<IHeaderComponentProps> = ({
         >
           <button
             type='button'
-            className='tw-flex tw-justify-center tw-items-center btn-select-game tw-gap-1 tw-rounded-sm tw-text-xs tw-bg-gray-800'
+            className='tw-flex tw-justify-center tw-items-center btn-select-game tw-gap-1 tw-rounded-sm tw-text-xs'
           >
             <FaConnectdevelop />
             <span className='tw-text-xs'>WHO'S NEXT?</span>
@@ -242,49 +254,51 @@ const HeaderComponent: React.FC<IHeaderComponentProps> = ({
         </OverlayTrigger>
       </div>
       <HomePanelButton />
-      <OverlayTrigger
-        placement='bottom'
-        overlay={
-          <Tooltip id='btn-select-game-respect-v' className={className + ' tw-text-xs'}>
-            {selectedGame === 'djmax_respect_v'
-              ? 'DJMAX RESPECT V(Steam) 게임을 실행합니다.'
-              : 'WJMAX 게임을 실행합니다.'}
-          </Tooltip>
-        }
-      >
-        {!isDetectedGame ? (
-          <button
-            onClick={() => {
-              if (selectedGame === 'djmax_respect_v') {
-                window.ipc.send('startGameDjmaxRespectV')
-              } else if (selectedGame === 'wjmax') {
-                if (settingData.autoStartGameWjmaxPath !== '') {
-                  window.ipc.send('startGameWjmax')
-                } else {
-                  showNotification(
-                    'WJMAX 게임을 실행하는 경로를 설정(게임)에서 지정해주세요.',
-                    'tw-bg-red-600',
-                  )
+      {settingData.platform !== 'darwin' && (
+        <OverlayTrigger
+          placement='bottom'
+          overlay={
+            <Tooltip id='btn-select-game-respect-v' className={className + ' tw-text-xs'}>
+              {selectedGame === 'djmax_respect_v'
+                ? 'DJMAX RESPECT V(Steam) 게임을 실행합니다.'
+                : 'WJMAX 게임을 실행합니다.'}
+            </Tooltip>
+          }
+        >
+          {!isDetectedGame ? (
+            <button
+              onClick={() => {
+                if (selectedGame === 'djmax_respect_v') {
+                  window.ipc.send('startGameDjmaxRespectV')
+                } else if (selectedGame === 'wjmax') {
+                  if (settingData.autoStartGameWjmaxPath !== '') {
+                    window.ipc.send('startGameWjmax')
+                  } else {
+                    showNotification(
+                      'WJMAX 게임을 실행하는 경로를 설정(게임)에서 지정해주세요.',
+                      'tw-bg-red-600',
+                    )
+                  }
                 }
+              }}
+              className={
+                'tw-px-3 tw-text-white tw-bg-blue-600 tw-bg-opacity-90 hover:tw-bg-opacity-100 hover:tw-bg-blue-800 tw-transition-colors tw-duration-300 tw-text-xs tw-mr-2 tw-flex tw-items-center tw-gap-1 tw-rounded-sm tw-border-0 tw-h-8'
               }
-            }}
-            className={
-              'tw-px-3 tw-text-white tw-bg-blue-600 tw-bg-opacity-90 hover:tw-bg-opacity-100 hover:tw-bg-blue-800 tw-transition-colors tw-duration-300 tw-text-xs tw-mr-2 tw-flex tw-items-center tw-gap-1 tw-rounded-sm tw-border-0 tw-h-8'
-            }
-          >
-            <FaPlay /> 게임 시작
-          </button>
-        ) : (
-          <button
-            disabled
-            className={
-              'btn btn-secondary btn-select-game active tw-text-xs tw-mr-2 tw-flex tw-items-center tw-gap-1 tw-rounded-sm tw-border-0 tw-h-8'
-            }
-          >
-            <FaGamepad /> 게임 실행 중
-          </button>
-        )}
-      </OverlayTrigger>
+            >
+              <FaPlay /> 게임 시작
+            </button>
+          ) : (
+            <button
+              disabled
+              className={
+                'btn btn-secondary btn-select-game active tw-text-xs tw-mr-2 tw-flex tw-items-center tw-gap-1 tw-rounded-sm tw-border-0 tw-h-8'
+              }
+            >
+              <FaGamepad /> 게임 실행 중
+            </button>
+          )}
+        </OverlayTrigger>
+      )}
 
       <button
         className={
@@ -325,8 +339,194 @@ const HeaderComponent: React.FC<IHeaderComponentProps> = ({
         refreshKeyHandle,
       )}
 
-      {/* 우측 유틸리티 버튼 */}
-      {renderUtilityButtons(ipcRenderer, isMaximized, setIsMaximized)}
+      {settingData.platform !== 'darwin' && (
+        <>
+          {/* 홈 로고 */}
+          {!settingData.homeButtonAlignRight && (
+            <OverlayTrigger
+              placement='bottom'
+              overlay={
+                <Tooltip id='btn-nav-home' className={className + ' tw-text-xs'}>
+                  홈으로 돌아가기
+                </Tooltip>
+              }
+            >
+              <Link
+                onClick={() => {
+                  dispatch(setSelectedGame('djmax_respect_v'))
+                }}
+                href='/'
+                className='tw-px-2 tw-py-2 btn-ipc tw-mr-2'
+              >
+                <Image src='/images/logo.svg' color='white' height={24} width={24} alt='Logo' />
+              </Link>
+            </OverlayTrigger>
+          )}
+
+          {/* 뒤로가기 */}
+          <OverlayTrigger
+            placement='bottom'
+            overlay={
+              <Tooltip id='btn-nav-back' className={className + ' tw-text-xs'}>
+                뒤로가기
+              </Tooltip>
+            }
+          >
+            <button type='button' className='tw-px-2 tw-py-2 btn-ipc tw-mr-2' onClick={handleBack}>
+              <FaArrowLeft />
+            </button>
+          </OverlayTrigger>
+
+          {/* 새로고침 */}
+          <OverlayTrigger
+            placement='bottom'
+            overlay={
+              <Tooltip id='btn-nav-refresh' className={className + ' tw-text-xs'}>
+                새로고침
+              </Tooltip>
+            }
+          >
+            <button
+              type='button'
+              className='tw-px-2 tw-py-2 btn-ipc tw-mr-2'
+              onClick={refreshComponent}
+            >
+              <FaRotate />
+            </button>
+          </OverlayTrigger>
+
+          <OverlayTrigger
+            placement='bottom'
+            overlay={
+              <Tooltip id='btn-nav-top' className={className + ' tw-text-xs'}>
+                콘텐츠 최상단으로 이동
+              </Tooltip>
+            }
+          >
+            <a href='#ContentHeader' className='tw-px-2 tw-py-2 btn-ipc tw-mr-2'>
+              <FaArrowUp />
+            </a>
+          </OverlayTrigger>
+
+          <OverlayTrigger
+            placement='bottom'
+            overlay={
+              <Tooltip id='btn-nav-bottom' className={className + ' tw-text-xs'}>
+                콘텐츠 최하단으로 이동
+              </Tooltip>
+            }
+          >
+            <a href='#ContentFooter' className='tw-px-2 tw-py-2 btn-ipc tw-mr-2'>
+              <FaArrowDown />
+            </a>
+          </OverlayTrigger>
+
+          {settingData.homeButtonAlignRight && (
+            <OverlayTrigger
+              placement='bottom'
+              overlay={
+                <Tooltip id='btn-nav-home' className={className + ' tw-text-xs'}>
+                  홈으로 돌아가기
+                </Tooltip>
+              }
+            >
+              <Link href='/' className='tw-px-2 tw-py-2 btn-ipc tw-mr-2'>
+                <Image src='/images/logo.svg' color='white' height={24} width={24} alt='Logo' />
+              </Link>
+            </OverlayTrigger>
+          )}
+        </>
+      )}
+
+      {/* 우측 유틸리티 버튼 - macOS에서는 숨김 */}
+      {settingData.platform !== 'darwin' &&
+        renderUtilityButtons(ipcRenderer, isMaximized, setIsMaximized)}
+
+      {settingData.platform === 'darwin' && (
+        <>
+          <OverlayTrigger
+            placement='bottom'
+            overlay={
+              <Tooltip id='btn-nav-back' className={className + ' tw-text-xs'}>
+                뒤로가기
+              </Tooltip>
+            }
+          >
+            <button
+              type='button'
+              className='tw-px-2 tw-py-2 btn-ipc tw-mr-2 btn btn-secondary btn-select-game active tw-border-0'
+              onClick={handleBack}
+            >
+              <FaArrowLeft />
+            </button>
+          </OverlayTrigger>
+
+          {/* 새로고침 */}
+          <OverlayTrigger
+            placement='bottom'
+            overlay={
+              <Tooltip id='btn-nav-refresh' className={className + ' tw-text-xs'}>
+                새로고침
+              </Tooltip>
+            }
+          >
+            <button
+              type='button'
+              className='tw-px-2 tw-py-2 btn-ipc tw-mr-2 btn btn-secondary btn-select-game active tw-border-0'
+              onClick={refreshComponent}
+            >
+              <FaRotate />
+            </button>
+          </OverlayTrigger>
+
+          <OverlayTrigger
+            placement='bottom'
+            overlay={
+              <Tooltip id='btn-nav-top' className={className + ' tw-text-xs'}>
+                콘텐츠 최상단으로 이동
+              </Tooltip>
+            }
+          >
+            <a
+              href='#ContentHeader'
+              className='tw-px-2 tw-py-2 btn-ipc tw-mr-2 btn btn-secondary btn-select-game active tw-border-0'
+            >
+              <FaArrowUp />
+            </a>
+          </OverlayTrigger>
+
+          <OverlayTrigger
+            placement='bottom'
+            overlay={
+              <Tooltip id='btn-nav-bottom' className={className + ' tw-text-xs'}>
+                콘텐츠 최하단으로 이동
+              </Tooltip>
+            }
+          >
+            <a
+              href='#ContentFooter'
+              className='tw-px-2 tw-py-2 btn-ipc tw-mr-2 btn btn-secondary btn-select-game active tw-border-0'
+            >
+              <FaArrowDown />
+            </a>
+          </OverlayTrigger>
+
+          {settingData.homeButtonAlignRight && settingData.platform !== 'darwin' && (
+            <OverlayTrigger
+              placement='bottom'
+              overlay={
+                <Tooltip id='btn-nav-home' className={className + ' tw-text-xs'}>
+                  홈으로 돌아가기
+                </Tooltip>
+              }
+            >
+              <Link href='/' className='tw-px-2 tw-py-2 btn-ipc tw-mr-2'>
+                <Image src='/images/logo.svg' color='white' height={24} width={24} alt='Logo' />
+              </Link>
+            </OverlayTrigger>
+          )}
+        </>
+      )}
     </div>
   )
 }
