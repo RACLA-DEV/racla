@@ -13,8 +13,8 @@ import {
   FaWindowMaximize,
 } from 'react-icons/fa6'
 
-import { BUILD_DATE } from './buildInfo'
 import packageJson from '../../package.json'
+import { BUILD_DATE } from './buildInfo'
 
 export const globalDictionary = {
   version: `${packageJson.version}-${BUILD_DATE}`,
@@ -424,6 +424,7 @@ export const globalDictionary = {
             link: 'overlay/setting',
             userLevel: [],
             status: 'stable',
+            platform: ['win32'],
           },
           // {
           //   id: 'projectRaNavItemsRival',
@@ -632,6 +633,7 @@ export const globalDictionary = {
             link: 'https://github.com/johypark97/VArchiveMacro',
             userLevel: [],
             status: 'stable',
+            platform: ['win32'],
           },
           {
             id: 'utilityNavItemsRandomSelector',
@@ -647,6 +649,7 @@ export const globalDictionary = {
             link: 'https://github.com/tuska298/djmax-random-selector-v',
             userLevel: [],
             status: 'stable',
+            platform: ['win32'],
           },
           {
             id: 'utilityNavItemsVScouter',

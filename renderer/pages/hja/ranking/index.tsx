@@ -1,11 +1,13 @@
+import 'dayjs/locale/ko'
+
 import React, { useEffect, useState } from 'react'
 
+import Head from 'next/head'
+import LocalizedFormat from 'dayjs/plugin/localizedFormat'
+import { SyncLoader } from 'react-spinners'
 import axios from 'axios'
 import dayjs from 'dayjs'
-import 'dayjs/locale/ko'
-import LocalizedFormat from 'dayjs/plugin/localizedFormat'
-import Head from 'next/head'
-import { SyncLoader } from 'react-spinners'
+
 dayjs.locale('ko')
 dayjs.extend(LocalizedFormat)
 
@@ -132,7 +134,7 @@ const HjaRankingPage = () => {
     return (
       <div
         key={`${entry.rank}_${Buffer.from(entry.nickname).toString('base64')}`}
-        className='tw-bg-gray-700 tw-bg-opacity-25 tw-cursor-pointer tw-rounded-lg tw-p-4 tw-flex tw-justify-between tw-items-center hover:tw-bg-gray-600 tw-transition-all'
+        className='tw-bg-gray-800 tw-bg-opacity-75 tw-cursor-pointer tw-rounded-lg tw-p-4 tw-flex tw-justify-between tw-items-center hover:tw-bg-gray-600 tw-transition-all'
         onClick={() => {
           window.ipc.send('openBrowser', `https://hard-archive.com/user/${entry.nickname}`)
         }}
@@ -194,7 +196,7 @@ const HjaRankingPage = () => {
       <Head>
         <title>전일 아카이브 랭킹 - RACLA</title>
       </Head>
-      <div className='tw-flex tw-flex-col tw-gap-4 tw-bg-gray-600 tw-bg-opacity-20 tw-rounded-lg tw-shadow-lg p-4'>
+      <div className='tw-flex tw-flex-col tw-gap-4 tw-bg-gray-800 tw-bg-opacity-75 tw-rounded-lg tw-shadow-lg p-4'>
         <div className='tw-flex tw-justify-between tw-items-center'>
           <div className='tw-flex tw-items-center tw-gap-4'>
             <h1 className='tw-text-3xl tw-font-bold tw-text-white'>랭킹</h1>

@@ -82,7 +82,7 @@ export default function BugDetail() {
 
   if (!bug) {
     return (
-      <div className='tw-min-h-screen tw-bg-gray-600 tw-bg-opacity-20 tw-flex tw-justify-center tw-items-center'>
+      <div className='tw-min-h-screen tw-bg-gray-800 tw-bg-opacity-75 tw-flex tw-justify-center tw-items-center'>
         <SyncLoader color='#ffffff' size={8} />
       </div>
     )
@@ -98,7 +98,7 @@ export default function BugDetail() {
         animate={{ opacity: 1, x: 0 }}
         className='tw-space-y-6'
       >
-        <div className='tw-bg-gray-600 tw-bg-opacity-20 tw-rounded-lg tw-p-6'>
+        <div className='tw-bg-gray-800 tw-bg-opacity-75 tw-rounded-lg tw-p-6'>
           <div className='tw-flex tw-items-center tw-justify-between tw-mb-4'>
             <h1 className='tw-text-2xl tw-font-bold'>{bug.title}</h1>
             <button

@@ -208,7 +208,7 @@
     }
 
     .ant-modal-mask {
-      @apply tw-bg-gray-950 tw-bg-opacity-90 tw-transition-opacity tw-duration-300 !important;
+      @apply tw-bg-gray-800 tw-bg-opacity-90 tw-transition-opacity tw-duration-300 !important;
     }
 
     .ant-modal-content {
@@ -254,7 +254,7 @@
     }
 
     .section-container {
-      @apply tw-bg-gray-600 tw-bg-opacity-20 tw-p-4 tw-rounded-lg tw-shadow-lg;
+      @apply tw-bg-gray-800 tw-bg-opacity-75 tw-p-4 tw-rounded-lg tw-shadow-lg;
     }
   }
 
@@ -300,7 +300,7 @@
   }
 
   .background-image-color {
-    @apply tw-bg-gray-900 tw-bg-opacity-90 tw-backdrop-blur-lg;
+    @apply tw-bg-gray-700 tw-bg-opacity-90 tw-backdrop-blur-lg;
     position: fixed;
     right: 0;
     left: 0;
@@ -343,11 +343,11 @@
   }
 
   .btn-select-game:hover {
-    @apply tw-bg-gray-700;
+    @apply tw-bg-gray-500;
   }
 
   .btn-select-game.active:hover {
-    @apply tw-bg-gray-800;
+    @apply tw-bg-gray-500;
   }
 
   .btn-reg {
@@ -1820,18 +1820,26 @@
 .custom-scrollbar::-webkit-scrollbar-thumb {
   transition: background-color 0.3s ease-in-out;
   border-radius: 4px;
-  background-color: rgba(31, 41, 55, 0); /* 완전 투명한 gray-800로 시작 */
+  background-color: rgba(24, 24, 27, 0.5); /* zinc-900으로 시작 */
+}
+
+.custom-scrollbar-sidebar::-webkit-scrollbar-thumb {
+  background-color: rgba(161, 161, 170, 0.25) !important; /* zinc-500 */
 }
 
 .custom-scrollbar:hover::-webkit-scrollbar-thumb,
-.custom-scrollbar-always::-webkit-scrollbar-thumb {
-  background-color: rgba(107, 114, 128, 0.4) !important; /* gray-500 */
+.custom-scrollbar-always:hover::-webkit-scrollbar-thumb {
+  background-color: rgba(24, 24, 27, 0.5) !important; /* zinc-500 */
+}
+
+.custom-scrollbar-sidebar:hover::-webkit-scrollbar-thumb {
+  background-color: rgba(161, 161, 170, 0.25) !important; /* zinc-400 */
 }
 
 .custom-scrollbar:hover::-webkit-scrollbar-thumb:hover,
-.custom-scrollbar-always::-webkit-scrollbar-thumb:hover {
+.custom-scrollbar-always:hover::-webkit-scrollbar-thumb:hover {
   transition: background-color 0.2s ease-in-out;
-  background-color: rgba(156, 163, 175, 0.6) !important; /* gray-400 */
+  background-color: rgba(161, 161, 170, 0.6) !important; /* zinc-400 */
 }
 
 /* 테이블 다크 모드 스타일링 */ /* 테이블 다크 모드 스타일링 */

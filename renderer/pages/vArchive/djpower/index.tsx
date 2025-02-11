@@ -289,7 +289,7 @@ export default function VArchiveDjPowerPage() {
       {/* 상단 설명 섹션 */}
       <div className='tw-flex tw-gap-4'>
         {/* 메인 설명 섹션 */}
-        <div className='tw-flex tw-flex-col tw-gap-4 tw-bg-gray-600 tw-bg-opacity-20 tw-rounded-lg tw-shadow-lg tw-p-6 tw-mb-4 tw-flex-1'>
+        <div className='tw-flex tw-flex-col tw-gap-4 tw-bg-gray-800 tw-bg-opacity-75 tw-rounded-lg tw-shadow-lg tw-p-6 tw-mb-4 tw-flex-1'>
           {/* 헤더 */}
           <div className='tw-flex tw-w-full tw-items-end tw-justify-between'>
             <span className='tw-text-xl tw-font-bold tw-text-white'>🙋‍♂️ MAX DJ POWER</span>
@@ -325,7 +325,7 @@ export default function VArchiveDjPowerPage() {
         </div>
       </div>
 
-      <div className='tw-flex tw-flex-col tw-gap-1 tw-bg-gray-600 tw-bg-opacity-20 tw-rounded-md p-4'>
+      <div className='tw-flex tw-flex-col tw-gap-1 tw-bg-gray-800 tw-bg-opacity-75 tw-rounded-md p-4'>
         {songData.length > 0 && !isLoading && isScoredBaseSongData && isScoredNewSongData ? (
           [
             ...new Set(
@@ -388,7 +388,7 @@ export default function VArchiveDjPowerPage() {
                                 isVisibleCode={true}
                                 isFlatten={true}
                               />
-                              <div className='tw-flex tw-flex-1 tw-flex-col tw-gap-2 tw-items-end tw-justify-center tw-bg-gray-900 tw-bg-opacity-50 tw-rounded-md tw-py-2 tw-px-3'>
+                              <div className='tw-flex tw-flex-1 tw-flex-col tw-gap-2 tw-items-end tw-justify-center tw-bg-gray-500 tw-bg-opacity-25 tw-rounded-md tw-py-2 tw-px-3'>
                                 {songItem.patterns[`${keyMode}B`].SC?.score ||
                                 songItem.patterns[`${keyMode}B`].MX?.score ? (
                                   <>
@@ -415,7 +415,7 @@ export default function VArchiveDjPowerPage() {
                                 )}
                               </div>
                             </div>
-                            <span className='tw-flex tw-bg-gray-900 tw-bg-opacity-50 tw-px-2 tw-py-1 tw-rounded-md tw-break-keep tw-justify-center tw-items-center tw-text-center tw-text-xs'>
+                            <span className='tw-flex tw-bg-gray-500 tw-bg-opacity-25 tw-px-2 tw-py-1 tw-rounded-md tw-break-keep tw-justify-center tw-items-center tw-text-center tw-text-xs'>
                               {songItem.name}
                             </span>
                           </div>

@@ -103,7 +103,7 @@ const HeaderComponent: React.FC<IHeaderComponentProps> = ({
   }, [settingData.isNotificationSound])
 
   return (
-    <div className='tw-flex tw-fixed tw-w-full tw-bg-gray-900 tw-items-center tw-top-0 tw-h-12 tw-left-0 tw-bg-opacity-50 tw-px-2 tw-border-b tw-border-opacity-50 tw-border-gray-600 tw-z-[1000]'>
+    <div className='tw-flex tw-fixed tw-w-full tw-bg-gray-800 tw-bg-opacity-90 tw-backdrop-blur-lg tw-border-b tw-border-gray-700 tw-items-center tw-top-0 tw-h-12 tw-left-0 tw-px-2 tw-z-[1000]'>
       {/* 홈 로고 */}
       {settingData.homeButtonAlignRight ? null : (
         <OverlayTrigger

@@ -8,7 +8,13 @@
   "scripts": {
     "dev": "nextron --renderer-port 7777",
     "build": "node scripts/generate-build-date.js Main && nextron build",
+    "build-mac": "node scripts/generate-build-date.js Main && nextron build --mac",
+    "build-win": "node scripts/generate-build-date.js Main && nextron build --win",
+    "build-linux": "node scripts/generate-build-date.js Main && nextron build --linux",
     "build-dev": "node scripts/generate-build-date.js Dev && nextron build",
+    "build-dev-win": "node scripts/generate-build-date.js Dev && nextron build --win",
+    "build-dev-mac": "node scripts/generate-build-date.js Dev && nextron build --mac",
+    "build-dev-linux": "node scripts/generate-build-date.js Dev && nextron build --linux",
     "postinstall": "electron-builder install-app-deps",
     "generate-build-date": "node scripts/generate-build-date.js",
     "format": "npx prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",

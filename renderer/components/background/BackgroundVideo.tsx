@@ -1,10 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 
 import Image from 'next/image'
-import { useRouter } from 'next/router'
-import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from 'store'
 import { setBackgroundBgaName } from 'store/slices/uiSlice'
+import { useRouter } from 'next/router'
 
 const BackgroundVideoComponent = React.memo(() => {
   const defaultVideoRef = useRef<HTMLVideoElement>(null)

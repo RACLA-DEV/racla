@@ -218,6 +218,7 @@ const RaScorePopupComponent = ({
               .tooltip.show {
                 opacity: 1 !important;
               }
+
             `}</style>
             <div className='tw-flex tw-flex-col'>
               <div className='tw-flex tw-flex-col tw-w-80 tw-h-32 tw-relative tw-mb-2 tw-mt-1 tw-bg-gray-800 tw-bg-opacity-100 tw-overflow-hidden tw-rounded-md'>
@@ -232,11 +233,12 @@ const RaScorePopupComponent = ({
                     )?.[0]?.folderName
                     // wjmaxSongData[Number(songItem ? String(songItem.title).replace('10000', '') : String(songItemTitle).replace('10000', ''))]?.folderName
                   }.jpg`}
-                  className='tw-absolute tw-animate-fadeInLeft tw-rounded-md tw-blur tw-brightness-50 tw-bg-opacity-90'
+                  className='tw-absolute tw-blur-sm'
                   fill
                   alt=''
                   style={{ objectFit: 'cover' }}
                 />
+                <div className='tw-absolute tw-inset-0 tw-bg-gray-800 tw-bg-opacity-75' />
                 <span className='tw-absolute tw-left-0 tw-bottom-0 tw-px-2 tw-font-bold tw-text-left tw-break-keep'>
                   <span className='tw-font-medium tw-text-md'>
                     {displayData?.artist ? displayData?.artist : displayData?.composer}
@@ -251,7 +253,7 @@ const RaScorePopupComponent = ({
                   </span>
                 </span>
               </div>
-              <div className='tw-flex tw-flex-col tw-gap-2 tw-w-80 tw-p-2 tw-rounded-md tw-mb-1 tw-bg-gray-700 tw-bg-opacity-20'>
+              <div className='tw-flex tw-flex-col tw-gap-2 tw-w-80 tw-p-2 tw-rounded-md tw-mb-1 tw-bg-gray-500 tw-bg-opacity-25'>
                 {displayData?.patterns[`${keyMode}B`] !== undefined
                   ? ['NM', 'HD', 'MX', 'SC', 'DPC'].map(
                       (value, difficultyIndex) =>

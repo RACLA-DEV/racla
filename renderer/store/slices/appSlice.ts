@@ -33,6 +33,7 @@ interface AppState {
   projectRaData: any | null
   vArchiveData: any | null
   collectionData: any | null
+  platform: string
 }
 
 const initialState: AppState = {
@@ -68,6 +69,7 @@ const initialState: AppState = {
   projectRaData: null,
   vArchiveData: null,
   collectionData: [],
+  platform: '',
 }
 
 export const appSlice = createSlice({

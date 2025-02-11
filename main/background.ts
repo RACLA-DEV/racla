@@ -426,7 +426,10 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
       app.exit()
     }
 
-    mainWindow.webContents.send('IPC_RENDERER_GET_SETTING_DATA', updatedSettings)
+    mainWindow.webContents.send('IPC_RENDERER_GET_SETTING_DATA', {
+      ...updatedSettings,
+      platform: process.platform,
+    })
   })
 
   // 초기 트레이 아이콘 설정
@@ -665,9 +668,6 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
       setTimeout(() => checkGameOverlayLoop(), 100)
     }
   }
-
-  // 초기 체크 시작
-  checkGameOverlayLoop()
 
   ipcMain.on('hideToTray', () => {
     if (!tray) {
@@ -1026,7 +1026,10 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
   ipcMain.on('getSettingData', async (event) => {
     await settingsManager.initializeSettings()
     const settingData = await getSettingData()
-    mainWindow.webContents.send('IPC_RENDERER_GET_SETTING_DATA', settingData)
+    mainWindow.webContents.send('IPC_RENDERER_GET_SETTING_DATA', {
+      ...settingData,
+      platform: process.platform,
+    })
   })
 
   ipcMain.on('getSettingToWidget', async (event) => {
@@ -1045,9 +1048,19 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
           body: '업데이트를 적용하기 위해 앱을 종료하고 다시 실행해주세요.',
         })
       }
-      startGameStatusCheck()
-      startFocusedWindowCheck()
-      startGameCapture()
+
+      if (process.platform == 'win32') {
+        startGameStatusCheck()
+        startFocusedWindowCheck()
+        startGameCapture()
+        checkGameOverlayLoop()
+      } else {
+        log.info(
+          'PROGRAM_LOADED - Platform is not supported. Game Status Check is not started. ' +
+            process.platform,
+        )
+      }
+
       isLoaded = true
 
       if (settingData.autoStartGame) {

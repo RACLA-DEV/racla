@@ -488,7 +488,7 @@ const Board = () => {
               </div>
 
               {/* 키모드 & 레벨 선택 패널 */}
-              <div className='tw-flex tw-flex-col tw-gap-4 tw-bg-gray-600 tw-bg-opacity-20 tw-rounded-lg tw-shadow-lg tw-p-6 tw-w-1/3'>
+              <div className='tw-flex tw-flex-col tw-gap-4 tw-bg-gray-800 tw-bg-opacity-75 tw-rounded-lg tw-shadow-lg tw-p-6 tw-w-1/3'>
                 <div className='tw-flex tw-items-center tw-justify-between'>
                   <span className='tw-text-lg tw-font-bold'>🎮 성과표 필터</span>
                 </div>
@@ -568,7 +568,7 @@ const Board = () => {
           {/* 패턴 목록 */}
           <div
             className={
-              'tw-flex tw-flex-col tw-gap-1 tw-bg-gray-600 tw-bg-opacity-20 tw-rounded-md tw-p-4 tw-w-full ' +
+              'tw-flex tw-flex-col tw-gap-1 tw-bg-gray-800 tw-bg-opacity-75 tw-rounded-md tw-p-4 tw-w-full ' +
               (isLoading ? 'tw-items-center tw-justify-center tw-min-h-[calc(100vh-118px)]' : '')
             }
           >
@@ -640,7 +640,7 @@ const Board = () => {
                               isVisibleCode={true}
                               isFlatten={true}
                             />
-                            <div className='tw-flex tw-flex-1 tw-flex-col tw-gap-2 tw-items-end tw-justify-center tw-bg-gray-900 tw-bg-opacity-50 tw-rounded-md tw-py-2 tw-px-3'>
+                            <div className='tw-flex tw-flex-1 tw-flex-col tw-gap-2 tw-items-end tw-justify-center tw-bg-gray-500 tw-bg-opacity-25 tw-rounded-md tw-py-2 tw-px-3'>
                               {pattern.score ? (
                                 <>
                                   <span className='tw-text-xs tw-text-gray-400'>
@@ -655,7 +655,7 @@ const Board = () => {
                               )}
                             </div>
                           </div>
-                          <span className='tw-flex tw-flex-1 tw-bg-gray-900 tw-bg-opacity-50 tw-px-2 tw-py-1 tw-rounded-md tw-break-keep tw-justify-center tw-items-center tw-text-center tw-text-xs'>
+                          <span className='tw-flex tw-flex-1 tw-bg-gray-500 tw-bg-opacity-25 tw-px-2 tw-py-1 tw-rounded-md tw-break-keep tw-justify-center tw-items-center tw-text-center tw-text-xs'>
                             {pattern.name}
                           </span>
                         </div>

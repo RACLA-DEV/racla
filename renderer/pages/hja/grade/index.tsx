@@ -127,7 +127,7 @@ export default function HjaGradePage() {
         <div className='tw-flex tw-flex-col tw-w-full tw-relative'>
           {/* 상단 설명 섹션 */}
           <div className='tw-flex tw-gap-4'>
-            <div className='tw-flex tw-flex-col tw-gap-4 tw-bg-gray-600 tw-bg-opacity-20 tw-rounded-lg tw-shadow-lg tw-p-6 tw-mb-4 tw-flex-1'>
+            <div className='tw-flex tw-flex-col tw-gap-4 tw-bg-gray-800 tw-bg-opacity-75 tw-rounded-lg tw-shadow-lg tw-p-6 tw-mb-4 tw-flex-1'>
               <div className='tw-flex tw-w-full tw-items-end tw-justify-between'>
                 <span className='tw-text-xl tw-font-bold tw-text-white'>🛝 하드 판정 서열표</span>
               </div>
@@ -140,7 +140,7 @@ export default function HjaGradePage() {
 
             {/* 키 선택 필터 */}
             <div
-              className='tw-flex tw-flex-col tw-gap-4 tw-bg-gray-600 tw-bg-opacity-20 tw-rounded-lg tw-shadow-lg tw-p-6 tw-mb-4'
+              className='tw-flex tw-flex-col tw-gap-4 tw-bg-gray-800 tw-bg-opacity-75 tw-rounded-lg tw-shadow-lg tw-p-6 tw-mb-4'
               style={{ width: '520px' }}
             >
               <div className='tw-flex tw-w-full tw-items-end tw-mb-2'>
@@ -176,7 +176,7 @@ export default function HjaGradePage() {
           </div>
 
           {/* 곡 목록 표시 */}
-          <div className='tw-flex tw-flex-col tw-gap-1 tw-bg-gray-600 tw-bg-opacity-20 tw-rounded-md p-4'>
+          <div className='tw-flex tw-flex-col tw-gap-1 tw-bg-gray-800 tw-bg-opacity-75 tw-rounded-md p-4'>
             {!isLoading ? (
               baseSongData[0].floorItems.map((floorItem) => (
                 <div key={`floor_${floorItem.floor}`} className='tw-flex tw-gap-3 tw-mb-4'>

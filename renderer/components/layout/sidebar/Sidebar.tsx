@@ -60,18 +60,19 @@ const SidebarComponent: React.FC = () => {
   return (
     <>
       <div
-        className={`tw-flex tw-fixed tw-animate-fadeInLeft tw-transition-all tw-flex-col tw-bg-gray-700 tw-bg-opacity-20 ${
+        className={`tw-flex tw-fixed tw-animate-fadeInLeft tw-transition-all tw-flex-col tw-bg-gray-800 tw-bg-opacity-90 tw-border-r tw-border-gray-700 ${
           isMiniMode
             ? 'tw-w-auto tw-pl-2.5 tw-pr-0.5 tw-py-2'
             : 'tw-w-52 tw-py-4 tw-pl-4 tw-pr-3 tw-mr-1'
-        } tw-left-0 tw-top-12 tw-h-[calc(100vh-5.125rem)] tw-z-50 tw-ease-in-out`}
+        } tw-left-0 tw-top-12 tw-h-[calc(100vh-5rem)] tw-z-50 tw-ease-in-out`}
       >
         <div className='tw-flex-1 tw-flex tw-flex-col tw-overflow-hidden'>
           <div className='tw-overflow-hidden'>{renderNavigation('projectRa', router)}</div>
-          <div className='tw-flex-1 tw-overflow-auto tw-mb-2 custom-scrollbar'>
+          <div className='tw-flex-1 tw-overflow-auto tw-mb-2 custom-scrollbar custom-scrollbar-sidebar'>
             {renderNavigation(selectedGame, router)}
           </div>
         </div>
+
         {/* 기타 */}
         <div className='tw-flex tw-flex-col tw-gap-0.5 tw-mt-auto'>
           <OverlayTrigger

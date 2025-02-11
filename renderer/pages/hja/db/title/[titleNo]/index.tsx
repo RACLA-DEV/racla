@@ -1,17 +1,17 @@
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { FaDatabase } from 'react-icons/fa6'
+import { globalDictionary } from '@constants/globalDictionary'
+import { useNotificationSystem } from '@hooks/useNotifications'
+import axios from 'axios'
 import Head from 'next/head'
 import Image from 'next/image'
 import Link from 'next/link'
-import { RootState } from 'store'
-import axios from 'axios'
-import { globalDictionary } from '@constants/globalDictionary'
-import { setBackgroundBgaName } from 'store/slices/uiSlice'
-import { useNotificationSystem } from '@hooks/useNotifications'
 import { useParams } from 'next/navigation'
 import { useRouter } from 'next/router'
+import { FaDatabase } from 'react-icons/fa6'
+import { RootState } from 'store'
+import { setBackgroundBgaName } from 'store/slices/uiSlice'
 
 interface Record {
   nickname: string
@@ -224,10 +224,10 @@ export default function VArchiveDbTitlePage() {
                   alt=''
                   className='tw-opacity-50 tw-blur-xl'
                 />
-                <div className='tw-absolute tw-inset-0 tw-bg-gray-900 tw-bg-opacity-50' />
+                <div className='tw-absolute tw-inset-0 tw-bg-gray-800 tw-bg-opacity-75' />
               </div>
 
-              <div className='tw-flex tw-justify-between tw-animate-fadeInLeft flex-equal tw-bg-gray-900 tw-bg-opacity-30 tw-rounded-md p-4'>
+              <div className='tw-flex tw-justify-between tw-animate-fadeInLeft flex-equal tw-bg-gray-700 tw-bg-opacity-25 tw-rounded-md p-4'>
                 {/* 하단 */}
                 <div className='tw-flex tw-gap-3 tw-mt-auto tw-items-end'>
                   <Image
@@ -278,7 +278,7 @@ export default function VArchiveDbTitlePage() {
             </div>
 
             {!isLoading && (
-              <div className='tw-w-full tw-h-full tw-overflow-hidden tw-p-4 tw-rounded-md tw-shadow-lg tw-bg-gray-600 tw-bg-opacity-20'>
+              <div className='tw-w-full tw-h-full tw-overflow-hidden tw-p-4 tw-rounded-md tw-shadow-lg tw-bg-gray-800 tw-bg-opacity-75'>
                 <div className='tw-grid tw-grid-cols-4 tw-gap-4 tw-h-full'>
                   {['4B', '5B', '6B', '8B'].map((buttonType) => {
                     // 해당 키모드의 패턴들 필터링
@@ -289,7 +289,7 @@ export default function VArchiveDbTitlePage() {
                     return (
                       <div key={buttonType} className='tw-flex tw-flex-col tw-gap-4'>
                         {/* 키모드 헤더 수정 */}
-                        <div className='tw-flex tw-items-center tw-justify-center tw-relative tw-px-4 tw-py-2 tw-border tw-border-gray-800 tw-overflow-hidden tw-border-opacity-50 tw-rounded-md tw-bg-gray-900 tw-bg-opacity-50'>
+                        <div className='tw-flex tw-items-center tw-justify-center tw-relative tw-px-4 tw-py-2 tw-border tw-border-gray-800 tw-overflow-hidden tw-border-opacity-50 tw-rounded-md tw-bg-gray-500 tw-bg-opacity-25'>
                           <div
                             className={`tw-absolute tw-w-full tw-h-full tw-opacity-30 respect_bg_b${buttonType.replace('B', '')}`}
                           />
@@ -312,7 +312,7 @@ export default function VArchiveDbTitlePage() {
                                 return (
                                   <div
                                     key={key}
-                                    className='tw-bg-gray-700 tw-bg-opacity-25 tw-rounded-lg tw-flex tw-flex-col tw-gap-2 tw-p-3 tw-h-[190px]'
+                                    className='tw-bg-gray-800 tw-bg-opacity-75 tw-rounded-lg tw-flex tw-flex-col tw-gap-2 tw-p-3 tw-h-[190px]'
                                   >
                                     {/* 기존 패턴 표시 코드 유지 */}
                                     <div className='tw-border-gray-700 tw-text-center'>
@@ -326,7 +326,7 @@ export default function VArchiveDbTitlePage() {
                                     <div className='tw-grid tw-grid-cols-2 tw-text-center tw-gap-3'>
                                       {/* HARD 판정 */}
                                       <div
-                                        className={`tw-bg-gray-600 tw-bg-opacity-25 tw-rounded-lg tw-py-2 tw-h-full ${
+                                        className={`tw-bg-gray-500 tw-bg-opacity-25 tw-rounded-lg tw-py-2 tw-h-full ${
                                           record?.hard
                                             ? 'hover:tw-bg-gray-600 hover:tw-bg-opacity-50 tw-cursor-pointer'
                                             : ''
@@ -366,7 +366,7 @@ export default function VArchiveDbTitlePage() {
 
                                       {/* MAX 판정 */}
                                       <div
-                                        className={`tw-bg-gray-600 tw-bg-opacity-25 tw-rounded-lg tw-py-2 tw-h-full ${
+                                        className={`tw-bg-gray-500 tw-bg-opacity-25 tw-rounded-lg tw-py-2 tw-h-full ${
                                           record?.max
                                             ? 'hover:tw-bg-gray-600 hover:tw-bg-opacity-50 tw-cursor-pointer'
                                             : ''
@@ -408,7 +408,7 @@ export default function VArchiveDbTitlePage() {
                                 )
                               })
                             ) : (
-                              <div className='tw-text-center tw-text-gray-500 tw-bg-gray-900 tw-bg-opacity-50 tw-flex tw-items-center tw-justify-center tw-break-keep tw-rounded-lg tw-p-3 tw-h-[190px]'>
+                              <div className='tw-text-center tw-text-gray-500 tw-bg-gray-900 tw-bg-opacity-25 tw-flex tw-items-center tw-justify-center tw-break-keep tw-rounded-lg tw-p-3 tw-h-[190px]'>
                                 해당 수록곡의 {buttonType} 모드는 SC8(MX15) 이상의 패턴이 존재하지
                                 않거나 전일 아카이브에 등록되지 않은 패턴으로 조회 결과가 없습니다.
                               </div>

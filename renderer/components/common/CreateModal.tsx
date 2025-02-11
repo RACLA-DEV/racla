@@ -1,7 +1,7 @@
 import { AnimatePresence, motion } from 'framer-motion'
 
-import { ReactNode } from 'react'
 import { FiX } from 'react-icons/fi'
+import { ReactNode } from 'react'
 
 interface ModalProps {
   isOpen: boolean
@@ -35,7 +35,7 @@ export default function Modal({
           exit={{ opacity: 0 }}
           transition={{ duration: 0.15 }}
           onClick={handleBackdropClick}
-          className='tw-fixed tw-inset-0 tw-bg-gray-950 tw-bg-opacity-90 tw-flex tw-items-center tw-p-8 tw-justify-center tw-z-[99999]'
+          className='tw-fixed tw-inset-0 tw-bg-gray-800 tw-bg-opacity-90 tw-flex tw-items-center tw-p-8 tw-justify-center tw-z-[99999]'
         >
           <motion.div
             initial={{ opacity: 0, y: 16 }}

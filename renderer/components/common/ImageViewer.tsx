@@ -1,5 +1,5 @@
-import { MouseEvent, WheelEvent, useEffect, useRef, useState } from 'react'
 import { FaMinus, FaPlus, FaXmark } from 'react-icons/fa6'
+import { MouseEvent, WheelEvent, useEffect, useRef, useState } from 'react'
 
 import { createPortal } from 'react-dom'
 

@@ -1,25 +1,24 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { BsGrid, BsList } from 'react-icons/bs'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
+import Head from 'next/head'
 import HjaScorePopupComponent from '@/components/score/popup/ScorePopupHja'
+import Image from 'next/image'
+import { RootState } from 'store'
+import { debounce } from 'lodash'
+import dynamic from 'next/dynamic'
 import { globalDictionary } from '@constants/globalDictionary'
 import { logRendererError } from '@utils/rendererLoggerUtils'
 import { motion } from 'framer-motion'
-import { debounce } from 'lodash'
-import dynamic from 'next/dynamic'
-import Head from 'next/head'
-import Image from 'next/image'
-import { useInView } from 'react-intersection-observer'
-import { RootState } from 'store'
 import { setBackgroundBgaName } from 'store/slices/uiSlice'
-
+import { useInView } from 'react-intersection-observer'
 import { useNotificationSystem } from '@hooks/useNotifications'
 import { useRouter } from 'next/router'
 
 // 동적 임포트로 ScorePopupComponent 지연 로딩
 const ScorePopupComponent = dynamic(() => import('@/components/score/popup/ScorePopupDjmax'), {
-  loading: () => <div className='tw-w-[80px] tw-h-[80px] tw-bg-gray-600 tw-bg-opacity-20' />,
+  loading: () => <div className='tw-w-[80px] tw-h-[80px] tw-bg-gray-800 tw-bg-opacity-75' />,
 })
 
 // DLC 카테고리 매핑 추가
@@ -370,7 +369,7 @@ export default function HjaDbPage() {
           {/* 상단 영역 */}
           <div className='tw-flex tw-flex-col tw-gap-4 tw-transition-all tw-w-full duration-300'>
             <div className='tw-flex tw-w-full tw-gap-4'>
-              <div className='tw-flex tw-w-full tw-flex-col tw-gap-4 tw-bg-gray-600 tw-bg-opacity-20 tw-rounded-lg tw-shadow-lg tw-p-4'>
+              <div className='tw-flex tw-w-full tw-flex-col tw-gap-4 tw-bg-gray-800 tw-bg-opacity-75 tw-rounded-lg tw-shadow-lg tw-p-4'>
                 {/* 헤더 */}
                 <div className='tw-flex tw-w-full tw-bg-gray-700 tw-bg-opacity-30 tw-rounded tw-overflow-x-auto tw-scroll-smooth'>
                   <div className='tw-flex tw-flex-col tw-gap-4 tw-p-4 tw-w-full'>
@@ -437,7 +436,7 @@ export default function HjaDbPage() {
                       <div className='tw-flex tw-flex-1 tw-gap-2 tw-ml-4'>
                         <button
                           onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
-                          className='tw-bg-gray-900 tw-bg-opacity-50 tw-text-light tw-px-4 tw-py-2 tw-rounded-lg tw-border tw-border-gray-600 tw-border-opacity-50 hover:tw-bg-gray-800 tw-transition-all'
+                          className='tw-bg-gray-500 tw-bg-opacity-25 tw-text-light tw-px-4 tw-py-2 tw-rounded-lg tw-border tw-border-gray-600 tw-border-opacity-50 hover:tw-bg-gray-800 tw-transition-all'
                         >
                           {sortOrder === 'asc' ? '이름 ↑' : '이름 ↓'}
                         </button>
@@ -471,7 +470,7 @@ export default function HjaDbPage() {
                           </div>
                           <input
                             ref={searchInputRef}
-                            className='tw-w-full tw-bg-gray-900 tw-bg-opacity-50 tw-text-light tw-pl-10 tw-pr-4 tw-py-2 tw-rounded-lg tw-border tw-border-gray-600 tw-border-opacity-50 focus:tw-border-blue-400 focus:tw-ring-2 focus:tw-ring-blue-400 focus:tw-ring-opacity-20 tw-transition-all'
+                            className='tw-w-full tw-bg-gray-500 tw-bg-opacity-25 tw-text-light tw-pl-10 tw-pr-4 tw-py-2 tw-rounded-lg tw-border tw-border-gray-600 tw-border-opacity-50 focus:tw-border-blue-400 focus:tw-ring-2 focus:tw-ring-blue-400 focus:tw-ring-opacity-20 tw-transition-all'
                             onChange={(e) => setSearchName(e.currentTarget.value)}
                             type='text'
                             placeholder='제목, 제작자명 또는 DLC명으로 검색'
@@ -514,7 +513,7 @@ export default function HjaDbPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3 }}
-                className='tw-flex tw-mr-2 tw-flex-col tw-gap-1 tw-bg-gray-600 tw-bg-opacity-20 tw-rounded-md tw-p-4'
+                className='tw-flex tw-mr-2 tw-flex-col tw-gap-1 tw-bg-gray-800 tw-bg-opacity-75 tw-rounded-md tw-p-4'
               >
                 <div
                   className={`tw-w-full ${viewMode === 'grid' ? 'tw-flex tw-gap-3 tw-flex-wrap tw-justify-between' : 'tw-flex tw-flex-col'}`}

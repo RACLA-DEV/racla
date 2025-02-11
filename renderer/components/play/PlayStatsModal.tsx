@@ -1,9 +1,9 @@
-import { Dialog, Transition } from '@headlessui/react'
 import { ArcElement, Chart as ChartJS, Legend, Tooltip } from 'chart.js'
+import { Dialog, Transition } from '@headlessui/react'
 
-import { Fragment } from 'react'
 import { Doughnut } from 'react-chartjs-2'
 import { FaXmark } from 'react-icons/fa6'
+import { Fragment } from 'react'
 
 ChartJS.register(ArcElement, Tooltip, Legend)
 

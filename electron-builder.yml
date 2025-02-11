@@ -23,3 +23,18 @@ publish:
   owner: Lunatica-Luna
   repo: project-ra
   releaseType: release
+
+# 멀티 플랫폼 빌드 설정 추가
+mac:
+  target:
+    - dmg
+    - zip
+win:
+  target:
+    - nsis
+    - zip
+
+# 멀티 플랫폼 빌드 활성화
+linux:
+  target:
+    - AppImage

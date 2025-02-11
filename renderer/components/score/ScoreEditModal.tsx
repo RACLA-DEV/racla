@@ -39,7 +39,7 @@ export default function ScoreEditComponent({
       <div className='tw-fixed tw-inset-0 tw-bg-gray-950 tw-bg-opacity-90' onClick={onHide} />
       <div className='tw-fixed tw-inset-0 tw-flex tw-items-center tw-justify-center'>
         <div
-          className={`tw-bg-gray-900 tw-rounded-md tw-p-5 tw-transition-all tw-duration-300 tw-w-96 ${show ? 'tw-opacity-100 tw-translate-y-0' : 'tw-opacity-0 tw-translate-y-4'}`}
+          className={`tw-bg-gray-800 tw-rounded-md tw-p-5 tw-transition-all tw-duration-300 tw-w-96 ${show ? 'tw-opacity-100 tw-translate-y-0' : 'tw-opacity-0 tw-translate-y-4'}`}
         >
           <div className='tw-flex tw-items-center tw-text-center tw-mb-6'>
             <span className='tw-text-lg tw-font-bold tw-w-full'>점수 수정</span>

@@ -736,7 +736,7 @@ export default function DjmaxHomeComponent() {
       {selectedGame === 'djmax_respect_v' && (
         <>
           {isLoading ? (
-            <div className='tw-flex tw-items-center tw-justify-center tw-h-screen tw-flex-1 tw-bg-gray-600 tw-bg-opacity-20 tw-rounded-lg'>
+            <div className='tw-flex tw-items-center tw-justify-center tw-h-screen tw-flex-1 tw-bg-gray-800 tw-bg-opacity-75 tw-rounded-lg'>
               <SyncLoader color='#ffffff' size={8} />
             </div>
           ) : (
@@ -746,7 +746,7 @@ export default function DjmaxHomeComponent() {
               transition={{ duration: 0.5, ease: 'easeOut' }}
             >
               {/* 헤더 섹션 */}
-              <div className='tw-bg-gray-600 tw-bg-opacity-20 tw-rounded-lg tw-shadow-lg tw-p-4 tw-mb-4'>
+              <div className='tw-bg-gray-800 tw-bg-opacity-75 tw-rounded-lg tw-shadow-lg tw-p-4 tw-mb-4'>
                 <div className='tw-flex tw-justify-between tw-items-center'>
                   <span className='tw-text-xl tw-font-bold'>
                     {userData.userName !== '' && vArchiveUserData.userName !== ''
@@ -765,7 +765,7 @@ export default function DjmaxHomeComponent() {
                 <div className='tw-flex tw-flex-col tw-gap-4 tw-w-3/5'>
                   {/* Button Mode Panel */}
                   <div className='tw-flex tw-flex-col tw-gap-4'>
-                    <div className='tw-flex tw-justify-between tw-items-end tw-bg-gray-600 tw-bg-opacity-20 tw-rounded-lg tw-shadow-lg tw-p-4'>
+                    <div className='tw-flex tw-justify-between tw-items-end tw-bg-gray-800 tw-bg-opacity-75 tw-rounded-lg tw-shadow-lg tw-p-4'>
                       <span className='tw-flex tw-w-full tw-items-center tw-gap-1'>
                         <span className='tw-text-xl tw-font-bold tw-me-auto'>
                           {selectedKeyMode}B 통계
@@ -777,7 +777,7 @@ export default function DjmaxHomeComponent() {
                     </div>
 
                     {/* 통계 정보 */}
-                    <div className='tw-bg-gray-600 tw-bg-opacity-20 tw-rounded-lg tw-p-4'>
+                    <div className='tw-bg-gray-800 tw-bg-opacity-75 tw-rounded-lg tw-p-4'>
                       {/* 상단 통계 요약 */}
                       <div className='tw-grid tw-grid-cols-7 tw-gap-2 tw-mb-8'>
                         {[
@@ -792,7 +792,7 @@ export default function DjmaxHomeComponent() {
                         ].map(({ key, label, color }) => (
                           <div
                             key={key}
-                            className='tw-text-center tw-p-3 tw-bg-gray-900 tw-bg-opacity-50 tw-rounded-lg'
+                            className='tw-text-center tw-p-3 tw-bg-gray-500 tw-bg-opacity-25 tw-rounded-lg'
                           >
                             <div className={`tw-text-lg tw-font-bold ${color}`}>
                               {calculateStats(keyModeData[selectedKeyMode])[key]}
@@ -808,7 +808,7 @@ export default function DjmaxHomeComponent() {
                           {/* 차트 1: 클리어 / 미클리어 */}
                           <div className='tw-relative tw-w-1/3 tw-flex tw-items-center tw-justify-center'>
                             {/* 도넛 차트 안에 정보 표시 */}
-                            <div className='tw-absolute tw-top-1/2 tw-left-1/2 tw-transform -tw-translate-x-1/2 -tw-translate-y-1/2 tw-text-center tw-w-[88px] tw-h-[88px] tw-bg-gray-900 tw-bg-opacity-50 tw-rounded-full tw-flex tw-flex-col tw-justify-center tw-items-center tw-z-0'>
+                            <div className='tw-absolute tw-top-1/2 tw-left-1/2 tw-transform -tw-translate-x-1/2 -tw-translate-y-1/2 tw-text-center tw-w-[88px] tw-h-[88px] tw-bg-gray-500 tw-bg-opacity-25 tw-rounded-full tw-flex tw-flex-col tw-justify-center tw-items-center tw-z-0'>
                               <div className='tw-text-lg tw-font-bold'>
                                 {calculateStats(keyModeData[selectedKeyMode]).total}
                               </div>
@@ -827,12 +827,12 @@ export default function DjmaxHomeComponent() {
                                       ],
                                       backgroundColor: [
                                         'rgba(59, 130, 246, 0.8)',
-                                        'rgba(3, 7, 18, 0.5)',
+                                        'rgba(39, 39, 42, 0.75)',
                                       ],
 
                                       borderColor: [
                                         'rgba(59, 130, 246, 0.8)',
-                                        'rgba(3, 7, 18, 0.5)',
+                                        'rgba(39, 39, 42, 0.75)',
                                       ],
                                       borderWidth: 1,
                                     },
@@ -862,7 +862,7 @@ export default function DjmaxHomeComponent() {
                           {/* 차트 3: 퍼펙트 점수 구간 (클리어한 것만) */}
                           <div className='tw-relative tw-w-1/3 tw-flex tw-items-center tw-justify-center'>
                             {/* 도넛 차트 안에 정보 표시 */}
-                            <div className='tw-absolute tw-top-1/2 tw-left-1/2 tw-transform -tw-translate-x-1/2 -tw-translate-y-1/2 tw-text-center tw-w-[88px] tw-h-[88px] tw-bg-gray-900 tw-bg-opacity-50 tw-rounded-full tw-flex tw-flex-col tw-justify-center tw-items-center tw-z-0'>
+                            <div className='tw-absolute tw-top-1/2 tw-left-1/2 tw-transform -tw-translate-x-1/2 -tw-translate-y-1/2 tw-text-center tw-w-[88px] tw-h-[88px] tw-bg-gray-500 tw-bg-opacity-25 tw-rounded-full tw-flex tw-flex-col tw-justify-center tw-items-center tw-z-0'>
                               <div className='tw-text-lg tw-font-bold'>
                                 {calculateStats(keyModeData[selectedKeyMode]).clear}
                               </div>
@@ -896,7 +896,7 @@ export default function DjmaxHomeComponent() {
                                         'rgba(234, 179, 8, 0.6)',
                                         'rgba(234, 179, 8, 0.4)',
                                         'rgba(234, 179, 8, 0.2)',
-                                        'rgba(3, 7, 18, 0.5)',
+                                        'rgba(39, 39, 42, 0.75)',
                                       ],
                                       borderColor: [
                                         'rgba(239, 68, 68, 1)',
@@ -904,7 +904,7 @@ export default function DjmaxHomeComponent() {
                                         'rgba(234, 179, 8, 1)',
                                         'rgba(234, 179, 8, 1)',
                                         'rgba(234,179,8,1)',
-                                        'rgba(3, 7, 18, 0.5)',
+                                        'rgba(39, 39, 42, 0.75)',
                                       ],
                                       borderWidth: 1,
                                     },
@@ -934,7 +934,7 @@ export default function DjmaxHomeComponent() {
                           {/* 차트 2: 퍼펙트 or 풀콤보 / 해당되지 않는 것 (클리어한 것만) */}
                           <div className='tw-relative tw-w-1/3 tw-flex tw-items-center tw-justify-center'>
                             {/* 도넛 차트 안에 정보 표시 */}
-                            <div className='tw-absolute tw-top-1/2 tw-left-1/2 tw-transform -tw-translate-x-1/2 -tw-translate-y-1/2 tw-text-center tw-w-[88px] tw-h-[88px] tw-bg-gray-900 tw-bg-opacity-50 tw-rounded-full tw-flex tw-flex-col tw-justify-center tw-items-center tw-z-0'>
+                            <div className='tw-absolute tw-top-1/2 tw-left-1/2 tw-transform -tw-translate-x-1/2 -tw-translate-y-1/2 tw-text-center tw-w-[88px] tw-h-[88px] tw-bg-gray-500 tw-bg-opacity-25 tw-rounded-full tw-flex tw-flex-col tw-justify-center tw-items-center tw-z-0'>
                               <div className='tw-text-lg tw-font-bold'>
                                 {calculateStats(keyModeData[selectedKeyMode]).maxCombo}
                               </div>
@@ -953,9 +953,12 @@ export default function DjmaxHomeComponent() {
                                       ],
                                       backgroundColor: [
                                         'rgba(34, 197, 94, 0.8)',
-                                        'rgba(3, 7, 18, 0.5)',
+                                        'rgba(39, 39, 42, 0.75)',
                                       ],
-                                      borderColor: ['rgba(34, 197, 94, 1)', 'rgba(3, 7, 18, 0.5)'],
+                                      borderColor: [
+                                        'rgba(34, 197, 94, 1)',
+                                        'rgba(39, 39, 42, 0.75)',
+                                      ],
                                       borderWidth: 1,
                                     },
                                   ],
@@ -984,22 +987,22 @@ export default function DjmaxHomeComponent() {
                       </div>
                       <div className='tw-flex tw-flex-col tw-justify-center tw-items-center tw-gap-1 tw-text-xs tw-rounded-lg tw-mt-8'>
                         <div className='tw-flex tw-justify-center tw-gap-1 tw-w-full'>
-                          <span className='tw-p-1 tw-px-4 tw-bg-gray-900 tw-bg-opacity-50 tw-rounded-md tw-font-extrabold tw-text-green-700'>
+                          <span className='tw-p-1 tw-px-4 tw-bg-gray-500 tw-bg-opacity-25 tw-rounded-md tw-font-extrabold tw-text-green-500'>
                             NEW 30
                           </span>
-                          <span className='tw-p-1 tw-px-4 tw-bg-gray-900 tw-bg-opacity-50 tw-rounded-md tw-text-white'>
+                          <span className='tw-p-1 tw-px-4 tw-bg-gray-500 tw-bg-opacity-25 tw-rounded-md tw-text-white'>
                             {cutoffScores[selectedKeyMode]?.new30.toFixed(3)} DP
                           </span>
-                          <span className='tw-p-1 tw-px-4 tw-bg-gray-900 tw-bg-opacity-50 tw-rounded-md tw-font-extrabold tw-text-yellow-500'>
+                          <span className='tw-p-1 tw-px-4 tw-bg-gray-500 tw-bg-opacity-25 tw-rounded-md tw-font-extrabold tw-text-yellow-500'>
                             BASIC 70
                           </span>
-                          <span className='tw-p-1 tw-px-4 tw-bg-gray-900 tw-bg-opacity-50 tw-rounded-md tw-text-white'>
+                          <span className='tw-p-1 tw-px-4 tw-bg-gray-500 tw-bg-opacity-25 tw-rounded-md tw-text-white'>
                             {cutoffScores[selectedKeyMode]?.basic70.toFixed(3)} DP
                           </span>
-                          <span className='tw-p-1 tw-px-4 tw-bg-gray-900 tw-bg-opacity-50 tw-rounded-md tw-font-extrabold tw-text-red-500'>
+                          <span className='tw-p-1 tw-px-4 tw-bg-gray-500 tw-bg-opacity-25 tw-rounded-md tw-font-extrabold tw-text-red-500'>
                             TOP 50
                           </span>
-                          <span className='tw-p-1 tw-px-4 tw-bg-gray-900 tw-bg-opacity-50 tw-rounded-md tw-text-white'>
+                          <span className='tw-p-1 tw-px-4 tw-bg-gray-500 tw-bg-opacity-25 tw-rounded-md tw-text-white'>
                             {cutoffScores[selectedKeyMode]?.top50.toFixed(3)} TP
                           </span>
                         </div>
@@ -1009,13 +1012,13 @@ export default function DjmaxHomeComponent() {
 
                   {/* Total Overall Panel */}
                   <div className='tw-flex tw-flex-col tw-gap-4'>
-                    <div className='tw-bg-gray-600 tw-bg-opacity-20 tw-flex tw-justify-between tw-items-end tw-rounded-lg tw-p-4'>
+                    <div className='tw-bg-gray-800 tw-bg-opacity-75 tw-flex tw-justify-between tw-items-end tw-rounded-lg tw-p-4'>
                       <div className='tw-flex tw-flex-col'>
                         <span className='tw-text-xl tw-font-bold'>전체 통계</span>
                       </div>
                     </div>
 
-                    <div className='tw-bg-gray-600 tw-bg-opacity-20 tw-rounded-lg tw-p-4 tw-pb-8'>
+                    <div className='tw-bg-gray-800 tw-bg-opacity-75 tw-rounded-lg tw-p-4 tw-pb-8'>
                       {/* 상단 통계 요약 */}
                       <div className='tw-grid tw-grid-cols-7 tw-gap-2 tw-mb-8'>
                         {[
@@ -1030,7 +1033,7 @@ export default function DjmaxHomeComponent() {
                         ].map(({ key, label, color }) => (
                           <div
                             key={key}
-                            className='tw-text-center tw-p-3 tw-bg-gray-900 tw-bg-opacity-50 tw-rounded-lg'
+                            className='tw-text-center tw-p-3 tw-bg-gray-500 tw-bg-opacity-25 tw-rounded-lg'
                           >
                             <div className={`tw-text-lg tw-font-bold ${color}`}>
                               {totalStats[key]}
@@ -1046,7 +1049,7 @@ export default function DjmaxHomeComponent() {
                           {/* 차트 1: 클리어 / 미클리어 */}
                           <div className='tw-relative tw-w-1/3 tw-flex tw-items-center tw-justify-center'>
                             {/* 도넛 차트 안에 정보 표시 */}
-                            <div className='tw-absolute tw-top-1/2 tw-left-1/2 tw-transform -tw-translate-x-1/2 -tw-translate-y-1/2 tw-text-center tw-w-[88px] tw-h-[88px] tw-bg-gray-900 tw-bg-opacity-50 tw-rounded-full tw-flex tw-flex-col tw-justify-center tw-items-center tw-z-0'>
+                            <div className='tw-absolute tw-top-1/2 tw-left-1/2 tw-transform -tw-translate-x-1/2 -tw-translate-y-1/2 tw-text-center tw-w-[88px] tw-h-[88px] tw-bg-gray-500 tw-bg-opacity-25 tw-rounded-full tw-flex tw-flex-col tw-justify-center tw-items-center tw-z-0'>
                               <div className='tw-text-lg tw-font-bold'>
                                 {totalStats.totalPatterns}
                               </div>
@@ -1064,12 +1067,12 @@ export default function DjmaxHomeComponent() {
                                       ],
                                       backgroundColor: [
                                         'rgba(59, 130, 246, 0.8)',
-                                        'rgba(3, 7, 18, 0.5)',
+                                        'rgba(39, 39, 42, 0.75)',
                                       ],
 
                                       borderColor: [
                                         'rgba(59, 130, 246, 0.8)',
-                                        'rgba(3, 7, 18, 0.5)',
+                                        'rgba(39, 39, 42, 0.75)',
                                       ],
                                       borderWidth: 1,
                                     },
@@ -1099,7 +1102,7 @@ export default function DjmaxHomeComponent() {
                           {/* 차트 3: 퍼펙트 점수 구간 (클리어한 것만) */}
                           <div className='tw-relative tw-w-1/3 tw-flex tw-items-center tw-justify-center'>
                             {/* 도넛 차트 안에 정보 표시 */}
-                            <div className='tw-absolute tw-top-1/2 tw-left-1/2 tw-transform -tw-translate-x-1/2 -tw-translate-y-1/2 tw-text-center tw-w-[88px] tw-h-[88px] tw-bg-gray-900 tw-bg-opacity-50 tw-rounded-full tw-flex tw-flex-col tw-justify-center tw-items-center tw-z-0'>
+                            <div className='tw-absolute tw-top-1/2 tw-left-1/2 tw-transform -tw-translate-x-1/2 -tw-translate-y-1/2 tw-text-center tw-w-[88px] tw-h-[88px] tw-bg-gray-500 tw-bg-opacity-25 tw-rounded-full tw-flex tw-flex-col tw-justify-center tw-items-center tw-z-0'>
                               <div className='tw-text-lg tw-font-bold'>{totalStats.clear}</div>
                               <div className='tw-text-xs tw-text-gray-300'>클리어</div>
                             </div>
@@ -1130,7 +1133,7 @@ export default function DjmaxHomeComponent() {
                                         'rgba(234, 179, 8, 0.6)',
                                         'rgba(234, 179, 8, 0.4)',
                                         'rgba(234, 179, 8, 0.2)',
-                                        'rgba(3, 7, 18, 0.5)',
+                                        'rgba(39, 39, 42, 0.75)',
                                       ],
                                       borderColor: [
                                         'rgba(239, 68, 68, 1)',
@@ -1138,7 +1141,7 @@ export default function DjmaxHomeComponent() {
                                         'rgba(234, 179, 8, 1)',
                                         'rgba(234, 179, 8, 1)',
                                         'rgba(234,179,8,1)',
-                                        'rgba(3, 7, 18, 0.5)',
+                                        'rgba(39, 39, 42, 0.75)',
                                       ],
                                       borderWidth: 1,
                                     },
@@ -1168,7 +1171,7 @@ export default function DjmaxHomeComponent() {
                           {/* 차트 2: 퍼펙트 or 풀콤보 / 해당되지 않는 것 (클리어한 것만) */}
                           <div className='tw-relative tw-w-1/3 tw-flex tw-items-center tw-justify-center'>
                             {/* 도넛 차트 안에 정보 표시 */}
-                            <div className='tw-absolute tw-top-1/2 tw-left-1/2 tw-transform -tw-translate-x-1/2 -tw-translate-y-1/2 tw-text-center tw-w-[88px] tw-h-[88px] tw-bg-gray-900 tw-bg-opacity-50 tw-rounded-full tw-flex tw-flex-col tw-justify-center tw-items-center tw-z-0'>
+                            <div className='tw-absolute tw-top-1/2 tw-left-1/2 tw-transform -tw-translate-x-1/2 -tw-translate-y-1/2 tw-text-center tw-w-[88px] tw-h-[88px] tw-bg-gray-500 tw-bg-opacity-25 tw-rounded-full tw-flex tw-flex-col tw-justify-center tw-items-center tw-z-0'>
                               <div className='tw-text-lg tw-font-bold'>{totalStats.maxCombo}</div>
                               <div className='tw-text-xs tw-text-gray-300'>맥스 콤보</div>
                             </div>
@@ -1184,9 +1187,12 @@ export default function DjmaxHomeComponent() {
                                       ],
                                       backgroundColor: [
                                         'rgba(34, 197, 94, 0.8)',
-                                        'rgba(3, 7, 18, 0.5)',
+                                        'rgba(39, 39, 42, 0.75)',
                                       ],
-                                      borderColor: ['rgba(34, 197, 94, 1)', 'rgba(3, 7, 18, 0.5)'],
+                                      borderColor: [
+                                        'rgba(34, 197, 94, 1)',
+                                        'rgba(39, 39, 42, 0.75)',
+                                      ],
                                       borderWidth: 1,
                                     },
                                   ],
@@ -1219,7 +1225,7 @@ export default function DjmaxHomeComponent() {
 
                 {/* 최고 성과 패널 */}
                 <div className='tw-w-2/5'>
-                  <div className='tw-flex tw-flex-col tw-gap-4 tw-bg-gray-600 tw-bg-opacity-20 tw-rounded-lg tw-shadow-lg tw-p-4'>
+                  <div className='tw-flex tw-flex-col tw-gap-4 tw-bg-gray-800 tw-bg-opacity-75 tw-rounded-lg tw-shadow-lg tw-p-4'>
                     <span className='tw-text-lg tw-font-bold'>
                       🎯 {selectedKeyMode}B 최고 성과 기록
                     </span>
@@ -1284,7 +1290,7 @@ export default function DjmaxHomeComponent() {
                                 songItemTitle={String(highestPattern.title)}
                                 keyMode={selectedKeyMode}
                               />
-                              <div className='tw-flex tw-flex-col tw-gap-1 tw-bg-gray-900 tw-bg-opacity-50 tw-rounded-md tw-p-3 tw-flex-1'>
+                              <div className='tw-flex tw-flex-col tw-gap-1 tw-bg-gray-500 tw-bg-opacity-25 tw-rounded-md tw-p-3 tw-flex-1'>
                                 <div className='tw-flex tw-justify-between tw-items-center'>
                                   <span className='tw-text-sm tw-font-bold'>{label}</span>
                                   <span className='tw-text-sm tw-font-extrabold'>

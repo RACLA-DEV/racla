@@ -615,7 +615,7 @@ const Board = () => {
                 </div>
 
                 {/* 키모드 & 레벨 선택 패널 */}
-                <div className='tw-flex tw-flex-col tw-gap-4 tw-bg-gray-600 tw-bg-opacity-20 tw-rounded-lg tw-shadow-lg tw-p-6 tw-w-1/3'>
+                <div className='tw-flex tw-flex-col tw-gap-4 tw-bg-gray-800 tw-bg-opacity-75 tw-rounded-lg tw-shadow-lg tw-p-6 tw-w-1/3'>
                   <div className='tw-flex tw-items-center tw-justify-between'>
                     <span className='tw-text-lg tw-font-bold'>🎮 성과표 필터</span>
                   </div>
@@ -693,23 +693,23 @@ const Board = () => {
 
             {/* 컷오프 점수 표시 */}
             {!isLoading && (
-              <div className='tw-flex tw-items-center tw-justify-center tw-gap-1 tw-bg-gray-600 tw-bg-opacity-20 tw-rounded-md tw-text-xs tw-p-2 tw-w-full'>
-                <span className='tw-p-1 tw-px-4 tw-bg-gray-900 tw-bg-opacity-50 tw-rounded-md tw-font-extrabold tw-text-green-700'>
+              <div className='tw-flex tw-items-center tw-justify-center tw-gap-1 tw-bg-gray-800 tw-bg-opacity-75 tw-rounded-md tw-text-xs tw-p-2 tw-w-full'>
+                <span className='tw-p-1 tw-px-4 tw-bg-gray-500 tw-bg-opacity-25 tw-rounded-md tw-font-extrabold tw-text-green-500'>
                   NEW 30
                 </span>
-                <span className='tw-p-1 tw-px-4 tw-bg-gray-900 tw-bg-opacity-50 tw-rounded-md tw-text-white'>
+                <span className='tw-p-1 tw-px-4 tw-bg-gray-500 tw-bg-opacity-25 tw-rounded-md tw-text-white'>
                   {cutoffScores.new30.toFixed(3)} DP
                 </span>
-                <span className='tw-p-1 tw-px-4 tw-bg-gray-900 tw-bg-opacity-50 tw-rounded-md tw-font-extrabold tw-text-yellow-500'>
+                <span className='tw-p-1 tw-px-4 tw-bg-gray-500 tw-bg-opacity-25 tw-rounded-md tw-font-extrabold tw-text-yellow-500'>
                   BASIC 70
                 </span>
-                <span className='tw-p-1 tw-px-4 tw-bg-gray-900 tw-bg-opacity-50 tw-rounded-md tw-text-white'>
+                <span className='tw-p-1 tw-px-4 tw-bg-gray-500 tw-bg-opacity-25 tw-rounded-md tw-text-white'>
                   {cutoffScores.basic70.toFixed(3)} DP
                 </span>
-                <span className='tw-p-1 tw-px-4 tw-bg-gray-900 tw-bg-opacity-50 tw-rounded-md tw-font-extrabold tw-text-red-500'>
+                <span className='tw-p-1 tw-px-4 tw-bg-gray-500 tw-bg-opacity-25 tw-rounded-md tw-font-extrabold tw-text-red-500'>
                   TOP 50
                 </span>
-                <span className='tw-p-1 tw-px-4 tw-bg-gray-900 tw-bg-opacity-50 tw-rounded-md tw-text-white'>
+                <span className='tw-p-1 tw-px-4 tw-bg-gray-500 tw-bg-opacity-25 tw-rounded-md tw-text-white'>
                   {cutoffScores.top50.toFixed(3)} TP
                 </span>
               </div>
@@ -718,7 +718,7 @@ const Board = () => {
             {/* 패턴 목록 */}
             <div
               className={
-                'tw-flex tw-flex-col tw-gap-1 tw-bg-gray-600 tw-bg-opacity-20 tw-rounded-md tw-p-4 tw-w-full ' +
+                'tw-flex tw-flex-col tw-gap-1 tw-bg-gray-800 tw-bg-opacity-75 tw-rounded-md tw-p-4 tw-w-full ' +
                 (isLoading ? 'tw-items-center tw-justify-center tw-min-h-[calc(100vh-118px)]' : '')
               }
             >
@@ -806,7 +806,7 @@ const Board = () => {
                                 isVisibleCode={true}
                                 isFlatten={true}
                               />
-                              <div className='tw-flex tw-flex-1 tw-flex-col tw-gap-2 tw-items-end tw-justify-center tw-bg-gray-900 tw-bg-opacity-50 tw-rounded-md tw-py-2 tw-px-3'>
+                              <div className='tw-flex tw-flex-1 tw-flex-col tw-gap-2 tw-items-end tw-justify-center tw-bg-gray-500 tw-bg-opacity-25 tw-rounded-md tw-py-2 tw-px-3'>
                                 {pattern.score ? (
                                   <>
                                     <span className='tw-text-xs tw-text-gray-400'>
@@ -824,7 +824,7 @@ const Board = () => {
                                 )}
                               </div>
                             </div>
-                            <span className='tw-flex tw-flex-1 tw-bg-gray-900 tw-bg-opacity-50 tw-px-2 tw-py-1 tw-rounded-md tw-break-keep tw-justify-center tw-items-center tw-text-center tw-text-xs'>
+                            <span className='tw-flex tw-flex-1 tw-bg-gray-500 tw-bg-opacity-25 tw-px-2 tw-py-1 tw-rounded-md tw-break-keep tw-justify-center tw-items-center tw-text-center tw-text-xs'>
                               {pattern.name}
                             </span>
                           </div>

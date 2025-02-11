@@ -1,6 +1,6 @@
+import { FaLink } from 'react-icons/fa6'
 import Head from 'next/head'
 import React from 'react'
-import { FaLink } from 'react-icons/fa6'
 
 export default function LicensePage() {
   return (
@@ -11,7 +11,7 @@ export default function LicensePage() {
 
       <div className='tw-w-full tw-flex tw-flex-col tw-items-center tw-justify-center tw-gap-4'>
         <div className='tw-w-full tw-max-w-4xl'>
-          <div className='tw-flex tw-flex-col tw-gap-6 tw-bg-gray-600 tw-bg-opacity-20 tw-rounded-lg tw-shadow-lg tw-p-8'>
+          <div className='tw-flex tw-flex-col tw-gap-6 tw-bg-gray-800 tw-bg-opacity-75 tw-rounded-lg tw-shadow-lg tw-p-8'>
             {/* 헤더 */}
             <div className='tw-flex tw-w-full tw-mb-2'>
               <span className='tw-text-2xl tw-font-bold tw-text-white'>라이선스</span>
@@ -163,7 +163,7 @@ export default function LicensePage() {
           </div>
         </div>
         <div className='tw-w-full tw-max-w-4xl'>
-          <div className='tw-flex tw-flex-col tw-gap-6 tw-bg-gray-600 tw-bg-opacity-20 tw-rounded-lg tw-shadow-lg tw-p-8'>
+          <div className='tw-flex tw-flex-col tw-gap-6 tw-bg-gray-800 tw-bg-opacity-75 tw-rounded-lg tw-shadow-lg tw-p-8'>
             {/* 헤더 */}
             <div className='tw-flex tw-w-full tw-mb-2'>
               <span className='tw-text-2xl tw-font-bold tw-text-white'>이용약관</span>

@@ -240,7 +240,7 @@ const Overlay = ({ isNotificationSound }: { isNotificationSound: boolean }) => {
               key={id}
               className={`${data.color} tw-bg-gray-950 tw-w-full tw-cursor-pointer tw-text-sm tw-bg-opacity-80 tw-relative tw-text-white tw-rounded-lg tw-overflow-hidden tw-shadow-lg ${fadeOut[id] ? 'tw-animate-fadeOut' : 'tw-animate-fadeIn'}`}
             >
-              <div className='tw-py-3 tw-px-3 tw-flex tw-gap-3 tw-bg-gray-900 tw-bg-opacity-50 tw-items-center'>
+              <div className='tw-py-3 tw-px-3 tw-flex tw-gap-3 tw-bg-gray-500 tw-bg-opacity-25 tw-items-center'>
                 <div className='tw-flex tw-items-center tw-justify-center tw-h-14 tw-w-12 tw-min-h-14 tw-min-w-12 tw-max-h-14 tw-max-w-12'>
                   <IconContext.Provider value={{ size: '36px', className: 'tw-text-gray-200' }}>
                     {String(data.color).includes('lime') ? (

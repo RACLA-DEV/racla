@@ -1,8 +1,9 @@
+import { useDispatch, useSelector } from 'react-redux'
+import { useEffect, useState } from 'react'
+
+import { FaCircleInfo } from 'react-icons/fa6'
 import Head from 'next/head'
 import Image from 'next/image'
-import { useEffect, useState } from 'react'
-import { FaCircleInfo } from 'react-icons/fa6'
-import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from 'store'
 import { setSettingData } from 'store/slices/appSlice'
 
@@ -31,7 +32,7 @@ const OverlaySetting = ({ setSelectedImage }: { setSelectedImage: (image: string
         </Head>
         <div id='ContentHeader' />
         <div className='tw-flex tw-gap-4'>
-          <div className='tw-flex tw-flex-col tw-gap-4 tw-bg-gray-600 tw-bg-opacity-20 tw-rounded-lg tw-shadow-lg tw-p-6 tw-mb-4 tw-flex-1'>
+          <div className='tw-flex tw-flex-col tw-gap-4 tw-bg-gray-800 tw-bg-opacity-75 tw-rounded-lg tw-shadow-lg tw-p-6 tw-mb-4 tw-flex-1'>
             <div className='tw-flex tw-w-full tw-items-end tw-justify-between'>
               <span className='tw-text-xl tw-font-bold tw-text-white'>🎮 오버레이 설정</span>
             </div>
@@ -53,7 +54,7 @@ const OverlaySetting = ({ setSelectedImage }: { setSelectedImage: (image: string
         <div className='tw-flex tw-gap-4'>
           <div className='tw-flex tw-flex-col tw-gap-4 tw-flex-1'>
             <div
-              className='tw-flex-1 tw-flex tw-flex-col tw-gap-1 tw-bg-gray-600 tw-bg-opacity-20 tw-rounded-md p-4'
+              className='tw-flex-1 tw-flex tw-flex-col tw-gap-1 tw-bg-gray-800 tw-bg-opacity-75 tw-rounded-md p-4'
               onMouseEnter={() => setImage('RESULT_OVERLAY_EXAMPLE_UPLOAD.png')}
               onMouseLeave={() => setImage('RESULT_OVERLAY_EXAMPLE.png')}
             >
@@ -84,7 +85,7 @@ const OverlaySetting = ({ setSelectedImage }: { setSelectedImage: (image: string
             </div>
 
             <div
-              className='tw-flex-1 tw-flex tw-flex-col tw-gap-1 tw-bg-gray-600 tw-bg-opacity-20 tw-rounded-md p-4'
+              className='tw-flex-1 tw-flex tw-flex-col tw-gap-1 tw-bg-gray-800 tw-bg-opacity-75 tw-rounded-md p-4'
               onMouseEnter={() => setImage('RESULT_OVERLAY_EXAMPLE_HJA.png')}
               onMouseLeave={() => setImage('RESULT_OVERLAY_EXAMPLE.png')}
             >
@@ -114,7 +115,7 @@ const OverlaySetting = ({ setSelectedImage }: { setSelectedImage: (image: string
             </div>
 
             <div
-              className='tw-flex-1 tw-flex tw-flex-col tw-gap-1 tw-bg-gray-600 tw-bg-opacity-20 tw-rounded-md p-4'
+              className='tw-flex-1 tw-flex tw-flex-col tw-gap-1 tw-bg-gray-800 tw-bg-opacity-75 tw-rounded-md p-4'
               onMouseEnter={() => setImage('RESULT_OVERLAY_EXAMPLE_RECENT.png')}
               onMouseLeave={() => setImage('RESULT_OVERLAY_EXAMPLE.png')}
             >
@@ -143,7 +144,7 @@ const OverlaySetting = ({ setSelectedImage }: { setSelectedImage: (image: string
               </div>
             </div>
           </div>
-          <div className='tw-flex tw-flex-col tw-gap-1 tw-justify-center tw-items-center tw-bg-gray-600 tw-bg-opacity-20 tw-rounded-md p-4'>
+          <div className='tw-flex tw-flex-col tw-gap-1 tw-justify-center tw-items-center tw-bg-gray-800 tw-bg-opacity-75 tw-rounded-md p-4'>
             <div className='tw-min-w-[512px] tw-w-[512px] tw-max-w-[512px] tw-min-h-[384px] tw-h-[384px] tw-max-h-[384px]'>
               <div className='tw-relative tw-w-full tw-h-full tw-rounded tw-overflow-hidden'>
                 <Image

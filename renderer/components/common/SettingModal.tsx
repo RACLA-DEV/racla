@@ -1,20 +1,20 @@
-import { FaDiscord, FaGear, FaV } from 'react-icons/fa6'
 import { IUserNameRequest, IUserNameResponse } from '@/types/IUserName'
 import axios, { AxiosResponse } from 'axios'
+import { useEffect, useRef, useState } from 'react'
+import { FaDiscord, FaGear, FaV } from 'react-icons/fa6'
+import { useDispatch, useSelector } from 'react-redux'
 import {
   setIsSetting,
   setSettingData,
   setUserData,
   setVArchiveUserData,
 } from 'store/slices/appSlice'
-import { useDispatch, useSelector } from 'react-redux'
-import { useEffect, useRef, useState } from 'react'
 
+import { globalDictionary } from '@constants/globalDictionary'
+import { useNotificationSystem } from '@hooks/useNotifications'
+import { logRendererError } from '@utils/rendererLoggerUtils'
 import { FiX } from 'react-icons/fi'
 import type { RootState } from 'store'
-import { globalDictionary } from '@constants/globalDictionary'
-import { logRendererError } from '@utils/rendererLoggerUtils'
-import { useNotificationSystem } from '@hooks/useNotifications'
 
 const SettingComponent = () => {
   const dispatch = useDispatch()
@@ -381,50 +381,55 @@ const SettingComponent = () => {
           해당 버전에서는 변경할 수 없는 설정값입니다.
         </span>
       </div>
-      <div className='tw-flex tw-flex-col tw-gap-1'>
-        <div className='tw-flex tw-items-center'>
-          <span className='tw-text-sm'>트레이로 최소화</span>
-          <button
-            className={`tw-scale-50 tw-relative tw-inline-flex tw-items-center tw-h-8 tw-w-16 tw-rounded-full tw-transition-colors tw-duration-300 ${
-              settingData.closeToTray ? 'tw-bg-blue-600' : 'tw-bg-gray-600'
-            }`}
-            onClick={() => {
-              handleSettingChange({ closeToTray: !settingData.closeToTray })
-            }}
-          >
-            <span
-              className={`tw-inline-block tw-h-6 tw-w-6 tw-bg-white tw-rounded-full tw-absolute tw-shadow tw-transform tw-transition-all tw-duration-300 ${
-                settingData.closeToTray ? 'tw-right-1' : 'tw-left-1'
+      {settingData.platform == 'win32' && (
+        <div className='tw-flex tw-flex-col tw-gap-1'>
+          <div className='tw-flex tw-items-center'>
+            <span className='tw-text-sm'>트레이로 최소화</span>
+            <button
+              className={`tw-scale-50 tw-relative tw-inline-flex tw-items-center tw-h-8 tw-w-16 tw-rounded-full tw-transition-colors tw-duration-300 ${
+                settingData.closeToTray ? 'tw-bg-blue-600' : 'tw-bg-gray-600'
               }`}
-            />
-          </button>
+              onClick={() => {
+                handleSettingChange({ closeToTray: !settingData.closeToTray })
+              }}
+            >
+              <span
+                className={`tw-inline-block tw-h-6 tw-w-6 tw-bg-white tw-rounded-full tw-absolute tw-shadow tw-transform tw-transition-all tw-duration-300 ${
+                  settingData.closeToTray ? 'tw-right-1' : 'tw-left-1'
+                }`}
+              />
+            </button>
+          </div>
+          <span className='tw-text-sm tw-font-light tw-text-gray-400 tw-break-keep'>
+            닫기 버튼을 클릭 시 트레이로 최소화 합니다.
+          </span>
         </div>
-        <span className='tw-text-sm tw-font-light tw-text-gray-400 tw-break-keep'>
-          닫기 버튼을 클릭 시 트레이로 최소화 합니다.
-        </span>
-      </div>
-      <div className='tw-flex tw-flex-col tw-gap-1'>
-        <div className='tw-flex tw-items-center'>
-          <span className='tw-text-sm'>성과 기록 등록 시 알림 사운드</span>
-          <button
-            className={`tw-scale-50 tw-relative tw-inline-flex tw-items-center tw-h-8 tw-w-16 tw-rounded-full tw-transition-colors tw-duration-300 ${
-              settingData.isNotificationSound ? 'tw-bg-blue-600' : 'tw-bg-gray-600'
-            }`}
-            onClick={() => {
-              handleSettingChange({ isNotificationSound: !settingData.isNotificationSound })
-            }}
-          >
-            <span
-              className={`tw-inline-block tw-h-6 tw-w-6 tw-bg-white tw-rounded-full tw-absolute tw-shadow tw-transform tw-transition-all tw-duration-300 ${
-                settingData.isNotificationSound ? 'tw-right-1' : 'tw-left-1'
+      )}
+      {settingData.platform == 'win32' && (
+        <div className='tw-flex tw-flex-col tw-gap-1'>
+          <div className='tw-flex tw-items-center'>
+            <span className='tw-text-sm'>성과 기록 등록 시 알림 사운드</span>
+            <button
+              className={`tw-scale-50 tw-relative tw-inline-flex tw-items-center tw-h-8 tw-w-16 tw-rounded-full tw-transition-colors tw-duration-300 ${
+                settingData.isNotificationSound ? 'tw-bg-blue-600' : 'tw-bg-gray-600'
               }`}
-            />
-          </button>
+              onClick={() => {
+                handleSettingChange({ isNotificationSound: !settingData.isNotificationSound })
+              }}
+            >
+              <span
+                className={`tw-inline-block tw-h-6 tw-w-6 tw-bg-white tw-rounded-full tw-absolute tw-shadow tw-transform tw-transition-all tw-duration-300 ${
+                  settingData.isNotificationSound ? 'tw-right-1' : 'tw-left-1'
+                }`}
+              />
+            </button>
+          </div>
+          <span className='tw-text-sm tw-font-light tw-text-gray-400 tw-break-keep'>
+            성과 기록 등록 시 알림 사운드를 활성화/비활성화 합니다.
+          </span>
         </div>
-        <span className='tw-text-sm tw-font-light tw-text-gray-400 tw-break-keep'>
-          성과 기록 등록 시 알림 사운드를 활성화/비활성화 합니다.
-        </span>
-      </div>
+      )}
+
       <div className='tw-flex tw-flex-col tw-gap-1'>
         <div className='tw-flex tw-items-center'>
           <span className='tw-text-sm'>상단바 홈 버튼을 오른쪽으로 정렬</span>
@@ -541,6 +546,9 @@ const SettingComponent = () => {
           <option value='ko'>한국어(Korean)</option>
           <option value='en' disabled>
             영어(English)
+          </option>
+          <option value='jp' disabled>
+            일본어(Japanese)
           </option>
         </select>
         <span className='tw-text-sm tw-font-light tw-text-red-500'>
@@ -1168,7 +1176,7 @@ const SettingComponent = () => {
       />
       <div className='tw-fixed tw-inset-0 tw-flex tw-items-center tw-justify-center'>
         <div
-          className={`tw-flex tw-flex-col tw-h-5/6 tw-w-4/6 tw-bg-gray-900 tw-rounded-md tw-overflow-hidden tw-transition-all tw-duration-300 ${isSetting ? 'tw-opacity-100 tw-translate-y-0' : 'tw-opacity-0 tw-translate-y-4'}`}
+          className={`tw-flex tw-flex-col tw-h-5/6 tw-w-4/6 tw-bg-gray-800 tw-rounded-md tw-overflow-hidden tw-transition-all tw-duration-300 ${isSetting ? 'tw-opacity-100 tw-translate-y-0' : 'tw-opacity-0 tw-translate-y-4'}`}
         >
           <div className='tw-flex tw-items-center tw-border-b tw-border-gray-700 tw-pb-4 tw-pt-5 tw-px-6'>
             <span className='tw-flex tw-gap-2 tw-items-center tw-text-lg tw-font-bold me-auto'>
@@ -1207,84 +1215,88 @@ const SettingComponent = () => {
               >
                 앱
               </button>
-              <button
-                className={`tw-text-left tw-px-3 tw-py-2 tw-rounded-md tw-text-sm ${category === 'data' ? 'tw-bg-gray-700' : 'hover:tw-bg-gray-800'}`}
-                onClick={() => {
-                  setCategory('data')
-                  setErrorMessage('')
-                }}
-              >
-                저장 공간
-              </button>
-              <button
-                className={`tw-text-left tw-px-3 tw-py-2 tw-rounded-md tw-text-sm ${category === 'game' ? 'tw-bg-gray-700' : 'hover:tw-bg-gray-800'}`}
-                onClick={() => {
-                  setCategory('game')
-                  setErrorMessage('')
-                }}
-              >
-                게임
-              </button>
-              <button
-                className={`tw-text-left tw-px-3 tw-py-2 tw-rounded-md tw-text-sm ${category === 'shortcut' ? 'tw-bg-gray-700' : 'hover:tw-bg-gray-800'}`}
-                onClick={() => {
-                  setCategory('shortcut')
-                  setErrorMessage('')
-                }}
-              >
-                단축키
-              </button>
-              <button
-                className={`tw-flex tw-justify-between tw-items-center tw-text-left tw-px-3 tw-py-2 tw-rounded-md tw-text-sm ${
-                  category === 'overlay' ? 'tw-bg-gray-700' : 'hover:tw-bg-gray-800'
-                }`}
-                onClick={() => {
-                  setCategory('overlay')
-                  setErrorMessage('')
-                }}
-              >
-                <span>오버레이</span>
-                {/* <span className="tw-text-sm tw-bg-blue-600 tw-rounded-full tw-px-2" style={{ padding: '2px 8px' }}>
+              {settingData.platform == 'win32' && (
+                <>
+                  <button
+                    className={`tw-text-left tw-px-3 tw-py-2 tw-rounded-md tw-text-sm ${category === 'data' ? 'tw-bg-gray-700' : 'hover:tw-bg-gray-800'}`}
+                    onClick={() => {
+                      setCategory('data')
+                      setErrorMessage('')
+                    }}
+                  >
+                    저장 공간
+                  </button>
+                  <button
+                    className={`tw-text-left tw-px-3 tw-py-2 tw-rounded-md tw-text-sm ${category === 'game' ? 'tw-bg-gray-700' : 'hover:tw-bg-gray-800'}`}
+                    onClick={() => {
+                      setCategory('game')
+                      setErrorMessage('')
+                    }}
+                  >
+                    게임
+                  </button>
+                  <button
+                    className={`tw-text-left tw-px-3 tw-py-2 tw-rounded-md tw-text-sm ${category === 'shortcut' ? 'tw-bg-gray-700' : 'hover:tw-bg-gray-800'}`}
+                    onClick={() => {
+                      setCategory('shortcut')
+                      setErrorMessage('')
+                    }}
+                  >
+                    단축키
+                  </button>
+                  <button
+                    className={`tw-flex tw-justify-between tw-items-center tw-text-left tw-px-3 tw-py-2 tw-rounded-md tw-text-sm ${
+                      category === 'overlay' ? 'tw-bg-gray-700' : 'hover:tw-bg-gray-800'
+                    }`}
+                    onClick={() => {
+                      setCategory('overlay')
+                      setErrorMessage('')
+                    }}
+                  >
+                    <span>오버레이</span>
+                    {/* <span className="tw-text-sm tw-bg-blue-600 tw-rounded-full tw-px-2" style={{ padding: '2px 8px' }}>
                   베타
                 </span> */}
-              </button>
-              <hr className='tw-border-1 tw-border-gray-400 tw-my-2' />
-              <button
-                className={`tw-flex tw-justify-between tw-items-center tw-text-left tw-px-3 tw-py-2 tw-rounded-md tw-text-sm ${
-                  category === 'capture' ? 'tw-bg-gray-700' : 'hover:tw-bg-gray-800'
-                }`}
-                onClick={() => {
-                  setCategory('capture')
-                  setErrorMessage('')
-                }}
-              >
-                <span>자동 캡쳐 모드</span>
-                {/* <span className="tw-text-xs tw-bg-blue-600 tw-rounded-full tw-px-2" style={{ padding: '2px 8px' }}>
+                  </button>
+                  <hr className='tw-border-1 tw-border-gray-400 tw-my-2' />
+                  <button
+                    className={`tw-flex tw-justify-between tw-items-center tw-text-left tw-px-3 tw-py-2 tw-rounded-md tw-text-sm ${
+                      category === 'capture' ? 'tw-bg-gray-700' : 'hover:tw-bg-gray-800'
+                    }`}
+                    onClick={() => {
+                      setCategory('capture')
+                      setErrorMessage('')
+                    }}
+                  >
+                    <span>자동 캡쳐 모드</span>
+                    {/* <span className="tw-text-xs tw-bg-blue-600 tw-rounded-full tw-px-2" style={{ padding: '2px 8px' }}>
                   베타
                 </span> */}
-              </button>
-              <button
-                className={`tw-flex tw-justify-between tw-items-center tw-text-left tw-px-3 tw-py-2 tw-rounded-md tw-text-sm ${
-                  category === 'djmax_respect_v' ? 'tw-bg-gray-700' : 'hover:tw-bg-gray-800'
-                }`}
-                onClick={() => {
-                  setCategory('djmax_respect_v')
-                  setErrorMessage('')
-                }}
-              >
-                <span>DJMAX RESPECT V</span>
-              </button>
-              <button
-                className={`tw-flex tw-justify-between tw-items-center tw-text-left tw-px-3 tw-py-2 tw-rounded-md tw-text-sm ${
-                  category === 'wjmax' ? 'tw-bg-gray-700' : 'hover:tw-bg-gray-800'
-                }`}
-                onClick={() => {
-                  setCategory('wjmax')
-                  setErrorMessage('')
-                }}
-              >
-                <span>WJMAX</span>
-              </button>
+                  </button>
+                  <button
+                    className={`tw-flex tw-justify-between tw-items-center tw-text-left tw-px-3 tw-py-2 tw-rounded-md tw-text-sm ${
+                      category === 'djmax_respect_v' ? 'tw-bg-gray-700' : 'hover:tw-bg-gray-800'
+                    }`}
+                    onClick={() => {
+                      setCategory('djmax_respect_v')
+                      setErrorMessage('')
+                    }}
+                  >
+                    <span>DJMAX RESPECT V</span>
+                  </button>
+                  <button
+                    className={`tw-flex tw-justify-between tw-items-center tw-text-left tw-px-3 tw-py-2 tw-rounded-md tw-text-sm ${
+                      category === 'wjmax' ? 'tw-bg-gray-700' : 'hover:tw-bg-gray-800'
+                    }`}
+                    onClick={() => {
+                      setCategory('wjmax')
+                      setErrorMessage('')
+                    }}
+                  >
+                    <span>WJMAX</span>
+                  </button>
+                </>
+              )}
             </div>
             <div className='tw-flex tw-flex-1 tw-flex-col tw-py-4 tw-pl-2 tw-pr-4 tw-break-keep'>
               <div className='tw-flex tw-gap-3 tw-flex-col tw-overflow-y-auto tw-scroll-smooth tw-pl-3 tw-flex-1 tw-pb-16'>

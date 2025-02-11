@@ -29,7 +29,7 @@ const FooterComponent = ({ className }: IFooterComponent) => {
   }
 
   return (
-    <div className='tw-flex tw-fixed tw-w-full tw-bg-gray-900 tw-items-center tw-bottom-0 tw-h-8 tw-bg-opacity-50 tw-left-0 tw-px-2 tw-border-t tw-border-opacity-50 tw-border-gray-600'>
+    <div className='tw-flex tw-fixed tw-w-full tw-bg-gray-800 tw-bg-opacity-90 tw-backdrop-blur-lg tw-border-t tw-border-gray-700 tw-items-center tw-bottom-0 tw-h-8 tw-left-0 tw-px-2'>
       <div className='tw-flex tw-justify-center tw-items-center tw-gap-1 tw-pl-1 tw-h-8 tw-me-auto'>
         <span className='tw-text-xs tw-flex tw-items-center'>
           <span className='tw-flex tw-items-center tw-gap-1'>

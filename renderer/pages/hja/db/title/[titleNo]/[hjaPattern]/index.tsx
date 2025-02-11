@@ -103,7 +103,7 @@ export default function VArchiveDbTitlePatternPage() {
                   alt=''
                   className='tw-opacity-50 tw-blur-xl'
                 />
-                <div className='tw-absolute tw-inset-0 tw-bg-gray-900 tw-bg-opacity-50' />
+                <div className='tw-absolute tw-inset-0 tw-bg-gray-800 tw-bg-opacity-75' />
               </div>
 
               <div className='tw-flex tw-justify-between tw-animate-fadeInLeft flex-equal tw-bg-gray-900 tw-bg-opacity-30 tw-rounded-md p-4'>
@@ -155,7 +155,7 @@ export default function VArchiveDbTitlePatternPage() {
             </div>
 
             {/* 랭킹 목록 */}
-            <div className='tw-bg-gray-600 tw-bg-opacity-20 tw-rounded-lg tw-shadow-lg tw-p-4'>
+            <div className='tw-bg-gray-800 tw-bg-opacity-75 tw-rounded-lg tw-shadow-lg tw-p-4'>
               <div className='tw-flex tw-justify-between tw-items-center tw-mb-4'>
                 <div className='tw-flex tw-items-center tw-gap-2'>
                   <h2 className='tw-text-xl tw-font-bold'>
@@ -178,7 +178,7 @@ export default function VArchiveDbTitlePatternPage() {
                   {rankingData.map((entry, index) => (
                     <div
                       key={`${index}_${encodeURIComponent(entry.nickname)}`}
-                      className='tw-bg-gray-700 tw-bg-opacity-25 tw-cursor-pointer tw-rounded-lg tw-p-4 tw-flex tw-justify-between tw-items-center hover:tw-bg-gray-600 tw-transition-all'
+                      className='tw-bg-gray-800 tw-bg-opacity-75 tw-cursor-pointer tw-rounded-lg tw-p-4 tw-flex tw-justify-between tw-items-center hover:tw-bg-gray-600 tw-transition-all'
                       onClick={() => {
                         window.ipc.send(
                           'openBrowser',

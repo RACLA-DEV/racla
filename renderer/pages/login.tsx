@@ -273,7 +273,7 @@ export default function VArchiveLoginPage() {
       </Head>
       <div className='tw-h-[calc(100vh-7rem)] tw-flex tw-items-center tw-justify-center tw-py-12 tw-px-4'>
         <div className='tw-w-full tw-max-w-md'>
-          <div className='tw-flex tw-flex-col tw-gap-1 tw-bg-gray-600 tw-bg-opacity-20 tw-rounded-lg tw-shadow-lg tw-p-8 tw-overflow-hidden'>
+          <div className='tw-flex tw-flex-col tw-gap-1 tw-bg-gray-800 tw-bg-opacity-75 tw-rounded-lg tw-shadow-lg tw-p-8 tw-overflow-hidden'>
             {/* 상단 */}
             <div className='tw-flex tw-w-full tw-mb-6'>
               <AnimatePresence mode='wait'>

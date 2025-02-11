@@ -1,12 +1,12 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa'
-import { useDispatch, useSelector } from 'react-redux'
 import {
   setHomePanelCategory,
   setHomePanelOpen,
   setSlideDirection,
   setUpdateIndex,
 } from 'store/slices/uiSlice'
+import { useDispatch, useSelector } from 'react-redux'
 
 import React from 'react'
 import { RootState } from 'store'
@@ -74,7 +74,7 @@ export default function HomePanelComponent({
             onClick={handleOverlayClick}
           >
             <div
-              className='tw-flex tw-gap-3 tw-flex-col tw-h-5/6 tw-w-3/6 tw-bg-gray-900 tw-rounded-md tw-p-4 tw-overflow-hidden tw-transition-all tw-duration-300'
+              className='tw-flex tw-gap-3 tw-flex-col tw-h-5/6 tw-w-3/6 tw-bg-gray-800 tw-rounded-md tw-p-4 tw-overflow-hidden tw-transition-all tw-duration-300'
               onClick={(e) => e.stopPropagation()}
             >
               {/* 패널 헤더 */}

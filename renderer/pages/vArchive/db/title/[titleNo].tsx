@@ -605,7 +605,7 @@ export default function VArchiveDbTitlePage() {
                   alt=''
                   className='tw-opacity-50 tw-blur-xl'
                 />
-                <div className='tw-absolute tw-inset-0 tw-bg-gray-900 tw-bg-opacity-50' />
+                <div className='tw-absolute tw-inset-0 tw-bg-gray-800 tw-bg-opacity-75' />
               </div>
 
               <div className='tw-flex tw-justify-between tw-animate-fadeInLeft flex-equal tw-bg-gray-900 tw-bg-opacity-30 tw-rounded-md p-4'>
@@ -665,7 +665,7 @@ export default function VArchiveDbTitlePage() {
             </div>
 
             {!isLoading && (
-              <div className='tw-w-full tw-h-full tw-overflow-hidden tw-p-4 tw-rounded-md tw-text-center tw-shadow-lg tw-bg-gray-600 tw-bg-opacity-20'>
+              <div className='tw-w-full tw-h-full tw-overflow-hidden tw-p-4 tw-rounded-md tw-text-center tw-shadow-lg tw-bg-gray-800 tw-bg-opacity-75'>
                 <div className='tw-grid tw-grid-cols-5 tw-auto-rows-fr tw-gap-4 tw-h-full'>
                   {baseSongData.length !== 0 && !isLoading ? (
                     R.keys(baseSongData[0].patterns).map((patternName) => (
@@ -679,11 +679,7 @@ export default function VArchiveDbTitlePage() {
                               src={`/images/djmax_respect_v/${String(patternName)}-BG.png`}
                               alt=''
                               fill
-                              className='tw-absolute tw-rounded-lg tw-object-cover'
-                            />
-                            <div className='tw-absolute tw-inset-0 tw-bg-gray-900 tw-bg-opacity-50 tw-rounded-lg tw-backdrop-blur-md' />
-                            <div
-                              className={`tw-absolute tw-inset-0 respect_db_button respect_bg_b${String(patternName).replace('B', '')} tw-rounded-lg`}
+                              className='tw-absolute tw-rounded-lg tw-object-cover tw-blur-sm tw-brightness-50'
                             />
                             <span className='tw-absolute tw-inset-0 tw-font-extrabold tw-text-4xl tw-flex tw-items-center tw-justify-center'>
                               <span className='tw-text-base tw-font-bold'>
@@ -703,7 +699,7 @@ export default function VArchiveDbTitlePage() {
                             baseSongData[0].patterns[patternName][difficultyCode] !== null ? (
                               <div
                                 key={`${String(patternName)}_${difficultyCode}`}
-                                className={`tw-border-gray-600 tw-border-opacity-25 tw-flex tw-flex-col tw-justify-center tw-items-center tw-p-2 tw-bg-gray-700 tw-bg-opacity-20 tw-rounded-lg ${
+                                className={`tw-border-gray-600 tw-border-opacity-25 tw-flex tw-flex-col tw-justify-center tw-items-center tw-p-2 tw-bg-gray-500 tw-bg-opacity-25 tw-rounded-lg ${
                                   vArchiveUserData.userName !== ''
                                     ? 'tw-cursor-pointer hover:tw-bg-gray-600 hover:tw-bg-opacity-30'
                                     : ''
@@ -906,7 +902,7 @@ export default function VArchiveDbTitlePage() {
 
           <button
             onClick={() => dispatch(setIsDjCommentOpen(!isDjCommentOpen))}
-            className='tw-fixed tw-right-0 tw-top-1/2 tw-transform -tw-translate-y-1/2 tw-bg-gray-600 tw-bg-opacity-50 tw-p-2 tw-h-8 tw-w-7 tw-rounded-l-md tw-z-50'
+            className='tw-fixed tw-right-0 tw-top-1/2 tw-transform -tw-translate-y-1/2 tw-bg-gray-800 tw-bg-opacity-90 tw-p-2 tw-h-8 tw-w-7 tw-rounded-l-md tw-z-50'
           >
             <FaChevronLeft
               className={`tw-transition-transform ${isDjCommentOpen ? 'tw-rotate-180' : ''}`}
@@ -915,14 +911,14 @@ export default function VArchiveDbTitlePage() {
 
           {/* DJ 코멘트 패널 */}
           <div
-            className={`tw-fixed tw-top-12 tw-bottom-8 tw-p-4 tw-rounded-l-md tw-w-[calc(33.3%-6rem)] tw-transition-transform tw-duration-300 tw-ease-in-out tw-min-w-[30rem] tw-bg-gray-900 tw-bg-opacity-50 tw-backdrop-blur-xl tw-transform ${isDjCommentOpen ? 'tw-translate-x-0 tw-right-0' : 'tw-translate-x-full tw-right-0'}`}
+            className={`tw-fixed tw-top-12 tw-bottom-8 tw-p-4 tw-rounded-l-md tw-w-[calc(33.3%-6rem)] tw-transition-transform tw-duration-300 tw-ease-in-out tw-min-w-[30rem] tw-backdrop-blur-md tw-transform ${isDjCommentOpen ? 'tw-translate-x-0 tw-right-0' : 'tw-translate-x-full tw-right-0'}`}
           >
             {!isLoading && !isFetchingCommentData ? (
               <div className='tw-flex tw-flex-col tw-h-full tw-overflow-hidden'>
                 {vArchiveUserData.userNo !== '' &&
                 vArchiveUserData.userToken !== '' &&
                 vArchiveUserData.userName !== '' ? (
-                  <div className='tw-flex tw-flex-col tw-gap-4 tw-bg-gray-600 tw-bg-opacity-20 tw-rounded-lg tw-shadow-lg tw-p-6 tw-mb-4 tw-h-auto tw-min-h-[208px] tw-overflow-hidden'>
+                  <div className='tw-flex tw-flex-col tw-gap-4 tw-bg-gray-800 tw-bg-opacity-75 tw-rounded-lg tw-shadow-lg tw-p-6 tw-mb-4 tw-h-auto tw-min-h-[208px] tw-overflow-hidden'>
                     <div className='tw-flex tw-items-center tw-justify-between'>
                       <span className='tw-text-base tw-font-bold tw-text-white'>✏️ 내 코멘트</span>
                       <div className='tw-flex tw-gap-2 tw-items-center'>
@@ -953,7 +949,7 @@ export default function VArchiveDbTitlePage() {
                         <div className='tw-flex tw-gap-2'>
                           <textarea
                             rows={3}
-                            className='tw-w-full tw-bg-gray-900 tw-bg-opacity-50 tw-text-light tw-p-3 tw-rounded-lg tw-border tw-border-gray-600 tw-border-opacity-50 focus:tw-border-blue-400 focus:tw-ring-2 focus:tw-ring-blue-400 focus:tw-ring-opacity-20 tw-transition-all tw-resize-none'
+                            className='tw-w-full tw-bg-gray-500 tw-bg-opacity-25 tw-text-light tw-p-3 tw-rounded-lg tw-border tw-border-gray-600 tw-border-opacity-50 focus:tw-border-blue-400 focus:tw-ring-2 focus:tw-ring-blue-400 focus:tw-ring-opacity-20 tw-transition-all tw-resize-none'
                             placeholder='감상, 팁, 남기고 싶은 말을 자유롭게 입력해주세요'
                             onChange={(e) => setEditCommentContent(e.currentTarget.value)}
                             value={editCommentContent}
@@ -1082,7 +1078,7 @@ export default function VArchiveDbTitlePage() {
                           <div className='tw-flex tw-gap-2'>
                             <textarea
                               rows={3}
-                              className='tw-w-full tw-bg-gray-900 tw-bg-opacity-50 tw-text-light tw-p-3 tw-rounded-lg tw-border tw-border-gray-600 tw-border-opacity-50 focus:tw-border-blue-400 focus:tw-ring-2 focus:tw-ring-blue-400 focus:tw-ring-opacity-20 tw-transition-all tw-resize-none'
+                              className='tw-w-full tw-bg-gray-500 tw-bg-opacity-25 tw-text-light tw-p-3 tw-rounded-lg tw-border tw-border-gray-600 tw-border-opacity-50 focus:tw-border-blue-400 focus:tw-ring-2 focus:tw-ring-blue-400 focus:tw-ring-opacity-20 tw-transition-all tw-resize-none'
                               placeholder='감상, 팁, 남기고 싶은 말을 자유롭게 입력해주세요'
                               onChange={(e) => setEditCommentContent(e.currentTarget.value)}
                               value={editCommentContent}
@@ -1103,7 +1099,7 @@ export default function VArchiveDbTitlePage() {
                 {/* 전체 DJ 코멘트 섹션 */}
                 <div
                   className={
-                    'tw-flex tw-flex-col tw-bg-gray-600 tw-bg-opacity-20 tw-rounded-lg tw-shadow-lg tw-overflow-hidden ' +
+                    'tw-flex tw-flex-col tw-bg-gray-800 tw-bg-opacity-75 tw-rounded-lg tw-shadow-lg tw-overflow-hidden ' +
                     (vArchiveUserData.userName !== '' ? '' : 'tw-h-full')
                   }
                 >
@@ -1187,7 +1183,7 @@ export default function VArchiveDbTitlePage() {
                                 }}
                               >
                                 <div
-                                  className={`tw-flex tw-items-center tw-gap-1.5 tw-px-3 tw-py-1.5 tw-rounded-full tw-bg-gray-600 tw-bg-opacity-20 ${commentItem.myVote === 1 ? 'tw-text-red-400 tw-border-red-400' : 'tw-text-gray-400 tw-border-gray-600'} tw-border tw-border-opacity-30 tw-transition-all ${vArchiveUserData.userNo !== '' ? 'hover:tw-border-opacity-50' : ''}`}
+                                  className={`tw-flex tw-items-center tw-gap-1.5 tw-px-3 tw-py-1.5 tw-rounded-full tw-bg-gray-800 tw-bg-opacity-75 ${commentItem.myVote === 1 ? 'tw-text-red-400 tw-border-red-400' : 'tw-text-gray-400 tw-border-gray-600'} tw-border tw-border-opacity-30 tw-transition-all ${vArchiveUserData.userNo !== '' ? 'hover:tw-border-opacity-50' : ''}`}
                                 >
                                   <span>
                                     <IconContext.Provider

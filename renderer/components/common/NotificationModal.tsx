@@ -85,7 +85,7 @@ const NotificationComponent = () => {
       {notifications.map(({ id, message, color, isFinal, isRemoving }) => (
         <div
           key={id}
-          className={`tw-cursor-pointer tw-text-sc tw-relative tw-text-white tw-pt-4 tw-pb-4 tw-px-4 tw-mb-3 tw-rounded-md tw-overflow-hidden tw-shadow-md tw-backdrop-blur-sm tw-bg-gray-950/95 tw-border tw-border-white/10 tw-transform ${isRemoving ? 'tw-animate-fadeOutSlideRight' : 'tw-animate-fadeInSlideRight'} hover:tw-scale-102 hover:tw-brightness-110 tw-transition-all tw-duration-200 tw-text-xs`}
+          className={`tw-cursor-pointer tw-text-sc tw-relative tw-text-white tw-pt-4 tw-pb-4 tw-px-4 tw-mb-3 tw-rounded-md tw-overflow-hidden tw-shadow-md tw-backdrop-blur-sm tw-bg-gray-900/95 tw-border tw-border-white/10 tw-transform ${isRemoving ? 'tw-animate-fadeOutSlideRight' : 'tw-animate-fadeInSlideRight'} hover:tw-scale-102 hover:tw-brightness-110 tw-transition-all tw-duration-200 tw-text-xs`}
           onClick={() => dispatch(removeNotification(id))}
           id={`notification-${id}`}
         >

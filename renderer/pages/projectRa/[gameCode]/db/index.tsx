@@ -1,28 +1,28 @@
 import 'dayjs/locale/ko'
 
 import { AnimatePresence, motion } from 'framer-motion'
-import { BsGrid, BsList } from 'react-icons/bs'
 import React, { useEffect, useMemo, useRef, useState } from 'react'
+import { BsGrid, BsList } from 'react-icons/bs'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { FaCircleCheck } from 'react-icons/fa6'
-import Head from 'next/head'
-import Image from 'next/image'
-import { RootState } from 'store'
+import { globalDictionary } from '@constants/globalDictionary'
 import dayjs from 'dayjs'
+import utc from 'dayjs/plugin/utc'
 import { debounce } from 'lodash'
 import dynamic from 'next/dynamic'
-import { globalDictionary } from '@constants/globalDictionary'
-import { setBackgroundBgaName } from 'store/slices/uiSlice'
+import Head from 'next/head'
+import Image from 'next/image'
 import { useRouter } from 'next/router'
-import utc from 'dayjs/plugin/utc'
+import { FaCircleCheck } from 'react-icons/fa6'
+import { RootState } from 'store'
+import { setBackgroundBgaName } from 'store/slices/uiSlice'
 
 dayjs.locale('ko')
 dayjs.extend(utc)
 
 // 동적 임포트로 ScorePopupComponent 지연 로딩
 const RaScorePopupComponent = dynamic(() => import('@/components/score/popup/ScorePopupRacla'), {
-  loading: () => <div className='tw-w-[80px] tw-h-[80px] tw-bg-gray-600 tw-bg-opacity-20' />,
+  loading: () => <div className='tw-w-[80px] tw-h-[80px] tw-bg-gray-800 tw-bg-opacity-75' />,
 })
 
 export default function VArchiveDbPage() {
@@ -341,7 +341,7 @@ export default function VArchiveDbPage() {
           {/* 상단 영역 */}
           <div className={`tw-flex tw-flex-col tw-gap-4 tw-transition-all w-w-full'} duration-300`}>
             <div className='tw-flex tw-w-full tw-gap-4'>
-              <div className='tw-flex tw-w-full tw-flex-col tw-gap-4 tw-bg-gray-600 tw-bg-opacity-20 tw-rounded-lg tw-shadow-lg tw-p-4'>
+              <div className='tw-flex tw-w-full tw-flex-col tw-gap-4 tw-bg-gray-800 tw-bg-opacity-75 tw-rounded-lg tw-shadow-lg tw-p-4'>
                 {/* 헤더 */}
 
                 <div className='tw-flex tw-w-full tw-bg-gray-700 tw-bg-opacity-30 tw-rounded tw-overflow-x-auto tw-scroll-smooth'>
@@ -386,7 +386,7 @@ export default function VArchiveDbPage() {
                     <div className='tw-flex tw-flex-1 tw-gap-2'>
                       <button
                         onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
-                        className='tw-bg-gray-900 tw-bg-opacity-50 tw-text-light tw-px-4 tw-py-2 tw-rounded-lg tw-border tw-border-gray-600 tw-border-opacity-50 hover:tw-bg-gray-800 tw-transition-all'
+                        className='tw-bg-gray-500 tw-bg-opacity-25 tw-text-light tw-px-4 tw-py-2 tw-rounded-lg tw-border tw-border-gray-600 tw-border-opacity-50 hover:tw-bg-gray-800 tw-transition-all'
                       >
                         {sortOrder === 'asc' ? '이름 ↑' : '이름 ↓'}
                       </button>
@@ -421,7 +421,7 @@ export default function VArchiveDbPage() {
 
                         <input
                           ref={searchInputRef}
-                          className='tw-w-full tw-bg-gray-900 tw-bg-opacity-50 tw-text-light tw-pl-10 tw-pr-4 tw-py-2 tw-rounded-lg tw-border tw-border-gray-600 tw-border-opacity-50 focus:tw-border-blue-400 focus:tw-ring-2 focus:tw-ring-blue-400 focus:tw-ring-opacity-20 tw-transition-all'
+                          className='tw-w-full tw-bg-gray-500 tw-bg-opacity-25 tw-text-light tw-pl-10 tw-pr-4 tw-py-2 tw-rounded-lg tw-border tw-border-gray-600 tw-border-opacity-50 focus:tw-border-blue-400 focus:tw-ring-2 focus:tw-ring-blue-400 focus:tw-ring-opacity-20 tw-transition-all'
                           onChange={(e) => setSearchName(e.currentTarget.value)}
                           type='text'
                           placeholder='제목, 제작자명 또는 DLC명으로 검색'
@@ -456,7 +456,7 @@ export default function VArchiveDbPage() {
                 <div className='tw-flex tw-justify-end tw-gap-2 tw-items-center tw-text-xs tw-font-semibold'>
                   <FaCircleCheck className='tw-text-green-500' />
                   <div className='tw-flex tw-items-center tw-gap-1 tw-text-gray-300'>
-                    WJMAX 4.0 데이터로 동기화됨
+                    WJMAX 4.0.2 데이터로 동기화됨
                   </div>
                 </div>
               </div>
@@ -476,7 +476,7 @@ export default function VArchiveDbPage() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
                   transition={{ duration: 0.3 }}
-                  className='tw-flex tw-flex-col tw-mr-2 tw-gap-1 tw-bg-gray-600 tw-bg-opacity-20 tw-rounded-md tw-p-4'
+                  className='tw-flex tw-flex-col tw-mr-2 tw-gap-1 tw-bg-gray-800 tw-bg-opacity-75 tw-rounded-md tw-p-4'
                 >
                   <div
                     className={`tw-w-full ${viewMode === 'grid' ? 'tw-flex tw-gap-3 tw-flex-wrap tw-justify-between' : 'tw-flex tw-flex-col'}`}

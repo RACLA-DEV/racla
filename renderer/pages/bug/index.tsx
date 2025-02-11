@@ -237,7 +237,7 @@ export default function BugList() {
         animate={{ opacity: 1, x: 0 }}
         className='tw-flex tw-flex-col tw-gap-4'
       >
-        <div className='tw-flex tw-flex-col tw-gap-4 tw-bg-gray-600 tw-bg-opacity-20 tw-rounded-lg tw-shadow-lg p-4'>
+        <div className='tw-flex tw-flex-col tw-gap-4 tw-bg-gray-800 tw-bg-opacity-75 tw-rounded-lg tw-shadow-lg p-4'>
           <div className='tw-flex tw-justify-between tw-items-center'>
             <h1 className='tw-text-2xl tw-font-bold'>피드백 센터</h1>
             {userData.userName !== '' ? (
@@ -272,7 +272,7 @@ export default function BugList() {
             <div className='tw-flex tw-flex-col tw-gap-2'>
               <h2 className='tw-text-xl tw-font-bold'>고정됨</h2>
 
-              <div className='tw-flex tw-flex-col tw-bg-gray-600 tw-bg-opacity-20 tw-rounded-md tw-px-4 tw-py-2'>
+              <div className='tw-flex tw-flex-col tw-bg-gray-800 tw-bg-opacity-75 tw-rounded-md tw-px-4 tw-py-2'>
                 <div className='tw-flex tw-items-center tw-gap-4 tw-p-2 tw-border-b tw-border-gray-600 tw-text-gray-400 tw-font-bold tw-text-sm'>
                   <div className='tw-w-20'>카테고리</div>
                   <div className='tw-flex-1'>제목</div>
@@ -337,7 +337,7 @@ export default function BugList() {
           ) : (
             <>
               <h2 className='tw-text-xl tw-font-bold'>목록</h2>
-              <div className='tw-flex tw-flex-col tw-bg-gray-600 tw-bg-opacity-20 tw-rounded-md tw-px-4 tw-py-2'>
+              <div className='tw-flex tw-flex-col tw-bg-gray-800 tw-bg-opacity-75 tw-rounded-md tw-px-4 tw-py-2'>
                 <div className='tw-flex tw-items-center tw-gap-4 tw-p-2 tw-border-b tw-border-gray-600 tw-text-gray-400 tw-font-bold tw-text-sm'>
                   <div className='tw-w-20'>카테고리</div>
                   <div className='tw-flex-1'>제목</div>

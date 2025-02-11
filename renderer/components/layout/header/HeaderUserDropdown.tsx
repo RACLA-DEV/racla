@@ -31,7 +31,7 @@ export const renderUserDropdown = (
 
   return (
     <ul
-      className='dropdown-menu tw-text-xs tw-bg-gray-900 tw-bg-opacity-90 tw-p-0'
+      className='dropdown-menu tw-text-xs tw-bg-gray-800 tw-bg-opacity-100 tw-p-0'
       aria-labelledby='btn-nav-user'
     >
       <li>

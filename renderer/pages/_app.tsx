@@ -3,6 +3,7 @@ import 'styles/globals.css'
 
 import { AnimatePresence, motion } from 'framer-motion'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
+import { addNotification, removeNotification } from 'store/slices/notificationSlice'
 import {
   setCollectionData,
   setIsDetectedGame,
@@ -18,28 +19,27 @@ import {
   setVArchiveUserData,
   setWjmaxSongData,
 } from 'store/slices/appSlice'
-import { addNotification, removeNotification } from 'store/slices/notificationSlice'
 import { setFontFamily, setIsDjCommentOpen } from 'store/slices/uiSlice'
 
+import type { AppProps } from 'next/app'
 import BackgroundVideoComponent from '@/components/background/BackgroundVideo'
-import ImageViewerComponent from '@/components/common/ImageViewer'
-import HomePanelComponent from '@/components/common/ImportantModal'
-import NotificationComponent from '@/components/common/NotificationModal'
-import SettingComponent from '@/components/common/SettingModal'
 import FooterComponent from '@/components/layout/footer/Footer'
 import HeaderComponent from '@/components/layout/header/Header'
-import SidebarComponent from '@/components/layout/sidebar/Sidebar'
+import HomePanelComponent from '@/components/common/ImportantModal'
 import { IUserNameResponse } from '@/types/IUserName'
-import { logRendererError } from '@utils/rendererLoggerUtils'
-import axios from 'axios'
-import type { AppProps } from 'next/app'
-import localFont from 'next/font/local'
 import Image from 'next/image'
+import ImageViewerComponent from '@/components/common/ImageViewer'
+import NotificationComponent from '@/components/common/NotificationModal'
+import { Provider } from 'react-redux'
+import SettingComponent from '@/components/common/SettingModal'
+import SidebarComponent from '@/components/layout/sidebar/Sidebar'
+import { SyncLoader } from 'react-spinners'
+import axios from 'axios'
+import localFont from 'next/font/local'
+import { logRendererError } from '@utils/rendererLoggerUtils'
+import { store } from 'store'
 import { useParams } from 'next/navigation'
 import { useRouter } from 'next/router'
-import { Provider } from 'react-redux'
-import { SyncLoader } from 'react-spinners'
-import { store } from 'store'
 import { v4 as uuidv4 } from 'uuid'
 
 // prettier-ignore
@@ -582,7 +582,7 @@ function MyApp({ Component, pageProps }: AppProps) {
 
   const noticeSection = (
     <div className='tw-flex tw-flex-col tw-gap-8'>
-      <div className='tw-flex tw-flex-col tw-gap-8 tw-p-6 tw-bg-gray-600 tw-bg-opacity-20 tw-rounded-lg tw-text-sm'>
+      <div className='tw-flex tw-flex-col tw-gap-8 tw-p-6 tw-bg-gray-800 tw-bg-opacity-75 tw-rounded-lg tw-text-sm'>
         <div className='tw-flex tw-flex-col tw-gap-4 tw-w-full'>
           <div className='tw-flex tw-flex-col tw-gap-2 tw-w-full tw-leading-relaxed'>
             <div className='tw-bg-yellow-900 tw-bg-opacity-20 tw-p-4 tw-rounded tw-border-l-4 tw-border-yellow-500'>
@@ -601,7 +601,7 @@ function MyApp({ Component, pageProps }: AppProps) {
         </div>
       </div>
 
-      <div className='tw-flex tw-flex-col tw-gap-8 tw-p-6 tw-bg-gray-600 tw-bg-opacity-20 tw-rounded-lg tw-text-sm'>
+      <div className='tw-flex tw-flex-col tw-gap-8 tw-p-6 tw-bg-gray-800 tw-bg-opacity-75 tw-rounded-lg tw-text-sm'>
         <div className='tw-flex tw-flex-col tw-gap-4 tw-w-full'>
           <div className='tw-flex tw-flex-col tw-gap-2 tw-w-full tw-leading-relaxed'>
             <div className='tw-bg-blue-900 tw-bg-opacity-20 tw-p-4 tw-rounded tw-border-l-4 tw-border-blue-500'>
@@ -620,7 +620,7 @@ function MyApp({ Component, pageProps }: AppProps) {
         </div>
       </div>
 
-      <div className='tw-flex tw-flex-col tw-gap-8 tw-p-6 tw-bg-gray-600 tw-bg-opacity-20 tw-rounded-lg tw-text-sm'>
+      <div className='tw-flex tw-flex-col tw-gap-8 tw-p-6 tw-bg-gray-800 tw-bg-opacity-75 tw-rounded-lg tw-text-sm'>
         <div className='tw-flex tw-flex-col tw-gap-4 tw-w-full'>
           <div className='tw-flex tw-flex-col tw-gap-2 tw-w-full tw-leading-relaxed'>
             <div className='tw-bg-blue-900 tw-bg-opacity-20 tw-p-4 tw-rounded tw-border-l-4 tw-border-blue-500'>
@@ -641,7 +641,7 @@ function MyApp({ Component, pageProps }: AppProps) {
 
   const updateSection = (
     <div className='tw-flex tw-flex-col tw-gap-4 tw-break-keep'>
-      <div className='tw-flex tw-flex-col tw-gap-8 tw-p-6 tw-bg-gray-600 tw-bg-opacity-20 tw-rounded-lg tw-text-sm'>
+      <div className='tw-flex tw-flex-col tw-gap-8 tw-p-6 tw-bg-gray-800 tw-bg-opacity-75 tw-rounded-lg tw-text-sm'>
         <div className='tw-flex tw-flex-col tw-gap-4 tw-w-full'>
           <div className='tw-flex tw-flex-col tw-gap-6 tw-w-full tw-leading-relaxed'>
             {/* 첫 번째 설명 블록 */}
@@ -888,7 +888,7 @@ function MyApp({ Component, pageProps }: AppProps) {
                 />
                 <div className='tw-fixed tw-inset-0 tw-flex tw-items-center tw-justify-center'>
                   <div
-                    className={`tw-bg-gray-900 tw-p-6 tw-rounded-lg tw-shadow-lg tw-max-w-md tw-w-full tw-mx-4 tw-transition-all tw-duration-300 ${showExternalLinkModal ? 'tw-opacity-100 tw-translate-y-0' : 'tw-opacity-0 tw-translate-y-4'}`}
+                    className={`tw-bg-gray-800 tw-p-6 tw-rounded-lg tw-shadow-lg tw-max-w-md tw-w-full tw-mx-4 tw-transition-all tw-duration-300 ${showExternalLinkModal ? 'tw-opacity-100 tw-translate-y-0' : 'tw-opacity-0 tw-translate-y-4'}`}
                   >
                     <h3 className='tw-text-lg tw-font-bold tw-mb-4 tw-text-center'>
                       외부 링크 열기
@@ -898,7 +898,7 @@ function MyApp({ Component, pageProps }: AppProps) {
                       <br />
                       신뢰할 수 있는 링크인지 확인 후 이동해주세요.
                     </p>
-                    <div className='tw-mb-6 tw-h-20 tw-overflow-y-auto tw-bg-gray-800 tw-rounded tw-p-2'>
+                    <div className='tw-mb-6 tw-h-20 tw-overflow-y-auto tw-bg-gray-700 tw-rounded tw-p-2'>
                       <p className='tw-text-blue-400 tw-break-all tw-text-sm'>{externalUrl}</p>
                     </div>
                     <div className='tw-flex tw-justify-end tw-gap-2'>
