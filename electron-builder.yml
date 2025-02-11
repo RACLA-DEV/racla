@@ -28,14 +28,12 @@ publish:
 mac:
   target:
     - dmg
-    - zip
   extendInfo:
     LSUIElement: false
   category: public.app-category.utilities
 win:
   target:
     - nsis
-    - zip
 
 # 멀티 플랫폼 빌드 활성화
 linux:
