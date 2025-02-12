@@ -9,6 +9,7 @@ declare global {
 import {
   BrowserWindow,
   Menu,
+  MenuItemConstructorOptions,
   Tray,
   app,
   globalShortcut,
@@ -156,6 +157,63 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
   // macOS에서 dock 아이콘 활성화
   if (process.platform === 'darwin') {
     app.dock.show()
+
+    // macOS 메뉴바 한글화
+    const template: MenuItemConstructorOptions[] = [
+      {
+        label: 'RACLA',
+        submenu: [
+          { label: 'RACLA 정보', role: 'about' },
+          { type: 'separator' },
+          {
+            label: '환경설정...',
+            accelerator: 'Command+,',
+            click: () => {
+              mainWindow?.webContents.send('open-preferences')
+            },
+          },
+          { type: 'separator' },
+          { label: '서비스', role: 'services' },
+          { type: 'separator' },
+          { label: 'RACLA 숨기기', accelerator: 'Command+H', role: 'hide' },
+          { label: '다른 앱 숨기기', accelerator: 'Command+Option+H', role: 'hideOthers' },
+          { label: '모두 보기', role: 'unhide' },
+          { type: 'separator' },
+          { label: 'RACLA 종료', accelerator: 'Command+Q', role: 'quit' },
+        ],
+      },
+      {
+        label: '편집',
+        submenu: [
+          { label: '실행 취소', accelerator: 'Command+Z', role: 'undo' },
+          { label: '다시 실행', accelerator: 'Shift+Command+Z', role: 'redo' },
+          { type: 'separator' },
+          { label: '잘라내기', accelerator: 'Command+X', role: 'cut' },
+          { label: '복사하기', accelerator: 'Command+C', role: 'copy' },
+          { label: '붙여넣기', accelerator: 'Command+V', role: 'paste' },
+          { label: '모두 선택', accelerator: 'Command+A', role: 'selectAll' },
+        ],
+      },
+      {
+        label: '보기',
+        submenu: [
+          { label: '새로고침', accelerator: 'Command+R', role: 'reload' },
+          { label: '강제 새로고침', accelerator: 'Shift+Command+R', role: 'forceReload' },
+          { type: 'separator' },
+          { label: '전체 화면', accelerator: 'Ctrl+Command+F', role: 'togglefullscreen' },
+        ],
+      },
+      {
+        label: '창',
+        submenu: [
+          { label: '최소화', accelerator: 'Command+M', role: 'minimize' },
+          { label: '닫기', accelerator: 'Command+W', role: 'close' },
+        ],
+      },
+    ]
+
+    const menu = Menu.buildFromTemplate(template)
+    Menu.setApplicationMenu(menu)
   }
 
   // globalKeyboardListener.addListener(function (e, down) {
