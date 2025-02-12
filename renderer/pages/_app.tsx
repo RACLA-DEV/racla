@@ -3,7 +3,6 @@ import 'styles/globals.css'
 
 import { AnimatePresence, motion } from 'framer-motion'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { addNotification, removeNotification } from 'store/slices/notificationSlice'
 import {
   setCollectionData,
   setIsDetectedGame,
@@ -19,27 +18,28 @@ import {
   setVArchiveUserData,
   setWjmaxSongData,
 } from 'store/slices/appSlice'
+import { addNotification, removeNotification } from 'store/slices/notificationSlice'
 import { setFontFamily, setIsDjCommentOpen } from 'store/slices/uiSlice'
 
-import type { AppProps } from 'next/app'
 import BackgroundVideoComponent from '@/components/background/BackgroundVideo'
+import ImageViewerComponent from '@/components/common/ImageViewer'
+import HomePanelComponent from '@/components/common/ImportantModal'
+import NotificationComponent from '@/components/common/NotificationModal'
+import SettingComponent from '@/components/common/SettingModal'
 import FooterComponent from '@/components/layout/footer/Footer'
 import HeaderComponent from '@/components/layout/header/Header'
-import HomePanelComponent from '@/components/common/ImportantModal'
-import { IUserNameResponse } from '@/types/IUserName'
-import Image from 'next/image'
-import ImageViewerComponent from '@/components/common/ImageViewer'
-import NotificationComponent from '@/components/common/NotificationModal'
-import { Provider } from 'react-redux'
-import SettingComponent from '@/components/common/SettingModal'
 import SidebarComponent from '@/components/layout/sidebar/Sidebar'
-import { SyncLoader } from 'react-spinners'
-import axios from 'axios'
-import localFont from 'next/font/local'
+import { IUserNameResponse } from '@/types/IUserName'
 import { logRendererError } from '@utils/rendererLoggerUtils'
-import { store } from 'store'
+import axios from 'axios'
+import type { AppProps } from 'next/app'
+import localFont from 'next/font/local'
+import Image from 'next/image'
 import { useParams } from 'next/navigation'
 import { useRouter } from 'next/router'
+import { Provider } from 'react-redux'
+import { SyncLoader } from 'react-spinners'
+import { store } from 'store'
 import { v4 as uuidv4 } from 'uuid'
 
 // prettier-ignore
@@ -743,7 +743,7 @@ function MyApp({ Component, pageProps }: AppProps) {
 
     useEffect(() => {
       const webview = document.createElement('webview')
-      webview.setAttribute('src', 'https://status.lunatica.kr')
+      webview.setAttribute('src', 'https://status.r-archive.zip')
       webview.style.cssText = `
         width: 100%;
         height: 100%;

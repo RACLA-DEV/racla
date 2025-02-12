@@ -1,11 +1,11 @@
+import { globalDictionary } from '@constants/globalDictionary'
+import Link from 'next/link'
+import { useRouter } from 'next/router'
+import { useSelector } from 'react-redux'
+import type { RootState } from 'store'
 import FooterLicenseDjmaxRespectV from './FooterLicenseDjmax'
 import FooterLicenseTjmax from './FooterLicenseTjmax'
 import FooterLicenseWjmax from './FooterLicenseWjmax'
-import Link from 'next/link'
-import type { RootState } from 'store'
-import { globalDictionary } from '@constants/globalDictionary'
-import { useRouter } from 'next/router'
-import { useSelector } from 'react-redux'
 
 interface IFooterComponent {
   className?: string
@@ -36,7 +36,7 @@ const FooterComponent = ({ className }: IFooterComponent) => {
             <span
               className='tw-cursor-pointer'
               onClick={() => {
-                window.ipc.openBrowser('https://github.com/Lunatica-Luna/project-ra/releases')
+                window.ipc.openBrowser('https://r-archive.zip')
               }}
             >
               RACLA 데스크톱 앱 · {globalDictionary.version}
