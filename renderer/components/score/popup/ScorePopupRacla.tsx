@@ -379,7 +379,7 @@ const RaScorePopupComponent = ({
               </div>
               {userData.userName !== '' && (
                 <span className='tw-text-xs tw-font-light tw-text-gray-300 tw-my-2'>
-                  <span className=''>{userData.userName}</span>님의 V-ARCHIVE 성과 기록
+                  <span className=''>{userData.userName}</span>님의 RACLA 성과 기록
                 </span>
               )}
             </div>

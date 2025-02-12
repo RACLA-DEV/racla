@@ -20,8 +20,8 @@ extraResources:
 
 publish:
   provider: github
-  owner: Lunatica-Luna
-  repo: project-ra
+  owner: R-ARCHIVE-TEAM
+  repo: racla
   releaseType: release
 
 # 멀티 플랫폼 빌드 설정 추가
