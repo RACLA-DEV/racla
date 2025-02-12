@@ -25,3 +25,7 @@ videos/*
 !videos/*.js
 !videos/*.ts
 public/_next-video
+
+# buildInfo.ts
+/renderer/constants/buildInfo.ts
+renderer/constants/buildInfo.ts
