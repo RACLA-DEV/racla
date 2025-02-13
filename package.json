@@ -2,11 +2,11 @@
   "private": true,
   "name": "racla-electron-app",
   "description": "RACLA for Desktop",
-  "version": "0.7.6",
+  "version": "0.7.7",
   "author": "GGDRN0 STUDIO & R-ARCHIVE",
   "main": "app/background.js",
   "scripts": {
-    "dev": "nextron --renderer-port 7777",
+    "dev": "NODE_ENV=development nextron --renderer-port 7777",
     "build": "node scripts/generate-build-date.js Main && nextron build",
     "build-mac": "node scripts/generate-build-date.js Main && nextron build --mac",
     "build-win": "node scripts/generate-build-date.js Main && nextron build --win",

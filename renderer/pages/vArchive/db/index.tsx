@@ -1,27 +1,27 @@
 import 'dayjs/locale/ko'
 
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { BsGrid, BsList } from 'react-icons/bs'
 import { FaChevronLeft, FaChevronRight, FaHeart, FaRegHeart } from 'react-icons/fa6'
-import React, { useEffect, useMemo, useRef, useState } from 'react'
-import { setBackgroundBgaName, setIsDjCommentOpen } from 'store/slices/uiSlice'
 import { useDispatch, useSelector } from 'react-redux'
+import { setBackgroundBgaName, setIsDjCommentOpen } from 'store/slices/uiSlice'
 
-import Head from 'next/head'
-import { IconContext } from 'react-icons'
-import Image from 'next/image'
-import LocalizedFormat from 'dayjs/plugin/localizedFormat'
-import { RootState } from 'store'
-import { SyncLoader } from 'react-spinners'
+import { globalDictionary } from '@constants/globalDictionary'
+import { useNotificationSystem } from '@hooks/useNotifications'
+import { logRendererError } from '@utils/rendererLoggerUtils'
 import axios from 'axios'
 import dayjs from 'dayjs'
+import LocalizedFormat from 'dayjs/plugin/localizedFormat'
+import { motion } from 'framer-motion'
 import { debounce } from 'lodash'
 import dynamic from 'next/dynamic'
-import { globalDictionary } from '@constants/globalDictionary'
-import { logRendererError } from '@utils/rendererLoggerUtils'
-import { motion } from 'framer-motion'
-import { useInView } from 'react-intersection-observer'
-import { useNotificationSystem } from '@hooks/useNotifications'
+import Head from 'next/head'
+import Image from 'next/image'
 import { useRouter } from 'next/router'
+import { IconContext } from 'react-icons'
+import { useInView } from 'react-intersection-observer'
+import { SyncLoader } from 'react-spinners'
+import { RootState } from 'store'
 
 dayjs.locale('ko')
 dayjs.extend(LocalizedFormat)
@@ -44,7 +44,6 @@ export default function VArchiveDbPage() {
   const [isScoredBaseSongData, setIsScoredBaseSongData] = useState<boolean>(true)
 
   const [hoveredTitle, setHoveredTitle] = useState<string>(null)
-  const [songItemData, setSongItemData] = useState<any>(null)
 
   const [isFetchingCommentData, setIsFetchingCommentData] = useState(false)
   const [commentData, setCommentData] = useState<any[]>([])
@@ -89,44 +88,6 @@ export default function VArchiveDbPage() {
     })
 
     return newText
-  }
-
-  const fetchSongItemData = async (title) => {
-    try {
-      if (vArchiveUserData.userName !== '') {
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_PROXY_API_URL}?url=https://v-archive.net/api/archive/${vArchiveUserData.userName}/title/${hoveredTitle}`,
-        )
-        const result = await response.json()
-        setSongItemData(result)
-      } else {
-        const response = songData.filter((songData) => String(songData.title) == String(title))
-        const result = response.length > 0 ? response[0] : []
-        setSongItemData(result)
-      }
-    } catch (error) {
-      logRendererError(error, { message: 'Error in fetchSongItemData', ...userData })
-      console.error('Error fetching data:', error)
-    }
-  }
-
-  const fetchCommentRivalSongItemData = async (title) => {
-    try {
-      if (commentRivalName !== '') {
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_PROXY_API_URL}?url=https://v-archive.net/api/archive/${commentRivalName}/title/${hoveredTitle}`,
-        )
-        const result = await response.json()
-        setCommentRivalSongItemData(result)
-      } else {
-        const response = songData.filter((songData) => String(songData.title) == String(title))
-        const result = response.length > 0 ? response[0] : []
-        setCommentRivalSongItemData(result)
-      }
-    } catch (error) {
-      logRendererError(error, { message: 'Error in fetchCommentRivalSongItemData', ...userData })
-      console.error('Error fetching data:', error)
-    }
   }
 
   const [voteComment, setVoteComment] = useState<number>(null)
@@ -214,8 +175,6 @@ export default function VArchiveDbPage() {
     let timer
     if (hoveredTitle) {
       timer = setTimeout(() => {
-        fetchSongItemData(hoveredTitle)
-        fetchCommentRivalSongItemData(hoveredTitle)
         dispatch(setBackgroundBgaName(String(hoveredTitle)))
       }, 500)
     }
@@ -306,7 +265,7 @@ export default function VArchiveDbPage() {
 
   const handleCategoryScroll = (direction: 'left' | 'right') => {
     if (categoryScrollRef.current) {
-      const scrollAmount = 200
+      const scrollAmount = 500
       const targetScroll =
         categoryScrollRef.current.scrollLeft + (direction === 'left' ? -scrollAmount : scrollAmount)
       categoryScrollRef.current.scrollTo({
@@ -732,7 +691,7 @@ export default function VArchiveDbPage() {
                                       } ${diff === 'NM' && 'tw-text-respect-nm-5'} ${diff === 'HD' && 'tw-text-respect-nm-10'} ${diff === 'MX' && 'tw-text-respect-nm-15'} ${diff === 'SC' && 'tw-text-respect-sc-15'} `}
                                     >
                                       <Image
-                                        src={`/images/djmax_respect_v/nm_${diff}_star.png`}
+                                        src={`https://ribbon.r-archive.zip/djmax_respect_v/nm_${diff}_star.png`}
                                         width={16}
                                         height={16}
                                         alt={diff}
@@ -799,7 +758,6 @@ export default function VArchiveDbPage() {
                         className='tw-flex tw-w-full tw-gap-1 tw-bg-gray-700 tw-bg-opacity-30 tw-rounded-lg tw-p-4 hover:tw-bg-opacity-40 tw-transition-all'
                         onMouseEnter={() => {
                           setHoveredTitle(String(commentItem.title))
-                          setSongItemData(null)
                         }}
                         onMouseLeave={() => {
                           setHoveredTitle(null)

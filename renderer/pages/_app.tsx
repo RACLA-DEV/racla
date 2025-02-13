@@ -212,19 +212,6 @@ function MyApp({ Component, pageProps }: AppProps) {
       }
     }
 
-    fetchData().catch((error) => {
-      // 서버 요청 실패시 로컬 데이터 사용
-      window.ipc.getSongData('djmax_respect_v')
-
-      window.ipc.on('IPC_RENDERER_GET_SONG_DATA', (value: any) => {
-        if (value.gameCode === 'djmax_respect_v') {
-          if (store.getState().app.songData.length === 0) {
-            store.dispatch(setSongData(value.songData))
-          }
-        }
-      })
-    })
-
     const fetchWjmaxData = async () => {
       try {
         // 서버에서 이미 처리된 곡 데이터 가져오기
@@ -248,19 +235,52 @@ function MyApp({ Component, pageProps }: AppProps) {
       }
     }
 
-    fetchWjmaxData().catch(() => {
-      // 서버 요청 실패시 로컬 데이터 사용
-      window.ipc.getSongData('wjmax')
-
-      window.ipc.on('IPC_RENDERER_GET_SONG_DATA', (value: any) => {
-        if (value.gameCode === 'wjmax') {
-          if (store.getState().app.wjmaxSongData.length === 0) {
-            store.dispatch(setWjmaxSongData(value.songData))
-          }
-        }
+    // 초기 데이터 로드
+    const loadInitialData = () => {
+      fetchData().catch((error) => {
+        // 서버 요청 실패시 로컬 데이터 사용
+        window.ipc.getSongData('djmax_respect_v')
       })
-    })
-  }, [])
+
+      fetchWjmaxData().catch(() => {
+        // 서버 요청 실패시 로컬 데이터 사용
+        window.ipc.getSongData('wjmax')
+      })
+    }
+
+    // 초기 로드
+    loadInitialData()
+
+    // IPC 이벤트 리스너 설정
+    const handleSongData = (value: any) => {
+      if (value.gameCode === 'djmax_respect_v') {
+        if (store.getState().app.songData.length === 0) {
+          store.dispatch(setSongData(value.songData))
+        }
+      } else if (value.gameCode === 'wjmax') {
+        if (store.getState().app.wjmaxSongData.length === 0) {
+          store.dispatch(setWjmaxSongData(value.songData))
+        }
+      }
+    }
+
+    window.ipc.on('IPC_RENDERER_GET_SONG_DATA', handleSongData)
+
+    // 5분마다 데이터 갱신
+    const intervalId = setInterval(
+      () => {
+        console.log('Refreshing song data...')
+        loadInitialData()
+      },
+      5 * 60 * 1000,
+    ) // 5분 = 5 * 60 * 1000 밀리초
+
+    // 클린업 함수
+    return () => {
+      clearInterval(intervalId)
+      window.ipc.removeListener('IPC_RENDERER_GET_SONG_DATA', handleSongData)
+    }
+  }, []) // userNo와 userToken은 의존성 배열에서 제외 (로깅 용도로만 사용)
 
   useEffect(() => {
     const handleScreenshotUploaded = (data: any) => {

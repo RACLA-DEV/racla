@@ -2,27 +2,27 @@ import 'dayjs/locale/ko'
 
 import * as R from 'ramda'
 
-import { FaChevronLeft, FaDatabase, FaHeart, FaRegHeart } from 'react-icons/fa6'
 import React, { useEffect, useState } from 'react'
-import { setBackgroundBgaName, setIsDjCommentOpen } from 'store/slices/uiSlice'
+import { FaChevronLeft, FaDatabase, FaHeart, FaRegHeart } from 'react-icons/fa6'
 import { useDispatch, useSelector } from 'react-redux'
+import { setBackgroundBgaName, setIsDjCommentOpen } from 'store/slices/uiSlice'
 
-import Head from 'next/head'
-import { IconContext } from 'react-icons'
-import Image from 'next/image'
-import Link from 'next/link'
-import LocalizedFormat from 'dayjs/plugin/localizedFormat'
-import { RootState } from 'store'
 import ScoreEditComponent from '@/components/score/ScoreEditModal'
 import ScorePopupComponent from '@/components/score/popup/ScorePopupDjmax'
-import { SyncLoader } from 'react-spinners'
+import { globalDictionary } from '@constants/globalDictionary'
+import { useNotificationSystem } from '@hooks/useNotifications'
+import { logRendererError } from '@utils/rendererLoggerUtils'
 import axios from 'axios'
 import dayjs from 'dayjs'
-import { globalDictionary } from '@constants/globalDictionary'
-import { logRendererError } from '@utils/rendererLoggerUtils'
-import { useNotificationSystem } from '@hooks/useNotifications'
+import LocalizedFormat from 'dayjs/plugin/localizedFormat'
+import Head from 'next/head'
+import Image from 'next/image'
+import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { useRouter } from 'next/router'
+import { IconContext } from 'react-icons'
+import { SyncLoader } from 'react-spinners'
+import { RootState } from 'store'
 
 dayjs.locale('ko')
 dayjs.extend(LocalizedFormat)
@@ -61,7 +61,7 @@ export default function VArchiveDbTitlePage() {
 
   // 문자열에서 URL을 링크로 변환하고 줄바꿈을 처리하는 함수
   const parseText = (text) => {
-    // 줄바꿈을 <br /> 태그 ��환
+    // 줄바꿈을 <br /> 태그로 변환
     const newText = text.replace(/\n/g, '<br>').replace(urlPattern, (url) => {
       // URL을 링크로 변환
       const splited = String(url).split('<br>')
@@ -75,6 +75,8 @@ export default function VArchiveDbTitlePage() {
 
     return newText
   }
+
+  const [isVArchiveRegistered, setIsVArchiveRegistered] = useState<boolean>(true)
 
   useEffect(() => {
     const initializeData = async () => {
@@ -100,24 +102,27 @@ export default function VArchiveDbTitlePage() {
                   ...data,
                 },
               ])
+              setIsVArchiveRegistered(true)
             })
             .catch((error) => {
               logRendererError(error, { message: 'Error in fetchUserSongData', ...userData })
               showNotification(
-                '수록곡의 데이터베이스를 V-ARCHIVE에서 가져오는 중에 문제가 발생하였습니다.',
+                '해당 수록곡 데이터가 V-ARCHIVE 데이터베이스에 등록되지 않았거나 데이터를 가져오는데 실패하였습니다.',
                 'tw-bg-red-600',
               )
               console.error('Error fetching user song data:', error)
               setBaseSongData(filteredData)
+              setIsVArchiveRegistered(false)
             })
         } catch (error) {
           logRendererError(error, { message: 'Error in fetchUserSongData', ...userData })
           showNotification(
-            '수록곡의 데이터베이스를 V-ARCHIVE에서 가져오는 중에 문제가 발생하였습니다.',
+            '해당 수록곡의 데이터가 V-ARCHIVE 데이터베이스에 등록되지 않았거나 데이터를 가져오는데 실패하였습니다.',
             'tw-bg-red-600',
           )
           console.error('Error fetching user song data:', error)
           setBaseSongData(filteredData)
+          setIsVArchiveRegistered(false)
         }
       } else {
         setBaseSongData(filteredData)
@@ -599,7 +604,7 @@ export default function VArchiveDbTitlePage() {
             >
               <div className='tw-absolute tw-inset-0 tw-overflow-hidden tw-rounded-md'>
                 <Image
-                  src={`/images/djmax_respect_v/jackets/${baseSongData[0].title}.jpg`}
+                  src={`https://ribbon.r-archive.zip/djmax_respect_v/jackets/${baseSongData[0].title}.jpg`}
                   layout='fill'
                   objectFit='cover'
                   alt=''
@@ -614,7 +619,7 @@ export default function VArchiveDbTitlePage() {
                   <Image
                     loading='lazy' // "lazy" | "eager"
                     blurDataURL={globalDictionary.blurDataURL}
-                    src={`/images/djmax_respect_v/jackets/${baseSongData[0].title}.jpg`}
+                    src={`https://ribbon.r-archive.zip/djmax_respect_v/jackets/${baseSongData[0].title}.jpg`}
                     height={90}
                     width={90}
                     alt=''
@@ -629,7 +634,8 @@ export default function VArchiveDbTitlePage() {
                       {baseSongData[0].name}
                       <sup className='tw-text-xs tw-font-light tw-text-gray-300'>
                         {' '}
-                        (V-ARCHIVE : {baseSongData[0].title} / RACLA : {baseSongData[0].title})
+                        (V-ARCHIVE : {isVArchiveRegistered ? baseSongData[0].title : '미등록'} /
+                        RACLA : {baseSongData[0].title})
                       </sup>
                     </span>
                   </div>
@@ -676,7 +682,7 @@ export default function VArchiveDbTitlePage() {
                             <Image
                               loading='lazy'
                               blurDataURL={globalDictionary.blurDataURL}
-                              src={`/images/djmax_respect_v/${String(patternName)}-BG.png`}
+                              src={`https://ribbon.r-archive.zip/djmax_respect_v/${String(patternName)}-BG.png`}
                               alt=''
                               fill
                               className='tw-absolute tw-rounded-lg tw-object-cover tw-blur-sm tw-brightness-50'
@@ -700,12 +706,12 @@ export default function VArchiveDbTitlePage() {
                               <div
                                 key={`${String(patternName)}_${difficultyCode}`}
                                 className={`tw-border-gray-600 tw-border-opacity-25 tw-flex tw-flex-col tw-justify-center tw-items-center tw-p-2 tw-bg-gray-500 tw-bg-opacity-25 tw-rounded-lg ${
-                                  vArchiveUserData.userName !== ''
+                                  vArchiveUserData.userName !== '' && isVArchiveRegistered
                                     ? 'tw-cursor-pointer hover:tw-bg-gray-600 hover:tw-bg-opacity-30'
                                     : ''
                                 }`}
                                 onClick={() => {
-                                  if (vArchiveUserData.userName !== '') {
+                                  if (vArchiveUserData.userName !== '' && isVArchiveRegistered) {
                                     setPatternCode(
                                       `patterns${String(patternName)}${difficultyCode}`,
                                     )
@@ -729,6 +735,11 @@ export default function VArchiveDbTitlePage() {
                                       ),
                                     )
                                     setShowScoreModal(true)
+                                  } else if (!isVArchiveRegistered) {
+                                    showNotification(
+                                      'V-ARCHIVE 데이터베이스에 등록되지 않은 수록곡으로 수정이 불가능합니다. 잠시 후 다시 시도해주세요.',
+                                      'tw-bg-red-600',
+                                    )
                                   }
                                 }}
                               >
@@ -752,12 +763,12 @@ export default function VArchiveDbTitlePage() {
                                         blurDataURL={globalDictionary.blurDataURL}
                                         src={
                                           difficultyCode === 'SC'
-                                            ? `/images/djmax_respect_v/sc_15_star.png`
+                                            ? `https://ribbon.r-archive.zip/djmax_respect_v/sc_15_star.png`
                                             : difficultyCode === 'HD'
-                                              ? `/images/djmax_respect_v/nm_10_star.png`
+                                              ? `https://ribbon.r-archive.zip/djmax_respect_v/nm_10_star.png`
                                               : difficultyCode === 'MX'
-                                                ? `/images/djmax_respect_v/nm_15_star.png`
-                                                : `/images/djmax_respect_v/nm_5_star.png` // 기본값
+                                                ? `https://ribbon.r-archive.zip/djmax_respect_v/nm_15_star.png`
+                                                : `https://ribbon.r-archive.zip/djmax_respect_v/nm_5_star.png` // 기본값
                                         }
                                         height={16}
                                         width={16}
@@ -967,7 +978,7 @@ export default function VArchiveDbTitlePage() {
                             <Image
                               loading='lazy' // "lazy" | "eager"
                               blurDataURL={globalDictionary.blurDataURL}
-                              src={`/images/djmax_respect_v/jackets/${
+                              src={`https://ribbon.r-archive.zip/djmax_respect_v/jackets/${
                                 commentData.filter(
                                   (commentItem) =>
                                     commentItem.nickname === vArchiveUserData.userName,

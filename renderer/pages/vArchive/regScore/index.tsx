@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import {
   clearVArchiveData,
   setBackupData,
@@ -8,23 +9,22 @@ import {
   setVArchivePattern,
   setVArchiveUploadedPageData,
 } from 'store/slices/appSlice'
-import { useDispatch, useSelector } from 'react-redux'
 
-import { FaCloudArrowUp } from 'react-icons/fa6'
-import { FiTriangle } from 'react-icons/fi'
-import Head from 'next/head'
-import { IconContext } from 'react-icons'
-import Image from 'next/image'
-import { RootState } from 'store'
 import ScorePopupComponent from '@/components/score/popup/ScorePopupDjmax'
-import { SyncLoader } from 'react-spinners'
-import axios from 'axios'
-import dayjs from 'dayjs'
-import { logRendererError } from '@utils/rendererLoggerUtils'
-import { setBackgroundBgaName } from 'store/slices/uiSlice'
 import { useNotificationSystem } from '@hooks/useNotifications'
 import { useRecentHistory } from '@hooks/useRecentHistory'
+import { logRendererError } from '@utils/rendererLoggerUtils'
+import axios from 'axios'
+import dayjs from 'dayjs'
+import Head from 'next/head'
+import Image from 'next/image'
 import { useRouter } from 'next/router'
+import { IconContext } from 'react-icons'
+import { FaCloudArrowUp } from 'react-icons/fa6'
+import { FiTriangle } from 'react-icons/fi'
+import { SyncLoader } from 'react-spinners'
+import { RootState } from 'store'
+import { setBackgroundBgaName } from 'store/slices/uiSlice'
 
 export default function VArchiveRegScorePage() {
   const { showNotification } = useNotificationSystem()
@@ -485,13 +485,23 @@ export default function VArchiveRegScorePage() {
         setIsCanRollback(false)
       }
     } catch (error) {
-      logRendererError(error, { message: 'Error in fetchUpdateScore', ...userData })
-      console.error('Error fetching data:', error)
-      showNotification(
-        '알 수 없는 오류가 발생하여 성과 기록 갱신에 실패하였습니다. 다시 시도해주시길 바랍니다.',
-        'tw-bg-red-600',
-      )
-      setIsCanRollback(false)
+      if (error.status == 404) {
+        logRendererError(error, { message: 'Error in fetchUpdateScore', ...userData })
+        console.error('Error fetching data:', error)
+        showNotification(
+          '해당 수록곡은 V-ARCHIVE 데이터베이스에 등록되지 않아 점수 갱신을 요청할 수 없습니다. 잠시 후 다시 시도해주세요.',
+          'tw-bg-red-600',
+        )
+        setIsCanRollback(false)
+      } else {
+        logRendererError(error, { message: 'Error in fetchUpdateScore', ...userData })
+        console.error('Error fetching data:', error)
+        showNotification(
+          '알 수 없는 오류가 발생하여 성과 기록 갱신에 실패하였습니다. 다시 시도해주시길 바랍니다.',
+          'tw-bg-red-600',
+        )
+        setIsCanRollback(false)
+      }
     }
   }
 
@@ -643,7 +653,7 @@ export default function VArchiveRegScorePage() {
                         >
                           <div className='tw-absolute tw-inset-0 tw-overflow-hidden tw-rounded-md'>
                             <Image
-                              src={`/images/djmax_respect_v/jackets/${String(playerData.songData.title)}.jpg`}
+                              src={`https://ribbon.r-archive.zip/djmax_respect_v/jackets/${String(playerData.songData.title)}.jpg`}
                               layout='fill'
                               objectFit='cover'
                               alt=''
@@ -838,12 +848,12 @@ export default function VArchiveRegScorePage() {
                                     playerData.songData.patterns[`${playerData.button}B`][
                                       patternToCode(playerData.pattern)
                                     ]?.level <= 5
-                                      ? `/images/djmax_respect_v/${patternToCode(playerData.pattern) === 'SC' ? 'sc' : 'nm'}_5_star.png`
+                                      ? `https://ribbon.r-archive.zip/djmax_respect_v/${patternToCode(playerData.pattern) === 'SC' ? 'sc' : 'nm'}_5_star.png`
                                       : playerData.songData.patterns[`${playerData.button}B`][
                                             patternToCode(playerData.pattern)
                                           ]?.level <= 10
-                                        ? `/images/djmax_respect_v/${patternToCode(playerData.pattern) === 'SC' ? 'sc' : 'nm'}_10_star.png`
-                                        : `/images/djmax_respect_v/${patternToCode(playerData.pattern) === 'SC' ? 'sc' : 'nm'}_15_star.png`
+                                        ? `https://ribbon.r-archive.zip/djmax_respect_v/${patternToCode(playerData.pattern) === 'SC' ? 'sc' : 'nm'}_10_star.png`
+                                        : `https://ribbon.r-archive.zip/djmax_respect_v/${patternToCode(playerData.pattern) === 'SC' ? 'sc' : 'nm'}_15_star.png`
                                   }
                                   height={14}
                                   width={14}
@@ -894,7 +904,7 @@ export default function VArchiveRegScorePage() {
                     >
                       <div className='tw-absolute tw-inset-0 tw-overflow-hidden tw-rounded-md'>
                         <Image
-                          src={`/images/djmax_respect_v/jackets/${String(vArchiveUploadedPageData.songData.title)}.jpg`}
+                          src={`https://ribbon.r-archive.zip/djmax_respect_v/jackets/${String(vArchiveUploadedPageData.songData.title)}.jpg`}
                           layout='fill'
                           objectFit='cover'
                           alt=''
@@ -975,10 +985,10 @@ export default function VArchiveRegScorePage() {
                                     blurDataURL={globalDictionary.blurDataURL}
                                     src={
                                       vArchiveUploadedPageData.songData.patterns[`${vArchiveUploadedPageData.button}B`][pattern].level <= 5
-                                        ? `/images/djmax_respect_v/${pattern === 'SC' ? 'sc' : 'nm'}_5_star.png`
+                                        ? `https://ribbon.r-archive.zip/djmax_respect_v/${pattern === 'SC' ? 'sc' : 'nm'}_5_star.png`
                                         : vArchiveUploadedPageData.songData.patterns[`${vArchiveUploadedPageData.button}B`][pattern].level <= 10
-                                        ? `/images/djmax_respect_v/${pattern === 'SC' ? 'sc' : 'nm'}_10_star.png`
-                                        : `/images/djmax_respect_v/${pattern === 'SC' ? 'sc' : 'nm'}_15_star.png`
+                                        ? `https://ribbon.r-archive.zip/djmax_respect_v/${pattern === 'SC' ? 'sc' : 'nm'}_10_star.png`
+                                        : `https://ribbon.r-archive.zip/djmax_respect_v/${pattern === 'SC' ? 'sc' : 'nm'}_15_star.png`
                                     }
                                     height={14}
                                     width={14}
@@ -1175,7 +1185,7 @@ export default function VArchiveRegScorePage() {
                             <Image
                               loading="lazy" // "lazy" | "eager"
                               blurDataURL={globalDictionary.blurDataURL}
-                              src={`/images/djmax_respect_v/effectors/SPEED_BG.png`}
+                              src={`https://ribbon.r-archive.zip/djmax_respect_v/effectors/SPEED_BG.png`}
                               width={70}
                               height={70}
                               alt=""
@@ -1191,7 +1201,7 @@ export default function VArchiveRegScorePage() {
                             <Image
                               loading="lazy" // "lazy" | "eager"
                               blurDataURL={globalDictionary.blurDataURL}
-                              src={`/images/djmax_respect_v/effectors/${vArchiveUploadedPageData.note}.png`}
+                              src={`https://ribbon.r-archive.zip/djmax_respect_v/effectors/${vArchiveUploadedPageData.note}.png`}
                               width={70}
                               height={70}
                               alt=""
@@ -1203,7 +1213,7 @@ export default function VArchiveRegScorePage() {
                             <Image
                               loading="lazy" // "lazy" | "eager"
                               blurDataURL={globalDictionary.blurDataURL}
-                              src={`/images/djmax_respect_v/effectors/${vArchiveUploadedPageData.fader}.png`}
+                              src={`https://ribbon.r-archive.zip/djmax_respect_v/effectors/${vArchiveUploadedPageData.fader}.png`}
                               width={70}
                               height={70}
                               alt=""
@@ -1215,7 +1225,7 @@ export default function VArchiveRegScorePage() {
                             <Image
                               loading="lazy" // "lazy" | "eager"
                               blurDataURL={globalDictionary.blurDataURL}
-                              src={`/images/djmax_respect_v/effectors/${vArchiveUploadedPageData.chaos}.png`}
+                              src={`https://ribbon.r-archive.zip/djmax_respect_v/effectors/${vArchiveUploadedPageData.chaos}.png`}
                               width={70}
                               height={70}
                               alt=""
@@ -1254,7 +1264,7 @@ export default function VArchiveRegScorePage() {
                                   <div className='tw-relative tw-h-full tw-w-full tw-flex-1'>
                                     <Image
                                       loading='lazy'
-                                      src={`/images/djmax_respect_v/${button}-BG.png`}
+                                      src={`https://ribbon.r-archive.zip/djmax_respect_v/${button}-BG.png`}
                                       alt=''
                                       fill
                                       className='tw-absolute tw-rounded-lg tw-object-cover'

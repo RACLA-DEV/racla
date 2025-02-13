@@ -1,4 +1,3 @@
-import { OverlayTrigger, Tooltip } from 'react-bootstrap'
 import {
   getDifficultyClassName,
   getDifficultyStarImage,
@@ -7,16 +6,17 @@ import {
   getScoreDisplayText,
 } from '@utils/respectUtils'
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { OverlayTrigger, Tooltip } from 'react-bootstrap'
 import { useDispatch, useSelector } from 'react-redux'
 
-import Image from 'next/image'
-import { RootState } from 'store'
 import { globalDictionary } from '@constants/globalDictionary'
-import { logRendererError } from '@utils/rendererLoggerUtils'
-import { setBackgroundBgaName } from 'store/slices/uiSlice'
-import { useInView } from 'react-intersection-observer'
 import { useNotificationSystem } from '@hooks/useNotifications'
+import { logRendererError } from '@utils/rendererLoggerUtils'
+import Image from 'next/image'
 import { useRouter } from 'next/router'
+import { useInView } from 'react-intersection-observer'
+import { RootState } from 'store'
+import { setBackgroundBgaName } from 'store/slices/uiSlice'
 
 interface ScorePopupComponentProps {
   songItem?: any
@@ -161,7 +161,7 @@ const HjaScorePopupComponent = ({
 
   const imageUrl = useMemo(() => {
     if (!songItem && !songItemTitle) return ''
-    return `/images/djmax_respect_v/jackets/${displayData?.title ?? songItemTitle}.jpg`
+    return `https://ribbon.r-archive.zip/djmax_respect_v/jackets/${displayData?.title ?? songItemTitle}.jpg`
   }, [songItem, displayData?.title, songItemTitle])
 
   return (

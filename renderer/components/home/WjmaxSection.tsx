@@ -2,14 +2,14 @@ import { ArcElement, Chart as ChartJS, Legend, Tooltip } from 'chart.js'
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { Doughnut } from 'react-chartjs-2'
-import Image from 'next/image'
-import RaScorePopupComponent from '../score/popup/ScorePopupRacla'
-import { RootState } from 'store'
-import { SyncLoader } from 'react-spinners'
-import axios from 'axios'
 import { logRendererError } from '@utils/rendererLoggerUtils'
+import axios from 'axios'
 import { motion } from 'framer-motion'
+import Image from 'next/image'
+import { Doughnut } from 'react-chartjs-2'
+import { SyncLoader } from 'react-spinners'
+import { RootState } from 'store'
+import RaScorePopupComponent from '../score/popup/ScorePopupRacla'
 
 ChartJS.register(ArcElement, Tooltip, Legend)
 
@@ -323,7 +323,7 @@ export default function WjmaxHomeComponent() {
           className={`tw-flex tw-gap-2 tw-font-extrabold tw-items-center tw-text-wjmax-${String(pattern?.pattern).toLowerCase()}`}
         >
           <Image
-            src={`/images/wjmax/nm_${Math.ceil((pattern.level || 0) / 5) * 5}_star.png`}
+            src={`https://ribbon.r-archive.zip/wjmax/nm_${Math.ceil((pattern.level || 0) / 5) * 5}_star.png`}
             alt='difficulty'
             width={pattern.level > 20 ? 16 : 20}
             height={pattern.level > 20 ? 16 : 20}

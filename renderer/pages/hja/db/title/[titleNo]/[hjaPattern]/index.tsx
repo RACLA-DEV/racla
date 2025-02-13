@@ -1,17 +1,17 @@
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { FaDatabase } from 'react-icons/fa6'
+import { globalDictionary } from '@constants/globalDictionary'
+import { useNotificationSystem } from '@hooks/useNotifications'
+import axios from 'axios'
 import Head from 'next/head'
 import Image from 'next/image'
 import Link from 'next/link'
-import { RootState } from 'store'
-import { SyncLoader } from 'react-spinners'
-import axios from 'axios'
-import { globalDictionary } from '@constants/globalDictionary'
-import { setBackgroundBgaName } from 'store/slices/uiSlice'
-import { useNotificationSystem } from '@hooks/useNotifications'
 import { useParams } from 'next/navigation'
+import { FaDatabase } from 'react-icons/fa6'
+import { SyncLoader } from 'react-spinners'
+import { RootState } from 'store'
+import { setBackgroundBgaName } from 'store/slices/uiSlice'
 
 interface RankingEntry {
   nickname: string
@@ -97,7 +97,7 @@ export default function VArchiveDbTitlePatternPage() {
             <div className='tw-flex tw-flex-col tw-gap-1 tw-relative tw-bg-opacity-10 tw-rounded-md tw-mb-4 tw-h-auto p-0'>
               <div className='tw-absolute tw-inset-0 tw-overflow-hidden tw-rounded-md'>
                 <Image
-                  src={`/images/djmax_respect_v/jackets/${params?.titleNo}.jpg`}
+                  src={`https://ribbon.r-archive.zip/djmax_respect_v/jackets/${params?.titleNo}.jpg`}
                   layout='fill'
                   objectFit='cover'
                   alt=''
@@ -111,7 +111,7 @@ export default function VArchiveDbTitlePatternPage() {
                   <Image
                     loading='lazy'
                     blurDataURL={globalDictionary.blurDataURL}
-                    src={`/images/djmax_respect_v/jackets/${params?.titleNo}.jpg`}
+                    src={`https://ribbon.r-archive.zip/djmax_respect_v/jackets/${params?.titleNo}.jpg`}
                     height={90}
                     width={90}
                     alt=''

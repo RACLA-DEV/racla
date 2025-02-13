@@ -1,12 +1,15 @@
-import { BUILD_DATE } from '../renderer/constants/buildInfo'
 import { Client } from 'discord-rpc'
-import { customAxios } from './axios'
 import log from 'electron-log/main'
+import { BUILD_DATE } from '../renderer/constants/buildInfo'
+import { customAxios } from './axios'
 import { logMainError } from './mainLogger'
 
 log.transports.console.format = '[{y}-{m}-{d} {h}:{i}:{s}.{ms}] [{level}] {text}'
 
-const CLIENT_ID = !BUILD_DATE.includes('Dev') ? '1331547515744682036' : '1333772448528728085'
+const CLIENT_ID =
+  BUILD_DATE.includes('Dev') || process.env.NODE_ENV === 'development'
+    ? '1333772448528728085'
+    : '1331547515744682036'
 
 interface RecentScore {
   songName: string

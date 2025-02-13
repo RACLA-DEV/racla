@@ -1,20 +1,20 @@
-import { BsGrid, BsList } from 'react-icons/bs'
 import React, { useEffect, useMemo, useRef, useState } from 'react'
+import { BsGrid, BsList } from 'react-icons/bs'
 import { useDispatch, useSelector } from 'react-redux'
 
-import Head from 'next/head'
 import HjaScorePopupComponent from '@/components/score/popup/ScorePopupHja'
-import Image from 'next/image'
-import { RootState } from 'store'
-import { debounce } from 'lodash'
-import dynamic from 'next/dynamic'
 import { globalDictionary } from '@constants/globalDictionary'
+import { useNotificationSystem } from '@hooks/useNotifications'
 import { logRendererError } from '@utils/rendererLoggerUtils'
 import { motion } from 'framer-motion'
-import { setBackgroundBgaName } from 'store/slices/uiSlice'
-import { useInView } from 'react-intersection-observer'
-import { useNotificationSystem } from '@hooks/useNotifications'
+import { debounce } from 'lodash'
+import dynamic from 'next/dynamic'
+import Head from 'next/head'
+import Image from 'next/image'
 import { useRouter } from 'next/router'
+import { useInView } from 'react-intersection-observer'
+import { RootState } from 'store'
+import { setBackgroundBgaName } from 'store/slices/uiSlice'
 
 // 동적 임포트로 ScorePopupComponent 지연 로딩
 const ScorePopupComponent = dynamic(() => import('@/components/score/popup/ScorePopupDjmax'), {
@@ -28,6 +28,7 @@ const DLC_CATEGORY_MAPPING = {
   EXTENSION: ['VE', 'VE1', 'VE2', 'VE3', 'VE4', 'VE5'],
   LIBERTY: ['VL', 'VL1', 'VL2'],
   COLLABORATION: ['COLLABORATION'],
+  PLI: ['PLI'],
 }
 
 export default function HjaDbPage() {
@@ -182,21 +183,6 @@ export default function HjaDbPage() {
     threshold: 0.1,
     rootMargin: '400px 0px',
   })
-
-  const [selectedDlcCode, setSelectedDlcCode] = useState<string>('R')
-  const categoryScrollRef = useRef<HTMLDivElement>(null)
-
-  const handleCategoryScroll = (direction: 'left' | 'right') => {
-    if (categoryScrollRef.current) {
-      const scrollAmount = 200
-      const targetScroll =
-        categoryScrollRef.current.scrollLeft + (direction === 'left' ? -scrollAmount : scrollAmount)
-      categoryScrollRef.current.scrollTo({
-        left: targetScroll,
-        behavior: 'smooth',
-      })
-    }
-  }
 
   // 필터링된 곡 데이터 계산 수정
   const filteredSongData = useMemo(() => {
@@ -387,23 +373,28 @@ export default function HjaDbPage() {
                           >
                             전체
                           </button>
-                          {['LEGACY', 'RESPECT', 'EXTENSION', 'LIBERTY', 'COLLABORATION'].map(
-                            (category) => (
-                              <button
-                                key={category}
-                                onClick={() =>
-                                  setSelectedCategory(category as typeof selectedCategory)
-                                }
-                                className={`tw-py-2 tw-flex-1 tw-min-w-0 tw-text-sm tw-font-medium tw-whitespace-nowrap tw-relative tw-transition-all tw-duration-300 ${
-                                  selectedCategory === category
-                                    ? 'tw-text-white tw-bg-blue-500'
-                                    : 'tw-text-gray-400 hover:tw-text-gray-200 hover:tw-bg-gray-600 hover:tw-bg-opacity-30'
-                                }`}
-                              >
-                                {category}
-                              </button>
-                            ),
-                          )}
+                          {[
+                            'LEGACY',
+                            'RESPECT',
+                            'EXTENSION',
+                            'LIBERTY',
+                            'COLLABORATION',
+                            'PLI',
+                          ].map((category) => (
+                            <button
+                              key={category}
+                              onClick={() =>
+                                setSelectedCategory(category as typeof selectedCategory)
+                              }
+                              className={`tw-py-2 tw-flex-1 tw-min-w-0 tw-text-sm tw-font-medium tw-whitespace-nowrap tw-relative tw-transition-all tw-duration-300 ${
+                                selectedCategory === category
+                                  ? 'tw-text-white tw-bg-blue-500'
+                                  : 'tw-text-gray-400 hover:tw-text-gray-200 hover:tw-bg-gray-600 hover:tw-bg-opacity-30'
+                              }`}
+                            >
+                              {category}
+                            </button>
+                          ))}
                         </div>
                       </div>
                     </div>
@@ -602,7 +593,7 @@ export default function HjaDbPage() {
                                       className={`tw-flex tw-justify-center tw-items-center tw-gap-1 tw-font-extrabold ${diff === 'MX' && 'tw-text-respect-nm-15'} ${diff === 'SC' && 'tw-text-respect-sc-15'} ${opacity}`}
                                     >
                                       <Image
-                                        src={`/images/djmax_respect_v/nm_${diff}_star.png`}
+                                        src={`https://ribbon.r-archive.zip/djmax_respect_v/nm_${diff}_star.png`}
                                         width={16}
                                         height={16}
                                         alt={diff}

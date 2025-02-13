@@ -1,4 +1,3 @@
-import { OverlayTrigger, Tooltip } from 'react-bootstrap'
 import {
   getDifficultyClassName,
   getDifficultyStarImage,
@@ -7,15 +6,18 @@ import {
   getScoreDisplayText,
 } from '@utils/respectUtils'
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { OverlayTrigger, Tooltip } from 'react-bootstrap'
 import { useDispatch, useSelector } from 'react-redux'
 
-import Image from 'next/image'
-import Link from 'next/link'
-import { RootState } from 'store'
+import { useNotificationSystem } from '@/hooks/useNotifications'
 import { globalDictionary } from '@constants/globalDictionary'
 import { logRendererError } from '@utils/rendererLoggerUtils'
-import { setBackgroundBgaName } from 'store/slices/uiSlice'
+import axios from 'axios'
+import Image from 'next/image'
+import Link from 'next/link'
 import { useInView } from 'react-intersection-observer'
+import { RootState } from 'store'
+import { setBackgroundBgaName } from 'store/slices/uiSlice'
 
 interface ScorePopupComponentProps {
   songItem?: any
@@ -45,9 +47,10 @@ const ScorePopupComponent = ({
   onMouseLeave,
   size = 80,
 }: ScorePopupComponentProps) => {
+  const { showNotification } = useNotificationSystem()
   const dispatch = useDispatch()
   const fontFamily = useSelector((state: RootState) => state.ui.fontFamily)
-  const userData = useSelector((state: RootState) => state.app.vArchiveUserData)
+  const userData = useSelector((state: RootState) => state.app.userData)
   const vArchiveUserData = useSelector((state: RootState) => state.app.vArchiveUserData)
   const songDataList = useSelector((state: RootState) => state.app.songData)
   const selectedGame = useSelector((state: RootState) => state.app.selectedGame)
@@ -70,23 +73,50 @@ const ScorePopupComponent = ({
     let isMounted = true
 
     const fetchData = async () => {
-      if (!userData.userName || (!songItem && !songItemTitle)) {
+      if (!vArchiveUserData.userName || (!songItem && !songItemTitle)) {
         return
       }
 
-      if (userData.userName && isHovered && !isScored) {
+      if (vArchiveUserData.userName && isHovered && !isScored) {
         setIsLoading(true)
         try {
-          const title = songItem?.title || songItemTitle
-          if (title !== undefined && title !== null) {
+          const title = String(songItem?.title || songItemTitle)
+
+          // 리덕스 스토어의 songData에서 해당 곡 정보 찾기
+          const songDataInfo = songDataList.find((song) => String(song.title) == title)
+          const isVarchive = songDataInfo?.isVarchive ?? false
+
+          if (!isVarchive) {
+            const response = await axios.get(
+              `${process.env.NEXT_PUBLIC_API_URL}/v2/songs/djmax_respect_v/${title}/user/${userData.userNo}`,
+              {
+                headers: {
+                  Authorization: `${userData.userNo}|${userData.userToken}`,
+                },
+                withCredentials: true,
+              },
+            )
+            if (response.status === 200 && isMounted) {
+              const { data } = response
+
+              console.log(data)
+              setSongData(data)
+              showNotification(
+                'V-ARCHIVE 데이터베이스에 등록되지 않은 곡으로 RACLA 데이터베이스의 정보를 조회하였습니다.',
+                'tw-bg-amber-600',
+              )
+            }
+          } else {
             const response = await fetch(
-              `${process.env.NEXT_PUBLIC_PROXY_API_URL}?url=https://v-archive.net/api/archive/${userData.userName}/title/${title}`,
+              `${process.env.NEXT_PUBLIC_PROXY_API_URL}?url=https://v-archive.net/api/archive/${vArchiveUserData.userName}/title/${title}`,
             )
             if (response.ok && isMounted) {
               const data = await response.json()
               if (songItem) {
+                console.log(songItem)
                 setSongData({ ...songItem, patterns: data.patterns })
               } else {
+                console.log(data)
                 setSongData(data)
               }
             }
@@ -96,7 +126,7 @@ const ScorePopupComponent = ({
           console.error('Error fetching song data:', error)
         }
 
-        if (rivalName && rivalName !== userData.userName) {
+        if (rivalName && rivalName !== vArchiveUserData.userName) {
           try {
             const title = songItem?.title || songItemTitle
             if (title !== undefined && title !== null) {
@@ -124,7 +154,15 @@ const ScorePopupComponent = ({
     return () => {
       isMounted = false
     }
-  }, [songItem, songItemTitle, userData.userName, rivalName, isHovered, isScored, songDataList])
+  }, [
+    songItem,
+    songItemTitle,
+    vArchiveUserData.userName,
+    rivalName,
+    isHovered,
+    isScored,
+    songDataList,
+  ])
 
   useEffect(() => {
     if (isHovered && !isLoading && displayData !== null) {
@@ -158,7 +196,7 @@ const ScorePopupComponent = ({
 
   const imageUrl = useMemo(() => {
     if (!songItem && !songItemTitle) return ''
-    return `/images/djmax_respect_v/jackets/${displayData?.title ?? songItemTitle}.jpg`
+    return `https://ribbon.r-archive.zip/djmax_respect_v/jackets/${displayData?.title ?? songItemTitle}.jpg`
   }, [songItem, displayData?.title, songItemTitle])
 
   return (
@@ -247,7 +285,8 @@ const ScorePopupComponent = ({
                             {displayData.patterns[`${keyMode}B`][value].level}{' '}
                             <sup className='tw-text-xs'>
                               {displayData.patterns[`${keyMode}B`][value].floor !== undefined &&
-                              displayData.patterns[`${keyMode}B`][value].floor !== null
+                              displayData.patterns[`${keyMode}B`][value].floor !== null &&
+                              displayData.patterns[`${keyMode}B`][value].floor > 0
                                 ? `(${displayData.patterns[`${keyMode}B`][value].floor}F)`
                                 : null}
                             </sup>
@@ -285,7 +324,8 @@ const ScorePopupComponent = ({
               </div>
               {vArchiveUserData.userName !== '' && (
                 <span className='tw-text-xs tw-font-light tw-text-gray-300 tw-my-2'>
-                  <span className=''>{vArchiveUserData.userName}</span>님의 성과 기록
+                  <span className=''>{vArchiveUserData.userName}</span>님의{' '}
+                  {displayData?.isVarchive ? 'V-ARCHIVE' : 'RACLA'} 성과 기록
                 </span>
               )}
             </div>

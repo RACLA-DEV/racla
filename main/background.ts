@@ -153,7 +153,6 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
 
 ;(async () => {
   await app.whenReady()
-
   // macOS에서 dock 아이콘 활성화
   if (process.platform === 'darwin') {
     app.dock.show()
@@ -164,14 +163,14 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
         label: 'RACLA',
         submenu: [
           { label: 'RACLA 정보', role: 'about' },
-          { type: 'separator' },
-          {
-            label: '환경설정...',
-            accelerator: 'Command+,',
-            click: () => {
-              mainWindow?.webContents.send('open-preferences')
-            },
-          },
+          // { type: 'separator' },
+          // {
+          //   label: '환경설정...',
+          //   accelerator: 'Command+,',
+          //   click: () => {
+          //     mainWindow?.webContents.send('open-preferences')
+          //   },
+          // },
           { type: 'separator' },
           { label: '서비스', role: 'services' },
           { type: 'separator' },
@@ -194,15 +193,15 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
           { label: '모두 선택', accelerator: 'Command+A', role: 'selectAll' },
         ],
       },
-      {
-        label: '보기',
-        submenu: [
-          { label: '새로고침', accelerator: 'Command+R', role: 'reload' },
-          { label: '강제 새로고침', accelerator: 'Shift+Command+R', role: 'forceReload' },
-          { type: 'separator' },
-          { label: '전체 화면', accelerator: 'Ctrl+Command+F', role: 'togglefullscreen' },
-        ],
-      },
+      // {
+      //   label: '보기',
+      //   submenu: [
+      //     { label: '새로고침', accelerator: 'Command+R', role: 'reload' },
+      //     { label: '강제 새로고침', accelerator: 'Shift+Command+R', role: 'forceReload' },
+      //     { type: 'separator' },
+      //     { label: '전체 화면', accelerator: 'Ctrl+Command+F', role: 'togglefullscreen' },
+      //   ],
+      // },
       {
         label: '창',
         submenu: [

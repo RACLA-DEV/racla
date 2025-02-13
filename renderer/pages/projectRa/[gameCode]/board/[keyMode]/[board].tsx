@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from 'react'
 
+import RaScorePopupComponent from '@components/score/popup/ScorePopupRacla'
+import { useNotificationSystem } from '@hooks/useNotifications'
+import { logRendererError } from '@utils/rendererLoggerUtils'
+import axios from 'axios'
 import Head from 'next/head'
 import Image from 'next/image'
 import Link from 'next/link'
-import RaScorePopupComponent from '@components/score/popup/ScorePopupRacla'
-import { RootState } from 'store'
-import { SyncLoader } from 'react-spinners'
-import axios from 'axios'
-import { logRendererError } from '@utils/rendererLoggerUtils'
-import { useNotificationSystem } from '@hooks/useNotifications'
 import { useRouter } from 'next/router'
 import { useSelector } from 'react-redux'
+import { SyncLoader } from 'react-spinners'
+import { RootState } from 'store'
 
 interface Pattern {
   title: number
@@ -393,7 +393,7 @@ const Board = () => {
             <div className='tw-flex tw-gap-4'>
               <div className='tw-relative tw-w-2/3 tw-h-[20rem] tw-rounded-lg tw-overflow-hidden [text-shadow:_2px_2px_2px_rgb(0_0_0_/_90%),_4px_4px_4px_rgb(0_0_0_/_60%)]'>
                 <Image
-                  src={`/images/wjmax/jackets/${wjmaxSongData[randomHeaderBg - 1].folderName}.jpg`}
+                  src={`https://ribbon.r-archive.zip/wjmax/jackets/${wjmaxSongData[randomHeaderBg - 1].folderName}.jpg`}
                   alt='Background'
                   fill
                   className='tw-object-cover tw-blur-md tw-opacity-50 tw-brightness-50'

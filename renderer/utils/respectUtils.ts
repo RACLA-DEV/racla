@@ -1,10 +1,13 @@
 export const getDifficultyStarImage = (level: number, difficultyType: string): string => {
   const baseType = difficultyType === 'SC' ? 'sc' : 'nm'
 
-  if (difficultyType === 'SC') return `/images/djmax_respect_v/${baseType}_15_star.png`
-  if (difficultyType === 'NM') return `/images/djmax_respect_v/${baseType}_5_star.png`
-  if (difficultyType === 'HD') return `/images/djmax_respect_v/${baseType}_10_star.png`
-  return `/images/djmax_respect_v/${baseType}_15_star.png`
+  if (difficultyType === 'SC')
+    return `https://ribbon.r-archive.zip/djmax_respect_v/${baseType}_15_star.png`
+  if (difficultyType === 'NM')
+    return `https://ribbon.r-archive.zip/djmax_respect_v/${baseType}_5_star.png`
+  if (difficultyType === 'HD')
+    return `https://ribbon.r-archive.zip/djmax_respect_v/${baseType}_10_star.png`
+  return `https://ribbon.r-archive.zip/djmax_respect_v/${baseType}_15_star.png`
 }
 
 export const getDifficultyClassName = (level: number, difficultyType: string): string => {
@@ -60,9 +63,12 @@ interface PatternScore {
 export const getScoreDisplayText = (pattern: PatternScore): string => {
   if (!pattern.score) return '0%(기록 미존재)'
 
-  if (pattern.score === '100.00') return `PERFECT / ${pattern.rating}`
+  if (pattern.score === '100.00')
+    return `PERFECT${pattern.rating != null && pattern.rating > 0 ? ` / ${pattern.rating}` : ''}`
 
-  return `${pattern.score}%${pattern.maxCombo ? '(MAX COMBO)' : ''} / ${pattern.rating}`
+  return `${pattern.score}%${pattern.maxCombo ? '(MAX COMBO)' : ''}${
+    pattern.rating != null && pattern.rating > 0 ? ` / ${pattern.rating}` : ''
+  }`
 }
 
 export const getSCPatternScoreDisplayText = (patterns: any, keyMode: string): string => {

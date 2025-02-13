@@ -2,25 +2,25 @@ import 'dayjs/locale/ko'
 
 import * as R from 'ramda'
 
-import { FaTable, FaYoutube } from 'react-icons/fa6'
 import React, { useEffect, useState } from 'react'
+import { FaTable, FaYoutube } from 'react-icons/fa6'
 import { useDispatch, useSelector } from 'react-redux'
 
-import Head from 'next/head'
-import Image from 'next/image'
-import { RootState } from 'store'
-import ScoreEditComponent from '@/components/score/ScoreEditModal'
-import { SyncLoader } from 'react-spinners'
 import WjmaxChartComponent from '@/components/common/PatternViewer'
+import ScoreEditComponent from '@/components/score/ScoreEditModal'
+import { globalDictionary } from '@constants/globalDictionary'
+import { useNotificationSystem } from '@hooks/useNotifications'
+import { logRendererError } from '@utils/rendererLoggerUtils'
 import axios from 'axios'
 import dayjs from 'dayjs'
-import { globalDictionary } from '@constants/globalDictionary'
-import { logRendererError } from '@utils/rendererLoggerUtils'
-import { setBackgroundBgaName } from 'store/slices/uiSlice'
-import { useNotificationSystem } from '@hooks/useNotifications'
+import utc from 'dayjs/plugin/utc'
+import Head from 'next/head'
+import Image from 'next/image'
 import { useParams } from 'next/navigation'
 import { useRouter } from 'next/router'
-import utc from 'dayjs/plugin/utc'
+import { SyncLoader } from 'react-spinners'
+import { RootState } from 'store'
+import { setBackgroundBgaName } from 'store/slices/uiSlice'
 
 dayjs.locale('ko')
 dayjs.extend(utc)
@@ -380,7 +380,7 @@ export default function VArchiveDbTitlePage() {
               {/* 배경 이미지 추가 */}
               <div className='tw-absolute tw-inset-0 tw-overflow-hidden tw-rounded-md'>
                 <Image
-                  src={`/images/${selectedGame}/jackets/${baseSongData[0].folderName}.jpg`}
+                  src={`https://ribbon.r-archive.zip/${selectedGame}/jackets/${baseSongData[0].folderName}.jpg`}
                   layout='fill'
                   objectFit='cover'
                   alt=''
@@ -395,7 +395,7 @@ export default function VArchiveDbTitlePage() {
                   <Image
                     loading='lazy' // "lazy" | "eager"
                     blurDataURL={globalDictionary.blurDataURL}
-                    src={`/images/${selectedGame}/jackets/${baseSongData[0].folderName}.jpg`}
+                    src={`https://ribbon.r-archive.zip/${selectedGame}/jackets/${baseSongData[0].folderName}.jpg`}
                     height={74}
                     width={130}
                     alt=''
@@ -576,14 +576,14 @@ export default function VArchiveDbTitlePage() {
                                               blurDataURL={globalDictionary.blurDataURL}
                                               src={
                                                 difficultyCode === 'NM'
-                                                  ? `/images/wjmax/nm_5_star.png`
+                                                  ? `https://ribbon.r-archive.zip/wjmax/nm_5_star.png`
                                                   : difficultyCode === 'HD'
-                                                    ? `/images/wjmax/nm_10_star.png`
+                                                    ? `https://ribbon.r-archive.zip/wjmax/nm_10_star.png`
                                                     : difficultyCode === 'MX'
-                                                      ? `/images/wjmax/nm_15_star.png`
+                                                      ? `https://ribbon.r-archive.zip/wjmax/nm_15_star.png`
                                                       : difficultyCode === 'SC'
-                                                        ? `/images/wjmax/nm_20_star.png`
-                                                        : `/images/wjmax/nm_25_star.png`
+                                                        ? `https://ribbon.r-archive.zip/wjmax/nm_20_star.png`
+                                                        : `https://ribbon.r-archive.zip/wjmax/nm_25_star.png`
                                               }
                                               height={24}
                                               width={24}

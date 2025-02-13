@@ -2,13 +2,13 @@ import * as R from 'ramda'
 
 import React, { useEffect, useState } from 'react'
 
-import Head from 'next/head'
-import { RootState } from 'store'
 import ScorePopupComponent from '@/components/score/popup/ScorePopupDjmax'
-import { SyncLoader } from 'react-spinners'
 import { globalDictionary } from '@constants/globalDictionary'
 import { logRendererError } from '@utils/rendererLoggerUtils'
+import Head from 'next/head'
 import { useSelector } from 'react-redux'
+import { SyncLoader } from 'react-spinners'
+import { RootState } from 'store'
 
 export default function VArchiveDjPowerPage() {
   const [keyMode, setKeyMode] = useState<string>('4')
@@ -56,7 +56,7 @@ export default function VArchiveDjPowerPage() {
           const dlcCode = R.path(['dlcCode'], item)
           const name = R.path(['name'], item)
           return (
-            !['VL2', 'TEK'].includes(dlcCode) &&
+            !['VL2', 'TEK', 'PLI'].includes(dlcCode) &&
             !['Diomedes ~Extended Mix~', 'Kill Trap'].includes(name)
             // (!['FAL', 'VL', 'CP', 'TEK'].includes(dlcCode) && !['Kamui', 'BlueWhite'].includes(name))
           )
@@ -88,7 +88,7 @@ export default function VArchiveDjPowerPage() {
             const name = R.path(['name'], item)
             // return (['FAL', 'VL', 'CP', 'TEK'].includes(dlcCode) || ['Kamui', 'BlueWhite'].includes(name)) && !['From Hell to Breakfast', 'SURVIVOR'].includes(name)
             return (
-              ['VL2', 'TEK'].includes(dlcCode) ||
+              ['VL2', 'TEK', 'PLI'].includes(dlcCode) ||
               ['Diomedes ~Extended Mix~', 'Kill Trap'].includes(name)
             )
           }),

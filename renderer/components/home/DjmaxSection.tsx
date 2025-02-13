@@ -2,15 +2,15 @@ import { ArcElement, Chart as ChartJS, Legend, Tooltip } from 'chart.js'
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { Doughnut } from 'react-chartjs-2'
-import Image from 'next/image'
-import { RootState } from 'store'
 import ScorePopupComponent from '@/components/score/popup/ScorePopupDjmax'
-import { SyncLoader } from 'react-spinners'
-import axios from 'axios'
 import { globalDictionary } from '@constants/globalDictionary'
 import { logRendererError } from '@utils/rendererLoggerUtils'
+import axios from 'axios'
 import { motion } from 'framer-motion'
+import Image from 'next/image'
+import { Doughnut } from 'react-chartjs-2'
+import { SyncLoader } from 'react-spinners'
+import { RootState } from 'store'
 
 ChartJS.register(ArcElement, Tooltip, Legend)
 
@@ -379,7 +379,7 @@ export default function DjmaxHomeComponent() {
             className={`tw-flex tw-gap-2 tw-font-extrabold tw-items-center tw-text-respect-sc-15`}
           >
             <Image
-              src={`/images/djmax_respect_v/sc_15_star.png`}
+              src={`https://ribbon.r-archive.zip/djmax_respect_v/sc_15_star.png`}
               alt='difficulty'
               width={16}
               height={16}
@@ -400,7 +400,7 @@ export default function DjmaxHomeComponent() {
           className={`tw-flex tw-gap-2 tw-font-extrabold tw-items-center tw-text-respect-${difficultyClass}`}
         >
           <Image
-            src={`/images/djmax_respect_v/nm_${difficultyClass.split('-')[1]}_star.png`}
+            src={`https://ribbon.r-archive.zip/djmax_respect_v/nm_${difficultyClass.split('-')[1]}_star.png`}
             alt='difficulty'
             width={16}
             height={16}
@@ -447,7 +447,7 @@ export default function DjmaxHomeComponent() {
             return [...Array(starsInGroup)].map((_, starIndex) => (
               <Image
                 key={`${pattern.title}_${pattern.pattern}_full_${groupIndex}_${starIndex}`}
-                src={`/images/djmax_respect_v/${starImage}`}
+                src={`https://ribbon.r-archive.zip/djmax_respect_v/${starImage}`}
                 alt='star'
                 width={16}
                 height={16}
@@ -463,7 +463,7 @@ export default function DjmaxHomeComponent() {
             [...Array(decimalPart)].map((_, i) => (
               <Image
                 key={`${pattern.title}_${pattern.pattern}_small_${i}`}
-                src={`/images/djmax_respect_v/${getStarImage(Math.ceil(fullStars / 5) * 5, isSC)}`}
+                src={`https://ribbon.r-archive.zip/djmax_respect_v/${getStarImage(Math.ceil(fullStars / 5) * 5, isSC)}`}
                 alt='small-star'
                 width={12}
                 height={12}
@@ -490,7 +490,7 @@ export default function DjmaxHomeComponent() {
             return [...Array(starsInGroup)].map((_, starIndex) => (
               <Image
                 key={`${pattern.title}_${pattern.pattern}_board_${groupIndex}_${starIndex}`}
-                src={`/images/djmax_respect_v/${starImage}`}
+                src={`https://ribbon.r-archive.zip/djmax_respect_v/${starImage}`}
                 alt='star'
                 width={16}
                 height={16}
@@ -696,6 +696,7 @@ export default function DjmaxHomeComponent() {
           (pattern: any) =>
             pattern.dlcCode === 'VL2' ||
             pattern.dlcCode === 'TEK' ||
+            pattern.dlcCode === 'PLI' ||
             pattern.name === 'Kill Trap' ||
             pattern.name === 'Diomedes ~Extended Mix~',
         )
@@ -707,6 +708,7 @@ export default function DjmaxHomeComponent() {
           (pattern: any) =>
             pattern.dlcCode !== 'VL2' &&
             pattern.dlcCode !== 'TEK' &&
+            pattern.dlcCode !== 'PLI' &&
             pattern.name !== 'Kill Trap' &&
             pattern.name !== 'Diomedes ~Extended Mix~',
         )

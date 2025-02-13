@@ -1,17 +1,17 @@
-import { AnimatePresence, motion } from 'framer-motion'
-import { FaCircleInfo, FaDiscord, FaLink, FaV } from 'react-icons/fa6'
 import { IUserNameRequest, IUserNameResponse } from '@/types/IUserName'
-import React, { useEffect, useRef, useState } from 'react'
 import axios, { AxiosResponse } from 'axios'
-import { setUserData, setVArchiveUserData } from 'store/slices/appSlice'
+import { AnimatePresence, motion } from 'framer-motion'
+import React, { useEffect, useRef, useState } from 'react'
+import { FaCircleInfo, FaDiscord, FaLink, FaV } from 'react-icons/fa6'
 import { useDispatch, useSelector } from 'react-redux'
+import { setUserData, setVArchiveUserData } from 'store/slices/appSlice'
 
+import { useNotificationSystem } from '@hooks/useNotifications'
+import { logRendererError } from '@utils/rendererLoggerUtils'
 import Head from 'next/head'
 import Image from 'next/image'
-import { RootState } from 'store'
-import { logRendererError } from '@utils/rendererLoggerUtils'
-import { useNotificationSystem } from '@hooks/useNotifications'
 import { useRouter } from 'next/router'
+import { RootState } from 'store'
 
 export default function VArchiveLoginPage() {
   const { showNotification } = useNotificationSystem()
@@ -350,7 +350,7 @@ export default function VArchiveLoginPage() {
                           className='tw-w-full tw-flex tw-items-center tw-justify-center tw-gap-2 tw-px-4 tw-py-3 tw-rounded-md tw-bg-blue-600 hover:tw-bg-blue-700 tw-text-white tw-transition-colors'
                         >
                           <Image
-                            src='/images/logo.svg'
+                            src='https://ribbon.r-archive.zip/logo.svg'
                             color='white'
                             alt='RACLA'
                             width={18}

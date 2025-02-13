@@ -480,7 +480,18 @@ export async function processResultScreen(
             await imageProcessor.saveImage(finalImageBuffer, getFilePath(playData, app))
           }
 
-          await handleNotifications(gameCode, playData, mainWindow, overlayWindow, isProd, userData)
+          log.debug('Server Side OCR Response SongData: ', playData.songData)
+
+          if (playData.songData?.isArchive) {
+            await handleNotifications(
+              gameCode,
+              playData,
+              mainWindow,
+              overlayWindow,
+              isProd,
+              userData,
+            )
+          }
 
           if (playData.screenType !== 'versus' && playData.screenType !== 'collection') {
             // Discord RPC 업데이트
@@ -495,6 +506,8 @@ export async function processResultScreen(
               })
             }
           }
+
+          log.info('Server Side OCR Upload Result: ', response)
 
           return {
             ...response,

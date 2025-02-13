@@ -370,6 +370,10 @@
     @apply tw-flex tw-justify-center tw-items-center tw-w-8 tw-h-8 tw-transition-all tw-rounded-sm;
   }
 
+  .btn-ipc.mac {
+    @apply tw-flex tw-justify-center tw-items-center tw-w-6 tw-h-6 tw-transition-all tw-rounded-sm;
+  }
+
   .btn-sidebar {
     @apply tw-transition-all tw-rounded-sm;
   }
@@ -904,12 +908,24 @@
   background: linear-gradient(146deg, #181654 68%, #78cc25 68%);
 }
 
+.respect_dlc_logo_PLI {
+  color: white;
+}
+
 .respect_dlc_logo_BG_TEK {
   background-color: gray;
 }
 
 .respect_dlc_code_VL2 {
   background: linear-gradient(157deg, #91f233 60%, #55a305 60%);
+}
+
+.respect_dlc_code_PLI {
+  background-color: lightgray;
+}
+
+.respect_dlc_logo_BG_PLI {
+  background-color: gray;
 }
 
 .respect_dlc_title {

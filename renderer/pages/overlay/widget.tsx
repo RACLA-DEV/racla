@@ -1,11 +1,11 @@
-import { FaCircleCheck, FaCircleInfo, FaCircleXmark, FaCrown, FaDatabase } from 'react-icons/fa6'
 import { useEffect, useState } from 'react'
+import { FaCircleCheck, FaCircleInfo, FaCircleXmark, FaCrown, FaDatabase } from 'react-icons/fa6'
 
-import { IconContext } from 'react-icons'
-import Image from 'next/image'
+import { globalDictionary } from '@constants/globalDictionary'
 import axios from 'axios'
 import dayjs from 'dayjs'
-import { globalDictionary } from '@constants/globalDictionary'
+import Image from 'next/image'
+import { IconContext } from 'react-icons'
 import { useSelector } from 'react-redux'
 
 const Overlay = ({ isNotificationSound }: { isNotificationSound: boolean }) => {
@@ -274,7 +274,7 @@ const Overlay = ({ isNotificationSound }: { isNotificationSound: boolean }) => {
             >
               <div className='tw-absolute tw-inset-0 tw-overflow-hidden tw-rounded-md tw-z-0'>
                 <Image
-                  src={`/images/djmax_respect_v/jackets/${data.songData.title}.jpg`}
+                  src={`https://ribbon.r-archive.zip/djmax_respect_v/jackets/${data.songData.title}.jpg`}
                   layout='fill'
                   objectFit='cover'
                   alt=''
@@ -285,7 +285,7 @@ const Overlay = ({ isNotificationSound }: { isNotificationSound: boolean }) => {
                 <Image
                   loading='lazy'
                   blurDataURL={globalDictionary.blurDataURL}
-                  src={`/images/djmax_respect_v/jackets/${data.songData.title}.jpg`}
+                  src={`https://ribbon.r-archive.zip/djmax_respect_v/jackets/${data.songData.title}.jpg`}
                   alt='title'
                   width={60}
                   height={60}
@@ -348,7 +348,7 @@ const Overlay = ({ isNotificationSound }: { isNotificationSound: boolean }) => {
             >
               <div className='tw-absolute tw-inset-0 tw-overflow-hidden tw-rounded-md tw-z-0'>
                 <Image
-                  src={`/images/wjmax/jackets/${data.songData.folderName}.jpg`}
+                  src={`https://ribbon.r-archive.zip/wjmax/jackets/${data.songData.folderName}.jpg`}
                   layout='fill'
                   objectFit='cover'
                   alt=''
@@ -359,7 +359,7 @@ const Overlay = ({ isNotificationSound }: { isNotificationSound: boolean }) => {
                 <Image
                   loading='lazy' // "lazy" | "eager"
                   blurDataURL={globalDictionary.blurDataURL}
-                  src={`/images/wjmax/jackets/${data.songData.folderName}.jpg`}
+                  src={`https://ribbon.r-archive.zip/wjmax/jackets/${data.songData.folderName}.jpg`}
                   alt='title'
                   width={113}
                   height={60}
@@ -435,7 +435,7 @@ const Overlay = ({ isNotificationSound }: { isNotificationSound: boolean }) => {
                 <div className='tw-bg-gray-950 tw-rounded-lg tw-shadow-lg tw-min-w-[320px] tw-max-w-[320px] tw-relative tw-overflow-hidden'>
                   <div className='tw-absolute tw-inset-0 tw-overflow-hidden tw-rounded-md tw-z-0'>
                     <Image
-                      src={`/images/djmax_respect_v/jackets/${data.songData.title}.jpg`}
+                      src={`https://ribbon.r-archive.zip/djmax_respect_v/jackets/${data.songData.title}.jpg`}
                       layout='fill'
                       objectFit='cover'
                       alt=''
@@ -511,7 +511,7 @@ const Overlay = ({ isNotificationSound }: { isNotificationSound: boolean }) => {
                     <div className='tw-bg-gray-950 tw-rounded-lg tw-shadow-lg tw-min-w-[320px] tw-max-w-[320px] tw-relative tw-overflow-hidden tw-flex tw-flex-col tw-gap-2'>
                       <div className='tw-absolute tw-inset-0 tw-overflow-hidden tw-rounded-md tw-z-0'>
                         <Image
-                          src={`/images/djmax_respect_v/jackets/${data.songData.title}.jpg`}
+                          src={`https://ribbon.r-archive.zip/djmax_respect_v/jackets/${data.songData.title}.jpg`}
                           layout='fill'
                           objectFit='cover'
                           alt=''

@@ -1,4 +1,3 @@
-import { OverlayTrigger, Tooltip } from 'react-bootstrap'
 import {
   getDifficultyClassName,
   getDifficultyStarImage,
@@ -6,16 +5,17 @@ import {
   getScoreDisplayText,
 } from '@utils/wjmaxUtils'
 import { useCallback, useEffect, useState } from 'react'
+import { OverlayTrigger, Tooltip } from 'react-bootstrap'
 import { useDispatch, useSelector } from 'react-redux'
 
-import Image from 'next/image'
-import Link from 'next/link'
-import { RootState } from 'store'
-import axios from 'axios'
 import { globalDictionary } from '@constants/globalDictionary'
 import { logRendererError } from '@utils/rendererLoggerUtils'
-import { setBackgroundBgaName } from 'store/slices/uiSlice'
+import axios from 'axios'
+import Image from 'next/image'
+import Link from 'next/link'
 import { useInView } from 'react-intersection-observer'
+import { RootState } from 'store'
+import { setBackgroundBgaName } from 'store/slices/uiSlice'
 
 interface RaScorePopupComponentProps {
   songItem?: any
@@ -225,7 +225,7 @@ const RaScorePopupComponent = ({
                 <Image
                   loading='lazy' // "lazy" | "eager"
                   blurDataURL={globalDictionary.blurDataURL}
-                  src={`/images/${selectedGame}/jackets/${
+                  src={`https://ribbon.r-archive.zip/${selectedGame}/jackets/${
                     wjmaxSongData.filter(
                       (song) =>
                         song.title ===
@@ -390,7 +390,7 @@ const RaScorePopupComponent = ({
                   <Image
                     loading='lazy' // "lazy" | "eager"
                     blurDataURL={globalDictionary.blurDataURL}
-                    src={`/images/${selectedGame}/jackets/${
+                    src={`https://ribbon.r-archive.zip/${selectedGame}/jackets/${
                       wjmaxSongData.filter(
                         (song) =>
                           song.title ===
@@ -565,7 +565,7 @@ const RaScorePopupComponent = ({
               <Image
                 loading='lazy'
                 blurDataURL={globalDictionary.blurDataURL}
-                src={`/images/${selectedGame}/jackets/${
+                src={`https://ribbon.r-archive.zip/${selectedGame}/jackets/${
                   wjmaxSongData.filter(
                     (song) =>
                       song.title ===

@@ -1,7 +1,8 @@
 import 'dayjs/locale/ko'
 
-import { FaCloudArrowUp, FaYoutube } from 'react-icons/fa6'
 import React, { useEffect, useState } from 'react'
+import { FaCloudArrowUp, FaYoutube } from 'react-icons/fa6'
+import { useDispatch, useSelector } from 'react-redux'
 import {
   clearProjectRaData,
   setIsUploading,
@@ -9,21 +10,20 @@ import {
   setProjectRaUploadedPageData,
   setUploadedDataProcessed,
 } from 'store/slices/appSlice'
-import { useDispatch, useSelector } from 'react-redux'
 
-import { FiTriangle } from 'react-icons/fi'
-import Head from 'next/head'
-import { IconContext } from 'react-icons'
-import Image from 'next/image'
 import RaScorePopupComponent from '@/components/score/popup/ScorePopupRacla'
-import { RootState } from 'store'
-import { SyncLoader } from 'react-spinners'
-import dayjs from 'dayjs'
-import { setBackgroundBgaName } from 'store/slices/uiSlice'
 import { useNotificationSystem } from '@hooks/useNotifications'
 import { useRecentHistory } from '@hooks/useRecentHistory'
-import { useRouter } from 'next/router'
+import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
+import Head from 'next/head'
+import Image from 'next/image'
+import { useRouter } from 'next/router'
+import { IconContext } from 'react-icons'
+import { FiTriangle } from 'react-icons/fi'
+import { SyncLoader } from 'react-spinners'
+import { RootState } from 'store'
+import { setBackgroundBgaName } from 'store/slices/uiSlice'
 
 dayjs.locale('ko')
 dayjs.extend(utc)
@@ -311,7 +311,7 @@ export default function VArchiveRegScorePage() {
                     >
                       <div className='tw-absolute tw-inset-0 tw-overflow-hidden tw-rounded-md'>
                         <Image
-                          src={`/images/${selectedGame}/jackets/${projectRaUploadedPageData.songData.folderName}.jpg`}
+                          src={`https://ribbon.r-archive.zip/${selectedGame}/jackets/${projectRaUploadedPageData.songData.folderName}.jpg`}
                           layout='fill'
                           objectFit='cover'
                           alt=''
