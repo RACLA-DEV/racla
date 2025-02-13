@@ -354,7 +354,7 @@ export const globalDictionary = {
       ['VL', 'RESPECT'],
       ['TEK', 'RESPECT'],
       ['VL2', 'RESPECT'],
-      ['PLI', 'RESPECT'],
+      ['PLI1', 'RESPECT'],
     ],
   },
   wjmax: {

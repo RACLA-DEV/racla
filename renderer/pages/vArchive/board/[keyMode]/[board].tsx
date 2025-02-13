@@ -277,7 +277,7 @@ const Board = () => {
             (pattern: any) =>
               pattern.dlcCode === 'VL2' ||
               pattern.dlcCode === 'TEK' ||
-              pattern.dlcCode === 'PLI' ||
+              pattern.dlcCode === 'PLI1' ||
               pattern.name === 'Kill Trap' ||
               pattern.name === 'Diomedes ~Extended Mix~',
           )
@@ -289,7 +289,7 @@ const Board = () => {
             (pattern: any) =>
               pattern.dlcCode !== 'VL2' &&
               pattern.dlcCode !== 'TEK' &&
-              pattern.dlcCode !== 'PLI' &&
+              pattern.dlcCode !== 'PLI1' &&
               pattern.name !== 'Kill Trap' &&
               pattern.name !== 'Diomedes ~Extended Mix~',
           )

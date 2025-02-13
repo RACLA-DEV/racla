@@ -28,7 +28,7 @@ const DLC_CATEGORY_MAPPING = {
   EXTENSION: ['VE', 'VE1', 'VE2', 'VE3', 'VE4', 'VE5'],
   LIBERTY: ['VL', 'VL1', 'VL2'],
   COLLABORATION: ['COLLABORATION'],
-  PLI: ['PLI'],
+  PLI: ['PLI1'],
 }
 
 export default function HjaDbPage() {
