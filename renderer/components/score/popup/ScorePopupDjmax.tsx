@@ -196,7 +196,7 @@ const ScorePopupComponent = ({
 
   const imageUrl = useMemo(() => {
     if (!songItem && !songItemTitle) return ''
-    return `https://ribbon.r-archive.zip/djmax_respect_v/jackets/${displayData?.title ?? songItemTitle}.jpg`
+    return `https://cdn.racla.app/djmax_respect_v/jackets/${displayData?.title ?? songItemTitle}.jpg`
   }, [songItem, displayData?.title, songItemTitle])
 
   return (

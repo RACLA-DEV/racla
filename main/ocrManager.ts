@@ -353,8 +353,8 @@ class OCRApiService {
   async uploadForOCR(formData: FormData, where: string): Promise<any> {
     const session = await this.getSession()
     const baseUrl = this.isProd
-      ? 'https://near.r-archive.zip/api'
-      : 'https://noah.r-archive.zip/api'
+      ? 'https://api.service.racla.app/api'
+      : 'https://api.service.racla.app/api'
 
     try {
       const response = await customAxios.post(
@@ -482,7 +482,7 @@ export async function processResultScreen(
 
           log.debug('Server Side OCR Response SongData: ', playData.songData)
 
-          if (playData.songData?.isArchive) {
+          if (playData.songData?.isVarchive || playData.gameCode === 'wjmax') {
             await handleNotifications(
               gameCode,
               playData,
@@ -565,6 +565,7 @@ async function handleNotifications(
   } else if (playData.screenType === 'collection') {
     handleCollectionNotification(overlayWindow, mainWindow)
   } else if (playData.isVerified) {
+    console.log('handleRegularNotification')
     await handleRegularNotification(gameCode, playData, overlayWindow, isProd, mainWindow, userData)
   } else {
     handleErrorNotification(overlayWindow)
@@ -584,7 +585,7 @@ async function handleRegularNotification(
     if (gameCode === 'djmax_respect_v') {
       const session = await getSession()
       const backupResponse = await customAxios.get(
-        `${isProd ? 'https://aosame-rain.r-archive.zip/' : 'https://kamome-sano.r-archive.zip/'}?url=https://v-archive.net/api/archive/${
+        `${isProd ? 'https://api.proxy.racla.app/' : 'https://api.proxy.racla.app/'}?url=https://v-archive.net/api/archive/${
           session.vArchiveUserName
         }/title/${playData.songData.title}`,
       )
@@ -620,7 +621,7 @@ async function handleVersusNotifications(
         if (gameCode === 'djmax_respect_v') {
           const session = await getSession()
           const backupResponse = await customAxios.get(
-            `${isProd ? 'https://aosame-rain.r-archive.zip/' : 'https://kamome-sano.r-archive.zip/'}?url=https://v-archive.net/api/archive/${
+            `${isProd ? 'https://api.proxy.racla.app/' : 'https://api.proxy.racla.app/'}?url=https://v-archive.net/api/archive/${
               session.vArchiveUserName
             }/title/${value.songData.title}`,
           )

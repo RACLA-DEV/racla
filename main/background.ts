@@ -894,7 +894,7 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
 
           if (code && returnedState === state) {
             res.writeHead(302, {
-              Location: 'https://r-archive.zip/login/oauth/success',
+              Location: 'https:/racla.app/login/oauth/success',
             })
             res.end()
 
@@ -1066,7 +1066,7 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
     if (userNo !== '' && userToken !== '') {
       session.defaultSession.cookies
         .set({
-          url: isProd ? 'https://aosame-rain.r-archive.zip/' : 'https://kamome-sano.r-archive.zip/',
+          url: isProd ? 'https://api.proxy.racla.app/' : 'https://api.proxy.racla.app/',
           name: 'Authorization',
           value: `${userNo}|${userToken}`,
           secure: true,
@@ -1079,7 +1079,7 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
     } else {
       session.defaultSession.cookies
         .remove(
-          isProd ? 'https://aosame-rain.r-archive.zip/' : 'https://kamome-sano.r-archive.zip/',
+          isProd ? 'https://api.proxy.racla.app/' : 'https://api.proxy.racla.app/',
           'Authorization',
         )
         .then(() => {

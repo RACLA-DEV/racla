@@ -564,7 +564,7 @@ export default function VArchiveDbPage() {
                                         } ${diff === 'NM' && 'tw-text-wjmax-nm'} ${diff === 'HD' && 'tw-text-wjmax-hd'} ${diff === 'MX' && 'tw-text-wjmax-mx'} ${diff === 'SC' && 'tw-text-wjmax-sc'} ${diff === 'DPC' && 'tw-text-wjmax-dpc'} `}
                                       >
                                         <Image
-                                          src={`https://ribbon.r-archive.zip/wjmax/nm_${diff.toLowerCase()}.png`}
+                                          src={`https://cdn.racla.app/wjmax/nm_${diff.toLowerCase()}.png`}
                                           width={24}
                                           height={24}
                                           alt={diff}

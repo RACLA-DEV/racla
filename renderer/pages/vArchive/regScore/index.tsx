@@ -653,7 +653,7 @@ export default function VArchiveRegScorePage() {
                         >
                           <div className='tw-absolute tw-inset-0 tw-overflow-hidden tw-rounded-md'>
                             <Image
-                              src={`https://ribbon.r-archive.zip/djmax_respect_v/jackets/${String(playerData.songData.title)}.jpg`}
+                              src={`https://cdn.racla.app/djmax_respect_v/jackets/${String(playerData.songData.title)}.jpg`}
                               layout='fill'
                               objectFit='cover'
                               alt=''
@@ -848,12 +848,12 @@ export default function VArchiveRegScorePage() {
                                     playerData.songData.patterns[`${playerData.button}B`][
                                       patternToCode(playerData.pattern)
                                     ]?.level <= 5
-                                      ? `https://ribbon.r-archive.zip/djmax_respect_v/${patternToCode(playerData.pattern) === 'SC' ? 'sc' : 'nm'}_5_star.png`
+                                      ? `https://cdn.racla.app/djmax_respect_v/${patternToCode(playerData.pattern) === 'SC' ? 'sc' : 'nm'}_5_star.png`
                                       : playerData.songData.patterns[`${playerData.button}B`][
                                             patternToCode(playerData.pattern)
                                           ]?.level <= 10
-                                        ? `https://ribbon.r-archive.zip/djmax_respect_v/${patternToCode(playerData.pattern) === 'SC' ? 'sc' : 'nm'}_10_star.png`
-                                        : `https://ribbon.r-archive.zip/djmax_respect_v/${patternToCode(playerData.pattern) === 'SC' ? 'sc' : 'nm'}_15_star.png`
+                                        ? `https://cdn.racla.app/djmax_respect_v/${patternToCode(playerData.pattern) === 'SC' ? 'sc' : 'nm'}_10_star.png`
+                                        : `https://cdn.racla.app/djmax_respect_v/${patternToCode(playerData.pattern) === 'SC' ? 'sc' : 'nm'}_15_star.png`
                                   }
                                   height={14}
                                   width={14}
@@ -904,7 +904,7 @@ export default function VArchiveRegScorePage() {
                     >
                       <div className='tw-absolute tw-inset-0 tw-overflow-hidden tw-rounded-md'>
                         <Image
-                          src={`https://ribbon.r-archive.zip/djmax_respect_v/jackets/${String(vArchiveUploadedPageData.songData.title)}.jpg`}
+                          src={`https://cdn.racla.app/djmax_respect_v/jackets/${String(vArchiveUploadedPageData.songData.title)}.jpg`}
                           layout='fill'
                           objectFit='cover'
                           alt=''
@@ -985,10 +985,10 @@ export default function VArchiveRegScorePage() {
                                     blurDataURL={globalDictionary.blurDataURL}
                                     src={
                                       vArchiveUploadedPageData.songData.patterns[`${vArchiveUploadedPageData.button}B`][pattern].level <= 5
-                                        ? `https://ribbon.r-archive.zip/djmax_respect_v/${pattern === 'SC' ? 'sc' : 'nm'}_5_star.png`
+                                        ? `https://cdn.racla.app/djmax_respect_v/${pattern === 'SC' ? 'sc' : 'nm'}_5_star.png`
                                         : vArchiveUploadedPageData.songData.patterns[`${vArchiveUploadedPageData.button}B`][pattern].level <= 10
-                                        ? `https://ribbon.r-archive.zip/djmax_respect_v/${pattern === 'SC' ? 'sc' : 'nm'}_10_star.png`
-                                        : `https://ribbon.r-archive.zip/djmax_respect_v/${pattern === 'SC' ? 'sc' : 'nm'}_15_star.png`
+                                        ? `https://cdn.racla.app/djmax_respect_v/${pattern === 'SC' ? 'sc' : 'nm'}_10_star.png`
+                                        : `https://cdn.racla.app/djmax_respect_v/${pattern === 'SC' ? 'sc' : 'nm'}_15_star.png`
                                     }
                                     height={14}
                                     width={14}
@@ -1185,7 +1185,7 @@ export default function VArchiveRegScorePage() {
                             <Image
                               loading="lazy" // "lazy" | "eager"
                               blurDataURL={globalDictionary.blurDataURL}
-                              src={`https://ribbon.r-archive.zip/djmax_respect_v/effectors/SPEED_BG.png`}
+                              src={`https://cdn.racla.app/djmax_respect_v/effectors/SPEED_BG.png`}
                               width={70}
                               height={70}
                               alt=""
@@ -1201,7 +1201,7 @@ export default function VArchiveRegScorePage() {
                             <Image
                               loading="lazy" // "lazy" | "eager"
                               blurDataURL={globalDictionary.blurDataURL}
-                              src={`https://ribbon.r-archive.zip/djmax_respect_v/effectors/${vArchiveUploadedPageData.note}.png`}
+                              src={`https://cdn.racla.app/djmax_respect_v/effectors/${vArchiveUploadedPageData.note}.png`}
                               width={70}
                               height={70}
                               alt=""
@@ -1213,7 +1213,7 @@ export default function VArchiveRegScorePage() {
                             <Image
                               loading="lazy" // "lazy" | "eager"
                               blurDataURL={globalDictionary.blurDataURL}
-                              src={`https://ribbon.r-archive.zip/djmax_respect_v/effectors/${vArchiveUploadedPageData.fader}.png`}
+                              src={`https://cdn.racla.app/djmax_respect_v/effectors/${vArchiveUploadedPageData.fader}.png`}
                               width={70}
                               height={70}
                               alt=""
@@ -1225,7 +1225,7 @@ export default function VArchiveRegScorePage() {
                             <Image
                               loading="lazy" // "lazy" | "eager"
                               blurDataURL={globalDictionary.blurDataURL}
-                              src={`https://ribbon.r-archive.zip/djmax_respect_v/effectors/${vArchiveUploadedPageData.chaos}.png`}
+                              src={`https://cdn.racla.app/djmax_respect_v/effectors/${vArchiveUploadedPageData.chaos}.png`}
                               width={70}
                               height={70}
                               alt=""
@@ -1264,7 +1264,7 @@ export default function VArchiveRegScorePage() {
                                   <div className='tw-relative tw-h-full tw-w-full tw-flex-1'>
                                     <Image
                                       loading='lazy'
-                                      src={`https://ribbon.r-archive.zip/djmax_respect_v/${button}-BG.png`}
+                                      src={`https://cdn.racla.app/djmax_respect_v/${button}-BG.png`}
                                       alt=''
                                       fill
                                       className='tw-absolute tw-rounded-lg tw-object-cover'

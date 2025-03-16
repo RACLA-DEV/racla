@@ -1,11 +1,11 @@
 export const getDifficultyStarImage = (level: number, difficultyType: string): string => {
   const baseType = difficultyType === 'SC' ? 'nm' : 'nm'
 
-  if (difficultyType === 'NM') return `https://ribbon.r-archive.zip/wjmax/${baseType}_5_star.png`
-  if (difficultyType === 'HD') return `https://ribbon.r-archive.zip/wjmax/${baseType}_10_star.png`
-  if (difficultyType === 'MX') return `https://ribbon.r-archive.zip/wjmax/${baseType}_15_star.png`
-  if (difficultyType === 'SC') return `https://ribbon.r-archive.zip/wjmax/${baseType}_20_star.png`
-  return `https://ribbon.r-archive.zip/wjmax/${baseType}_25_star.png`
+  if (difficultyType === 'NM') return `https://cdn.racla.app/wjmax/${baseType}_5_star.png`
+  if (difficultyType === 'HD') return `https://cdn.racla.app/wjmax/${baseType}_10_star.png`
+  if (difficultyType === 'MX') return `https://cdn.racla.app/wjmax/${baseType}_15_star.png`
+  if (difficultyType === 'SC') return `https://cdn.racla.app/wjmax/${baseType}_20_star.png`
+  return `https://cdn.racla.app/wjmax/${baseType}_25_star.png`
 }
 
 export const getDifficultyClassName = (level: number, difficultyType: string): string => {

@@ -1,9 +1,9 @@
-import { useDispatch, useSelector } from 'react-redux'
 import { useEffect, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 
-import { FaCircleInfo } from 'react-icons/fa6'
 import Head from 'next/head'
 import Image from 'next/image'
+import { FaCircleInfo } from 'react-icons/fa6'
 import { RootState } from 'store'
 import { setSettingData } from 'store/slices/appSlice'
 
@@ -148,7 +148,7 @@ const OverlaySetting = ({ setSelectedImage }: { setSelectedImage: (image: string
             <div className='tw-min-w-[512px] tw-w-[512px] tw-max-w-[512px] tw-min-h-[384px] tw-h-[384px] tw-max-h-[384px]'>
               <div className='tw-relative tw-w-full tw-h-full tw-rounded tw-overflow-hidden'>
                 <Image
-                  src='https://ribbon.r-archive.zip/project_ra/RESULT_OVERLAY_EXAMPLE.png'
+                  src='https://cdn.racla.app/project_ra/RESULT_OVERLAY_EXAMPLE.png'
                   alt='overlay-base'
                   className='tw-cursor-pointer tw-rounded-lg tw-transition-opacity tw-duration-300'
                   fill
@@ -158,14 +158,14 @@ const OverlaySetting = ({ setSelectedImage }: { setSelectedImage: (image: string
                   }}
                   onClick={() =>
                     setSelectedImage(
-                      `https://ribbon.r-archive.zip/project_ra/RESULT_OVERLAY_EXAMPLE.png?full=1`,
+                      `https://cdn.racla.app/project_ra/RESULT_OVERLAY_EXAMPLE.png?full=1`,
                     )
                   }
                   referrerPolicy='origin'
                 />
 
                 <Image
-                  src='https://ribbon.r-archive.zip/project_ra/RESULT_OVERLAY_EXAMPLE_UPLOAD.png'
+                  src='https://cdn.racla.app/project_ra/RESULT_OVERLAY_EXAMPLE_UPLOAD.png'
                   alt='overlay-upload'
                   className='tw-cursor-pointer tw-rounded-lg tw-transition-opacity tw-duration-300 tw-absolute tw-inset-0'
                   style={{
@@ -175,14 +175,14 @@ const OverlaySetting = ({ setSelectedImage }: { setSelectedImage: (image: string
                   fill
                   onClick={() =>
                     setSelectedImage(
-                      `https://ribbon.r-archive.zip/project_ra/RESULT_OVERLAY_EXAMPLE.png?full=1`,
+                      `https://cdn.racla.app/project_ra/RESULT_OVERLAY_EXAMPLE.png?full=1`,
                     )
                   }
                   referrerPolicy='origin'
                 />
 
                 <Image
-                  src='https://ribbon.r-archive.zip/project_ra/RESULT_OVERLAY_EXAMPLE_HJA.png'
+                  src='https://cdn.racla.app/project_ra/RESULT_OVERLAY_EXAMPLE_HJA.png'
                   alt='overlay-hja'
                   className='tw-cursor-pointer tw-rounded-lg tw-transition-opacity tw-duration-300 tw-absolute tw-inset-0'
                   style={{
@@ -192,14 +192,14 @@ const OverlaySetting = ({ setSelectedImage }: { setSelectedImage: (image: string
                   fill
                   onClick={() =>
                     setSelectedImage(
-                      `https://ribbon.r-archive.zip/project_ra/RESULT_OVERLAY_EXAMPLE.png?full=1`,
+                      `https://cdn.racla.app/project_ra/RESULT_OVERLAY_EXAMPLE.png?full=1`,
                     )
                   }
                   referrerPolicy='origin'
                 />
 
                 <Image
-                  src='https://ribbon.r-archive.zip/project_ra/RESULT_OVERLAY_EXAMPLE_RECENT.png'
+                  src='https://cdn.racla.app/project_ra/RESULT_OVERLAY_EXAMPLE_RECENT.png'
                   alt='overlay-recent'
                   className='tw-cursor-pointer tw-rounded-lg tw-transition-opacity tw-duration-300 tw-absolute tw-inset-0'
                   style={{
@@ -209,7 +209,7 @@ const OverlaySetting = ({ setSelectedImage }: { setSelectedImage: (image: string
                   fill
                   onClick={() =>
                     setSelectedImage(
-                      `https://ribbon.r-archive.zip/project_ra/RESULT_OVERLAY_EXAMPLE.png?full=1`,
+                      `https://cdn.racla.app/project_ra/RESULT_OVERLAY_EXAMPLE.png?full=1`,
                     )
                   }
                   referrerPolicy='origin'

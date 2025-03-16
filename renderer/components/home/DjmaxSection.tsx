@@ -379,7 +379,7 @@ export default function DjmaxHomeComponent() {
             className={`tw-flex tw-gap-2 tw-font-extrabold tw-items-center tw-text-respect-sc-15`}
           >
             <Image
-              src={`https://ribbon.r-archive.zip/djmax_respect_v/sc_15_star.png`}
+              src={`https://cdn.racla.app/djmax_respect_v/sc_15_star.png`}
               alt='difficulty'
               width={16}
               height={16}
@@ -400,7 +400,7 @@ export default function DjmaxHomeComponent() {
           className={`tw-flex tw-gap-2 tw-font-extrabold tw-items-center tw-text-respect-${difficultyClass}`}
         >
           <Image
-            src={`https://ribbon.r-archive.zip/djmax_respect_v/nm_${difficultyClass.split('-')[1]}_star.png`}
+            src={`https://cdn.racla.app/djmax_respect_v/nm_${difficultyClass.split('-')[1]}_star.png`}
             alt='difficulty'
             width={16}
             height={16}
@@ -447,7 +447,7 @@ export default function DjmaxHomeComponent() {
             return [...Array(starsInGroup)].map((_, starIndex) => (
               <Image
                 key={`${pattern.title}_${pattern.pattern}_full_${groupIndex}_${starIndex}`}
-                src={`https://ribbon.r-archive.zip/djmax_respect_v/${starImage}`}
+                src={`https://cdn.racla.app/djmax_respect_v/${starImage}`}
                 alt='star'
                 width={16}
                 height={16}
@@ -463,7 +463,7 @@ export default function DjmaxHomeComponent() {
             [...Array(decimalPart)].map((_, i) => (
               <Image
                 key={`${pattern.title}_${pattern.pattern}_small_${i}`}
-                src={`https://ribbon.r-archive.zip/djmax_respect_v/${getStarImage(Math.ceil(fullStars / 5) * 5, isSC)}`}
+                src={`https://cdn.racla.app/djmax_respect_v/${getStarImage(Math.ceil(fullStars / 5) * 5, isSC)}`}
                 alt='small-star'
                 width={12}
                 height={12}
@@ -490,7 +490,7 @@ export default function DjmaxHomeComponent() {
             return [...Array(starsInGroup)].map((_, starIndex) => (
               <Image
                 key={`${pattern.title}_${pattern.pattern}_board_${groupIndex}_${starIndex}`}
-                src={`https://ribbon.r-archive.zip/djmax_respect_v/${starImage}`}
+                src={`https://cdn.racla.app/djmax_respect_v/${starImage}`}
                 alt='star'
                 width={16}
                 height={16}

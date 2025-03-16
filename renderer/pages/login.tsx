@@ -350,7 +350,7 @@ export default function VArchiveLoginPage() {
                           className='tw-w-full tw-flex tw-items-center tw-justify-center tw-gap-2 tw-px-4 tw-py-3 tw-rounded-md tw-bg-blue-600 hover:tw-bg-blue-700 tw-text-white tw-transition-colors'
                         >
                           <Image
-                            src='https://ribbon.r-archive.zip/logo.svg'
+                            src='https://cdn.racla.app/logo.svg'
                             color='white'
                             alt='RACLA'
                             width={18}

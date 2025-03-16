@@ -218,7 +218,7 @@ export default function VArchiveDbTitlePage() {
             >
               <div className='tw-absolute tw-inset-0 tw-overflow-hidden tw-rounded-md'>
                 <Image
-                  src={`https://ribbon.r-archive.zip/djmax_respect_v/jackets/${params?.titleNo}.jpg`}
+                  src={`https://cdn.racla.app/djmax_respect_v/jackets/${params?.titleNo}.jpg`}
                   layout='fill'
                   objectFit='cover'
                   alt=''
@@ -233,7 +233,7 @@ export default function VArchiveDbTitlePage() {
                   <Image
                     loading='lazy' // "lazy" | "eager"
                     blurDataURL={globalDictionary.blurDataURL}
-                    src={`https://ribbon.r-archive.zip/djmax_respect_v/jackets/${params?.titleNo}.jpg`}
+                    src={`https://cdn.racla.app/djmax_respect_v/jackets/${params?.titleNo}.jpg`}
                     height={90}
                     width={90}
                     alt=''

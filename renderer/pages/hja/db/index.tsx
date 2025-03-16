@@ -593,7 +593,7 @@ export default function HjaDbPage() {
                                       className={`tw-flex tw-justify-center tw-items-center tw-gap-1 tw-font-extrabold ${diff === 'MX' && 'tw-text-respect-nm-15'} ${diff === 'SC' && 'tw-text-respect-sc-15'} ${opacity}`}
                                     >
                                       <Image
-                                        src={`https://ribbon.r-archive.zip/djmax_respect_v/nm_${diff}_star.png`}
+                                        src={`https://cdn.racla.app/djmax_respect_v/nm_${diff}_star.png`}
                                         width={16}
                                         height={16}
                                         alt={diff}

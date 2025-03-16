@@ -323,7 +323,7 @@ export default function WjmaxHomeComponent() {
           className={`tw-flex tw-gap-2 tw-font-extrabold tw-items-center tw-text-wjmax-${String(pattern?.pattern).toLowerCase()}`}
         >
           <Image
-            src={`https://ribbon.r-archive.zip/wjmax/nm_${Math.ceil((pattern.level || 0) / 5) * 5}_star.png`}
+            src={`https://cdn.racla.app/wjmax/nm_${Math.ceil((pattern.level || 0) / 5) * 5}_star.png`}
             alt='difficulty'
             width={pattern.level > 20 ? 16 : 20}
             height={pattern.level > 20 ? 16 : 20}

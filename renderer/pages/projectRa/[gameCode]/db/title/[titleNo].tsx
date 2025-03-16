@@ -335,7 +335,7 @@ export default function VArchiveDbTitlePage() {
   const fetchPatternData = async (folderName: string, patternName: any, isKey6: boolean) => {
     try {
       const response = await fetch(
-        `https://ribbon.r-archive.zip/${selectedGame}/music/${folderName}/${folderName} ${patternName?.en}${isKey6 ? ' Key6' : ''}.txt`,
+        `https://cdn.racla.app/${selectedGame}/music/${folderName}/${folderName} ${patternName?.en}${isKey6 ? ' Key6' : ''}.txt`,
       )
 
       if (!response.ok) {
@@ -380,7 +380,7 @@ export default function VArchiveDbTitlePage() {
               {/* 배경 이미지 추가 */}
               <div className='tw-absolute tw-inset-0 tw-overflow-hidden tw-rounded-md'>
                 <Image
-                  src={`https://ribbon.r-archive.zip/${selectedGame}/jackets/${baseSongData[0].folderName}.jpg`}
+                  src={`https://cdn.racla.app/${selectedGame}/jackets/${baseSongData[0].folderName}.jpg`}
                   layout='fill'
                   objectFit='cover'
                   alt=''
@@ -395,7 +395,7 @@ export default function VArchiveDbTitlePage() {
                   <Image
                     loading='lazy' // "lazy" | "eager"
                     blurDataURL={globalDictionary.blurDataURL}
-                    src={`https://ribbon.r-archive.zip/${selectedGame}/jackets/${baseSongData[0].folderName}.jpg`}
+                    src={`https://cdn.racla.app/${selectedGame}/jackets/${baseSongData[0].folderName}.jpg`}
                     height={74}
                     width={130}
                     alt=''
@@ -576,14 +576,14 @@ export default function VArchiveDbTitlePage() {
                                               blurDataURL={globalDictionary.blurDataURL}
                                               src={
                                                 difficultyCode === 'NM'
-                                                  ? `https://ribbon.r-archive.zip/wjmax/nm_5_star.png`
+                                                  ? `https://cdn.racla.app/wjmax/nm_5_star.png`
                                                   : difficultyCode === 'HD'
-                                                    ? `https://ribbon.r-archive.zip/wjmax/nm_10_star.png`
+                                                    ? `https://cdn.racla.app/wjmax/nm_10_star.png`
                                                     : difficultyCode === 'MX'
-                                                      ? `https://ribbon.r-archive.zip/wjmax/nm_15_star.png`
+                                                      ? `https://cdn.racla.app/wjmax/nm_15_star.png`
                                                       : difficultyCode === 'SC'
-                                                        ? `https://ribbon.r-archive.zip/wjmax/nm_20_star.png`
-                                                        : `https://ribbon.r-archive.zip/wjmax/nm_25_star.png`
+                                                        ? `https://cdn.racla.app/wjmax/nm_20_star.png`
+                                                        : `https://cdn.racla.app/wjmax/nm_25_star.png`
                                               }
                                               height={24}
                                               width={24}

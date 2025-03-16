@@ -393,7 +393,7 @@ const Board = () => {
             <div className='tw-flex tw-gap-4'>
               <div className='tw-relative tw-w-2/3 tw-h-[20rem] tw-rounded-lg tw-overflow-hidden [text-shadow:_2px_2px_2px_rgb(0_0_0_/_90%),_4px_4px_4px_rgb(0_0_0_/_60%)]'>
                 <Image
-                  src={`https://ribbon.r-archive.zip/wjmax/jackets/${wjmaxSongData[randomHeaderBg - 1].folderName}.jpg`}
+                  src={`https://cdn.racla.app/wjmax/jackets/${wjmaxSongData[randomHeaderBg - 1].folderName}.jpg`}
                   alt='Background'
                   fill
                   className='tw-object-cover tw-blur-md tw-opacity-50 tw-brightness-50'

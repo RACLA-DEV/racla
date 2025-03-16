@@ -311,7 +311,7 @@ export default function VArchiveRegScorePage() {
                     >
                       <div className='tw-absolute tw-inset-0 tw-overflow-hidden tw-rounded-md'>
                         <Image
-                          src={`https://ribbon.r-archive.zip/${selectedGame}/jackets/${projectRaUploadedPageData.songData.folderName}.jpg`}
+                          src={`https://cdn.racla.app/${selectedGame}/jackets/${projectRaUploadedPageData.songData.folderName}.jpg`}
                           layout='fill'
                           objectFit='cover'
                           alt=''

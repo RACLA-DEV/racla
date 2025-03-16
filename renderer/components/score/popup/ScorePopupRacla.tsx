@@ -225,7 +225,7 @@ const RaScorePopupComponent = ({
                 <Image
                   loading='lazy' // "lazy" | "eager"
                   blurDataURL={globalDictionary.blurDataURL}
-                  src={`https://ribbon.r-archive.zip/${selectedGame}/jackets/${
+                  src={`https://cdn.racla.app/${selectedGame}/jackets/${
                     wjmaxSongData.filter(
                       (song) =>
                         song.title ===
@@ -390,7 +390,7 @@ const RaScorePopupComponent = ({
                   <Image
                     loading='lazy' // "lazy" | "eager"
                     blurDataURL={globalDictionary.blurDataURL}
-                    src={`https://ribbon.r-archive.zip/${selectedGame}/jackets/${
+                    src={`https://cdn.racla.app/${selectedGame}/jackets/${
                       wjmaxSongData.filter(
                         (song) =>
                           song.title ===
@@ -565,7 +565,7 @@ const RaScorePopupComponent = ({
               <Image
                 loading='lazy'
                 blurDataURL={globalDictionary.blurDataURL}
-                src={`https://ribbon.r-archive.zip/${selectedGame}/jackets/${
+                src={`https://cdn.racla.app/${selectedGame}/jackets/${
                   wjmaxSongData.filter(
                     (song) =>
                       song.title ===

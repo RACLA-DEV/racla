@@ -97,7 +97,7 @@ export default function VArchiveDbTitlePatternPage() {
             <div className='tw-flex tw-flex-col tw-gap-1 tw-relative tw-bg-opacity-10 tw-rounded-md tw-mb-4 tw-h-auto p-0'>
               <div className='tw-absolute tw-inset-0 tw-overflow-hidden tw-rounded-md'>
                 <Image
-                  src={`https://ribbon.r-archive.zip/djmax_respect_v/jackets/${params?.titleNo}.jpg`}
+                  src={`https://cdn.racla.app/djmax_respect_v/jackets/${params?.titleNo}.jpg`}
                   layout='fill'
                   objectFit='cover'
                   alt=''
@@ -111,7 +111,7 @@ export default function VArchiveDbTitlePatternPage() {
                   <Image
                     loading='lazy'
                     blurDataURL={globalDictionary.blurDataURL}
-                    src={`https://ribbon.r-archive.zip/djmax_respect_v/jackets/${params?.titleNo}.jpg`}
+                    src={`https://cdn.racla.app/djmax_respect_v/jackets/${params?.titleNo}.jpg`}
                     height={90}
                     width={90}
                     alt=''

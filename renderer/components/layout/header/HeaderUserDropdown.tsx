@@ -6,9 +6,9 @@ import {
   setVArchiveUserData,
 } from 'store/slices/appSlice'
 
+import { useNotificationSystem } from '@hooks/useNotifications'
 import Link from 'next/link'
 import { useDispatch } from 'react-redux'
-import { useNotificationSystem } from '@hooks/useNotifications'
 
 export const renderUserDropdown = (
   user,
@@ -38,7 +38,7 @@ export const renderUserDropdown = (
         <button
           className='dropdown-item tw-py-2 tw-rounded-t-md'
           onClick={() => {
-            ipcRenderer.send('openBrowser', 'https://r-archive.zip/')
+            ipcRenderer.send('openBrowser', 'https://racla.app/')
           }}
         >
           RACLA 바로가기

@@ -191,7 +191,7 @@ function MyApp({ Component, pageProps }: AppProps) {
       try {
         // 서버에서 이미 처리된 곡 데이터 가져오기
         const { data } = await axios.get(
-          `${process.env.NEXT_PUBLIC_OPEN_API_URL}/songs/processed/djmax_respect_v`,
+          `${process.env.NEXT_PUBLIC_API_URL}/v2/songs/processed/djmax_respect_v`,
         )
 
         if (data && data.length > 0) {
@@ -215,7 +215,7 @@ function MyApp({ Component, pageProps }: AppProps) {
     const fetchWjmaxData = async () => {
       try {
         // 서버에서 이미 처리된 곡 데이터 가져오기
-        const { data } = await axios.get(`${process.env.NEXT_PUBLIC_OPEN_API_URL}/songs/wjmax`)
+        const { data } = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/v2/songs/wjmax`)
 
         if (data && data.length > 0) {
           // 데이터 저장
@@ -670,85 +670,73 @@ function MyApp({ Component, pageProps }: AppProps) {
             </div> */}
 
             <Image
-              src='https://ribbon.r-archive.zip/project_ra/update_070_banner.png'
+              src='https://cdn.racla.app/project_ra/update_070_banner.png'
               alt='overlay'
               className='tw-cursor-pointer tw-w-full tw-h-auto tw-rounded-lg'
               width={500}
               height={500}
               onClick={() =>
-                setSelectedImage(
-                  'https://ribbon.r-archive.zip/project_ra/update_070_banner.png?full=1',
-                )
+                setSelectedImage('https://cdn.racla.app/project_ra/update_070_banner.png?full=1')
               }
               referrerPolicy='origin'
             />
 
             <Image
-              src='https://ribbon.r-archive.zip/project_ra/update_070_menual.png'
+              src='https://cdn.racla.app/project_ra/update_070_menual.png'
               alt='overlay'
               className='tw-cursor-pointer tw-w-full tw-h-auto tw-rounded-lg'
               width={500}
               height={500}
               onClick={() =>
-                setSelectedImage(
-                  'https://ribbon.r-archive.zip/project_ra/update_070_menual.png?full=1',
-                )
+                setSelectedImage('https://cdn.racla.app/project_ra/update_070_menual.png?full=1')
               }
               referrerPolicy='origin'
             />
 
             <Image
-              src='https://ribbon.r-archive.zip/project_ra/update_070_content_1.png'
+              src='https://cdn.racla.app/project_ra/update_070_content_1.png'
               alt='overlay'
               className='tw-cursor-pointer tw-w-full tw-h-auto tw-rounded-lg'
               width={500}
               height={500}
               onClick={() =>
-                setSelectedImage(
-                  'https://ribbon.r-archive.zip/project_ra/update_070_content_1.png?full=1',
-                )
+                setSelectedImage('https://cdn.racla.app/project_ra/update_070_content_1.png?full=1')
               }
               referrerPolicy='origin'
             />
 
             <Image
-              src='https://ribbon.r-archive.zip/project_ra/update_070_content_2.png'
+              src='https://cdn.racla.app/project_ra/update_070_content_2.png'
               alt='overlay'
               className='tw-cursor-pointer tw-w-full tw-h-auto tw-rounded-lg'
               width={500}
               height={500}
               onClick={() =>
-                setSelectedImage(
-                  'https://ribbon.r-archive.zip/project_ra/update_070_content_2.png?full=1',
-                )
+                setSelectedImage('https://cdn.racla.app/project_ra/update_070_content_2.png?full=1')
               }
               referrerPolicy='origin'
             />
 
             <Image
-              src='https://ribbon.r-archive.zip/project_ra/update_070_content_3.png'
+              src='https://cdn.racla.app/project_ra/update_070_content_3.png'
               alt='overlay'
               className='tw-cursor-pointer tw-w-full tw-h-auto tw-rounded-lg'
               width={500}
               height={500}
               onClick={() =>
-                setSelectedImage(
-                  'https://ribbon.r-archive.zip/project_ra/update_070_content_3.png?full=1',
-                )
+                setSelectedImage('https://cdn.racla.app/project_ra/update_070_content_3.png?full=1')
               }
               referrerPolicy='origin'
             />
 
             <Image
-              src='https://ribbon.r-archive.zip/project_ra/update_070_feedback.png'
+              src='https://cdn.racla.app/project_ra/update_070_feedback.png'
               alt='overlay'
               className='tw-cursor-pointer tw-w-full tw-h-auto tw-rounded-lg'
               width={500}
               height={500}
               onClick={() =>
-                setSelectedImage(
-                  'https://ribbon.r-archive.zip/project_ra/update_070_feedback.png?full=1',
-                )
+                setSelectedImage('https://cdn.racla.app/project_ra/update_070_feedback.png?full=1')
               }
               referrerPolicy='origin'
             />
@@ -763,7 +751,7 @@ function MyApp({ Component, pageProps }: AppProps) {
 
     useEffect(() => {
       const webview = document.createElement('webview')
-      webview.setAttribute('src', 'https://status.r-archive.zip')
+      webview.setAttribute('src', 'https://status.racla.app')
       webview.style.cssText = `
         width: 100%;
         height: 100%;

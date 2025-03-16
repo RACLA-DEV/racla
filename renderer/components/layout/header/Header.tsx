@@ -81,7 +81,7 @@ const HeaderComponent: React.FC<IHeaderComponentProps> = ({
   }, [selectedGame])
 
   useEffect(() => {
-    const audio = new Audio('https://ribbon.r-archive.zip/project_ra/notification.mp3')
+    const audio = new Audio('https://cdn.racla.app/project_ra/notification.mp3')
 
     const handleNotificationSound = () => {
       audio.currentTime = 0
@@ -199,7 +199,7 @@ const HeaderComponent: React.FC<IHeaderComponentProps> = ({
                 className='tw-px-2 tw-py-2 btn-ipc tw-mr-2'
               >
                 <Image
-                  src='https://ribbon.r-archive.zip/logo.svg'
+                  src='https://cdn.racla.app/logo.svg'
                   color='white'
                   height={24}
                   width={24}
@@ -278,7 +278,7 @@ const HeaderComponent: React.FC<IHeaderComponentProps> = ({
             >
               <Link href='/' className='tw-px-2 tw-py-2 btn-ipc tw-mr-2'>
                 <Image
-                  src='https://ribbon.r-archive.zip/logo.svg'
+                  src='https://cdn.racla.app/logo.svg'
                   color='white'
                   height={24}
                   width={24}
@@ -300,19 +300,19 @@ const HeaderComponent: React.FC<IHeaderComponentProps> = ({
         {/* 게임 선택 버튼 */}
         {renderGameButtons(
           'djmax_respect_v',
-          'https://ribbon.r-archive.zip/djmax_respect_v/logo.png',
+          'https://cdn.racla.app/djmax_respect_v/logo.png',
           'DJMAX RESPECT V',
           selectedGame,
           handleGameSelection,
         )}
         {renderGameButtons(
           'wjmax',
-          'https://ribbon.r-archive.zip/wjmax/logo.png',
+          'https://cdn.racla.app/wjmax/logo.png',
           'WJMAX',
           selectedGame,
           handleGameSelection,
         )}
-        {/* {renderGameButtons('TJMAX', 'https://ribbon.r-archive.zip/tjmax/logo.png', 'TJMAX', selectedGame, handleGameSelection)} */}
+        {/* {renderGameButtons('TJMAX', 'https://cdn.racla.app/tjmax/logo.png', 'TJMAX', selectedGame, handleGameSelection)} */}
 
         {/* 버튼 */}
         <OverlayTrigger
@@ -393,7 +393,7 @@ const HeaderComponent: React.FC<IHeaderComponentProps> = ({
             <Image
               loading='lazy' // "lazy" | "eager"
               blurDataURL={globalDictionary.blurDataURL}
-              src={`https://ribbon.r-archive.zip/djmax_respect_v/jackets/${userData.randomTitle}.jpg`}
+              src={`https://cdn.racla.app/djmax_respect_v/jackets/${userData.randomTitle}.jpg`}
               height='24'
               width='24'
               className='tw-rounded-full'

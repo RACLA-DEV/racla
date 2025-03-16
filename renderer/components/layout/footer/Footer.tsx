@@ -36,7 +36,7 @@ const FooterComponent = ({ className }: IFooterComponent) => {
             <span
               className='tw-cursor-pointer'
               onClick={() => {
-                window.ipc.openBrowser('https://r-archive.zip')
+                window.ipc.openBrowser('https://racla.app')
               }}
             >
               RACLA 데스크톱 앱 · {globalDictionary.version}

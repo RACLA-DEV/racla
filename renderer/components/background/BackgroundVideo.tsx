@@ -51,7 +51,7 @@ const BackgroundVideoComponent = React.memo(() => {
   }, [backgroundBgaName])
 
   useEffect(() => {
-    setBaseUrl(`https://ribbon.r-archive.zip/${selectedGame.toLowerCase()}`)
+    setBaseUrl(`https://cdn.racla.app/${selectedGame.toLowerCase()}`)
   }, [selectedGame])
 
   if (isDetectedGame || !settingData?.visibleBga) {
@@ -64,8 +64,8 @@ const BackgroundVideoComponent = React.memo(() => {
       <Image
         src={
           selectedGame === 'djmax_respect_v'
-            ? 'https://ribbon.r-archive.zip/djmax_respect_v/bg.png'
-            : 'https://ribbon.r-archive.zip/wjmax/bg.png'
+            ? 'https://cdn.racla.app/djmax_respect_v/bg.png'
+            : 'https://cdn.racla.app/wjmax/bg.png'
         }
         alt='default-video'
         fill

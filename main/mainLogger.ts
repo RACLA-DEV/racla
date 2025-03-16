@@ -31,7 +31,7 @@ export const logMainError = async (error: Error, context?: any) => {
     }
 
     await customAxios.post(
-      `${process.env.NODE_ENV === 'production' ? 'https://near.r-archive.zip/api' : 'https://noah.r-archive.zip/api'}/v1/log/client/create`,
+      `${process.env.NODE_ENV === 'production' ? 'https://api.service.racla.app/api' : 'https://api.service.racla.app/api'}/v1/log/client/create`,
       errorData,
     )
   } catch (loggingError) {

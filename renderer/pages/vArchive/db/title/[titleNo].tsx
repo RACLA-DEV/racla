@@ -604,7 +604,7 @@ export default function VArchiveDbTitlePage() {
             >
               <div className='tw-absolute tw-inset-0 tw-overflow-hidden tw-rounded-md'>
                 <Image
-                  src={`https://ribbon.r-archive.zip/djmax_respect_v/jackets/${baseSongData[0].title}.jpg`}
+                  src={`https://cdn.racla.app/djmax_respect_v/jackets/${baseSongData[0].title}.jpg`}
                   layout='fill'
                   objectFit='cover'
                   alt=''
@@ -619,7 +619,7 @@ export default function VArchiveDbTitlePage() {
                   <Image
                     loading='lazy' // "lazy" | "eager"
                     blurDataURL={globalDictionary.blurDataURL}
-                    src={`https://ribbon.r-archive.zip/djmax_respect_v/jackets/${baseSongData[0].title}.jpg`}
+                    src={`https://cdn.racla.app/djmax_respect_v/jackets/${baseSongData[0].title}.jpg`}
                     height={90}
                     width={90}
                     alt=''
@@ -682,7 +682,7 @@ export default function VArchiveDbTitlePage() {
                             <Image
                               loading='lazy'
                               blurDataURL={globalDictionary.blurDataURL}
-                              src={`https://ribbon.r-archive.zip/djmax_respect_v/${String(patternName)}-BG.png`}
+                              src={`https://cdn.racla.app/djmax_respect_v/${String(patternName)}-BG.png`}
                               alt=''
                               fill
                               className='tw-absolute tw-rounded-lg tw-object-cover tw-blur-sm tw-brightness-50'
@@ -763,12 +763,12 @@ export default function VArchiveDbTitlePage() {
                                         blurDataURL={globalDictionary.blurDataURL}
                                         src={
                                           difficultyCode === 'SC'
-                                            ? `https://ribbon.r-archive.zip/djmax_respect_v/sc_15_star.png`
+                                            ? `https://cdn.racla.app/djmax_respect_v/sc_15_star.png`
                                             : difficultyCode === 'HD'
-                                              ? `https://ribbon.r-archive.zip/djmax_respect_v/nm_10_star.png`
+                                              ? `https://cdn.racla.app/djmax_respect_v/nm_10_star.png`
                                               : difficultyCode === 'MX'
-                                                ? `https://ribbon.r-archive.zip/djmax_respect_v/nm_15_star.png`
-                                                : `https://ribbon.r-archive.zip/djmax_respect_v/nm_5_star.png` // 기본값
+                                                ? `https://cdn.racla.app/djmax_respect_v/nm_15_star.png`
+                                                : `https://cdn.racla.app/djmax_respect_v/nm_5_star.png` // 기본값
                                         }
                                         height={16}
                                         width={16}
@@ -978,7 +978,7 @@ export default function VArchiveDbTitlePage() {
                             <Image
                               loading='lazy' // "lazy" | "eager"
                               blurDataURL={globalDictionary.blurDataURL}
-                              src={`https://ribbon.r-archive.zip/djmax_respect_v/jackets/${
+                              src={`https://cdn.racla.app/djmax_respect_v/jackets/${
                                 commentData.filter(
                                   (commentItem) =>
                                     commentItem.nickname === vArchiveUserData.userName,
