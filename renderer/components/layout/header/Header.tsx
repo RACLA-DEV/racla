@@ -357,7 +357,7 @@ const HeaderComponent: React.FC<IHeaderComponentProps> = ({
           </button>
         </OverlayTrigger>
       </div>
-      {settingData.platform !== 'darwin' && <HomePanelButton />}
+      {/* {settingData.platform !== 'darwin' && <HomePanelButton />} */}
       {settingData.platform !== 'darwin' && (
         <OverlayTrigger
           placement='bottom'
