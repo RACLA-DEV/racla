@@ -191,7 +191,7 @@ function MyApp({ Component, pageProps }: AppProps) {
       try {
         // 서버에서 이미 처리된 곡 데이터 가져오기
         const { data } = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}/v2/songs/processed/djmax_respect_v`,
+          `${process.env.NEXT_PUBLIC_API_URL}/v2/racla/songs/djmax_respect_v/processed`,
         )
 
         if (data && data.length > 0) {
@@ -215,7 +215,7 @@ function MyApp({ Component, pageProps }: AppProps) {
     const fetchWjmaxData = async () => {
       try {
         // 서버에서 이미 처리된 곡 데이터 가져오기
-        const { data } = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/v2/songs/wjmax`)
+        const { data } = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/v2/racla/songs/wjmax`)
 
         if (data && data.length > 0) {
           // 데이터 저장
@@ -389,10 +389,10 @@ function MyApp({ Component, pageProps }: AppProps) {
       // RACLA API 로그인
       const endpoint =
         loginType === 'vArchive'
-          ? '/v1/user/login/oauth/vArchive'
+          ? '/v2/racla/user/login/oauth/vArchive'
           : loginType === 'discord'
-            ? '/v1/user/login/oauth/discord'
-            : '/v1/user/login'
+            ? '/v2/racla/user/login/oauth/discord'
+            : '/v2/racla/user/login'
 
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}${endpoint}`,
@@ -951,7 +951,7 @@ function MyApp({ Component, pageProps }: AppProps) {
                   본 서비스에서 제공되는 리소스는 각 저작권자로부터 별도의 라이선스를 부여받지 않았습니다. 비상업적인 용도로만 사용할 수 있습니다.
                 </span> */}
                 <span className='tw-text-xs tw-font-light tw-text-gray-200 tw-text-opacity-50'>
-                  Developed by GGDRN0 STUDIO & R-ARCHIVE
+                  Developed by RACLA from GGDRN0 STUDIO
                 </span>
               </div>
             </div>

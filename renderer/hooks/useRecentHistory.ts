@@ -1,8 +1,8 @@
-import { RootState } from 'store'
 import axios from 'axios'
-import { logRendererError } from '../utils/rendererLoggerUtils'
-import { useSelector } from 'react-redux'
 import { useState } from 'react'
+import { useSelector } from 'react-redux'
+import { RootState } from 'store'
+import { logRendererError } from '../utils/rendererLoggerUtils'
 
 // hooks/useRecentHistory.ts
 
@@ -43,7 +43,7 @@ export const useRecentHistory = () => {
 
     try {
       const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/v2/play/history/${userData.userNo}/${selectedGame}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/v2/racla/play/history/${userData.userNo}/${selectedGame}`,
         {
           headers: {
             Authorization: `${userData.userNo}|${userData.userToken}`,

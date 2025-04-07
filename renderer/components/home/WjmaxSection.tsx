@@ -163,7 +163,7 @@ export default function WjmaxHomeComponent() {
             boards.map(async (boardType) => {
               try {
                 const response = await axios.get(
-                  `${process.env.NEXT_PUBLIC_API_URL}/v1/board/wjmax/${keyMode}/${boardType}/user/${userData.userNo}`,
+                  `${process.env.NEXT_PUBLIC_API_URL}/v2/racla/board/wjmax/${keyMode}/${boardType}/user/${userData.userNo}`,
                   {
                     headers: {
                       Authorization: `${userData.userNo}|${userData.userToken}`,

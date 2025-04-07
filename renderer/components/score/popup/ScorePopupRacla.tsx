@@ -85,7 +85,7 @@ const RaScorePopupComponent = ({
         setIsLoading(true)
         try {
           const response = await axios.get(
-            `${process.env.NEXT_PUBLIC_API_URL}/v2/songs/${selectedGame}/${songItem?.title || songItemTitle}/user/${userData.userNo}`,
+            `${process.env.NEXT_PUBLIC_API_URL}/v2/racla/songs/${selectedGame}/${songItem?.title || songItemTitle}/user/${userData.userNo}`,
             {
               headers: {
                 Authorization: `${userData.userNo}|${userData.userToken}`,
@@ -125,7 +125,7 @@ const RaScorePopupComponent = ({
         if (rivalName && rivalName !== userData.userName) {
           try {
             const response = await axios.get(
-              `${process.env.NEXT_PUBLIC_API_URL}/api/v2/songs/${selectedGame}/${songItem?.title || songItemTitle}/user/${rivalName}`,
+              `${process.env.NEXT_PUBLIC_API_URL}/api/v2/racla/songs/${selectedGame}/${songItem?.title || songItemTitle}/user/${rivalName}`,
               {
                 headers: {
                   Authorization: `${rivalName}|${rivalName}`,
@@ -170,13 +170,20 @@ const RaScorePopupComponent = ({
     setIsHovered(true)
     onMouseEnter?.()
     if (songItem) {
-      dispatch(setBackgroundBgaName(String(`${songItem?.folderName}_preview`)))
+      dispatch(
+        setBackgroundBgaName(
+          'resources/music' + String(songItem?.bgaPreviewFileName).replace('.mp4', ''),
+        ),
+      )
     }
     if (songItemTitle) {
       dispatch(
         setBackgroundBgaName(
-          wjmaxSongData.filter((song) => String(song.title) === String(songItemTitle))?.[0]
-            ?.folderName + '_preview',
+          'resources/music' +
+            String(
+              wjmaxSongData.filter((song) => String(song.title) === String(songItemTitle))?.[0]
+                ?.bgaPreviewFileName,
+            ).replace('.mp4', ''),
         ),
       )
     }
@@ -225,14 +232,7 @@ const RaScorePopupComponent = ({
                 <Image
                   loading='lazy' // "lazy" | "eager"
                   blurDataURL={globalDictionary.blurDataURL}
-                  src={`https://cdn.racla.app/${selectedGame}/jackets/${
-                    wjmaxSongData.filter(
-                      (song) =>
-                        song.title ===
-                        Number(songItem ? String(songItem.title) : String(songItemTitle)),
-                    )?.[0]?.folderName
-                    // wjmaxSongData[Number(songItem ? String(songItem.title).replace('10000', '') : String(songItemTitle).replace('10000', ''))]?.folderName
-                  }.jpg`}
+                  src={`https://cdn.racla.app/${selectedGame}/resources/jackets/${String(songItem ? String(songItem.title) : String(songItemTitle))}.jpg`}
                   className='tw-absolute tw-blur-sm'
                   fill
                   alt=''
@@ -390,13 +390,7 @@ const RaScorePopupComponent = ({
                   <Image
                     loading='lazy' // "lazy" | "eager"
                     blurDataURL={globalDictionary.blurDataURL}
-                    src={`https://cdn.racla.app/${selectedGame}/jackets/${
-                      wjmaxSongData.filter(
-                        (song) =>
-                          song.title ===
-                          Number(songItem ? String(songItem.title) : String(songItemTitle)),
-                      )?.[0]?.folderName
-                    }.jpg`}
+                    src={`https://cdn.racla.app/${selectedGame}/resources/jackets/${String(songItem ? String(songItem.title) : String(songItemTitle))}.jpg`}
                     className='tw-absolute tw-animate-fadeInLeft tw-rounded-md tw-blur tw-brightness-50 tw-bg-opacity-90'
                     fill
                     alt=''
@@ -565,13 +559,7 @@ const RaScorePopupComponent = ({
               <Image
                 loading='lazy'
                 blurDataURL={globalDictionary.blurDataURL}
-                src={`https://cdn.racla.app/${selectedGame}/jackets/${
-                  wjmaxSongData.filter(
-                    (song) =>
-                      song.title ===
-                      Number(songItem ? String(songItem.title) : String(songItemTitle)),
-                  )?.[0]?.folderName
-                }.jpg`}
+                src={`https://cdn.racla.app/${selectedGame}/resources/jackets/${String(songItem ? String(songItem.title) : String(songItemTitle))}.jpg`}
                 className={`tw-rounded-md tw-shadow-lg ${imageLoaded ? 'tw-animate-fadeIn' : 'tw-opacity-0'}`}
                 fill
                 style={{ objectFit: 'cover' }}

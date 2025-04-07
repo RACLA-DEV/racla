@@ -2,8 +2,8 @@
   "private": true,
   "name": "racla-electron-app",
   "description": "RACLA for Desktop",
-  "version": "0.7.8",
-  "author": "GGDRN0 STUDIO & R-ARCHIVE",
+  "version": "0.7.10",
+  "author": "GGDRN0 STUDIO",
   "main": "app/background.js",
   "scripts": {
     "dev": "nextron --renderer-port 7777",

@@ -239,7 +239,12 @@ export default function VArchiveRegScorePage() {
     if (projectRaUploadedPageData) {
       // 기존 단일 플레이어 모드
       if (projectRaUploadedPageData.songData) {
-        dispatch(setBackgroundBgaName(projectRaUploadedPageData.songData.folderName + '_preview'))
+        dispatch(
+          setBackgroundBgaName(
+            'resources/music' +
+              String(projectRaUploadedPageData.songData.bgaPreviewFileName).replace('.mp4', ''),
+          ),
+        )
       } else {
         dispatch(setBackgroundBgaName(''))
       }
@@ -251,7 +256,12 @@ export default function VArchiveRegScorePage() {
   useEffect(() => {
     if (!backgroundBgaName && projectRaUploadedPageData) {
       if (projectRaUploadedPageData.songData) {
-        dispatch(setBackgroundBgaName(projectRaUploadedPageData.songData.folderName + '_preview'))
+        dispatch(
+          setBackgroundBgaName(
+            'resources/music' +
+              String(projectRaUploadedPageData.songData.bgaPreviewFileName).replace('.mp4', ''),
+          ),
+        )
       }
     }
   }, [backgroundBgaName])
@@ -311,7 +321,7 @@ export default function VArchiveRegScorePage() {
                     >
                       <div className='tw-absolute tw-inset-0 tw-overflow-hidden tw-rounded-md'>
                         <Image
-                          src={`https://cdn.racla.app/${selectedGame}/jackets/${projectRaUploadedPageData.songData.folderName}.jpg`}
+                          src={`https://cdn.racla.app/${selectedGame}/resources/jackets/${String(projectRaUploadedPageData.songData.title)}.jpg`}
                           layout='fill'
                           objectFit='cover'
                           alt=''

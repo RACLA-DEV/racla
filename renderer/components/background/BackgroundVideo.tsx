@@ -33,7 +33,7 @@ const BackgroundVideoComponent = React.memo(() => {
 
     if (backgroundBgaName !== '') {
       setDynamicVideoSrc(
-        `${baseUrl}/preview/title/${backgroundBgaName}.${selectedGame === 'djmax_respect_v' ? 'webm' : 'mp4'}`,
+        `${baseUrl}${selectedGame === 'djmax_respect_v' ? '/preview/title' : ''}/${backgroundBgaName}.${selectedGame === 'djmax_respect_v' ? 'webm' : 'mp4'}`,
       )
       setOpacity(1)
     } else {

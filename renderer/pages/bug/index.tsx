@@ -1,16 +1,16 @@
 import React, { useEffect, useRef, useState } from 'react'
 
-import Head from 'next/head'
 import Modal from '@components/common/CreateModal'
-import { RootState } from 'store'
-import { SyncLoader } from 'react-spinners'
+import { useNotificationSystem } from '@hooks/useNotifications'
+import { logRendererError } from '@utils/rendererLoggerUtils'
 import axios from 'axios'
 import dayjs from 'dayjs'
-import { logRendererError } from '@utils/rendererLoggerUtils'
 import { motion } from 'framer-motion'
-import { useNotificationSystem } from '@hooks/useNotifications'
+import Head from 'next/head'
 import { useRouter } from 'next/router'
 import { useSelector } from 'react-redux'
+import { SyncLoader } from 'react-spinners'
+import { RootState } from 'store'
 
 interface Bug {
   id: number
@@ -63,10 +63,13 @@ export default function BugList() {
 
   const fetchBugs = async (page = 0) => {
     try {
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/v1/bug?page=${page}`, {
-        headers: { Authorization: `${userData.userNo}|${userData.userToken}` },
-        withCredentials: true,
-      })
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/v2/racla/bug?page=${page}`,
+        {
+          headers: { Authorization: `${userData.userNo}|${userData.userToken}` },
+          withCredentials: true,
+        },
+      )
       const data: BugListResponse = await response.data
       console.log(data)
       setBugs(data.content)
@@ -84,7 +87,7 @@ export default function BugList() {
 
   const fetchNotices = async () => {
     try {
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/v1/bug/pinned`, {
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/v2/racla/bug/pinned`, {
         headers: { Authorization: `${userData.userNo}|${userData.userToken}` },
         withCredentials: true,
       })
@@ -116,7 +119,7 @@ export default function BugList() {
   const handleCreateBug = async () => {
     try {
       setLoading(true)
-      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/v1/bug`, newBug, {
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/v2/racla/bug`, newBug, {
         headers: { Authorization: `${userData.userNo}|${userData.userToken}` },
         withCredentials: true,
       })
@@ -148,7 +151,7 @@ export default function BugList() {
             formData.append('file', file)
 
             axios
-              .post(`${process.env.NEXT_PUBLIC_API_URL}/v1/upload`, formData, {
+              .post(`${process.env.NEXT_PUBLIC_API_URL}/v2/racla/upload`, formData, {
                 headers: {
                   Authorization: `${userData.userNo}|${userData.userToken}`,
                   'Content-Type': 'multipart/form-data',

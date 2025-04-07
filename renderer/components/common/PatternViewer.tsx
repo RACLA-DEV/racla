@@ -1,5 +1,5 @@
-import { FaArrowRightArrowLeft, FaArrowsRotate, FaDice, FaPalette, FaXmark } from 'react-icons/fa6'
 import { MouseEvent, WheelEvent, useEffect, useRef, useState } from 'react'
+import { FaArrowRightArrowLeft, FaArrowsRotate, FaDice, FaPalette, FaXmark } from 'react-icons/fa6'
 import { TransformComponent, TransformWrapper } from 'react-zoom-pan-pinch'
 
 import { createPortal } from 'react-dom'
@@ -18,8 +18,6 @@ interface Note {
 }
 
 interface ChartData {
-  fileName: string
-  maker: string
   key: number
   mode: number
   level: number
@@ -43,7 +41,7 @@ const Note = ({ type, position, length, isLongNote }) => {
 
 // components/ChartSection.tsx
 interface WjmaxChartProps {
-  chartData: ChartData
+  chartData: string // CSV 형식의 문자열로 변경
   bpm?: number
   onClose: () => void
   gameCode?: string
@@ -55,6 +53,7 @@ export default function WjmaxChartComponent({
   onClose,
   gameCode = 'wjmax',
 }: WjmaxChartProps) {
+  const [parsedChartData, setParsedChartData] = useState<ChartData | null>(null)
   const [sections, setSections] = useState<ChartSection>({})
   const [scale, setScale] = useState(0.5) // 기본 0.5배 크기로 시작
   const [isVisible, setIsVisible] = useState(false)
@@ -79,11 +78,52 @@ export default function WjmaxChartComponent({
     // 섹션 전체 시간 = 비트당 시간 * 섹션당 비트수
     return msPerBeat * BEATS_PER_SECTION
   }
+
+  // CSV 파싱 함수 추가
+  const parseCSVChartData = (csvData: string): ChartData => {
+    const lines = csvData.trim().split('\n')
+
+    // 첫 번째 줄은 헤더 (key, mode, level)
+    const headerParts = lines[0].split(',').map((part) => parseFloat(part))
+
+    const chartData: ChartData = {
+      key: headerParts[0],
+      mode: headerParts[1],
+      level: headerParts[2],
+      notes: [],
+    }
+
+    // 나머지 줄은 노트 데이터
+    for (let i = 1; i < lines.length; i++) {
+      const noteParts = lines[i].split(',').map((part) => parseFloat(part))
+
+      chartData.notes.push({
+        type: noteParts[0] as 0 | 1,
+        index: noteParts[1],
+        headMilliSec: noteParts[2],
+        tailMilliSec: noteParts[3],
+      })
+    }
+
+    return chartData
+  }
+
+  // 차트 데이터 파싱
   useEffect(() => {
+    if (chartData) {
+      const parsed = parseCSVChartData(chartData)
+      setParsedChartData(parsed)
+    }
+  }, [chartData])
+
+  // 기존 useEffect 수정 - parsedChartData 사용
+  useEffect(() => {
+    if (!parsedChartData) return
+
     const sectionDuration = calculateSectionDuration(bpm)
     const groupedNotes: ChartSection = {}
 
-    chartData.notes.forEach((note) => {
+    parsedChartData.notes.forEach((note) => {
       const sectionIndex = Math.floor(note.headMilliSec / sectionDuration)
 
       if (note.type === 1) {
@@ -113,7 +153,7 @@ export default function WjmaxChartComponent({
     })
 
     setSections(groupedNotes)
-  }, [chartData, bpm, BEATS_PER_SECTION])
+  }, [parsedChartData, bpm, BEATS_PER_SECTION])
 
   useEffect(() => {
     const updateChartPosition = () => {
@@ -270,8 +310,8 @@ export default function WjmaxChartComponent({
     // 숫자가 아닌 입력 체크
     if (numbers.some(isNaN)) return false
 
-    // 4키/6키 검증
-    const expectedLength = chartData.key === 0 ? 4 : 6
+    // 4키/6키 검증 수정
+    const expectedLength = parsedChartData?.key === 0 ? 4 : 6
     if (numbers.length !== expectedLength) return false
 
     // 1부터 시작하는 입력을 0부터 시작하는 인덱스로 변환하여 검증
@@ -296,7 +336,7 @@ export default function WjmaxChartComponent({
   const getLaneOrder = () => {
     if (!laneOrder.trim() || !isLaneOrderValid) {
       // 기본 순서 반환
-      return Array.from({ length: chartData.key === 0 ? 4 : 6 }, (_, i) => i)
+      return Array.from({ length: parsedChartData?.key === 0 ? 4 : 6 }, (_, i) => i)
     }
     // 1부터 시작하는 입력을 0부터 시작하는 인덱스로 변환
     return [...laneOrder.replace(/[,\s]/g, '')].map((n) => parseInt(n) - 1)
@@ -315,7 +355,7 @@ export default function WjmaxChartComponent({
   }
 
   const handleMirror = () => {
-    const length = chartData.key === 0 ? 4 : 6
+    const length = parsedChartData?.key === 0 ? 4 : 6
     const mirrored = Array.from({ length }, (_, i) => length - i)
     setLaneOrder(mirrored.join(''))
     setIsLaneOrderValid(true)
@@ -323,7 +363,7 @@ export default function WjmaxChartComponent({
 
   // 랜덤 기능 수정
   const handleRandom = () => {
-    const length = chartData.key === 0 ? 4 : 6
+    const length = parsedChartData?.key === 0 ? 4 : 6
     const numbers = Array.from({ length }, (_, i) => i + 1)
 
     for (let i = numbers.length - 1; i > 0; i--) {
@@ -379,8 +419,8 @@ export default function WjmaxChartComponent({
                   <div
                     key={lane}
                     className={`lane ${theme}-theme ${
-                      (chartData.key === 0 && (lane === 1 || lane === 2)) ||
-                      (chartData.key === 2 && (lane === 1 || lane === 4))
+                      (parsedChartData?.key === 0 && (lane === 1 || lane === 2)) ||
+                      (parsedChartData?.key === 2 && (lane === 1 || lane === 4))
                         ? 'special-lane'
                         : ''
                     }`}

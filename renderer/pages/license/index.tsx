@@ -1,6 +1,6 @@
-import { FaLink } from 'react-icons/fa6'
 import Head from 'next/head'
 import React from 'react'
+import { FaLink } from 'react-icons/fa6'
 
 export default function LicensePage() {
   return (
@@ -10,7 +10,7 @@ export default function LicensePage() {
       </Head>
 
       <div className='tw-w-full tw-flex tw-flex-col tw-items-center tw-justify-center tw-gap-4'>
-        <div className='tw-w-full tw-max-w-4xl'>
+        <div className='tw-w-full'>
           <div className='tw-flex tw-flex-col tw-gap-6 tw-bg-gray-800 tw-bg-opacity-75 tw-rounded-lg tw-shadow-lg tw-p-8'>
             {/* 헤더 */}
             <div className='tw-flex tw-w-full tw-mb-2'>
@@ -36,9 +36,9 @@ export default function LicensePage() {
                 예외로 합니다.
               </p>
               <p className='tw-leading-relaxed'>
-                4. 본 서비스의 유지를 위한 모든 비용은 GGDRN0 STUDIO가 부담합니다. 다만, 서비스 운영
-                및 유지 비용을 충당하기 위해 필요한 최소한의 광고가 저작권자와의 협의하에 게재될 수
-                있습니다.
+                4. 본 서비스의 유지를 위한 모든 비용은 공감대로0번길(GGDRN0 STUDIO)가 부담합니다.
+                다만, 서비스 운영 및 유지 비용을 충당하기 위해 필요한 최소한의 광고가 저작권자와의
+                협의하에 게재될 수 있습니다.
               </p>
             </div>
 
@@ -146,7 +146,7 @@ export default function LicensePage() {
                   4. 리소스 사용을 허락해주신 WJMAX 개발자님을 포함한 WJMAX STUDIO 관계자분들
                 </p>
                 <p className='tw-leading-relaxed'>
-                  5. RACLA 서비스를 함께 만들어가는 GGDRN0 STUDIO와 R-ARCHIVE 팀원들
+                  5. RACLA 서비스를 함께 만들어가는 공감대로0번길(GGDRN0 STUDIO)와 RACLA 팀원들
                 </p>
                 <p className='tw-leading-relaxed'>
                   6. RACLA 서비스에서 가장 많은 기여도를 주신 HanA 사용자님
@@ -162,7 +162,7 @@ export default function LicensePage() {
             </div>
           </div>
         </div>
-        <div className='tw-w-full tw-max-w-4xl'>
+        <div className='tw-w-full'>
           <div className='tw-flex tw-flex-col tw-gap-6 tw-bg-gray-800 tw-bg-opacity-75 tw-rounded-lg tw-shadow-lg tw-p-8'>
             {/* 헤더 */}
             <div className='tw-flex tw-w-full tw-mb-2'>
@@ -172,20 +172,20 @@ export default function LicensePage() {
             <div className='tw-bg-gray-700 tw-bg-opacity-30 tw-p-6 tw-rounded-lg tw-space-y-4'>
               <div className='tw-space-y-6'>
                 <div>
-                  <h3 className='tw-font-bold tw-mb-2'>제1조 (목적)</h3>
+                  <h3 className='tw-text-base tw-font-bold tw-mb-2'>제1조 (목적)</h3>
                   <p className='tw-leading-relaxed'>
-                    본 약관은 GGDRN0 STUDIO와 R-ARCHIVE(이하 "개발팀")이 제공하는 RACLA 서비스(이하
-                    "서비스")의 이용과 관련하여 개발팀과 이용자 간의 권리, 의무, 책임사항 및 기타
-                    필요한 사항을 규정함을 목적으로 합니다.
+                    본 약관은 공감대로0번길(이하 "GGDRN0 STUDIO" 또는 "개발팀")이 제공하는 RACLA
+                    서비스(이하 "서비스")의 이용과 관련하여 개발팀과 이용자 간의 권리, 의무,
+                    책임사항 및 기타 필요한 사항을 규정함을 목적으로 합니다.
                   </p>
                 </div>
 
                 <div>
-                  <h3 className='tw-font-bold tw-mb-2'>제2조 (정의)</h3>
+                  <h3 className='tw-text-base tw-font-bold tw-mb-2'>제2조 (정의)</h3>
                   <div className='tw-space-y-2'>
                     <p className='tw-leading-relaxed'>
-                      "서비스"란 GGDRN0 STUDIO에 소속된 R-ARCHIVE가 개발하여 제공하는 디지털 콘텐츠
-                      및 관련 서비스를 말합니다.
+                      "서비스"란 공감대로0번길(GGDRN0 STUDIO)에 소속된 RACLA 팀이 개발하여 제공하는
+                      디지털 콘텐츠 및 관련 서비스를 말합니다.
                     </p>
                     <p className='tw-leading-relaxed'>
                       "이용자"란 본 약관에 동의하고 서비스를 이용하는 자를 의미합니다.
@@ -197,7 +197,7 @@ export default function LicensePage() {
                 </div>
 
                 <div>
-                  <h3 className='tw-font-bold tw-mb-2'>제3조 (약관의 효력 및 변경)</h3>
+                  <h3 className='tw-text-base tw-font-bold tw-mb-2'>제3조 (약관의 효력 및 변경)</h3>
                   <div className='tw-space-y-2'>
                     <p className='tw-leading-relaxed'>
                       본 약관은 이용자가 서비스에 접속하여 약관에 동의함으로써 효력이 발생합니다.
@@ -214,7 +214,9 @@ export default function LicensePage() {
                 </div>
 
                 <div>
-                  <h3 className='tw-font-bold tw-mb-2'>제4조 (서비스의 제공 및 제한)</h3>
+                  <h3 className='tw-text-base tw-font-bold tw-mb-2'>
+                    제4조 (서비스의 제공 및 제한)
+                  </h3>
                   <div className='tw-space-y-2'>
                     <p className='tw-leading-relaxed'>
                       본 서비스는 비상업적 사용으로만 제한되며, 상업적 목적으로 사용할 수 없습니다.
@@ -227,7 +229,9 @@ export default function LicensePage() {
                 </div>
 
                 <div>
-                  <h3 className='tw-font-bold tw-mb-2'>제5조 (개인정보의 수집 및 이용)</h3>
+                  <h3 className='tw-text-base tw-font-bold tw-mb-2'>
+                    제5조 (개인정보의 수집 및 이용)
+                  </h3>
                   <div className='tw-space-y-2'>
                     <p className='tw-leading-relaxed'>
                       개발팀은 서비스 제공 및 개선을 위해 최소한의 개인정보를 수집합니다. 수집
@@ -237,9 +241,24 @@ export default function LicensePage() {
                       <li>
                         아이디(서비스의 이용자 고유 번호 또는 제3자 연동 서비스의 이용자 고유 번호)
                       </li>
-                      <li>비밀번호</li>
+                      <li>
+                        비밀번호(기본적인 서비스 이용에서는 미수집, 단 OwO Developer Hub 서비스를
+                        이용하여 RACLA API 외부 활용 시 별도 동의하에 복호화 불가능한 방법으로
+                        암호화된 데이터로 수집)
+                      </li>
+                      <li>
+                        이메일(기본적인 서비스 이용에서는 미수집, 단 OwO Developer Hub 서비스를
+                        이용하여 RACLA API 외부 활용 시 별도 동의하에 수집)
+                      </li>
+                      <li>
+                        주소(기본적인 서비스 이용에서는 미수집, 단 OwO Developer Hub 서비스를
+                        이용하여 RACLA API 외부 활용 시 별도 동의하에 수집)
+                      </li>
                       <li>닉네임</li>
-                      <li>게임 플레이 데이터</li>
+                      <li>
+                        게임 플레이 데이터(텍스트 데이터만 수집, 이미지 데이터의 경우 OCR 처리 시
+                        활용되어 텍스트 데이터 추출 후 즉시 폐기)
+                      </li>
                       <li>
                         접속 환경(IP 주소, 접속 일시, 접속 URL와 브라우저에서 제공되는 브라우저
                         정보, 운영체제 정보, 접속 기기)
@@ -252,15 +271,184 @@ export default function LicensePage() {
                     <p className='tw-leading-relaxed'>
                       수집된 개인정보는 서비스 제공 및 통계 분석 목적으로만 사용됩니다.
                     </p>
-                    {/* <p className="tw-leading-relaxed">개발팀은 이용자의 개인정보를 관련 법령에 따라 보호하며, 자세한 내용은 개인정보 처리방침을 따릅니다.</p> */}
                     <p className='tw-leading-relaxed'>
-                      개발팀은 이용자의 개인정보를 관련 법령에 따라 보호합니다.
+                      개발팀은 이용자의 개인정보를 관련 법령에 따라 보호하며, 자세한 내용은
+                      <span
+                        className='hover:tw-text-blue-300 tw-text-blue-400 tw-cursor-pointer'
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          window.ipc.send('openBrowser', 'https://gongroin.com/policy/privacy')
+                        }}
+                      >
+                        {' '}
+                        공감대로0번길(GGDRN0 STUDIO)의 개인정보 처리방침
+                      </span>
+                      을 따릅니다.
                     </p>
                   </div>
                 </div>
 
                 <div>
-                  <h3 className='tw-font-bold tw-mb-2'>제6조 (이용자의 의무)</h3>
+                  <h3 className='tw-text-base tw-font-bold tw-mb-2'>
+                    제6조 (개인정보의 국외 이전)
+                  </h3>
+                  <div className='tw-space-y-2'>
+                    <p className='tw-leading-relaxed'>
+                      개발팀은 서비스 이용자로부터 수집한 개인정보를 아래와 같이 국외에 위탁하고
+                      있습니다. 서비스 제공을 위한 데이터 보관 및 인프라 운영을 위해 필수적으로
+                      수반되는 업무에 대해 국외이전되고 있으므로 국외이전을 거부하실 경우
+                      서비스이용이 불가능합니다. 국외 이전을 원치 않으실 경우 해당 되는 서비스에서
+                      회원탈퇴를 진행 또는 고객센터에 문의 주시기 바랍니다. 서비스에서 별도로
+                      명시되지 않은 경우 개발팀의 자산 또는 개인정보의 국외 이전에 해당하지 않는
+                      자산을 활용하여 처리됩니다.
+                    </p>
+                    <p className='tw-leading-relaxed tw-font-bold'>
+                      개인정보 처리업무 위탁현황(국외)
+                    </p>
+                    <div className='tw-overflow-x-auto'>
+                      <table className='tw-min-w-full tw-border-collapse tw-border tw-border-gray-700'>
+                        <thead>
+                          <tr className='tw-bg-gray-800'>
+                            <th className='tw-border tw-border-gray-700 tw-p-2 tw-text-left'>
+                              수탁업체
+                            </th>
+                            <th className='tw-border tw-border-gray-700 tw-p-2 tw-text-left'>
+                              연락처
+                            </th>
+                            <th className='tw-border tw-border-gray-700 tw-p-2 tw-text-left'>
+                              위탁업무
+                            </th>
+                            <th className='tw-border tw-border-gray-700 tw-p-2 tw-text-left'>
+                              이전되는 개인정보 항목
+                            </th>
+                            <th className='tw-border tw-border-gray-700 tw-p-2 tw-text-left'>
+                              이전되는 국가
+                            </th>
+                            <th className='tw-border tw-border-gray-700 tw-p-2 tw-text-left'>
+                              이전일시 및 방법
+                            </th>
+                            <th className='tw-border tw-border-gray-700 tw-p-2 tw-text-left'>
+                              이전목적
+                            </th>
+                            <th className='tw-border tw-border-gray-700 tw-p-2 tw-text-left'>
+                              개인정보 보유 및 이용기간
+                            </th>
+                            <th className='tw-border tw-border-gray-700 tw-p-2 tw-text-left'>
+                              관련근거
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td className='tw-border tw-border-zinc-700 tw-p-2'>
+                              Amazon Web Services, Inc.
+                            </td>
+                            <td className='tw-border tw-border-zinc-700 tw-p-2'>
+                              aws-korea-privacy@amazon.com
+                            </td>
+                            <td className='tw-border tw-border-zinc-700 tw-p-2'>
+                              정보 보관, 인프라 운영
+                            </td>
+                            <td className='tw-border tw-border-zinc-700 tw-p-2'>
+                              본 서비스 이용약관 제5조에 해당하는 정보와 이용자간 상호작용 정보를
+                              포함하는 서비스 이용기록
+                            </td>
+                            <td className='tw-border tw-border-zinc-700 tw-p-2'>미국</td>
+                            <td className='tw-border tw-border-zinc-700 tw-p-2'>
+                              서비스 이용시점에 암호화 통신을 통한 안전한 전송
+                            </td>
+                            <td className='tw-border tw-border-zinc-700 tw-p-2'>
+                              서비스 제공을 위한 인프라 운영 및 데이터 보관
+                            </td>
+                            <td className='tw-border tw-border-zinc-700 tw-p-2'>
+                              회원탈퇴 또는 위탁계약 종료 시
+                            </td>
+                            <td className='tw-border tw-border-zinc-700 tw-p-2'>
+                              개인정보보호법 제28조의8 제1항 제3호(계약이행을 위한 처리 위탁/보관)
+                            </td>
+                          </tr>
+                          <tr>
+                            <td className='tw-border tw-border-zinc-700 tw-p-2'>IBM Corp.</td>
+                            <td className='tw-border tw-border-zinc-700 tw-p-2'>
+                              <span
+                                className='hover:tw-text-blue-300 tw-text-blue-400 tw-cursor-pointer'
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  window.ipc.send(
+                                    'openBrowser',
+                                    'https://www.ibm.com/privacy/requests/contact/kr-ko',
+                                  )
+                                }}
+                              >
+                                IBM Trust Center
+                              </span>
+                            </td>
+                            <td className='tw-border tw-border-zinc-700 tw-p-2'>
+                              정보 보관, 인프라 운영
+                            </td>
+                            <td className='tw-border tw-border-zinc-700 tw-p-2'>
+                              본 서비스 이용약관 제5조에 해당하는 정보와 이용자간 상호작용 정보를
+                              포함하는 서비스 이용기록
+                            </td>
+                            <td className='tw-border tw-border-zinc-700 tw-p-2'>미국, 일본</td>
+                            <td className='tw-border tw-border-zinc-700 tw-p-2'>
+                              서비스 이용시점에 암호화 통신을 통한 안전한 전송
+                            </td>
+                            <td className='tw-border tw-border-zinc-700 tw-p-2'>
+                              서비스 제공을 위한 인프라 운영 및 데이터 보관
+                            </td>
+                            <td className='tw-border tw-border-zinc-700 tw-p-2'>
+                              회원탈퇴 또는 위탁계약 종료 시
+                            </td>
+                            <td className='tw-border tw-border-zinc-700 tw-p-2'>
+                              개인정보보호법 제28조의8 제1항 제3호(계약이행을 위한 처리 위탁/보관)
+                            </td>
+                          </tr>
+                          <tr>
+                            <td className='tw-border tw-border-zinc-700 tw-p-2'>Oracle Corp.</td>
+                            <td className='tw-border tw-border-zinc-700 tw-p-2'>
+                              <span
+                                className='hover:tw-text-blue-300 tw-text-blue-400 tw-cursor-pointer'
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  window.ipc.send(
+                                    'openBrowser',
+                                    'https://www.oracle.com/corporate/contact/',
+                                  )
+                                }}
+                              >
+                                Oracle Contacts
+                              </span>
+                            </td>
+                            <td className='tw-border tw-border-zinc-700 tw-p-2'>
+                              정보 보관, 인프라 운영
+                            </td>
+                            <td className='tw-border tw-border-zinc-700 tw-p-2'>
+                              본 서비스 이용약관 제5조에 해당하는 정보와 이용자간 상호작용 정보를
+                              포함하는 서비스 이용기록
+                            </td>
+                            <td className='tw-border tw-border-zinc-700 tw-p-2'>미국</td>
+                            <td className='tw-border tw-border-zinc-700 tw-p-2'>
+                              서비스 이용시점에 암호화 통신을 통한 안전한 전송
+                            </td>
+                            <td className='tw-border tw-border-zinc-700 tw-p-2'>
+                              서비스 제공을 위한 인프라 운영 및 데이터 보관
+                            </td>
+                            <td className='tw-border tw-border-zinc-700 tw-p-2'>
+                              회원탈퇴 또는 위탁계약 종료 시
+                            </td>
+                            <td className='tw-border tw-border-zinc-700 tw-p-2'>
+                              개인정보보호법 제28조의8 제1항 제3호(계약이행을 위한 처리 위탁/보관)
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className='tw-text-base tw-font-bold tw-mb-2'>제7조 (이용자의 의무)</h3>
                   <div className='tw-space-y-2'>
                     <p className='tw-leading-relaxed'>
                       이용자는 서비스를 비상업적 용도로만 이용해야 하며, 상업적 이익을 위해 사용할
@@ -273,7 +461,7 @@ export default function LicensePage() {
                 </div>
 
                 <div>
-                  <h3 className='tw-font-bold tw-mb-2'>제7조 (광고 게재)</h3>
+                  <h3 className='tw-text-base tw-font-bold tw-mb-2'>제8조 (광고 게재)</h3>
                   <div className='tw-space-y-2'>
                     <p className='tw-leading-relaxed'>
                       서비스 운영 및 유지 비용을 충당하기 위해 서비스 내에 광고가 게재될 수
@@ -288,7 +476,7 @@ export default function LicensePage() {
                 </div>
 
                 <div>
-                  <h3 className='tw-font-bold tw-mb-2'>제8조 (책임 제한)</h3>
+                  <h3 className='tw-text-base tw-font-bold tw-mb-2'>제9조 (책임 제한)</h3>
                   <div className='tw-space-y-2'>
                     <p className='tw-leading-relaxed'>
                       개발팀은 서비스 이용 중 발생한 손해에 대해 책임을 지지 않습니다. 단, 개발팀의
@@ -301,7 +489,7 @@ export default function LicensePage() {
                 </div>
 
                 <div>
-                  <h3 className='tw-font-bold tw-mb-2'>제9조 (분쟁 해결)</h3>
+                  <h3 className='tw-text-base tw-font-bold tw-mb-2'>제10조 (분쟁 해결)</h3>
                   <div className='tw-space-y-2'>
                     <p className='tw-leading-relaxed'>
                       본 약관에 명시되지 않은 사항은 관련 법령 및 상관례에 따릅니다.
@@ -314,8 +502,8 @@ export default function LicensePage() {
                 </div>
 
                 <div>
-                  <h3 className='tw-font-bold tw-mb-2'>부칙</h3>
-                  <p className='tw-leading-relaxed'>본 약관은 2025년 1월 31일부터 적용됩니다.</p>
+                  <h3 className='tw-text-base tw-font-bold tw-mb-2'>부칙</h3>
+                  <p className='tw-leading-relaxed'>본 약관은 2025년 4월 1일부터 적용됩니다.</p>
                 </div>
               </div>
             </div>

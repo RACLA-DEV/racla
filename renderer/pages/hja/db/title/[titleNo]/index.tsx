@@ -117,11 +117,11 @@ export default function VArchiveDbTitlePage() {
           try {
             const [hardResponse, maxResponse] = await Promise.all([
               axios.post(`${process.env.NEXT_PUBLIC_PROXY_API_URL}`, {
-                url: 'https://hard-archive.com/api/v2/record',
+                url: 'https://hard-archive.com/api/v2/racla/record',
                 queryString: `button=${button}&lv=${level}&song=${baseSongData[0].hardArchiveTitle}&judge=hard`,
               }),
               axios.post(`${process.env.NEXT_PUBLIC_PROXY_API_URL}`, {
-                url: 'https://hard-archive.com/api/v2/record',
+                url: 'https://hard-archive.com/api/v2/racla/record',
                 queryString: `button=${button}&lv=${level}&song=${baseSongData[0].hardArchiveTitle}&judge=max`,
               }),
             ])
@@ -150,11 +150,11 @@ export default function VArchiveDbTitlePage() {
           try {
             const [hardResponse, maxResponse] = await Promise.all([
               axios.post(`${process.env.NEXT_PUBLIC_PROXY_API_URL}`, {
-                url: 'https://hard-archive.com/api/v2/record',
+                url: 'https://hard-archive.com/api/v2/racla/record',
                 queryString: `button=${button}&lv=${level}&song=${baseSongData[0].hardArchiveTitle}&judge=hard`,
               }),
               axios.post(`${process.env.NEXT_PUBLIC_PROXY_API_URL}`, {
-                url: 'https://hard-archive.com/api/v2/record',
+                url: 'https://hard-archive.com/api/v2/racla/record',
                 queryString: `button=${button}&lv=${level}&song=${baseSongData[0].hardArchiveTitle}&judge=max`,
               }),
             ])

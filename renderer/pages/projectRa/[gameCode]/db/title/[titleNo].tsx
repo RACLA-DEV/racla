@@ -59,7 +59,7 @@ export default function VArchiveDbTitlePage() {
       if (userData.userName) {
         try {
           const response = await axios.get(
-            `${process.env.NEXT_PUBLIC_API_URL}/v2/songs/${selectedGame}/${params?.titleNo}/user/${userData.userNo}`,
+            `${process.env.NEXT_PUBLIC_API_URL}/v2/racla/songs/${selectedGame}/${params?.titleNo}/user/${userData.userNo}`,
             {
               headers: {
                 Authorization: `${userData.userNo}|${userData.userToken}`,
@@ -109,13 +109,21 @@ export default function VArchiveDbTitlePage() {
 
   useEffect(() => {
     if (baseSongData.length > 0) {
-      dispatch(setBackgroundBgaName(String(baseSongData[0].folderName) + '_preview'))
+      dispatch(
+        setBackgroundBgaName(
+          'resources/music' + String(baseSongData[0].bgaPreviewFileName).replace('.mp4', ''),
+        ),
+      )
     }
   }, [baseSongData])
 
   useEffect(() => {
     if (backgroundBgaName !== '' && baseSongData.length > 0) {
-      dispatch(setBackgroundBgaName(String(baseSongData[0].folderName) + '_preview'))
+      dispatch(
+        setBackgroundBgaName(
+          'resources/music' + String(baseSongData[0].bgaPreviewFileName).replace('.mp4', ''),
+        ),
+      )
     }
   }, [backgroundBgaName])
 
@@ -132,7 +140,7 @@ export default function VArchiveDbTitlePage() {
       try {
         const response = await axios
           .post(
-            `${process.env.NEXT_PUBLIC_API_URL}/v2/play/${selectedGame}/update`,
+            `${process.env.NEXT_PUBLIC_API_URL}/v2/racla/play/${selectedGame}/update`,
             {
               button: Number(String(patternButton).replace('B', '').replace('_PLUS', '')),
               pattern: patternDificulty,
@@ -154,7 +162,7 @@ export default function VArchiveDbTitlePage() {
             if (data.data.success) {
               // 곡 데이터를 다시 불러옴
               const response = await axios.get(
-                `${process.env.NEXT_PUBLIC_API_URL}/v2/songs/${selectedGame}/${baseSongData[0].title}/user/${userData.userNo}`,
+                `${process.env.NEXT_PUBLIC_API_URL}/v2/racla/songs/${selectedGame}/${baseSongData[0].title}/user/${userData.userNo}`,
                 {
                   headers: {
                     Authorization: `${userData.userNo}|${userData.userToken}`,
@@ -222,7 +230,7 @@ export default function VArchiveDbTitlePage() {
     try {
       if (userData.userName !== '') {
         const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}/v2/songs/${selectedGame}/${title}/user/${userData.userNo}`,
+          `${process.env.NEXT_PUBLIC_API_URL}/v2/racla/songs/${selectedGame}/${title}/user/${userData.userNo}`,
           {
             headers: {
               Authorization: `${userData.userNo}|${userData.userToken}`,
@@ -264,7 +272,7 @@ export default function VArchiveDbTitlePage() {
     if (userData.userName !== '') {
       try {
         const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}/v2/songs/${selectedGame}/${title}/user/${userData.userNo}`,
+          `${process.env.NEXT_PUBLIC_API_URL}/v2/racla/songs/${selectedGame}/${title}/user/${userData.userNo}`,
           {
             headers: {
               Authorization: `${userData.userNo}|${userData.userToken}`,
@@ -332,10 +340,10 @@ export default function VArchiveDbTitlePage() {
   const [showPatternViewer, setShowPatternViewer] = useState<boolean>(false)
 
   // 패턴 데이터를 불러오는 함수
-  const fetchPatternData = async (folderName: string, patternName: any, isKey6: boolean) => {
+  const fetchPatternData = async (patternFileName: string) => {
     try {
       const response = await fetch(
-        `https://cdn.racla.app/${selectedGame}/music/${folderName}/${folderName} ${patternName?.en}${isKey6 ? ' Key6' : ''}.txt`,
+        `https://cdn.racla.app/${selectedGame}/resources/music${patternFileName}`,
       )
 
       if (!response.ok) {
@@ -343,8 +351,7 @@ export default function VArchiveDbTitlePage() {
       }
 
       const textData = await response.text()
-      const jsonData = JSON.parse(textData)
-      setPatternViewerData(jsonData)
+      setPatternViewerData(textData)
       setShowPatternViewer(true)
     } catch (error) {
       logRendererError(error, { message: 'Error in fetchPatternData', ...userData })
@@ -380,7 +387,7 @@ export default function VArchiveDbTitlePage() {
               {/* 배경 이미지 추가 */}
               <div className='tw-absolute tw-inset-0 tw-overflow-hidden tw-rounded-md'>
                 <Image
-                  src={`https://cdn.racla.app/${selectedGame}/jackets/${baseSongData[0].folderName}.jpg`}
+                  src={`https://cdn.racla.app/${selectedGame}/resources/jackets/${String(baseSongData[0].title)}.jpg`}
                   layout='fill'
                   objectFit='cover'
                   alt=''
@@ -395,7 +402,7 @@ export default function VArchiveDbTitlePage() {
                   <Image
                     loading='lazy' // "lazy" | "eager"
                     blurDataURL={globalDictionary.blurDataURL}
-                    src={`https://cdn.racla.app/${selectedGame}/jackets/${baseSongData[0].folderName}.jpg`}
+                    src={`https://cdn.racla.app/${selectedGame}/resources/jackets/${String(baseSongData[0].title)}.jpg`}
                     height={74}
                     width={130}
                     alt=''
@@ -499,10 +506,8 @@ export default function VArchiveDbTitlePage() {
                                       className='tw-absolute tw-right-2 tw-z-[100] tw-top-2 tw-flex-1 tw-px-2 tw-py-2 tw-bg-blue-600 tw-text-white tw-rounded-md hover:tw-bg-blue-500 tw-transition-all tw-text-sm'
                                       onClick={() =>
                                         fetchPatternData(
-                                          baseSongData[0].folderName,
                                           baseSongData[0].patterns[patternName][difficultyCode]
-                                            .patternName,
-                                          String(patternName).includes('6B'),
+                                            .patternFileName,
                                         )
                                       }
                                     >

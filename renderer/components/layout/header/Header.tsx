@@ -319,6 +319,31 @@ const HeaderComponent: React.FC<IHeaderComponentProps> = ({
           placement='bottom'
           overlay={
             <Tooltip id='btn-select-game-respect-v' className={className + ' tw-text-xs'}>
+              Coming Soon! - RACLA 자체 제공 서비스
+            </Tooltip>
+          }
+        >
+          <button
+            type='button'
+            className='tw-flex tw-justify-center tw-items-center btn-select-game tw-gap-1 tw-rounded-sm tw-text-xs'
+          >
+            <Image
+              loading='lazy' // "lazy" | "eager"
+              blurDataURL={globalDictionary.blurDataURL}
+              src={`https://cdn.racla.app/platina_lab/download.svg`}
+              height={16}
+              width={16}
+              alt={'PLATiNA :: LAB'}
+            />
+            <span className='tw-text-xs'>PLATiNA :: LAB</span>
+          </button>
+        </OverlayTrigger>
+
+        {/* 버튼 */}
+        <OverlayTrigger
+          placement='bottom'
+          overlay={
+            <Tooltip id='btn-select-game-respect-v' className={className + ' tw-text-xs'}>
               Life is too short, You need RACLA
             </Tooltip>
           }

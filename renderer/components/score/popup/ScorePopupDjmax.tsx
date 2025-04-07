@@ -88,7 +88,7 @@ const ScorePopupComponent = ({
 
           if (!isVarchive) {
             const response = await axios.get(
-              `${process.env.NEXT_PUBLIC_API_URL}/v2/songs/djmax_respect_v/${title}/user/${userData.userNo}`,
+              `${process.env.NEXT_PUBLIC_API_URL}/v2/racla/songs/djmax_respect_v/${title}/user/${userData.userNo}`,
               {
                 headers: {
                   Authorization: `${userData.userNo}|${userData.userToken}`,

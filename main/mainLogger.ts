@@ -31,7 +31,7 @@ export const logMainError = async (error: Error, context?: any) => {
     }
 
     await customAxios.post(
-      `${process.env.NODE_ENV === 'production' ? 'https://api.service.racla.app/api' : 'https://api.service.racla.app/api'}/v1/log/client/create`,
+      `${process.env.NODE_ENV === 'production' ? 'https://api.racla.app/api' : 'https://api.service.racla.q-owo-p.space/api'}/v2/racla/log/client/create`,
       errorData,
     )
   } catch (loggingError) {

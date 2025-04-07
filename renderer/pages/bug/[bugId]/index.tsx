@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react'
 
-import Head from 'next/head'
-import { RootState } from 'store'
-import { SyncLoader } from 'react-spinners'
+import { logRendererError } from '@utils/rendererLoggerUtils'
 import axios from 'axios'
 import dayjs from 'dayjs'
-import { logRendererError } from '@utils/rendererLoggerUtils'
 import { motion } from 'framer-motion'
+import Head from 'next/head'
 import { useRouter } from 'next/router'
 import { useSelector } from 'react-redux'
+import { SyncLoader } from 'react-spinners'
+import { RootState } from 'store'
 
 interface Comment {
   id: number
@@ -40,7 +40,7 @@ export default function BugDetail() {
 
   const fetchBugDetail = async () => {
     try {
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/v1/bug/${bugId}`, {
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/v2/racla/bug/${bugId}`, {
         headers: { Authorization: `${userData.userNo}|${userData.userToken}'` },
         withCredentials: true,
       })
@@ -61,7 +61,7 @@ export default function BugDetail() {
     try {
       setLoading(true)
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/v1/bug/${bugId}/comments`,
+        `${process.env.NEXT_PUBLIC_API_URL}/v2/racla/bug/${bugId}/comments`,
         { content: newComment },
         {
           headers: { Authorization: `${userData.userNo}|${userData.userToken}'` },

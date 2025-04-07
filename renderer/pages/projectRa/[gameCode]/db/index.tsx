@@ -50,8 +50,10 @@ export default function VArchiveDbPage() {
         if (title) {
           dispatch(
             setBackgroundBgaName(
-              String(wjmaxSongData.filter((song) => song.title == title)[0].folderName) +
-                '_preview',
+              'resources/music' +
+                String(
+                  wjmaxSongData.filter((song) => song.title == title)[0].bgaPreviewFileName,
+                ).replace('.mp4', ''),
             ),
           )
         }
@@ -456,7 +458,7 @@ export default function VArchiveDbPage() {
                 <div className='tw-flex tw-justify-end tw-gap-2 tw-items-center tw-text-xs tw-font-semibold'>
                   <FaCircleCheck className='tw-text-green-500' />
                   <div className='tw-flex tw-items-center tw-gap-1 tw-text-gray-300'>
-                    WJMAX 4.0.2 데이터로 동기화됨
+                    WJMAX 4.0.6.1 데이터로 동기화됨
                   </div>
                 </div>
               </div>

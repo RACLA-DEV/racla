@@ -28,7 +28,7 @@ const Overlay = ({ isNotificationSound }: { isNotificationSound: boolean }) => {
     try {
       if (songId) {
         const response = await axios.post(`${process.env.NEXT_PUBLIC_PROXY_API_URL}`, {
-          url: `https://hard-archive.com/api/v2/record`,
+          url: `https://hard-archive.com/api/v2/racla/record`,
           queryString: `button=${button}B&lv=SC${level}&judge=${judge}&song=${songId}`,
         })
         const data = response.data.data
@@ -113,7 +113,7 @@ const Overlay = ({ isNotificationSound }: { isNotificationSound: boolean }) => {
           // 최근 기록은 설정값 체크 후 조회
           if (settingData.recentOverlay) {
             const recentResponse = await axios.get(
-              `${process.env.NEXT_PUBLIC_API_URL}/v2/play/history/${sessionData.userNo}/${data.gameCode}/${data.songData.title as string}/${String(data.button).replace('B', '')}B/${patternToCode(data.pattern)}`,
+              `${process.env.NEXT_PUBLIC_API_URL}/v2/racla/play/history/${sessionData.userNo}/${data.gameCode}/${data.songData.title as string}/${String(data.button).replace('B', '')}B/${patternToCode(data.pattern)}`,
               {
                 headers: {
                   Authorization: `${sessionData.userNo}|${sessionData.userToken}`,
@@ -348,7 +348,7 @@ const Overlay = ({ isNotificationSound }: { isNotificationSound: boolean }) => {
             >
               <div className='tw-absolute tw-inset-0 tw-overflow-hidden tw-rounded-md tw-z-0'>
                 <Image
-                  src={`https://cdn.racla.app/wjmax/jackets/${data.songData.folderName}.jpg`}
+                  src={`https://cdn.racla.app/wjmax/resources/jackets/${String(data.songData.title)}.jpg`}
                   layout='fill'
                   objectFit='cover'
                   alt=''
@@ -359,7 +359,7 @@ const Overlay = ({ isNotificationSound }: { isNotificationSound: boolean }) => {
                 <Image
                   loading='lazy' // "lazy" | "eager"
                   blurDataURL={globalDictionary.blurDataURL}
-                  src={`https://cdn.racla.app/wjmax/jackets/${data.songData.folderName}.jpg`}
+                  src={`https://cdn.racla.app/wjmax/resources/jackets/${String(data.songData.title)}.jpg`}
                   alt='title'
                   width={113}
                   height={60}

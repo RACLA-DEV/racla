@@ -2,11 +2,11 @@ import 'dayjs/locale/ko'
 
 import React, { useEffect, useState } from 'react'
 
-import Head from 'next/head'
-import LocalizedFormat from 'dayjs/plugin/localizedFormat'
-import { SyncLoader } from 'react-spinners'
 import axios from 'axios'
 import dayjs from 'dayjs'
+import LocalizedFormat from 'dayjs/plugin/localizedFormat'
+import Head from 'next/head'
+import { SyncLoader } from 'react-spinners'
 
 dayjs.locale('ko')
 dayjs.extend(LocalizedFormat)
@@ -55,10 +55,10 @@ const HjaRankingPage = () => {
 
       const [dailyResponse, totalResponse] = await Promise.all([
         axios.get(
-          `${process.env.NEXT_PUBLIC_PROXY_API_URL}?url=https://hard-archive.com/api/v2/ranking/top-rank`,
+          `${process.env.NEXT_PUBLIC_PROXY_API_URL}?url=https://hard-archive.com/api/v2/racla/ranking/top-rank`,
         ),
         axios.get(
-          `${process.env.NEXT_PUBLIC_PROXY_API_URL}?url=https://hard-archive.com/api/v2/ranking/total`,
+          `${process.env.NEXT_PUBLIC_PROXY_API_URL}?url=https://hard-archive.com/api/v2/racla/ranking/total`,
         ),
       ])
 

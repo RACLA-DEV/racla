@@ -28,7 +28,7 @@ export const logRendererError = async (error: Error | unknown, additionalInfo?: 
       clientAdditionalInfo: additionalInfo,
     }
 
-    await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/v1/log/client/create`, errorData)
+    await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/v2/racla/log/client/create`, errorData)
   } catch (loggingError) {
     console.error('Failed to log error:', loggingError)
   }

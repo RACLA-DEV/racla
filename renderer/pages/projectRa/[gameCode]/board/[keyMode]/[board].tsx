@@ -126,7 +126,7 @@ const Board = () => {
 
         // V-ARCHIVE API에서 점수 데이터 가져오기
         const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}/v1/board/wjmax/${keyMode}/${board}/user/${userData.userNo}`,
+          `${process.env.NEXT_PUBLIC_API_URL}/v2/racla/board/wjmax/${keyMode}/${board}/user/${userData.userNo}`,
           {
             headers: { Authorization: `${userData.userNo}|${userData.userToken}` },
             withCredentials: true,
@@ -393,7 +393,7 @@ const Board = () => {
             <div className='tw-flex tw-gap-4'>
               <div className='tw-relative tw-w-2/3 tw-h-[20rem] tw-rounded-lg tw-overflow-hidden [text-shadow:_2px_2px_2px_rgb(0_0_0_/_90%),_4px_4px_4px_rgb(0_0_0_/_60%)]'>
                 <Image
-                  src={`https://cdn.racla.app/wjmax/jackets/${wjmaxSongData[randomHeaderBg - 1].folderName}.jpg`}
+                  src={`https://cdn.racla.app/wjmax/resources/jackets/${String(wjmaxSongData[randomHeaderBg - 1].title)}.jpg`}
                   alt='Background'
                   fill
                   className='tw-object-cover tw-blur-md tw-opacity-50 tw-brightness-50'
