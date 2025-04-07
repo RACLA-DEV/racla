@@ -1,6 +1,8 @@
-import { globalDictionary } from '@constants/globalDictionary'
+import { globalDictionary } from '@/constants/globalDictionary'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
+import { useEffect, useState } from 'react'
+import { FaCircle } from 'react-icons/fa'
 import { useSelector } from 'react-redux'
 import type { RootState } from 'store'
 import FooterLicenseDjmaxRespectV from './FooterLicenseDjmax'
@@ -11,9 +13,38 @@ interface IFooterComponent {
   className?: string
 }
 
+interface ServerStatus {
+  message: string
+  version: string
+  timestamp: number
+}
+
 const FooterComponent = ({ className }: IFooterComponent) => {
   const router = useRouter()
   const { selectedGame } = useSelector((state: RootState) => state.app)
+  const [serverStatus, setServerStatus] = useState<ServerStatus | null>(null)
+  const [isOnline, setIsOnline] = useState<boolean>(false)
+
+  useEffect(() => {
+    const checkServerStatus = async () => {
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v2/racla/ping`)
+        if (response.ok) {
+          const data = await response.json()
+          setServerStatus(data)
+          setIsOnline(true)
+        } else {
+          setIsOnline(false)
+        }
+      } catch (error) {
+        setIsOnline(false)
+      }
+    }
+
+    checkServerStatus()
+    const interval = setInterval(checkServerStatus, 30000) // 30초마다 체크
+    return () => clearInterval(interval)
+  }, [])
 
   const renderGameSpecificContent = (game: string) => {
     switch (game) {
@@ -34,12 +65,24 @@ const FooterComponent = ({ className }: IFooterComponent) => {
         <span className='tw-text-xs tw-flex tw-items-center'>
           <span className='tw-flex tw-items-center tw-gap-1'>
             <span
-              className='tw-cursor-pointer'
               onClick={() => {
                 window.ipc.openBrowser('https://racla.app')
               }}
+              className='tw-cursor-pointer tw-flex tw-items-center tw-gap-1'
             >
-              RACLA 데스크톱 앱 · {globalDictionary.version}
+              <div className='tw-relative tw-flex tw-items-center tw-justify-center tw-mr-1'>
+                <FaCircle
+                  className={`tw-text-xs ${isOnline ? 'tw-text-green-500' : 'tw-text-red-500'} tw-relative tw-z-10 tw-align-middle`}
+                />
+                {isOnline && (
+                  <div className='tw-absolute tw-w-3 tw-h-3 tw-rounded-full tw-bg-white tw-opacity-30 tw-animate-ping' />
+                )}
+              </div>
+              <span className='tw-leading-none'>
+                {isOnline
+                  ? `Server Connected - ${serverStatus?.version} - ${globalDictionary.version}`
+                  : 'Server Disconnected - ${globalDictionary.version}'}
+              </span>
             </span>
             {/* - <FaTriangleExclamation /> 해당 버전은 개발 중인 화면으로 최종적인 버전이 아닙니다. */}
             {/* - <FaTriangleExclamation /> 개발자 빌드 */}
