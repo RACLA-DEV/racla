@@ -1,5 +1,5 @@
 # RACLA
-![RACLA](https://ribbon.r-archive.zip/gongroin/og-image-racla.png)    
+![RACLA](https://cdn.gongroin.com/gongroin/og-image-racla.png)    
     
 RACLA는 R-ARCHIVE 팀(GGDRN0 STUDIO)에서 개발한 종합리듬 게임 성과 관리 도구입니다.    
 본 레포지토리에서는 최종 결과물인 RACLA 데스크톱 앱을 Windows, Mac(Intel) 플랫폼으로 배포합니다. 
