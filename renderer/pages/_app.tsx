@@ -951,7 +951,7 @@ function MyApp({ Component, pageProps }: AppProps) {
                   본 서비스에서 제공되는 리소스는 각 저작권자로부터 별도의 라이선스를 부여받지 않았습니다. 비상업적인 용도로만 사용할 수 있습니다.
                 </span> */}
                 <span className='tw-text-xs tw-font-light tw-text-gray-200 tw-text-opacity-50'>
-                  Developed by RACLA from GGDRN0 STUDIO
+                  Developed by RACLA from 공감대로0번길(GGDRN0 STUDIO)
                 </span>
               </div>
             </div>

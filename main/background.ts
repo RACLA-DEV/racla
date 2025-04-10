@@ -115,7 +115,7 @@ const discordRPC = discordManager
 
 let isRunningDjmax = false
 let isRunningWjmax = false
-let gameStatusCheckInterval: NodeJS.Timeout | null = null
+let gameStatusCheckTimeoutId: NodeJS.Timeout | null = null
 let bounds: { x: number; y: number; width: number; height: number } | null = null
 
 const gameList = { djmax_respect_v: 'DJMAX RESPECT V', wjmax: 'WJMAX' }
@@ -132,6 +132,12 @@ if (!gotTheLock) {
 // 윈도우 이동/리사이즈 중인지 추적하는 변수 추가
 let isWindowMoving = false
 let windowMoveTimeout = null
+let isMainWindowFocused = false
+
+// 타이머 ID를 저장할 변수들 추가
+let gameOverlayLoopTimeoutId: NodeJS.Timeout | null = null
+let focusedWindowCheckTimeoutId: NodeJS.Timeout | null = null
+let gameCaptureTimeoutId: NodeJS.Timeout | null = null
 
 let tray: Tray | null = null
 let mainWindow: BrowserWindow | null = null
@@ -526,6 +532,61 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
     }, 100)
   })
 
+  // 메인 윈도우 포커스 이벤트 핸들러 수정
+  mainWindow.on('focus', () => {
+    if (!isLoaded) return;
+    
+    isMainWindowFocused = true;
+    
+    // 오버레이 윈도우 즉시 숨기기
+    if (overlayWindow && overlayWindow.isVisible()) {
+      overlayWindow.hide();
+      log.debug('Main Window Focused: Overlay Window Hidden');
+    }
+    
+    // 기존 타이머 중지
+    if (gameOverlayLoopTimeoutId) {
+      clearTimeout(gameOverlayLoopTimeoutId);
+      gameOverlayLoopTimeoutId = null;
+    }
+    if (focusedWindowCheckTimeoutId) {
+      clearTimeout(focusedWindowCheckTimeoutId);
+      focusedWindowCheckTimeoutId = null;
+    }
+    if (gameStatusCheckTimeoutId) {
+      clearTimeout(gameStatusCheckTimeoutId);
+      gameStatusCheckTimeoutId = null;
+    }
+    if (gameCaptureTimeoutId) {
+      clearTimeout(gameCaptureTimeoutId);
+      gameCaptureTimeoutId = null;
+    }
+    
+    log.debug('Main Window Focused: All check timers stopped');
+  });
+
+  mainWindow.on('blur', () => {
+    if (!isLoaded) return;
+    
+    isMainWindowFocused = false;
+    
+    // 타이머 재시작
+    if (!gameOverlayLoopTimeoutId) {
+      checkGameOverlayLoop();
+    }
+    if (!focusedWindowCheckTimeoutId) {
+      startFocusedWindowCheck();
+    }
+    if (!gameStatusCheckTimeoutId) {
+      startGameStatusCheck();
+    }
+    if (!gameCaptureTimeoutId) {
+      startGameCapture();
+    }
+    
+    log.debug('Main Window Blured: All check timers restarted');
+  });
+
   overlayWindow = createWindow('overlay', {
     width: 400,
     height: 300,
@@ -608,8 +669,8 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
 
   async function checkGameAndUpdateOverlay() {
     try {
-      // 윈도우 이동/리사이즈 중일 때는 오버레이 업데이트 건너뛰기
-      if (isWindowMoving) {
+      // 메인 윈도우가 포커스된 상태이거나 윈도우 이동/리사이즈 중일 때는 오버레이 업데이트 건너뛰기
+      if (isMainWindowFocused || isWindowMoving) {
         return
       }
       // 게임이 실행중이지 않으면 오버레이 숨기고 early return
@@ -704,33 +765,44 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
     log.info('startFocusedWindowCheck - Focused Window Check Started')
     const checkFocusedWindow = async () => {
       try {
-        if (isRunningDjmax || isRunningWjmax) {
-          const focusedWindow = await getFocusedWindow()
-          currentFocusedWindow = focusedWindow
-        } else {
-          currentFocusedWindow = ''
+        if (isMainWindowFocused || isWindowMoving) {
+          return;
         }
-        setTimeout(checkFocusedWindow, 1000) // 100ms마다 체크
+        
+        if (isRunningDjmax || isRunningWjmax) {
+          const focusedWindow = await getFocusedWindow();
+          currentFocusedWindow = focusedWindow;
+        } else {
+          currentFocusedWindow = '';
+        }
       } catch (error) {
         log.error('startFocusedWindowCheck - Error checking focused window:', error)
         logMainError(error, isLogined ? userData : null)
-        setTimeout(checkFocusedWindow, 1000)
+      } finally {
+        // 메인 윈도우가 포커스되지 않은 경우에만 다음 체크 예약
+        if (!isMainWindowFocused) {
+          focusedWindowCheckTimeoutId = setTimeout(checkFocusedWindow, 1000);
+        }
       }
     }
 
     checkFocusedWindow()
   }
 
-  // checkGameOverlayLoop 함수 수정 - 체크 간격 조가
+  // checkGameOverlayLoop 함수 수정
   const checkGameOverlayLoop = async () => {
     try {
-      await checkGameAndUpdateOverlay()
+      if (!isMainWindowFocused && !isWindowMoving) {
+        await checkGameAndUpdateOverlay();
+      }
     } catch (error) {
       log.error('checkGameOverlayLoop - Error in game check loop:', error)
       logMainError(error, isLogined ? userData : null)
     } finally {
-      // 체크 간격을 100ms로 증가 (초당 10회)
-      setTimeout(() => checkGameOverlayLoop(), 100)
+      // 메인 윈도우가 포커스되지 않은 경우에만 다음 체크 예약
+      if (!isMainWindowFocused) {
+        gameOverlayLoopTimeoutId = setTimeout(() => checkGameOverlayLoop(), 100);
+      }
     }
   }
 
@@ -1066,7 +1138,7 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
     if (userNo !== '' && userToken !== '') {
       session.defaultSession.cookies
         .set({
-          url: isProd ? 'https://api.proxy.racla.app/' : 'https://api.proxy.racla.q-owo-p.space/',
+          url: isProd ? 'https://api.racla.app/proxy' : 'https://api.proxy.racla.q-owo-p.space/proxy',
           name: 'Authorization',
           value: `${userNo}|${userToken}`,
           secure: true,
@@ -1079,7 +1151,7 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
     } else {
       session.defaultSession.cookies
         .remove(
-          isProd ? 'https://api.proxy.racla.app/' : 'https://api.proxy.racla.q-owo-p.space/',
+          isProd ? 'https://api.racla.app/proxy' : 'https://api.proxy.racla.q-owo-p.space/proxy',
           'Authorization',
         )
         .then(() => {
@@ -1115,6 +1187,61 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
       }
 
       if (process.platform == 'win32') {
+        // 메인 윈도우 포커스 이벤트 핸들러 추가
+        mainWindow.on('focus', () => {
+          if (!isLoaded) return;
+          
+          isMainWindowFocused = true;
+          
+          // 오버레이 윈도우 즉시 숨기기
+          if (overlayWindow && overlayWindow.isVisible()) {
+            overlayWindow.hide();
+            log.debug('Main Window Focused: Overlay Window Hidden');
+          }
+          
+          // 기존 타이머 중지
+          if (gameOverlayLoopTimeoutId) {
+            clearTimeout(gameOverlayLoopTimeoutId);
+            gameOverlayLoopTimeoutId = null;
+          }
+          if (focusedWindowCheckTimeoutId) {
+            clearTimeout(focusedWindowCheckTimeoutId);
+            focusedWindowCheckTimeoutId = null;
+          }
+          if (gameStatusCheckTimeoutId) {
+            clearTimeout(gameStatusCheckTimeoutId);
+            gameStatusCheckTimeoutId = null;
+          }
+          if (gameCaptureTimeoutId) {
+            clearTimeout(gameCaptureTimeoutId);
+            gameCaptureTimeoutId = null;
+          }
+          
+          log.debug('Main Window Focused: All check timers stopped');
+        });
+
+        mainWindow.on('blur', () => {
+          if (!isLoaded) return;
+          
+          isMainWindowFocused = false;
+          
+          // 타이머 재시작
+          if (!gameOverlayLoopTimeoutId) {
+            checkGameOverlayLoop();
+          }
+          if (!focusedWindowCheckTimeoutId) {
+            startFocusedWindowCheck();
+          }
+          if (!gameStatusCheckTimeoutId) {
+            startGameStatusCheck();
+          }
+          if (!gameCaptureTimeoutId) {
+            startGameCapture();
+          }
+          
+          log.debug('Main Window Blured: All check timers restarted');
+        });
+
         startGameStatusCheck()
         startFocusedWindowCheck()
         startGameCapture()
@@ -1390,6 +1517,10 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
     log.info('startGameCapture - Game Capture Started')
     const captureGame = async () => {
       try {
+        if (isMainWindowFocused || isWindowMoving) {
+          return;
+        }
+
         const isGameFocused =
           (currentFocusedWindow === 'DJMAX RESPECT V' && isRunningDjmax) ||
           (currentFocusedWindow === 'WJMAX' && isRunningWjmax)
@@ -1419,10 +1550,13 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
         log.error('startGameCapture - Error capturing game screen:', error)
         logMainError(error, isLogined ? userData : null)
       } finally {
-        setTimeout(
-          captureGame,
-          settingData.autoCaptureIntervalTime < 1000 ? 1000 : settingData.autoCaptureIntervalTime,
-        )
+        // 메인 윈도우가 포커스되지 않은 경우에만 다음 캡처 예약
+        if (!isMainWindowFocused) {
+          gameCaptureTimeoutId = setTimeout(
+            captureGame,
+            settingData.autoCaptureIntervalTime < 1000 ? 1000 : settingData.autoCaptureIntervalTime,
+          )
+        }
       }
     }
 
@@ -1626,8 +1760,12 @@ const isDjmaxRunning = async (gameCode: string): Promise<boolean> => {
 
 function startGameStatusCheck() {
   log.info('startGameStatusCheck - Game Status Check Started')
-  const checkInterval = 1000 // 5초 간격으로 체크
-  gameStatusCheckInterval = setInterval(async () => {
+  
+  const checkGameStatus = async () => {
+    if (isMainWindowFocused || isWindowMoving) {
+      return;
+    }
+    
     try {
       const djmaxRunning = await isDjmaxRunning('djmax_respect_v')
       const wjmaxRunning = await isDjmaxRunning('wjmax')
@@ -1655,8 +1793,16 @@ function startGameStatusCheck() {
     } catch (error) {
       log.error('startGameStatusCheck - Game status check error:', error)
       logMainError(error, isLogined ? userData : null)
+    } finally {
+      // 메인 윈도우가 포커스되지 않은 경우에만 다음 체크 예약
+      if (!isMainWindowFocused) {
+        gameStatusCheckTimeoutId = setTimeout(checkGameStatus, 1000) // 1초 간격으로 체크
+      }
     }
-  }, checkInterval)
+  }
+  
+  // 최초 실행
+  checkGameStatus()
 }
 
 // captureScreen 함수 수정
@@ -1783,6 +1929,12 @@ async function captureScreen(gameCode) {
 
 app.on('will-quit', () => {
   clearInterval(settingData.autoCaptureIntervalId) // Clear the interval when the app is about to quit
+  
+  // 모든 타이머 정리
+  if (gameOverlayLoopTimeoutId) clearTimeout(gameOverlayLoopTimeoutId)
+  if (focusedWindowCheckTimeoutId) clearTimeout(focusedWindowCheckTimeoutId)
+  if (gameCaptureTimeoutId) clearTimeout(gameCaptureTimeoutId)
+  if (gameStatusCheckTimeoutId) clearTimeout(gameStatusCheckTimeoutId)
 })
 
 app.on('window-all-closed', () => {
