@@ -10,8 +10,6 @@
     "dev": "rimraf dist && vite",
     "debug": "rimraf dist && vite -- --dsb-debug",
     "build": "rimraf dist && vite build",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
     "postinstall": "electron-builder install-app-deps"
   },
   "dependencies": {
@@ -62,24 +60,21 @@
     "winston-daily-rotate-file": "^5.0.0"
   },
   "devDependencies": {
-    "@lightwing/eslint-config": "^1.0.104",
     "@tailwindcss/postcss": "^4.0.6",
-    "@trivago/prettier-plugin-sort-imports": "^5.2.2",
     "@types/ramda": "^0.30.2",
     "@types/react": "^19.0.8",
     "@types/react-dom": "^19.0.3",
-    "@typescript-eslint/eslint-plugin": "^8.24.0",
-    "@typescript-eslint/parser": "^8.24.0",
     "@vitejs/plugin-react": "^4.3.4",
     "autoprefixer": "^10.4.20",
     "cross-env": "^7.0.3",
     "electron": "^34.2.0",
     "electron-builder": "^25.1.8",
-    "eslint": "^9.20.1",
-    "eslint-config-prettier": "^10.0.1",
-    "lint-staged": "^15.4.3",
     "postcss": "^8.5.2",
     "postcss-scss": "^4.0.9",
+    "prettier-plugin-css-order": "^2.1.2",
+    "prettier-plugin-organize-imports": "^4.1.0",
+    "prettier-plugin-style-order": "^0.2.2",
+    "prettier-plugin-tailwindcss": "^0.6.11",
     "rimraf": "^6.0.1",
     "sass-loader": "^16.0.4",
     "simple-git-hooks": "^2.11.1",
@@ -92,14 +87,6 @@
     "onlyBuiltDependencies": [
       "@nestjs/core",
       "electron"
-    ]
-  },
-  "simple-git-hooks": {
-    "pre-commit": "npx lint-staged"
-  },
-  "lint-staged": {
-    "*.{js,ts,tsx,vue,md,json,yml}": [
-      "eslint --fix"
     ]
   }
 }

@@ -1,5 +1,6 @@
 import { contextBridge, ipcRenderer } from 'electron'
 
+import type { SettingsData } from '@src/main/modules/file-manager/file-manager.service'
 import type { LogLevel } from '@src/types/LogLevel'
 import type { ProcessDescriptor } from 'ps-list'
 
@@ -30,5 +31,23 @@ contextBridge.exposeInMainWorld('electron', {
     ipcRenderer.invoke('logger:create-log', level, where, ...args),
 
   // 캡쳐 관련
-  captureGameWindow: (gameTitle: string) => ipcRenderer.invoke('image-processor:capture-game-window', gameTitle),
+  captureGameWindow: (gameTitle: string) =>
+    ipcRenderer.invoke('image-processor:capture-game-window', gameTitle),
+
+  // 파일 관리자 관련
+  saveSettings: (settings: SettingsData) =>
+    ipcRenderer.invoke('file-manager:save-settings', settings),
+  loadSettings: () => ipcRenderer.invoke('file-manager:load-settings'),
+
+  // 윈도우 컨트롤 관련
+  closeApp: () => ipcRenderer.send('window:close'),
+  minimizeApp: () => ipcRenderer.send('window:minimize'),
+  maximizeApp: () => ipcRenderer.send('window:maximize'),
+
+  // 외부 URL 열기
+  openExternalUrl: (url: string) => ipcRenderer.invoke('window:open-external-url', url),
+
+  // 외부 링크 확인 이벤트
+  onConfirmExternalLink: (callback: (url: string) => void) =>
+    ipcRenderer.on('confirm-external-link', (_event, url: string) => callback(url)),
 })

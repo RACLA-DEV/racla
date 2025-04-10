@@ -27,9 +27,19 @@ declare global {
 
       //캡쳐 관련
       captureGameWindow: (gameTitle: string) => Promise<Buffer | null>
+
+      // 파일 관리자 관련
+      saveSettings: (settings: SettingsData) => Promise<SettingsData>
+      loadSettings: () => Promise<SettingsData>
+
+      // 윈도우 컨트롤 관련
+      closeApp: () => void
+      minimizeApp: () => void
+      maximizeApp: () => void
+      openExternalUrl: (url: string) => void
+      onConfirmExternalLink: (callback: (url: string) => void) => void
     }
   }
 }
 
-export { }
-
+export {}

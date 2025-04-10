@@ -1,136 +1,258 @@
 @import 'tailwindcss';
 @config './tailwind.config.mjs';
 
-@font-face {
-	font-family: 'Pretendard';
-	font-weight: 900;
-	font-display: swap;
-	src: local('Pretendard Black'), url(../assets/woff2/Pretendard-Black.woff2) format('woff2'), url(../assets/woff/Pretendard-Black.woff) format('woff');
+/* 사용자 선택 및 드래그 방지 */
+* {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+/* 입력 영역에서는 텍스트 선택 허용 */
+input,
+textarea {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+}
+
+/* 코드 블록에서는 텍스트 선택 허용 */
+pre,
+code {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+}
+
+/* 커스텀 펄스 애니메이션 */
+@keyframes custom-ping {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scale(1.3);
+    opacity: 0.3;
+  }
+  100% {
+    transform: scale(0.8);
+    opacity: 0.6;
+  }
+}
+
+.tw\:animate-custom-ping {
+  animation: custom-ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
 }
 
 @font-face {
-	font-family: 'Pretendard';
-	font-weight: 800;
-	font-display: swap;
-	src: local('Pretendard ExtraBold'), url(../assets/woff2/Pretendard-ExtraBold.woff2) format('woff2'), url(../assets/woff/Pretendard-ExtraBold.woff) format('woff');
+  font-weight: 900;
+  src:
+    local('Pretendard Black'),
+    url(../assets/woff2/Pretendard-Black.woff2) format('woff2'),
+    url(../assets/woff/Pretendard-Black.woff) format('woff');
+  font-family: 'Pretendard';
+  font-display: swap;
 }
 
 @font-face {
-	font-family: 'Pretendard';
-	font-weight: 700;
-	font-display: swap;
-	src: local('Pretendard Bold'), url(../assets/woff2/Pretendard-Bold.woff2) format('woff2'), url(../assets/woff/Pretendard-Bold.woff) format('woff');
+  font-weight: 800;
+  src:
+    local('Pretendard ExtraBold'),
+    url(../assets/woff2/Pretendard-ExtraBold.woff2) format('woff2'),
+    url(../assets/woff/Pretendard-ExtraBold.woff) format('woff');
+  font-family: 'Pretendard';
+  font-display: swap;
 }
 
 @font-face {
-	font-family: 'Pretendard';
-	font-weight: 600;
-	font-display: swap;
-	src: local('Pretendard SemiBold'), url(../assets/woff2/Pretendard-SemiBold.woff2) format('woff2'), url(../assets/woff/Pretendard-SemiBold.woff) format('woff');
+  font-weight: 700;
+  src:
+    local('Pretendard Bold'),
+    url(../assets/woff2/Pretendard-Bold.woff2) format('woff2'),
+    url(../assets/woff/Pretendard-Bold.woff) format('woff');
+  font-family: 'Pretendard';
+  font-display: swap;
 }
 
 @font-face {
-	font-family: 'Pretendard';
-	font-weight: 500;
-	font-display: swap;
-	src: local('Pretendard Medium'), url(../assets/woff2/Pretendard-Medium.woff2) format('woff2'), url(../assets/woff/Pretendard-Medium.woff) format('woff');
+  font-weight: 600;
+  src:
+    local('Pretendard SemiBold'),
+    url(../assets/woff2/Pretendard-SemiBold.woff2) format('woff2'),
+    url(../assets/woff/Pretendard-SemiBold.woff) format('woff');
+  font-family: 'Pretendard';
+  font-display: swap;
 }
 
 @font-face {
-	font-family: 'Pretendard';
-	font-weight: 400;
-	font-display: swap;
-	src: local('Pretendard Regular'), url(../assets/woff2/Pretendard-Regular.woff2) format('woff2'), url(../assets/woff/Pretendard-Regular.woff) format('woff');
+  font-weight: 500;
+  src:
+    local('Pretendard Medium'),
+    url(../assets/woff2/Pretendard-Medium.woff2) format('woff2'),
+    url(../assets/woff/Pretendard-Medium.woff) format('woff');
+  font-family: 'Pretendard';
+  font-display: swap;
 }
 
 @font-face {
-	font-family: 'Pretendard';
-	font-weight: 300;
-	font-display: swap;
-	src: local('Pretendard Light'), url(../assets/woff2/Pretendard-Light.woff2) format('woff2'), url(../assets/woff/Pretendard-Light.woff) format('woff');
+  font-weight: 400;
+  src:
+    local('Pretendard Regular'),
+    url(../assets/woff2/Pretendard-Regular.woff2) format('woff2'),
+    url(../assets/woff/Pretendard-Regular.woff) format('woff');
+  font-family: 'Pretendard';
+  font-display: swap;
 }
 
 @font-face {
-	font-family: 'Pretendard';
-	font-weight: 200;
-	font-display: swap;
-	src: local('Pretendard ExtraLight'), url(../assets/woff2/Pretendard-ExtraLight.woff2) format('woff2'), url(../assets/woff/Pretendard-ExtraLight.woff) format('woff');
+  font-weight: 300;
+  src:
+    local('Pretendard Light'),
+    url(../assets/woff2/Pretendard-Light.woff2) format('woff2'),
+    url(../assets/woff/Pretendard-Light.woff) format('woff');
+  font-family: 'Pretendard';
+  font-display: swap;
 }
 
 @font-face {
-	font-family: 'Pretendard';
-	font-weight: 100;
-	font-display: swap;
-	src: local('Pretendard Thin'), url(../assets/woff2/Pretendard-Thin.woff2) format('woff2'), url(../assets/woff/Pretendard-Thin.woff) format('woff');
+  font-weight: 200;
+  src:
+    local('Pretendard ExtraLight'),
+    url(../assets/woff2/Pretendard-ExtraLight.woff2) format('woff2'),
+    url(../assets/woff/Pretendard-ExtraLight.woff) format('woff');
+  font-family: 'Pretendard';
+  font-display: swap;
 }
 
-  body {
-    scroll-behavior: smooth !important;
-    /* user-select: none;
+@font-face {
+  font-weight: 100;
+  src:
+    local('Pretendard Thin'),
+    url(../assets/woff2/Pretendard-Thin.woff2) format('woff2'),
+    url(../assets/woff/Pretendard-Thin.woff) format('woff');
+  font-family: 'Pretendard';
+  font-display: swap;
+}
+
+/* 커스텀 스크롤바 스타일링 */
+.tw\:custom-scrollbar::-webkit-scrollbar {
+  margin-right: 5px;
+  width: 10px;
+  height: 10px;
+}
+
+.tw\:custom-scrollbar::-webkit-scrollbar-track {
+  margin: 8px 0;
+  border-radius: 8px;
+  background: transparent;
+}
+
+.tw\:custom-scrollbar::-webkit-scrollbar-thumb {
+  transition: background-color 0.3s;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  background-clip: padding-box;
+  background-color: rgba(148, 163, 184, 0.3);
+}
+
+.tw\:custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(148, 163, 184, 0.6);
+}
+
+/* 다크 테마용 스크롤바 */
+.dark .tw\:custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(148, 163, 184, 0.4);
+}
+
+.dark .tw\:custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(148, 163, 184, 0.6);
+}
+
+/* 라이트 테마용 스크롤바 */
+.light-theme .tw\:custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(79, 70, 229, 0.3);
+}
+
+.light-theme .tw\:custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(79, 70, 229, 0.5);
+}
+
+/* 스크롤바 버튼(화살표) 제거 */
+.tw\:custom-scrollbar::-webkit-scrollbar-button {
+  display: none;
+}
+
+body {
+  scroll-behavior: smooth !important;
+  /* user-select: none;
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none; */
-    font-family: 'Pretendard', sans-serif;
-  }
+  font-family: 'Pretendard', sans-serif;
+}
 
-  .background-image {
-    position: fixed;
-    right: 0;
-    left: 0;
-    z-index: 1;
-    background-image: url('/images/djmax_respect_v/BG.jpg');
-    background-position: center center;
-    background-size: cover;
-    background-attachment: fixed;
-    width: 100%;
-    height: 100%;
-  }
+.background-image {
+  position: fixed;
+  right: 0;
+  left: 0;
+  z-index: 1;
+  background-image: url('/images/djmax_respect_v/BG.jpg');
+  background-position: center center;
+  background-size: cover;
+  background-attachment: fixed;
+  width: 100%;
+  height: 100%;
+}
 
-  .background-video {
-    position: fixed;
-    right: 0;
-    left: 0;
-    z-index: 2;
-    width: 100%;
-    height: auto;
-  }
+.background-video {
+  position: fixed;
+  right: 0;
+  left: 0;
+  z-index: 2;
+  width: 100%;
+  height: auto;
+}
 
-  .background-image-base {
-    position: fixed;
-    right: 0;
-    left: 0;
-    z-index: 1;
-    width: 100%;
-    height: 100%;
-  }
+.background-image-base {
+  position: fixed;
+  right: 0;
+  left: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+}
 
-  .background-image-color {
-    position: fixed;
-    right: 0;
-    left: 0;
-    z-index: 3;
-    width: 100%;
-    height: 100%;
-  }
+.background-image-color {
+  position: fixed;
+  right: 0;
+  left: 0;
+  z-index: 3;
+  width: 100%;
+  height: 100%;
+}
 
-  main {
-    position: fixed;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    z-index: 3;
-    overflow-y: scroll;
-    scroll-behavior: smooth !important;
-  }
+main {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 3;
+  overflow-y: scroll;
+  scroll-behavior: smooth !important;
+}
 
-  .dragable {
-    -webkit-app-region: drag;
-  }
+.dragable {
+  -webkit-app-region: drag;
+}
 
-  .dragable > button {
-    -webkit-app-region: none;
-  }
+.dragable > button {
+  -webkit-app-region: none;
+}
 
 .record .pattern {
   position: absolute;
@@ -1089,10 +1211,10 @@
 }
 
 .logo {
-  width: 400px;
-  height: 2;
-  border-radius: 1rem;
   box-shadow:
     0 0 #0000,
     0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  border-radius: 1rem;
+  width: 400px;
+  height: 2;
 }

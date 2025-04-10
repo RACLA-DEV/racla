@@ -6,6 +6,7 @@ import { WinstonModule, utilities as nestWinstonModuleUtilities } from 'nest-win
 import { app } from 'electron'
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
+import { FileManagerModule } from './modules/file-manager/file-manager.module'
 import { GameMonitorModule } from './modules/game-monitor/game-monitor.module'
 import { ImageProcessorModule } from './modules/image-processor/image-processor.module'
 import { LoggerModule } from './modules/logger/logger.module'
@@ -32,17 +33,11 @@ export const winstonConfig = {
     new winston.transports.File({
       filename: 'logs/error.log',
       level: 'error',
-      format: winston.format.combine(
-        winston.format.timestamp(),
-        winston.format.json(),
-      ),
+      format: winston.format.combine(winston.format.timestamp(), winston.format.json()),
     }),
     new winston.transports.File({
       filename: 'logs/combined.log',
-      format: winston.format.combine(
-        winston.format.timestamp(),
-        winston.format.json(),
-      ),
+      format: winston.format.combine(winston.format.timestamp(), winston.format.json()),
     }),
   ],
 }
@@ -57,14 +52,13 @@ export const winstonConfig = {
     GameMonitorModule,
     LoggerModule,
     ImageProcessorModule,
+    FileManagerModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule implements OnModuleInit, OnModuleDestroy {
-  constructor(
-    private readonly overlayWindowService: OverlayWindowService,
-  ) {}
+  constructor(private readonly overlayWindowService: OverlayWindowService) {}
 
   async onModuleInit() {
     await this.overlayWindowService.initialize()

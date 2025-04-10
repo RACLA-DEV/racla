@@ -1,0 +1,569 @@
+import {
+  FaCompactDisc,
+  FaDatabase,
+  FaDice,
+  FaHouse,
+  FaKeyboard,
+  FaList,
+  FaRankingStar,
+  FaRobot,
+  FaTrophy,
+  FaUpload,
+  FaWandMagicSparkles,
+  FaWindowMaximize,
+} from 'react-icons/fa6'
+
+// 모달 확인 이벤트를 위한 이벤트 이미터
+const eventEmitter = {
+  events: {},
+  emit(event, ...args) {
+    if (this.events[event]) {
+      this.events[event].forEach((listener) => listener(...args))
+    }
+  },
+  on(event, listener) {
+    if (!this.events[event]) {
+      this.events[event] = []
+    }
+    this.events[event].push(listener)
+  },
+  off(event, listener) {
+    if (this.events[event]) {
+      this.events[event] = this.events[event].filter((l) => l !== listener)
+    }
+  },
+}
+
+export const globalDictionary = {
+  version: `0.8.0-202504102237 Vite`,
+  blurDataURL:
+    'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDABQODxIPDRQSEBIXFRQdHx0fHRsdHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR3/2wBDAR0XFyAeIRshGxsdIR0hHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR3/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAb/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k=',
+  // Electron 환경에서는 모달 확인 프로세스를 거치도록, 웹 환경에서는 바로 링크 열도록 함
+  openExternalLink: (url: string) => {
+    if (window.electron && window.electron.onConfirmExternalLink) {
+      // Electron 환경에서는 메인 프로세스에 확인 요청을 보냄
+      window.electron.openExternalUrl(url)
+    } else {
+      // 웹 환경에서는 바로 링크 열기
+      window.open(url, '_blank')
+    }
+  },
+  // 메뉴 사이드바에서 사용할 외부 링크 처리 함수
+  requestOpenExternalLink: (url: string) => {
+    if (window.electron) {
+      // Electron 환경에서는 컨펌 모달을 통해 처리
+      // 메인 프로세스에 확인 이벤트 발생 요청
+      eventEmitter.emit('confirm-external-link-requested', url)
+    } else {
+      // 웹 환경에서는 바로 링크 열기
+      window.open(url, '_blank')
+    }
+  },
+  // 이벤트 리스너 등록 함수 (App.tsx에서 사용)
+  onExternalLinkRequested: (callback: (url: string) => void) => {
+    eventEmitter.on('confirm-external-link-requested', callback)
+    return () => eventEmitter.off('confirm-external-link-requested', callback)
+  },
+  djmax_respect_v: {
+    keyModeList: [4, 5, 6, 8],
+    levelList: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
+    difficulty: {
+      NM: {
+        name: 'NM',
+        fullName: 'NORMAL',
+      },
+      HD: {
+        name: 'HD',
+        fullName: 'HARD',
+      },
+      MX: {
+        name: 'MX',
+        fullName: 'MAXIMUM',
+      },
+      SC: {
+        name: 'SC',
+        fullName: 'SC',
+      },
+    },
+    dlcList: [
+      ['R', 'RESPECT'],
+      ['P1', 'RESPECT'],
+      ['P2', 'RESPECT'],
+      ['ES', 'RESPECT'],
+      ['VE', 'RESPECT'],
+      ['GC', 'RESPECT'],
+      ['TR', 'RESPECT'],
+      ['GG', 'RESPECT'],
+      ['BS', 'RESPECT'],
+      ['CE', 'RESPECT'],
+      ['CY', 'RESPECT'],
+      ['DM', 'RESPECT'],
+      ['T1', 'RESPECT'],
+      ['T2', 'RESPECT'],
+      ['T3', 'RESPECT'],
+      ['CHU', 'RESPECT'],
+      ['GF', 'RESPECT'],
+      ['P3', 'RESPECT'],
+      ['ESTI', 'RESPECT'],
+      ['NXN', 'RESPECT'],
+      ['VE2', 'RESPECT'],
+      ['MD', 'RESPECT'],
+      ['TQ', 'RESPECT'],
+      ['VE3', 'RESPECT'],
+      ['EZ2', 'RESPECT'],
+      ['VE4', 'RESPECT'],
+      ['CP', 'RESPECT'],
+      ['MAP', 'RESPECT'],
+      ['VE5', 'RESPECT'],
+      ['FAL', 'RESPECT'],
+      ['VL', 'RESPECT'],
+      ['TEK', 'RESPECT'],
+      ['VL2', 'RESPECT'],
+      ['PLI1', 'RESPECT'],
+    ],
+  },
+  wjmax: {
+    keyModeList: ['4', '4P', '6', '6P'],
+    levelList: [
+      1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26,
+      27, 28, 29, 30,
+    ],
+    difficulty: {
+      NM: {
+        name: 'NM',
+        fullName: '메시',
+      },
+      HD: {
+        name: 'HD',
+        fullName: '엔젤',
+      },
+      MX: {
+        name: 'MX',
+        fullName: '왁굳',
+      },
+      SC: {
+        name: 'SC',
+        fullName: '민수',
+      },
+      DPC: {
+        name: 'DPC',
+        fullName: '거짓말',
+      },
+    },
+    dlcList: [],
+  },
+  platina_lab: {
+    keyModeList: [4, 5, 6, 8],
+    levelList: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+    difficulty: {
+      NM: {
+        name: 'NM',
+        fullName: 'NORMAL',
+      },
+      HD: {
+        name: 'HD',
+        fullName: 'HARD',
+      },
+      MX: {
+        name: 'MX',
+        fullName: 'MAXIMUM',
+      },
+    },
+    dlcList: [],
+  },
+  navDictionary: {
+    projectRa: {
+      projectRa: {
+        id: 'projectRaNavTitle',
+        name: 'RACLA',
+        isDisplay: true,
+        link: '/',
+        userLevel: [],
+        pages: [
+          {
+            id: 'projectRaHome',
+            name: {
+              startWithSup: '',
+              base: '홈',
+              lastWithSup: '',
+            },
+            description: 'RACLA 홈',
+            icon: FaHouse,
+            isDisplay: true,
+            isOpenBrowser: false,
+            link: '',
+            userLevel: [],
+            status: 'stable',
+          },
+          {
+            id: 'projectRaNavItemsOverlay',
+            name: {
+              startWithSup: '',
+              base: '오버레이',
+              lastWithSup: '',
+            },
+            description: 'RACLA 오버레이',
+            icon: FaWindowMaximize,
+            isDisplay: true,
+            isOpenBrowser: false,
+            link: 'overlay/setting',
+            userLevel: [],
+            status: 'stable',
+            platform: ['win32'],
+          },
+        ],
+      },
+    },
+    djmax_respect_v: {
+      vArchive: {
+        id: 'vArchiveNavTitle',
+        name: 'V-ARCHIVE',
+        isDisplay: true,
+        link: '/vArchive',
+        userLevel: [],
+        pages: [
+          {
+            id: 'vArchiveNavItemsRegScore',
+            name: {
+              startWithSup: '',
+              base: '기록 등록',
+              lastWithSup: '',
+            },
+            description: 'V-ARCHIVE 기록 등록',
+            icon: FaUpload,
+            isDisplay: true,
+            isOpenBrowser: false,
+            link: '/regScore',
+            userLevel: [],
+            status: 'stable',
+          },
+          {
+            id: 'vArchiveNavItemsArchiveMyBoard',
+            name: {
+              startWithSup: '',
+              base: '성과표',
+              lastWithSup: '',
+            },
+            description: 'V-ARCHIVE 성과표',
+            icon: FaList,
+            isDisplay: true,
+            isOpenBrowser: false,
+            link: '/board',
+            userLevel: [],
+            status: 'stable',
+          },
+          {
+            id: 'vArchiveNavItemsDjpower',
+            name: {
+              startWithSup: 'MAX',
+              base: 'DJ POWER',
+              lastWithSup: '',
+            },
+            description: 'V-ARCHIVE MAX DJ POWER',
+            icon: FaCompactDisc,
+            isDisplay: true,
+            isOpenBrowser: false,
+            link: '/djpower',
+            userLevel: [],
+            status: 'stable',
+          },
+          {
+            id: 'vArchiveNavItemsDb',
+            name: {
+              startWithSup: '',
+              base: '데이터베이스',
+              lastWithSup: '',
+            },
+            description: 'V-ARCHIVE 데이터베이스',
+            icon: FaDatabase,
+            isDisplay: true,
+            isOpenBrowser: false,
+            link: '/db',
+            userLevel: [],
+            status: 'stable',
+          },
+          {
+            id: 'vArchiveNavItemsGrade',
+            name: {
+              startWithSup: '',
+              base: '서열표',
+              lastWithSup: '',
+            },
+            description: 'V-ARCHIVE 서열표',
+            icon: FaRankingStar,
+            isDisplay: true,
+            isOpenBrowser: false,
+            link: '/grade',
+            userLevel: [],
+            status: 'stable',
+          },
+        ],
+      },
+      hja: {
+        id: 'hjaNavTitle',
+        name: '전일 아카이브',
+        isDisplay: true,
+        link: '/hja',
+        userLevel: [],
+        pages: [
+          {
+            id: 'hjaNavItemsRanking',
+            name: {
+              startWithSup: '',
+              base: '종합 랭킹',
+              lastWithSup: '',
+            },
+            description: '전일 아카이브 종합 랭킹',
+            icon: FaTrophy,
+            isDisplay: true,
+            isOpenBrowser: false,
+            link: '/ranking',
+            userLevel: [],
+            status: 'stable',
+          },
+          {
+            id: 'hjaNavItemsDatabase',
+            name: {
+              startWithSup: '',
+              base: '랭킹 데이터베이스',
+              lastWithSup: '',
+            },
+            description: '전일 아카이브 랭킹 데이터베이스(SC8/MX15+)',
+            icon: FaDatabase,
+            isDisplay: true,
+            isOpenBrowser: false,
+            link: '/db',
+            userLevel: [],
+            status: 'stable',
+          },
+          {
+            id: 'hjaNavItemsGrade',
+            name: {
+              startWithSup: '',
+              base: '하드 판정 서열표',
+              lastWithSup: '',
+            },
+            description: '전일 아카이브 하드 판정 서열표(SC8/MX15+)',
+            icon: FaRankingStar,
+            isDisplay: true,
+            isOpenBrowser: false,
+            link: '/grade',
+            userLevel: [],
+            status: 'stable',
+          },
+        ],
+      },
+      utility: {
+        id: 'utilityNavTitle',
+        name: '유틸리티',
+        isDisplay: true,
+        link: '',
+        userLevel: [],
+        pages: [
+          {
+            id: 'utilityNavItemsVArchiveMacro',
+            name: {
+              startWithSup: '',
+              base: 'V-ARCHIVE 매크로',
+              lastWithSup: '',
+            },
+            description: 'V-ARCHIVE 매크로',
+            icon: FaKeyboard,
+            isDisplay: true,
+            isOpenBrowser: true,
+            link: 'https://github.com/johypark97/VArchiveMacro',
+            userLevel: [],
+            status: 'stable',
+            platform: ['win32'],
+          },
+          {
+            id: 'utilityNavItemsRandomSelector',
+            name: {
+              startWithSup: '',
+              base: '랜덤 선곡기',
+              lastWithSup: '',
+            },
+            description: '랜덤 선곡기',
+            icon: FaDice,
+            isDisplay: true,
+            isOpenBrowser: true,
+            link: 'https://github.com/tuska298/djmax-random-selector-v',
+            userLevel: [],
+            status: 'stable',
+            platform: ['win32'],
+          },
+          {
+            id: 'utilityNavItemsVScouter',
+            name: {
+              startWithSup: '',
+              base: 'V-SCOUTER',
+              lastWithSup: '',
+            },
+            description: 'V-SCOUTER',
+            icon: FaList,
+            isDisplay: true,
+            isOpenBrowser: true,
+            link: 'https://v-scouter.uxu.im/',
+            userLevel: [],
+            status: 'stable',
+          },
+          {
+            id: 'utilityNavItemsBest30',
+            name: {
+              startWithSup: '',
+              base: 'BEST 30 디스코드 봇',
+              lastWithSup: '',
+            },
+            description: 'BEST 30 디스코드 봇',
+            icon: FaRobot,
+            isDisplay: true,
+            isOpenBrowser: true,
+            link: 'https://discord.com/oauth2/authorize?client_id=1147788679306289202&permissions=274877942784&scope=bot',
+            userLevel: [],
+            status: 'stable',
+          },
+        ],
+      },
+    },
+    wjmax: {
+      wjmax: {
+        id: 'wjmaxNavTitle',
+        name: 'WJMAX',
+        isDisplay: true,
+        link: '/projectRa',
+        userLevel: [],
+        pages: [
+          {
+            id: 'wjmaxNavItemsRegScore',
+            name: {
+              startWithSup: '',
+              base: '기록 등록',
+              lastWithSup: '',
+            },
+            description: 'WJMAX 기록 등록',
+            icon: FaUpload,
+            isDisplay: true,
+            isOpenBrowser: false,
+            link: '/wjmax/regScore',
+            userLevel: [],
+            status: 'stable',
+          },
+          {
+            id: 'wjmaxNavItemsArchiveMyBoard',
+            name: {
+              startWithSup: '',
+              base: '성과표',
+              lastWithSup: '',
+            },
+            description: 'WJMAX 성과표',
+            icon: FaTrophy,
+            isDisplay: true,
+            isOpenBrowser: false,
+            link: '/wjmax/board',
+            userLevel: [],
+            status: 'stable',
+          },
+          {
+            id: 'wjmaxNavItemsDb',
+            name: {
+              startWithSup: '',
+              base: '데이터베이스',
+              lastWithSup: '',
+            },
+            description: 'WJMAX 데이터베이스',
+            icon: FaDatabase,
+            isDisplay: true,
+            isOpenBrowser: false,
+            link: '/wjmax/db',
+            userLevel: [],
+            status: 'stable',
+          },
+          {
+            id: 'wjmaxNavItemsLeaderboard',
+            name: {
+              startWithSup: '',
+              base: '리더보드(랭킹)',
+              lastWithSup: '',
+            },
+            icon: FaRankingStar,
+            isDisplay: false,
+            isOpenBrowser: false,
+            link: '/leaderboard',
+            userLevel: [],
+            status: 'dev',
+          },
+          {
+            id: 'wjamxNavItemsCourse',
+            name: {
+              startWithSup: '',
+              base: '코스 메이커',
+              lastWithSup: '',
+            },
+            icon: FaWandMagicSparkles,
+            isDisplay: false,
+            isOpenBrowser: false,
+            link: '/course',
+            userLevel: [],
+            status: 'dev',
+          },
+        ],
+      },
+    },
+    platina_lab: {
+      platina_lab: {
+        id: 'platinaLabNavTitle',
+        name: 'PLATiNA :: LAB',
+        isDisplay: true,
+        link: '/platina_lab',
+        userLevel: [],
+        pages: [
+          {
+            id: 'platinaLabNavItemsExplore',
+            name: {
+              startWithSup: '',
+              base: '탐험',
+              lastWithSup: '',
+            },
+            description: 'PLATiNA :: LAB 탐험',
+            icon: FaHouse,
+            isDisplay: true,
+            isOpenBrowser: false,
+            link: '/explore',
+            userLevel: [],
+            status: 'stable',
+          },
+          {
+            id: 'platinaLabNavItemsEditor',
+            name: {
+              startWithSup: '',
+              base: '에디터',
+              lastWithSup: '',
+            },
+            description: 'PLATiNA :: LAB 에디터',
+            icon: FaWandMagicSparkles,
+            isDisplay: true,
+            isOpenBrowser: false,
+            link: '/editor',
+            userLevel: [],
+            status: 'stable',
+          },
+          {
+            id: 'platinaLabNavItemsLibrary',
+            name: {
+              startWithSup: '',
+              base: '라이브러리',
+              lastWithSup: '',
+            },
+            description: 'PLATiNA :: LAB 라이브러리',
+            icon: FaDatabase,
+            isDisplay: true,
+            isOpenBrowser: false,
+            link: '/library',
+            userLevel: [],
+            status: 'stable',
+          },
+        ],
+      },
+    },
+  },
+}

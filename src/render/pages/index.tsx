@@ -138,7 +138,7 @@ function MainPage() {
         description: '게임 윈도우를 캡쳐합니다',
         example: 'const image = await captureGameWindow("DJMAX RESPECT V")',
         usage: async () => {
-          const image = await captureGameWindow('DJMAX RESPECT V')
+          const image = await captureGameWindow('WJMAX')
           setImage(image)
           await createLog('info', 'RENDERER', '게임 윈도우 캡쳐 완료')
         },
@@ -155,37 +155,39 @@ function MainPage() {
   )
 
   return (
-    <div className="tw:container tw:mx-auto tw:p-8">
-      <div className="tw:flex tw:items-center tw:gap-4 tw:mb-8">
-        <h1 className="tw:text-3xl tw:font-bold tw:text-gray-800">RACLA-VITE-DESKTOP API 치트시트</h1>
+    <div className='tw:container tw:mx-auto tw:p-8'>
+      <div className='tw:flex tw:items-center tw:gap-4 tw:mb-8'>
+        <h1 className='tw:text-3xl tw:font-bold tw:text-gray-800'>
+          RACLA-VITE-DESKTOP API 치트시트
+        </h1>
       </div>
 
-      <div className="tw:mb-6">
+      <div className='tw:mb-6'>
         <input
-          type="text"
-          placeholder="함수나 설명 검색..."
+          type='text'
+          placeholder='함수나 설명 검색...'
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="tw:w-full tw:px-4 tw:py-2 tw:rounded-lg tw:border tw:border-gray-300 tw:focus:ring-2 tw:focus:ring-blue-500"
+          className='tw:w-full tw:px-4 tw:py-2 tw:rounded-lg tw:border tw:border-gray-300 tw:focus:ring-2 tw:focus:ring-blue-500'
         />
       </div>
 
-      <div className="tw:flex tw:gap-4">
+      <div className='tw:flex tw:gap-4'>
         <div>
           {image && (
             <img
               src={`data:image/png;base64,${Buffer.from(image).toString('base64')}`}
-              alt="게임 윈도우 캡쳐"
-              className="tw:w-full tw:h-auto"
+              alt='게임 윈도우 캡쳐'
+              className='tw:w-full tw:h-auto'
             />
           )}
-          <pre className="tw:text-sm tw:font-mono tw:whitespace-pre-wrap">{text}</pre>
+          <pre className='tw:text-sm tw:font-mono tw:whitespace-pre-wrap'>{text}</pre>
         </div>
-        <div className="tw:container tw:mx-auto">
-          <div className="tw:flex tw:gap-2 tw:mb-6">
+        <div className='tw:container tw:mx-auto'>
+          <div className='tw:flex tw:gap-2 tw:mb-6'>
             {categories.map((category) => (
               <button
-                type="button"
+                type='button'
                 key={category}
                 onClick={() => setActiveCategory(category)}
                 className={`tw:px-4 tw:py-2 tw:rounded-lg tw:font-medium ${
@@ -199,22 +201,27 @@ function MainPage() {
             ))}
           </div>
 
-          <div className="tw:grid tw:gap-6">
+          <div className='tw:grid tw:gap-6'>
             {filteredFunctions?.map((item) => (
-              <div key={item.title} className="tw:bg-white tw:rounded-lg tw:shadow-lg tw:p-6 tw:space-y-4">
-                <div className="tw:flex tw:justify-between tw:items-center">
-                  <h3 className="tw:text-xl tw:font-bold tw:text-blue-600">{item.title}</h3>
+              <div
+                key={item.title}
+                className='tw:bg-white tw:rounded-lg tw:shadow-lg tw:p-6 tw:space-y-4'
+              >
+                <div className='tw:flex tw:justify-between tw:items-center'>
+                  <h3 className='tw:text-xl tw:font-bold tw:text-blue-600'>{item.title}</h3>
                   <button
-                    type="button"
+                    type='button'
                     onClick={item.usage}
-                    className="tw:px-4 tw:py-2 tw:bg-green-500 tw:text-white tw:rounded-lg tw:hover:bg-green-600"
+                    className='tw:px-4 tw:py-2 tw:bg-green-500 tw:text-white tw:rounded-lg tw:hover:bg-green-600'
                   >
                     실행하기
                   </button>
                 </div>
-                <p className="tw:text-gray-600">{item.description}</p>
-                <div className="tw:bg-gray-100 tw:p-4 tw:rounded-lg">
-                  <pre className="tw:text-sm tw:font-mono tw:whitespace-pre-wrap">{item.example}</pre>
+                <p className='tw:text-gray-600'>{item.description}</p>
+                <div className='tw:bg-gray-100 tw:p-4 tw:rounded-lg'>
+                  <pre className='tw:text-sm tw:font-mono tw:whitespace-pre-wrap'>
+                    {item.example}
+                  </pre>
                 </div>
               </div>
             ))}
