@@ -19,7 +19,7 @@ export class OverlayWindowService {
   private readonly logger = new Logger(OverlayWindowService.name)
   private isProcessingUpdate = false
   private updateInterval: NodeJS.Timeout | null = null
-  private readonly UPDATE_INTERVAL = 17 // 약 60fps에 해당하는 시간 간격
+  private readonly UPDATE_INTERVAL = 1000 // 약 60fps에 해당하는 시간 간격
   private readonly STANDARD_RESOLUTIONS = [
     640, 720, 800, 1024, 1128, 1280, 1366, 1600, 1680, 1760, 1920, 2048, 2288, 2560, 3072, 3200,
     3840, 5120,

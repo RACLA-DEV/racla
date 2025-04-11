@@ -1,6 +1,4 @@
-import { app } from 'electron'
-
 export const GLOBAL_DICTONARY = {
-  SUPPORTED_GAME_PROCESS_NAME_LIST: ['DJMAX RESPECT V.exe', 'WJMAX.exe', ...[!app.isPackaged ? 'notepad.exe' : null]],
+  SUPPORTED_GAME_PROCESS_NAME_LIST: ['DJMAX RESPECT V.exe', 'WJMAX.exe'],
   NOT_SUPPORTED_GAME_PROCESS_NAME_LIST: ['MuseDash.exe', 'osu!.exe'],
 }

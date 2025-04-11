@@ -83,9 +83,9 @@ function MainPage() {
         title: 'sendToOverlay()',
         description: '오버레이 윈도우로 메시지를 전송합니다',
         example: `await sendToOverlay(JSON.stringify({
-  type: 'message',
-  data: 'test message'
-}))`,
+        type: 'message',
+        data: 'test message'
+      }))`,
         usage: async () => {
           try {
             await sendToOverlay(
