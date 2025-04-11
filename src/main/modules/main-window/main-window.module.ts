@@ -2,7 +2,7 @@ import { BrowserWindow, app } from 'electron'
 
 import { ElectronModule } from '@doubleshot/nest-electron'
 import { Module } from '@nestjs/common'
-import { join } from 'node:path'
+import path, { join } from 'node:path'
 import { MainWindowController } from './main-window.controller'
 import { MainWindowService } from './main-window.service'
 
@@ -23,6 +23,7 @@ import { MainWindowService } from './main-window.service'
           autoHideMenuBar: true,
           transparent: false,
           backgroundColor: '#f0f4f8',
+          icon: path.join(__dirname + '/../../resources/', 'icon.png'),
           webPreferences: {
             contextIsolation: true,
             preload: preloadPath,

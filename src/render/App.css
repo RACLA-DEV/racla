@@ -52,8 +52,8 @@ code {
   font-weight: 900;
   src:
     local('Pretendard Black'),
-    url(../assets/woff2/Pretendard-Black.woff2) format('woff2'),
-    url(../assets/woff/Pretendard-Black.woff) format('woff');
+    url(./assets/woff2/Pretendard-Black.woff2) format('woff2'),
+    url(./assets/woff/Pretendard-Black.woff) format('woff');
   font-family: 'Pretendard';
   font-display: swap;
 }
@@ -62,8 +62,8 @@ code {
   font-weight: 800;
   src:
     local('Pretendard ExtraBold'),
-    url(../assets/woff2/Pretendard-ExtraBold.woff2) format('woff2'),
-    url(../assets/woff/Pretendard-ExtraBold.woff) format('woff');
+    url(./assets/woff2/Pretendard-ExtraBold.woff2) format('woff2'),
+    url(./assets/woff/Pretendard-ExtraBold.woff) format('woff');
   font-family: 'Pretendard';
   font-display: swap;
 }
@@ -72,8 +72,8 @@ code {
   font-weight: 700;
   src:
     local('Pretendard Bold'),
-    url(../assets/woff2/Pretendard-Bold.woff2) format('woff2'),
-    url(../assets/woff/Pretendard-Bold.woff) format('woff');
+    url(./assets/woff2/Pretendard-Bold.woff2) format('woff2'),
+    url(./assets/woff/Pretendard-Bold.woff) format('woff');
   font-family: 'Pretendard';
   font-display: swap;
 }
@@ -82,8 +82,8 @@ code {
   font-weight: 600;
   src:
     local('Pretendard SemiBold'),
-    url(../assets/woff2/Pretendard-SemiBold.woff2) format('woff2'),
-    url(../assets/woff/Pretendard-SemiBold.woff) format('woff');
+    url(./assets/woff2/Pretendard-SemiBold.woff2) format('woff2'),
+    url(./assets/woff/Pretendard-SemiBold.woff) format('woff');
   font-family: 'Pretendard';
   font-display: swap;
 }
@@ -92,8 +92,8 @@ code {
   font-weight: 500;
   src:
     local('Pretendard Medium'),
-    url(../assets/woff2/Pretendard-Medium.woff2) format('woff2'),
-    url(../assets/woff/Pretendard-Medium.woff) format('woff');
+    url(./assets/woff2/Pretendard-Medium.woff2) format('woff2'),
+    url(./assets/woff/Pretendard-Medium.woff) format('woff');
   font-family: 'Pretendard';
   font-display: swap;
 }
@@ -102,8 +102,8 @@ code {
   font-weight: 400;
   src:
     local('Pretendard Regular'),
-    url(../assets/woff2/Pretendard-Regular.woff2) format('woff2'),
-    url(../assets/woff/Pretendard-Regular.woff) format('woff');
+    url(./assets/woff2/Pretendard-Regular.woff2) format('woff2'),
+    url(./assets/woff/Pretendard-Regular.woff) format('woff');
   font-family: 'Pretendard';
   font-display: swap;
 }
@@ -112,8 +112,8 @@ code {
   font-weight: 300;
   src:
     local('Pretendard Light'),
-    url(../assets/woff2/Pretendard-Light.woff2) format('woff2'),
-    url(../assets/woff/Pretendard-Light.woff) format('woff');
+    url(./assets/woff2/Pretendard-Light.woff2) format('woff2'),
+    url(./assets/woff/Pretendard-Light.woff) format('woff');
   font-family: 'Pretendard';
   font-display: swap;
 }
@@ -122,8 +122,8 @@ code {
   font-weight: 200;
   src:
     local('Pretendard ExtraLight'),
-    url(../assets/woff2/Pretendard-ExtraLight.woff2) format('woff2'),
-    url(../assets/woff/Pretendard-ExtraLight.woff) format('woff');
+    url(./assets/woff2/Pretendard-ExtraLight.woff2) format('woff2'),
+    url(./assets/woff/Pretendard-ExtraLight.woff) format('woff');
   font-family: 'Pretendard';
   font-display: swap;
 }
@@ -132,8 +132,8 @@ code {
   font-weight: 100;
   src:
     local('Pretendard Thin'),
-    url(../assets/woff2/Pretendard-Thin.woff2) format('woff2'),
-    url(../assets/woff/Pretendard-Thin.woff) format('woff');
+    url(./assets/woff2/Pretendard-Thin.woff2) format('woff2'),
+    url(./assets/woff/Pretendard-Thin.woff) format('woff');
   font-family: 'Pretendard';
   font-display: swap;
 }
@@ -195,18 +195,18 @@ body {
   font-family: 'Pretendard', sans-serif;
 }
 
-.background-image {
+/* .background-image {
   position: fixed;
   right: 0;
   left: 0;
   z-index: 1;
-  background-image: url('/images/djmax_respect_v/BG.jpg');
+  background-image: url(./assets/images/djmax_respect_v/BG.jpg);
   background-position: center center;
   background-size: cover;
   background-attachment: fixed;
   width: 100%;
   height: 100%;
-}
+} */
 
 .background-video {
   position: fixed;
@@ -321,10 +321,10 @@ main {
 }
 
 /* From V-ARCHIVE */
-.respect_bg_b4 {
+/* .respect_bg_b4 {
   opacity: 50%;
   filter: blur(4px);
-  background-image: url(/images/djmax_respect_v/4B-BG.png);
+  background-image: url(./assets/images/djmax_respect_v/4B-BG.png);
   background-size: cover;
   background-repeat: no-repeat;
 }
@@ -332,7 +332,7 @@ main {
 .respect_bg_b5 {
   opacity: 50%;
   filter: blur(4px);
-  background-image: url(/images/djmax_respect_v/5B-BG.png);
+  background-image: url(./assets/images/djmax_respect_v/5B-BG.png);
   background-size: cover;
   background-repeat: no-repeat;
 }
@@ -340,7 +340,7 @@ main {
 .respect_bg_b6 {
   opacity: 50%;
   filter: blur(4px);
-  background-image: url(/images/djmax_respect_v/6B-BG.png);
+  background-image: url(./assets/images/djmax_respect_v/6B-BG.png);
   background-size: cover;
   background-repeat: no-repeat;
 }
@@ -348,10 +348,10 @@ main {
 .respect_bg_b8 {
   opacity: 50%;
   filter: blur(4px);
-  background-image: url(/images/djmax_respect_v/8B-BG.png);
+  background-image: url(./assets/images/djmax_respect_v/8B-BG.png);
   background-size: cover;
   background-repeat: no-repeat;
-}
+} */
 
 .respect_dlc_list_wrap {
   display: flex;
@@ -925,8 +925,8 @@ main {
 
 .tooltip-inner {
   background: rgba(0, 0, 0, 0.9) !important;
+  padding: 8px !important;
   max-width: 960px !important;
-  padidng: 8px !important;
 }
 
 .vh-screen {

@@ -1,5 +1,5 @@
-import { join } from 'node:path'
 import { GLOBAL_DICTONARY } from '@main/constants/GLOBAL_DICTONARY'
+import { join } from 'node:path'
 
 import { Injectable, Logger } from '@nestjs/common'
 import { app, BrowserWindow, screen } from 'electron'
@@ -19,29 +19,14 @@ export class OverlayWindowService {
   private readonly logger = new Logger(OverlayWindowService.name)
   private isProcessingUpdate = false
   private updateInterval: NodeJS.Timeout | null = null
-  private readonly UPDATE_INTERVAL = 1000 // 약 60fps에 해당하는 시간 간격
+  private readonly UPDATE_INTERVAL = 17 // 약 60fps에 해당하는 시간 간격
   private readonly STANDARD_RESOLUTIONS = [
-    640,
-    720,
-    800,
-    1024,
-    1128,
-    1280,
-    1366,
-    1600,
-    1680,
-    1760,
-    1920,
-    2048,
-    2288,
-    2560,
-    3072,
-    3200,
-    3840,
-    5120,
+    640, 720, 800, 1024, 1128, 1280, 1366, 1600, 1680, 1760, 1920, 2048, 2288, 2560, 3072, 3200,
+    3840, 5120,
   ]
 
-  private lastGameWindowBounds: { x: number, y: number, width: number, height: number } | null = null
+  private lastGameWindowBounds: { x: number; y: number; width: number; height: number } | null =
+    null
 
   constructor(
     private readonly gameMonitorService: GameMonitorService,
@@ -132,11 +117,12 @@ export class OverlayWindowService {
         return
       }
 
-      const isBoundsChanged = !this.lastGameWindowBounds
-        || this.lastGameWindowBounds.x !== gameWindow.bounds.x
-        || this.lastGameWindowBounds.y !== gameWindow.bounds.y
-        || this.lastGameWindowBounds.width !== gameWindow.bounds.width
-        || this.lastGameWindowBounds.height !== gameWindow.bounds.height
+      const isBoundsChanged =
+        !this.lastGameWindowBounds ||
+        this.lastGameWindowBounds.x !== gameWindow.bounds.x ||
+        this.lastGameWindowBounds.y !== gameWindow.bounds.y ||
+        this.lastGameWindowBounds.width !== gameWindow.bounds.width ||
+        this.lastGameWindowBounds.height !== gameWindow.bounds.height
 
       if (isBoundsChanged) {
         this.lastGameWindowBounds = { ...gameWindow.bounds }
@@ -145,11 +131,9 @@ export class OverlayWindowService {
           this.overlayWindow?.show()
         }
       }
-    }
-    catch (error) {
+    } catch (error) {
       this.logger.error('Error in handleGameWindowChange:', error)
-    }
-    finally {
+    } finally {
       this.isProcessingUpdate = false
     }
   }
@@ -171,7 +155,9 @@ export class OverlayWindowService {
   }
 
   public async createOverlay(): Promise<BrowserWindow | null> {
-    const isGameRunning = await this.gameMonitorService.checkGameStatus(GLOBAL_DICTONARY.SUPPORTED_GAME_PROCESS_NAME_LIST)
+    const isGameRunning = await this.gameMonitorService.checkGameStatus(
+      GLOBAL_DICTONARY.SUPPORTED_GAME_PROCESS_NAME_LIST,
+    )
 
     if (!isGameRunning) {
       this.logger.warn('Game is not running')
@@ -222,8 +208,7 @@ export class OverlayWindowService {
 
     if (URL) {
       this.overlayWindow.loadURL(`${URL}`)
-    }
-    else {
+    } else {
       this.logger.error('Failed to determine URL for overlay window')
     }
 
@@ -273,8 +258,7 @@ export class OverlayWindowService {
 
     if (URL) {
       this.overlayWindow.loadURL(`${URL}`)
-    }
-    else {
+    } else {
       this.logger.error('Failed to determine URL for overlay window')
     }
 
@@ -320,24 +304,19 @@ export class OverlayWindowService {
       })
       const scaleFactor = display.scaleFactor
 
-      const newBounds = this.calculateOverlayBounds(
-        gameWindow.bounds,
-        isMaximized,
-        scaleFactor,
-      )
+      const newBounds = this.calculateOverlayBounds(gameWindow.bounds, isMaximized, scaleFactor)
 
       this.overlayWindow.setBounds(newBounds)
       if (!this.overlayWindow.isVisible()) {
         this.overlayWindow.show()
       }
-    }
-    catch (error) {
+    } catch (error) {
       this.logger.error('Failed to update overlay position:', error)
     }
   }
 
   private calculateOverlayBounds(
-    gameBounds: { x: number, y: number, width: number, height: number },
+    gameBounds: { x: number; y: number; width: number; height: number },
     isFullscreen: boolean,
     scaleFactor: number,
   ): OverlayBounds {
@@ -352,8 +331,7 @@ export class OverlayWindowService {
         width: Math.round(gameBounds.width / scaleFactor),
         height: Math.round(targetHeight / scaleFactor),
       }
-    }
-    else {
+    } else {
       const isNonStandardRatio = (gameBounds.width / 16) * 9 !== gameBounds.height
       const removedPixels = isNonStandardRatio
         ? (gameBounds.height - (gameBounds.width / 16) * 9) / 2
@@ -361,12 +339,18 @@ export class OverlayWindowService {
 
       return {
         x: Math.round(gameBounds.x / scaleFactor) + (isNonStandardRatio ? removedPixels : 0),
-        y: Math.round(gameBounds.y / scaleFactor)
-          + (isNonStandardRatio ? (gameBounds.height - (gameBounds.width / 16) * 9) / scaleFactor : 0),
-        width: Math.round(gameBounds.width / scaleFactor) - (isNonStandardRatio ? removedPixels * 2 : 0),
+        y:
+          Math.round(gameBounds.y / scaleFactor) +
+          (isNonStandardRatio
+            ? (gameBounds.height - (gameBounds.width / 16) * 9) / scaleFactor
+            : 0),
+        width:
+          Math.round(gameBounds.width / scaleFactor) - (isNonStandardRatio ? removedPixels * 2 : 0),
         height: Math.round(
           isNonStandardRatio
-            ? (gameBounds.height - (gameBounds.height - (gameBounds.width / 16) * 9)) / scaleFactor - removedPixels
+            ? (gameBounds.height - (gameBounds.height - (gameBounds.width / 16) * 9)) /
+                scaleFactor -
+                removedPixels
             : gameBounds.height / scaleFactor,
         ),
       }

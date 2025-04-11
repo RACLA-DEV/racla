@@ -10,16 +10,18 @@ import {
   REHYDRATE,
 } from 'redux-persist'
 import storage from 'redux-persist/lib/storage'
+import appReducer from './slices/appSlice'
 import uiReducer from './slices/uiSlice'
 
 const persistConfig = {
   key: 'root',
   storage,
-  whitelist: ['ui'], // 유지할 상태 목록
+  whitelist: ['ui', 'app'], // 유지할 상태 목록
 }
 
 const rootReducer = combineReducers({
   ui: uiReducer,
+  app: appReducer,
   // 추가 리듀서들...
 })
 

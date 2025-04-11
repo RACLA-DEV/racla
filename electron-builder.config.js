@@ -5,17 +5,34 @@
 const config = {
   appId: 'zip.r-archive.racla-electron-app',
   productName: 'RACLA for Desktop',
-  copyright: 'Copyright © 2024-2025 GGDRN0 STUDIO & R-ARCHIVE',
+  copyright: 'Copyright © 2024-2025 RACLA from 공감대로0번길(GGDRN0 STUDIO)',
 
   directories: {
     output: 'dist/electron',
+    buildResources: 'resources',
   },
-  npmRebuild: false,
-  files: [
-    'dist/main/**/*',
-    'dist/preload/**/*',
-    'dist/render/**/*',
+
+  extraResources: [
+    {
+      from: './resources/',
+      to: './',
+    },
   ],
+
+  npmRebuild: false,
+  files: ['dist/main/**/*', 'dist/preload/**/*', 'dist/render/**/*'],
+  // extraResources: [
+  //   {
+  //     from: 'src/render/assets',
+  //     to: 'assets',
+  //     filter: ['**/*'],
+  //   },
+  //   {
+  //     from: 'src/render/images',
+  //     to: 'images',
+  //     filter: ['**/*'],
+  //   },
+  // ],
 
   publish: {
     provider: 'github',
@@ -41,10 +58,7 @@ const config = {
   },
 
   asar: true,
-  asarUnpack: [
-    '**/node_modules/sharp/**/*',
-    '**/node_modules/@img/**/*',
-  ],
+  asarUnpack: ['**/node_modules/sharp/**/*', '**/node_modules/@img/**/*'],
 }
 
 module.exports = config

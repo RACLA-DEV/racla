@@ -1,6 +1,6 @@
 import { contextBridge, ipcRenderer } from 'electron'
 
-import type { SettingsData } from '@src/main/modules/file-manager/file-manager.service'
+import type { SessionData, SettingsData } from '@src/main/modules/file-manager/file-manager.service'
 import type { LogLevel } from '@src/types/LogLevel'
 import type { ProcessDescriptor } from 'ps-list'
 
@@ -50,4 +50,14 @@ contextBridge.exposeInMainWorld('electron', {
   // 외부 링크 확인 이벤트
   onConfirmExternalLink: (callback: (url: string) => void) =>
     ipcRenderer.on('confirm-external-link', (_event, url: string) => callback(url)),
+
+  // 로그인 관련
+  login: (sessionData: SessionData) => ipcRenderer.invoke('auth:login', sessionData),
+  logout: () => ipcRenderer.invoke('auth:logout'),
+  checkLoggedIn: () => ipcRenderer.invoke('auth:check-logged-in'),
+  getSession: () => ipcRenderer.invoke('auth:get-session'),
+  createPlayerFile: (data: { userNo: string; userToken: string }) =>
+    ipcRenderer.invoke('auth:create-player-file', data),
+  openDiscordLogin: () => ipcRenderer.invoke('auth:open-discord-login'),
+  openBrowser: (url: string) => ipcRenderer.invoke('auth:open-browser', url),
 })

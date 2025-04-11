@@ -1,63 +1,31 @@
+import { IpcRendererEvent } from 'electron'
 import { useEffect, useState } from 'react'
-import { Provider, useSelector } from 'react-redux'
-import type { ActionFunction, LoaderFunction } from 'react-router-dom'
-import { createHashRouter, RouterProvider } from 'react-router-dom'
+import { Provider, useDispatch, useSelector } from 'react-redux'
+import { RouterProvider } from 'react-router-dom'
+import { SyncLoader } from 'react-spinners'
 import { PersistGate } from 'redux-persist/integration/react'
 import './App.css'
-import AppLayout from './components/ui/AppLayout'
+import { NotificationContainer } from './components/ui/Notification'
 import { ThemeProvider } from './components/ui/ThemeProvider'
 import { globalDictionary } from './constants/globalDictionary'
+import { useNotificationSystem } from './hooks/useNotifications'
+import { router } from './routes'
 import { persistor, RootState, store } from './store'
+import {
+  setIsLoggedIn,
+  setSettingData,
+  setUserData,
+  setVArchiveUserData,
+} from './store/slices/appSlice'
 
-interface RouteCommon {
-  loader?: LoaderFunction
-  action?: ActionFunction
-  ErrorBoundary?: React.ComponentType<any>
+// 프로세스 정보를 위한 타입 정의
+interface ProcessDescriptor {
+  pid: number
+  name: string
+  cmd?: string
+  ppid?: number
+  [key: string]: any
 }
-
-interface IRoute extends RouteCommon {
-  path: string
-  Element: React.ComponentType<any>
-}
-
-interface Pages {
-  [key: string]: {
-    default: React.ComponentType<any>
-  } & RouteCommon
-}
-
-const pages: Pages = import.meta.glob('./pages/**/*.tsx', { eager: true })
-const routes: IRoute[] = []
-for (const path of Object.keys(pages)) {
-  const fileName = path.match(/\.\/pages\/(.*)\.tsx$/)?.[1]
-  if (!fileName) {
-    continue
-  }
-
-  const normalizedPathName = fileName.includes('$')
-    ? fileName.replace('$', ':')
-    : fileName.replace(/\/index/, '')
-
-  routes.push({
-    path: fileName === 'index' ? '/' : `/${normalizedPathName.toLowerCase()}`,
-    Element: pages[path].default,
-    loader: pages[path]?.loader as LoaderFunction | undefined,
-    action: pages[path]?.action as ActionFunction | undefined,
-    ErrorBoundary: pages[path]?.ErrorBoundary,
-  })
-}
-
-const router = createHashRouter(
-  routes.map(({ Element, ErrorBoundary, ...rest }) => ({
-    ...rest,
-    element: (
-      <AppLayout>
-        <Element />
-      </AppLayout>
-    ),
-    ...(ErrorBoundary && { errorElement: <ErrorBoundary /> }),
-  })),
-)
 
 // 외부 링크 모달 컴포넌트
 const ExternalLinkModal = ({
@@ -160,12 +128,12 @@ const ExternalLinkModal = ({
 }
 
 // 로딩 스켈레톤 컴포넌트
-const LoadingSkeleton = ({ theme }: { theme: string }) => {
+const LoadingSkeleton = ({ theme, isLoading }: { theme: string; isLoading: boolean }) => {
   return (
     <div
-      className={`tw:fixed tw:inset-0 tw:flex tw:flex-col tw:items-center tw:justify-center tw:z-[1000000] ${
-        theme === 'dark' ? 'tw:bg-slate-900/95' : 'tw:bg-indigo-50/95'
-      }`}
+      className={`tw:fixed tw:inset-0 tw:flex tw:flex-col tw:items-center tw:justify-center tw:z-[1000000] tw:transition-all tw:duration-1000 ${
+        isLoading ? 'tw:opacity-100' : 'tw:opacity-0 tw:pointer-events-none'
+      } ${theme === 'dark' ? 'tw:bg-slate-900/95' : 'tw:bg-indigo-50/95'}`}
     >
       <div className='tw:flex tw:flex-col tw:gap-8 tw:items-center'>
         <div className='tw:flex tw:items-center tw:justify-center'>
@@ -196,9 +164,7 @@ const LoadingSkeleton = ({ theme }: { theme: string }) => {
         </div>
 
         <div className='tw:flex tw:items-center tw:mt-4'>
-          <div className='tw:w-2 tw:h-2 tw:rounded-full tw:mr-1 tw:animate-ping tw:bg-blue-500'></div>
-          <div className='tw:w-2 tw:h-2 tw:rounded-full tw:mr-1 tw:animate-ping tw:delay-150 tw:bg-blue-500'></div>
-          <div className='tw:w-2 tw:h-2 tw:rounded-full tw:animate-ping tw:delay-300 tw:bg-blue-500'></div>
+          <SyncLoader size={8} color={theme === 'dark' ? '#c3dafe' : '#667eea'} />
         </div>
       </div>
 
@@ -213,20 +179,83 @@ const LoadingSkeleton = ({ theme }: { theme: string }) => {
   )
 }
 
+// 전역에 electron IPC 인터페이스 선언
+declare global {
+  interface Window {
+    ipcRenderer: {
+      on(channel: string, listener: (event: IpcRendererEvent, ...args: any[]) => void): void
+      once(channel: string, listener: (event: IpcRendererEvent, ...args: any[]) => void): void
+      invoke(channel: string, ...args: any[]): Promise<any>
+      removeListener(channel: string, listener: (...args: any[]) => void): void
+      send(channel: string, ...args: any[]): void
+    }
+    electron: {
+      loadSettings: () => Promise<any>
+      openExternalUrl: (url: string) => void
+      onConfirmExternalLink: (callback: (url: string) => void) => void
+      getSession: () => Promise<any>
+      isOverlayMode?: () => Promise<boolean>
+      // 오버레이 관련 메서드
+      getProcessList?: () => Promise<any[]>
+      onOverlayMessage?: (callback: (message: string) => void) => void
+      closeOverlay?: () => void
+    }
+  }
+}
+
 // Provider 내부에서 사용할 래핑된 앱 컴포넌트
 function WrappedApp() {
   const { theme } = useSelector((state: RootState) => state.ui)
   const [isLoading, setIsLoading] = useState(true)
+  const [isLoadingVisible, setIsLoadingVisible] = useState(true)
   const [showExternalLinkModal, setShowExternalLinkModal] = useState(false)
   const [externalUrl, setExternalUrl] = useState('')
+  const [isOverlayMode, setIsOverlayMode] = useState(false)
+  const dispatch = useDispatch()
+  const { notifications, removeNotification } = useNotificationSystem()
+
+  // 오버레이 모드 확인
+  useEffect(() => {
+    const checkOverlayMode = async () => {
+      // URL에서 overlay 경로 확인
+      if (window.location.hash.includes('#/overlay')) {
+        setIsOverlayMode(true)
+
+        // 오버레이 모드일 때는 로딩 화면 바로 숨김
+        setIsLoading(false)
+        setIsLoadingVisible(false)
+
+        // 오버레이 모드일 때 필요한 설정
+        document.body.style.backgroundColor = 'transparent'
+        document.body.style.overflow = 'hidden'
+      } else {
+        setIsOverlayMode(false)
+        // 오버레이 모드가 아닐 때는 기본 스타일로 복원
+        document.body.style.backgroundColor = ''
+        document.body.style.overflow = ''
+      }
+    }
+
+    checkOverlayMode()
+    window.addEventListener('hashchange', checkOverlayMode)
+
+    return () => {
+      window.removeEventListener('hashchange', checkOverlayMode)
+    }
+  }, [])
 
   // 앱 초기화 및 설정 로드
   useEffect(() => {
+    // 오버레이 모드에서는 초기화 로직 건너뜀
+    if (isOverlayMode) return
+
     // 설정 로드
     const loadSettings = async () => {
       try {
         if (window.electron && window.electron.loadSettings) {
           const settings = await window.electron.loadSettings()
+
+          dispatch(setSettingData(settings))
           console.log('설정 로드됨:', settings)
 
           // 서버에서 데이터 로드 시작
@@ -249,12 +278,19 @@ function WrappedApp() {
         // 로딩 시간 시뮬레이션 (실제로는 제거하고 실제 데이터 로드 결과에 따라 처리)
         setTimeout(() => {
           setIsLoading(false)
+          // 로딩 완료 후 페이드 아웃
+          setTimeout(() => {
+            setIsLoadingVisible(false)
+          }, 500)
           console.log('데이터 로드 완료')
         }, 2000)
       } catch (error) {
         console.error('데이터 로드 실패:', error)
         // 데이터 로드 실패해도 앱 실행
         setIsLoading(false)
+        setTimeout(() => {
+          setIsLoadingVisible(false)
+        }, 500)
       }
     }
 
@@ -277,13 +313,43 @@ function WrappedApp() {
       cleanup = globalDictionary.onExternalLinkRequested(handleExternalLink)
     }
 
+    // 세션 데이터 로드 및 자동 로그인
+    window.electron.getSession().then((session) => {
+      if (session && session.userNo && session.userToken) {
+        // 사용자 정보 설정
+        dispatch(
+          setUserData({
+            userName: session.userName || '',
+            userNo: session.userNo,
+            userToken: session.userToken,
+            discordUid: session.discordUid || '',
+            discordLinked: session.discordLinked || false,
+            vArchiveLinked: session.vArchiveLinked || false,
+          }),
+        )
+
+        // V-ARCHIVE 정보 설정
+        if (session.vArchiveUserNo && session.vArchiveUserToken) {
+          dispatch(
+            setVArchiveUserData({
+              userName: session.vArchiveUserName || '',
+              userNo: session.vArchiveUserNo,
+              userToken: session.vArchiveUserToken,
+            }),
+          )
+        }
+
+        dispatch(setIsLoggedIn(true))
+      }
+    })
+
     return () => {
       // 이벤트 리스너 정리
       if (cleanup) {
         cleanup()
       }
     }
-  }, [])
+  }, [dispatch, isOverlayMode])
 
   // 외부 링크 열기 처리
   const handleOpenExternalLink = () => {
@@ -299,17 +365,24 @@ function WrappedApp() {
 
   return (
     <ThemeProvider>
-      {isLoading && <LoadingSkeleton theme={theme} />}
-      <RouterProvider router={router} />
+      {!isOverlayMode && <LoadingSkeleton theme={theme} isLoading={isLoadingVisible} />}
+      {!isLoading && <RouterProvider router={router} />}
 
-      {/* 외부 링크 모달 */}
-      <ExternalLinkModal
-        url={externalUrl}
-        isOpen={showExternalLinkModal}
-        onClose={() => setShowExternalLinkModal(false)}
-        onConfirm={handleOpenExternalLink}
-        theme={theme}
-      />
+      {/* 알림 컴포넌트 (오버레이 모드가 아닐 때만 표시) */}
+      {!isOverlayMode && (
+        <NotificationContainer notifications={notifications} onRemove={removeNotification} />
+      )}
+
+      {/* 외부 링크 모달 (오버레이 모드가 아닐 때만 표시) */}
+      {!isOverlayMode && (
+        <ExternalLinkModal
+          url={externalUrl}
+          isOpen={showExternalLinkModal}
+          onClose={() => setShowExternalLinkModal(false)}
+          onConfirm={handleOpenExternalLink}
+          theme={theme}
+        />
+      )}
     </ThemeProvider>
   )
 }

@@ -9,9 +9,33 @@ export interface SettingsData {
   // 여기에 추가 설정 추가
 }
 
+export interface SessionData {
+  userNo?: string
+  userToken?: string
+  userName?: string
+  vArchiveUserNo?: string
+  vArchiveUserToken?: string
+  vArchiveUserName?: string
+  discordUid?: string
+  discordLinked?: boolean
+  vArchiveLinked?: boolean
+}
+
 const defaultSettings: SettingsData = {
   theme: 'light',
   sidebarCollapsed: false,
+}
+
+const defaultSession: SessionData = {
+  userNo: '',
+  userToken: '',
+  userName: '',
+  vArchiveUserNo: '',
+  vArchiveUserToken: '',
+  vArchiveUserName: '',
+  discordUid: '',
+  discordLinked: false,
+  vArchiveLinked: false,
 }
 
 @Injectable()
@@ -49,6 +73,56 @@ export class FileManagerService {
     } catch (error) {
       console.error('설정 파일 읽기 오류:', error)
       return defaultSettings
+    }
+  }
+
+  public saveSession(session: SessionData): SessionData {
+    const sessionPath = path.join(this.documentsPath, 'sessions.json')
+    fs.writeFileSync(sessionPath, JSON.stringify(session, null, 2), 'utf-8')
+    return session
+  }
+
+  public loadSession(): SessionData {
+    const sessionPath = path.join(this.documentsPath, 'sessions.json')
+
+    if (!fs.existsSync(sessionPath)) {
+      return defaultSession
+    }
+
+    try {
+      const sessionData = fs.readFileSync(sessionPath, 'utf-8')
+      return JSON.parse(sessionData) as SessionData
+    } catch (error) {
+      console.error('세션 파일 읽기 오류:', error)
+      return defaultSession
+    }
+  }
+
+  public clearSession(): void {
+    const sessionPath = path.join(this.documentsPath, 'sessions.json')
+    if (fs.existsSync(sessionPath)) {
+      fs.unlinkSync(sessionPath)
+    }
+  }
+
+  public saveSongData(songData: any[], gameCode: string): void {
+    const dataPath = path.join(this.documentsPath, `${gameCode}_songs.json`)
+    fs.writeFileSync(dataPath, JSON.stringify(songData, null, 2), 'utf-8')
+  }
+
+  public loadSongData(gameCode: string): any[] {
+    const dataPath = path.join(this.documentsPath, `${gameCode}_songs.json`)
+
+    if (!fs.existsSync(dataPath)) {
+      return []
+    }
+
+    try {
+      const songData = fs.readFileSync(dataPath, 'utf-8')
+      return JSON.parse(songData) as any[]
+    } catch (error) {
+      console.error(`${gameCode} 곡 데이터 파일 읽기 오류:`, error)
+      return []
     }
   }
 }

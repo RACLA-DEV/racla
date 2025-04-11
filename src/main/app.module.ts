@@ -6,12 +6,14 @@ import { WinstonModule, utilities as nestWinstonModuleUtilities } from 'nest-win
 import { app } from 'electron'
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
+import { AuthModule } from './modules/auth/auth.module'
 import { FileManagerModule } from './modules/file-manager/file-manager.module'
 import { GameMonitorModule } from './modules/game-monitor/game-monitor.module'
 import { ImageProcessorModule } from './modules/image-processor/image-processor.module'
 import { LoggerModule } from './modules/logger/logger.module'
 import { MainWindowModule } from './modules/main-window/main-window.module'
 import { MessageModule } from './modules/message/message.module'
+import { OAuthModule } from './modules/oauth/oauth.module'
 import { OverlayWindowModule } from './modules/overlay-window/overlay-window.module'
 import { OverlayWindowService } from './modules/overlay-window/overlay-window.service'
 import { ProcessModule } from './modules/process/process.module'
@@ -53,6 +55,8 @@ export const winstonConfig = {
     LoggerModule,
     ImageProcessorModule,
     FileManagerModule,
+    OAuthModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

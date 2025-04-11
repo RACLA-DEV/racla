@@ -138,7 +138,7 @@ function MainPage() {
         description: '게임 윈도우를 캡쳐합니다',
         example: 'const image = await captureGameWindow("DJMAX RESPECT V")',
         usage: async () => {
-          const image = await captureGameWindow('WJMAX')
+          const image = await captureGameWindow('DJMAX RESPECT V')
           setImage(image)
           await createLog('info', 'RENDERER', '게임 윈도우 캡쳐 완료')
         },
@@ -157,9 +157,7 @@ function MainPage() {
   return (
     <div className='tw:container tw:mx-auto tw:p-8'>
       <div className='tw:flex tw:items-center tw:gap-4 tw:mb-8'>
-        <h1 className='tw:text-3xl tw:font-bold tw:text-gray-800'>
-          RACLA-VITE-DESKTOP API 치트시트
-        </h1>
+        <h1 className='tw:text-3xl tw:font-bold'>RACLA-VITE-DESKTOP API 치트시트</h1>
       </div>
 
       <div className='tw:mb-6'>
@@ -205,7 +203,7 @@ function MainPage() {
             {filteredFunctions?.map((item) => (
               <div
                 key={item.title}
-                className='tw:bg-white tw:rounded-lg tw:shadow-lg tw:p-6 tw:space-y-4'
+                className='tw:bg-white tw:dark:bg-gray-800 tw:rounded-lg tw:shadow-lg tw:p-6 tw:space-y-4'
               >
                 <div className='tw:flex tw:justify-between tw:items-center'>
                   <h3 className='tw:text-xl tw:font-bold tw:text-blue-600'>{item.title}</h3>
@@ -217,7 +215,7 @@ function MainPage() {
                     실행하기
                   </button>
                 </div>
-                <p className='tw:text-gray-600'>{item.description}</p>
+                <p>{item.description}</p>
                 <div className='tw:bg-gray-100 tw:p-4 tw:rounded-lg'>
                   <pre className='tw:text-sm tw:font-mono tw:whitespace-pre-wrap'>
                     {item.example}

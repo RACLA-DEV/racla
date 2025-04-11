@@ -1,10 +1,10 @@
 {
-  "name": "racla-electron-appn",
+  "name": "racla-electron-app",
   "version": "0.8.0",
   "private": true,
   "packageManager": "pnpm@10.4.0",
   "description": "RACLA for Desktop",
-  "author": "GGDRN0 STUDIO & R-ARCHIVE",
+  "author": "GGDRN0 STUDIO",
   "main": "dist/main/index.js",
   "scripts": {
     "dev": "rimraf dist && vite",
@@ -22,6 +22,8 @@
     "@reduxjs/toolkit": "^2.5.1",
     "axios": "^1.7.9",
     "chart.js": "^4.4.7",
+    "color-name": "^2.0.0",
+    "color-string": "^2.0.1",
     "dayjs": "^1.11.13",
     "discord-rpc": "^4.0.1",
     "dmg-builder": "^25.1.8",

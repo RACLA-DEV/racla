@@ -1,6 +1,7 @@
 import { Icon } from '@iconify/react'
 import { RootState } from '@render/store'
 import { GameType, setSelectedGame } from '@render/store/slices/uiSlice'
+import { motion } from 'framer-motion'
 import React from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
@@ -42,8 +43,39 @@ const IconSidebar: React.FC = () => {
     navigate(homePath)
   }
 
+  // 애니메이션 변수
+  const sidebarAnimation = {
+    hidden: { x: -20, opacity: 0 },
+    visible: {
+      x: 0,
+      opacity: 1,
+      transition: {
+        duration: 0.5,
+        ease: 'easeOut',
+      },
+    },
+  }
+
+  const iconAnimation = (index: number) => ({
+    hidden: { scale: 0.8, opacity: 0 },
+    visible: {
+      scale: 1,
+      opacity: 1,
+      transition: {
+        delay: 0.2 + index * 0.1,
+        duration: 0.4,
+        type: 'spring',
+        stiffness: 260,
+        damping: 20,
+      },
+    },
+  })
+
   return (
-    <div
+    <motion.div
+      initial='hidden'
+      animate='visible'
+      variants={sidebarAnimation}
       className={`tw:flex tw:flex-col tw:items-center tw:px-2 tw:h-full tw:relative tw:justify-between ${
         theme === 'dark'
           ? 'tw:bg-transparent tw:text-slate-200'
@@ -54,7 +86,10 @@ const IconSidebar: React.FC = () => {
       <div className='tw:flex tw:flex-col tw:items-center'>
         <div className='tw:mb-4 tw:relative tw:z-10'>
           <Tooltip content='홈'>
-            <div
+            <motion.div
+              variants={iconAnimation(0)}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
               onClick={() => handleNavigation('/')}
               className={`tw:w-12 tw:h-12 tw:flex tw:items-center tw:justify-center tw:rounded-lg tw:cursor-pointer tw:transition-all ${
                 location === '/'
@@ -67,7 +102,7 @@ const IconSidebar: React.FC = () => {
               }`}
             >
               <Icon icon='mdi:home' width='28' height='28' />
-            </div>
+            </motion.div>
           </Tooltip>
         </div>
 
@@ -77,9 +112,12 @@ const IconSidebar: React.FC = () => {
             theme === 'dark' ? 'tw:border-slate-700' : 'tw:border-gray-300'
           }`}
         >
-          {gameIcons.map((game) => (
+          {gameIcons.map((game, index) => (
             <Tooltip key={game.id} content={game.tooltip}>
-              <div
+              <motion.div
+                variants={iconAnimation(index + 1)}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={() => handleGameSelect(game.id)}
                 className={`tw:w-12 tw:h-12 tw:flex tw:items-center tw:justify-center tw:rounded-lg tw:cursor-pointer tw:transition-all ${
                   selectedGame === game.id
@@ -92,7 +130,7 @@ const IconSidebar: React.FC = () => {
                 }`}
               >
                 <Icon icon={game.icon} width='28' height='28' />
-              </div>
+              </motion.div>
             </Tooltip>
           ))}
         </div>
@@ -101,7 +139,10 @@ const IconSidebar: React.FC = () => {
       {/* 설정 버튼 (하단) */}
       <div className='tw:mb-10 tw:relative tw:z-10'>
         <Tooltip content='설정'>
-          <div
+          <motion.div
+            variants={iconAnimation(5)}
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.95 }}
             onClick={() => handleNavigation('/settings')}
             className={`tw:w-12 tw:h-12 tw:flex tw:items-center tw:justify-center tw:rounded-lg tw:cursor-pointer tw:transition-all ${
               location === '/settings'
@@ -114,10 +155,10 @@ const IconSidebar: React.FC = () => {
             }`}
           >
             <Icon icon='mdi:cog' width='28' height='28' />
-          </div>
+          </motion.div>
         </Tooltip>
       </div>
-    </div>
+    </motion.div>
   )
 }
 

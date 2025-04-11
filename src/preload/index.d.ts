@@ -38,6 +38,14 @@ declare global {
       maximizeApp: () => void
       openExternalUrl: (url: string) => void
       onConfirmExternalLink: (callback: (url: string) => void) => void
+
+      login: (sessionData: SessionData) => Promise<boolean>
+      logout: () => Promise<boolean>
+      checkLoggedIn: () => Promise<boolean>
+      getSession: () => Promise<SessionData>
+      createPlayerFile: (data: { userNo: string; userToken: string }) => Promise<boolean>
+      openDiscordLogin: () => Promise<string>
+      openBrowser: (url: string) => Promise<boolean>
     }
   }
 }
