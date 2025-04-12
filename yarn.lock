@@ -3899,10 +3899,10 @@ electron-updater@^6.2.1:
     semver "^7.6.3"
     tiny-typed-emitter "^2.1.0"
 
-electron@^31.0.1:
-  version "31.7.7"
-  resolved "https://registry.yarnpkg.com/electron/-/electron-31.7.7.tgz#81d5d0eef818b40008cd290dc4fd30565ef7b225"
-  integrity sha512-HZtZg8EHsDGnswFt0QeV8If8B+et63uD6RJ7I4/xhcXqmTIbI08GoubX/wm+HdY0DwcuPe1/xsgqpmYvjdjRoA==
+electron@33.4.9:
+  version "33.4.9"
+  resolved "https://registry.yarnpkg.com/electron/-/electron-33.4.9.tgz#68da78e5e76bb1e0934a5c796c6f515b2fc501ae"
+  integrity sha512-XJQFXPOzHtUd7WtPlRhV6TD6QTwHLMjl+yZVD5krtPQ59KxJcZuMDJZJVPdLLlb5uSNo4iWTc204Lt7i2dFp5Q==
   dependencies:
     "@electron/get" "^2.0.0"
     "@types/node" "^20.9.0"

@@ -333,7 +333,7 @@ export default function PlatinaLabRegScorePage() {
                 리절트(결과) 화면의 이미지를 업로드해주세요.
               </div>
               <div className='tw-text-base tw-text-white tw-animate-pulse'>
-                PLATINA :: LAB는 싱글 플레이 결과 창을 지원합니다.
+                PLATiNA :: LAB는 싱글 플레이 결과 창을 지원합니다.
               </div>
             </div>
             // ... existing code ...
@@ -646,7 +646,7 @@ export default function PlatinaLabRegScorePage() {
                     리절트(결과) 화면의 이미지를 업로드해주세요.
                   </div>
                   <div className='tw-text-base tw-text-white tw-animate-pulse'>
-                    PLATINA :: LAB는 싱글 플레이 결과 창을 지원합니다.
+                    PLATiNA :: LAB는 싱글 플레이 결과 창을 지원합니다.
                   </div>
                 </div>
               )

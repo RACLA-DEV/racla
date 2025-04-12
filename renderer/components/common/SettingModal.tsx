@@ -1367,7 +1367,7 @@ const SettingComponent = () => {
                       setErrorMessage('')
                     }}
                   >
-                    <span>PLATINA :: LAB</span>
+                    <span>PLATiNA :: LAB</span>
                   </button>
                 </>
               )}

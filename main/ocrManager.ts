@@ -472,7 +472,7 @@ export async function processResultScreen(
               gameCode == 'djmax_respect_v'
                 ? 'DJMAX RESPECT V'
                 : gameCode == 'platina_lab'
-                  ? 'PLATINA :: LAB'
+                  ? 'PLATiNA :: LAB'
                   : 'WJMAX'
             }의 게임 결과창이 자동 인식되어 성과 기록 이미지를 처리 중에 있습니다. 잠시만 기다려주세요.`,
             color: 'tw-bg-blue-600',
@@ -482,7 +482,7 @@ export async function processResultScreen(
               gameCode == 'djmax_respect_v'
                 ? 'DJMAX RESPECT V'
                 : gameCode == 'platina_lab'
-                  ? 'PLATINA :: LAB'
+                  ? 'PLATiNA :: LAB'
                   : 'WJMAX'
             }의 게임 결과창이 자동 인식되어 성과 기록 이미지를 처리 중에 있습니다. 잠시만 기다려주세요.`,
             color: 'tw-bg-blue-600',

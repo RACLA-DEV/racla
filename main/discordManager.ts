@@ -60,6 +60,8 @@ class DiscordManager {
     button?: string
     pattern?: string
     score?: number
+    max?: number
+    level?: number
     maxCombo?: boolean
     gameCode?: string
   }) {
@@ -77,9 +79,11 @@ class DiscordManager {
               ? 'DMRV'
               : gameData.gameCode === 'wjmax'
                 ? 'WJMAX'
-                : null
+                : gameData.gameCode === 'platina_lab'
+                  ? 'PLATiNA :: LAB'
+                  : null
           } - ${gameData.songName}`,
-          state: `${String(gameData.button).replace('B', '')}B | ${gameData.pattern} | ${gameData.score.toFixed(2)}% ${gameData.maxCombo ? '(MAX COMBO)' : ''}`,
+          state: `${String(gameData.button).replace('B', '')}B | ${gameData.pattern} | ${gameData.score.toFixed(2)}% ${gameData?.max && gameData.score == 100 ? (gameData?.max == 0 ? 'MAX' : `MAX-${gameData?.max}`) : ''} ${gameData.maxCombo && gameData.score !== 100 && gameData.gameCode != 'platina_lab' ? '(MAX COMBO)' : ''}`,
           largeImageKey: 'racla_logo',
           largeImageText: 'RACLA for Desktop',
           startTimestamp: this.startTimestamp,
@@ -93,7 +97,9 @@ class DiscordManager {
                 ? 'DMRV'
                 : recentScore.gameCode === 'wjmax'
                   ? 'WJMAX'
-                  : null
+                  : recentScore.gameCode === 'platina_lab'
+                    ? 'PLATiNA :: LAB'
+                    : null
             } - ${recentScore.songName}`,
             state: `${String(recentScore.button).replace('B', '')}B | ${recentScore.pattern} | ${recentScore.score.toFixed(2)}% ${recentScore.maxCombo ? '(MAX COMBO)' : ''}`,
             largeImageKey: 'racla_logo',
