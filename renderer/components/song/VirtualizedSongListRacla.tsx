@@ -1,7 +1,6 @@
-import { FixedSizeGrid } from 'react-window'
-import RaScorePopupComponent from '../score/popup/ScorePopupRacla'
-import { useCallback } from 'react'
 import { useWindowSize } from '@hooks/useWindowSize'
+import { useCallback } from 'react'
+import { FixedSizeGrid } from 'react-window'
 
 interface VirtualizedRaSongListProps {
   items: any[]
@@ -31,17 +30,19 @@ export default function VirtualizedRaSongList({
       if (!item || viewMode !== 'grid') return null
 
       return (
-        <div style={style} className='tw-p-2'>
-          <RaScorePopupComponent
-            key={item.title}
-            songItem={item}
-            songItemTitle={item.title}
-            keyMode={keyMode.replace('P', '')}
-            isVisibleCode={true}
-            judgementType={keyMode.includes('P') ? '1' : '0'}
-            size={80}
-          />
-        </div>
+        // <div style={style} className='tw-p-2'>
+        //   <RaScorePopupComponent
+
+        //     key={item.title}
+        //     songItem={item}
+        //     songItemTitle={item.title}
+        //     keyMode={keyMode.replace('P', '')}
+        //     isVisibleCode={true}
+        //     judgementType={keyMode.includes('P') ? '1' : '0'}
+        //     size={80}
+        //   />
+        // </div>
+        <></>
       )
     },
     [items, keyMode, viewMode, COLUMN_COUNT],
