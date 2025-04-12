@@ -144,6 +144,40 @@ const Overlay = ({ isNotificationSound }: { isNotificationSound: boolean }) => {
             recentHistory: null,
           }
         }
+      } else if (
+        (data.gameCode === 'wjmax' || data.gameCode === 'platina_lab') &&
+        settingData.recentOverlay
+      ) {
+        try {
+          // WJMAX와 PLATiNA :: LAB에서도 최근 기록 조회
+          const buttonParam =
+            String(data.button).replace('B', '') +
+            'B' +
+            (Number(data.judgementType) === 1 ? '_PLUS' : '')
+          const recentResponse = await axios.get(
+            `${process.env.NEXT_PUBLIC_API_URL}/v2/racla/play/history/${sessionData.userNo}/${data.gameCode}/${data.songData.title as string}/${buttonParam}/${patternToCode(data.pattern)}`,
+            {
+              headers: {
+                Authorization: `${sessionData.userNo}|${sessionData.userToken}`,
+              },
+              withCredentials: true,
+            },
+          )
+
+          scoreData = {
+            ...scoreData,
+            recentHistory:
+              recentResponse.data.success && recentResponse.data.recentHistory.length > 0
+                ? recentResponse.data.recentHistory
+                : null,
+          }
+        } catch (error) {
+          console.error('점수 조회 중 오류 발생:', error)
+          scoreData = {
+            ...scoreData,
+            recentHistory: null,
+          }
+        }
       }
 
       const newNotification = {
@@ -196,6 +230,18 @@ const Overlay = ({ isNotificationSound }: { isNotificationSound: boolean }) => {
       case 'NORMAL':
       case 'NM':
         return 'NM'
+      case 'EASY':
+        return 'EASY'
+      case 'OVER':
+        return 'OVER'
+      case 'PLUS_1':
+        return 'PLUS_1'
+      case 'PLUS_2':
+        return 'PLUS_2'
+      case 'PLUS_3':
+        return 'PLUS_3'
+      default:
+        return 'NM'
     }
   }
 
@@ -214,6 +260,25 @@ const Overlay = ({ isNotificationSound }: { isNotificationSound: boolean }) => {
       case 'NORMAL':
       case 'NM':
         return '메시'
+    }
+  }
+
+  const codeToPattternNamePlatinaLab = (pattern: string) => {
+    switch (pattern) {
+      case 'EASY':
+        return 'EASY'
+      case 'HD':
+        return 'HARD'
+      case 'OVER':
+        return 'OVER'
+      case 'PLUS_1':
+        return 'PLUS'
+      case 'PLUS_2':
+        return 'PLUS'
+      case 'PLUS_3':
+        return 'PLUS'
+      default:
+        return 'NM'
     }
   }
 
@@ -341,7 +406,7 @@ const Overlay = ({ isNotificationSound }: { isNotificationSound: boolean }) => {
                 style={{ transform: 'translateX(-100%)' }}
               />
             </div>
-          ) : (
+          ) : data.gameCode == 'wjmax' ? (
             <div
               key={id}
               className={`tw-bg-gray-950 wjmax_dlc_${data.songData.dlcCode} wjmax_dlc_logo_${data.songData.dlcCode} wjmax_dlc_logo_BG_${data.songData.dlcCode} tw-min-w-[400px] tw-cursor-pointer tw-text-sm tw-bg-opacity-80 tw-relative tw-text-white tw-rounded-lg tw-overflow-hidden tw-shadow-lg ${fadeOut[id] ? 'tw-animate-fadeOut' : 'tw-animate-fadeIn'}`}
@@ -415,6 +480,86 @@ const Overlay = ({ isNotificationSound }: { isNotificationSound: boolean }) => {
                 style={{ transform: 'translateX(-100%)' }}
               />
             </div>
+          ) : data.gameCode == 'platina_lab' ? (
+            <div
+              key={id}
+              className={`tw-bg-gray-950 platina_lab_dlc_${data.songData.dlcCode} platina_lab_dlc_logo_${data.songData.dlcCode} platina_lab_dlc_logo_BG_${data.songData.dlcCode} tw-min-w-[400px] tw-cursor-pointer tw-text-sm tw-bg-opacity-80 tw-relative tw-text-white tw-rounded-lg tw-overflow-hidden tw-shadow-lg ${fadeOut[id] ? 'tw-animate-fadeOut' : 'tw-animate-fadeIn'}`}
+            >
+              <div className='tw-absolute tw-inset-0 tw-overflow-hidden tw-rounded-md tw-z-0'>
+                <Image
+                  src={`https://cdn.racla.app/platina_lab/jackets/cropped/${String(data.songData.title)}.jpg`}
+                  layout='fill'
+                  objectFit='cover'
+                  alt=''
+                  className='tw-opacity-75 tw-blur-xl'
+                />
+              </div>
+              <div className='tw-py-3 tw-px-3 tw-flex tw-gap-3 tw-bg-gray-950 tw-bg-opacity-75 tw-items-center tw-relative tw-z-10'>
+                <Image
+                  loading='lazy' // "lazy" | "eager"
+                  blurDataURL={globalDictionary.blurDataURL}
+                  src={`https://cdn.racla.app/platina_lab/jackets/resized/${String(data.songData.title)}.jpg`}
+                  alt='title'
+                  width={60}
+                  height={60}
+                  className='tw-rounded-lg'
+                />
+                <div className='tw-flex tw-flex-col tw-gap-1 tw-flex-1'>
+                  <span className='tw-text-lg tw-font-bold'>{data.songData.name}</span>
+                  <div className='tw-flex tw-gap-3 tw-flex-1 tw-items-center'>
+                    <span className='tw-text-sm tw-font-bold tw-text-gray-200'>
+                      {data.button}B{Number(data.judgementType) == 1 ? '+' : ''}
+                    </span>
+                    <span className='tw-text-sm tw-font-bold tw-text-gray-200'>
+                      {codeToPattternNamePlatinaLab(patternToCode(data.pattern))} Lv.
+                      {data.level.toFixed(0)}
+                    </span>
+                    {data.score === 100 ? (
+                      <span className='tw-text-sm tw-font-bold tw-text-gray-200'>PERFECT</span>
+                    ) : (
+                      <>
+                        <span className='tw-text-sm tw-font-bold tw-text-gray-200'>
+                          {Number(data.score).toFixed(String(data.score).includes('.') ? 2 : 2)}%
+                        </span>
+                        <span className='tw-text-sm tw-font-bold tw-text-gray-200 tw-me-auto'>
+                          {data.maxCombo === 1 && data.score != 100 ? 'MAX COMBO' : ''}
+                          {data?.max &&
+                            data.score == 100 &&
+                            (data.max === 0 ? 'MAX' : 'MAX-' + data.max)}
+                        </span>
+                      </>
+                    )}
+                    {data.lastScore ? (
+                      parseFloat(data.lastScore) < parseFloat(data.score) ? (
+                        <span className='tw-text-sm tw-font-extrabold tw-text-red-500 tw-px-2 tw-py-1 tw-text-shadow-outline'>
+                          {Number(parseFloat(data.score) - parseFloat(data.lastScore)).toFixed(2)}%
+                          상승
+                        </span>
+                      ) : parseFloat(data.lastScore) == parseFloat(data.score) ? (
+                        <span className='tw-text-sm tw-font-extrabold tw-text-gray-200 tw-px-2 tw-py-1 tw-text-shadow-outline'>
+                          점수 변동 없음
+                        </span>
+                      ) : (
+                        <span className='tw-text-sm tw-font-extrabold tw-text-blue-500 tw-px-2 tw-py-1 tw-text-shadow-outline'>
+                          {Number(parseFloat(data.score) - parseFloat(data.lastScore)).toFixed(2)}%
+                          하락
+                        </span>
+                      )
+                    ) : (
+                      <span className='tw-text-sm tw-font-extrabold tw-text-amber-500 tw-px-2 tw-py-1 tw-text-shadow-outline'>
+                        신규 기록!
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+              <div
+                className={`tw-absolute tw-bottom-0 tw-left-0 tw-h-1 tw-w-full tw-z-10 tw-bg-white tw-bg-opacity-50 ${fadeOut[id] ? 'tw-animate-fadeOut' : 'tw-animate-notificationProgress'}`}
+                style={{ transform: 'translateX(-100%)' }}
+              />
+            </div>
+          ) : (
+            <div></div>
           ),
         )}
       </div>
@@ -599,6 +744,110 @@ const Overlay = ({ isNotificationSound }: { isNotificationSound: boolean }) => {
                   )
                 )
               })()}
+            </div>
+          ),
+      )}
+
+      {/* wjmax 및 platina_lab 최근 기록 알림 */}
+      {notifications.map(
+        ({ data, id }) =>
+          (data.gameCode === 'wjmax' || data.gameCode === 'platina_lab') &&
+          data.recentHistory && (
+            <div
+              key={`records-${id}`}
+              className={`tw-fixed tw-flex-col tw-right-4 tw-top-1/2 tw-flex tw-gap-2 ${
+                fadeOut[id] ? 'tw-animate-slideOutRight' : 'tw-animate-slideInRight'
+              }`}
+            >
+              {/* 최근 기록 */}
+              <div className='tw-bg-gray-950 tw-rounded-lg tw-shadow-lg tw-min-w-[320px] tw-max-w-[320px] tw-relative tw-overflow-hidden'>
+                <div className='tw-absolute tw-inset-0 tw-overflow-hidden tw-rounded-md tw-z-0'>
+                  <Image
+                    src={
+                      data.gameCode === 'wjmax'
+                        ? `https://cdn.racla.app/wjmax/resources/jackets/${String(data.songData.title)}.jpg`
+                        : `https://cdn.racla.app/platina_lab/jackets/resized/${String(data.songData.title)}.jpg`
+                    }
+                    layout='fill'
+                    objectFit='cover'
+                    alt=''
+                    className='tw-opacity-75 tw-blur-xl'
+                  />
+                </div>
+                <div className='tw-p-3 tw-relative tw-z-10 tw-bg-gray-950 tw-bg-opacity-75'>
+                  <div className='tw-flex tw-items-center tw-gap-2 tw-mb-2'>
+                    <IconContext.Provider value={{ size: '16px', className: 'tw-text-blue-400' }}>
+                      <FaDatabase />
+                    </IconContext.Provider>
+                    <span className='tw-text-sm tw-font-bold tw-text-blue-400'>최근 기록</span>
+                  </div>
+                  <div className='tw-flex tw-flex-col tw-gap-2'>
+                    {data.recentHistory.length > 0 ? (
+                      [...data.recentHistory].slice(0, 5).map((history) => (
+                        <div
+                          key={history.historyId}
+                          className='tw-bg-gray-900/50 tw-rounded tw-p-2 tw-flex tw-flex-col tw-gap-2'
+                        >
+                          <div className='tw-flex tw-items-center tw-gap-2'>
+                            <div className='tw-flex tw-items-center tw-gap-2'>
+                              <div className='tw-flex tw-items-center tw-gap-1 tw-px-2 tw-py-1 tw-rounded-md tw-bg-gray-600/25 tw-bg-opacity-75 tw-min-w-12 tw-text-center tw-justify-center'>
+                                <span className='tw-text-xs tw-font-bold'>
+                                  {String(data.button).replace('B', '')}B
+                                  {Number(data.judgementType) == 1 ? '+' : ''}
+                                </span>
+                              </div>
+                              <div className='tw-flex tw-items-center tw-gap-1 tw-px-2 tw-py-1 tw-rounded-md tw-bg-gray-600/25 tw-bg-opacity-75 tw-min-w-20 tw-text-center tw-justify-center'>
+                                <span className='tw-text-xs tw-font-bold'>
+                                  {data.gameCode === 'wjmax'
+                                    ? codeToPatternName(patternToCode(data.pattern))
+                                    : codeToPattternNamePlatinaLab(patternToCode(data.pattern)) +
+                                      ' Lv.' +
+                                      data.level.toFixed(0)}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                          <div className='tw-flex tw-justify-between tw-items-center'>
+                            <div className='tw-text-sm tw-font-bold tw-text-gray-200'>
+                              {Number(history.score).toFixed(2)}%
+                              {history.maxCombo &&
+                                (data.gameCode === 'wjmax' ? (
+                                  <span className='tw-text-xs tw-font-bold tw-text-amber-400'>
+                                    {' '}
+                                    (MAX COMBO)
+                                  </span>
+                                ) : history.score == 100 && history?.max ? (
+                                  history?.max == 0 ? (
+                                    <span className='tw-text-xs tw-font-bold tw-text-amber-400'>
+                                      MAX
+                                    </span>
+                                  ) : (
+                                    <span className='tw-text-xs tw-font-bold tw-text-amber-400'>
+                                      MAX-{history?.max}
+                                    </span>
+                                  )
+                                ) : (
+                                  <span className='tw-text-xs tw-font-bold tw-text-amber-400'>
+                                    {' '}
+                                    (MAX COMBO)
+                                  </span>
+                                ))}
+                            </div>
+
+                            <div className='tw-text-xs tw-font-bold tw-text-gray-400'>
+                              {dayjs(history.playedAt).format('YYYY-MM-DD HH:mm:ss')}
+                            </div>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className='tw-text-sm tw-text-gray-400 tw-text-center tw-py-2'>
+                        RACLA 데이터베이스에 해당 수록곡의 사용자 최근 기록이 없습니다.
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
             </div>
           ),
       )}

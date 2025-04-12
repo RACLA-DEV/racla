@@ -1,22 +1,28 @@
 import { useEffect } from 'react'
 
 interface ScoreEditModalProps {
+  gameCode?: string
   show: boolean
   onHide: () => void
   patternMaxCombo: boolean
   setPatternMaxCombo: (value: boolean) => void
   updateScore: number
   setUpdateScore: (value: number) => void
+  updateMax?: number
+  setUpdateMax?: (value: number) => void
   onSave: () => void
 }
 
 export default function ScoreEditComponent({
+  gameCode,
   show,
   onHide,
   patternMaxCombo,
   setPatternMaxCombo,
   updateScore,
   setUpdateScore,
+  updateMax,
+  setUpdateMax,
   onSave,
 }: ScoreEditModalProps) {
   useEffect(() => {
@@ -73,7 +79,7 @@ export default function ScoreEditComponent({
                 type='number'
                 min='0'
                 max='100'
-                step='0.01'
+                step='0.0001'
                 value={updateScore !== undefined && updateScore !== null ? Number(updateScore) : 0}
                 onChange={(e) => setUpdateScore(Number(e.currentTarget.value))}
               />
@@ -81,6 +87,23 @@ export default function ScoreEditComponent({
                 점수를 입력해주세요 (0-100)
               </span>
             </div>
+
+            {gameCode == 'platina_lab' && (
+              <div className='tw-flex tw-flex-col tw-gap-1'>
+                <input
+                  className='form-control tw-text-sm tw-bg-gray-900 tw-bg-opacity-20 tw-text-center tw-font-extrabold tw-rounded-md tw-border tw-border-gray-700'
+                  type='number'
+                  min='0'
+                  max='3000'
+                  step='1'
+                  value={updateMax !== undefined && updateMax !== null ? Number(updateMax) : 0}
+                  onChange={(e) => setUpdateMax(Number(e.currentTarget.value))}
+                />
+                <span className='tw-text-sm tw-font-light tw-text-gray-400 tw-text-center'>
+                  PERFECT를 달성한 경우 MAX-값을 입력해주세요.(0-3000)
+                </span>
+              </div>
+            )}
 
             <div className='tw-flex tw-justify-end tw-gap-2'>
               <button

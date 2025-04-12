@@ -6,6 +6,7 @@ import { FaCircle } from 'react-icons/fa'
 import { useSelector } from 'react-redux'
 import type { RootState } from 'store'
 import FooterLicenseDjmaxRespectV from './FooterLicenseDjmax'
+import FooterLicensePlatinaLab from './FooterLicensePlatinaLab'
 import FooterLicenseTjmax from './FooterLicenseTjmax'
 import FooterLicenseWjmax from './FooterLicenseWjmax'
 
@@ -54,6 +55,8 @@ const FooterComponent = ({ className }: IFooterComponent) => {
         return <FooterLicenseWjmax />
       case 'tjmax':
         return <FooterLicenseTjmax />
+      case 'platina_lab':
+        return <FooterLicensePlatinaLab />
       default:
         return null
     }

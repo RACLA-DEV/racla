@@ -83,6 +83,12 @@ class GameOCRProcessor {
         otherProfile: { left: 1, top: 1, width: 1, height: 1 },
       },
     },
+    platina_lab: {
+      result: {
+        myProfile: { left: 1452, top: 14, width: 422, height: 88 },
+        otherProfile: { left: 1, top: 1, width: 1, height: 1 },
+      },
+    },
   }
 
   constructor(
@@ -148,6 +154,16 @@ class GameOCRProcessor {
         })
         texts.result = await this.recognizeText(regions.result, this.userData)
       }
+    } else if (gameCode === 'platina_lab') {
+      if (this.settingData.autoCapturePlatinaLabOcrResultRegion) {
+        regions.result = await this.extractRegion(imageBuffer, {
+          width: 100,
+          height: 26,
+          left: 694,
+          top: 864,
+        })
+        texts.result = await this.recognizeText(regions.result, this.userData)
+      }
     }
 
     return { regions, texts }
@@ -210,6 +226,15 @@ class GameOCRProcessor {
     } else if (gameCode === 'wjmax') {
       const resultKeywords = ['JUDGEMENT', 'JUDGE', 'MENT', 'MENTS', 'JUDGEMENTS']
       if (this.settingData.autoCaptureWjmaxOcrResultRegion && texts.result) {
+        resultInfo.isResult = this.checkResultKeywords(texts.result, resultKeywords)
+        if (resultInfo.isResult.length > 0) {
+          resultInfo.where = 'result'
+          resultInfo.text = texts.result
+        }
+      }
+    } else if (gameCode === 'platina_lab') {
+      const resultKeywords = ['COMBO', 'COM', 'MBO']
+      if (this.settingData.autoCapturePlatinaLabOcrResultRegion && texts.result) {
         resultInfo.isResult = this.checkResultKeywords(texts.result, resultKeywords)
         if (resultInfo.isResult.length > 0) {
           resultInfo.where = 'result'
@@ -444,13 +469,21 @@ export async function processResultScreen(
           mainWindow.webContents.send('pushNotification', {
             time: dayjs().format('YYYY-MM-DD-HH-mm-ss'),
             message: `${
-              gameCode == 'djmax_respect_v' ? 'DJMAX RESPECT V' : 'WJMAX'
+              gameCode == 'djmax_respect_v'
+                ? 'DJMAX RESPECT V'
+                : gameCode == 'platina_lab'
+                  ? 'PLATINA :: LAB'
+                  : 'WJMAX'
             }의 게임 결과창이 자동 인식되어 성과 기록 이미지를 처리 중에 있습니다. 잠시만 기다려주세요.`,
             color: 'tw-bg-blue-600',
           })
           overlayWindow.webContents.send('IPC_RENDERER_GET_NOTIFICATION_DATA', {
             message: `${
-              gameCode == 'djmax_respect_v' ? 'DJMAX RESPECT V' : 'WJMAX'
+              gameCode == 'djmax_respect_v'
+                ? 'DJMAX RESPECT V'
+                : gameCode == 'platina_lab'
+                  ? 'PLATINA :: LAB'
+                  : 'WJMAX'
             }의 게임 결과창이 자동 인식되어 성과 기록 이미지를 처리 중에 있습니다. 잠시만 기다려주세요.`,
             color: 'tw-bg-blue-600',
           })
@@ -482,7 +515,11 @@ export async function processResultScreen(
 
           log.debug('Server Side OCR Response SongData: ', playData.songData)
 
-          if (playData.songData?.isVarchive || playData.gameCode === 'wjmax') {
+          if (
+            playData.songData?.isVarchive ||
+            playData.gameCode === 'wjmax' ||
+            playData.gameCode === 'platina_lab'
+          ) {
             await handleNotifications(
               gameCode,
               playData,
@@ -539,13 +576,21 @@ function getFilePath(playData: any, app: any): string {
   )
 }
 
+function replaceNotAllowedFileNameCharacters(text: string): string {
+  const list = ['\\', '/', ':', '*', '?', '"', '<', '>']
+  list.forEach((char) => {
+    text = text.replaceAll(char, '-')
+  })
+  return text
+}
+
 function getFileNamePart(playData: any): string {
   if (playData.screenType === 'versus') {
     return `${playData.screenType}-Match`
   } else if (playData.screenType === 'collection') {
     return `Collection`
   }
-  return `${String(playData.songData.name).replaceAll(':', '-')}-${String(playData.score)}`
+  return `${replaceNotAllowedFileNameCharacters(String(playData.songData.name))}-${String(playData.button)}B-${String(playData.pattern)}-${String(playData.score)}`
 }
 
 function handleError(error: any) {

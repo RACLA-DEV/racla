@@ -22,9 +22,10 @@ export default function LicensePage() {
               <p className='tw-leading-relaxed'>
                 1. RACLA는 아래의 명시된 출처(게임)의 성과 관리 도구 애플리케이션(이하 팬
                 애플리케이션)입니다. RACLA에서 제공되는 리소스는 각 저작권자의 2차 창작 가이드라인을
-                준수하여 사용되고 있으며, 일부 리소스는 사전 허가를 받아 사용하고 있습니다.
-                애플리케이션 내 사용된 모든 컨텐츠(이미지, 문구 등)의 저작권은 명시된 저작권자에게
-                있습니다.
+                준수하여 사용되고 있으며, 일부 리소스는 사전 허가를 받아 사용하고 있습니다. 만약
+                별도의 라이선스를 부여받지 않은 리소스가 포함되는 경우, 해당 리소스는 비상업적인
+                용도로만 활용합니다. 애플리케이션 내 사용된 모든 컨텐츠(이미지, 문구 등)의 저작권은
+                명시된 저작권자에게 있습니다.
               </p>
               <p className='tw-leading-relaxed'>
                 2. 명시된 콘텐츠 내부에 포함된 저작권 또한 각각의 콘텐츠의 저작권자에게 있습니다.
@@ -59,7 +60,7 @@ export default function LicensePage() {
                     className='hover:tw-text-blue-300'
                     onClick={(e) => {
                       e.stopPropagation()
-                      window.ipc.send('openBrowser', 'https://www.neowiz.com/')
+                      window.ipc.send('openBrowser', 'https://www.neowiz.com')
                     }}
                   >
                     네오위즈(NEOWIZ)
@@ -70,7 +71,7 @@ export default function LicensePage() {
 
                 <div
                   className='tw-flex tw-items-center tw-gap-2 tw-cursor-pointer hover:tw-text-blue-400 tw-transition-colors'
-                  onClick={() => window.ipc.send('openBrowser', 'https://v-archive.net/')}
+                  onClick={() => window.ipc.send('openBrowser', 'https://v-archive.net')}
                 >
                   <FaLink className='tw-text-sm' />
                   <span>V-ARCHIVE(DJMAX RESPECT V의 유저 제작 웹 성과 관리 도구)</span>
@@ -83,7 +84,7 @@ export default function LicensePage() {
                 <div
                   className='tw-flex tw-items-center tw-gap-2 tw-cursor-pointer hover:tw-text-blue-400 tw-transition-colors'
                   onClick={() =>
-                    window.ipc.send('openBrowser', 'https://waktaverse.games/gameDetail/wjmax/')
+                    window.ipc.send('openBrowser', 'https://waktaverse.games/gameDetail/wjmax')
                   }
                 >
                   <FaLink className='tw-text-sm' />
@@ -93,10 +94,30 @@ export default function LicensePage() {
                     className='hover:tw-text-blue-300'
                     onClick={(e) => {
                       e.stopPropagation()
-                      window.ipc.send('openBrowser', 'https://waktaverse.games/')
+                      window.ipc.send('openBrowser', 'https://waktaverse.games')
                     }}
                   >
                     WJMAX STUDIO, WAKTAVERSE GAMES
+                  </span>
+                </div>
+
+                <hr className='tw-my-4 tw-border-blue-500 tw-border-opacity-50' />
+
+                <div
+                  className='tw-flex tw-items-center tw-gap-2 tw-cursor-pointer hover:tw-text-blue-400 tw-transition-colors'
+                  onClick={() => window.ipc.send('openBrowser', 'https://platinalab.net')}
+                >
+                  <FaLink className='tw-text-sm' />
+                  <span>PLATiNA :: LAB(플래티나 랩, 게임)</span>
+                  <span>-</span>
+                  <span
+                    className='hover:tw-text-blue-300'
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      window.ipc.send('openBrowser', 'https://platinalab.net/ugc-guideline')
+                    }}
+                  >
+                    하이엔드 게임즈(HIGH-END Games)
                   </span>
                 </div>
               </div>
@@ -152,7 +173,7 @@ export default function LicensePage() {
                   6. RACLA 서비스에서 가장 많은 기여도를 주신 HanA 사용자님
                 </p>
                 <p className='tw-leading-relaxed'>
-                  7. 매달 50 SGD 상당의 서버 자산을 정기적으로 후원해주시는 KIHARU 후원자님
+                  7. RACLA 서비스 유지와 개선을 위해 정기적으로 후원해주시는 KIHARU 후원자님
                 </p>
 
                 <p className='tw-leading-relaxed'>

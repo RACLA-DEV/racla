@@ -26,6 +26,7 @@ const SettingComponent = () => {
     | 'capture'
     | 'djmax_respect_v'
     | 'wjmax'
+    | 'platina_lab'
     | 'data'
     | 'shortcut'
     | 'overlay'
@@ -280,6 +281,7 @@ const SettingComponent = () => {
               handleSettingChange({
                 autoStartGameDjmaxRespectV: !settingData.autoStartGameDjmaxRespectV,
                 autoStartGameWjmax: false,
+                autoStartGamePlatinaLab: false,
               })
             }}
           >
@@ -308,6 +310,7 @@ const SettingComponent = () => {
               handleSettingChange({
                 autoStartGameWjmax: !settingData.autoStartGameWjmax,
                 autoStartGameDjmaxRespectV: false,
+                autoStartGamePlatinaLab: false,
               })
             }}
             disabled={settingData.autoStartGameWjmaxPath == ''}
@@ -322,6 +325,34 @@ const SettingComponent = () => {
         <span className='tw-text-sm tw-font-light tw-text-gray-400 tw-break-keep'>
           RACLA 데스크톱 앱 실행 시 WJMAX 를 자동으로 실행합니다. 해당 기능 WJMAX의 실행
           파일(WJMAX.exe)의 경로가 지정한 경우에만 작동합니다.
+        </span>
+      </div>
+
+      <div className='tw-flex tw-flex-col tw-gap-1'>
+        <div className='tw-flex tw-items-center'>
+          <span className='tw-text-sm'>PLATiNA :: LAB 자동 실행</span>
+          <button
+            className={`tw-scale-50 tw-relative tw-inline-flex tw-items-center tw-h-8 tw-w-16 tw-rounded-full tw-transition-colors tw-duration-300 ${
+              settingData.autoStartGamePlatinaLab ? 'tw-bg-blue-600' : 'tw-bg-gray-600'
+            }`}
+            onClick={() => {
+              handleSettingChange({
+                autoStartGamePlatinaLab: !settingData.autoStartGamePlatinaLab,
+                autoStartGameDjmaxRespectV: false,
+                autoStartGameWjmax: false,
+              })
+            }}
+          >
+            <span
+              className={`tw-inline-block tw-h-6 tw-w-6 tw-bg-white tw-rounded-full tw-absolute tw-shadow tw-transform tw-transition-all tw-duration-300 ${
+                settingData.autoStartGamePlatinaLab ? 'tw-right-1' : 'tw-left-1'
+              }`}
+            />
+          </button>
+        </div>
+        <span className='tw-text-sm tw-font-light tw-text-gray-400 tw-break-keep'>
+          RACLA 데스크톱 앱 실행 시 PLATiNA :: LAB 를 자동으로 실행합니다. 해당 기능은 스팀 버전의
+          PLATiNA :: LAB에서만 작동합니다.
         </span>
       </div>
 
@@ -569,7 +600,8 @@ const SettingComponent = () => {
       </div>
 
       <span className='tw-text-sm tw-font-light tw-text-gray-400 tw-break-keep'>
-        V-ARCHIVE, DJMAX(NEOWIZ), WJMAX(WJMAX STUDIO). We deeply respect you. {'<'}3<br />
+        V-ARCHIVE, DJMAX(NEOWIZ), WJMAX(WJMAX STUDIO), PLATiNA :: LAB(HIGH-END Games). We deeply
+        respect you. {'<'}3<br />
         RACLA is dedicated to your remarkable games and services.
       </span>
 
@@ -617,8 +649,9 @@ const SettingComponent = () => {
           결과 창이 인식되는 경우 캡쳐 이미지를 분석하여 서버로 성과 기록을 갱신하는 기능입니다.
           활성화 시 다른 백그라운드 애플리케이션 또는 사용 환경, 사양 등에 따라 화면 끊어짐 등의
           이상 현상이 발생할 수 있습니다. 만약 화면 끊어짐 현상 등이 발생하는 경우 아래에 제공된
-          부가 옵션을 환경에 맞춰 사용하는 것을 권장합니다. 개발자는 i5-9400F / RX 580 8GB 사양으로
-          인게임 1920x1080 400FPS x8, 앱 설정 포커스 시에만 캡쳐 주기 1초 옵션으로 사용 중입니다.
+          부가 옵션을 환경에 맞춰 사용하는 것을 권장합니다. 개발 환경에서는 i5-9400F / RX 580 8GB
+          사양으로 인게임 1920x1080 240FPS 또는 300FPS 설정, 포커스 시에만 캡쳐 1초 주기 옵션으로
+          최적화 되어 있습니다.
         </span>
       </div>
 
@@ -891,6 +924,36 @@ const SettingComponent = () => {
         </div>
         <span className='tw-text-sm tw-font-light tw-text-gray-400'>
           자동 캡쳐 모드 사용 시 프리스타일 결과창을 인식 여부를 설정합니다.
+        </span>
+      </div>
+    </div>
+  )
+
+  const platinaLabSection = (
+    <div className='tw-flex tw-flex-col tw-gap-3'>
+      <div className='tw-flex tw-flex-col tw-gap-1'>
+        <div className='tw-flex tw-items-center'>
+          <span className='tw-text-sm'>자동 캡쳐 영역 - 싱글 플레이이 결과창</span>
+          <button
+            className={`tw-scale-50 tw-relative tw-inline-flex tw-items-center tw-h-8 tw-w-16 tw-rounded-full tw-transition-colors tw-duration-300 ${
+              settingData.autoCapturePlatinaLabOcrResultRegion ? 'tw-bg-blue-600' : 'tw-bg-gray-600'
+            }`}
+            onClick={() => {
+              handleSettingChange({
+                autoCapturePlatinaLabOcrResultRegion:
+                  !settingData.autoCapturePlatinaLabOcrResultRegion,
+              })
+            }}
+          >
+            <span
+              className={`tw-inline-block tw-h-6 tw-w-6 tw-bg-white tw-rounded-full tw-absolute tw-shadow tw-transform tw-transition-all tw-duration-300 ${
+                settingData.autoCapturePlatinaLabOcrResultRegion ? 'tw-right-1' : 'tw-left-1'
+              }`}
+            />
+          </button>
+        </div>
+        <span className='tw-text-sm tw-font-light tw-text-gray-400'>
+          자동 캡쳐 모드 사용 시 싱글 플레이 결과창을 인식 여부를 설정합니다.
         </span>
       </div>
     </div>
@@ -1295,6 +1358,17 @@ const SettingComponent = () => {
                   >
                     <span>WJMAX</span>
                   </button>
+                  <button
+                    className={`tw-flex tw-justify-between tw-items-center tw-text-left tw-px-3 tw-py-2 tw-rounded-md tw-text-sm ${
+                      category === 'platina_lab' ? 'tw-bg-gray-700' : 'hover:tw-bg-gray-800'
+                    }`}
+                    onClick={() => {
+                      setCategory('platina_lab')
+                      setErrorMessage('')
+                    }}
+                  >
+                    <span>PLATINA :: LAB</span>
+                  </button>
                 </>
               )}
             </div>
@@ -1310,13 +1384,15 @@ const SettingComponent = () => {
                         ? djmaxSection
                         : category === 'wjmax'
                           ? wjmaxSection
-                          : category === 'shortcut'
-                            ? shortcutSection
-                            : category === 'game'
-                              ? gameSection
-                              : category === 'account'
-                                ? accountSection
-                                : dataSection}
+                          : category === 'platina_lab'
+                            ? platinaLabSection
+                            : category === 'shortcut'
+                              ? shortcutSection
+                              : category === 'game'
+                                ? gameSection
+                                : category === 'account'
+                                  ? accountSection
+                                  : dataSection}
               </div>
             </div>
           </div>

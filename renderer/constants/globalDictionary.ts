@@ -5,6 +5,7 @@ import {
   FaHouse,
   FaKeyboard,
   FaList,
+  FaMusic,
   FaRankingStar,
   FaRobot,
   FaTrophy,
@@ -17,7 +18,7 @@ import packageJson from '../../package.json'
 import { BUILD_DATE } from './buildInfo'
 
 export const globalDictionary = {
-  version: `${packageJson.version}-${process.env.NODE_ENV === 'development' ? `202500000000 Dev (개발자 빌드)` : BUILD_DATE}`,
+  version: `${packageJson.version}-${process.env.NODE_ENV === 'development' ? `202500000000 Client (개발자 빌드)` : BUILD_DATE}`,
   blurDataURL:
     'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDABQODxIPDRQSEBIXFRQdHx0fHRsdHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR3/2wBDAR0XFyAeIRshGxsdIR0hHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR3/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAb/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k=',
   settings: {
@@ -240,6 +241,14 @@ export const globalDictionary = {
         isEditable: true,
         requiresRestart: false,
       },
+      autoCapturePlatinaLabOcrResultRegion: {
+        id: 'autoCapturePlatinaLabOcrResultRegion',
+        name: 'PLATiNA :: LAB OCR 결과창 검사',
+        description: 'PLATiNA :: LAB 검사 시 결과창 영역의 OCR 검사를 활성화/비활성화 합니다.',
+        defaultValue: true,
+        isEditable: true,
+        requiresRestart: false,
+      },
       autoStartGame: {
         id: 'autoStartGame',
         name: '게임 자동 실행',
@@ -272,6 +281,13 @@ export const globalDictionary = {
         defaultValue: '',
         isEditable: true,
         requiresRestart: false,
+      },
+      autoStartGamePlatinaLab: {
+        id: 'autoStartGamePlatinaLab',
+        name: 'PLATiNA :: LAB 자동 실행',
+        description: 'RACLA 데스크톱 앱 실행 시 PLATiNA :: LAB를 자동으로 실행합니다.',
+        defaultValue: false,
+        isEditable: true,
       },
       isMiniMode: {
         id: 'isMiniMode',
@@ -383,6 +399,40 @@ export const globalDictionary = {
       DPC: {
         name: 'DPC',
         fullName: '거짓말',
+      },
+    },
+    dlcList: [],
+  },
+  platina_lab: {
+    keyModeList: ['4', '6'],
+    levelList: [
+      1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26,
+      27, 28, 29, 30,
+    ],
+    difficulty: {
+      EASY: {
+        name: 'EASY',
+        fullName: 'EASY',
+      },
+      HD: {
+        name: 'HD',
+        fullName: 'HARD',
+      },
+      OVER: {
+        name: 'OVER',
+        fullName: 'OVER',
+      },
+      PLUS_1: {
+        name: 'PLUS',
+        fullName: 'PLUS',
+      },
+      PLUS_2: {
+        name: 'PLUS',
+        fullName: 'PLUS',
+      },
+      PLUS_3: {
+        name: 'PLUS',
+        fullName: 'PLUS',
       },
     },
     dlcList: [],
@@ -779,6 +829,129 @@ export const globalDictionary = {
             link: '/course',
             userLevel: [],
             status: 'dev',
+          },
+        ],
+      },
+    },
+    platina_lab: {
+      platina_lab: {
+        id: 'platinaLabNavTitle',
+        name: 'PLATiNA :: LAB (RACLA)',
+        isDisplay: true,
+        link: '/projectRa',
+        userLevel: [],
+        pages: [
+          {
+            id: 'platinaLabNavItemsRegScore',
+            name: {
+              startWithSup: '',
+              base: '기록 등록',
+              lastWithSup: '',
+            },
+            description: 'PLATiNA :: LAB 기록 등록',
+            icon: FaUpload,
+            isDisplay: true,
+            isOpenBrowser: false,
+            link: '/platina_lab/regScore',
+            userLevel: [],
+            status: 'stable',
+          },
+          {
+            id: 'platinaLabNavItemsArchiveMyBoard',
+            name: {
+              startWithSup: '',
+              base: '성과표',
+              lastWithSup: '',
+            },
+            description: 'PLATiNA :: LAB 성과표',
+            icon: FaTrophy,
+            isDisplay: true,
+            isOpenBrowser: false,
+            link: '/platina_lab/board',
+            userLevel: [],
+            status: 'stable',
+          },
+          {
+            id: 'platinaLabNavItemsDb',
+            name: {
+              startWithSup: '',
+              base: '데이터베이스',
+              lastWithSup: '',
+            },
+            description: 'PLATiNA :: LAB 데이터베이스',
+            icon: FaDatabase,
+            isDisplay: true,
+            isOpenBrowser: false,
+            link: '/platina_lab/db',
+            userLevel: [],
+            status: 'stable',
+          },
+          {
+            id: 'platinaLabNavItemsLeaderboard',
+            name: {
+              startWithSup: '',
+              base: '리더보드(랭킹)',
+              lastWithSup: '',
+            },
+            icon: FaRankingStar,
+            isDisplay: false,
+            isOpenBrowser: false,
+            link: '/leaderboard',
+            userLevel: [],
+            status: 'dev',
+          },
+          {
+            id: 'platinaLabNavItemsCourse',
+            name: {
+              startWithSup: '',
+              base: '코스 메이커',
+              lastWithSup: '',
+            },
+            icon: FaWandMagicSparkles,
+            isDisplay: false,
+            isOpenBrowser: false,
+            link: '/course',
+            userLevel: [],
+            status: 'dev',
+          },
+        ],
+      },
+      official: {
+        id: 'platinaLabOfficialNavTitle',
+        name: 'PLATiNA :: LAB (Official)',
+        isDisplay: true,
+        link: '/projectRa',
+        userLevel: [],
+        pages: [
+          {
+            id: 'platinaLabUtilityNavItemsDatabase',
+            name: {
+              startWithSup: '',
+              base: 'MUSIC',
+              lastWithSup: '',
+            },
+            description: 'Music - PLATiNA :: LAB',
+            icon: FaMusic,
+            isDisplay: true,
+            isOpenBrowser: true,
+            link: 'https://platinalab.net/music',
+            userLevel: [],
+            status: 'stable',
+          },
+          {
+            id: 'platinaLabUtilityNavItemsRanking',
+            name: {
+              startWithSup: '',
+              base: 'RANKING',
+              lastWithSup: '',
+            },
+            description: 'Ranking - PLATiNA :: LAB',
+            icon: FaRankingStar,
+            isDisplay: true,
+            isOpenBrowser: true,
+            link: 'https://platinalab.net/ranking',
+            userLevel: [],
+            status: 'stable',
           },
         ],
       },

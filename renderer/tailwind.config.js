@@ -61,8 +61,22 @@ module.exports = {
       'wjmax-mx': '#78ff91',
       'wjmax-sc': '#ff4c4c',
       'wjmax-dpc': '#ffb401',
+      'platina-lab-easy': '#ffb31a',
+      'platina-lab-hd': '#fd6c6e',
+      'platina-lab-over': '#bb63da',
+      'platina-lab-plus': '#7581bf',
     },
-    safelist: ['tw-text-wjmax-nm', 'tw-text-wjmax-hd', 'tw-text-wjmax-mx', 'tw-text-wjmax-sc'],
+    safelist: [
+      'tw-text-wjmax-nm',
+      'tw-text-wjmax-hd',
+      'tw-text-wjmax-mx',
+      'tw-text-wjmax-sc',
+      'tw-text-wjmax-dpc',
+      'tw-text-platina-lab-easy',
+      'tw-text-platina-lab-hd',
+      'tw-text-platina-lab-over',
+      'tw-text-platina-lab-plus',
+    ],
     extend: {
       textShadow: {
         outline:

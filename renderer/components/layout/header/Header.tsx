@@ -312,32 +312,13 @@ const HeaderComponent: React.FC<IHeaderComponentProps> = ({
           selectedGame,
           handleGameSelection,
         )}
-        {/* {renderGameButtons('TJMAX', 'https://cdn.racla.app/tjmax/logo.png', 'TJMAX', selectedGame, handleGameSelection)} */}
-
-        {/* 버튼 */}
-        <OverlayTrigger
-          placement='bottom'
-          overlay={
-            <Tooltip id='btn-select-game-respect-v' className={className + ' tw-text-xs'}>
-              Coming Soon! - RACLA 자체 제공 서비스
-            </Tooltip>
-          }
-        >
-          <button
-            type='button'
-            className='tw-flex tw-justify-center tw-items-center btn-select-game tw-gap-1 tw-rounded-sm tw-text-xs'
-          >
-            <Image
-              loading='lazy' // "lazy" | "eager"
-              blurDataURL={globalDictionary.blurDataURL}
-              src={`https://cdn.racla.app/platina_lab/download.svg`}
-              height={16}
-              width={16}
-              alt={'PLATiNA :: LAB'}
-            />
-            <span className='tw-text-xs'>PLATiNA :: LAB</span>
-          </button>
-        </OverlayTrigger>
+        {renderGameButtons(
+          'platina_lab',
+          'https://cdn.racla.app/platina_lab/logo.svg',
+          'PLATiNA :: LAB',
+          selectedGame,
+          handleGameSelection,
+        )}
 
         {/* 버튼 */}
         <OverlayTrigger
@@ -365,7 +346,9 @@ const HeaderComponent: React.FC<IHeaderComponentProps> = ({
             <Tooltip id='btn-select-game-respect-v' className={className + ' tw-text-xs'}>
               {selectedGame === 'djmax_respect_v'
                 ? 'DJMAX RESPECT V(Steam) 게임을 실행합니다.'
-                : 'WJMAX 게임을 실행합니다.'}
+                : selectedGame === 'wjmax'
+                  ? 'WJMAX 게임을 실행합니다.'
+                  : 'PLATiNA :: LAB 게임을 실행합니다.'}
             </Tooltip>
           }
         >
@@ -383,6 +366,8 @@ const HeaderComponent: React.FC<IHeaderComponentProps> = ({
                       'tw-bg-red-600',
                     )
                   }
+                } else if (selectedGame === 'platina_lab') {
+                  window.ipc.send('startGamePlatinaLab')
                 }
               }}
               className={

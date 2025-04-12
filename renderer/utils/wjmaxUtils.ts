@@ -1,6 +1,11 @@
-export const getDifficultyStarImage = (level: number, difficultyType: string): string => {
+export const getDifficultyStarImage = (
+  level: number,
+  difficultyType: string,
+  gameCode?: string,
+): string => {
   const baseType = difficultyType === 'SC' ? 'nm' : 'nm'
 
+  if (gameCode == 'platina_lab') return 'https://cdn.racla.app/platina_lab/logo.svg'
   if (difficultyType === 'NM') return `https://cdn.racla.app/wjmax/${baseType}_5_star.png`
   if (difficultyType === 'HD') return `https://cdn.racla.app/wjmax/${baseType}_10_star.png`
   if (difficultyType === 'MX') return `https://cdn.racla.app/wjmax/${baseType}_15_star.png`
@@ -8,52 +13,100 @@ export const getDifficultyStarImage = (level: number, difficultyType: string): s
   return `https://cdn.racla.app/wjmax/${baseType}_25_star.png`
 }
 
-export const getDifficultyClassName = (level: number, difficultyType: string): string => {
+export const getDifficultyClassName = (
+  level: number,
+  difficultyType: string,
+  gameCode?: string,
+): string => {
   const baseClass = 'tw-text-base text-stroke-100 tw-font-extrabold'
-  const difficultyClass = 'tw-text-wjmax'
+  const difficultyClass = gameCode == 'platina_lab' ? 'tw-text-platina-lab' : 'tw-text-wjmax'
 
   if (difficultyType === 'NM') return `${baseClass} ${difficultyClass}-nm`
   if (difficultyType === 'HD') return `${baseClass} ${difficultyClass}-hd`
   if (difficultyType === 'MX') return `${baseClass} ${difficultyClass}-mx`
   if (difficultyType === 'SC') return `${baseClass} ${difficultyClass}-sc`
+  if (difficultyType === 'EASY') return `${baseClass} ${difficultyClass}-easy`
+  if (difficultyType === 'OVER') return `${baseClass} ${difficultyClass}-over`
+  if (difficultyType.startsWith('PLUS')) return `${baseClass} ${difficultyClass}-plus`
   return `${baseClass} ${difficultyClass}-dpc`
 }
 
-export const getDifficultyTextClassName = (difficultyType: string): string => {
+export const getDifficultyTextClassName = (difficultyType: string, gameCode?: string): string => {
   const baseClass = 'tw-text-base tw-font-extrabold tw-text-left tw-z-50 text-stroke-100 tw-me-auto'
 
-  switch (difficultyType) {
-    case 'NM':
-      return `${baseClass} tw-text-wjmax-nm`
-    case 'HD':
-      return `${baseClass} tw-text-wjmax-hd`
-    case 'MX':
-      return `${baseClass} tw-text-wjmax-mx`
-    case 'SC':
-      return `${baseClass} tw-text-wjmax-sc`
-    case 'DPC':
-      return `${baseClass} tw-text-wjmax-dpc`
-    default:
-      return baseClass
+  if (gameCode == 'platina_lab') {
+    switch (difficultyType) {
+      case 'EASY':
+        return `${baseClass} tw-text-platina-lab-easy`
+      case 'HD':
+        return `${baseClass} tw-text-platina-lab-hd`
+      case 'OVER':
+        return `${baseClass} tw-text-platina-lab-over`
+      case 'PLUS_1':
+        return `${baseClass} tw-text-platina-lab-plus`
+      case 'PLUS_2':
+        return `${baseClass} tw-text-platina-lab-plus`
+      case 'PLUS_3':
+        return `${baseClass} tw-text-platina-lab-plus`
+      default:
+        return baseClass
+    }
+  } else {
+    switch (difficultyType) {
+      case 'NM':
+        return `${baseClass} tw-text-wjmax-nm`
+      case 'HD':
+        return `${baseClass} tw-text-wjmax-hd`
+      case 'MX':
+        return `${baseClass} tw-text-wjmax-mx`
+      case 'SC':
+        return `${baseClass} tw-text-wjmax-sc`
+      case 'DPC':
+        return `${baseClass} tw-text-wjmax-dpc`
+      default:
+        return baseClass
+    }
   }
 }
 
-export const getDifficultyScoreBarClassName = (difficultyType: string): string => {
+export const getDifficultyScoreBarClassName = (
+  difficultyType: string,
+  gameCode?: string,
+): string => {
   const baseClass = 'tw-h-6 tw-transition-all tw-duration-500 tw-ease-in-out'
 
-  switch (difficultyType) {
-    case 'NM':
-      return `${baseClass} tw-bg-wjmax-nm`
-    case 'HD':
-      return `${baseClass} tw-bg-wjmax-hd`
-    case 'MX':
-      return `${baseClass} tw-bg-wjmax-mx`
-    case 'SC':
-      return `${baseClass} tw-bg-wjmax-sc`
-    case 'DPC':
-      return `${baseClass} tw-bg-wjmax-dpc`
-    default:
-      return baseClass
+  if (gameCode == 'platina_lab') {
+    switch (difficultyType) {
+      case 'EASY':
+        return `${baseClass} tw-bg-platina-lab-easy`
+      case 'HD':
+        return `${baseClass} tw-bg-platina-lab-hd`
+      case 'OVER':
+        return `${baseClass} tw-bg-platina-lab-over`
+      case 'PLUS_1':
+        return `${baseClass} tw-bg-platina-lab-plus`
+      case 'PLUS_2':
+        return `${baseClass} tw-bg-platina-lab-plus`
+      case 'PLUS_3':
+        return `${baseClass} tw-bg-platina-lab-plus`
+      default:
+        return baseClass
+    }
+  } else {
+    switch (difficultyType) {
+      case 'NM':
+        return `${baseClass} tw-bg-wjmax-nm`
+      case 'HD':
+        return `${baseClass} tw-bg-wjmax-hd`
+      case 'MX':
+        return `${baseClass} tw-bg-wjmax-mx`
+      case 'SC':
+        return `${baseClass} tw-bg-wjmax-sc`
+      case 'DPC':
+        return `${baseClass} tw-bg-wjmax-dpc`
+      default:
+        return baseClass
+    }
   }
 }
 
@@ -61,14 +114,16 @@ interface PatternScore {
   score?: string | null
   maxCombo?: boolean
   rating?: number
+  max?: number
 }
 
-export const getScoreDisplayText = (pattern: PatternScore): string => {
+export const getScoreDisplayText = (pattern: PatternScore, gameCode?: string): string => {
   if (!pattern.score) return '0%(기록 미존재)'
 
   if (Number(pattern.score) == 0) return '0%(기록 미존재)'
 
-  if (pattern.score === '100.00') return `PERFECT${pattern.rating ? ` / ${pattern.rating}` : ''}`
+  if (pattern.score === '100.00')
+    return `PERFECT${pattern.rating ? ` / ${pattern.rating}` : ''}${gameCode == 'platina_lab' ? ` / ${pattern?.max == 0 ? 'MAX' : 'MAX-' + pattern?.max}` : ''}`
 
   return `${pattern.score}%${pattern.maxCombo ? '(MAX COMBO)' : ''}${pattern.rating ? ` / ${pattern.rating}` : ''}`
 }

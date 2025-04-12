@@ -86,6 +86,7 @@ ensureDirectoryExists(documentPath)
 const sessionFile = path.join(documentPath, 'session.json')
 const songDataFile = path.join(documentPath, 'songData.json')
 const wjmaxSongDataFile = path.join(documentPath, 'wjmaxSongData.json')
+const platinaLabSongDataFile = path.join(documentPath, 'platinaLabSongData.json')
 const settingDataFile = path.join(documentPath, 'settings.json')
 
 // 세션 저장
@@ -137,10 +138,25 @@ export function storeWjmaxSongData(wjmaxSongData) {
   fs.writeFileSync(wjmaxSongDataFile, JSON.stringify(wjmaxSongData), 'utf-8')
 }
 
+// platina lab 곡 데이터 저장
+export function storePlatinaLabSongData(platinaLabSongData) {
+  log.info('platinaLabSongData Saved:', platinaLabSongDataFile)
+  fs.writeFileSync(platinaLabSongDataFile, JSON.stringify(platinaLabSongData), 'utf-8')
+}
+
 // wjmax 곡 데이터 읽기
 export function getWjmaxSongData() {
   if (fs.existsSync(wjmaxSongDataFile)) {
     const data = fs.readFileSync(wjmaxSongDataFile, 'utf-8')
+    return JSON.parse(data)
+  }
+  return null
+}
+
+// platina lab 곡 데이터 읽기
+export function getPlatinaLabSongData() {
+  if (fs.existsSync(platinaLabSongDataFile)) {
+    const data = fs.readFileSync(platinaLabSongDataFile, 'utf-8')
     return JSON.parse(data)
   }
   return null

@@ -1092,8 +1092,8 @@
 
 .tooltip-inner {
   background: rgba(0, 0, 0, 0.9) !important;
-  max-width: 960px !important;
   padding: 8px !important;
+  max-width: 960px !important;
 }
 
 .vh-screen {
@@ -1781,6 +1781,82 @@
 
 .wjmax_dlc_code_WJMAX_6 {
   background-color: #ffffff;
+}
+
+.platina_lab_bg_b4 {
+  background: #34baa2;
+}
+
+.platina_lab_bg_b4_plus {
+  background: #34baa2;
+}
+
+.platina_lab_bg_b6 {
+  background: #ffb401;
+}
+
+.platina_lab_bg_b6_plus {
+  background: #ffb401;
+}
+
+.platina_lab_dlc_title {
+  box-sizing: border-box;
+  width: 100%;
+  font-size: 30px;
+  text-align: center;
+}
+
+.platina_labdlc_title.platina_lab_dlc_logo {
+  padding: 15px;
+}
+
+.platina_lab_record .platina_lab_dlc_code_wrap {
+  position: absolute;
+  background-color: #000e;
+  font-size: 12px;
+}
+
+.platina_lab_dlc_code {
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  padding: 0 5px;
+  color: transparent !important;
+  text-stroke: 1px;
+  -webkit-text-stroke: 1px;
+  font-weight: bold;
+}
+
+.platina_lab_dlc_code_ENT {
+  background-color: #ffb401;
+}
+
+.platina_lab_dlc_code_PLA {
+  background-color: #ffffff;
+}
+
+.pattern.platina_lab.EASY {
+  background-color: #ffb31add;
+  color: #fff;
+}
+.pattern.platina_lab.HD {
+  background-color: #fd6c6edd;
+  color: #fff;
+}
+.pattern.platina_lab.OVER {
+  background-color: #bb63da;
+  color: #fff;
+}
+.pattern.platina_lab.PLUS_1 {
+  background-color: #7581bf;
+  color: #fff;
+}
+.pattern.platina_lab.PLUS_2 {
+  background-color: #7581bf;
+  color: #fff;
+}
+.pattern.platina_lab.PLUS_3 {
+  background-color: #7581bf;
+  color: #fff;
 }
 
 .section-number {

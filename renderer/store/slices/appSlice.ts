@@ -20,6 +20,7 @@ interface AppState {
   }
   songData: any[]
   wjmaxSongData: any[]
+  platinaLabSongData: any[]
   isSetting: boolean
   isUploadedDataProcessed: boolean
   isHomePanelOpen: boolean
@@ -56,6 +57,7 @@ const initialState: AppState = {
   },
   songData: [],
   wjmaxSongData: [],
+  platinaLabSongData: [],
   isSetting: false,
   isUploadedDataProcessed: true,
   isHomePanelOpen: true,
@@ -121,6 +123,9 @@ export const appSlice = createSlice({
     setWjmaxSongData: (state, action: PayloadAction<any[]>) => {
       state.wjmaxSongData = action.payload
     },
+    setPlatinaLabSongData: (state, action: PayloadAction<any[]>) => {
+      state.platinaLabSongData = action.payload
+    },
     setVArchiveUploadedPageData: (state, action: PayloadAction<any>) => {
       state.vArchiveUploadedPageData = action.payload
     },
@@ -169,6 +174,7 @@ export const {
   setIsMiniMode,
   setVArchiveUserData,
   setWjmaxSongData,
+  setPlatinaLabSongData,
   setVArchiveUploadedPageData,
   setProjectRaUploadedPageData,
   setVArchivePattern,

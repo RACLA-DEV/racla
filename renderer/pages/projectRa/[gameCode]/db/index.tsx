@@ -496,6 +496,7 @@ export default function VArchiveDbPage() {
                     {filteredSongData.map((songItem, songItemIndex) =>
                       viewMode === 'grid' ? (
                         <RaScorePopupComponent
+                          gameCode={selectedGame}
                           key={songItem.title}
                           songItem={songItem}
                           songItemTitle={songItem.title}
@@ -522,6 +523,7 @@ export default function VArchiveDbPage() {
                           <div className='tw-relative tw-z-10 tw-w-full tw-flex tw-items-center tw-gap-4'>
                             <div className='tw-w-auto'>
                               <RaScorePopupComponent
+                                gameCode={selectedGame}
                                 songItem={songItem}
                                 songItemTitle={songItem.title}
                                 keyMode={keyMode.replace('P', '')}

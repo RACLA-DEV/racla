@@ -21,10 +21,12 @@ import {
 import path, { resolve } from 'path'
 import {
   clearSession,
+  getPlatinaLabSongData,
   getSession,
   getSettingData,
   getSongData,
   getWjmaxSongData,
+  storePlatinaLabSongData,
   storeSession,
   storeSongData,
   storeWjmaxSongData,
@@ -115,10 +117,15 @@ const discordRPC = discordManager
 
 let isRunningDjmax = false
 let isRunningWjmax = false
+let isRunningPlatinaLab = false
 let gameStatusCheckTimeoutId: NodeJS.Timeout | null = null
 let bounds: { x: number; y: number; width: number; height: number } | null = null
 
-const gameList = { djmax_respect_v: 'DJMAX RESPECT V', wjmax: 'WJMAX' }
+const gameList = {
+  djmax_respect_v: 'DJMAX RESPECT V',
+  wjmax: 'WJMAX',
+  platina_lab: 'PLATiNA :: LAB',
+}
 
 const gotTheLock = app.requestSingleInstanceLock()
 log.info('gotTheLock', gotTheLock)
@@ -534,58 +541,58 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
 
   // 메인 윈도우 포커스 이벤트 핸들러 수정
   mainWindow.on('focus', () => {
-    if (!isLoaded) return;
-    
-    isMainWindowFocused = true;
-    
+    if (!isLoaded) return
+
+    isMainWindowFocused = true
+
     // 오버레이 윈도우 즉시 숨기기
     if (overlayWindow && overlayWindow.isVisible()) {
-      overlayWindow.hide();
-      log.debug('Main Window Focused: Overlay Window Hidden');
+      overlayWindow.hide()
+      log.debug('Main Window Focused: Overlay Window Hidden')
     }
-    
+
     // 기존 타이머 중지
     if (gameOverlayLoopTimeoutId) {
-      clearTimeout(gameOverlayLoopTimeoutId);
-      gameOverlayLoopTimeoutId = null;
+      clearTimeout(gameOverlayLoopTimeoutId)
+      gameOverlayLoopTimeoutId = null
     }
     if (focusedWindowCheckTimeoutId) {
-      clearTimeout(focusedWindowCheckTimeoutId);
-      focusedWindowCheckTimeoutId = null;
+      clearTimeout(focusedWindowCheckTimeoutId)
+      focusedWindowCheckTimeoutId = null
     }
     if (gameStatusCheckTimeoutId) {
-      clearTimeout(gameStatusCheckTimeoutId);
-      gameStatusCheckTimeoutId = null;
+      clearTimeout(gameStatusCheckTimeoutId)
+      gameStatusCheckTimeoutId = null
     }
     if (gameCaptureTimeoutId) {
-      clearTimeout(gameCaptureTimeoutId);
-      gameCaptureTimeoutId = null;
+      clearTimeout(gameCaptureTimeoutId)
+      gameCaptureTimeoutId = null
     }
-    
-    log.debug('Main Window Focused: All check timers stopped');
-  });
+
+    log.debug('Main Window Focused: All check timers stopped')
+  })
 
   mainWindow.on('blur', () => {
-    if (!isLoaded) return;
-    
-    isMainWindowFocused = false;
-    
+    if (!isLoaded) return
+
+    isMainWindowFocused = false
+
     // 타이머 재시작
     if (!gameOverlayLoopTimeoutId) {
-      checkGameOverlayLoop();
+      checkGameOverlayLoop()
     }
     if (!focusedWindowCheckTimeoutId) {
-      startFocusedWindowCheck();
+      startFocusedWindowCheck()
     }
     if (!gameStatusCheckTimeoutId) {
-      startGameStatusCheck();
+      startGameStatusCheck()
     }
     if (!gameCaptureTimeoutId) {
-      startGameCapture();
+      startGameCapture()
     }
-    
-    log.debug('Main Window Blured: All check timers restarted');
-  });
+
+    log.debug('Main Window Blured: All check timers restarted')
+  })
 
   overlayWindow = createWindow('overlay', {
     width: 400,
@@ -629,7 +636,12 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
     return new Promise((resolve) => {
       try {
         // 전역 변수 사용하여 게임 실행 여부 확인
-        const isRunning = gameCode === 'djmax_respect_v' ? isRunningDjmax : isRunningWjmax
+        const isRunning =
+          gameCode === 'djmax_respect_v'
+            ? isRunningDjmax
+            : gameCode === 'wjmax'
+              ? isRunningWjmax
+              : isRunningPlatinaLab
 
         if (!isRunning) {
           log.debug(`findGameWindow - ${gameList[gameCode]} is not running`)
@@ -674,7 +686,7 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
         return
       }
       // 게임이 실행중이지 않으면 오버레이 숨기고 early return
-      if (!isRunningDjmax && !isRunningWjmax) {
+      if (!isRunningDjmax && !isRunningWjmax && !isRunningPlatinaLab) {
         if (overlayWindow.isVisible()) {
           overlayWindow.hide()
         }
@@ -688,12 +700,14 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
         return
       }
 
-      const gamePos: any = await findGameWindow(isRunningDjmax ? 'djmax_respect_v' : 'wjmax')
+      const gamePos: any = await findGameWindow(
+        isRunningDjmax ? 'djmax_respect_v' : isRunningWjmax ? 'wjmax' : 'platina_lab',
+      )
 
-      // 선택된 게임에 따라 게임 포커스 확인
       let isGameFocused =
         (isRunningDjmax && currentFocusedWindow === 'DJMAX RESPECT V') ||
-        (isRunningWjmax && currentFocusedWindow === 'WJMAX')
+        (isRunningWjmax && currentFocusedWindow === 'WJMAX') ||
+        (isRunningPlatinaLab && currentFocusedWindow === 'PLATiNA :: LAB')
 
       if (gamePos && isGameFocused) {
         const display = screen.getDisplayNearestPoint({ x: gamePos.x, y: gamePos.y })
@@ -766,14 +780,14 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
     const checkFocusedWindow = async () => {
       try {
         if (isMainWindowFocused || isWindowMoving) {
-          return;
+          return
         }
-        
-        if (isRunningDjmax || isRunningWjmax) {
-          const focusedWindow = await getFocusedWindow();
-          currentFocusedWindow = focusedWindow;
+
+        if (isRunningDjmax || isRunningWjmax || isRunningPlatinaLab) {
+          const focusedWindow = await getFocusedWindow()
+          currentFocusedWindow = focusedWindow
         } else {
-          currentFocusedWindow = '';
+          currentFocusedWindow = ''
         }
       } catch (error) {
         log.error('startFocusedWindowCheck - Error checking focused window:', error)
@@ -781,7 +795,7 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
       } finally {
         // 메인 윈도우가 포커스되지 않은 경우에만 다음 체크 예약
         if (!isMainWindowFocused) {
-          focusedWindowCheckTimeoutId = setTimeout(checkFocusedWindow, 1000);
+          focusedWindowCheckTimeoutId = setTimeout(checkFocusedWindow, 1000)
         }
       }
     }
@@ -793,7 +807,7 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
   const checkGameOverlayLoop = async () => {
     try {
       if (!isMainWindowFocused && !isWindowMoving) {
-        await checkGameAndUpdateOverlay();
+        await checkGameAndUpdateOverlay()
       }
     } catch (error) {
       log.error('checkGameOverlayLoop - Error in game check loop:', error)
@@ -801,7 +815,7 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
     } finally {
       // 메인 윈도우가 포커스되지 않은 경우에만 다음 체크 예약
       if (!isMainWindowFocused) {
-        gameOverlayLoopTimeoutId = setTimeout(() => checkGameOverlayLoop(), 100);
+        gameOverlayLoopTimeoutId = setTimeout(() => checkGameOverlayLoop(), 100)
       }
     }
   }
@@ -1102,6 +1116,8 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
         storeSongData(songData)
       } else if (gameCode === 'wjmax') {
         storeWjmaxSongData(songData)
+      } else if (gameCode === 'platina_lab') {
+        storePlatinaLabSongData(songData)
       }
       mainWindow.webContents.send('IPC_RENDERER_IS_LOADED_SONG_DATA', true)
     } catch (error) {
@@ -1117,6 +1133,8 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
       songData = await getSongData()
     } else if (gameCode === 'wjmax') {
       songData = await getWjmaxSongData()
+    } else if (gameCode === 'platina_lab') {
+      songData = await getPlatinaLabSongData()
     }
     mainWindow.webContents.send(
       'IPC_RENDERER_GET_SONG_DATA',
@@ -1138,7 +1156,9 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
     if (userNo !== '' && userToken !== '') {
       session.defaultSession.cookies
         .set({
-          url: isProd ? 'https://api.racla.app/proxy' : 'https://api.proxy.racla.q-owo-p.space/proxy',
+          url: isProd
+            ? 'https://api.racla.app/proxy'
+            : 'https://api.proxy.racla.q-owo-p.space/proxy',
           name: 'Authorization',
           value: `${userNo}|${userToken}`,
           secure: true,
@@ -1189,58 +1209,58 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
       if (process.platform == 'win32') {
         // 메인 윈도우 포커스 이벤트 핸들러 추가
         mainWindow.on('focus', () => {
-          if (!isLoaded) return;
-          
-          isMainWindowFocused = true;
-          
+          if (!isLoaded) return
+
+          isMainWindowFocused = true
+
           // 오버레이 윈도우 즉시 숨기기
           if (overlayWindow && overlayWindow.isVisible()) {
-            overlayWindow.hide();
-            log.debug('Main Window Focused: Overlay Window Hidden');
+            overlayWindow.hide()
+            log.debug('Main Window Focused: Overlay Window Hidden')
           }
-          
+
           // 기존 타이머 중지
           if (gameOverlayLoopTimeoutId) {
-            clearTimeout(gameOverlayLoopTimeoutId);
-            gameOverlayLoopTimeoutId = null;
+            clearTimeout(gameOverlayLoopTimeoutId)
+            gameOverlayLoopTimeoutId = null
           }
           if (focusedWindowCheckTimeoutId) {
-            clearTimeout(focusedWindowCheckTimeoutId);
-            focusedWindowCheckTimeoutId = null;
+            clearTimeout(focusedWindowCheckTimeoutId)
+            focusedWindowCheckTimeoutId = null
           }
           if (gameStatusCheckTimeoutId) {
-            clearTimeout(gameStatusCheckTimeoutId);
-            gameStatusCheckTimeoutId = null;
+            clearTimeout(gameStatusCheckTimeoutId)
+            gameStatusCheckTimeoutId = null
           }
           if (gameCaptureTimeoutId) {
-            clearTimeout(gameCaptureTimeoutId);
-            gameCaptureTimeoutId = null;
+            clearTimeout(gameCaptureTimeoutId)
+            gameCaptureTimeoutId = null
           }
-          
-          log.debug('Main Window Focused: All check timers stopped');
-        });
+
+          log.debug('Main Window Focused: All check timers stopped')
+        })
 
         mainWindow.on('blur', () => {
-          if (!isLoaded) return;
-          
-          isMainWindowFocused = false;
-          
+          if (!isLoaded) return
+
+          isMainWindowFocused = false
+
           // 타이머 재시작
           if (!gameOverlayLoopTimeoutId) {
-            checkGameOverlayLoop();
+            checkGameOverlayLoop()
           }
           if (!focusedWindowCheckTimeoutId) {
-            startFocusedWindowCheck();
+            startFocusedWindowCheck()
           }
           if (!gameStatusCheckTimeoutId) {
-            startGameStatusCheck();
+            startGameStatusCheck()
           }
           if (!gameCaptureTimeoutId) {
-            startGameCapture();
+            startGameCapture()
           }
-          
-          log.debug('Main Window Blured: All check timers restarted');
-        });
+
+          log.debug('Main Window Blured: All check timers restarted')
+        })
 
         startGameStatusCheck()
         startFocusedWindowCheck()
@@ -1275,6 +1295,15 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
               color: 'tw-bg-blue-600',
             })
           }
+        } else if (settingData.autoStartGamePlatinaLab) {
+          if (!isRunningPlatinaLab) {
+            log.info('PROGRAM_LOADED - Auto Start Game PLATiNA :: LAB')
+            shell.openExternal(settingData.autoStartGamePlatinaLabPath)
+            mainWindow.webContents.send('pushNotification', {
+              message: `자동 시작 옵션이 활성화되어 PLATiNA :: LAB(게임)을 실행 중에 있습니다. 잠시만 기다려주세요.`,
+              color: 'tw-bg-blue-600',
+            })
+          }
         }
       }
     }
@@ -1302,6 +1331,16 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
     }
   })
 
+  ipcMain.on('startGamePlatinaLab', async () => {
+    if (!isRunningPlatinaLab) {
+      log.info('startGamePlatinaLab - Start Game PLATiNA :: LAB')
+      shell.openExternal('steam://run/3430470')
+      mainWindow.webContents.send('pushNotification', {
+        message: `PLATiNA :: LAB(게임)을 실행 중에 있습니다. 잠시만 기다려주세요.`,
+        color: 'tw-bg-blue-600',
+      })
+    }
+  })
   ipcMain.on('top50-updated', (event, data) => {
     if (data.currentCutoff > data.previousCutoff) {
       overlayWindow.webContents.send('IPC_RENDERER_GET_NOTIFICATION_DATA', {
@@ -1367,7 +1406,9 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
   })
 
   ipcMain.on('captureTest', async (event, data) => {
-    const imageBuffer = await captureScreen(isRunningDjmax ? 'djmax_respect_v' : 'wjmax')
+    const imageBuffer = await captureScreen(
+      isRunningDjmax ? 'djmax_respect_v' : isRunningWjmax ? 'wjmax' : 'platina_lab',
+    )
 
     log.info('captureTest - imageBuffer:', imageBuffer)
 
@@ -1518,18 +1559,21 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
     const captureGame = async () => {
       try {
         if (isMainWindowFocused || isWindowMoving) {
-          return;
+          return
         }
 
         const isGameFocused =
           (currentFocusedWindow === 'DJMAX RESPECT V' && isRunningDjmax) ||
-          (currentFocusedWindow === 'WJMAX' && isRunningWjmax)
+          (currentFocusedWindow === 'WJMAX' && isRunningWjmax) ||
+          (currentFocusedWindow === 'PLATiNA :: LAB' && isRunningPlatinaLab)
         if (
           isLogined &&
           settingData.autoCaptureMode &&
           (!settingData.captureOnlyFocused || isGameFocused)
         ) {
-          const gameSource = await captureScreen(isRunningDjmax ? 'djmax_respect_v' : 'wjmax')
+          const gameSource = await captureScreen(
+            isRunningDjmax ? 'djmax_respect_v' : isRunningWjmax ? 'wjmax' : 'platina_lab',
+          )
           if (gameSource) {
             currentGameSource = gameSource
             if (
@@ -1537,7 +1581,8 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
               settingData.autoCaptureOcrOpen3Region ||
               settingData.autoCaptureOcrOpen2Region ||
               settingData.autoCaptureOcrVersusRegion ||
-              settingData.autoCaptureWjmaxOcrResultRegion
+              settingData.autoCaptureWjmaxOcrResultRegion ||
+              settingData.autoCapturePlatinaLabOcrResultRegion
             ) {
               processScreen()
             }
@@ -1567,7 +1612,8 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
     try {
       const isGameFocused =
         (currentFocusedWindow === 'DJMAX RESPECT V' && isRunningDjmax) ||
-        (currentFocusedWindow === 'WJMAX' && isRunningWjmax)
+        (currentFocusedWindow === 'WJMAX' && isRunningWjmax) ||
+        (currentFocusedWindow === 'PLATiNA :: LAB' && isRunningPlatinaLab)
 
       if (isGameFocused || !settingData.captureOnlyFocused) {
         if (currentGameSource && !isProcessing) {
@@ -1583,7 +1629,11 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
               {
                 isMenualUpload: false,
                 isNotSaveImage: false,
-                gameCode: isRunningDjmax ? 'djmax_respect_v' : 'wjmax',
+                gameCode: isRunningDjmax
+                  ? 'djmax_respect_v'
+                  : isRunningWjmax
+                    ? 'wjmax'
+                    : 'platina_lab',
               },
 
               {
@@ -1649,11 +1699,15 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
         isRunningDjmax,
         'isRunningWjmax:',
         isRunningWjmax,
+        'isRunningPlatinaLab:',
+        isRunningPlatinaLab,
       )
-      if ((isRunningDjmax || isRunningWjmax) && isLogined) {
+      if ((isRunningDjmax || isRunningWjmax || isRunningPlatinaLab) && isLogined) {
         try {
           isProcessing = true
-          const gameSource = await captureScreen(isRunningDjmax ? 'djmax_respect_v' : 'wjmax')
+          const gameSource = await captureScreen(
+            isRunningDjmax ? 'djmax_respect_v' : isRunningWjmax ? 'wjmax' : 'platina_lab',
+          )
           if (!gameSource) {
             log.error('pressAltInsert - Failed to capture game screen')
             isProcessing = false
@@ -1665,7 +1719,11 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
             {
               isMenualUpload: true,
               isNotSaveImage: false,
-              gameCode: isRunningDjmax ? 'djmax_respect_v' : 'wjmax',
+              gameCode: isRunningDjmax
+                ? 'djmax_respect_v'
+                : isRunningWjmax
+                  ? 'wjmax'
+                  : 'platina_lab',
             },
 
             {
@@ -1748,7 +1806,8 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
 const isDjmaxRunning = async (gameCode: string): Promise<boolean> => {
   try {
     const processes = await psList()
-    const targetProcess = gameCode === 'djmax_respect_v' ? 'DJMAX' : 'WJMAX'
+    const targetProcess =
+      gameCode === 'djmax_respect_v' ? 'DJMAX' : gameCode === 'wjmax' ? 'WJMAX' : 'PLATiNA LAB'
     return processes.some((proc) =>
       proc.name?.toLowerCase().startsWith(targetProcess.toLowerCase()),
     )
@@ -1760,22 +1819,23 @@ const isDjmaxRunning = async (gameCode: string): Promise<boolean> => {
 
 function startGameStatusCheck() {
   log.info('startGameStatusCheck - Game Status Check Started')
-  
+
   const checkGameStatus = async () => {
     if (isMainWindowFocused || isWindowMoving) {
-      return;
+      return
     }
-    
+
     try {
       const djmaxRunning = await isDjmaxRunning('djmax_respect_v')
       const wjmaxRunning = await isDjmaxRunning('wjmax')
+      const platinaLabRunning = await isDjmaxRunning('platina_lab')
 
-      if (!isRunningDjmax && !isRunningWjmax) {
+      if (!isRunningDjmax && !isRunningWjmax && !isRunningPlatinaLab) {
         mainWindow.webContents.send('isDetectedGame', { status: false, game: '' })
       } else {
         mainWindow.webContents.send('isDetectedGame', {
           status: true,
-          game: isRunningDjmax ? 'DJMAX RESPECT V' : 'WJMAX',
+          game: isRunningDjmax ? 'DJMAX RESPECT V' : isRunningWjmax ? 'WJMAX' : 'PLATiNA LAB',
         })
       }
 
@@ -1790,6 +1850,12 @@ function startGameStatusCheck() {
       } else {
         isRunningWjmax = false
       }
+
+      if (platinaLabRunning) {
+        isRunningPlatinaLab = true
+      } else {
+        isRunningPlatinaLab = false
+      }
     } catch (error) {
       log.error('startGameStatusCheck - Game status check error:', error)
       logMainError(error, isLogined ? userData : null)
@@ -1800,7 +1866,7 @@ function startGameStatusCheck() {
       }
     }
   }
-  
+
   // 최초 실행
   checkGameStatus()
 }
@@ -1929,7 +1995,7 @@ async function captureScreen(gameCode) {
 
 app.on('will-quit', () => {
   clearInterval(settingData.autoCaptureIntervalId) // Clear the interval when the app is about to quit
-  
+
   // 모든 타이머 정리
   if (gameOverlayLoopTimeoutId) clearTimeout(gameOverlayLoopTimeoutId)
   if (focusedWindowCheckTimeoutId) clearTimeout(focusedWindowCheckTimeoutId)

@@ -633,6 +633,7 @@ const Board = () => {
                         >
                           <div className='tw-flex tw-gap-2'>
                             <RaScorePopupComponent
+                              gameCode='wjmax'
                               songItem={pattern}
                               keyMode={String(keyMode).replace('B', '').replace('_PLUS', '')}
                               judgementType={String(keyMode).includes('_PLUS') ? 'HARD' : 'NORMAL'}

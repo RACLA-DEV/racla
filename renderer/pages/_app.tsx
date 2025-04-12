@@ -8,6 +8,7 @@ import {
   setIsDetectedGame,
   setIsMiniMode,
   setIsUploading,
+  setPlatinaLabSongData,
   setProjectRaData,
   setSelectedGame,
   setSettingData,
@@ -47,7 +48,7 @@ import { v4 as uuidv4 } from 'uuid'
 // import { setIsDetectedGame, setSettingData, setUserData, setUploadedData, setVArchiveSongData } from 'store/slices/appSlice'
 
 const noto = localFont({
-  src: '../public/fonts/PretendardVariable.woff2',
+  src: '../public/fonts/PretendardJPVariable.woff2',
   display: 'swap',
   weight: '45 920',
   variable: '--font-pretendard',
@@ -235,6 +236,30 @@ function MyApp({ Component, pageProps }: AppProps) {
       }
     }
 
+    const fetchPlatinaLabData = async () => {
+      try {
+        // 서버에서 이미 처리된 곡 데이터 가져오기
+        const { data } = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}/v2/racla/songs/platina_lab`,
+        )
+
+        if (data && data.length > 0) {
+          // 데이터 저장
+          window.ipc.putSongData(data, 'platina_lab')
+          store.dispatch(setPlatinaLabSongData(data))
+        }
+        return data
+      } catch (error) {
+        console.error('Error fetching processed song data:', error)
+        logRendererError(
+          error,
+          userNo != '' && userToken != ''
+            ? { userNo, userToken, message: 'Error fetching processed song data' }
+            : { message: 'Error fetching processed song data' },
+        )
+      }
+    }
+
     // 초기 데이터 로드
     const loadInitialData = () => {
       fetchData().catch((error) => {
@@ -245,6 +270,11 @@ function MyApp({ Component, pageProps }: AppProps) {
       fetchWjmaxData().catch(() => {
         // 서버 요청 실패시 로컬 데이터 사용
         window.ipc.getSongData('wjmax')
+      })
+
+      fetchPlatinaLabData().catch(() => {
+        // 서버 요청 실패시 로컬 데이터 사용
+        window.ipc.getSongData('platina_lab')
       })
     }
 
@@ -260,6 +290,10 @@ function MyApp({ Component, pageProps }: AppProps) {
       } else if (value.gameCode === 'wjmax') {
         if (store.getState().app.wjmaxSongData.length === 0) {
           store.dispatch(setWjmaxSongData(value.songData))
+        }
+      } else if (value.gameCode === 'platina_lab') {
+        if (store.getState().app.platinaLabSongData.length === 0) {
+          store.dispatch(setPlatinaLabSongData(value.songData))
         }
       }
     }
@@ -299,9 +333,11 @@ function MyApp({ Component, pageProps }: AppProps) {
           )
         ) {
           setTimeout(() => {
-            router.push(
-              `/${data.gameCode === 'djmax_respect_v' ? 'vArchive' : 'projectRa/' + data.gameCode}/regScore`,
-            )
+            if (data.gameCode === 'djmax_respect_v') {
+              router.push(
+                `/${data.gameCode === 'djmax_respect_v' ? 'vArchive' : 'projectRa/' + data.gameCode}/regScore`,
+              )
+            }
           }, 300)
         }
       } else {
@@ -369,6 +405,8 @@ function MyApp({ Component, pageProps }: AppProps) {
     ) {
       if (params?.gameCode) {
         store.dispatch(setSelectedGame(params?.gameCode as string))
+      } else if (router.pathname.includes('/projectRa/platina_lab')) {
+        store.dispatch(setSelectedGame('platina_lab'))
       } else {
         store.dispatch(setSelectedGame('djmax_respect_v'))
       }
@@ -944,13 +982,15 @@ function MyApp({ Component, pageProps }: AppProps) {
                 <SyncLoader color='#ffffff' size={8} />
               </div>
               <div className='tw-flex tw-flex-col tw-gap-2 tw-w-full tw-p-2 tw-justify-center tw-items-center tw-absolute tw-bottom-0'>
-                {/* <span className="tw-text-xs tw-font-light tw-text-gray-200 tw-text-opacity-50">
-                  The resources provided by this Service are not licensed to each creator. Restricted to commercial use.
-                </span> */}
-                {/* <span className="tw-text-xs tw-font-light tw-text-gray-200 tw-text-opacity-50">
-                  본 서비스에서 제공되는 리소스는 각 저작권자로부터 별도의 라이선스를 부여받지 않았습니다. 비상업적인 용도로만 사용할 수 있습니다.
-                </span> */}
+                {/* <span className='tw-text-xs tw-font-light tw-text-gray-200 tw-text-opacity-50'>
+                  The PLATiNA :: LAB resources provided by this Service are not licensed to each
+                  creator. Restricted to commercial use.
+                </span>
                 <span className='tw-text-xs tw-font-light tw-text-gray-200 tw-text-opacity-50'>
+                  본 서비스에서 제공되는 컨텐츠 중 PLATiNA :: LAB 리소스는 저작권자로부터 별도의
+                  라이선스를 부여받지 않았습니다. 비상업적인 용도로만 사용할 수 있습니다.
+                </span> */}
+                <span className='tw-text-xs tw-font-light tw-text-gray-200 tw-text-opacity-50 tw-text-center'>
                   Developed by RACLA from 공감대로0번길(GGDRN0 STUDIO)
                 </span>
               </div>

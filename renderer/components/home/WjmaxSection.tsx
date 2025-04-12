@@ -61,39 +61,6 @@ export default function WjmaxHomeComponent() {
     over97: 0,
   })
 
-  const [boards, setBoards] = useState<string[]>([
-    '1',
-    '2',
-    '3',
-    '4',
-    '5',
-    '6',
-    '7',
-    '8',
-    '9',
-    '10',
-    '11',
-    '12',
-    '13',
-    '14',
-    '15',
-    '16',
-    '17',
-    '18',
-    '19',
-    '20',
-    '21',
-    '22',
-    '23',
-    '24',
-    '25',
-    '26',
-    '27',
-    '28',
-    '29',
-    '30',
-  ])
-
   const [selectedKeyMode, setSelectedKeyMode] = useState<string>('4B')
 
   const KeyModeSelector = () => (
@@ -130,105 +97,25 @@ export default function WjmaxHomeComponent() {
       setIsLoading(true)
 
       try {
-        const keyModes = ['4B', '4B_PLUS', '6B', '6B_PLUS']
-        const allKeyModeData: KeyModeData = {}
-
-        for (const keyMode of keyModes) {
-          // 기본 곡 데이터 가져오기 (wjmaxSongData 활용)
-          const baseSongData = wjmaxSongData.flatMap((track) => {
-            const { title, name, composer, dlcCode, dlc, patterns } = track
-            const patternButton = patterns[keyMode.replace('_PLUS', '')]
-
-            if (patternButton) {
-              return Object.entries(patternButton).map(([key, pattern]: [string, any]) => ({
-                title,
-                name,
-                composer,
-                dlcCode,
-                dlc,
-                pattern: key,
-                level: pattern.level,
-                floor: null,
-                rating: pattern.rating || null,
-                score: null,
-                maxCombo: null,
-                djpower: null,
-              }))
-            }
-            return []
+        try {
+          const response = await axios.get(
+            `${process.env.NEXT_PUBLIC_API_URL}/v2/racla/board/wjmax/flatten/user/${userData.userNo}`,
+            {
+              headers: {
+                Authorization: `${userData.userNo}|${userData.userToken}`,
+              },
+            },
+          )
+          setKeyModeData({
+            '4B': response.data.patterns_4B,
+            '4B_PLUS': response.data.patterns_4B_PLUS,
+            '6B': response.data.patterns_6B,
+            '6B_PLUS': response.data.patterns_6B_PLUS,
           })
-
-          // 모든 보드의 데이터 가져오기
-          const allBoardResponses = await Promise.all(
-            boards.map(async (boardType) => {
-              try {
-                const response = await axios.get(
-                  `${process.env.NEXT_PUBLIC_API_URL}/v2/racla/board/wjmax/${keyMode}/${boardType}/user/${userData.userNo}`,
-                  {
-                    headers: {
-                      Authorization: `${userData.userNo}|${userData.userToken}`,
-                    },
-                  },
-                )
-                return (
-                  response.data.floors?.flatMap((floor) =>
-                    floor.patterns.map((pattern) => ({
-                      ...pattern,
-                      floor: floor.floorNumber,
-                    })),
-                  ) || []
-                )
-              } catch (error) {
-                logRendererError(error, { message: 'Error fetching board data', ...userData })
-                console.error(`Error fetching ${boardType}:`, error)
-                return []
-              }
-            }),
-          )
-
-          // 중복 제거 및 데이터 병합
-          allKeyModeData[keyMode] = Object.values(
-            allBoardResponses.flat().reduce((acc, apiPattern) => {
-              const key = `${apiPattern.title}_${apiPattern.pattern}`
-              const basePattern = baseSongData.find(
-                (bp) => bp.title === apiPattern.title && bp.pattern === apiPattern.pattern,
-              )
-
-              if (
-                !acc[key] ||
-                (apiPattern.djpower && apiPattern.djpower > (acc[key].djpower || 0))
-              ) {
-                // 먼저 기본 객체 구조 생성
-                const mergedPattern = {
-                  title: apiPattern.title,
-                  name: basePattern?.name || apiPattern.name,
-                  composer: basePattern?.composer || apiPattern.composer,
-                  pattern: apiPattern.pattern,
-                  dlcCode: basePattern?.dlcCode || apiPattern.dlcCode,
-                  dlc: basePattern?.dlc || apiPattern.dlc,
-
-                  // API 데이터 우선
-                  floor: apiPattern.floor, // floor 값을 먼저 할당
-                  score: apiPattern.score,
-                  maxCombo: apiPattern.maxCombo,
-                  djpower: apiPattern.djpower,
-                  rating: apiPattern.rating,
-
-                  // basePattern의 level은 별도로 유지
-                  level: basePattern?.level || null,
-
-                  // board 정보 유지
-                  board: apiPattern.board || null,
-                }
-
-                acc[key] = mergedPattern
-              }
-              return acc
-            }, {}),
-          )
+        } catch (error) {
+          logRendererError(error, { message: 'Error fetching board data', ...userData })
+          console.error(`Error fetching: `, error)
         }
-
-        setKeyModeData(allKeyModeData)
       } catch (error) {
         logRendererError(error, { message: 'Error fetching all data', ...userData })
         console.error('Error fetching all data:', error)
@@ -329,7 +216,7 @@ export default function WjmaxHomeComponent() {
             height={pattern.level > 20 ? 16 : 20}
             className={pattern.level > 20 ? 'tw-w-4 tw-h-4' : 'tw-w-5 tw-h-5'}
           />
-          <span className='tw-font-extrabold tw-mb-0.5'>{`${Number(pattern.level).toFixed(1)}`}</span>
+          <span className='tw-font-extrabold'>{`${Number(pattern.level).toFixed(1)}`}</span>
         </span>
       )
     }
@@ -946,6 +833,7 @@ export default function WjmaxHomeComponent() {
                           return (
                             <div key={`${key}_${selectedKeyMode}`} className='tw-flex tw-gap-2'>
                               <RaScorePopupComponent
+                                gameCode='wjmax'
                                 songItemTitle={String(highestPattern.title)}
                                 keyMode={String(selectedKeyMode)
                                   .replace('B', '')

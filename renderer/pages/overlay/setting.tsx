@@ -138,8 +138,8 @@ const OverlaySetting = ({ setSelectedImage }: { setSelectedImage: (image: string
                   </button>
                 </div>
                 <span className='tw-text-sm tw-font-light tw-text-gray-400 tw-break-keep tw-mb-2'>
-                  DJMAX RESPECT V의 결과 오버레이 표시 시 해당 수록곡 패턴의 RACLA 최근 기록 정보를
-                  표시합니다. WJMAX는 RACLA 기록을 바탕으로 추후 지원 예정입니다.
+                  DJMAX RESPECT V, WJMAX, PLATiNA :: LAB의 결과 오버레이 표시 시 해당 수록곡 패턴의
+                  RACLA 최근 기록 정보를 표시합니다.
                 </span>
               </div>
             </div>

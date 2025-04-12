@@ -334,6 +334,7 @@ export default function VArchiveRegScorePage() {
                         <div className='tw-flex tw-justify-between'>
                           <div className='tw-flex tw-gap-3 tw-mt-auto tw-items-end'>
                             <RaScorePopupComponent
+                              gameCode={selectedGame}
                               songItemTitle={projectRaUploadedPageData.songData.title}
                               keyMode={keyMode}
                               judgementType={projectRaUploadedPageData.judgementType}
@@ -510,6 +511,7 @@ export default function VArchiveRegScorePage() {
                             >
                               <div className='tw-relative hover:tw-scale-110 tw-transition-transform'>
                                 <RaScorePopupComponent
+                                  gameCode={selectedGame}
                                   songItemTitle={history.songId.toString()}
                                   keyMode={history.keyType.replace('B', '')}
                                   judgementType={history.judgementType}

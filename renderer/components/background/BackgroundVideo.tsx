@@ -54,10 +54,6 @@ const BackgroundVideoComponent = React.memo(() => {
     setBaseUrl(`https://cdn.racla.app/${selectedGame.toLowerCase()}`)
   }, [selectedGame])
 
-  if (isDetectedGame || !settingData?.visibleBga) {
-    return null
-  }
-
   return (
     <>
       {/* 기본 배경 비디오 */}
@@ -65,7 +61,9 @@ const BackgroundVideoComponent = React.memo(() => {
         src={
           selectedGame === 'djmax_respect_v'
             ? 'https://cdn.racla.app/djmax_respect_v/bg.png'
-            : 'https://cdn.racla.app/wjmax/bg.png'
+            : selectedGame === 'wjmax'
+              ? 'https://cdn.racla.app/wjmax/bg.png'
+              : 'https://cdn.racla.app/platina_lab/bg.jpg'
         }
         alt='default-video'
         fill
@@ -76,29 +74,31 @@ const BackgroundVideoComponent = React.memo(() => {
       />
 
       {/* 동적 배경 비디오 */}
-      {dynamicVideoSrc !== '' && (
-        <video
-          ref={dynamicVideoRef}
-          key={dynamicVideoSrc}
-          src={dynamicVideoSrc}
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload='auto'
-          style={{
-            position: 'fixed',
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
-            zIndex: -1,
-            opacity: opacity,
-            transition: 'opacity 0.5s ease-in-out',
-          }}
-          className='background-video tw-absolute tw-top-0 tw-left-0 tw-w-full tw-h-screen'
-          onError={(e) => console.error('동적 비디오 로드 에러:', e)}
-        />
-      )}
+      {!(isDetectedGame || !settingData?.visibleBga) &&
+        dynamicVideoSrc !== '' &&
+        selectedGame != 'platina_lab' && (
+          <video
+            ref={dynamicVideoRef}
+            key={dynamicVideoSrc}
+            src={dynamicVideoSrc}
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload='auto'
+            style={{
+              position: 'fixed',
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              zIndex: -1,
+              opacity: opacity,
+              transition: 'opacity 0.5s ease-in-out',
+            }}
+            className='background-video tw-absolute tw-top-0 tw-left-0 tw-w-full tw-h-screen'
+            onError={(e) => console.error('동적 비디오 로드 에러:', e)}
+          />
+        )}
       <div className='background-image-color' />
     </>
   )
