@@ -1093,7 +1093,7 @@
 .tooltip-inner {
   background: rgba(0, 0, 0, 0.9) !important;
   max-width: 960px !important;
-  padidng: 8px !important;
+  padding: 8px !important;
 }
 
 .vh-screen {

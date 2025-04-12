@@ -126,7 +126,7 @@ const Board = () => {
 
         // V-ARCHIVE API에서 점수 데이터 가져오기
         const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}/v2/racla/board/wjmax/${keyMode}/${board}/user/${userData.userNo}`,
+          `${process.env.NEXT_PUBLIC_API_URL}/v2/racla/board/wjmax/${keyMode}/${board}/player/${userData.userNo}`,
           {
             headers: { Authorization: `${userData.userNo}|${userData.userToken}` },
             withCredentials: true,

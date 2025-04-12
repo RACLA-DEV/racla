@@ -139,7 +139,7 @@ const SettingComponent = () => {
           data.then(async (result) => {
             if (result.success) {
               const linkResult = await axios
-                .post(`${process.env.NEXT_PUBLIC_API_URL}/v2/racla/user/link/oauth/vArchive`, {
+                .post(`${process.env.NEXT_PUBLIC_API_URL}/v2/racla/player/link/oauth/vArchive`, {
                   userNo: userData.userNo,
                   userToken: userData.userToken,
                   serviceUserNo: text.split(' ')[0],
@@ -210,7 +210,7 @@ const SettingComponent = () => {
       const code = await window.ipc.invoke('OPEN_DISCORD_LOGIN')
 
       const linkResult = await axios
-        .post(`${process.env.NEXT_PUBLIC_API_URL}/v2/racla/user/link/oauth/discord`, {
+        .post(`${process.env.NEXT_PUBLIC_API_URL}/v2/racla/player/link/oauth/discord`, {
           userNo: userData.userNo,
           userToken: userData.userToken,
           serviceUserToken: code,
