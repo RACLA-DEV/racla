@@ -59,7 +59,7 @@ export default function VArchiveDbTitlePage() {
       if (userData.userName) {
         try {
           const response = await axios.get(
-            `${process.env.NEXT_PUBLIC_API_URL}/v2/racla/songs/${selectedGame}/${params?.titleNo}/player/${userData.userNo}`,
+            `${process.env.NEXT_PUBLIC_API_URL}/v2/racla/songs/${selectedGame}/${params?.titleNo}/user/${userData.userNo}`,
             {
               headers: {
                 Authorization: `${userData.userNo}|${userData.userToken}`,
@@ -162,7 +162,7 @@ export default function VArchiveDbTitlePage() {
             if (data.data.success) {
               // 곡 데이터를 다시 불러옴
               const response = await axios.get(
-                `${process.env.NEXT_PUBLIC_API_URL}/v2/racla/songs/${selectedGame}/${baseSongData[0].title}/player/${userData.userNo}`,
+                `${process.env.NEXT_PUBLIC_API_URL}/v2/racla/songs/${selectedGame}/${baseSongData[0].title}/user/${userData.userNo}`,
                 {
                   headers: {
                     Authorization: `${userData.userNo}|${userData.userToken}`,
@@ -230,7 +230,7 @@ export default function VArchiveDbTitlePage() {
     try {
       if (userData.userName !== '') {
         const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}/v2/racla/songs/${selectedGame}/${title}/player/${userData.userNo}`,
+          `${process.env.NEXT_PUBLIC_API_URL}/v2/racla/songs/${selectedGame}/${title}/user/${userData.userNo}`,
           {
             headers: {
               Authorization: `${userData.userNo}|${userData.userToken}`,
@@ -272,7 +272,7 @@ export default function VArchiveDbTitlePage() {
     if (userData.userName !== '') {
       try {
         const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}/v2/racla/songs/${selectedGame}/${title}/player/${userData.userNo}`,
+          `${process.env.NEXT_PUBLIC_API_URL}/v2/racla/songs/${selectedGame}/${title}/user/${userData.userNo}`,
           {
             headers: {
               Authorization: `${userData.userNo}|${userData.userToken}`,

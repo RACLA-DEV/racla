@@ -211,7 +211,7 @@ export default function VArchiveLoginPage() {
       console.log('Received Discord OAuth Code:', code) // 받은 코드 확인
 
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/v2/racla/player/login/oauth/discord`,
+        `${process.env.NEXT_PUBLIC_API_URL}/v2/racla/user/login/oauth/discord`,
         { code },
       )
 
@@ -241,7 +241,7 @@ export default function VArchiveLoginPage() {
     setIsRegistering(true)
     try {
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/v2/racla/player/register`,
+        `${process.env.NEXT_PUBLIC_API_URL}/v2/racla/user/register`,
         {
           userName: nickname,
         },

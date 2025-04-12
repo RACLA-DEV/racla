@@ -389,10 +389,10 @@ function MyApp({ Component, pageProps }: AppProps) {
       // RACLA API 로그인
       const endpoint =
         loginType === 'vArchive'
-          ? '/v2/racla/player/login/oauth/vArchive'
+          ? '/v2/racla/user/login/oauth/vArchive'
           : loginType === 'discord'
-            ? '/v2/racla/player/login/oauth/discord'
-            : '/v2/racla/player/login'
+            ? '/v2/racla/user/login/oauth/discord'
+            : '/v2/racla/user/login'
 
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}${endpoint}`,

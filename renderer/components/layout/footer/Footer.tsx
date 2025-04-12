@@ -81,7 +81,7 @@ const FooterComponent = ({ className }: IFooterComponent) => {
               <span className='tw-leading-none'>
                 {isOnline
                   ? `Server Connected - ${serverStatus?.version} - ${globalDictionary.version}`
-                  : 'Server Disconnected - ${globalDictionary.version}'}
+                  : `Server Disconnected - ${globalDictionary.version}`}
               </span>
             </span>
             {/* - <FaTriangleExclamation /> 해당 버전은 개발 중인 화면으로 최종적인 버전이 아닙니다. */}

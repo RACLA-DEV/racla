@@ -85,7 +85,7 @@ const RaScorePopupComponent = ({
         setIsLoading(true)
         try {
           const response = await axios.get(
-            `${process.env.NEXT_PUBLIC_API_URL}/v2/racla/songs/${selectedGame}/${songItem?.title || songItemTitle}/player/${userData.userNo}`,
+            `${process.env.NEXT_PUBLIC_API_URL}/v2/racla/songs/${selectedGame}/${songItem?.title || songItemTitle}/user/${userData.userNo}`,
             {
               headers: {
                 Authorization: `${userData.userNo}|${userData.userToken}`,
@@ -125,7 +125,7 @@ const RaScorePopupComponent = ({
         if (rivalName && rivalName !== userData.userName) {
           try {
             const response = await axios.get(
-              `${process.env.NEXT_PUBLIC_API_URL}/api/v2/racla/songs/${selectedGame}/${songItem?.title || songItemTitle}/player/${rivalName}`,
+              `${process.env.NEXT_PUBLIC_API_URL}/api/v2/racla/songs/${selectedGame}/${songItem?.title || songItemTitle}/user/${rivalName}`,
               {
                 headers: {
                   Authorization: `${rivalName}|${rivalName}`,
