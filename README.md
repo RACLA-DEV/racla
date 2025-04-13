@@ -1,16 +1,15 @@
 # RACLA
 ![RACLA](https://cdn.gongroin.com/gongroin/og-image-racla.png)    
     
-RACLA는 R-ARCHIVE 팀(GGDRN0 STUDIO)에서 개발한 종합리듬 게임 성과 관리 도구입니다.    
+RACLA는 GGDRN0 STUDIO에서 개발한 종합리듬 게임 성과 관리 도구입니다.    
 본 레포지토리에서는 최종 결과물인 RACLA 데스크톱 앱을 Windows, Mac(Intel) 플랫폼으로 배포합니다. 
 
 ## 지원 게임
 **[DJMAX RESPECT V - 디제이맥스 리스펙트 V](https://store.steampowered.com/app/960170/DJMAX_RESPECT_V/)**: 웹 성과 관리 도구 [V-ARCHIVE](https://v-archive.net), [전일 아카이브](https://hard-archive.com)와 연동됩니다.    
     
-**[WJMAX - 왁제이맥스](https://waktaverse.games/gameDetail/wjmax/)**: RACLA 자체 구축 서비스로 운영됩니다.
-
-## 지원 예정 게임
-**[PLATiNA::LAB - 플라티나 랩](https://highendgames.co.kr/platina-lab/ko)**: 얼리 엑세스 출시 시 지원 예정 계획 중에 있습니다.
+**[WJMAX - 왁제이맥스](https://waktaverse.games/gameDetail/wjmax/)**: RACLA 자체 구축 서비스로 운영됩니다.    
+    
+**[PLATiNA::LAB - 플라티나 랩](https://highendgames.co.kr/platina-lab/ko)**: RACLA 자체 구축 서비스로 운영됩니다.
 
 ## TMI
 메인 개발자가 자다가 일어나서 아무 이유 없이 의식의 흐름대로 사이드 프로젝트로 시작했다가   
