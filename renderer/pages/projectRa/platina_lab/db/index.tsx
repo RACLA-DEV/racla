@@ -597,9 +597,10 @@ export default function VArchiveDbPage() {
                                           } ${diff === 'EASY' && 'tw-text-platina-lab-easy'} ${diff === 'HD' && 'tw-text-platina-lab-hd'} ${diff === 'OVER' && 'tw-text-platina-lab-over'} ${diff === 'PLUS_1' && 'tw-text-platina-lab-plus'} ${diff === 'PLUS_2' && 'tw-text-platina-lab-plus'} ${diff === 'PLUS_3' && 'tw-text-platina-lab-plus'} `}
                                         >
                                           <div className='tw-text-base tw-w-full tw-text-center'>
+                                            Lv.
                                             {songItem.patterns[`${keyMode.replace('P', '')}B`][
                                               diff
-                                            ].level.toFixed(1)}
+                                            ].level.toFixed(0)}
                                           </div>
                                         </div>
                                       ) : (

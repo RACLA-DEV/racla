@@ -933,7 +933,7 @@ const SettingComponent = () => {
     <div className='tw-flex tw-flex-col tw-gap-3'>
       <div className='tw-flex tw-flex-col tw-gap-1'>
         <div className='tw-flex tw-items-center'>
-          <span className='tw-text-sm'>자동 캡쳐 영역 - 싱글 플레이이 결과창</span>
+          <span className='tw-text-sm'>자동 캡쳐 영역 - 싱글 플레이 결과창</span>
           <button
             className={`tw-scale-50 tw-relative tw-inline-flex tw-items-center tw-h-8 tw-w-16 tw-rounded-full tw-transition-colors tw-duration-300 ${
               settingData.autoCapturePlatinaLabOcrResultRegion ? 'tw-bg-blue-600' : 'tw-bg-gray-600'
