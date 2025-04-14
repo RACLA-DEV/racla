@@ -307,10 +307,18 @@ export default function VArchiveRegScorePage() {
 
   const router = useRouter()
 
+  const [sendedError, setSendedError] = useState<boolean>(false)
+
   useEffect(() => {
     if (vArchiveUserData.userToken === '') {
       router.push('/')
-      showNotification('기록 등록은 로그인 또는 V-ARCHIVE 계정 연동이 필요합니다.', 'tw-bg-red-600')
+      if (!sendedError) {
+        showNotification(
+          '기록 등록은 로그인 또는 V-ARCHIVE 계정 연동이 필요합니다.',
+          'tw-bg-red-600',
+        )
+        setSendedError(true)
+      }
     }
   }, [vArchiveUserData.userToken, router, showNotification])
 

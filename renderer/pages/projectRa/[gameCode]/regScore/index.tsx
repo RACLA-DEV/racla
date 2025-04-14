@@ -227,10 +227,15 @@ export default function VArchiveRegScorePage() {
 
   const router = useRouter()
 
+  const [sendedError, setSendedError] = useState<boolean>(false)
+
   useEffect(() => {
     if (userData.userToken === '') {
       router.push('/')
-      showNotification('기록 등록은 로그인이 필요합니다.', 'tw-bg-red-600')
+      if (!sendedError) {
+        showNotification('기록 등록은 로그인이 필요합니다.', 'tw-bg-red-600')
+        setSendedError(true)
+      }
     }
   }, [userData.userToken, router, showNotification])
 
