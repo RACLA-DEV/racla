@@ -228,11 +228,11 @@ export default function VArchiveRegScorePage() {
   const router = useRouter()
 
   useEffect(() => {
-    if (userData.userName === '') {
+    if (userData.userToken === '') {
       router.push('/')
       showNotification('기록 등록은 로그인이 필요합니다.', 'tw-bg-red-600')
     }
-  }, [userData])
+  }, [userData.userToken, router, showNotification])
 
   // projectRaUploadedPageData 변경 감지하여 배경 BGA 설정
   useEffect(() => {
@@ -273,6 +273,10 @@ export default function VArchiveRegScorePage() {
 
   // 컴포넌트가 마운트될 때 데이터 불러오기
   useEffect(() => {
+    // 컴포넌트 마운트 시 업로드 상태 초기화
+    dispatch(setIsUploading(false))
+    dispatch(setUploadedDataProcessed(true))
+
     fetchRecentHistory()
   }, [])
 
@@ -281,7 +285,7 @@ export default function VArchiveRegScorePage() {
       <Head>
         <title>기록 등록 - RACLA</title>
       </Head>
-      {userData.userName !== '' ? (
+      {userData.userToken !== '' ? (
         <div
           className={`tw-flex tw-gap-4 tw-relative`}
           onDragEnter={handleDragEnter}

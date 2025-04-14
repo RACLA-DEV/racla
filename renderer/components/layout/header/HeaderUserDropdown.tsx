@@ -1,8 +1,12 @@
 import {
   setBackupData,
+  setIsUploading,
   setProjectRaData,
+  setProjectRaUploadedPageData,
+  setUploadedDataProcessed,
   setUserData,
   setVArchiveData,
+  setVArchiveUploadedPageData,
   setVArchiveUserData,
 } from 'store/slices/appSlice'
 
@@ -26,6 +30,8 @@ export const renderUserDropdown = (
     dispatch(setVArchiveUserData({ userToken: '', userName: '', userNo: '' }))
     dispatch(setVArchiveData(null))
     dispatch(setProjectRaData(null))
+    dispatch(setIsUploading(false))
+    dispatch(setUploadedDataProcessed(true))
     callback()
   }
 
@@ -105,6 +111,12 @@ export const renderUserDropdown = (
               dispatch(setVArchiveData(null))
               dispatch(setProjectRaData(null))
               dispatch(setBackupData(null))
+              dispatch(setIsUploading(false))
+              dispatch(setVArchiveData(null))
+              dispatch(setProjectRaData(null))
+              dispatch(setVArchiveUploadedPageData(null))
+              dispatch(setProjectRaUploadedPageData(null))
+              dispatch(setUploadedDataProcessed(true))
             }}
           >
             로그아웃

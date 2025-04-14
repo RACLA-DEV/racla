@@ -111,7 +111,13 @@ export function clearSession() {
   if (fs.existsSync(sessionFile)) {
     fs.writeFileSync(
       sessionFile,
-      JSON.stringify({ userNo: '', userToken: '', vArchiveUserNo: '', vArchiveUserToken: '' }),
+      JSON.stringify({
+        userNo: '',
+        userToken: '',
+        vArchiveUserNo: '',
+        vArchiveUserToken: '',
+        vArchiveUserName: '',
+      }),
       'utf-8',
     )
   }

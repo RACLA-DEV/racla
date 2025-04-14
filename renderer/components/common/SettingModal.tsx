@@ -850,7 +850,7 @@ const SettingComponent = () => {
 
       <div className='tw-flex tw-flex-col tw-gap-1'>
         <div className='tw-flex tw-items-center'>
-          <span className='tw-text-sm'>자동 캡쳐 영역 - 오픈 매치(2인 이하)</span>
+          <span className='tw-text-sm'>자동 캡쳐 영역 - 오픈 매치(2인)</span>
           <button
             className={`tw-scale-50 tw-relative tw-inline-flex tw-items-center tw-h-8 tw-w-16 tw-rounded-full tw-transition-colors tw-duration-300 ${
               settingData.autoCaptureOcrOpen2Region ? 'tw-bg-blue-600' : 'tw-bg-gray-600'
@@ -869,13 +869,13 @@ const SettingComponent = () => {
           </button>
         </div>
         <span className='tw-text-sm tw-font-light tw-text-gray-400'>
-          자동 캡쳐 모드 사용 시 오픈 매치(2명) 결과창을 인식 여부를 설정합니다.
+          자동 캡쳐 모드 사용 시 오픈 매치(2인) 결과창을 인식 여부를 설정합니다.
         </span>
       </div>
 
       <div className='tw-flex tw-flex-col tw-gap-1'>
         <div className='tw-flex tw-items-center'>
-          <span className='tw-text-sm'>자동 캡쳐 영역 - 오픈 매치(1명 또는 3명 이상)</span>
+          <span className='tw-text-sm'>자동 캡쳐 영역 - 오픈 매치(1인 또는 3인 이상)</span>
           <button
             className={`tw-scale-50 tw-relative tw-inline-flex tw-items-center tw-h-8 tw-w-16 tw-rounded-full tw-transition-colors tw-duration-300 ${
               settingData.autoCaptureOcrOpen3Region ? 'tw-bg-blue-600' : 'tw-bg-gray-600'
@@ -894,7 +894,7 @@ const SettingComponent = () => {
           </button>
         </div>
         <span className='tw-text-sm tw-font-light tw-text-gray-400'>
-          자동 캡쳐 모드 사용 시 오픈 매치(1명 또는 3명 이상) 결과창을 인식 여부를 설정합니다.
+          자동 캡쳐 모드 사용 시 오픈 매치(1인 또는 3인 이상) 결과창을 인식 여부를 설정합니다.
         </span>
       </div>
     </div>

@@ -10,12 +10,14 @@ import {
   setIsUploading,
   setPlatinaLabSongData,
   setProjectRaData,
+  setProjectRaUploadedPageData,
   setSelectedGame,
   setSettingData,
   setSongData,
   setUploadedDataProcessed,
   setUserData,
   setVArchiveData,
+  setVArchiveUploadedPageData,
   setVArchiveUserData,
   setWjmaxSongData,
 } from 'store/slices/appSlice'
@@ -460,6 +462,14 @@ function MyApp({ Component, pageProps }: AppProps) {
           vArchiveLinked: response.data.varchiveLinked || false,
         }),
       )
+
+      // 업로드 상태 초기화
+      store.dispatch(setIsUploading(false))
+      store.dispatch(setVArchiveData(null))
+      store.dispatch(setProjectRaData(null))
+      store.dispatch(setUploadedDataProcessed(true))
+      store.dispatch(setVArchiveUploadedPageData(null))
+      store.dispatch(setProjectRaUploadedPageData(null))
 
       if (response.data.discordLinked) {
         setDiscordUid(response.data.discordUid)
