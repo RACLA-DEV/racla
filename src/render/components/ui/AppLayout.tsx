@@ -17,7 +17,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
 
   return (
     <div
-      className={`tw:flex tw:flex-col tw:h-screen ${
+      className={`tw:flex tw:flex-col tw:h-screen tw:font-medium ${
         theme === 'dark'
           ? 'tw:bg-gradient-to-br tw:from-slate-900/95 tw:via-slate-900/95 tw:to-slate-900'
           : 'tw:bg-gradient-to-br tw:from-indigo-50 tw:via-white/90 tw:to-white/40'

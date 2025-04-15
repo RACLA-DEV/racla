@@ -1,5 +1,5 @@
 import { createHashRouter, Outlet } from 'react-router-dom'
-import { WrappedApp } from './App'
+import WrappedApp from './components/app/WrappedApp'
 import AppLayout from './components/ui/AppLayout'
 import MainPage from './pages'
 import Login from './pages/login'

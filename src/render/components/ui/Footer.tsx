@@ -2,9 +2,10 @@ import { Icon } from '@iconify/react'
 import { globalDictionary } from '@render/constants/globalDictionary'
 import { createLog } from '@render/libs/logging'
 import { RootState } from '@render/store'
+import { setIsOpenExternalLink, setOpenExternalLink } from '@render/store/slices/uiSlice'
 import axios from 'axios'
 import React, { useEffect, useState } from 'react'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 
 interface ServerStatus {
   message: string
@@ -17,6 +18,7 @@ const Footer: React.FC = () => {
   const { selectedGame } = useSelector((state: RootState) => state.app)
   const [serverStatus, setServerStatus] = useState<ServerStatus | null>(null)
   const [isOnline, setIsOnline] = useState<boolean>(false)
+  const dispatch = useDispatch()
 
   useEffect(() => {
     // 서버 상태 확인 함수
@@ -64,9 +66,8 @@ const Footer: React.FC = () => {
   const handleOpenExternalLink = (url: string) => {
     if (url) {
       // 외부 링크는 requestOpenExternalLink 사용하여 모달 확인 과정 거치도록 변경
-      if (globalDictionary.requestOpenExternalLink) {
-        globalDictionary.requestOpenExternalLink(url)
-      }
+      dispatch(setOpenExternalLink(url))
+      dispatch(setIsOpenExternalLink(true))
     }
   }
 
@@ -115,7 +116,7 @@ const Footer: React.FC = () => {
 
   return (
     <div
-      className={`tw:flex tw:fixed tw:w-full tw:h-8 tw:items-center tw:bottom-0 tw:left-0 tw:px-2 tw:z-50 ${
+      className={`tw:flex tw:fixed tw:w-full tw:h-8 tw:items-center tw:bottom-0 tw:left-0 tw:px-2 tw:z-50 tw:font-semibold ${
         theme === 'dark'
           ? 'tw:border-slate-700/50 tw:text-slate-300'
           : 'tw:border-indigo-100/50 tw:text-indigo-900'

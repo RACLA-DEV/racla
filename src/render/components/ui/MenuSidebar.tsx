@@ -1,7 +1,11 @@
 import { Icon } from '@iconify/react'
 import { globalDictionary } from '@render/constants/globalDictionary'
 import { RootState } from '@render/store'
-import { toggleSidebar } from '@render/store/slices/uiSlice'
+import {
+  setIsOpenExternalLink,
+  setOpenExternalLink,
+  toggleSidebar,
+} from '@render/store/slices/uiSlice'
 import { motion } from 'framer-motion'
 import React from 'react'
 import { useDispatch, useSelector } from 'react-redux'
@@ -149,9 +153,8 @@ const MenuSidebar: React.FC = () => {
   const handleItemClick = (item: any) => {
     if (item.isExternal && item.path) {
       // 외부 링크는 requestOpenExternalLink 사용하여 모달 확인 과정 거치도록 변경
-      if (globalDictionary.requestOpenExternalLink) {
-        globalDictionary.requestOpenExternalLink(item.path)
-      }
+      dispatch(setOpenExternalLink(item.path))
+      dispatch(setIsOpenExternalLink(true))
     } else if (item.path) {
       // 내부 경로는 라우터로 이동
       navigate(item.path)

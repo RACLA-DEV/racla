@@ -43,31 +43,6 @@ export const globalDictionary = {
   blurDataURL:
     'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDABQODxIPDRQSEBIXFRQdHx0fHRsdHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR3/2wBDAR0XFyAeIRshGxsdIR0hHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR3/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAb/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k=',
   // Electron 환경에서는 모달 확인 프로세스를 거치도록, 웹 환경에서는 바로 링크 열도록 함
-  openExternalLink: (url: string) => {
-    if (window.electron && window.electron.onConfirmExternalLink) {
-      // Electron 환경에서는 메인 프로세스에 확인 요청을 보냄
-      window.electron.openExternalUrl(url)
-    } else {
-      // 웹 환경에서는 바로 링크 열기
-      window.open(url, '_blank')
-    }
-  },
-  // 메뉴 사이드바에서 사용할 외부 링크 처리 함수
-  requestOpenExternalLink: (url: string) => {
-    if (window.electron) {
-      // Electron 환경에서는 컨펌 모달을 통해 처리
-      // 메인 프로세스에 확인 이벤트 발생 요청
-      eventEmitter.emit('confirm-external-link-requested', url)
-    } else {
-      // 웹 환경에서는 바로 링크 열기
-      window.open(url, '_blank')
-    }
-  },
-  // 이벤트 리스너 등록 함수 (App.tsx에서 사용)
-  onExternalLinkRequested: (callback: (url: string) => void) => {
-    eventEmitter.on('confirm-external-link-requested', callback)
-    return () => eventEmitter.off('confirm-external-link-requested', callback)
-  },
   djmax_respect_v: {
     keyModeList: [4, 5, 6, 8],
     levelList: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],

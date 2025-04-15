@@ -3,11 +3,15 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 export interface UIState {
   theme: 'light' | 'dark'
   sidebarCollapsed: boolean
+  openExternalLink: string
+  isOpenExternalLink: boolean
 }
 
 const initialState: UIState = {
   theme: 'light',
   sidebarCollapsed: false,
+  openExternalLink: '',
+  isOpenExternalLink: false,
 }
 
 export const uiSlice = createSlice({
@@ -26,9 +30,22 @@ export const uiSlice = createSlice({
     setSidebarCollapsed: (state, action: PayloadAction<boolean>) => {
       state.sidebarCollapsed = action.payload
     },
+    setOpenExternalLink: (state, action: PayloadAction<string>) => {
+      state.openExternalLink = action.payload
+    },
+    setIsOpenExternalLink: (state, action: PayloadAction<boolean>) => {
+      state.isOpenExternalLink = action.payload
+    },
   },
 })
 
-export const { toggleTheme, setTheme, toggleSidebar, setSidebarCollapsed } = uiSlice.actions
+export const {
+  toggleTheme,
+  setTheme,
+  toggleSidebar,
+  setSidebarCollapsed,
+  setOpenExternalLink,
+  setIsOpenExternalLink,
+} = uiSlice.actions
 
 export default uiSlice.reducer

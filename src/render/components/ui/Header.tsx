@@ -66,7 +66,7 @@ const TitleBar: React.FC = () => {
       <div className='tw:w-32'></div>
 
       {/* 중앙 타이틀 - 선택된 게임 이름 표시 */}
-      <div className='tw:flex-1 tw:text-sm tw:text-center tw:font-medium'>
+      <div className='tw:flex-1 tw:text-sm tw:text-center tw:font-bold'>
         {gameNameMap[selectedGame] || 'RACLA'}
       </div>
 

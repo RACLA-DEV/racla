@@ -188,7 +188,7 @@ function MainPage() {
                 type='button'
                 key={category}
                 onClick={() => setActiveCategory(category)}
-                className={`tw:px-4 tw:py-2 tw:rounded-lg tw:font-medium ${
+                className={`tw:px-4 tw:py-2 tw:rounded-lg ${
                   activeCategory === category
                     ? 'tw:bg-blue-500 tw:text-white'
                     : 'tw:bg-gray-200 tw:text-gray-700 tw:hover:bg-gray-300'

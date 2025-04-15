@@ -74,6 +74,7 @@ function OverlayPage() {
           fontFamily: 'monospace',
           borderRadius: '8px',
         }}
+        className='tw:font-medium'
       >
         <h2>Overlay Window (Debug Mode)</h2>
         <div style={{ display: 'flex', gap: '1rem', height: 'calc(100vh - 4rem)' }}>
