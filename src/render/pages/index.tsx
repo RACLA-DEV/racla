@@ -38,7 +38,7 @@ function MainPage() {
             const processes = await getProcessList()
             setText(JSON.stringify(processes))
           } catch (error) {
-            console.error('프로세스 목록 가져오기 실패:', error)
+            createLog('error', '프로세스 목록 가져오기 실패:', error)
           }
         },
       },
@@ -51,7 +51,7 @@ function MainPage() {
             const activeWindows = await getActiveWindows()
             setText(JSON.stringify(activeWindows))
           } catch (error) {
-            console.error('활성 윈도우 가져오기 실패:', error)
+            createLog('error', '활성 윈도우 가져오기 실패:', error)
           }
         },
       },
@@ -64,9 +64,9 @@ function MainPage() {
         usage: async () => {
           try {
             await createOverlay()
-            await createLog('info', 'RENDERER', '오버레이가 생성되었습니다')
+            await createLog('info', '오버레이가 생성되었습니다')
           } catch (error) {
-            console.error('오버레이 생성 실패:', error)
+            createLog('error', '오버레이 생성 실패:', error)
           }
         },
       },
@@ -76,7 +76,7 @@ function MainPage() {
         example: 'await closeOverlay()',
         usage: async () => {
           await closeOverlay()
-          await createLog('info', 'RENDERER', '오버레이가 닫혔습니다')
+          await createLog('info', '오버레이가 닫혔습니다')
         },
       },
       {
@@ -94,9 +94,9 @@ function MainPage() {
                 data: 'test message',
               }),
             )
-            await createLog('info', 'RENDERER', '오버레이로 메시지 전송됨')
+            await createLog('info', '오버레이로 메시지 전송됨')
           } catch (error) {
-            console.error('오버레이 메시지 전송 실패:', error)
+            createLog('error', '오버레이 메시지 전송 실패:', error)
           }
         },
       },
@@ -111,24 +111,24 @@ function MainPage() {
             const response = await sendMsgToMainProcess('테스트 메시지')
             setText(response)
           } catch (error) {
-            console.error('메시지 전송 실패:', error)
+            createLog('error', '메시지 전송 실패:', error)
           }
         },
       },
       {
         title: 'createLog()',
         description: '로그를 생성합니다',
-        example: 'await createLog("info", "RENDERER", "로그 메시지")',
+        example: 'await createLog("info", "로그 메시지")',
         usage: async () => {
-          await createLog('info', 'RENDERER', '로그 메시지')
+          await createLog('info', '로그 메시지')
         },
       },
       {
         title: 'createLog() - Error',
         description: '에러 로그를 생성합니다',
-        example: 'await createLog("error", "RENDERER", "에러 메시지")',
+        example: 'await createLog("error", "에러 메시지")',
         usage: async () => {
-          await createLog('error', 'RENDERER', new Error('에러 메시지'))
+          await createLog('error', new Error('에러 메시지'))
         },
       },
     ],
@@ -140,7 +140,7 @@ function MainPage() {
         usage: async () => {
           const image = await captureGameWindow('DJMAX RESPECT V')
           setImage(image)
-          await createLog('info', 'RENDERER', '게임 윈도우 캡쳐 완료')
+          await createLog('info', '게임 윈도우 캡쳐 완료')
         },
       },
     ],
@@ -157,7 +157,7 @@ function MainPage() {
   return (
     <div className='tw:container tw:mx-auto tw:p-8'>
       <div className='tw:flex tw:items-center tw:gap-4 tw:mb-8'>
-        <h1 className='tw:text-3xl tw:font-bold'>RACLA-VITE-DESKTOP API 치트시트</h1>
+        <h1 className='tw:text-3xl tw:font-bold'>RACLA API Cheat Sheet</h1>
       </div>
 
       <div className='tw:mb-6'>

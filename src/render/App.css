@@ -1,3 +1,4 @@
+@import url('https://cdn.jsdelivr.net/gh/sun-typeface/SUITE@2/fonts/variable/woff2/SUITE-Variable.css');
 @import 'tailwindcss';
 @config './tailwind.config.mjs';
 
@@ -187,12 +188,13 @@ code {
 }
 
 body {
-  scroll-behavior: smooth !important;
   /* user-select: none;
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none; */
-  font-family: 'Pretendard', sans-serif;
+  overflow: hidden;
+  scroll-behavior: smooth !important;
+  font-family: 'SUITE Variable', sans-serif;
 }
 
 /* .background-image {

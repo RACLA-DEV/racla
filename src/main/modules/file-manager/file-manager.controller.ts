@@ -1,10 +1,11 @@
 import { IpcHandle } from '@doubleshot/nest-electron'
-import { Controller } from '@nestjs/common'
+import { Controller, Logger } from '@nestjs/common'
 import type { SessionData, SettingsData } from './file-manager.service'
 import { FileManagerService } from './file-manager.service'
 
 @Controller()
 export class FileManagerController {
+  private readonly logger = new Logger(FileManagerController.name)
   constructor(private readonly fileManagerService: FileManagerService) {}
 
   @IpcHandle('file-manager:save-settings')
@@ -33,8 +34,25 @@ export class FileManagerController {
   }
 
   @IpcHandle('file-manager:save-song-data')
-  async saveSongData(data: { songData: any[]; gameCode: string }): Promise<void> {
-    return this.fileManagerService.saveSongData(data.songData, data.gameCode)
+  async saveSongData(data: { gameCode: string; songData: any[] }): Promise<boolean> {
+    try {
+      const { gameCode, songData } = data
+      this.logger.log(`곡 데이터 저장 요청 - 게임 코드: ${gameCode}`)
+      this.logger.log(
+        `songData 타입: ${typeof songData}, 배열 여부: ${Array.isArray(songData)}, 길이: ${songData?.length || 0}`,
+      )
+
+      if (!Array.isArray(songData)) {
+        this.logger.error(`잘못된 songData 형식: ${typeof songData}`)
+        return false
+      }
+
+      this.fileManagerService.saveSongData(songData, gameCode)
+      return true
+    } catch (error) {
+      this.logger.error('곡 데이터 저장 실패:', error)
+      return false
+    }
   }
 
   @IpcHandle('file-manager:load-song-data')

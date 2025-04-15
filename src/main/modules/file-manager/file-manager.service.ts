@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, Logger } from '@nestjs/common'
 import { app } from 'electron'
 import * as fs from 'fs'
 import * as path from 'path'
@@ -41,6 +41,7 @@ const defaultSession: SessionData = {
 @Injectable()
 export class FileManagerService {
   private documentsPath: string
+  private logger = new Logger(FileManagerService.name)
 
   constructor() {
     this.documentsPath = path.join(app.getPath('documents'), 'RACLA')
@@ -71,7 +72,7 @@ export class FileManagerService {
       const settingsData = fs.readFileSync(settingsPath, 'utf-8')
       return JSON.parse(settingsData) as SettingsData
     } catch (error) {
-      console.error('설정 파일 읽기 오류:', error)
+      this.logger.error('설정 파일 읽기 오류:', error)
       return defaultSettings
     }
   }
@@ -93,7 +94,7 @@ export class FileManagerService {
       const sessionData = fs.readFileSync(sessionPath, 'utf-8')
       return JSON.parse(sessionData) as SessionData
     } catch (error) {
-      console.error('세션 파일 읽기 오류:', error)
+      this.logger.error('세션 파일 읽기 오류:', error)
       return defaultSession
     }
   }
@@ -106,8 +107,26 @@ export class FileManagerService {
   }
 
   public saveSongData(songData: any[], gameCode: string): void {
-    const dataPath = path.join(this.documentsPath, `${gameCode}_songs.json`)
-    fs.writeFileSync(dataPath, JSON.stringify(songData, null, 2), 'utf-8')
+    try {
+      if (!songData || !Array.isArray(songData)) {
+        this.logger.error(`songData가 유효하지 않음: ${typeof songData}`)
+        return
+      }
+
+      if (!gameCode || typeof gameCode !== 'string') {
+        this.logger.error(`gameCode가 유효하지 않음: ${gameCode}`)
+        return
+      }
+
+      this.logger.log(`${gameCode} 곡 데이터 저장 시도: 항목 ${songData.length}개`)
+
+      const dataPath = path.join(this.documentsPath, `${gameCode}_songs.json`)
+      fs.writeFileSync(dataPath, JSON.stringify(songData, null, 2), 'utf-8')
+
+      this.logger.log(`${gameCode} 곡 데이터 저장 완료: ${dataPath}`)
+    } catch (error) {
+      this.logger.error(`${gameCode} 곡 데이터 저장 실패:`, error)
+    }
   }
 
   public loadSongData(gameCode: string): any[] {
@@ -121,7 +140,7 @@ export class FileManagerService {
       const songData = fs.readFileSync(dataPath, 'utf-8')
       return JSON.parse(songData) as any[]
     } catch (error) {
-      console.error(`${gameCode} 곡 데이터 파일 읽기 오류:`, error)
+      this.logger.error(`${gameCode} 곡 데이터 파일 읽기 오류:`, error)
       return []
     }
   }

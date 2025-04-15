@@ -1,6 +1,6 @@
 import { Icon } from '@iconify/react'
 import { RootState } from '@render/store'
-import { GameType, setSelectedGame } from '@render/store/slices/uiSlice'
+import { GameType, setSelectedGame } from '@render/store/slices/appSlice'
 import { motion } from 'framer-motion'
 import React from 'react'
 import { useDispatch, useSelector } from 'react-redux'
@@ -8,7 +8,8 @@ import { useNavigate } from 'react-router-dom'
 import Tooltip from './Tooltip'
 
 const IconSidebar: React.FC = () => {
-  const { theme, selectedGame } = useSelector((state: RootState) => state.ui)
+  const { theme } = useSelector((state: RootState) => state.ui)
+  const { selectedGame } = useSelector((state: RootState) => state.app)
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const location = window.location.hash.substring(1) // 현재 경로 가져오기

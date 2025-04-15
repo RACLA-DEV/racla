@@ -13,7 +13,6 @@ import { ImageProcessorModule } from './modules/image-processor/image-processor.
 import { LoggerModule } from './modules/logger/logger.module'
 import { MainWindowModule } from './modules/main-window/main-window.module'
 import { MessageModule } from './modules/message/message.module'
-import { OAuthModule } from './modules/oauth/oauth.module'
 import { OverlayWindowModule } from './modules/overlay-window/overlay-window.module'
 import { OverlayWindowService } from './modules/overlay-window/overlay-window.service'
 import { ProcessModule } from './modules/process/process.module'
@@ -55,7 +54,6 @@ export const winstonConfig = {
     LoggerModule,
     ImageProcessorModule,
     FileManagerModule,
-    OAuthModule,
     AuthModule,
   ],
   controllers: [AppController],

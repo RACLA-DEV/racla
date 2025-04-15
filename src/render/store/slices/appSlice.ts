@@ -1,7 +1,9 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit'
+import { createLog } from '@render/libs/logging'
+export type GameType = 'djmax_respect_v' | 'wjmax' | 'platina_lab'
 
 interface AppState {
-  selectedGame: string
+  selectedGame: GameType
   isDetectedGame: boolean
   settingData: any
   userData: {
@@ -22,6 +24,16 @@ interface AppState {
   isMiniMode: boolean
   platform: string
   isLoggedIn: boolean
+  songData: {
+    djmax_respect_v: any[]
+    wjmax: any[]
+    platina_lab: any[]
+    lastUpdated: {
+      djmax_respect_v: number | null
+      wjmax: number | null
+      platina_lab: number | null
+    }
+  }
 }
 
 const initialState: AppState = {
@@ -46,13 +58,23 @@ const initialState: AppState = {
   isMiniMode: true,
   platform: '',
   isLoggedIn: false,
+  songData: {
+    djmax_respect_v: [],
+    wjmax: [],
+    platina_lab: [],
+    lastUpdated: {
+      djmax_respect_v: null,
+      wjmax: null,
+      platina_lab: null,
+    },
+  },
 }
 
 export const appSlice = createSlice({
   name: 'app',
   initialState,
   reducers: {
-    setSelectedGame: (state, action: PayloadAction<string>) => {
+    setSelectedGame: (state, action: PayloadAction<GameType>) => {
       state.selectedGame = action.payload
     },
     setIsDetectedGame: (state, action: PayloadAction<boolean>) => {
@@ -95,6 +117,36 @@ export const appSlice = createSlice({
     setIsLoggedIn: (state, action: PayloadAction<boolean>) => {
       state.isLoggedIn = action.payload
     },
+    setSongData: (state, action: PayloadAction<{ data: any[]; gameCode: string }>) => {
+      const { data, gameCode } = action.payload
+
+      // 유효성 검증 추가
+      if (!data || !Array.isArray(data)) {
+        createLog(
+          'error',
+          `setSongData: 유효하지 않은 데이터 형식, 타입: ${typeof data}, 배열 여부: ${Array.isArray(data)}`,
+        )
+        return
+      }
+
+      if (!gameCode || typeof gameCode !== 'string') {
+        createLog('error', `setSongData: 유효하지 않은 게임코드: ${gameCode}`)
+        return
+      }
+
+      createLog('info', `setSongData: ${gameCode} 데이터 설정 중, 항목 수: ${data.length}`)
+
+      // 게임코드 유효성 검증
+      if (gameCode === 'djmax_respect_v' || gameCode === 'wjmax' || gameCode === 'platina_lab') {
+        // 타입 단언을 통해 올바른 키 사용 보장
+        const validKey = gameCode as keyof typeof state.songData.lastUpdated
+        state.songData[validKey] = data
+        state.songData.lastUpdated[validKey] = Date.now()
+        createLog('info', `setSongData: ${gameCode} 데이터 설정 완료`)
+      } else {
+        createLog('error', `유효하지 않은 게임 코드: ${gameCode}`)
+      }
+    },
     logout: (state) => {
       state.userData = {
         userName: '',
@@ -125,6 +177,7 @@ export const {
   setVArchiveUserData,
   setPlatform,
   setIsLoggedIn,
+  setSongData,
   logout,
 } = appSlice.actions
 

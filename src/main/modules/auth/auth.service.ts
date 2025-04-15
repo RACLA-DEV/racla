@@ -109,7 +109,7 @@ export class AuthService {
 
             if (code && returnedState === state) {
               res.writeHead(302, {
-                Location: 'https:/racla.app/login/oauth/success',
+                Location: 'https://racla.app/login/oauth/success',
               })
               res.end()
 
@@ -128,13 +128,13 @@ export class AuthService {
           shell.openExternal(authUrl)
         })
 
-        server.on('error', (e: any) => {
-          if (e.code === 'EADDRINUSE') {
+        server.on('error', (error: any) => {
+          if (error.code === 'EADDRINUSE') {
             this.logger.error('Port 54321 is already in use')
             reject(new Error('Port 54321 is already in use'))
           } else {
-            this.logger.error(`Discord OAuth 로그인 오류: ${e.message}`)
-            reject(e)
+            this.logger.error(`Discord OAuth 로그인 오류: ${error.message}`)
+            reject(error)
           }
         })
       })

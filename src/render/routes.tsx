@@ -1,92 +1,48 @@
-import { useSelector } from 'react-redux'
-import { Navigate, createHashRouter } from 'react-router-dom'
+import { createHashRouter, Outlet } from 'react-router-dom'
+import { WrappedApp } from './App'
 import AppLayout from './components/ui/AppLayout'
-import HomePage from './pages/index'
-import LoginPage from './pages/login'
-import OverlayPage from './pages/overlay'
-import { RootState } from './store'
+import MainPage from './pages'
+import Login from './pages/login'
+import Overlay from './pages/overlay'
 
-// 보호된 라우트 컴포넌트
-interface ProtectedRouteProps {
-  children: React.ReactNode
-  isAuthenticated: boolean
+// 기본 레이아웃이 적용된 라우트를 위한 컴포넌트
+const DefaultLayout = () => {
+  return (
+    <AppLayout>
+      <Outlet />
+    </AppLayout>
+  )
 }
 
-const ProtectedRoute = ({ children, isAuthenticated }: ProtectedRouteProps) => {
-  if (!isAuthenticated) {
-    return <Navigate to='/login' replace />
-  }
-
-  return <>{children}</>
-}
-
-// 라우트 정의
-interface RouteConfig {
-  path: string
-  Element: React.ComponentType<any>
-  ErrorBoundary?: React.ComponentType<any>
-  skipLayout?: boolean
-  children?: RouteConfig[]
-}
-
-const routes: RouteConfig[] = [
+// 라우터 설정 - 이 객체는 App.tsx에서 사용됩니다
+export const router = createHashRouter([
   {
     path: '/',
-    Element: () => {
-      const isLoggedIn = useSelector((state: RootState) => state.app.isLoggedIn)
-      return (
-        <ProtectedRoute isAuthenticated={isLoggedIn}>
-          <HomePage />
-        </ProtectedRoute>
-      )
-    },
-  },
-  {
-    path: '/login',
-    Element: LoginPage,
-  },
-  {
-    path: '/overlay',
-    Element: OverlayPage,
-    skipLayout: true, // 오버레이 페이지는 레이아웃 없이 표시
-  },
-  {
-    path: '/overlay/setting',
-    Element: () => {
-      const isLoggedIn = useSelector((state: RootState) => state.app.isLoggedIn)
-      return (
-        <ProtectedRoute isAuthenticated={isLoggedIn}>
-          <OverlayPage />
-        </ProtectedRoute>
-      )
-    },
-    skipLayout: true, // 오버레이 세팅 페이지도 레이아웃 없이 표시
-  },
-  // 추가 라우트는 여기에 설정
-]
-
-// 라우트 설정을 재귀적으로 처리하는 함수
-const processRoutes = (routes: RouteConfig[]) => {
-  return routes.map(({ Element, ErrorBoundary, skipLayout, children, ...rest }) => ({
-    ...rest,
-    element: skipLayout ? (
-      <Element />
-    ) : (
-      <AppLayout>
-        <Element />
-      </AppLayout>
-    ),
-    ...(ErrorBoundary && { errorElement: <ErrorBoundary /> }),
-    ...(children && { children: processRoutes(children) }),
-  }))
-}
-
-// createHashRouter로 라우터 생성
-export const router = createHashRouter([
-  ...processRoutes(routes),
-  // 404 처리를 위한 와일드카드 경로 추가
-  {
-    path: '*',
-    element: <Navigate to='/' replace />,
+    element: <WrappedApp />,
+    children: [
+      // 레이아웃이 필요한 페이지들은 DefaultLayout 하위로 그룹화
+      {
+        element: <DefaultLayout />,
+        children: [
+          {
+            index: true,
+            element: <MainPage />,
+          },
+          {
+            path: 'login',
+            element: <Login />,
+          },
+          {
+            path: '*',
+            element: <div>페이지를 찾을 수 없습니다.</div>,
+          },
+        ],
+      },
+      // 레이아웃이 필요 없는 페이지들
+      {
+        path: 'overlay',
+        element: <Overlay />,
+      },
+    ],
   },
 ])

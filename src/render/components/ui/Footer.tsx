@@ -1,5 +1,6 @@
 import { Icon } from '@iconify/react'
 import { globalDictionary } from '@render/constants/globalDictionary'
+import { createLog } from '@render/libs/logging'
 import { RootState } from '@render/store'
 import axios from 'axios'
 import React, { useEffect, useState } from 'react'
@@ -11,11 +12,9 @@ interface ServerStatus {
   timestamp: number
 }
 
-// Vite에서는 import.meta.env를 사용해야 함
-const API_URL = import.meta.env.VITE_API_URL || 'https://api.racla.app'
-
 const Footer: React.FC = () => {
-  const { theme, selectedGame } = useSelector((state: RootState) => state.ui)
+  const { theme } = useSelector((state: RootState) => state.ui)
+  const { selectedGame } = useSelector((state: RootState) => state.app)
   const [serverStatus, setServerStatus] = useState<ServerStatus | null>(null)
   const [isOnline, setIsOnline] = useState<boolean>(false)
 
@@ -23,21 +22,25 @@ const Footer: React.FC = () => {
     // 서버 상태 확인 함수
     const checkServerStatus = async () => {
       try {
-        console.log('Checking server status...', API_URL) // 디버깅용 로그
-        const response = await axios.get(`${API_URL}/v2/racla/ping`, {
+        createLog(
+          'info',
+          'Checking server status...',
+          `${import.meta.env.VITE_API_URL}/v2/racla/ping`,
+        ) // 디버깅용 로그
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/v2/racla/ping`, {
           timeout: 5000, // 5초 타임아웃 설정
         })
 
         if (response.status === 200) {
-          console.log('Server response:', response.data) // 디버깅용 로그
+          createLog('info', 'Server response:', response.data) // 디버깅용 로그
           setServerStatus(response.data)
           setIsOnline(true)
         } else {
-          console.log('Server error status:', response.status) // 디버깅용 로그
+          createLog('info', 'Server error status:', response.status) // 디버깅용 로그
           setIsOnline(false)
         }
       } catch (error) {
-        console.error('Server connection error:', error) // 디버깅용 로그
+        createLog('error', 'Server connection error:', error) // 디버깅용 로그
         setIsOnline(false)
       }
     }
@@ -47,13 +50,13 @@ const Footer: React.FC = () => {
 
     // 30초마다 실행되는 인터벌 설정
     const interval = setInterval(() => {
-      console.log('Running interval check...') // 디버깅용 로그
+      createLog('info', 'Running interval check...') // 디버깅용 로그
       checkServerStatus()
     }, 30000)
 
     // 클린업 함수
     return () => {
-      console.log('Cleaning up interval') // 디버깅용 로그
+      createLog('info', 'Cleaning up interval') // 디버깅용 로그
       clearInterval(interval)
     }
   }, []) // 빈 의존성 배열 - 컴포넌트 마운트 시 한 번만 실행

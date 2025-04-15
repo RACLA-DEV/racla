@@ -16,7 +16,8 @@ declare global {
 const { closeApp, minimizeApp, maximizeApp } = window.electron
 
 const TitleBar: React.FC = () => {
-  const { theme, selectedGame } = useSelector((state: RootState) => state.ui)
+  const { theme } = useSelector((state: RootState) => state.ui)
+  const { selectedGame } = useSelector((state: RootState) => state.app)
   const dispatch = useDispatch()
   const [isMaximized, setIsMaximized] = useState(false)
 

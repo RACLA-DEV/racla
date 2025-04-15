@@ -31,6 +31,8 @@ declare global {
       // 파일 관리자 관련
       saveSettings: (settings: SettingsData) => Promise<SettingsData>
       loadSettings: () => Promise<SettingsData>
+      saveSongData: (data: { gameCode: string; songData: any[] }) => Promise<boolean>
+      loadSongData: (gameCode: string) => Promise<any[]>
 
       // 윈도우 컨트롤 관련
       closeApp: () => void

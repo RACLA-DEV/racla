@@ -1,9 +1,10 @@
-import { Controller } from '@nestjs/common'
+import { Controller, Logger } from '@nestjs/common'
 import { ipcMain, shell } from 'electron'
 import { MainWindowService } from './main-window.service'
 
 @Controller()
 export class MainWindowController {
+  private readonly logger = new Logger(MainWindowController.name)
   constructor(private readonly mainWindowService: MainWindowService) {
     // IPC 이벤트 핸들러 등록
     this.registerIpcEventHandlers()
@@ -41,7 +42,7 @@ export class MainWindowController {
         await shell.openExternal(url)
         return true
       } catch (error) {
-        console.error('Error opening external URL:', error)
+        this.logger.error('Error opening external URL:', error)
         return false
       }
     })

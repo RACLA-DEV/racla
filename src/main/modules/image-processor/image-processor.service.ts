@@ -31,7 +31,7 @@ export class ImageProcessorService {
 
   isStandardResolution(width: number, height: number): boolean {
     return this.standardResolutions.some(
-      res => Math.abs(width / height - res.width / res.height) < 0.01,
+      (res) => Math.abs(width / height - res.width / res.height) < 0.01,
     )
   }
 
@@ -46,8 +46,7 @@ export class ImageProcessorService {
 
     if (isWindowedMode) {
       return this.processWindowedModeImage(pngImage)
-    }
-    else {
+    } else {
       return this.processFullscreenImage(pngImage)
     }
   }
@@ -55,17 +54,20 @@ export class ImageProcessorService {
   private async processWindowedModeImage(pngImage: Buffer): Promise<Buffer> {
     try {
       const metadata = await sharp(pngImage).metadata()
-      const { data, info } = await sharp(pngImage)
-        .raw()
-        .toBuffer({ resolveWithObject: true })
+      const { data, info } = await sharp(pngImage).raw().toBuffer({ resolveWithObject: true })
 
       // 실제 컨텐츠 영역 찾기 (하단 기준)
-      const actualHeight = this.findActualHeight(data, metadata.width, metadata.height, info.channels)
-      
+      const actualHeight = this.findActualHeight(
+        data,
+        metadata.width,
+        metadata.height,
+        info.channels,
+      )
+
       // 하단 블랙 레벨을 기준으로 좌우 여백 계산
       const bottomBlackLevel = metadata.height - actualHeight
-      const sideBlackLevel = bottomBlackLevel  // 하단 블랙 레벨과 동일한 값을 좌우에 적용
-      
+      const sideBlackLevel = bottomBlackLevel // 하단 블랙 레벨과 동일한 값을 좌우에 적용
+
       this.logger.debug(`Black level: ${bottomBlackLevel}px`)
 
       // 첫 번째 크롭: 좌우 여백과 실제 높이 기준으로 크롭
@@ -73,8 +75,8 @@ export class ImageProcessorService {
         .extract({
           left: sideBlackLevel,
           top: 0,
-          width: metadata.width - (sideBlackLevel * 2),
-          height: actualHeight
+          width: metadata.width - sideBlackLevel * 2,
+          height: actualHeight,
         })
         .resize(1920)
         .toBuffer()
@@ -86,12 +88,11 @@ export class ImageProcessorService {
           left: 0,
           top: Math.max(0, croppedMetadata.height - 1080),
           width: croppedMetadata.width,
-          height: Math.min(croppedMetadata.height, 1080)
+          height: Math.min(croppedMetadata.height, 1080),
         })
         .toBuffer()
-    }
-    catch (error) {
-      this.logger.error('Error processing windowed mode image:', error)
+    } catch (error) {
+      this.logger.error('Error processing windowed mode image:', error.message)
       throw error
     }
   }
@@ -100,12 +101,7 @@ export class ImageProcessorService {
     return sharp(pngImage).resize(1920, 1080).toBuffer()
   }
 
-  private findActualHeight(
-    data: Buffer,
-    width: number,
-    height: number,
-    channels: number,
-  ): number {
+  private findActualHeight(data: Buffer, width: number, height: number, channels: number): number {
     for (let y = height - 1; y >= 0; y--) {
       let isNonBlackRow = false
       for (let x = 0; x < width; x++) {
@@ -124,9 +120,7 @@ export class ImageProcessorService {
 
   async captureGameWindow(gameTitle: string): Promise<Buffer | null> {
     try {
-      const windows = Window.all().filter(window =>
-        window.title.includes(gameTitle),
-      )
+      const windows = Window.all().filter((window) => window.title.includes(gameTitle))
 
       if (windows.length === 0) {
         this.logger.debug('No matching game window found')
@@ -135,9 +129,8 @@ export class ImageProcessorService {
 
       const targetWindow = windows[0]
       return await this.processWindowImage(targetWindow)
-    }
-    catch (error) {
-      this.logger.error('Error capturing game window:', error)
+    } catch (error) {
+      this.logger.error('Error capturing game window:', error.message)
       throw error
     }
   }

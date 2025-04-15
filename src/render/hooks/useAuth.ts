@@ -1,3 +1,4 @@
+import { createLog } from '@render/libs/logging'
 import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from '../store'
 import {
@@ -26,12 +27,12 @@ export function useAuth() {
     vArchiveLinked?: boolean
   }) => {
     try {
-      console.log('로그인 시도 중...', loginData.userNo)
+      createLog('info', '로그인 시도 중...', loginData.userNo)
       // 백엔드에 세션 저장 - 슬래시 제거하여 정확한 채널명 사용
       const success = await window.electron.login(loginData)
 
       if (success) {
-        console.log('로그인 성공')
+        createLog('info', '로그인 성공')
         // 리덕스 스토어에 사용자 데이터 저장
         dispatch(
           setUserData({
@@ -58,10 +59,10 @@ export function useAuth() {
         dispatch(setIsLoggedIn(true))
         return true
       }
-      console.log('로그인 실패')
+      createLog('info', '로그인 실패')
       return false
     } catch (error) {
-      console.error('Login error:', error)
+      createLog('error', 'Login error:', error)
       return false
     }
   }
@@ -79,7 +80,7 @@ export function useAuth() {
       }
       return false
     } catch (error) {
-      console.error('Logout error:', error)
+      createLog('error', 'Logout error:', error)
       return false
     }
   }
@@ -89,7 +90,7 @@ export function useAuth() {
     try {
       return await window.electron.checkLoggedIn()
     } catch (error) {
-      console.error('Check login status error:', error)
+      createLog('error', 'Check login status error:', error)
       return false
     }
   }

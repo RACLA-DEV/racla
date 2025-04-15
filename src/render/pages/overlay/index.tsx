@@ -1,3 +1,4 @@
+import { createOverlayLog } from '@render/libs/logging'
 import type { ProcessDescriptor } from 'ps-list'
 
 import { useEffect, useState } from 'react'
@@ -38,7 +39,7 @@ function OverlayPage() {
           }
           setMessages((prev) => [...prev, JSON.stringify(data)])
         } catch (error) {
-          console.error('Failed to parse message:', error)
+          createOverlayLog('error', 'Failed to parse message:', error)
         }
       })
     }

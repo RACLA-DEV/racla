@@ -8,7 +8,8 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 
 const MenuSidebar: React.FC = () => {
-  const { theme, sidebarCollapsed, selectedGame } = useSelector((state: RootState) => state.ui)
+  const { theme, sidebarCollapsed } = useSelector((state: RootState) => state.ui)
+  const { selectedGame } = useSelector((state: RootState) => state.app)
   const dispatch = useDispatch()
   const navigate = useNavigate()
 

@@ -1,7 +1,6 @@
-import { IpcRendererEvent } from 'electron'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Provider, useDispatch, useSelector } from 'react-redux'
-import { RouterProvider } from 'react-router-dom'
+import { Outlet, RouterProvider, useLocation } from 'react-router-dom'
 import { SyncLoader } from 'react-spinners'
 import { PersistGate } from 'redux-persist/integration/react'
 import './App.css'
@@ -9,11 +8,13 @@ import { NotificationContainer } from './components/ui/Notification'
 import { ThemeProvider } from './components/ui/ThemeProvider'
 import { globalDictionary } from './constants/globalDictionary'
 import { useNotificationSystem } from './hooks/useNotifications'
+import { createLog } from './libs/logging'
 import { router } from './routes'
 import { persistor, RootState, store } from './store'
 import {
   setIsLoggedIn,
   setSettingData,
+  setSongData,
   setUserData,
   setVArchiveUserData,
 } from './store/slices/appSlice'
@@ -179,122 +180,237 @@ const LoadingSkeleton = ({ theme, isLoading }: { theme: string; isLoading: boole
   )
 }
 
-// 전역에 electron IPC 인터페이스 선언
-declare global {
-  interface Window {
-    ipcRenderer: {
-      on(channel: string, listener: (event: IpcRendererEvent, ...args: any[]) => void): void
-      once(channel: string, listener: (event: IpcRendererEvent, ...args: any[]) => void): void
-      invoke(channel: string, ...args: any[]): Promise<any>
-      removeListener(channel: string, listener: (...args: any[]) => void): void
-      send(channel: string, ...args: any[]): void
+// 초기화 및 데이터 로드를 담당하는 컴포넌트
+const InitializeApp = () => {
+  const dispatch = useDispatch()
+  const location = useLocation()
+
+  // 곡 데이터 로드 함수
+  const loadSongDataFromAPI = useCallback(
+    async (gameCode: string) => {
+      try {
+        const apiUrl = import.meta.env.VITE_API_URL
+        let endpoint = ''
+
+        switch (gameCode) {
+          case 'djmax_respect_v':
+            endpoint = '/v2/racla/songs/djmax_respect_v/processed'
+            break
+          case 'wjmax':
+            endpoint = '/v2/racla/songs/wjmax'
+            break
+          case 'platina_lab':
+            endpoint = '/v2/racla/songs/platina_lab'
+            break
+          default:
+            return null
+        }
+
+        const response = await fetch(`${apiUrl}${endpoint}`)
+        if (!response.ok) {
+          throw new Error(`API 요청 실패: ${response.status}`)
+        }
+
+        const data = await response.json()
+
+        // 곡 데이터 저장 (Redux 및 로컬)
+        dispatch(setSongData({ data, gameCode }))
+
+        if (window.electron && window.electron.saveSongData) {
+          createLog(
+            'info',
+            `${gameCode} 저장 전 데이터 타입: ${typeof data}, 배열 여부: ${Array.isArray(data)}, 길이: ${data?.length || 0}`,
+          )
+
+          // gameCode와 data가 뒤바뀌지 않도록 확인
+          if (!Array.isArray(data)) {
+            await createLog('error', `${gameCode} 곡 데이터가 배열이 아님:`, data)
+            return data
+          }
+
+          await window.electron.saveSongData({ gameCode, songData: data })
+        }
+
+        createLog('info', `${gameCode} 곡 데이터 로드 및 저장 완료`)
+        return data
+      } catch (error) {
+        await createLog('error', `${gameCode} 곡 데이터 로드 실패:`, error)
+
+        // 로컬에 저장된 데이터 로드 시도
+        try {
+          if (window.electron && window.electron.loadSongData) {
+            const localData = await window.electron.loadSongData(gameCode)
+            if (localData && localData.length > 0) {
+              dispatch(setSongData({ data: localData, gameCode }))
+              await createLog('info', `${gameCode} 로컬 곡 데이터 로드 완료`)
+              return localData
+            }
+          }
+        } catch (localError) {
+          await createLog('error', `${gameCode} 로컬 곡 데이터 로드 실패:`, localError)
+        }
+
+        return null
+      }
+    },
+    [dispatch],
+  )
+
+  // 모든 게임 데이터 로드
+  const loadAllSongData = useCallback(async () => {
+    const games = ['djmax_respect_v', 'wjmax', 'platina_lab']
+    const promises = games.map((game) => loadSongDataFromAPI(game))
+    await Promise.allSettled(promises)
+  }, [loadSongDataFromAPI])
+
+  // 오버레이 모드 확인 및 설정
+  useEffect(() => {
+    // 현재 경로가 'overlay'를 포함하는지 확인
+    const isOverlayPath = location.pathname.includes('overlay')
+    createLog('info', '현재 경로:', location.pathname, '오버레이 모드:', isOverlayPath)
+
+    if (isOverlayPath) {
+      // 오버레이 모드일 때 필요한 설정
+      document.body.style.backgroundColor = 'transparent'
+      document.body.style.overflow = 'hidden'
+
+      // 오버레이 모드에서는 데이터 로드 생략
+      return
+    } else {
+      // 오버레이 모드가 아닐 때는 기본 스타일로 복원
+      document.body.style.backgroundColor = ''
+      document.body.style.overflow = ''
+
+      // 외부 링크 처리 이벤트 설정
+      const handleExternalLink = (url: string) => {
+        if (window.electron) {
+          window.electron.openExternalUrl(url)
+        } else if (globalDictionary.openExternalLink) {
+          globalDictionary.openExternalLink(url)
+        } else {
+          window.open(url, '_blank')
+        }
+      }
+
+      // 1. Electron IPC 이벤트 리스너 등록 (메인 프로세스에서 온 메시지)
+      if (window.electron && window.electron.onConfirmExternalLink) {
+        window.electron.onConfirmExternalLink(handleExternalLink)
+      }
+
+      // 2. globalDictionary 이벤트 리스너 등록 (다른 컴포넌트에서 요청한 경우)
+      let cleanup = null
+      if (globalDictionary.onExternalLinkRequested) {
+        cleanup = globalDictionary.onExternalLinkRequested(handleExternalLink)
+      }
+
+      // 서버에서 데이터 로드 및 초기화 로직
+      const initializeApp = async () => {
+        // 1. 설정 로드
+        try {
+          if (window.electron && window.electron.loadSettings) {
+            const settings = await window.electron.loadSettings()
+            dispatch(setSettingData(settings))
+            createLog('info', '설정 로드됨:', settings)
+          }
+        } catch (error) {
+          createLog('error', '설정 로드 실패:', error)
+        }
+
+        // 2. 세션 데이터 로드 및 자동 로그인
+        try {
+          if (window.electron && window.electron.getSession) {
+            const session = await window.electron.getSession()
+            if (session && session.userNo && session.userToken) {
+              // 사용자 정보 설정
+              dispatch(
+                setUserData({
+                  userName: session.userName || '',
+                  userNo: session.userNo,
+                  userToken: session.userToken,
+                  discordUid: session.discordUid || '',
+                  discordLinked: session.discordLinked || false,
+                  vArchiveLinked: session.vArchiveLinked || false,
+                }),
+              )
+
+              // V-ARCHIVE 정보 설정
+              if (session.vArchiveUserNo && session.vArchiveUserToken) {
+                dispatch(
+                  setVArchiveUserData({
+                    userName: session.vArchiveUserName || '',
+                    userNo: session.vArchiveUserNo,
+                    userToken: session.vArchiveUserToken,
+                  }),
+                )
+              }
+
+              dispatch(setIsLoggedIn(true))
+            }
+          }
+        } catch (error) {
+          createLog('error', '세션 로드 실패:', error)
+        }
+
+        // 3. 곡 데이터 로드
+        await loadAllSongData()
+      }
+
+      // 앱 초기화 실행
+      initializeApp()
+
+      // 5분마다 곡 데이터 리프레시
+      const songRefreshInterval = setInterval(
+        () => {
+          createLog('info', '5분 주기 곡 데이터 새로고침 중...')
+          loadAllSongData()
+        },
+        5 * 60 * 1000,
+      ) // 5분마다 실행
+
+      return () => {
+        // 이벤트 리스너 정리
+        if (cleanup) {
+          cleanup()
+        }
+        clearInterval(songRefreshInterval)
+      }
     }
-    electron: {
-      loadSettings: () => Promise<any>
-      openExternalUrl: (url: string) => void
-      onConfirmExternalLink: (callback: (url: string) => void) => void
-      getSession: () => Promise<any>
-      isOverlayMode?: () => Promise<boolean>
-      // 오버레이 관련 메서드
-      getProcessList?: () => Promise<any[]>
-      onOverlayMessage?: (callback: (message: string) => void) => void
-      closeOverlay?: () => void
-    }
-  }
+  }, [dispatch, location.pathname, loadAllSongData])
+
+  return null // 이 컴포넌트는 UI를 렌더링하지 않음
 }
 
 // Provider 내부에서 사용할 래핑된 앱 컴포넌트
-function WrappedApp() {
+export function WrappedApp() {
   const { theme } = useSelector((state: RootState) => state.ui)
   const [isLoading, setIsLoading] = useState(true)
   const [isLoadingVisible, setIsLoadingVisible] = useState(true)
   const [showExternalLinkModal, setShowExternalLinkModal] = useState(false)
   const [externalUrl, setExternalUrl] = useState('')
   const [isOverlayMode, setIsOverlayMode] = useState(false)
-  const dispatch = useDispatch()
+  const location = useLocation()
   const { notifications, removeNotification } = useNotificationSystem()
 
-  // 오버레이 모드 확인
+  // 페이지 로드 및 오버레이 감지
   useEffect(() => {
-    const checkOverlayMode = async () => {
-      // URL에서 overlay 경로 확인
-      if (window.location.hash.includes('#/overlay')) {
-        setIsOverlayMode(true)
+    // 오버레이 모드 감지
+    const isOverlayPath = location.pathname.includes('overlay')
+    setIsOverlayMode(isOverlayPath)
 
-        // 오버레이 모드일 때는 로딩 화면 바로 숨김
-        setIsLoading(false)
-        setIsLoadingVisible(false)
-
-        // 오버레이 모드일 때 필요한 설정
-        document.body.style.backgroundColor = 'transparent'
-        document.body.style.overflow = 'hidden'
-      } else {
-        setIsOverlayMode(false)
-        // 오버레이 모드가 아닐 때는 기본 스타일로 복원
-        document.body.style.backgroundColor = ''
-        document.body.style.overflow = ''
-      }
-    }
-
-    checkOverlayMode()
-    window.addEventListener('hashchange', checkOverlayMode)
-
-    return () => {
-      window.removeEventListener('hashchange', checkOverlayMode)
-    }
-  }, [])
-
-  // 앱 초기화 및 설정 로드
-  useEffect(() => {
-    // 오버레이 모드에서는 초기화 로직 건너뜀
-    if (isOverlayMode) return
-
-    // 설정 로드
-    const loadSettings = async () => {
-      try {
-        if (window.electron && window.electron.loadSettings) {
-          const settings = await window.electron.loadSettings()
-
-          dispatch(setSettingData(settings))
-          console.log('설정 로드됨:', settings)
-
-          // 서버에서 데이터 로드 시작
-          loadData()
-        }
-      } catch (error) {
-        console.error('설정 로드 실패:', error)
-        // 실패해도 로딩 단계 진행
-        loadData()
-      }
-    }
-
-    // 서버에서 데이터 로드
-    const loadData = async () => {
-      try {
-        // 여기에 서버 데이터 로드 로직 구현
-        // 예: 곡 정보, 사용자 정보 등 로드
-        console.log('서버 데이터 로드 중...')
-
-        // 로딩 시간 시뮬레이션 (실제로는 제거하고 실제 데이터 로드 결과에 따라 처리)
-        setTimeout(() => {
-          setIsLoading(false)
-          // 로딩 완료 후 페이드 아웃
-          setTimeout(() => {
-            setIsLoadingVisible(false)
-          }, 500)
-          console.log('데이터 로드 완료')
-        }, 2000)
-      } catch (error) {
-        console.error('데이터 로드 실패:', error)
-        // 데이터 로드 실패해도 앱 실행
+    // 로딩 상태 처리
+    if (isOverlayPath) {
+      // 오버레이 모드일 때는 로딩 화면 바로 숨김
+      setIsLoading(false)
+      setIsLoadingVisible(false)
+    } else {
+      // 일반 모드일 때는 지연 후 로딩 숨김
+      setTimeout(() => {
         setIsLoading(false)
         setTimeout(() => {
           setIsLoadingVisible(false)
         }, 500)
-      }
+      }, 2000)
     }
-
-    loadSettings()
 
     // 외부 링크 처리 이벤트 설정
     const handleExternalLink = (url: string) => {
@@ -302,54 +418,23 @@ function WrappedApp() {
       setShowExternalLinkModal(true)
     }
 
-    // 1. Electron IPC 이벤트 리스너 등록 (메인 프로세스에서 온 메시지)
+    // Electron IPC 이벤트 리스너 등록
     if (window.electron && window.electron.onConfirmExternalLink) {
       window.electron.onConfirmExternalLink(handleExternalLink)
     }
 
-    // 2. globalDictionary 이벤트 리스너 등록 (다른 컴포넌트에서 요청한 경우)
+    // globalDictionary 이벤트 리스너 등록
     let cleanup = null
     if (globalDictionary.onExternalLinkRequested) {
       cleanup = globalDictionary.onExternalLinkRequested(handleExternalLink)
     }
 
-    // 세션 데이터 로드 및 자동 로그인
-    window.electron.getSession().then((session) => {
-      if (session && session.userNo && session.userToken) {
-        // 사용자 정보 설정
-        dispatch(
-          setUserData({
-            userName: session.userName || '',
-            userNo: session.userNo,
-            userToken: session.userToken,
-            discordUid: session.discordUid || '',
-            discordLinked: session.discordLinked || false,
-            vArchiveLinked: session.vArchiveLinked || false,
-          }),
-        )
-
-        // V-ARCHIVE 정보 설정
-        if (session.vArchiveUserNo && session.vArchiveUserToken) {
-          dispatch(
-            setVArchiveUserData({
-              userName: session.vArchiveUserName || '',
-              userNo: session.vArchiveUserNo,
-              userToken: session.vArchiveUserToken,
-            }),
-          )
-        }
-
-        dispatch(setIsLoggedIn(true))
-      }
-    })
-
     return () => {
-      // 이벤트 리스너 정리
       if (cleanup) {
         cleanup()
       }
     }
-  }, [dispatch, isOverlayMode])
+  }, [location.pathname])
 
   // 외부 링크 열기 처리
   const handleOpenExternalLink = () => {
@@ -366,7 +451,12 @@ function WrappedApp() {
   return (
     <ThemeProvider>
       {!isOverlayMode && <LoadingSkeleton theme={theme} isLoading={isLoadingVisible} />}
-      {!isLoading && <RouterProvider router={router} />}
+
+      {/* 앱 초기화 컴포넌트 (UI 없음) */}
+      <InitializeApp />
+
+      {/* 하위 라우트 렌더링 */}
+      <Outlet />
 
       {/* 알림 컴포넌트 (오버레이 모드가 아닐 때만 표시) */}
       {!isOverlayMode && (
@@ -392,7 +482,7 @@ function App() {
   return (
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
-        <WrappedApp />
+        <RouterProvider router={router} />
       </PersistGate>
     </Provider>
   )

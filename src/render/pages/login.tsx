@@ -42,7 +42,7 @@ export default function LoginPage() {
 
   const handleError = (error: string) => {
     // 실제 알림 시스템 구현 시 사용
-    console.error(error)
+    createLog('error', error)
     window.electron.logout()
   }
 
@@ -88,7 +88,7 @@ export default function LoginPage() {
           '유효하지 않은 사용자 정보입니다. RACLA 데스크톱 앱으로 생성한 로그인 데이터(player.txt) 파일을 선택해주세요.',
         )
       } catch (error) {
-        console.error('Error in onRaFileChange:', error)
+        createLog('error', 'Error in onRaFileChange:', error)
         handleError(
           '유효하지 않은 사용자 정보입니다. RACLA 데스크톱 앱으로 생성한 로그인 데이터(player.txt) 파일을 선택해주세요.',
         )
@@ -98,7 +98,7 @@ export default function LoginPage() {
     try {
       fileReader.readAsText(file)
     } catch (error) {
-      console.error('Error reading file:', error)
+      createLog('error', 'Error reading file:', error)
       handleError('알 수 없는 오류가 발생했습니다. 다시 시도해주세요.')
       if (raFileInputRef.current) {
         raFileInputRef.current.value = ''
@@ -156,7 +156,7 @@ export default function LoginPage() {
               )
             }
           } catch (error) {
-            console.error('V-ARCHIVE 로그인 오류:', error)
+            createLog('error', 'V-ARCHIVE 로그인 오류:', error)
             handleError('V-ARCHIVE 서버 연결 중 오류가 발생했습니다.')
           }
         } else {
@@ -165,7 +165,7 @@ export default function LoginPage() {
           )
         }
       } catch (error) {
-        console.error('Error in onVArchiveFileChange:', error)
+        createLog('error', 'Error in onVArchiveFileChange:', error)
         handleError('알 수 없는 오류가 발생했습니다. 다시 시도해주세요.')
         if (vArchiveFileInputRef.current) {
           vArchiveFileInputRef.current.value = ''
@@ -179,25 +179,25 @@ export default function LoginPage() {
     try {
       fileReader.readAsText(file)
     } catch (error) {
-      console.error('Error reading file:', error)
+      createLog('error', 'Error reading file:', error)
       handleError('알 수 없는 오류가 발생했습니다. 다시 시도해주세요.')
     }
   }
 
   const handleRaFileSelect = () => {
-    console.log('RACLA 데스크톱 앱으로 생성한 player.txt 파일을 선택해주세요.')
+    createLog('info', 'RACLA 데스크톱 앱으로 생성한 player.txt 파일을 선택해주세요.')
     raFileInputRef.current?.click()
   }
 
   const handleVArchiveFileSelect = () => {
-    console.log('V-ARCHIVE 공식 클라이언트로 생성한 account.txt 파일을 선택해주세요.')
+    createLog('info', 'V-ARCHIVE 공식 클라이언트로 생성한 account.txt 파일을 선택해주세요.')
     vArchiveFileInputRef.current?.click()
   }
 
   const handleDiscordLogin = async () => {
     try {
       const code = await window.electron.openDiscordLogin()
-      console.log('Received Discord OAuth Code:', code)
+      createLog('info', 'Received Discord OAuth Code:', code)
 
       if (!code) {
         handleError('Discord 로그인 취소됨')
@@ -229,7 +229,7 @@ export default function LoginPage() {
         handleError('Discord 로그인 실패')
       }
     } catch (error) {
-      console.error('Discord 로그인 오류:', error)
+      createLog('error', 'Discord 로그인 오류:', error)
       handleError('Discord로 로그인 중 오류가 발생했습니다.')
     }
   }
@@ -253,7 +253,7 @@ export default function LoginPage() {
           userToken: response.data.userToken,
         })
 
-        console.log('계정 생성이 완료되었습니다.')
+        createLog('info', '계정 생성이 완료되었습니다.')
         setNickname('')
 
         const success = await login({
@@ -267,7 +267,7 @@ export default function LoginPage() {
         }
       }
     } catch (error) {
-      console.error('계정 생성 오류:', error)
+      createLog('error', '계정 생성 오류:', error)
       handleError('계정 생성 중 오류가 발생했습니다.')
     }
     setIsRegistering(false)

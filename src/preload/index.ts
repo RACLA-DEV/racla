@@ -38,6 +38,9 @@ contextBridge.exposeInMainWorld('electron', {
   saveSettings: (settings: SettingsData) =>
     ipcRenderer.invoke('file-manager:save-settings', settings),
   loadSettings: () => ipcRenderer.invoke('file-manager:load-settings'),
+  saveSongData: (data: { gameCode: string; songData: any[] }) =>
+    ipcRenderer.invoke('file-manager:save-song-data', data),
+  loadSongData: (gameCode: string) => ipcRenderer.invoke('file-manager:load-song-data', gameCode),
 
   // 윈도우 컨트롤 관련
   closeApp: () => ipcRenderer.send('window:close'),
