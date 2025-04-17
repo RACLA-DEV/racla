@@ -50,7 +50,7 @@
     "framer-motion": "^11.3.24",
     "iron-session": "^8.0.2",
     "node-global-key-listener": "^0.3.0",
-    "node-screenshots": "^0.2.1",
+    "node-screenshots": "0.2.4",
     "prettier-plugin-tailwindcss": "^0.6.10",
     "ps-list": "7.2.0",
     "ramda": "^0.30.1",

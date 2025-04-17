@@ -124,7 +124,7 @@ let bounds: { x: number; y: number; width: number; height: number } | null = nul
 const gameList = {
   djmax_respect_v: 'DJMAX RESPECT V',
   wjmax: 'WJMAX',
-  platina_lab: 'PLATiNA :: LAB',
+  platina_lab: 'PLATiNA LAB',
 }
 
 const gotTheLock = app.requestSingleInstanceLock()
@@ -657,7 +657,7 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
             return resolve(null)
           }
 
-          const gameWindow = windows.find((w) => w.title.includes(gameList[gameCode]))
+          const gameWindow = windows.find((w) => w.appName().includes(gameList[gameCode]))
           if (!gameWindow) {
             log.debug(`findGameWindow - ${gameList[gameCode]} window not found`)
             return resolve(null)
@@ -1879,26 +1879,32 @@ async function captureScreen(gameCode) {
         'captureScreen - ' + settingData.autoCaptureApi.toUpperCase() + ': Game Window Captured',
       )
 
-      let windows = Window.all().filter((value) => value.title.includes(gameList[gameCode]))
+      let windows = Window.all().filter((value) => value.appName().includes(gameList[gameCode]))
 
       if (windows.length > 0) {
         const window = windows[0]
         try {
-          isFullscreen = window.isMaximized
+          isFullscreen = window.isMaximized()
 
           if (
             ![
               640, 720, 800, 1024, 1128, 1280, 1366, 1600, 1680, 1760, 1920, 2048, 2288, 2560, 3072,
               3200, 3840, 5120,
-            ].includes(window.width)
+            ].includes(window.width())
           ) {
             try {
               const image = window.captureImageSync()
               const pngImage = await sharp(image.toPngSync()).toBuffer()
-              const metadata = await sharp(pngImage).metadata()
+
+              // 먼저 가로를 1920으로 맞추고 높이는 비율을 유지하도록 수정
+              const resizedPngImage = await sharp(pngImage)
+                .resize(1920, null, { fit: 'contain' })
+                .toBuffer()
+
+              const metadata = await sharp(resizedPngImage).metadata()
 
               // 이미지의 실제 컨텐츠 영역을 찾기 위한 분석
-              const { data, info } = await sharp(pngImage)
+              const { data, info } = await sharp(resizedPngImage)
                 .raw()
                 .toBuffer({ resolveWithObject: true })
 
@@ -1927,24 +1933,27 @@ async function captureScreen(gameCode) {
 
               // 검은색 여백을 제거한 이미지 생성
               try {
-                const croppedImage = await sharp(pngImage)
+                const croppedImage = await sharp(resizedPngImage)
                   .extract({
                     left: removedPixels,
                     top: 0,
                     width: metadata.width - removedPixels * 2,
                     height: actualHeight,
                   })
-                  .resize(1920)
                   .toBuffer()
 
                 const croppedImageMetadata = await sharp(croppedImage).metadata()
 
+                // 16:9 비율로 추출 (1920x1080)
+                const targetHeight = Math.min(1080, croppedImageMetadata.height)
+                const startY = Math.max(0, croppedImageMetadata.height - targetHeight)
+
                 const resizedImage = await sharp(croppedImage)
                   .extract({
                     left: 0,
-                    top: croppedImageMetadata.height - 1080,
+                    top: startY,
                     width: croppedImageMetadata.width,
-                    height: 1080,
+                    height: targetHeight,
                   })
                   .toBuffer()
 
