@@ -2,7 +2,7 @@ import { Provider } from 'react-redux'
 import { RouterProvider } from 'react-router-dom'
 import { PersistGate } from 'redux-persist/integration/react'
 import './App.css'
-import router from './Route'
+import { router } from './router'
 import { persistor, store } from './store'
 
 // 메인 앱 컴포넌트

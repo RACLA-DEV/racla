@@ -1,6 +1,6 @@
 import { useAuth } from '@render/hooks/useAuth'
 import axios from 'axios'
-import { useCallback, useEffect, useState } from 'react'
+import { lazy, Suspense, useCallback, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Outlet, useLocation } from 'react-router-dom'
 import { useNotificationSystem } from '../../hooks/useNotifications'
@@ -14,11 +14,16 @@ import {
   setUserData,
   setVArchiveUserData,
 } from '../../store/slices/appSlice'
-import { NotificationContainer } from '../ui/Notification'
 import { ThemeProvider } from '../ui/ThemeProvider'
-import ExternalLinkModal from './ExternalLinkModal'
-import LoadingSkeleton from './LoadingSkeleton'
-import SettingModal from './SettingModal'
+import ComponentLoading from './ComponentLoading'
+
+// 지연 로딩을 위한 컴포넌트 임포트
+const NotificationContainer = lazy(() =>
+  import('../ui/Notification').then((module) => ({ default: module.NotificationContainer })),
+)
+const ExternalLinkModal = lazy(() => import('./ExternalLinkModal'))
+const LoadingSkeleton = lazy(() => import('./LoadingSkeleton'))
+const SettingModal = lazy(() => import('./SettingModal'))
 
 export default function WrappedApp() {
   const theme = useSelector((state: RootState) => state.ui.theme)
@@ -269,19 +274,33 @@ export default function WrappedApp() {
 
   return (
     <ThemeProvider>
-      {!isOverlayMode && <LoadingSkeleton theme={theme} isLoading={isLoading} />}
+      {!isOverlayMode && (
+        <Suspense fallback={<ComponentLoading />}>
+          <LoadingSkeleton theme={theme} isLoading={isLoading} />
+        </Suspense>
+      )}
 
       {/* 하위 라우트 렌더링 */}
       {!isLoading && <Outlet />}
 
       {/* 알림 컴포넌트 (오버레이 모드가 아닐 때만 표시) */}
       {!isOverlayMode && (
-        <NotificationContainer notifications={notifications} onRemove={removeNotification} />
+        <Suspense fallback={<div />}>
+          <NotificationContainer notifications={notifications} onRemove={removeNotification} />
+        </Suspense>
       )}
 
       {/* 외부 링크 모달 (오버레이 모드가 아닐 때만 표시) */}
-      {!isOverlayMode && <ExternalLinkModal theme={theme} />}
-      {!isOverlayMode && <SettingModal theme={theme} />}
+      {!isOverlayMode && (
+        <Suspense fallback={<div />}>
+          <ExternalLinkModal theme={theme} />
+        </Suspense>
+      )}
+      {!isOverlayMode && (
+        <Suspense fallback={<div />}>
+          <SettingModal theme={theme} />
+        </Suspense>
+      )}
     </ThemeProvider>
   )
 }

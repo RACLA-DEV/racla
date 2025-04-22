@@ -1,12 +1,15 @@
 import { RootState } from '@render/store'
 import type { ChildrenReactNodeProps } from '@src/types/render/ChildrenReactNodeProps'
-import React from 'react'
+import React, { lazy, Suspense } from 'react'
 import { useSelector } from 'react-redux'
-import Footer from './Footer'
-import TitleBar from './Header'
-import IconSidebar from './IconSidebar'
-import MainContent from './MainContent'
-import MenuSidebar from './MenuSidebar'
+import ComponentLoading from '../app/ComponentLoading'
+
+// 지연 로딩을 위한 컴포넌트 임포트
+const Footer = lazy(() => import('./Footer'))
+const TitleBar = lazy(() => import('./Header'))
+const IconSidebar = lazy(() => import('./IconSidebar'))
+const MainContent = lazy(() => import('./MainContent'))
+const MenuSidebar = lazy(() => import('./MenuSidebar'))
 
 const AppLayout: React.FC<ChildrenReactNodeProps> = ({ children }) => {
   const { theme } = useSelector((state: RootState) => state.ui)
@@ -20,12 +23,16 @@ const AppLayout: React.FC<ChildrenReactNodeProps> = ({ children }) => {
       }`}
     >
       {/* 커스텀 타이틀바 */}
-      <TitleBar />
+      <Suspense fallback={<div className='tw:h-10' />}>
+        <TitleBar />
+      </Suspense>
 
       <div className='tw:flex tw:flex-1 tw:overflow-hidden'>
         {/* 아이콘 사이드바 */}
         <div className='tw:relative tw:z-10'>
-          <IconSidebar />
+          <Suspense fallback={<div className='tw:w-16' />}>
+            <IconSidebar />
+          </Suspense>
         </div>
 
         {/* 내부 콘텐츠 컨테이너 - 둥근 모서리 적용 */}
@@ -37,15 +44,27 @@ const AppLayout: React.FC<ChildrenReactNodeProps> = ({ children }) => {
           }`}
         >
           {/* 메뉴 사이드바 */}
-          <MenuSidebar />
+          <Suspense fallback={<div className='tw:w-64' />}>
+            <MenuSidebar />
+          </Suspense>
 
           {/* 메인 컨텐츠 영역 */}
-          <MainContent>{children}</MainContent>
+          <Suspense
+            fallback={
+              <div className='tw:flex-1 tw:flex tw:items-center tw:justify-center'>
+                <ComponentLoading />
+              </div>
+            }
+          >
+            <MainContent>{children}</MainContent>
+          </Suspense>
         </div>
       </div>
 
       {/* 푸터 영역 */}
-      <Footer />
+      <Suspense fallback={<div className='tw:h-8' />}>
+        <Footer />
+      </Suspense>
     </div>
   )
 }

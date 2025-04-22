@@ -44,12 +44,11 @@ const TitleBar: React.FC = () => {
 
   return (
     <div
-      className={`tw:h-10 tw:flex tw:items-center tw:justify-between tw:px-4 tw:select-none tw:w-full tw:z-50 tw:relative ${
+      className={`tw:h-10 tw:flex tw:items-center tw:justify-between tw:px-4 tw:select-none tw:w-full tw:z-50 tw:relative webkit-app-region-drag ${
         theme === 'dark'
           ? 'tw:bg-transparent tw:text-slate-200'
           : 'tw:bg-transparent tw:text-gray-800'
       }`}
-      style={{ WebkitAppRegion: 'drag' as any }}
     >
       {/* 하단 그라데이션 효과 제거 */}
 
@@ -62,10 +61,7 @@ const TitleBar: React.FC = () => {
       </div>
 
       {/* 오른쪽 컨트롤 버튼 영역 */}
-      <div
-        className='tw:w-32 tw:flex tw:items-center tw:justify-end tw:space-x-2'
-        style={{ WebkitAppRegion: 'no-drag' }}
-      >
+      <div className='tw:w-32 tw:flex tw:items-center tw:justify-end tw:space-x-2 webkit-app-region-no-drag'>
         <button
           onClick={handleToggleTheme}
           className={`tw:p-1.5 tw:rounded-full tw:transition-all ${
