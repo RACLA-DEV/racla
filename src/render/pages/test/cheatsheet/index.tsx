@@ -39,7 +39,7 @@ function MainPage() {
             const processes = await getProcessList()
             setText(JSON.stringify(processes))
           } catch (error) {
-            createLog('error', '프로세스 목록 가져오기 실패:', error)
+            createLog('error', '프로세스 목록 가져오기 실패:', error.message)
           }
         },
       },
@@ -52,7 +52,7 @@ function MainPage() {
             const activeWindows = await getActiveWindows()
             setText(JSON.stringify(activeWindows))
           } catch (error) {
-            createLog('error', '활성 윈도우 가져오기 실패:', error)
+            createLog('error', '활성 윈도우 가져오기 실패:', error.message)
           }
         },
       },
@@ -67,7 +67,7 @@ function MainPage() {
             await createOverlay()
             await createLog('debug', '오버레이가 생성되었습니다')
           } catch (error) {
-            createLog('error', '오버레이 생성 실패:', error)
+            createLog('error', '오버레이 생성 실패:', error.message)
           }
         },
       },
@@ -97,7 +97,7 @@ function MainPage() {
             )
             await createLog('debug', '오버레이로 메시지 전송됨')
           } catch (error) {
-            createLog('error', '오버레이 메시지 전송 실패:', error)
+            createLog('error', '오버레이 메시지 전송 실패:', error.message)
           }
         },
       },
@@ -112,7 +112,7 @@ function MainPage() {
             const response = await sendMsgToMainProcess('테스트 메시지')
             setText(response)
           } catch (error) {
-            createLog('error', '메시지 전송 실패:', error)
+            createLog('error', '메시지 전송 실패:', error.message)
           }
         },
       },

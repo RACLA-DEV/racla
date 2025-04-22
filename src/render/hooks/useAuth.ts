@@ -1,4 +1,5 @@
 import { createLog } from '@render/libs/logging'
+import type { SessionData } from '@src/types/common/SessionData'
 import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from '../store'
 import {
@@ -15,24 +16,14 @@ export function useAuth() {
   const vArchiveUserData = useSelector((state: RootState) => state.app.vArchiveUserData)
 
   // 로그인 처리
-  const login = async (loginData: {
-    userNo: string
-    userToken: string
-    userName?: string
-    vArchiveUserNo?: string
-    vArchiveUserToken?: string
-    vArchiveUserName?: string
-    discordUid?: string
-    discordLinked?: boolean
-    vArchiveLinked?: boolean
-  }) => {
+  const login = async (loginData: SessionData) => {
     try {
       createLog('debug', '로그인 시도 중...', loginData.userNo)
       // 백엔드에 세션 저장 - 슬래시 제거하여 정확한 채널명 사용
       const success = await window.electron.login(loginData)
 
       if (success) {
-        createLog('debug', '로그인 성공')
+        createLog('debug', '로그인 성공', loginData)
         // 리덕스 스토어에 사용자 데이터 저장
         dispatch(
           setUserData({
@@ -51,7 +42,13 @@ export function useAuth() {
             setVArchiveUserData({
               userNo: loginData.vArchiveUserNo,
               userToken: loginData.vArchiveUserToken,
-              userName: loginData.vArchiveUserName || '',
+              userName:
+                typeof loginData.vArchiveUserName === 'object' &&
+                loginData.vArchiveUserName?.success
+                  ? loginData.vArchiveUserName.nickname
+                  : typeof loginData.vArchiveUserName === 'string'
+                    ? loginData.vArchiveUserName
+                    : '',
             }),
           )
         }
@@ -62,7 +59,7 @@ export function useAuth() {
       createLog('debug', '로그인 실패')
       return false
     } catch (error) {
-      createLog('error', 'Login error:', error)
+      createLog('error', 'Login error:', error.message)
       return false
     }
   }
@@ -80,7 +77,7 @@ export function useAuth() {
       }
       return false
     } catch (error) {
-      createLog('error', 'Logout error:', error)
+      createLog('error', 'Logout error:', error.message)
       return false
     }
   }
@@ -90,7 +87,7 @@ export function useAuth() {
     try {
       return await window.electron.checkLoggedIn()
     } catch (error) {
-      createLog('error', 'Check login status error:', error)
+      createLog('error', 'Check login status error:', error.message)
       return false
     }
   }

@@ -1,5 +1,6 @@
 import { RootState } from '@render/store'
-import { GameType, setIsSetting, setSelectedGame } from '@render/store/slices/appSlice'
+import { setIsSetting, setSelectedGame } from '@render/store/slices/appSlice'
+import type { GameType } from '@src/types/common/GameType'
 import { AnimatePresence, motion } from 'framer-motion'
 import React, { useState } from 'react'
 import { LuHouse, LuLayers, LuSettings } from 'react-icons/lu'
@@ -75,7 +76,7 @@ const IconSidebar: React.FC = () => {
   const handleGameSelect = (gameId: GameType) => {
     dispatch(setSelectedGame(gameId))
     // 선택한 게임의 홈 페이지로 이동
-    const homePath = '/'
+    const homePath = '/home'
     navigate(homePath)
   }
 
@@ -127,7 +128,7 @@ const IconSidebar: React.FC = () => {
       className={`tw:flex tw:flex-col tw:items-center tw:px-2 tw:h-full tw:relative tw:justify-between ${
         theme === 'dark'
           ? 'tw:bg-transparent tw:text-slate-200'
-          : 'tw:bg-transparent tw:text-gray-900'
+          : 'tw:bg-transparent tw:text-gray-800'
       }`}
     >
       {/* 상단 홈 버튼 */}
@@ -138,9 +139,9 @@ const IconSidebar: React.FC = () => {
               variants={iconAnimation(0)}
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => handleNavigation('/')}
+              onClick={() => handleNavigation('/home')}
               className={`tw:w-12 tw:h-12 tw:flex tw:items-center tw:justify-center tw:rounded-lg tw:cursor-pointer tw:transition-all ${
-                location === '/'
+                location === '/home'
                   ? theme === 'dark'
                     ? 'tw:bg-slate-700 tw:text-indigo-400'
                     : 'tw:bg-white tw:text-indigo-600 tw:shadow-md'

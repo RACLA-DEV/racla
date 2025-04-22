@@ -1,28 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common'
+import type { SessionData } from '@src/types/common/SessionData'
 import * as crypto from 'crypto'
 import { shell } from 'electron'
 import * as fs from 'fs'
 import * as http from 'http'
 import * as path from 'path'
 import { FileManagerService } from '../file-manager/file-manager.service'
-
-export interface SettingsData {
-  theme: 'light' | 'dark'
-  sidebarCollapsed: boolean
-  // 여기에 추가 설정 추가
-}
-
-export interface SessionData {
-  userNo?: string
-  userToken?: string
-  userName?: string
-  vArchiveUserNo?: string
-  vArchiveUserToken?: string
-  vArchiveUserName?: string
-  discordUid?: string
-  discordLinked?: boolean
-  vArchiveLinked?: boolean
-}
 
 @Injectable()
 export class AuthService {

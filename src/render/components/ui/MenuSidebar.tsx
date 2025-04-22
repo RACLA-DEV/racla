@@ -1,5 +1,7 @@
 import { Icon } from '@iconify/react'
 import { globalDictionary } from '@render/constants/globalDictionary'
+import { useAuth } from '@render/hooks/useAuth'
+import { useNotificationSystem } from '@render/hooks/useNotifications'
 import { RootState } from '@render/store'
 import {
   setIsOpenExternalLink,
@@ -7,19 +9,46 @@ import {
   toggleSidebar,
 } from '@render/store/slices/uiSlice'
 import { motion } from 'framer-motion'
-import React from 'react'
+import React, { useState } from 'react'
+import { FaCircleUser } from 'react-icons/fa6'
 import { useDispatch, useSelector } from 'react-redux'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 const MenuSidebar: React.FC = () => {
   const { theme, sidebarCollapsed } = useSelector((state: RootState) => state.ui)
   const { selectedGame } = useSelector((state: RootState) => state.app)
   const dispatch = useDispatch()
   const navigate = useNavigate()
+  const { isLoggedIn, userData, vArchiveUserData, logout } = useAuth()
+  const { showNotification } = useNotificationSystem()
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+  const location = useLocation()
 
   // 사이드바 토글 핸들러
   const handleToggleSidebar = () => {
     dispatch(toggleSidebar())
+  }
+
+  // 드롭다운 토글 핸들러
+  const toggleDropdown = () => {
+    setIsDropdownOpen(!isDropdownOpen)
+  }
+
+  // 외부 링크 열기 핸들러
+  const handleOpenExternalLink = (url: string) => {
+    dispatch(setOpenExternalLink(url))
+    dispatch(setIsOpenExternalLink(true))
+    setIsDropdownOpen(false)
+  }
+
+  // 로그아웃 핸들러
+  const handleLogout = async () => {
+    const success = await logout()
+    if (success) {
+      showNotification('정상적으로 로그아웃 되었습니다.', 'success')
+      navigate('/home')
+    }
+    setIsDropdownOpen(false)
   }
 
   // 현재 선택된 게임에 따른 메뉴 구성 가져오기
@@ -213,6 +242,137 @@ const MenuSidebar: React.FC = () => {
     },
   }
 
+  // 사용자 정보 드롭다운 렌더링
+  const renderUserDropdown = () => {
+    return (
+      <div
+        className={`tw:absolute tw:bottom-0 tw:left-0 tw:right-0 tw:shadow-md tw:z-30 tw:transition-all tw:duration-200 tw:overflow-hidden ${
+          theme === 'dark'
+            ? 'tw:bg-slate-800 tw:border-slate-700'
+            : 'tw:bg-white tw:border-gray-200'
+        } ${isDropdownOpen ? 'tw:max-h-64 tw:border-t' : 'tw:max-h-0 tw:overflow-hidden'}`}
+      >
+        <ul className='tw:text-xs tw:p-0'>
+          <li
+            className={`tw:border-b ${theme === 'dark' ? 'tw:border-slate-700' : 'tw:border-gray-200'}`}
+          >
+            <div className='tw:flex tw:items-center tw:justify-between tw:py-2 tw:px-4'>
+              <span className='tw:font-bold'>바로가기 메뉴</span>
+              <span
+                onClick={() => setIsDropdownOpen(false)}
+                className={`tw:flex tw:p-1 tw:rounded-md tw:transition-colors tw:cursor-pointer ${
+                  theme === 'dark'
+                    ? 'tw:hover:bg-slate-700'
+                    : 'tw:hover:bg-white tw:hover:shadow-md'
+                }`}
+              >
+                <Icon icon='lucide:x' className='tw:w-4 tw:h-4' />
+              </span>
+            </div>
+          </li>
+          <li>
+            <span
+              className={`tw:flex tw:w-full tw:text-left tw:py-2 tw:px-4 tw:transition-colors tw:cursor-pointer ${
+                theme === 'dark' ? 'tw:hover:bg-slate-700' : 'tw:hover:bg-indigo-50'
+              }`}
+              onClick={() => handleOpenExternalLink('https://racla.app/')}
+            >
+              <Icon icon='lucide:home' className='tw:w-4 tw:h-4 tw:mr-2' />
+              RACLA 바로가기
+            </span>
+          </li>
+          <li
+            className={`tw:border-t ${theme === 'dark' ? 'tw:border-slate-700' : 'tw:border-gray-200'}`}
+          ></li>
+          {vArchiveUserData.userNo !== '' && vArchiveUserData.userName !== '' ? (
+            <li>
+              <span
+                className={`tw:flex tw:w-full tw:text-left tw:py-2 tw:px-4 tw:transition-colors tw:cursor-pointer ${
+                  theme === 'dark' ? 'tw:hover:bg-slate-700' : 'tw:hover:bg-indigo-50'
+                }`}
+                onClick={() => {
+                  handleOpenExternalLink(
+                    `https://v-archive.net/archive/${vArchiveUserData.userName}/board`,
+                  )
+                  setIsDropdownOpen(false)
+                }}
+              >
+                <Icon icon='lucide:archive' className='tw:w-4 tw:h-4 tw:mr-2' />
+                V-ARCHIVE 바로가기
+              </span>
+            </li>
+          ) : (
+            <li>
+              <span
+                className={`tw:flex tw:w-full tw:text-left tw:py-2 tw:px-4 tw:transition-colors tw:cursor-pointer ${
+                  theme === 'dark' ? 'tw:hover:bg-slate-700' : 'tw:hover:bg-indigo-50'
+                }`}
+                onClick={() => {
+                  handleOpenExternalLink('https://v-archive.net/')
+                  setIsDropdownOpen(false)
+                }}
+              >
+                <Icon icon='lucide:archive' className='tw:w-4 tw:h-4 tw:mr-2' />
+                V-ARCHIVE 바로가기
+              </span>
+            </li>
+          )}
+          <li
+            className={`tw:border-t ${theme === 'dark' ? 'tw:border-slate-700' : 'tw:border-gray-200'}`}
+          ></li>
+          <li>
+            <span
+              className={`tw:flex tw:w-full tw:text-left tw:py-2 tw:px-4 tw:transition-colors tw:cursor-pointer ${
+                theme === 'dark' ? 'tw:hover:bg-slate-700' : 'tw:hover:bg-indigo-50'
+              }`}
+              onClick={() => {
+                handleOpenExternalLink('https://hard-archive.com')
+                setIsDropdownOpen(false)
+              }}
+            >
+              <Icon icon='lucide:hard-drive' className='tw:w-4 tw:h-4 tw:mr-2' />
+              전일 아카이브 바로가기
+            </span>
+          </li>
+          <li
+            className={`tw:border-t ${theme === 'dark' ? 'tw:border-slate-700' : 'tw:border-gray-200'}`}
+          ></li>
+          {isLoggedIn ? (
+            <li>
+              <span
+                className={`tw:flex tw:w-full tw:text-left tw:py-2 tw:px-4 tw:text-red-500 tw:transition-colors tw:cursor-pointer ${
+                  theme === 'dark' ? 'tw:hover:bg-slate-700' : 'tw:hover:bg-indigo-50'
+                }`}
+                onClick={() => {
+                  handleLogout()
+                  setIsDropdownOpen(false)
+                }}
+              >
+                <Icon icon='lucide:log-out' className='tw:w-4 tw:h-4 tw:mr-2' />
+                로그아웃
+              </span>
+            </li>
+          ) : (
+            <li>
+              <span
+                className={`tw:flex tw:w-full tw:text-left tw:py-2 tw:px-4 tw:transition-colors tw:cursor-pointer ${
+                  theme === 'dark' ? 'tw:hover:bg-slate-700' : 'tw:hover:bg-indigo-50'
+                }`}
+                onClick={() => {
+                  navigate('/auth/login')
+                  setIsDropdownOpen(false)
+                }}
+              >
+                <Icon icon='lucide:log-in' className='tw:w-4 tw:h-4 tw:mr-2' />
+                로그인
+              </span>
+            </li>
+          )}
+        </ul>
+      </div>
+    )
+  }
+
   return (
     <motion.div
       initial='hidden'
@@ -245,7 +405,14 @@ const MenuSidebar: React.FC = () => {
                         <motion.div
                           onClick={() => handleItemClick(item, subItem)}
                           className={`tw:flex tw:items-center tw:p-2 tw:rounded-md tw:cursor-pointer tw:transition-colors ${
-                            theme === 'dark' ? 'tw:hover:bg-slate-700' : 'tw:hover:bg-indigo-50'
+                            theme === 'dark' &&
+                            !location.pathname.includes(item.path + subItem.path)
+                              ? 'tw:hover:bg-slate-700'
+                              : 'tw:hover:bg-indigo-50'
+                          } ${
+                            location.pathname.includes(item.path + subItem.path)
+                              ? 'tw:bg-indigo-500 tw:hover:bg-indigo-600 tw:text-white'
+                              : ''
                           }`}
                         >
                           <Icon icon={subItem.icon} className='tw:w-4 tw:h-4 tw:mr-2' />
@@ -285,6 +452,35 @@ const MenuSidebar: React.FC = () => {
           ))}
         </motion.ul>
       </motion.div>
+
+      {/* 사용자 정보 영역 */}
+      <div
+        className={`tw:border-t ${theme === 'dark' ? 'tw:border-slate-700' : 'tw:border-gray-200'} tw:mt-4 tw:relative`}
+      >
+        {renderUserDropdown()}
+        <div
+          onClick={toggleDropdown}
+          className={`tw:flex tw:items-center tw:p-4 tw:cursor-pointer tw:transition-colors ${
+            theme === 'dark' ? 'tw:hover:bg-slate-700' : 'tw:hover:bg-indigo-50'
+          }`}
+        >
+          <div className='tw:w-8 tw:h-8 tw:rounded-full tw:flex tw:items-center tw:justify-center tw:bg-indigo-500'>
+            <FaCircleUser className='tw:text-white' />
+          </div>
+          <div className='tw:ml-3 tw:overflow-hidden'>
+            <p className='tw:text-sm tw:font-medium tw:truncate'>
+              {isLoggedIn ? userData.userName || '사용자' : '로그인 필요'}
+            </p>
+            <p className='tw:text-xs tw:text-slate-400 tw:truncate'>
+              {isLoggedIn ? userData.userName : '로그인하여 모든 기능 사용'}
+            </p>
+          </div>
+          <Icon
+            icon={isDropdownOpen ? 'lucide:chevron-down' : 'lucide:chevron-up'}
+            className='tw:w-4 tw:h-4 tw:ml-auto'
+          />
+        </div>
+      </div>
     </motion.div>
   )
 }

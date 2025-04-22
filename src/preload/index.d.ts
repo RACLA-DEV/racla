@@ -1,8 +1,16 @@
-import type { LogLevel } from '@src/types/LogLevel'
+import type { LogLevel } from '@src/types/common/LogLevel'
+import type { SessionData } from '@src/types/common/SessionData'
+import type { SettingsData } from '@src/types/common/SettingData'
+import type { StorageInfo } from '@src/types/common/StroageInfo'
 import type { Result } from 'get-windows'
 import type { ProcessDescriptor } from 'ps-list'
 
 declare global {
+  namespace React {
+    interface CSSProperties {
+      WebkitAppRegion?: 'drag' | 'no-drag'
+    }
+  }
   interface Window {
     electron: {
       // 메세징 관련

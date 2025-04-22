@@ -3,6 +3,8 @@ import { globalDictionary } from '@render/constants/globalDictionary'
 import { createLog } from '@render/libs/logging'
 import { RootState } from '@render/store'
 import { setIsSetting, setSettingData } from '@render/store/slices/appSlice'
+import type { SettingsData } from '@src/types/common/SettingData'
+import type { SettingItem } from '@src/types/common/SettingItem'
 import { useEffect, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { SyncLoader } from 'react-spinners'
@@ -13,20 +15,6 @@ const settingCategories = {
   storage: { name: '저장공간', icon: 'lucide:database' },
   autoStart: { name: '게임 자동 실행', icon: 'lucide:play' },
   capture: { name: '자동 캡처 모드', icon: 'lucide:camera' },
-}
-
-// 설정 타입 정의
-interface SettingItem {
-  id: string
-  name: string
-  description: string
-  defaultValue: any
-  isEditable: boolean
-  requiresRestart: boolean
-  selectList?: Array<{ id: string | number; name: string }>
-  isFile?: boolean
-  isVisible?: boolean
-  offList?: string[]
 }
 
 // 설정 항목을 카테고리별로 분류
@@ -151,7 +139,7 @@ const FileSelector = ({
           onChange(filePath)
         }
       } catch (error) {
-        console.error('파일 선택 오류:', error)
+        console.error('파일 선택 오류:', error.message)
         // 오류 시 기존 방식으로 폴백
         fileInputRef.current?.click()
       }
@@ -270,7 +258,7 @@ const StorageInfo = ({ theme }: { theme: string }) => {
           }
         }
       } catch (error) {
-        createLog('error', '스토리지 정보 로딩 실패:', error)
+        createLog('error', '스토리지 정보 로딩 실패:', error.message)
       } finally {
         setIsLoading(false)
       }
@@ -307,7 +295,7 @@ const StorageInfo = ({ theme }: { theme: string }) => {
         }
       }
     } catch (error) {
-      createLog('error', '로그 파일 삭제 실패:', error)
+      createLog('error', '로그 파일 삭제 실패:', error.message)
       window.alert('로그 파일 삭제 중 오류가 발생했습니다.')
     } finally {
       setIsCleaningLogs(false)
@@ -534,11 +522,11 @@ export default function SettingModal({ theme }: { theme: string }) {
     setLocalSettings(newSettings)
 
     // 즉시 설정 저장
-    applySettings(newSettings)
+    applySettings(newSettings as SettingsData)
   }
 
   // 설정 적용
-  const applySettings = (settingsToApply: Record<string, any>) => {
+  const applySettings = (settingsToApply: SettingsData) => {
     // 재시작이 필요한 설정이 변경되었는지 확인
     const requiresRestart = Object.entries(settingsToApply).some(([key, value]) => {
       const setting = globalDictionary.settingDictionary[key]
@@ -581,7 +569,7 @@ export default function SettingModal({ theme }: { theme: string }) {
 
       setLocalSettings(defaultSettings)
       // 즉시 설정 저장
-      applySettings(defaultSettings)
+      applySettings(defaultSettings as SettingsData)
     }
   }
 

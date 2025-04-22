@@ -591,7 +591,7 @@ export const globalDictionary = {
             icon: lucideIcons.home,
             isDisplay: true,
             isOpenBrowser: false,
-            link: '',
+            link: 'home',
             userLevel: [],
             status: 'stable',
           },

@@ -35,8 +35,8 @@ import { MainWindowService } from './main-window.service'
         })
 
         const URL = isDev
-          ? `${process.env.DS_RENDERER_URL}#/`
-          : `file://${join(app.getAppPath(), 'dist/render/index.html')}#/`
+          ? `${process.env.DS_RENDERER_URL}#/home`
+          : `file://${join(app.getAppPath(), 'dist/render/index.html')}#/home`
 
         win.loadURL(URL)
 

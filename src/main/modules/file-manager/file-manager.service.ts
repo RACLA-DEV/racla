@@ -1,73 +1,12 @@
 import { Injectable, Logger } from '@nestjs/common'
+import type { SessionData } from '@src/types/common/SessionData'
+import type { SettingsData } from '@src/types/common/SettingData'
+import type { StorageInfo } from '@src/types/common/StroageInfo'
 import { app, shell } from 'electron'
 import * as fs from 'fs'
 import * as os from 'os'
 import * as path from 'path'
 import { globalDictionary } from '../../../render/constants/globalDictionary'
-
-export interface StorageInfo {
-  total: number
-  free: number
-  used: number
-  usedPercentage: number
-  appDataSize: number
-  imageDataSize: number
-  logDataSize: number
-}
-
-export interface SettingsData {
-  theme: 'light' | 'dark'
-  sidebarCollapsed: boolean
-  hardwareAcceleration?: boolean
-  homeButtonAlignRight?: boolean
-  visibleBga?: boolean
-  autoCaptureMode?: boolean
-  autoCaptureIntervalTime?: number
-  language?: string
-  autoCaptureApi?: string
-  visibleAnimation?: boolean
-  captureOnlyFocused?: boolean
-  autoUpdate?: boolean
-  autoRemoveBlackPixel?: boolean
-  removeBlackPixelPx?: number
-  saveImageWhenCapture?: boolean
-  saveImageWithAllProfileWhenCapture?: boolean
-  saveImageWithoutOtherProfileWhenCapture?: boolean
-  saveImageWithoutAllProfileWhenCapture?: boolean
-  saveImageBlurMode?: string
-  resultOverlay?: boolean
-  hjaOverlay?: boolean
-  recentOverlay?: boolean
-  alwaysOverlay?: boolean
-  autoCaptureOcrResultRegion?: boolean
-  autoCaptureOcrOpen3Region?: boolean
-  autoCaptureOcrOpen2Region?: boolean
-  autoCaptureOcrVersusRegion?: boolean
-  autoCaptureWjmaxOcrResultRegion?: boolean
-  autoCapturePlatinaLabOcrResultRegion?: boolean
-  autoStartGame?: boolean
-  autoStartGameDjmaxRespectV?: boolean
-  autoStartGameWjmax?: boolean
-  autoStartGameWjmaxPath?: string
-  autoStartGamePlatinaLab?: boolean
-  isMiniMode?: boolean
-  closeToTray?: boolean
-  isNotificationSound?: boolean
-  autoDeleteCapturedImages?: number
-  // 필요에 따라 다른 설정들도 추가할 수 있습니다.
-}
-
-export interface SessionData {
-  userNo?: string
-  userToken?: string
-  userName?: string
-  vArchiveUserNo?: string
-  vArchiveUserToken?: string
-  vArchiveUserName?: string
-  discordUid?: string
-  discordLinked?: boolean
-  vArchiveLinked?: boolean
-}
 
 // globalDictionary의 기본값을 사용하여 기본 설정 생성
 function createDefaultSettings(): SettingsData {
@@ -91,7 +30,7 @@ const defaultSession: SessionData = {
   userNo: '',
   userToken: '',
   userName: '',
-  vArchiveUserNo: '',
+  vArchiveUserNo: null,
   vArchiveUserToken: '',
   vArchiveUserName: '',
   discordUid: '',

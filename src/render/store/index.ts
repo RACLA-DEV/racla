@@ -21,7 +21,7 @@ const uiPersistConfig = {
 const appPersistConfig = {
   key: 'app',
   storage,
-  blacklist: ['isSetting'], // isSetting은 유지하지 않음
+  blacklist: ['isSetting', 'userData', 'vArchiveUserData', 'isLoggedIn', 'notifications'], // isSetting은 유지하지 않음
 }
 
 const rootReducer = combineReducers({

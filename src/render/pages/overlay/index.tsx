@@ -42,7 +42,7 @@ function OverlayPage() {
           }
           setMessages((prev) => [...prev, JSON.stringify(data)])
         } catch (error) {
-          createOverlayLog('error', 'Failed to parse message:', error)
+          createOverlayLog('error', 'Failed to parse message:', error.message)
         }
       })
     }

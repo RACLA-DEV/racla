@@ -1,6 +1,6 @@
 import { IpcHandle } from '@doubleshot/nest-electron'
 import { Controller, Logger } from '@nestjs/common'
-import type { SessionData } from './auth.service'
+import type { SessionData } from '@src/types/common/SessionData'
 import { AuthService } from './auth.service'
 
 @Controller()

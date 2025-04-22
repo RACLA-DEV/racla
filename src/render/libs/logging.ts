@@ -1,4 +1,4 @@
-import type { LogLevel } from '@src/types/LogLevel'
+import type { LogLevel } from '@src/types/common/LogLevel'
 import dayjs from 'dayjs'
 
 const { sendLog } = window.electron
@@ -16,8 +16,7 @@ export function createLog(level: LogLevel, ...args: any[]) {
   }
 
   if (level === 'error') {
-    createLog(
-      'error',
+    console.error(
       '%c%s %c%s %c--- %c[%s] %c%s',
       styles.gray,
       dayjs().toISOString(),
@@ -84,8 +83,7 @@ export function createOverlayLog(level: LogLevel, ...args: any[]) {
   }
 
   if (level === 'error') {
-    createLog(
-      'error',
+    console.error(
       '%c%s %c%s %c--- %c[%s] %c%s',
       styles.gray,
       dayjs().toISOString(),

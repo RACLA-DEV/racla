@@ -1,22 +1,14 @@
 import { createLog } from '@render/libs/logging'
+import { RootState } from '@render/store'
 import { setOpenExternalLink } from '@render/store/slices/uiSlice'
+import type { IUserNameRequest, IUserNameResponse } from '@src/types/common/IUserName'
 import axios from 'axios'
 import { useEffect, useRef, useState } from 'react'
 import { FaCircleInfo, FaDiscord, FaLink, FaV } from 'react-icons/fa6'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../hooks/useAuth'
 import { useNotificationSystem } from '../../hooks/useNotifications'
-
-interface IUserNameResponse {
-  success: boolean
-  nickname: string
-}
-
-interface IUserNameRequest {
-  userNo: string
-  token: string
-}
 
 export default function LoginPage() {
   const navigate = useNavigate()
@@ -25,6 +17,7 @@ export default function LoginPage() {
   const [isRegistering, setIsRegistering] = useState<boolean>(false)
   const [isLoginView, setIsLoginView] = useState<boolean>(true)
   const [nickname, setNickname] = useState<string>('')
+  const userData = useSelector((state: RootState) => state.app.userData)
   const dispatch = useDispatch()
 
   const raFileInputRef = useRef<HTMLInputElement>(null)
@@ -32,7 +25,7 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (isLoggedIn) {
-      navigate('/')
+      navigate('/home')
     }
   }, [isLoggedIn, navigate])
 
@@ -47,6 +40,7 @@ export default function LoginPage() {
   const handleError = (error: string) => {
     // 실제 알림 시스템 구현 시 사용
     createLog('error', error)
+    showNotification(error, 'error')
     window.electron.logout()
   }
 
@@ -78,12 +72,13 @@ export default function LoginPage() {
               userNo,
               userToken,
               userName: '',
-              vArchiveUserNo: '',
+              vArchiveUserNo: null,
               vArchiveUserToken: '',
             })
 
             if (success) {
-              navigate('/')
+              showNotification(`${nickname}님 RACLA에 오신 것을 환영합니다.`, 'success')
+              navigate('/home')
             }
             return
           }
@@ -92,7 +87,7 @@ export default function LoginPage() {
           '유효하지 않은 사용자 정보입니다. RACLA 데스크톱 앱으로 생성한 로그인 데이터(player.txt) 파일을 선택해주세요.',
         )
       } catch (error) {
-        createLog('error', 'Error in onRaFileChange:', error)
+        createLog('error', 'Error in onRaFileChange:', error.message)
         handleError(
           '유효하지 않은 사용자 정보입니다. RACLA 데스크톱 앱으로 생성한 로그인 데이터(player.txt) 파일을 선택해주세요.',
         )
@@ -102,7 +97,7 @@ export default function LoginPage() {
     try {
       fileReader.readAsText(file)
     } catch (error) {
-      createLog('error', 'Error reading file:', error)
+      createLog('error', 'Error reading file:', error.message)
       handleError('알 수 없는 오류가 발생했습니다. 다시 시도해주세요.')
       if (raFileInputRef.current) {
         raFileInputRef.current.value = ''
@@ -139,20 +134,38 @@ export default function LoginPage() {
             const userNo = text.split(' ')[0]
             const token = text.split(' ')[1]
 
+            // V-ARCHIVE API로 유저 이름 가져오기
             const result = await getUserName({ userNo, token })
 
             if (result.success) {
-              const success = await login({
-                vArchiveUserNo: userNo,
-                vArchiveUserToken: token,
-                vArchiveUserName: result.nickname,
-                userNo: '',
-                userToken: '',
-                vArchiveLinked: true,
-              })
+              // RACLA 서버 API에 V-ARCHIVE 정보로 로그인
+              const response = await axios.post(
+                `${import.meta.env.VITE_API_URL || 'http://localhost:3000/api'}/v2/racla/user/login/oauth/vArchive`,
+                { userNo, userToken: token },
+              )
 
-              if (success) {
-                navigate('/')
+              if (response.status === 200 && response.data) {
+                const success = await login({
+                  userNo: response.data.userNo,
+                  userToken: response.data.userToken,
+                  userName: response.data.userName || '',
+                  discordUid: response.data.discordUid || '',
+                  discordLinked: response.data.discordLinked || false,
+                  vArchiveUserNo: Number(userNo),
+                  vArchiveUserToken: token,
+                  vArchiveUserName: result.nickname,
+                  vArchiveLinked: true,
+                })
+
+                if (success) {
+                  showNotification(
+                    `${response.data.userName}님 RACLA에 오신 것을 환영합니다.`,
+                    'success',
+                  )
+                  navigate('/home')
+                }
+              } else {
+                handleError('V-ARCHIVE 로그인 실패')
               }
             } else {
               handleError(
@@ -160,7 +173,7 @@ export default function LoginPage() {
               )
             }
           } catch (error) {
-            createLog('error', 'V-ARCHIVE 로그인 오류:', error)
+            createLog('error', 'V-ARCHIVE 로그인 오류:', error.message)
             handleError('V-ARCHIVE 서버 연결 중 오류가 발생했습니다.')
           }
         } else {
@@ -169,7 +182,7 @@ export default function LoginPage() {
           )
         }
       } catch (error) {
-        createLog('error', 'Error in onVArchiveFileChange:', error)
+        createLog('error', 'Error in onVArchiveFileChange:', error.message)
         handleError('알 수 없는 오류가 발생했습니다. 다시 시도해주세요.')
         if (vArchiveFileInputRef.current) {
           vArchiveFileInputRef.current.value = ''
@@ -183,7 +196,7 @@ export default function LoginPage() {
     try {
       fileReader.readAsText(file)
     } catch (error) {
-      createLog('error', 'Error reading file:', error)
+      createLog('error', 'Error reading file:', error.message)
       handleError('알 수 없는 오류가 발생했습니다. 다시 시도해주세요.')
     }
   }
@@ -222,18 +235,25 @@ export default function LoginPage() {
           discordLinked: true,
           vArchiveUserNo: response.data.varchiveUserNo || '',
           vArchiveUserToken: response.data.varchiveUserToken || '',
-          vArchiveUserName: response.data.varchiveUserName || '',
+          vArchiveUserName:
+            response.data.varchiveUserNo && response.data.varchiveUserToken
+              ? await getUserName({
+                  userNo: response.data.varchiveUserNo,
+                  token: response.data.varchiveUserToken,
+                })
+              : '',
           vArchiveLinked: response.data.varchiveLinked || false,
         })
 
         if (success) {
-          navigate('/')
+          showNotification(`${response.data.userName}님 RACLA에 오신 것을 환영합니다.`, 'success')
+          navigate('/home')
         }
       } else {
         handleError('Discord 로그인 실패')
       }
     } catch (error) {
-      createLog('error', 'Discord 로그인 오류:', error)
+      createLog('error', 'Discord 로그인 오류:', error.message)
       handleError('Discord로 로그인 중 오류가 발생했습니다.')
     }
   }
@@ -267,11 +287,12 @@ export default function LoginPage() {
         })
 
         if (success) {
-          navigate('/')
+          showNotification(`${nickname}님 RACLA에 오신 것을 환영합니다.`, 'success')
+          navigate('/home')
         }
       }
     } catch (error) {
-      createLog('error', '계정 생성 오류:', error)
+      createLog('error', '계정 생성 오류:', error.message)
       handleError('계정 생성 중 오류가 발생했습니다.')
     }
     setIsRegistering(false)
@@ -334,12 +355,12 @@ export default function LoginPage() {
                       V-ARCHIVE로 로그인
                     </button>
 
-                    <button
+                    {/* <button
                       onClick={handleRaFileSelect}
                       className='tw:flex tw:w-full tw:items-center tw:justify-center tw:gap-2 tw:rounded-md tw:bg-blue-600 tw:px-4 tw:py-3 tw:text-white tw:transition-colors hover:tw:bg-blue-700'
                     >
                       RACLA로 로그인
-                    </button>
+                    </button> */}
                   </div>
 
                   <div className='tw:mt-6 tw:flex tw:items-start tw:justify-center tw:gap-3 tw:border-t tw:border-slate-700 tw:pt-8 tw:text-sm tw:text-slate-300'>
@@ -383,13 +404,13 @@ export default function LoginPage() {
                       maxLength={20}
                     />
 
-                    <button
+                    {/* <button
                       onClick={handleRegister}
                       disabled={isRegistering}
                       className='tw:flex tw:w-full tw:items-center tw:justify-center tw:gap-2 tw:rounded-md tw:bg-blue-600 tw:px-4 tw:py-3 tw:text-white tw:transition-colors hover:tw:bg-blue-700 disabled:tw:cursor-not-allowed disabled:tw:opacity-50'
                     >
                       {isRegistering ? '가입 중...' : '계정 생성'}
-                    </button>
+                    </button> */}
                   </div>
 
                   <div className='tw:mt-6 tw:flex tw:items-start tw:justify-center tw:gap-3 tw:border-t tw:border-slate-700 tw:pt-8 tw:text-sm tw:text-slate-300'>

@@ -1,12 +1,9 @@
 import { RootState } from '@render/store'
-import React, { ReactNode, useEffect } from 'react'
+import type { ChildrenReactNodeProps } from '@src/types/render/ChildrenReactNodeProps'
+import React, { useEffect } from 'react'
 import { useSelector } from 'react-redux'
 
-interface ThemeProviderProps {
-  children: ReactNode
-}
-
-export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
+export const ThemeProvider: React.FC<ChildrenReactNodeProps> = ({ children }) => {
   const { theme } = useSelector((state: RootState) => state.ui)
   const fontSetting = useSelector((state: RootState) => state.app.settingData?.font)
 

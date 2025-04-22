@@ -1,12 +1,7 @@
 import { RootState } from '@render/store'
+import type { TooltipProps } from '@src/types/render/TooltipProps'
 import React, { useState } from 'react'
 import { useSelector } from 'react-redux'
-
-interface TooltipProps {
-  children: React.ReactNode
-  content: string
-  position?: 'top' | 'right' | 'bottom' | 'left'
-}
 
 const Tooltip: React.FC<TooltipProps> = ({ children, content, position = 'right' }) => {
   const [isVisible, setIsVisible] = useState(false)

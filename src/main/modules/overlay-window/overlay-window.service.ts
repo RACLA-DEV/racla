@@ -2,16 +2,10 @@ import { GLOBAL_DICTONARY } from '@main/constants/GLOBAL_DICTONARY'
 import { join } from 'node:path'
 
 import { Injectable, Logger } from '@nestjs/common'
+import type { OverlayBounds } from '@src/types/common/OverlayBounds'
 import { app, BrowserWindow, screen } from 'electron'
 import { GameMonitorService } from '../game-monitor/game-monitor.service'
 import { MainWindowService } from '../main-window/main-window.service'
-
-interface OverlayBounds {
-  x: number
-  y: number
-  width: number
-  height: number
-}
 
 @Injectable()
 export class OverlayWindowService {

@@ -1,41 +1,8 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit'
 import { createLog } from '@render/libs/logging'
-export type GameType = 'djmax_respect_v' | 'wjmax' | 'platina_lab'
-
-interface AppState {
-  selectedGame: GameType
-  isSetting: boolean
-  settingData: any
-  userData: {
-    userName: string
-    userNo: string
-    userToken: string
-    randomTitle: string
-    discordUid: string
-    discordLinked: boolean
-    vArchiveLinked: boolean
-  }
-  vArchiveUserData: {
-    userName: string
-    userNo: string
-    userToken: string
-  }
-  isDetectedGame: boolean
-  isUploading: boolean
-  isMiniMode: boolean
-  platform: string
-  isLoggedIn: boolean
-  songData: {
-    djmax_respect_v: any[]
-    wjmax: any[]
-    platina_lab: any[]
-    lastUpdated: {
-      djmax_respect_v: number | null
-      wjmax: number | null
-      platina_lab: number | null
-    }
-  }
-}
+import type { GameType } from '@src/types/common/GameType'
+import type { AppState } from '@src/types/redux/AppState'
+import type { Notification } from '@src/types/render/Notification'
 
 const initialState: AppState = {
   selectedGame: 'djmax_respect_v',
@@ -60,6 +27,7 @@ const initialState: AppState = {
   isMiniMode: true,
   platform: '',
   isLoggedIn: false,
+  notifications: [],
   songData: {
     djmax_respect_v: [],
     wjmax: [],
@@ -169,6 +137,60 @@ export const appSlice = createSlice({
     setIsDetectedGame: (state, action: PayloadAction<boolean>) => {
       state.isDetectedGame = action.payload
     },
+    addNotification: (state, action: PayloadAction<Omit<Notification, 'createdAt'>>) => {
+      const notification = {
+        ...action.payload,
+        createdAt: Date.now(),
+      }
+
+      // 최대 5개까지만 보여주기 위해 오래된 알림 제거
+      if (state.notifications.length >= 5) {
+        // 오래된 알림부터 제거 (createdAt 기준)
+        const sortedNotifications = [...state.notifications].sort(
+          (a, b) => a.createdAt - b.createdAt,
+        )
+        state.notifications = [...sortedNotifications.slice(1), notification]
+      } else {
+        state.notifications.push(notification)
+      }
+    },
+    updateNotification: (
+      state,
+      action: PayloadAction<{ id: string; data: Partial<Notification> }>,
+    ) => {
+      const { id, data } = action.payload
+      const index = state.notifications.findIndex((notification) => notification.id === id)
+
+      if (index !== -1) {
+        state.notifications[index] = { ...state.notifications[index], ...data }
+      }
+    },
+    removeNotification: (state, action: PayloadAction<string>) => {
+      const id = action.payload
+      const index = state.notifications.findIndex((notification) => notification.id === id)
+
+      if (index !== -1) {
+        // isRemoving 플래그만 설정하고 실제 제거는 별도로 처리
+        state.notifications[index].isRemoving = true
+      }
+    },
+    deleteNotification: (state, action: PayloadAction<string>) => {
+      // 실제로 알림 배열에서 제거
+      state.notifications = state.notifications.filter(
+        (notification) => notification.id !== action.payload,
+      )
+    },
+    clearAllNotifications: (state) => {
+      // 모든 알림에 isRemoving 플래그 설정
+      state.notifications = state.notifications.map((notification) => ({
+        ...notification,
+        isRemoving: true,
+      }))
+    },
+    deleteAllNotifications: (state) => {
+      // 모든 알림 삭제
+      state.notifications = []
+    },
   },
 })
 
@@ -185,6 +207,12 @@ export const {
   setSongData,
   logout,
   setIsDetectedGame,
+  addNotification,
+  updateNotification,
+  removeNotification,
+  deleteNotification,
+  clearAllNotifications,
+  deleteAllNotifications,
 } = appSlice.actions
 
 export default appSlice.reducer

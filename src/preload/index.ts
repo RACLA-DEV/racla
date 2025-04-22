@@ -1,7 +1,7 @@
+import type { LogLevel } from '@src/types/common/LogLevel'
+import type { SessionData } from '@src/types/common/SessionData'
+import type { SettingsData } from '@src/types/common/SettingData'
 import { contextBridge, ipcRenderer } from 'electron'
-
-import type { SessionData, SettingsData } from '@src/main/modules/file-manager/file-manager.service'
-import type { LogLevel } from '@src/types/LogLevel'
 import type { ProcessDescriptor } from 'ps-list'
 
 contextBridge.exposeInMainWorld('electron', {

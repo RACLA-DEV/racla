@@ -1,5 +1,6 @@
 import { RootState } from '@render/store'
-import React, { ReactNode } from 'react'
+import type { ChildrenReactNodeProps } from '@src/types/render/ChildrenReactNodeProps'
+import React from 'react'
 import { useSelector } from 'react-redux'
 import Footer from './Footer'
 import TitleBar from './Header'
@@ -7,11 +8,7 @@ import IconSidebar from './IconSidebar'
 import MainContent from './MainContent'
 import MenuSidebar from './MenuSidebar'
 
-interface AppLayoutProps {
-  children: ReactNode
-}
-
-const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
+const AppLayout: React.FC<ChildrenReactNodeProps> = ({ children }) => {
   const { theme } = useSelector((state: RootState) => state.ui)
   const { font } = useSelector((state: RootState) => state.app.settingData)
   return (

@@ -3,15 +3,11 @@ import { globalDictionary } from '@render/constants/globalDictionary'
 import { createLog } from '@render/libs/logging'
 import { RootState } from '@render/store'
 import { setIsOpenExternalLink, setOpenExternalLink } from '@render/store/slices/uiSlice'
+import type { ServerStatus } from '@src/types/common/ServerStatus'
 import axios from 'axios'
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-
-interface ServerStatus {
-  message: string
-  version: string
-  timestamp: number
-}
+import { Link } from 'react-router-dom'
 
 const Footer: React.FC = () => {
   const { theme } = useSelector((state: RootState) => state.ui)
@@ -42,7 +38,7 @@ const Footer: React.FC = () => {
           setIsOnline(false)
         }
       } catch (error) {
-        createLog('error', 'Server connection error:', error) // 디버깅용 로그
+        createLog('error', 'Server connection error:', error.message) // 디버깅용 로그
         setIsOnline(false)
       }
     }
@@ -175,12 +171,9 @@ const Footer: React.FC = () => {
           {selectedGame && renderGameSpecificContent()}
           <span> · </span>
         </>
-        <span
-          className='tw:text-xs tw:cursor-pointer'
-          onClick={() => handleOpenExternalLink('https://racla.app/license')}
-        >
+        <Link className='tw:text-xs tw:cursor-pointer' to='/license'>
           라이선스 및 이용약관
-        </span>
+        </Link>
       </div>
     </div>
   )

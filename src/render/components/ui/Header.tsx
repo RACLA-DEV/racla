@@ -4,15 +4,6 @@ import { toggleTheme } from '@render/store/slices/uiSlice'
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
-// WebkitAppRegion 타입을 위한 인터페이스 확장
-declare global {
-  namespace React {
-    interface CSSProperties {
-      WebkitAppRegion?: 'drag' | 'no-drag'
-    }
-  }
-}
-
 const { closeApp, minimizeApp, maximizeApp } = window.electron
 
 const TitleBar: React.FC = () => {

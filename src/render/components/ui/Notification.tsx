@@ -1,3 +1,7 @@
+import { RootState } from '@render/store'
+import type { NotificationContainerProps } from '@src/types/render/NotificationContainerProps'
+import type { NotificationProps } from '@src/types/render/NotificationProps'
+import { AnimatePresence, motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
 import {
   FaCheckCircle,
@@ -6,41 +10,47 @@ import {
   FaTimes,
   FaTimesCircle,
 } from 'react-icons/fa'
-import { Notification as NotificationType } from '../../hooks/useNotifications'
-
-interface NotificationProps {
-  notification: NotificationType
-  onRemove: (id: string) => void
-}
+import { useSelector } from 'react-redux'
 
 // 알림 컴포넌트
-export function Notification({ notification, onRemove }: NotificationProps) {
+export function Notification({ notification, onRemove, index }: NotificationProps) {
   const { id, message, type, isRemoving } = notification
   const [progress, setProgress] = useState(100)
+  const { theme } = useSelector((state: RootState) => state.ui)
 
   // 타입에 따른 스타일 및 아이콘 설정
   const getTypeStyles = () => {
     switch (type) {
       case 'success':
         return {
-          background: 'bg-green-500',
-          icon: <FaCheckCircle className='text-lg' />,
+          background: 'tw:bg-green-500',
+          icon: (
+            <FaCheckCircle className={`tw:text-lg ${theme === 'dark' ? 'tw:text-white' : ''}`} />
+          ),
         }
       case 'error':
         return {
-          background: 'bg-red-500',
-          icon: <FaTimesCircle className='text-lg' />,
+          background: 'tw:bg-red-500',
+          icon: (
+            <FaTimesCircle className={`tw:text-lg ${theme === 'dark' ? 'tw:text-white' : ''}`} />
+          ),
         }
       case 'warning':
         return {
-          background: 'bg-amber-500',
-          icon: <FaExclamationCircle className='text-lg' />,
+          background: 'tw:bg-amber-500',
+          icon: (
+            <FaExclamationCircle
+              className={`tw:text-lg ${theme === 'dark' ? 'tw:text-white' : ''}`}
+            />
+          ),
         }
       case 'info':
       default:
         return {
-          background: 'bg-blue-500',
-          icon: <FaInfoCircle className='text-lg' />,
+          background: 'tw:bg-blue-500',
+          icon: (
+            <FaInfoCircle className={`tw:text-lg ${theme === 'dark' ? 'tw:text-white' : ''}`} />
+          ),
         }
     }
   }
@@ -62,47 +72,66 @@ export function Notification({ notification, onRemove }: NotificationProps) {
   }, [notification.duration])
 
   return (
-    <div
+    <motion.div
       id={`notification-${id}`}
-      className={`flex w-full max-w-sm transform overflow-hidden rounded-lg shadow-lg transition-all duration-500 ${
-        isRemoving ? 'translate-x-full opacity-0' : 'translate-x-0 opacity-100'
-      }`}
+      className='tw:flex tw:w-full tw:max-w-sm tw:overflow-hidden tw:rounded-lg tw:shadow-lg'
+      initial={{ opacity: 0, x: 300 }}
+      animate={{
+        opacity: isRemoving ? 0 : 1,
+        x: isRemoving ? 300 : 0,
+        transition: { duration: 0.5 },
+      }}
+      exit={{ opacity: 0, x: 300 }}
+      style={{ zIndex: 1000 - index }} // 새 알림이 항상 위에 오도록
     >
-      <div className={`w-2 flex-shrink-0 ${background}`}></div>
+      <div className={`tw:w-2 tw:flex-shrink-0 ${background}`}></div>
 
-      <div className='flex-grow bg-white p-4 dark:bg-slate-800'>
-        <div className='flex items-start'>
-          <div className={`flex-shrink-0 text-${type} mr-3`}>{icon}</div>
+      <div className='tw:flex-grow tw:bg-white tw:pt-4 tw:px-4 tw:dark:bg-slate-800'>
+        <div className='tw:flex tw:items-start'>
+          <div className={`tw:flex-shrink-0 tw:text-${type} tw:mr-3`}>{icon}</div>
 
-          <div className='flex-grow'>
-            <p className='text-sm text-slate-800 dark:text-slate-200'>{message}</p>
+          <div className='tw:flex-grow'>
+            <p className='tw:text-sm tw:text-slate-800 tw:dark:text-slate-200'>{message}</p>
           </div>
 
           <button
             onClick={() => onRemove(id)}
-            className='ml-2 flex-shrink-0 text-slate-400 hover:text-slate-500 focus:outline-none dark:text-slate-500 dark:hover:text-slate-400'
+            className='tw:ml-2 tw:flex-shrink-0 tw:text-slate-400 tw:hover:text-slate-500 tw:focus:outline-none tw:dark:text-slate-500 tw:dark:hover:text-slate-400'
           >
             <FaTimes />
           </button>
         </div>
 
         {notification.duration && notification.duration > 0 && (
-          <div className='mt-2 h-1 w-full rounded bg-slate-200 dark:bg-slate-700'>
-            <div className={`h-full ${background} rounded`} style={{ width: `${progress}%` }}></div>
+          <div className='tw:mt-2 tw:flex tw:justify-end tw:h-1 tw:w-full tw:rounded tw:bg-slate-200 tw:dark:bg-slate-700'>
+            <div
+              className={`tw:h-full ${background} tw:rounded tw:transition-all tw:duration-300`}
+              style={{ width: `${progress}%` }}
+            ></div>
           </div>
         )}
       </div>
-    </div>
+    </motion.div>
   )
 }
 
 // 알림 목록 컴포넌트
-export function NotificationContainer({ notifications, onRemove }) {
+export function NotificationContainer({ notifications, onRemove }: NotificationContainerProps) {
+  // 최대 5개까지만 표시
+  const visibleNotifications = notifications.slice(-5)
+
   return (
-    <div className='fixed top-4 right-4 z-50 max-w-sm space-y-2'>
-      {notifications.map((notification) => (
-        <Notification key={notification.id} notification={notification} onRemove={onRemove} />
-      ))}
+    <div className='tw:fixed tw:right-4 tw:bottom-4 tw:z-50 tw:space-y-2'>
+      <AnimatePresence>
+        {visibleNotifications.map((notification, index) => (
+          <Notification
+            key={notification.id}
+            notification={notification}
+            onRemove={onRemove}
+            index={index}
+          />
+        ))}
+      </AnimatePresence>
     </div>
   )
 }

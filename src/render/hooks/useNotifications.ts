@@ -1,70 +1,79 @@
-import { useCallback, useState } from 'react'
+import { RootState } from '@render/store'
+import {
+  addNotification,
+  clearAllNotifications,
+  deleteAllNotifications,
+  deleteNotification,
+  removeNotification,
+} from '@render/store/slices/appSlice'
+import { useCallback } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import { v4 as uuidv4 } from 'uuid'
 
-export interface Notification {
-  id: string
-  message: string
-  type: 'success' | 'error' | 'info' | 'warning'
-  duration?: number
-  isRemoving?: boolean
-}
-
 export function useNotificationSystem() {
-  const [notifications, setNotifications] = useState<Notification[]>([])
+  const dispatch = useDispatch()
+  const notifications = useSelector((state: RootState) => state.app.notifications)
 
   const showNotification = useCallback(
     (message: string, type: 'success' | 'error' | 'info' | 'warning' = 'info', duration = 5000) => {
       const id = uuidv4()
-      const notification: Notification = {
-        id,
-        message,
-        type,
-        duration,
-        isRemoving: false,
-      }
 
-      setNotifications((prev) => [...prev, notification])
+      // Redux를 통해 알림 추가
+      dispatch(
+        addNotification({
+          id,
+          message,
+          type,
+          duration,
+          isRemoving: false,
+        }),
+      )
 
-      // 자동 제거
+      // 자동 제거 설정
       if (duration > 0) {
         setTimeout(() => {
-          removeNotification(id)
+          // 애니메이션을 위해 isRemoving 설정
+          dispatch(removeNotification(id))
+
+          // 애니메이션 후 실제로 상태에서 제거
+          setTimeout(() => {
+            dispatch(deleteNotification(id))
+          }, 500) // 애니메이션 지속 시간
         }, duration)
       }
 
       return id
     },
-    [],
+    [dispatch],
   )
 
-  const removeNotification = useCallback((id: string) => {
-    // 먼저 isRemoving 플래그를 설정하여 애니메이션을 시작
-    setNotifications((prev) =>
-      prev.map((notification) =>
-        notification.id === id ? { ...notification, isRemoving: true } : notification,
-      ),
-    )
+  const removeNotificationById = useCallback(
+    (id: string) => {
+      // 애니메이션을 위해 isRemoving 플래그 설정
+      dispatch(removeNotification(id))
 
-    // 애니메이션 완료 후 실제로 제거
-    setTimeout(() => {
-      setNotifications((prev) => prev.filter((notification) => notification.id !== id))
-    }, 500) // 애니메이션 지속 시간
-  }, [])
+      // 애니메이션 완료 후 실제로 제거
+      setTimeout(() => {
+        dispatch(deleteNotification(id))
+      }, 500) // 애니메이션 지속 시간
+    },
+    [dispatch],
+  )
 
-  const clearAllNotifications = useCallback(() => {
+  const clearAllNotificationsHandler = useCallback(() => {
     // 모든 알림을 제거 애니메이션 상태로 설정
-    setNotifications((prev) => prev.map((notification) => ({ ...notification, isRemoving: true })))
+    dispatch(clearAllNotifications())
 
     // 애니메이션 완료 후 모두 제거
     setTimeout(() => {
-      setNotifications([])
+      dispatch(deleteAllNotifications())
     }, 500)
-  }, [])
+  }, [dispatch])
 
   return {
     notifications,
     showNotification,
-    removeNotification,
-    clearAllNotifications,
+    removeNotification: removeNotificationById,
+    clearAllNotifications: clearAllNotificationsHandler,
   }
 }

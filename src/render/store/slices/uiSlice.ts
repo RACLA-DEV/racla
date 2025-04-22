@@ -1,12 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-
-export interface UIState {
-  theme: 'light' | 'dark'
-  sidebarCollapsed: boolean
-  openExternalLink: string
-  isOpenExternalLink: boolean
-}
-
+import type { UIState } from '@src/types/redux/UIState'
 const initialState: UIState = {
   theme: 'light',
   sidebarCollapsed: false,

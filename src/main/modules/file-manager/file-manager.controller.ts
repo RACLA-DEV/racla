@@ -1,7 +1,9 @@
 import { IpcHandle } from '@doubleshot/nest-electron'
 import { Controller, Logger } from '@nestjs/common'
+import type { SessionData } from '@src/types/common/SessionData'
+import type { SettingsData } from '@src/types/common/SettingData'
+import type { StorageInfo } from '@src/types/common/StroageInfo'
 import { dialog } from 'electron'
-import type { SessionData, SettingsData, StorageInfo } from './file-manager.service'
 import { FileManagerService } from './file-manager.service'
 
 @Controller()

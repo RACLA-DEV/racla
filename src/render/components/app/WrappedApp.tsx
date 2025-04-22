@@ -1,3 +1,5 @@
+import { useAuth } from '@render/hooks/useAuth'
+import axios from 'axios'
 import { useCallback, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Outlet, useLocation } from 'react-router-dom'
@@ -26,8 +28,9 @@ export default function WrappedApp() {
   const [isLoading, setIsLoading] = useState(true)
   const [isOverlayMode, setIsOverlayMode] = useState(false)
   const location = useLocation()
-  const { notifications, removeNotification } = useNotificationSystem()
+  const { notifications, removeNotification, showNotification } = useNotificationSystem()
   const dispatch = useDispatch()
+  const { logout } = useAuth()
 
   // 곡 데이터 로드 함수
   const loadSongDataFromAPI = useCallback(async (gameCode: string) => {
@@ -77,7 +80,7 @@ export default function WrappedApp() {
       createLog('debug', `${gameCode} 곡 데이터 로드 및 저장 완료`)
       return data
     } catch (error) {
-      await createLog('error', `${gameCode} 곡 데이터 로드 실패:`, error)
+      await createLog('error', `${gameCode} 곡 데이터 로드 실패:`, error.message)
 
       // 로컬에 저장된 데이터 로드 시도
       try {
@@ -138,7 +141,7 @@ export default function WrappedApp() {
               createLog('debug', '설정 로드됨:', settings)
             }
           } catch (error) {
-            createLog('error', '설정 로드 실패:', error)
+            createLog('error', '설정 로드 실패:', error.message)
           }
 
           // 2. 세션 데이터 로드 및 자동 로그인
@@ -146,40 +149,82 @@ export default function WrappedApp() {
             if (window.electron && window.electron.getSession) {
               const session = await window.electron.getSession()
               if (session && session.userNo && session.userToken) {
-                // 사용자 정보 설정
-                dispatch(
-                  setUserData({
-                    userName: session.userName || '',
-                    userNo: session.userNo,
-                    userToken: session.userToken,
-                    discordUid: session.discordUid || '',
-                    discordLinked: session.discordLinked || false,
-                    vArchiveLinked: session.vArchiveLinked || false,
-                  }),
-                )
-
-                // V-ARCHIVE 정보 설정
-                if (session.vArchiveUserNo && session.vArchiveUserToken) {
-                  dispatch(
-                    setVArchiveUserData({
-                      userName: session.vArchiveUserName || '',
-                      userNo: session.vArchiveUserNo,
-                      userToken: session.vArchiveUserToken,
-                    }),
+                try {
+                  createLog('debug', '세션 데이터가 존재하여 자동 로그인 요청:', session)
+                  const response = await axios.post(
+                    `${import.meta.env.VITE_API_URL}/v2/racla/user/login`,
+                    {
+                      userNo: session.userNo,
+                      userToken: session.userToken,
+                    },
                   )
-                }
 
-                dispatch(setIsLoggedIn(true))
+                  if (response.status === 200) {
+                    const data = response.data
+                    session.userNo = data.userNo
+                    session.userToken = data.userToken
+                    session.userName = data.userName || session.userName || ''
+                    session.discordUid = data.discordUid || session.discordUid || ''
+                    session.discordLinked = data.discordLinked || session.discordLinked || false
+                    session.vArchiveLinked = data.vArchiveLinked || session.vArchiveLinked || false
+                    session.vArchiveUserNo = data.vArchiveUserNo || session.vArchiveUserNo || ''
+                    session.vArchiveUserToken =
+                      data.vArchiveUserToken || session.vArchiveUserToken || ''
+                    session.vArchiveUserName =
+                      data.vArchiveUserName || session.vArchiveUserName || ''
+                  }
+
+                  const success = await window.electron.login(session)
+                  if (success) {
+                    createLog('debug', '로그인 성공:', session)
+                    // 사용자 정보 설정
+                    dispatch(
+                      setUserData({
+                        userName: session.userName || '',
+                        userNo: session.userNo,
+                        userToken: session.userToken,
+                        discordUid: session.discordUid || '',
+                        discordLinked: session.discordLinked || false,
+                        vArchiveLinked: session.vArchiveLinked || false,
+                      }),
+                    )
+
+                    // V-ARCHIVE 정보 설정
+                    if (session.vArchiveUserNo && session.vArchiveUserToken) {
+                      dispatch(
+                        setVArchiveUserData({
+                          userName:
+                            typeof session.vArchiveUserName === 'object' &&
+                            session.vArchiveUserName?.success
+                              ? session.vArchiveUserName.nickname
+                              : typeof session.vArchiveUserName === 'string'
+                                ? session.vArchiveUserName
+                                : '',
+                          userNo: session.vArchiveUserNo,
+                          userToken: session.vArchiveUserToken,
+                        }),
+                      )
+                    }
+                    dispatch(setIsLoggedIn(true))
+                  } else {
+                    createLog('error', '세션 로드 실패:', session)
+                    logout()
+                  }
+                } catch (error) {
+                  createLog('error', '로그인 API 오류:', error.message)
+                  logout()
+                }
               }
             }
           } catch (error) {
-            createLog('error', '세션 로드 실패:', error)
+            createLog('error', '세션 로드 실패:', error.message)
+            logout()
           }
 
           // 3. 곡 데이터 로드
           await loadAllSongData()
         } catch (error) {
-          createLog('error', '앱 초기화 실패:', error)
+          createLog('error', '앱 초기화 실패:', error.message)
         }
       }
 
@@ -217,9 +262,7 @@ export default function WrappedApp() {
     } else {
       // 일반 모드일 때는 지연 후 로딩 숨김
       setTimeout(() => {
-        setTimeout(() => {
-          setIsLoading(false)
-        }, 500)
+        setIsLoading(false)
       }, 2000)
     }
   }, [location.pathname])
