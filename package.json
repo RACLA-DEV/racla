@@ -20,7 +20,7 @@
     "@nestjs/microservices": "^11.0.9",
     "@react-icons/all-files": "^4.1.0",
     "@reduxjs/toolkit": "^2.5.1",
-    "axios": "^1.7.9",
+    "axios": "^1.8.4",
     "chart.js": "^4.4.7",
     "color-name": "^2.0.0",
     "color-string": "^2.0.1",
@@ -69,7 +69,7 @@
     "@vitejs/plugin-react": "^4.3.4",
     "autoprefixer": "^10.4.20",
     "cross-env": "^7.0.3",
-    "electron": "^34.2.0",
+    "electron": "^35.2.0",
     "electron-builder": "^25.1.8",
     "postcss": "^8.5.2",
     "postcss-scss": "^4.0.9",
@@ -88,7 +88,17 @@
   "pnpm": {
     "onlyBuiltDependencies": [
       "@nestjs/core",
-      "electron"
+      "@parcel/watcher",
+      "@swc/core",
+      "electron",
+      "get-windows",
+      "register-scheme",
+      "sharp",
+      "tesseract.js"
+    ],
+    "ignoredBuiltDependencies": [
+      "esbuild",
+      "simple-git-hooks"
     ]
   }
 }

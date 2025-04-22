@@ -50,7 +50,10 @@ export class FileManagerService {
   constructor() {
     this.documentsPath = path.join(app.getPath('documents'), 'RACLA')
     this.picturesPath = path.join(app.getPath('pictures'), 'RACLA')
-    this.logsPath = path.join(app.getAppPath(), 'logs')
+    this.logsPath = path.join(
+      !app.isPackaged ? '' : app.getPath('exe').split('\\').slice(0, -1).join('\\'),
+      'logs',
+    )
     this.appDataPath = app.getPath('userData')
 
     this.ensureDirectoryExists(this.documentsPath)
