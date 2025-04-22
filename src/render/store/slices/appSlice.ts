@@ -4,7 +4,7 @@ export type GameType = 'djmax_respect_v' | 'wjmax' | 'platina_lab'
 
 interface AppState {
   selectedGame: GameType
-  isDetectedGame: boolean
+  isSetting: boolean
   settingData: any
   userData: {
     userName: string
@@ -20,6 +20,7 @@ interface AppState {
     userNo: string
     userToken: string
   }
+  isDetectedGame: boolean
   isUploading: boolean
   isMiniMode: boolean
   platform: string
@@ -38,8 +39,8 @@ interface AppState {
 
 const initialState: AppState = {
   selectedGame: 'djmax_respect_v',
-  isDetectedGame: false,
-  settingData: null,
+  isSetting: false,
+  settingData: {},
   userData: {
     userName: '',
     userNo: '',
@@ -54,6 +55,7 @@ const initialState: AppState = {
     userNo: '',
     userToken: '',
   },
+  isDetectedGame: false,
   isUploading: false,
   isMiniMode: true,
   platform: '',
@@ -77,8 +79,8 @@ export const appSlice = createSlice({
     setSelectedGame: (state, action: PayloadAction<GameType>) => {
       state.selectedGame = action.payload
     },
-    setIsDetectedGame: (state, action: PayloadAction<boolean>) => {
-      state.isDetectedGame = action.payload
+    setIsSetting: (state, action: PayloadAction<boolean>) => {
+      state.isSetting = action.payload
     },
     setSettingData: (state, action: PayloadAction<any>) => {
       state.settingData = action.payload
@@ -134,7 +136,7 @@ export const appSlice = createSlice({
         return
       }
 
-      createLog('info', `setSongData: ${gameCode} 데이터 설정 중, 항목 수: ${data.length}`)
+      createLog('debug', `setSongData: ${gameCode} 데이터 설정 중, 항목 수: ${data.length}`)
 
       // 게임코드 유효성 검증
       if (gameCode === 'djmax_respect_v' || gameCode === 'wjmax' || gameCode === 'platina_lab') {
@@ -142,7 +144,7 @@ export const appSlice = createSlice({
         const validKey = gameCode as keyof typeof state.songData.lastUpdated
         state.songData[validKey] = data
         state.songData.lastUpdated[validKey] = Date.now()
-        createLog('info', `setSongData: ${gameCode} 데이터 설정 완료`)
+        createLog('debug', `setSongData: ${gameCode} 데이터 설정 완료`)
       } else {
         createLog('error', `유효하지 않은 게임 코드: ${gameCode}`)
       }
@@ -164,12 +166,15 @@ export const appSlice = createSlice({
       }
       state.isLoggedIn = false
     },
+    setIsDetectedGame: (state, action: PayloadAction<boolean>) => {
+      state.isDetectedGame = action.payload
+    },
   },
 })
 
 export const {
   setSelectedGame,
-  setIsDetectedGame,
+  setIsSetting,
   setSettingData,
   setUserData,
   setIsUploading,
@@ -179,6 +184,7 @@ export const {
   setIsLoggedIn,
   setSongData,
   logout,
+  setIsDetectedGame,
 } = appSlice.actions
 
 export default appSlice.reducer

@@ -6,6 +6,7 @@ import { createLog } from '../../libs/logging'
 import { RootState } from '../../store'
 import {
   setIsLoggedIn,
+  setIsSetting,
   setSettingData,
   setSongData,
   setUserData,
@@ -15,9 +16,13 @@ import { NotificationContainer } from '../ui/Notification'
 import { ThemeProvider } from '../ui/ThemeProvider'
 import ExternalLinkModal from './ExternalLinkModal'
 import LoadingSkeleton from './LoadingSkeleton'
+import SettingModal from './SettingModal'
 
 export default function WrappedApp() {
-  const { theme } = useSelector((state: RootState) => state.ui)
+  const theme = useSelector((state: RootState) => state.ui.theme)
+  const fontSetting = useSelector(
+    (state: RootState) => state.app.settingData?.font?.defaultValue || 'platina_lab',
+  )
   const [isLoading, setIsLoading] = useState(true)
   const [isOverlayMode, setIsOverlayMode] = useState(false)
   const location = useLocation()
@@ -69,7 +74,7 @@ export default function WrappedApp() {
         await window.electron.saveSongData({ gameCode, songData: data })
       }
 
-      createLog('info', `${gameCode} 곡 데이터 로드 및 저장 완료`)
+      createLog('debug', `${gameCode} 곡 데이터 로드 및 저장 완료`)
       return data
     } catch (error) {
       await createLog('error', `${gameCode} 곡 데이터 로드 실패:`, error)
@@ -80,7 +85,7 @@ export default function WrappedApp() {
           const localData = await window.electron.loadSongData(gameCode)
           if (localData && localData.length > 0) {
             dispatch(setSongData({ data: localData, gameCode }))
-            await createLog('info', `${gameCode} 로컬 곡 데이터 로드 완료`)
+            await createLog('debug', `${gameCode} 로컬 곡 데이터 로드 완료`)
             return localData
           }
         }
@@ -119,54 +124,63 @@ export default function WrappedApp() {
 
       // 서버에서 데이터 로드 및 초기화 로직
       const initializeApp = async () => {
-        // 1. 설정 로드
+        createLog('debug', '🚀 앱 초기화 시작')
+
+        // 설정 모달 상태 초기화
+        dispatch(setIsSetting(false))
+
         try {
-          if (window.electron && window.electron.loadSettings) {
-            const settings = await window.electron.loadSettings()
-            dispatch(setSettingData(settings))
-            createLog('info', '설정 로드됨:', settings)
+          // 1. 설정 로드
+          try {
+            if (window.electron && window.electron.loadSettings) {
+              const settings = await window.electron.loadSettings()
+              dispatch(setSettingData(settings))
+              createLog('debug', '설정 로드됨:', settings)
+            }
+          } catch (error) {
+            createLog('error', '설정 로드 실패:', error)
           }
-        } catch (error) {
-          createLog('error', '설정 로드 실패:', error)
-        }
 
-        // 2. 세션 데이터 로드 및 자동 로그인
-        try {
-          if (window.electron && window.electron.getSession) {
-            const session = await window.electron.getSession()
-            if (session && session.userNo && session.userToken) {
-              // 사용자 정보 설정
-              dispatch(
-                setUserData({
-                  userName: session.userName || '',
-                  userNo: session.userNo,
-                  userToken: session.userToken,
-                  discordUid: session.discordUid || '',
-                  discordLinked: session.discordLinked || false,
-                  vArchiveLinked: session.vArchiveLinked || false,
-                }),
-              )
-
-              // V-ARCHIVE 정보 설정
-              if (session.vArchiveUserNo && session.vArchiveUserToken) {
+          // 2. 세션 데이터 로드 및 자동 로그인
+          try {
+            if (window.electron && window.electron.getSession) {
+              const session = await window.electron.getSession()
+              if (session && session.userNo && session.userToken) {
+                // 사용자 정보 설정
                 dispatch(
-                  setVArchiveUserData({
-                    userName: session.vArchiveUserName || '',
-                    userNo: session.vArchiveUserNo,
-                    userToken: session.vArchiveUserToken,
+                  setUserData({
+                    userName: session.userName || '',
+                    userNo: session.userNo,
+                    userToken: session.userToken,
+                    discordUid: session.discordUid || '',
+                    discordLinked: session.discordLinked || false,
+                    vArchiveLinked: session.vArchiveLinked || false,
                   }),
                 )
+
+                // V-ARCHIVE 정보 설정
+                if (session.vArchiveUserNo && session.vArchiveUserToken) {
+                  dispatch(
+                    setVArchiveUserData({
+                      userName: session.vArchiveUserName || '',
+                      userNo: session.vArchiveUserNo,
+                      userToken: session.vArchiveUserToken,
+                    }),
+                  )
+                }
+
+                dispatch(setIsLoggedIn(true))
               }
-
-              dispatch(setIsLoggedIn(true))
             }
+          } catch (error) {
+            createLog('error', '세션 로드 실패:', error)
           }
-        } catch (error) {
-          createLog('error', '세션 로드 실패:', error)
-        }
 
-        // 3. 곡 데이터 로드
-        await loadAllSongData()
+          // 3. 곡 데이터 로드
+          await loadAllSongData()
+        } catch (error) {
+          createLog('error', '앱 초기화 실패:', error)
+        }
       }
 
       // 앱 초기화 실행
@@ -177,7 +191,7 @@ export default function WrappedApp() {
       // 5분마다 곡 데이터 리프레시
       const songRefreshInterval = setInterval(
         () => {
-          createLog('info', '5분 주기 곡 데이터 새로고침 중...')
+          createLog('debug', '5분 주기 곡 데이터 새로고침 중...')
           loadAllSongData()
         },
         5 * 60 * 1000,
@@ -224,6 +238,7 @@ export default function WrappedApp() {
 
       {/* 외부 링크 모달 (오버레이 모드가 아닐 때만 표시) */}
       {!isOverlayMode && <ExternalLinkModal theme={theme} />}
+      {!isOverlayMode && <SettingModal theme={theme} />}
     </ThemeProvider>
   )
 }

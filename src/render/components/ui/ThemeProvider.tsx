@@ -8,6 +8,7 @@ interface ThemeProviderProps {
 
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   const { theme } = useSelector((state: RootState) => state.ui)
+  const fontSetting = useSelector((state: RootState) => state.app.settingData?.font)
 
   useEffect(() => {
     const root = document.documentElement
@@ -17,6 +18,15 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
       root.classList.remove('dark')
     }
   }, [theme])
+
+  useEffect(() => {
+    const root = document.documentElement
+    if (fontSetting) {
+      root.classList.remove('font-default')
+      root.classList.remove('font-platina_lab')
+      root.classList.add(`font-${fontSetting}`)
+    }
+  }, [fontSetting])
 
   return <>{children}</>
 }

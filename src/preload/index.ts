@@ -30,7 +30,7 @@ contextBridge.exposeInMainWorld('electron', {
   sendLog: (level: LogLevel, where: string, ...args: any[]) =>
     ipcRenderer.invoke('logger:create-log', level, where, ...args),
 
-  // 캡쳐 관련
+  // 캡처 관련
   captureGameWindow: (gameTitle: string) =>
     ipcRenderer.invoke('image-processor:capture-game-window', gameTitle),
 
@@ -63,4 +63,21 @@ contextBridge.exposeInMainWorld('electron', {
     ipcRenderer.invoke('auth:create-player-file', data),
   openDiscordLogin: () => ipcRenderer.invoke('auth:open-discord-login'),
   openBrowser: (url: string) => ipcRenderer.invoke('auth:open-browser', url),
+
+  // 파일 관리자 관련
+  getStorageInfo: () => ipcRenderer.invoke('file-manager:get-storage-info'),
+  getFolderPaths: () => ipcRenderer.invoke('file-manager:get-folder-paths'),
+  openFolder: (folderType: 'documents' | 'pictures' | 'logs' | 'appData') =>
+    ipcRenderer.invoke('file-manager:open-folder', folderType),
+  clearAllLogs: () => ipcRenderer.invoke('file-manager:clear-all-logs'),
+
+  // 앱 재시작 관련
+  restartApp: () => ipcRenderer.invoke('app:restart'),
+
+  // 파일 선택 다이얼로그 관련
+  openFileDialog: (options: {
+    title?: string
+    defaultPath?: string
+    filters?: Array<{ name: string; extensions: string[] }>
+  }) => ipcRenderer.invoke('file-manager:open-file-dialog', options),
 })

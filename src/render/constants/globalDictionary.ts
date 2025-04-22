@@ -17,138 +17,559 @@ const lucideIcons = {
   externalLink: 'lucide:external-link',
 }
 
-// 모달 확인 이벤트를 위한 이벤트 이미터
-const eventEmitter = {
-  events: {},
-  emit(event, ...args) {
-    if (this.events[event]) {
-      this.events[event].forEach((listener) => listener(...args))
-    }
-  },
-  on(event, listener) {
-    if (!this.events[event]) {
-      this.events[event] = []
-    }
-    this.events[event].push(listener)
-  },
-  off(event, listener) {
-    if (this.events[event]) {
-      this.events[event] = this.events[event].filter((l) => l !== listener)
-    }
-  },
-}
-
 export const globalDictionary = {
   version: `0.8.0-202504130000 Client (Vite)`,
+  copyright: `DJMAX RESPECT V(©NEOWIZ), WJMAX(©WJMAX STUDIO), PLATiNA :: LAB(©HIGH-END Games).
+  We deeply respect you. <3
+  RACLA is dedicated to your remarkable games and services.`,
   blurDataURL:
     'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDABQODxIPDRQSEBIXFRQdHx0fHRsdHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR3/2wBDAR0XFyAeIRshGxsdIR0hHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR3/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAb/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k=',
-  // Electron 환경에서는 모달 확인 프로세스를 거치도록, 웹 환경에서는 바로 링크 열도록 함
-  djmax_respect_v: {
-    keyModeList: [4, 5, 6, 8],
-    levelList: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
-    difficulty: {
-      NM: {
-        name: 'NM',
-        fullName: 'NORMAL',
-      },
-      HD: {
-        name: 'HD',
-        fullName: 'HARD',
-      },
-      MX: {
-        name: 'MX',
-        fullName: 'MAXIMUM',
-      },
-      SC: {
-        name: 'SC',
-        fullName: 'SC',
-      },
+  settingDictionary: {
+    hardwareAcceleration: {
+      id: 'hardwareAcceleration',
+      name: '하드웨어 가속 활성화',
+      description:
+        '하드웨어 가속은 GPU를 사용하여 RACLA 데스크톱 앱이 더 부드럽게 동작하게 해줍니다. 앱의 화면에 문제가 발생한다면 이 설정을 비활성화 해보시기 바랍니다. 설정을 변경하면 앱이 다시 시작됩니다.',
+      defaultValue: true,
+      isEditable: false,
+      requiresRestart: true,
+      isVisible: true,
     },
-    dlcList: [
-      ['R', 'RESPECT'],
-      ['P1', 'RESPECT'],
-      ['P2', 'RESPECT'],
-      ['ES', 'RESPECT'],
-      ['VE', 'RESPECT'],
-      ['GC', 'RESPECT'],
-      ['TR', 'RESPECT'],
-      ['GG', 'RESPECT'],
-      ['BS', 'RESPECT'],
-      ['CE', 'RESPECT'],
-      ['CY', 'RESPECT'],
-      ['DM', 'RESPECT'],
-      ['T1', 'RESPECT'],
-      ['T2', 'RESPECT'],
-      ['T3', 'RESPECT'],
-      ['CHU', 'RESPECT'],
-      ['GF', 'RESPECT'],
-      ['P3', 'RESPECT'],
-      ['ESTI', 'RESPECT'],
-      ['NXN', 'RESPECT'],
-      ['VE2', 'RESPECT'],
-      ['MD', 'RESPECT'],
-      ['TQ', 'RESPECT'],
-      ['VE3', 'RESPECT'],
-      ['EZ2', 'RESPECT'],
-      ['VE4', 'RESPECT'],
-      ['CP', 'RESPECT'],
-      ['MAP', 'RESPECT'],
-      ['VE5', 'RESPECT'],
-      ['FAL', 'RESPECT'],
-      ['VL', 'RESPECT'],
-      ['TEK', 'RESPECT'],
-      ['VL2', 'RESPECT'],
-      ['PLI1', 'RESPECT'],
-    ],
+    // homeButtonAlignRight: {
+    //   id: 'homeButtonAlignRight',
+    //   name: '상단바 홈 버튼을 오른쪽으로 정렬',
+    //   description: '뒤로가기와 새로고침 버튼을 홈 버튼보다 우선으로 배치되도록 설정합니다.',
+    //   defaultValue: false,
+    //   isEditable: true,
+    //   requiresRestart: false,
+    // },
+    autoCaptureMode: {
+      id: 'autoCaptureMode',
+      name: '자동 캡처 모드',
+      description: '자동 캡처 모드를 활성화/비활성화 합니다.',
+      defaultValue: true,
+      isEditable: true,
+      requiresRestart: false,
+      isVisible: true,
+    },
+    autoCaptureIntervalTime: {
+      id: 'autoCaptureIntervalTime',
+      name: '자동 캡처 간격',
+      description: '자동 캡처 모드의 간격을 설정합니다.',
+      defaultValue: 1000,
+      isEditable: true,
+      requiresRestart: false,
+      isVisible: true,
+      selectList: [
+        {
+          id: 1000,
+          name: '1초',
+        },
+        {
+          id: 2000,
+          name: '2초',
+        },
+        {
+          id: 3000,
+          name: '3초',
+        },
+        {
+          id: 5000,
+          name: '5초',
+        },
+        {
+          id: 10000,
+          name: '10초',
+        },
+        {},
+      ],
+    },
+    // autoCaptureProcessIntervalTime: {
+    //   id: 'autoCaptureProcessIntervalTime',
+    //   name: '자동 캡처 후처리 간격',
+    //   description: '자동 캡처 후처리 모드의 간격을 설정합니다.',
+    //   defaultValue: 1000,
+    //   isEditable: true,
+    //   requiresRestart: false,
+    // },
+    language: {
+      id: 'language',
+      name: '언어',
+      description: '프로그램의 언어를 설정합니다.',
+      defaultValue: 'ko',
+      isEditable: true,
+      requiresRestart: false,
+      isVisible: true,
+      selectList: [
+        {
+          id: 'ko',
+          name: '한국어 (Korean)',
+        },
+      ],
+    },
+    font: {
+      id: 'font',
+      name: '폰트',
+      description: '프로그램의 폰트를 설정합니다.',
+      defaultValue: 'platina_lab',
+      isEditable: true,
+      requiresRestart: false,
+      isVisible: true,
+      selectList: [
+        {
+          id: 'default',
+          name: 'RACLA 스타일',
+        },
+        {
+          id: 'platina_lab',
+          name: 'PLATiNA :: LAB 스타일',
+        },
+      ],
+    },
+    autoCaptureApi: {
+      id: 'autoCaptureApi',
+      name: '자동 캡처 API',
+      description: '자동 캡처 모드에서 사용할 API를 설정합니다.',
+      defaultValue: 'xcap-api',
+      isEditable: true,
+      requiresRestart: false,
+      isVisible: false,
+      selectList: [
+        {
+          id: 'xcap-api',
+          name: 'xcap-api',
+        },
+      ],
+    },
+    visibleBga: {
+      id: 'visibleBga',
+      name: 'BGA 영상 표시',
+      description:
+        '기본적인 배경 BGA 영상과 BGA가 존재하는 곡의 이미지(자켓)에 마우스 커서를 올려둔 경우 해당 곡의 BGA 영상을 표시합니다.',
+      defaultValue: true,
+      isEditable: true,
+      requiresRestart: false,
+      isVisible: false,
+    },
+    visibleAnimation: {
+      id: 'visibleAnimation',
+      name: '애니메이션 효과',
+      description: '프로그램의 모든 애니메이션 효과를 활성화/비활성화 합니다.',
+      defaultValue: true,
+      isEditable: true,
+      requiresRestart: false,
+      isVisible: false,
+    },
+    captureOnlyFocused: {
+      id: 'captureOnlyFocused',
+      name: '창이 포커스 된 경우에만 캡처',
+      description: '창이 포커스 된 경우에만 캡처를 진행합니다.',
+      defaultValue: true,
+      isEditable: true,
+      requiresRestart: false,
+      isVisible: false,
+    },
+    autoUpdate: {
+      id: 'autoUpdate',
+      name: '자동 업데이트',
+      description: '프로그램의 자동 업데이트를 활성화/비활성화 합니다.',
+      defaultValue: true,
+      isEditable: true,
+      requiresRestart: false,
+      isVisible: true,
+    },
+    autoRemoveBlackPixel: {
+      id: 'autoRemoveBlackPixel',
+      name: '자동 흑백 여백 제거',
+      description: '자동 캡처 모드에서 흑백 이미지를 제거합니다.',
+      defaultValue: true,
+      isEditable: false,
+      requiresRestart: false,
+      isVisible: false,
+    },
+    removeBlackPixelPx: {
+      id: 'removeBlackPixelPx',
+      name: '흑백 여백 제거 크기',
+      description: '수동으로 흑백 여백 제거 크기를 설정합니다.',
+      defaultValue: 8,
+      isEditable: false,
+      requiresRestart: false,
+      isVisible: false,
+    },
+    saveImageWhenCapture: {
+      id: 'saveImageWhenCapture',
+      name: '캡처 시 이미지 저장',
+      description: '수동 캡처 또는 자동 캡처 모드에서 캡처한 이미지를 저장합니다.',
+      defaultValue: true,
+      isEditable: true,
+      requiresRestart: false,
+      isVisible: true,
+    },
+    saveImageWithAllProfileWhenCapture: {
+      id: 'saveImageWithAllProfileWhenCapture',
+      name: '모든 프로필 포함하여 저장',
+      description: '모든 프로필을 포함하여 이미지를 저장합니다.',
+      defaultValue: true,
+      isEditable: true,
+      requiresRestart: false,
+      isVisible: true,
+      offList: ['saveImageWithoutOtherProfileWhenCapture', 'saveImageWithoutAllProfileWhenCapture'],
+    },
+    saveImageWithoutOtherProfileWhenCapture: {
+      id: 'saveImageWithoutOtherProfileWhenCapture',
+      name: '제3자 프로필 제외하여 저장',
+      description: '제3자 프로필을 제외하여 이미지를 저장합니다.',
+      defaultValue: false,
+      isEditable: true,
+      requiresRestart: false,
+      isVisible: true,
+      offList: ['saveImageWithAllProfileWhenCapture', 'saveImageWithoutAllProfileWhenCapture'],
+    },
+    saveImageWithoutAllProfileWhenCapture: {
+      id: 'saveImageWithoutAllProfileWhenCapture',
+      name: '모든 프로필 제외하여 저장',
+      description: '모든 프로필을 제외하여 이미지를 저장합니다.',
+      defaultValue: false,
+      isEditable: true,
+      requiresRestart: false,
+      isVisible: true,
+      offList: ['saveImageWithAllProfileWhenCapture', 'saveImageWithoutOtherProfileWhenCapture'],
+    },
+    saveImageBlurMode: {
+      id: 'saveImageBlurMode',
+      name: '이미지 저장 시 블러 효과 적용',
+      description: '이미지 저장 시 블러 효과를 적용합니다.',
+      defaultValue: 'blur',
+      isEditable: true,
+      requiresRestart: false,
+      isVisible: true,
+      selectList: [
+        {
+          id: 'blur',
+          name: '블러',
+        },
+        {
+          id: 'mask',
+          name: '마스크',
+        },
+      ],
+    },
+    resultOverlay: {
+      id: 'resultOverlay',
+      name: '결과 오버레이 표시',
+      description: '결과 오버레이를 표시합니다.',
+      defaultValue: true,
+      isEditable: true,
+      requiresRestart: false,
+      isVisible: false,
+    },
+    hjaOverlay: {
+      id: 'hjaOverlay',
+      name: '오버레이 표시',
+      description: 'HJA 오버레이를 표시합니다.',
+      defaultValue: false,
+      isEditable: true,
+      requiresRestart: false,
+      isVisible: false,
+    },
+    recentOverlay: {
+      id: 'recentOverlay',
+      name: '최근 기록 오버레이 표시',
+      description: '최근 기록 오버레이를 표시합니다.',
+      defaultValue: false,
+      isEditable: true,
+      requiresRestart: false,
+      isVisible: false,
+    },
+    alwaysOverlay: {
+      id: 'alwaysOverlay',
+      name: '상시 오버레이 표시',
+      description: '상시 오버레이를 표시합니다.',
+      defaultValue: false,
+      isEditable: true,
+      requiresRestart: false,
+      isVisible: false,
+    },
+    autoCaptureDjmaxRespectVOcrResultRegion: {
+      id: 'autoCaptureDjmaxRespectVOcrResultRegion',
+      name: '자동 인식 영역역 - DJMAX RESPECT V 프리스타일 결과창',
+      description:
+        '자동 캡처 모드에서 DJMAX RESPECT V 프리스타일 결과창 영역의 OCR 검사를 활성화/비활성화 합니다.',
+      defaultValue: true,
+      isEditable: true,
+      requiresRestart: false,
+      isVisible: true,
+    },
+    autoCaptureDjmaxRespectVOcrOpen2Region: {
+      id: 'autoCaptureDjmaxRespectVOcrOpen2Region',
+      name: '자동 인식 영역 - DJMAX RESPECT V 오픈 매치(2인)',
+      description:
+        '자동 캡처 모드에서 DJMAX RESPECT V 오픈 매치(2인) 결과창 영역의 OCR 검사를 활성화/비활성화 합니다.',
+      defaultValue: false,
+      isEditable: true,
+      requiresRestart: false,
+      isVisible: true,
+    },
+    autoCaptureDjmaxRespectVOcrOpen3Region: {
+      id: 'autoCaptureDjmaxRespectVOcrOpen3Region',
+      name: '자동 인식 영역 - DJMAX RESPECT V 오픈 매치(1인 또는 3인 이상)',
+      description:
+        '자동 캡처 모드에서 DJMAX RESPECT V 오픈 매치(1인 또는 3인 이상) 결과창 영역의 OCR 검사를 활성화/비활성화 합니다.',
+      defaultValue: false,
+      isEditable: true,
+      requiresRestart: false,
+      isVisible: true,
+    },
+    autoCaptureDjmaxRespectVOcrVersusRegion: {
+      id: 'autoCaptureDjmaxRespectVOcrVersusRegion',
+      name: '자동 인식 영역 - DJMAX RESPECT V 래더/버서스 매치',
+      description:
+        '자동 캡처 모드에서 DJMAX RESPECT V 래더/버서스 매치 결과창 영역의 OCR 검사를 활성화/비활성화 합니다.',
+      defaultValue: false,
+      isEditable: true,
+      requiresRestart: false,
+      isVisible: true,
+    },
+    autoCaptureWjmaxOcrResultRegion: {
+      id: 'autoCaptureWjmaxOcrResultRegion',
+      name: '자동 인식 영역 - WJMAX 프리스타일 결과창',
+      description:
+        '자동 캡처 모드에서 WJMAX 프리스타일 결과창 영역의 OCR 검사를 활성화/비활성화 합니다.',
+      defaultValue: true,
+      isEditable: true,
+      requiresRestart: false,
+      isVisible: true,
+    },
+    autoCapturePlatinaLabOcrResultRegion: {
+      id: 'autoCapturePlatinaLabOcrResultRegion',
+      name: '자동 인식 영역 - PLATiNA :: LAB 싱글플레이 결과창',
+      description:
+        '자동 캡처 모드에서 PLATiNA :: LAB 싱글플레이 결과창 영역의 OCR 검사를 활성화/비활성화 합니다.',
+      defaultValue: true,
+      isEditable: true,
+      requiresRestart: false,
+      isVisible: true,
+    },
+    autoStartGame: {
+      id: 'autoStartGame',
+      name: '게임 자동 실행',
+      description: 'RACLA 데스크톱 앱 실행 시 선택한 게임을 자동으로 실행합니다.',
+      defaultValue: false,
+      isEditable: true,
+      requiresRestart: false,
+      isVisible: true,
+    },
+    autoStartGameDjmaxRespectV: {
+      id: 'autoStartGameDjmaxRespectV',
+      name: 'DJMAX RESPECT V 자동 실행',
+      description:
+        'RACLA 데스크톱 앱 실행 시 DJMAX RESPECT V를 자동으로 실행합니다. 해당 기능은 Steam 버전의 DJMAX RESPECT V에서만 작동합니다.',
+      defaultValue: false,
+      isEditable: true,
+      requiresRestart: false,
+      offList: ['autoStartGameWjmax', 'autoStartGamePlatinaLab'],
+      isVisible: true,
+    },
+    autoStartGameWjmax: {
+      id: 'autoStartGameWjmax',
+      name: 'WJMAX 자동 실행',
+      description:
+        'RACLA 데스크톱 앱 실행 시 WJMAX를 자동으로 실행합니다. 해당 기능은 WJMAX 실행 파일의 경로를 지정한 경우에만 작동합니다.',
+      defaultValue: false,
+      isEditable: true,
+      requiresRestart: false,
+      offList: ['autoStartGameDjmaxRespectV', 'autoStartGamePlatinaLab'],
+      isVisible: true,
+    },
+    autoStartGameWjmaxPath: {
+      id: 'autoStartGameWjmaxPath',
+      name: 'WJMAX 경로',
+      description: 'WJMAX 경로를 지정합니다.',
+      defaultValue: '',
+      isEditable: true,
+      requiresRestart: false,
+      isFile: true,
+      isVisible: true,
+    },
+    autoStartGamePlatinaLab: {
+      id: 'autoStartGamePlatinaLab',
+      name: 'PLATiNA :: LAB 자동 실행',
+      description:
+        'RACLA 데스크톱 앱 실행 시 PLATiNA :: LAB를 자동으로 실행합니다. 해당 기능은 Steam 버전의 DJMAX RESPECT V에서만 작동합니다.',
+      defaultValue: false,
+      isEditable: true,
+      offList: ['autoStartGameDjmaxRespectV', 'autoStartGameWjmax'],
+      isVisible: true,
+    },
+    isMiniMode: {
+      id: 'isMiniMode',
+      name: '미니 모드',
+      description: '미니 모드를 활성화/비활성화 합니다.',
+      defaultValue: false,
+      isEditable: true,
+      requiresRestart: false,
+      isVisible: false,
+    },
+    closeToTray: {
+      id: 'closeToTray',
+      name: '트레이로 최소화',
+      description: '트레이로 최소화 합니다.',
+      defaultValue: false,
+      isEditable: true,
+      requiresRestart: false,
+      isVisible: true,
+    },
+    isNotificationSound: {
+      id: 'isNotificationSound',
+      name: '성과 기록 등록 시 알림 사운드',
+      description: '성과 기록 등록 시 알림 사운드를 활성화/비활성화 합니다.',
+      defaultValue: false,
+      isEditable: true,
+      requiresRestart: false,
+      isVisible: true,
+    },
+    autoDeleteCapturedImages: {
+      id: 'autoDeleteCapturedImages',
+      name: '캡처 이미지 자동 삭제',
+      description:
+        '설정한 기간이 지난 캡처 이미지를 자동으로 삭제합니다. 0으로 설정 시 자동 삭제하지 않습니다.',
+      defaultValue: 90,
+      isEditable: true,
+      requiresRestart: false,
+      isVisible: false,
+      selectList: [
+        {
+          id: 0,
+          name: '자동 삭제 안함',
+        },
+        {
+          id: 7,
+          name: '7일',
+        },
+        {
+          id: 14,
+          name: '14일',
+        },
+        {
+          id: 30,
+          name: '30일',
+        },
+        {
+          id: 90,
+          name: '90일',
+        },
+      ],
+    },
   },
-  wjmax: {
-    keyModeList: ['4', '4P', '6', '6P'],
-    levelList: [
-      1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26,
-      27, 28, 29, 30,
-    ],
-    difficulty: {
-      NM: {
-        name: 'NM',
-        fullName: '메시',
+  gmaeDictionary: {
+    // Electron 환경에서는 모달 확인 프로세스를 거치도록, 웹 환경에서는 바로 링크 열도록 함
+    djmax_respect_v: {
+      keyModeList: [4, 5, 6, 8],
+      levelList: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
+      difficulty: {
+        NM: {
+          name: 'NM',
+          fullName: 'NORMAL',
+        },
+        HD: {
+          name: 'HD',
+          fullName: 'HARD',
+        },
+        MX: {
+          name: 'MX',
+          fullName: 'MAXIMUM',
+        },
+        SC: {
+          name: 'SC',
+          fullName: 'SC',
+        },
       },
-      HD: {
-        name: 'HD',
-        fullName: '엔젤',
-      },
-      MX: {
-        name: 'MX',
-        fullName: '왁굳',
-      },
-      SC: {
-        name: 'SC',
-        fullName: '민수',
-      },
-      DPC: {
-        name: 'DPC',
-        fullName: '거짓말',
-      },
+      dlcList: [
+        ['R', 'RESPECT'],
+        ['P1', 'RESPECT'],
+        ['P2', 'RESPECT'],
+        ['ES', 'RESPECT'],
+        ['VE', 'RESPECT'],
+        ['GC', 'RESPECT'],
+        ['TR', 'RESPECT'],
+        ['GG', 'RESPECT'],
+        ['BS', 'RESPECT'],
+        ['CE', 'RESPECT'],
+        ['CY', 'RESPECT'],
+        ['DM', 'RESPECT'],
+        ['T1', 'RESPECT'],
+        ['T2', 'RESPECT'],
+        ['T3', 'RESPECT'],
+        ['CHU', 'RESPECT'],
+        ['GF', 'RESPECT'],
+        ['P3', 'RESPECT'],
+        ['ESTI', 'RESPECT'],
+        ['NXN', 'RESPECT'],
+        ['VE2', 'RESPECT'],
+        ['MD', 'RESPECT'],
+        ['TQ', 'RESPECT'],
+        ['VE3', 'RESPECT'],
+        ['EZ2', 'RESPECT'],
+        ['VE4', 'RESPECT'],
+        ['CP', 'RESPECT'],
+        ['MAP', 'RESPECT'],
+        ['VE5', 'RESPECT'],
+        ['FAL', 'RESPECT'],
+        ['VL', 'RESPECT'],
+        ['TEK', 'RESPECT'],
+        ['VL2', 'RESPECT'],
+        ['PLI1', 'RESPECT'],
+      ],
     },
-    dlcList: [],
-  },
-  platina_lab: {
-    keyModeList: [4, 5, 6, 8],
-    levelList: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-    difficulty: {
-      NM: {
-        name: 'NM',
-        fullName: 'NORMAL',
+    wjmax: {
+      keyModeList: ['4', '4P', '6', '6P'],
+      levelList: [
+        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25,
+        26, 27, 28, 29, 30,
+      ],
+      difficulty: {
+        NM: {
+          name: 'NM',
+          fullName: '메시',
+        },
+        HD: {
+          name: 'HD',
+          fullName: '엔젤',
+        },
+        MX: {
+          name: 'MX',
+          fullName: '왁굳',
+        },
+        SC: {
+          name: 'SC',
+          fullName: '민수',
+        },
+        DPC: {
+          name: 'DPC',
+          fullName: '거짓말',
+        },
       },
-      HD: {
-        name: 'HD',
-        fullName: 'HARD',
-      },
-      MX: {
-        name: 'MX',
-        fullName: 'MAXIMUM',
-      },
+      dlcList: [],
     },
-    dlcList: [],
+    platina_lab: {
+      keyModeList: [4, 5, 6, 8],
+      levelList: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+      difficulty: {
+        NM: {
+          name: 'NM',
+          fullName: 'NORMAL',
+        },
+        HD: {
+          name: 'HD',
+          fullName: 'HARD',
+        },
+        MX: {
+          name: 'MX',
+          fullName: 'MAXIMUM',
+        },
+      },
+      dlcList: [],
+    },
   },
   navDictionary: {
     projectRa: {
@@ -198,7 +619,7 @@ export const globalDictionary = {
         id: 'vArchiveNavTitle',
         name: 'V-ARCHIVE',
         isDisplay: true,
-        link: '/vArchive',
+        link: '/games/djmax_respect_v',
         userLevel: [],
         pages: [
           {
@@ -282,7 +703,7 @@ export const globalDictionary = {
         id: 'hjaNavTitle',
         name: '전일 아카이브',
         isDisplay: true,
-        link: '/hja',
+        link: '/games/djmax_respect_v',
         userLevel: [],
         pages: [
           {
@@ -296,7 +717,7 @@ export const globalDictionary = {
             icon: lucideIcons.trophy,
             isDisplay: true,
             isOpenBrowser: false,
-            link: '/ranking',
+            link: '/hard/ranking',
             userLevel: [],
             status: 'stable',
           },
@@ -311,7 +732,7 @@ export const globalDictionary = {
             icon: lucideIcons.database,
             isDisplay: true,
             isOpenBrowser: false,
-            link: '/db',
+            link: '/hard/db',
             userLevel: [],
             status: 'stable',
           },
@@ -326,7 +747,7 @@ export const globalDictionary = {
             icon: lucideIcons.ranking,
             isDisplay: true,
             isOpenBrowser: false,
-            link: '/grade',
+            link: '/hard/grade',
             userLevel: [],
             status: 'stable',
           },
@@ -366,7 +787,7 @@ export const globalDictionary = {
             icon: lucideIcons.dice,
             isDisplay: true,
             isOpenBrowser: true,
-            link: 'https://github.com/tuska298/djmax-random-selector-v',
+            link: 'https://github.com/wowvv0w/djmax-random-selector-v',
             userLevel: [],
             status: 'stable',
             platform: ['win32'],
@@ -409,7 +830,7 @@ export const globalDictionary = {
         id: 'wjmaxNavTitle',
         name: 'WJMAX',
         isDisplay: true,
-        link: '/projectRa',
+        link: '/games/wjmax',
         userLevel: [],
         pages: [
           {
@@ -423,7 +844,7 @@ export const globalDictionary = {
             icon: lucideIcons.upload,
             isDisplay: true,
             isOpenBrowser: false,
-            link: '/wjmax/regScore',
+            link: '/regScore',
             userLevel: [],
             status: 'stable',
           },
@@ -438,7 +859,7 @@ export const globalDictionary = {
             icon: lucideIcons.trophy,
             isDisplay: true,
             isOpenBrowser: false,
-            link: '/wjmax/board',
+            link: '/board',
             userLevel: [],
             status: 'stable',
           },
@@ -453,7 +874,7 @@ export const globalDictionary = {
             icon: lucideIcons.database,
             isDisplay: true,
             isOpenBrowser: false,
-            link: '/wjmax/db',
+            link: '/db',
             userLevel: [],
             status: 'stable',
           },
@@ -493,7 +914,7 @@ export const globalDictionary = {
         id: 'platinaLabNavTitle',
         name: 'PLATiNA :: LAB',
         isDisplay: true,
-        link: '/platina_lab',
+        link: '/games/platina_lab',
         userLevel: [],
         pages: [
           {

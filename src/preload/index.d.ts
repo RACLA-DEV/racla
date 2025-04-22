@@ -25,7 +25,7 @@ declare global {
       // 로깅 관련
       sendLog: (level: LogLevel, where: string, ...args: any[]) => void
 
-      //캡쳐 관련
+      //캡처 관련
       captureGameWindow: (gameTitle: string) => Promise<Buffer | null>
 
       // 파일 관리자 관련
@@ -48,6 +48,28 @@ declare global {
       createPlayerFile: (data: { userNo: string; userToken: string }) => Promise<boolean>
       openDiscordLogin: () => Promise<string>
       openBrowser: (url: string) => Promise<boolean>
+
+      // 파일 관리자 관련
+      getStorageInfo: () => Promise<StorageInfo>
+      getFolderPaths: () => Promise<{
+        documents: string
+        pictures: string
+        logs: string
+        appData: string
+      }>
+      openFolder: (folderType: 'documents' | 'pictures' | 'logs' | 'appData') => Promise<boolean>
+
+      // 앱 재시작 관련
+      restartApp: () => Promise<boolean>
+
+      // 로그 관련
+      clearAllLogs: () => Promise<boolean>
+
+      openFileDialog: (options: {
+        title?: string
+        defaultPath?: string
+        filters?: Array<{ name: string; extensions: string[] }>
+      }) => Promise<string | null>
     }
   }
 }

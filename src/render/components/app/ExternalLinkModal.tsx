@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from 'react-redux'
 export default function ExternalLinkModal({ theme }: { theme: string }) {
   // 모달 외부 클릭 처리
   const { openExternalLink, isOpenExternalLink } = useSelector((state: RootState) => state.ui)
+  const { font } = useSelector((state: RootState) => state.app.settingData)
   const dispatch = useDispatch()
 
   // ESC 키 누름 감지
@@ -23,7 +24,7 @@ export default function ExternalLinkModal({ theme }: { theme: string }) {
 
   return (
     <div
-      className={`tw:font-medium tw:fixed tw:inset-0 tw:z-[9999] tw:transition-opacity tw:duration-300 ${
+      className={`${font != 'default' ? 'tw:font-medium' : ''} tw:fixed tw:inset-0 tw:z-[9999] tw:transition-opacity tw:duration-300 ${
         isOpenExternalLink
           ? 'tw:opacity-100 tw:pointer-events-auto'
           : 'tw:opacity-0 tw:pointer-events-none'

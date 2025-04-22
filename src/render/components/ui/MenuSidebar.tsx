@@ -150,14 +150,25 @@ const MenuSidebar: React.FC = () => {
   const menuItems = getMenuItems()
 
   // 항목 클릭 핸들러
-  const handleItemClick = (item: any) => {
-    if (item.isExternal && item.path) {
-      // 외부 링크는 requestOpenExternalLink 사용하여 모달 확인 과정 거치도록 변경
-      dispatch(setOpenExternalLink(item.path))
-      dispatch(setIsOpenExternalLink(true))
-    } else if (item.path) {
-      // 내부 경로는 라우터로 이동
-      navigate(item.path)
+  const handleItemClick = (item: any, subItem: any) => {
+    if (item) {
+      if (subItem.isExternal && subItem.path) {
+        // 외부 링크는 requestOpenExternalLink 사용하여 모달 확인 과정 거치도록 변경
+        dispatch(setOpenExternalLink(subItem.path))
+        dispatch(setIsOpenExternalLink(true))
+      } else if (subItem.path) {
+        // 내부 경로는 라우터로 이동
+        navigate(item.path + subItem.path)
+      }
+    } else {
+      if (item.isExternal && item.path) {
+        // 외부 링크는 requestOpenExternalLink 사용하여 모달 확인 과정 거치도록 변경
+        dispatch(setOpenExternalLink(item.path))
+        dispatch(setIsOpenExternalLink(true))
+      } else if (item.path) {
+        // 내부 경로는 라우터로 이동
+        navigate(item.path)
+      }
     }
   }
 
@@ -232,7 +243,7 @@ const MenuSidebar: React.FC = () => {
                     {item.subItems.map((subItem) => (
                       <motion.li key={subItem.id} variants={itemAnimation} whileHover={{ x: 4 }}>
                         <motion.div
-                          onClick={() => handleItemClick(subItem)}
+                          onClick={() => handleItemClick(item, subItem)}
                           className={`tw:flex tw:items-center tw:p-2 tw:rounded-md tw:cursor-pointer tw:transition-colors ${
                             theme === 'dark' ? 'tw:hover:bg-slate-700' : 'tw:hover:bg-indigo-50'
                           }`}
@@ -255,7 +266,7 @@ const MenuSidebar: React.FC = () => {
                 <motion.div
                   variants={itemAnimation}
                   whileHover={{ x: 4 }}
-                  onClick={() => handleItemClick(item)}
+                  onClick={() => handleItemClick(null, item)}
                   className={`tw:flex tw:items-center tw:p-2.5 tw:rounded-md tw:cursor-pointer tw:transition-colors ${
                     theme === 'dark' ? 'tw:hover:bg-slate-700' : 'tw:hover:bg-indigo-50'
                   }`}

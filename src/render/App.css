@@ -2,6 +2,136 @@
 @import 'tailwindcss';
 @config './tailwind.config.mjs';
 
+/* 경기체 글꼴 추가 */
+@font-face {
+  font-style: normal;
+  font-weight: 300;
+  src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/2410-3@1.0/Title_Light.woff')
+    format('woff');
+  font-family: 'Gyeonggi';
+}
+
+@font-face {
+  font-style: normal;
+  font-weight: 500;
+  src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/2410-3@1.0/Title_Medium.woff')
+    format('woff');
+  font-family: 'Gyeonggi';
+}
+
+@font-face {
+  font-style: normal;
+  font-weight: 700;
+  src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/2410-3@1.0/Title_Bold.woff') format('woff');
+  font-family: 'Gyeonggi';
+}
+
+@font-face {
+  font-style: normal;
+  font-weight: 800;
+  src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/2410-3@1.0/TitleV.woff') format('woff');
+  font-family: 'Gyeonggi';
+}
+
+/* ONE-Mobile-POP 폰트 추가 */
+@font-face {
+  font-style: normal;
+  font-weight: normal;
+  src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2105_2@1.0/ONE-Mobile-POP.woff')
+    format('woff');
+  font-family: 'ONE-Mobile-POP';
+}
+
+@font-face {
+  font-weight: 900;
+  src:
+    local('Pretendard JP Black'),
+    url(./assets/woff2/PretendardJP-Black.woff2) format('woff2'),
+    url(./assets/woff/PretendardJP-Black.woff) format('woff');
+  font-family: 'Pretendard JP';
+  font-display: swap;
+}
+
+@font-face {
+  font-weight: 800;
+  src:
+    local('Pretendard JP ExtraBold'),
+    url(./assets/woff2/PretendardJP-ExtraBold.woff2) format('woff2'),
+    url(./assets/woff/PretendardJP-ExtraBold.woff) format('woff');
+  font-family: 'Pretendard JP';
+  font-display: swap;
+}
+
+@font-face {
+  font-weight: 700;
+  src:
+    local('Pretendard JP Bold'),
+    url(./assets/woff2/PretendardJP-Bold.woff2) format('woff2'),
+    url(./assets/woff/PretendardJP-Bold.woff) format('woff');
+  font-family: 'Pretendard JP';
+  font-display: swap;
+}
+
+@font-face {
+  font-weight: 600;
+  src:
+    local('Pretendard JP SemiBold'),
+    url(./assets/woff2/PretendardJP-SemiBold.woff2) format('woff2'),
+    url(./assets/woff/PretendardJP-SemiBold.woff) format('woff');
+  font-family: 'Pretendard JP';
+  font-display: swap;
+}
+
+@font-face {
+  font-weight: 500;
+  src:
+    local('Pretendard JP Medium'),
+    url(./assets/woff2/PretendardJP-Medium.woff2) format('woff2'),
+    url(./assets/woff/PretendardJP-Medium.woff) format('woff');
+  font-family: 'Pretendard JP';
+  font-display: swap;
+}
+
+@font-face {
+  font-weight: 400;
+  src:
+    local('Pretendard JP Regular'),
+    url(./assets/woff2/PretendardJP-Regular.woff2) format('woff2'),
+    url(./assets/woff/PretendardJP-Regular.woff) format('woff');
+  font-family: 'Pretendard JP';
+  font-display: swap;
+}
+
+@font-face {
+  font-weight: 300;
+  src:
+    local('Pretendard JP Light'),
+    url(./assets/woff2/PretendardJP-Light.woff2) format('woff2'),
+    url(./assets/woff/PretendardJP-Light.woff) format('woff');
+  font-family: 'Pretendard JP';
+  font-display: swap;
+}
+
+@font-face {
+  font-weight: 200;
+  src:
+    local('Pretendard JP ExtraLight'),
+    url(./assets/woff2/PretendardJP-ExtraLight.woff2) format('woff2'),
+    url(./assets/woff/PretendardJP-ExtraLight.woff) format('woff');
+  font-family: 'Pretendard JP';
+  font-display: swap;
+}
+
+@font-face {
+  font-weight: 100;
+  src:
+    local('Pretendard JP Thin'),
+    url(./assets/woff2/PretendardJP-Thin.woff2) format('woff2'),
+    url(./assets/woff/PretendardJP-Thin.woff) format('woff');
+  font-family: 'Pretendard JP';
+  font-display: swap;
+}
+
 /* 사용자 선택 및 드래그 방지 */
 * {
   -webkit-user-select: none;
@@ -104,7 +234,6 @@ body {
     -ms-user-select: none; */
   overflow: hidden;
   scroll-behavior: smooth !important;
-  font-family: 'SUITE Variable', sans-serif;
 }
 
 /* .background-image {
@@ -1129,4 +1258,28 @@ main {
   border-radius: 1rem;
   width: 400px;
   height: 2;
+}
+
+/* h 태그에 경기체 글꼴 적용 */
+.font-platina_lab h1,
+.font-platina_lab h2,
+.font-platina_lab h3,
+.font-platina_lab h4,
+.font-platina_lab h5,
+.font-platina_lab h6 {
+  font-family: 'Gyeonggi', sans-serif;
+}
+
+/* 모든 버튼에 ONE-Mobile-POP 폰트 적용 */
+.font-platina_lab button {
+  font-family: 'ONE-Mobile-POP', sans-serif !important;
+}
+
+/* 폰트 테마 설정 */
+.font-default {
+  font-family: 'Pretendard JP', sans-serif;
+}
+
+.font-platina_lab {
+  font-family: 'SUITE Variable', sans-serif;
 }

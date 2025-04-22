@@ -13,22 +13,25 @@ import storage from 'redux-persist/lib/storage'
 import appReducer from './slices/appSlice'
 import uiReducer from './slices/uiSlice'
 
-const persistConfig = {
-  key: 'root',
+const uiPersistConfig = {
+  key: 'ui',
   storage,
-  whitelist: ['ui', 'app'], // 유지할 상태 목록
+}
+
+const appPersistConfig = {
+  key: 'app',
+  storage,
+  blacklist: ['isSetting'], // isSetting은 유지하지 않음
 }
 
 const rootReducer = combineReducers({
-  ui: uiReducer,
-  app: appReducer,
+  ui: persistReducer(uiPersistConfig, uiReducer),
+  app: persistReducer(appPersistConfig, appReducer),
   // 추가 리듀서들...
 })
 
-const persistedReducer = persistReducer(persistConfig, rootReducer)
-
 export const store = configureStore({
-  reducer: persistedReducer,
+  reducer: rootReducer,
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: {

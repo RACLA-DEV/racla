@@ -34,11 +34,11 @@ const Footer: React.FC = () => {
         })
 
         if (response.status === 200) {
-          createLog('info', 'Server response:', response.data) // 디버깅용 로그
+          createLog('debug', 'Server response:', response.data) // 디버깅용 로그
           setServerStatus(response.data)
           setIsOnline(true)
         } else {
-          createLog('info', 'Server error status:', response.status) // 디버깅용 로그
+          createLog('debug', 'Server error status:', response.status) // 디버깅용 로그
           setIsOnline(false)
         }
       } catch (error) {
@@ -52,13 +52,13 @@ const Footer: React.FC = () => {
 
     // 30초마다 실행되는 인터벌 설정
     const interval = setInterval(() => {
-      createLog('info', 'Running interval check...') // 디버깅용 로그
+      createLog('debug', 'Running interval check...') // 디버깅용 로그
       checkServerStatus()
     }, 30000)
 
     // 클린업 함수
     return () => {
-      createLog('info', 'Cleaning up interval') // 디버깅용 로그
+      createLog('debug', 'Cleaning up interval') // 디버깅용 로그
       clearInterval(interval)
     }
   }, []) // 빈 의존성 배열 - 컴포넌트 마운트 시 한 번만 실행
@@ -116,7 +116,7 @@ const Footer: React.FC = () => {
 
   return (
     <div
-      className={`tw:flex tw:fixed tw:w-full tw:h-8 tw:items-center tw:bottom-0 tw:left-0 tw:px-2 tw:z-50 tw:font-semibold ${
+      className={`tw:flex tw:fixed tw:w-full tw:h-8 tw:items-center tw:bottom-0 tw:left-0 tw:px-2 tw:z-50 ${
         theme === 'dark'
           ? 'tw:border-slate-700/50 tw:text-slate-300'
           : 'tw:border-indigo-100/50 tw:text-indigo-900'
@@ -126,7 +126,7 @@ const Footer: React.FC = () => {
         <span className='tw:text-xs tw:flex tw:items-center'>
           <span className='tw:flex tw:items-center tw:gap-1'>
             <span
-              onClick={() => handleOpenExternalLink('https://racla.app')}
+              onClick={() => handleOpenExternalLink('https://status.racla.app')}
               className='tw:cursor-pointer tw:flex tw:items-center tw:gap-1'
             >
               <div className='tw:relative tw:flex tw:items-center tw:justify-center tw:mr-1'>
@@ -153,23 +153,21 @@ const Footer: React.FC = () => {
           {selectedGame === 'djmax_respect_v' && (
             <>
               <span>Powered by </span>
-              <button
+              <span
                 className='tw:text-xs tw:cursor-pointer'
-                type='button'
                 onClick={() =>
                   handleOpenExternalLink('https://github.com/djmax-in/openapi?tab=readme-ov-file')
                 }
               >
                 V-ARCHIVE
-              </button>
+              </span>
               <span> & </span>
-              <button
+              <span
                 className='tw:text-xs tw:cursor-pointer'
-                type='button'
                 onClick={() => handleOpenExternalLink('https://hard-archive.com')}
               >
                 전일 아카이브
-              </button>
+              </span>
               <span> · </span>
             </>
           )}

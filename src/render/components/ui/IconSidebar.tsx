@@ -1,5 +1,5 @@
 import { RootState } from '@render/store'
-import { GameType, setSelectedGame } from '@render/store/slices/appSlice'
+import { GameType, setIsSetting, setSelectedGame } from '@render/store/slices/appSlice'
 import { AnimatePresence, motion } from 'framer-motion'
 import React, { useState } from 'react'
 import { LuHouse, LuLayers, LuSettings } from 'react-icons/lu'
@@ -79,6 +79,10 @@ const IconSidebar: React.FC = () => {
     navigate(homePath)
   }
 
+  const handleOpenSettings = () => {
+    dispatch(setIsSetting(true))
+  }
+
   // 애니메이션 변수
   const sidebarAnimation = {
     hidden: { x: -20, opacity: 0 },
@@ -98,7 +102,7 @@ const IconSidebar: React.FC = () => {
       scale: 1,
       opacity: 1,
       transition: {
-        delay: 0.2 + index * 0.1,
+        // delay: 0.2 + index * 0.1,
         duration: 0.4,
         type: 'spring',
         stiffness: 260,
@@ -222,11 +226,11 @@ const IconSidebar: React.FC = () => {
             variants={iconAnimation(5)}
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.95 }}
-            onClick={() => handleNavigation('/settings')}
+            onClick={handleOpenSettings}
             className={`tw:w-12 tw:h-12 tw:flex tw:items-center tw:justify-center tw:rounded-lg tw:cursor-pointer tw:transition-all ${
               theme === 'dark'
-                ? 'tw:bg-slate-700 tw:text-indigo-400'
-                : 'tw:bg-white tw:text-indigo-600 tw:shadow-md'
+                ? 'tw:bg-slate-800 tw:hover:bg-slate-700 tw:text-indigo-400'
+                : 'tw:bg-gray-50 tw:hover:bg-white tw:text-indigo-600 tw:shadow-md'
             }`}
           >
             <LuSettings size={28} />

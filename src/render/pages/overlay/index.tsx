@@ -1,7 +1,9 @@
 import { createOverlayLog } from '@render/libs/logging'
+import { RootState } from '@render/store'
 import type { ProcessDescriptor } from 'ps-list'
 
 import { useEffect, useState } from 'react'
+import { useSelector } from 'react-redux'
 
 // 오버레이 모드 타입 정의
 type OverlayMode = 'debug' | 'transparent' | 'minimal' | 'full'
@@ -10,6 +12,7 @@ function OverlayPage() {
   const [processes, setProcesses] = useState<ProcessDescriptor[]>([])
   const [messages, setMessages] = useState<string[]>([])
   const [overlayMode, setOverlayMode] = useState<OverlayMode>('debug')
+  const { font } = useSelector((state: RootState) => state.app.settingData)
 
   useEffect(() => {
     // 문서 스타일 설정
@@ -74,7 +77,7 @@ function OverlayPage() {
           fontFamily: 'monospace',
           borderRadius: '8px',
         }}
-        className='tw:font-medium'
+        className={`${font != 'default' ? 'tw:font-medium' : ''}`}
       >
         <h2>Overlay Window (Debug Mode)</h2>
         <div style={{ display: 'flex', gap: '1rem', height: 'calc(100vh - 4rem)' }}>

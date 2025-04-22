@@ -1,6 +1,6 @@
 import { RootState } from '@render/store'
 import React, { ReactNode } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
+import { useSelector } from 'react-redux'
 import Footer from './Footer'
 import TitleBar from './Header'
 import IconSidebar from './IconSidebar'
@@ -12,12 +12,11 @@ interface AppLayoutProps {
 }
 
 const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
-  const { theme, sidebarCollapsed } = useSelector((state: RootState) => state.ui)
-  const dispatch = useDispatch()
-
+  const { theme } = useSelector((state: RootState) => state.ui)
+  const { font } = useSelector((state: RootState) => state.app.settingData)
   return (
     <div
-      className={`tw:flex tw:flex-col tw:h-screen tw:font-medium ${
+      className={`tw:flex tw:flex-col tw:h-screen ${font != 'default' ? 'tw:font-medium' : ''} ${
         theme === 'dark'
           ? 'tw:bg-gradient-to-br tw:from-slate-900/95 tw:via-slate-900/95 tw:to-slate-900'
           : 'tw:bg-gradient-to-br tw:from-indigo-50 tw:via-white/90 tw:to-white/40'
