@@ -1,6 +1,6 @@
 import { Icon } from '@iconify/react'
 import { globalDictionary } from '@render/constants/globalDictionary'
-import { createLog } from '@render/libs/logging'
+import { createLog } from '@render/libs/logger'
 import { RootState } from '@render/store'
 import { setIsSetting, setSettingData } from '@render/store/slices/appSlice'
 import type { SettingsData } from '@src/types/common/SettingData'

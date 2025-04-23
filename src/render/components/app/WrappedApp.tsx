@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { Outlet, useLocation } from 'react-router-dom'
 import apiClient from '../../../libs/apiClient'
 import { useNotificationSystem } from '../../hooks/useNotifications'
-import { createLog } from '../../libs/logging'
+import { createLog } from '../../libs/logger'
 import { RootState } from '../../store'
 import {
   setIsLoading,

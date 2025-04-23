@@ -1,5 +1,5 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit'
-import { createLog } from '@render/libs/logging'
+import { createLog } from '@render/libs/logger'
 import type { GameType } from '@src/types/common/GameType'
 import type { AppState } from '@src/types/redux/AppState'
 import type { Notification } from '@src/types/render/Notification'

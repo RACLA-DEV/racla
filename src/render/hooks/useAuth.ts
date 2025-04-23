@@ -1,4 +1,4 @@
-import { createLog } from '@render/libs/logging'
+import { createLog } from '@render/libs/logger'
 import type { SessionData } from '@src/types/common/SessionData'
 import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from '../store'

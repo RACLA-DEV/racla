@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 
 import { useEffect, useState } from 'react'
 
-import { createLog } from '@render/libs/logging'
+import { createLog } from '@render/libs/logger'
 import { Buffer } from 'buffer'
 
 const {

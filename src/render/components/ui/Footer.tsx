@@ -1,6 +1,6 @@
 import { Icon } from '@iconify/react'
 import { globalDictionary } from '@render/constants/globalDictionary'
-import { createLog } from '@render/libs/logging'
+import { createLog } from '@render/libs/logger'
 import { RootState } from '@render/store'
 import { setIsOpenExternalLink, setOpenExternalLink } from '@render/store/slices/uiSlice'
 import type { ServerStatus } from '@src/types/common/ServerStatus'

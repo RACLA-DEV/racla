@@ -1,4 +1,4 @@
-import { createLog } from '@render/libs/logging'
+import { createLog } from '@render/libs/logger'
 import { RootState } from '@render/store'
 import { setOpenExternalLink } from '@render/store/slices/uiSlice'
 import type { IUserNameRequest, IUserNameResponse } from '@src/types/common/IUserName'

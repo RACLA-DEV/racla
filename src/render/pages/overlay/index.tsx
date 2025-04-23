@@ -1,4 +1,4 @@
-import { createOverlayLog } from '@render/libs/logging'
+import { createOverlayLog } from '@render/libs/logger'
 import { RootState } from '@render/store'
 import type { ProcessDescriptor } from 'ps-list'
 

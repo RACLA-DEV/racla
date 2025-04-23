@@ -19,34 +19,18 @@ const lucideIcons = {
 
 export const globalDictionary = {
   version: `0.8.0-202504130000 Client (Vite)`,
-  copyright: `DJMAX RESPECT V(©NEOWIZ), WJMAX(©WJMAX STUDIO), PLATiNA :: LAB(©HIGH-END Games).
-  We deeply respect you. <3
-  RACLA is dedicated to your remarkable games and services.`,
   blurDataURL:
     'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDABQODxIPDRQSEBIXFRQdHx0fHRsdHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR3/2wBDAR0XFyAeIRshGxsdIR0hHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR3/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAb/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k=',
   settingDictionary: {
     hardwareAcceleration: {
       id: 'hardwareAcceleration',
-      name: '하드웨어 가속 활성화',
-      description:
-        '하드웨어 가속은 GPU를 사용하여 RACLA 데스크톱 앱이 더 부드럽게 동작하게 해줍니다. 앱의 화면에 문제가 발생한다면 이 설정을 비활성화 해보시기 바랍니다. 설정을 변경하면 앱이 다시 시작됩니다.',
       defaultValue: true,
       isEditable: false,
       requiresRestart: true,
       isVisible: true,
     },
-    // homeButtonAlignRight: {
-    //   id: 'homeButtonAlignRight',
-    //   name: '상단바 홈 버튼을 오른쪽으로 정렬',
-    //   description: '뒤로가기와 새로고침 버튼을 홈 버튼보다 우선으로 배치되도록 설정합니다.',
-    //   defaultValue: false,
-    //   isEditable: true,
-    //   requiresRestart: false,
-    // },
     autoCaptureMode: {
       id: 'autoCaptureMode',
-      name: '자동 캡처 모드',
-      description: '자동 캡처 모드를 활성화/비활성화 합니다.',
       defaultValue: true,
       isEditable: true,
       requiresRestart: false,
@@ -54,8 +38,6 @@ export const globalDictionary = {
     },
     autoCaptureIntervalTime: {
       id: 'autoCaptureIntervalTime',
-      name: '자동 캡처 간격',
-      description: '자동 캡처 모드의 간격을 설정합니다.',
       defaultValue: 1000,
       isEditable: true,
       requiresRestart: false,
@@ -63,39 +45,49 @@ export const globalDictionary = {
       selectList: [
         {
           id: 1000,
-          name: '1초',
+          name: '1',
+          i18n: {
+            key: 'time_second',
+            ns: 'common',
+          },
         },
         {
           id: 2000,
-          name: '2초',
+          name: '2',
+          i18n: {
+            key: 'time_second',
+            ns: 'common',
+          },
         },
         {
           id: 3000,
-          name: '3초',
+          name: '3',
+          i18n: {
+            key: 'time_second',
+            ns: 'common',
+          },
         },
         {
           id: 5000,
-          name: '5초',
+          name: '5',
+          i18n: {
+            key: 'time_second',
+            ns: 'common',
+          },
         },
         {
           id: 10000,
-          name: '10초',
+          name: '10',
+          i18n: {
+            key: 'time_second',
+            ns: 'common',
+          },
         },
         {},
       ],
     },
-    // autoCaptureProcessIntervalTime: {
-    //   id: 'autoCaptureProcessIntervalTime',
-    //   name: '자동 캡처 후처리 간격',
-    //   description: '자동 캡처 후처리 모드의 간격을 설정합니다.',
-    //   defaultValue: 1000,
-    //   isEditable: true,
-    //   requiresRestart: false,
-    // },
     language: {
       id: 'language',
-      name: '언어',
-      description: '프로그램의 언어를 설정합니다.',
       defaultValue: 'ko',
       isEditable: true,
       requiresRestart: false,
@@ -109,8 +101,6 @@ export const globalDictionary = {
     },
     font: {
       id: 'font',
-      name: '폰트',
-      description: '프로그램의 폰트를 설정합니다.',
       defaultValue: 'platina_lab',
       isEditable: true,
       requiresRestart: false,
@@ -128,8 +118,6 @@ export const globalDictionary = {
     },
     autoCaptureApi: {
       id: 'autoCaptureApi',
-      name: '자동 캡처 API',
-      description: '자동 캡처 모드에서 사용할 API를 설정합니다.',
       defaultValue: 'xcap-api',
       isEditable: true,
       requiresRestart: false,
@@ -143,9 +131,6 @@ export const globalDictionary = {
     },
     visibleBga: {
       id: 'visibleBga',
-      name: 'BGA 영상 표시',
-      description:
-        '기본적인 배경 BGA 영상과 BGA가 존재하는 곡의 이미지(자켓)에 마우스 커서를 올려둔 경우 해당 곡의 BGA 영상을 표시합니다.',
       defaultValue: true,
       isEditable: true,
       requiresRestart: false,
@@ -153,8 +138,6 @@ export const globalDictionary = {
     },
     visibleAnimation: {
       id: 'visibleAnimation',
-      name: '애니메이션 효과',
-      description: '프로그램의 모든 애니메이션 효과를 활성화/비활성화 합니다.',
       defaultValue: true,
       isEditable: true,
       requiresRestart: false,
@@ -162,8 +145,6 @@ export const globalDictionary = {
     },
     captureOnlyFocused: {
       id: 'captureOnlyFocused',
-      name: '창이 포커스 된 경우에만 캡처',
-      description: '창이 포커스 된 경우에만 캡처를 진행합니다.',
       defaultValue: true,
       isEditable: true,
       requiresRestart: false,
@@ -171,8 +152,6 @@ export const globalDictionary = {
     },
     autoUpdate: {
       id: 'autoUpdate',
-      name: '자동 업데이트',
-      description: '프로그램의 자동 업데이트를 활성화/비활성화 합니다.',
       defaultValue: true,
       isEditable: true,
       requiresRestart: false,
@@ -180,8 +159,6 @@ export const globalDictionary = {
     },
     autoRemoveBlackPixel: {
       id: 'autoRemoveBlackPixel',
-      name: '자동 흑백 여백 제거',
-      description: '자동 캡처 모드에서 흑백 이미지를 제거합니다.',
       defaultValue: true,
       isEditable: false,
       requiresRestart: false,
@@ -189,8 +166,6 @@ export const globalDictionary = {
     },
     removeBlackPixelPx: {
       id: 'removeBlackPixelPx',
-      name: '흑백 여백 제거 크기',
-      description: '수동으로 흑백 여백 제거 크기를 설정합니다.',
       defaultValue: 8,
       isEditable: false,
       requiresRestart: false,
@@ -198,8 +173,6 @@ export const globalDictionary = {
     },
     saveImageWhenCapture: {
       id: 'saveImageWhenCapture',
-      name: '캡처 시 이미지 저장',
-      description: '수동 캡처 또는 자동 캡처 모드에서 캡처한 이미지를 저장합니다.',
       defaultValue: true,
       isEditable: true,
       requiresRestart: false,
@@ -207,8 +180,6 @@ export const globalDictionary = {
     },
     saveImageWithAllProfileWhenCapture: {
       id: 'saveImageWithAllProfileWhenCapture',
-      name: '모든 프로필 포함하여 저장',
-      description: '모든 프로필을 포함하여 이미지를 저장합니다.',
       defaultValue: true,
       isEditable: true,
       requiresRestart: false,
@@ -217,8 +188,6 @@ export const globalDictionary = {
     },
     saveImageWithoutOtherProfileWhenCapture: {
       id: 'saveImageWithoutOtherProfileWhenCapture',
-      name: '제3자 프로필 제외하여 저장',
-      description: '제3자 프로필을 제외하여 이미지를 저장합니다.',
       defaultValue: false,
       isEditable: true,
       requiresRestart: false,
@@ -227,8 +196,6 @@ export const globalDictionary = {
     },
     saveImageWithoutAllProfileWhenCapture: {
       id: 'saveImageWithoutAllProfileWhenCapture',
-      name: '모든 프로필 제외하여 저장',
-      description: '모든 프로필을 제외하여 이미지를 저장합니다.',
       defaultValue: false,
       isEditable: true,
       requiresRestart: false,
@@ -237,8 +204,6 @@ export const globalDictionary = {
     },
     saveImageBlurMode: {
       id: 'saveImageBlurMode',
-      name: '이미지 저장 시 블러 효과 적용',
-      description: '이미지 저장 시 블러 효과를 적용합니다.',
       defaultValue: 'blur',
       isEditable: true,
       requiresRestart: false,
@@ -256,8 +221,6 @@ export const globalDictionary = {
     },
     resultOverlay: {
       id: 'resultOverlay',
-      name: '결과 오버레이 표시',
-      description: '결과 오버레이를 표시합니다.',
       defaultValue: true,
       isEditable: true,
       requiresRestart: false,
@@ -265,8 +228,6 @@ export const globalDictionary = {
     },
     hjaOverlay: {
       id: 'hjaOverlay',
-      name: '오버레이 표시',
-      description: 'HJA 오버레이를 표시합니다.',
       defaultValue: false,
       isEditable: true,
       requiresRestart: false,
@@ -274,8 +235,6 @@ export const globalDictionary = {
     },
     recentOverlay: {
       id: 'recentOverlay',
-      name: '최근 기록 오버레이 표시',
-      description: '최근 기록 오버레이를 표시합니다.',
       defaultValue: false,
       isEditable: true,
       requiresRestart: false,
@@ -283,8 +242,6 @@ export const globalDictionary = {
     },
     alwaysOverlay: {
       id: 'alwaysOverlay',
-      name: '상시 오버레이 표시',
-      description: '상시 오버레이를 표시합니다.',
       defaultValue: false,
       isEditable: true,
       requiresRestart: false,
@@ -292,9 +249,6 @@ export const globalDictionary = {
     },
     autoCaptureDjmaxRespectVOcrResultRegion: {
       id: 'autoCaptureDjmaxRespectVOcrResultRegion',
-      name: '자동 인식 영역역 - DJMAX RESPECT V 프리스타일 결과창',
-      description:
-        '자동 캡처 모드에서 DJMAX RESPECT V 프리스타일 결과창 영역의 OCR 검사를 활성화/비활성화 합니다.',
       defaultValue: true,
       isEditable: true,
       requiresRestart: false,
@@ -302,9 +256,6 @@ export const globalDictionary = {
     },
     autoCaptureDjmaxRespectVOcrOpen2Region: {
       id: 'autoCaptureDjmaxRespectVOcrOpen2Region',
-      name: '자동 인식 영역 - DJMAX RESPECT V 오픈 매치(2인)',
-      description:
-        '자동 캡처 모드에서 DJMAX RESPECT V 오픈 매치(2인) 결과창 영역의 OCR 검사를 활성화/비활성화 합니다.',
       defaultValue: false,
       isEditable: true,
       requiresRestart: false,
@@ -312,9 +263,6 @@ export const globalDictionary = {
     },
     autoCaptureDjmaxRespectVOcrOpen3Region: {
       id: 'autoCaptureDjmaxRespectVOcrOpen3Region',
-      name: '자동 인식 영역 - DJMAX RESPECT V 오픈 매치(1인 또는 3인 이상)',
-      description:
-        '자동 캡처 모드에서 DJMAX RESPECT V 오픈 매치(1인 또는 3인 이상) 결과창 영역의 OCR 검사를 활성화/비활성화 합니다.',
       defaultValue: false,
       isEditable: true,
       requiresRestart: false,
@@ -322,9 +270,6 @@ export const globalDictionary = {
     },
     autoCaptureDjmaxRespectVOcrVersusRegion: {
       id: 'autoCaptureDjmaxRespectVOcrVersusRegion',
-      name: '자동 인식 영역 - DJMAX RESPECT V 래더/버서스 매치',
-      description:
-        '자동 캡처 모드에서 DJMAX RESPECT V 래더/버서스 매치 결과창 영역의 OCR 검사를 활성화/비활성화 합니다.',
       defaultValue: false,
       isEditable: true,
       requiresRestart: false,
@@ -332,9 +277,6 @@ export const globalDictionary = {
     },
     autoCaptureWjmaxOcrResultRegion: {
       id: 'autoCaptureWjmaxOcrResultRegion',
-      name: '자동 인식 영역 - WJMAX 프리스타일 결과창',
-      description:
-        '자동 캡처 모드에서 WJMAX 프리스타일 결과창 영역의 OCR 검사를 활성화/비활성화 합니다.',
       defaultValue: true,
       isEditable: true,
       requiresRestart: false,
@@ -342,9 +284,6 @@ export const globalDictionary = {
     },
     autoCapturePlatinaLabOcrResultRegion: {
       id: 'autoCapturePlatinaLabOcrResultRegion',
-      name: '자동 인식 영역 - PLATiNA :: LAB 싱글플레이 결과창',
-      description:
-        '자동 캡처 모드에서 PLATiNA :: LAB 싱글플레이 결과창 영역의 OCR 검사를 활성화/비활성화 합니다.',
       defaultValue: true,
       isEditable: true,
       requiresRestart: false,
@@ -352,8 +291,6 @@ export const globalDictionary = {
     },
     autoStartGame: {
       id: 'autoStartGame',
-      name: '게임 자동 실행',
-      description: 'RACLA 데스크톱 앱 실행 시 선택한 게임을 자동으로 실행합니다.',
       defaultValue: false,
       isEditable: true,
       requiresRestart: false,
@@ -361,9 +298,6 @@ export const globalDictionary = {
     },
     autoStartGameDjmaxRespectV: {
       id: 'autoStartGameDjmaxRespectV',
-      name: 'DJMAX RESPECT V 자동 실행',
-      description:
-        'RACLA 데스크톱 앱 실행 시 DJMAX RESPECT V를 자동으로 실행합니다. 해당 기능은 Steam 버전의 DJMAX RESPECT V에서만 작동합니다.',
       defaultValue: false,
       isEditable: true,
       requiresRestart: false,
@@ -372,9 +306,6 @@ export const globalDictionary = {
     },
     autoStartGameWjmax: {
       id: 'autoStartGameWjmax',
-      name: 'WJMAX 자동 실행',
-      description:
-        'RACLA 데스크톱 앱 실행 시 WJMAX를 자동으로 실행합니다. 해당 기능은 WJMAX 실행 파일의 경로를 지정한 경우에만 작동합니다.',
       defaultValue: false,
       isEditable: true,
       requiresRestart: false,
@@ -383,8 +314,6 @@ export const globalDictionary = {
     },
     autoStartGameWjmaxPath: {
       id: 'autoStartGameWjmaxPath',
-      name: 'WJMAX 경로',
-      description: 'WJMAX 경로를 지정합니다.',
       defaultValue: '',
       isEditable: true,
       requiresRestart: false,
@@ -393,9 +322,6 @@ export const globalDictionary = {
     },
     autoStartGamePlatinaLab: {
       id: 'autoStartGamePlatinaLab',
-      name: 'PLATiNA :: LAB 자동 실행',
-      description:
-        'RACLA 데스크톱 앱 실행 시 PLATiNA :: LAB를 자동으로 실행합니다. 해당 기능은 Steam 버전의 DJMAX RESPECT V에서만 작동합니다.',
       defaultValue: false,
       isEditable: true,
       offList: ['autoStartGameDjmaxRespectV', 'autoStartGameWjmax'],
@@ -403,8 +329,6 @@ export const globalDictionary = {
     },
     isMiniMode: {
       id: 'isMiniMode',
-      name: '미니 모드',
-      description: '미니 모드를 활성화/비활성화 합니다.',
       defaultValue: false,
       isEditable: true,
       requiresRestart: false,
@@ -412,8 +336,6 @@ export const globalDictionary = {
     },
     closeToTray: {
       id: 'closeToTray',
-      name: '트레이로 최소화',
-      description: '트레이로 최소화 합니다.',
       defaultValue: false,
       isEditable: true,
       requiresRestart: false,
@@ -421,8 +343,6 @@ export const globalDictionary = {
     },
     isNotificationSound: {
       id: 'isNotificationSound',
-      name: '성과 기록 등록 시 알림 사운드',
-      description: '성과 기록 등록 시 알림 사운드를 활성화/비활성화 합니다.',
       defaultValue: false,
       isEditable: true,
       requiresRestart: false,
@@ -430,9 +350,6 @@ export const globalDictionary = {
     },
     autoDeleteCapturedImages: {
       id: 'autoDeleteCapturedImages',
-      name: '캡처 이미지 자동 삭제',
-      description:
-        '설정한 기간이 지난 캡처 이미지를 자동으로 삭제합니다. 0으로 설정 시 자동 삭제하지 않습니다.',
       defaultValue: 90,
       isEditable: true,
       requiresRestart: false,
