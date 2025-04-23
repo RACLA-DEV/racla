@@ -90,6 +90,7 @@
       "electron",
       "get-windows",
       "register-scheme",
+      "rolldown",
       "sharp",
       "tesseract.js"
     ],

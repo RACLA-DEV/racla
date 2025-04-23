@@ -18,9 +18,7 @@
     "^(react/(.*)$)|^(react$)",
     "^(next/(.*)$)|^(next$)",
     "<THIRD_PARTY_MODULES>",
-    "^(?!.*[.]css$)[./].*$",
-    "bootstrap/dist/css/bootstrap.min.css$",
-    ".*/globals.css$|@styles/globals.css$"
+    "^(?!.*[.]css$)[./].*$"
   ],
   "importOrderParserPlugins": ["typescript", "jsx", "decorators-legacy"],
   "importOrderTypeScriptVersion": "5.0.0"
