@@ -11,7 +11,7 @@ RACLA는 GGDRN0 STUDIO에서 개발한 종합리듬 게임 성과 관리 도구�
     
 **[WJMAX - 왁제이맥스](https://waktaverse.games/gameDetail/wjmax/)**: RACLA 자체 구축 서비스로 운영됩니다.    
     
-**[PLATiNA::LAB - 플라티나 랩](https://highendgames.co.kr/platina-lab/ko)**: RACLA 자체 구축 서비스로 운영됩니다.
+**[PLATiNA::LAB - 플라티나 랩](https://platinalab.net/)**: RACLA 자체 구축 서비스로 운영됩니다.
 
 ## TMI
 Vite는 신이야.    
