@@ -28,3 +28,4 @@ dist-ssr
 /.env.development
 /src/render/.env.development
 /src/render/.env.production
+/.cursorrules
