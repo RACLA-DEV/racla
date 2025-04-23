@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react'
 import { createHashRouter, Navigate, Outlet } from 'react-router-dom'
-import ComponentLoading from './components/app/ComponentLoading'
+import PageLoading from './components/app/PageLoading'
+import CheatsheetPage from './pages/test/cheatsheet'
 
 const WrappedApp = lazy(() => import('./components/app/WrappedApp'))
 const AppLayout = lazy(() => import('./components/ui/AppLayout'))
@@ -11,7 +12,7 @@ const Overlay = lazy(() => import('./pages/overlay'))
 // 기본 레이아웃이 적용된 라우트를 위한 컴포넌트
 const DefaultLayout = () => {
   return (
-    <Suspense fallback={<ComponentLoading />}>
+    <Suspense fallback={<PageLoading />}>
       <AppLayout>
         <Outlet />
       </AppLayout>
@@ -24,7 +25,7 @@ export const router = createHashRouter([
   {
     path: '/',
     element: (
-      <Suspense fallback={<ComponentLoading />}>
+      <Suspense fallback={<PageLoading />}>
         <WrappedApp />
       </Suspense>
     ),
@@ -40,7 +41,7 @@ export const router = createHashRouter([
           {
             path: 'home',
             element: (
-              <Suspense fallback={<ComponentLoading />}>
+              <Suspense fallback={<PageLoading />}>
                 <MainPage />
               </Suspense>
             ),
@@ -48,7 +49,7 @@ export const router = createHashRouter([
           {
             path: '/auth/login',
             element: (
-              <Suspense fallback={<ComponentLoading />}>
+              <Suspense fallback={<PageLoading />}>
                 <Login />
               </Suspense>
             ),
@@ -57,13 +58,21 @@ export const router = createHashRouter([
             path: '*',
             element: <Navigate to='/home' />,
           },
+          process.env.NODE_ENV === 'development' && {
+            path: '/test/cheatsheet',
+            element: (
+              <Suspense fallback={<PageLoading />}>
+                <CheatsheetPage />
+              </Suspense>
+            ),
+          },
         ],
       },
       // 레이아웃이 필요 없는 페이지들
       {
         path: 'overlay',
         element: (
-          <Suspense fallback={<ComponentLoading />}>
+          <Suspense fallback={<PageLoading />}>
             <Overlay />
           </Suspense>
         ),

@@ -7,6 +7,7 @@ import type { Notification } from '@src/types/render/Notification'
 const initialState: AppState = {
   selectedGame: 'djmax_respect_v',
   isSetting: false,
+  isLoading: true,
   settingData: {},
   userData: {
     userName: '',
@@ -83,6 +84,9 @@ export const appSlice = createSlice({
     },
     setPlatform: (state, action: PayloadAction<string>) => {
       state.platform = action.payload
+    },
+    setIsLoading: (state, action: PayloadAction<boolean>) => {
+      state.isLoading = action.payload
     },
     setIsLoggedIn: (state, action: PayloadAction<boolean>) => {
       state.isLoggedIn = action.payload
@@ -204,6 +208,7 @@ export const {
   setVArchiveUserData,
   setPlatform,
   setIsLoggedIn,
+  setIsLoading,
   setSongData,
   logout,
   setIsDetectedGame,

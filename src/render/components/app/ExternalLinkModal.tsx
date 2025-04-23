@@ -3,9 +3,10 @@ import { setIsOpenExternalLink, setOpenExternalLink } from '@render/store/slices
 import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
-export default function ExternalLinkModal({ theme }: { theme: string }) {
-  // 모달 외부 클릭 처리
-  const { openExternalLink, isOpenExternalLink } = useSelector((state: RootState) => state.ui)
+export default function ExternalLinkModal() {
+  const { openExternalLink, isOpenExternalLink, theme } = useSelector(
+    (state: RootState) => state.ui,
+  )
   const { font } = useSelector((state: RootState) => state.app.settingData)
   const dispatch = useDispatch()
 

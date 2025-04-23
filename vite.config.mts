@@ -35,5 +35,6 @@ export default defineConfig({
   build: {
     outDir: join(__dirname, 'dist/render'),
     emptyOutDir: true,
+    minify: true,
   },
 })

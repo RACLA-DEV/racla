@@ -175,6 +175,22 @@ code {
   }
 }
 
+html {
+  background-color: oklch(98.2% 0.006 270);
+}
+
+html > body {
+  background-color: oklch(98.2% 0.006 270);
+}
+
+html.dark {
+  background-color: oklch(20.8% 0.042 265.755);
+}
+
+html.dark > body {
+  background-color: oklch(20.8% 0.042 265.755);
+}
+
 .tw\:animate-custom-ping {
   animation: custom-ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
 }

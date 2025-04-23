@@ -1,12 +1,14 @@
+import { globalDictionary } from '@render/constants/globalDictionary'
 import { useAuth } from '@render/hooks/useAuth'
-import axios from 'axios'
 import { lazy, Suspense, useCallback, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Outlet, useLocation } from 'react-router-dom'
+import apiClient from '../../../libs/apiClient'
 import { useNotificationSystem } from '../../hooks/useNotifications'
 import { createLog } from '../../libs/logging'
 import { RootState } from '../../store'
 import {
+  setIsLoading,
   setIsLoggedIn,
   setIsSetting,
   setSettingData,
@@ -15,7 +17,6 @@ import {
   setVArchiveUserData,
 } from '../../store/slices/appSlice'
 import { ThemeProvider } from '../ui/ThemeProvider'
-import ComponentLoading from './ComponentLoading'
 
 // 지연 로딩을 위한 컴포넌트 임포트
 const NotificationContainer = lazy(() =>
@@ -26,11 +27,7 @@ const LoadingSkeleton = lazy(() => import('./LoadingSkeleton'))
 const SettingModal = lazy(() => import('./SettingModal'))
 
 export default function WrappedApp() {
-  const theme = useSelector((state: RootState) => state.ui.theme)
-  const fontSetting = useSelector(
-    (state: RootState) => state.app.settingData?.font?.defaultValue || 'platina_lab',
-  )
-  const [isLoading, setIsLoading] = useState(true)
+  const { isLoading } = useSelector((state: RootState) => state.app)
   const [isOverlayMode, setIsOverlayMode] = useState(false)
   const location = useLocation()
   const { notifications, removeNotification, showNotification } = useNotificationSystem()
@@ -83,9 +80,19 @@ export default function WrappedApp() {
       }
 
       createLog('debug', `${gameCode} 곡 데이터 로드 및 저장 완료`)
+      isLoading &&
+        showNotification(
+          `${globalDictionary.gmaeDictionary[gameCode].name} 데이터베이스 동기화 성공 :)`,
+          'success',
+        )
       return data
     } catch (error) {
       await createLog('error', `${gameCode} 곡 데이터 로드 실패:`, error.message)
+      isLoading &&
+        showNotification(
+          `${globalDictionary.gmaeDictionary[gameCode].name} 데이터베이스 동기화 실패 :(`,
+          'error',
+        )
 
       // 로컬에 저장된 데이터 로드 시도
       try {
@@ -94,11 +101,21 @@ export default function WrappedApp() {
           if (localData && localData.length > 0) {
             dispatch(setSongData({ data: localData, gameCode }))
             await createLog('debug', `${gameCode} 로컬 곡 데이터 로드 완료`)
+            isLoading &&
+              showNotification(
+                `${globalDictionary.gmaeDictionary[gameCode].name} 로컬 데이터베이스 로드 성공`,
+                'success',
+              )
             return localData
           }
         }
       } catch (localError) {
         await createLog('error', `${gameCode} 로컬 곡 데이터 로드 실패:`, localError)
+        isLoading &&
+          showNotification(
+            `${globalDictionary.gmaeDictionary[gameCode].name} 로컬 데이터베이스 로드 실패`,
+            'error',
+          )
       }
 
       return null
@@ -156,13 +173,10 @@ export default function WrappedApp() {
               if (session && session.userNo && session.userToken) {
                 try {
                   createLog('debug', '세션 데이터가 존재하여 자동 로그인 요청:', session)
-                  const response = await axios.post(
-                    `${import.meta.env.VITE_API_URL}/v2/racla/user/login`,
-                    {
-                      userNo: session.userNo,
-                      userToken: session.userToken,
-                    },
-                  )
+                  const response = await apiClient.post<any>(`/v2/racla/user/login`, {
+                    userNo: session.userNo,
+                    userToken: session.userToken,
+                  })
 
                   if (response.status === 200) {
                     const data = response.data
@@ -211,6 +225,10 @@ export default function WrappedApp() {
                       )
                     }
                     dispatch(setIsLoggedIn(true))
+                    showNotification(
+                      `${session.userName}님 RACLA에 오신 것을 환영합니다.`,
+                      'success',
+                    )
                   } else {
                     createLog('error', '세션 로드 실패:', session)
                     logout()
@@ -263,22 +281,18 @@ export default function WrappedApp() {
     // 로딩 상태 처리
     if (isOverlayPath) {
       // 오버레이 모드일 때는 로딩 화면 바로 숨김
-      setIsLoading(false)
+      dispatch(setIsLoading(false))
     } else {
       // 일반 모드일 때는 지연 후 로딩 숨김
       setTimeout(() => {
-        setIsLoading(false)
+        dispatch(setIsLoading(false))
       }, 2000)
     }
   }, [location.pathname])
 
   return (
     <ThemeProvider>
-      {!isOverlayMode && (
-        <Suspense fallback={<ComponentLoading />}>
-          <LoadingSkeleton theme={theme} isLoading={isLoading} />
-        </Suspense>
-      )}
+      {!isOverlayMode && <LoadingSkeleton />}
 
       {/* 하위 라우트 렌더링 */}
       {!isLoading && <Outlet />}
@@ -293,12 +307,12 @@ export default function WrappedApp() {
       {/* 외부 링크 모달 (오버레이 모드가 아닐 때만 표시) */}
       {!isOverlayMode && (
         <Suspense fallback={<div />}>
-          <ExternalLinkModal theme={theme} />
+          <ExternalLinkModal />
         </Suspense>
       )}
       {!isOverlayMode && (
         <Suspense fallback={<div />}>
-          <SettingModal theme={theme} />
+          <SettingModal />
         </Suspense>
       )}
     </ThemeProvider>

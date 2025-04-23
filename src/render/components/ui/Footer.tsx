@@ -4,10 +4,10 @@ import { createLog } from '@render/libs/logging'
 import { RootState } from '@render/store'
 import { setIsOpenExternalLink, setOpenExternalLink } from '@render/store/slices/uiSlice'
 import type { ServerStatus } from '@src/types/common/ServerStatus'
-import axios from 'axios'
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
+import apiClient from '../../../libs/apiClient'
 
 const Footer: React.FC = () => {
   const { theme } = useSelector((state: RootState) => state.ui)
@@ -25,7 +25,7 @@ const Footer: React.FC = () => {
           'Checking server status...',
           `${import.meta.env.VITE_API_URL}/v2/racla/ping`,
         ) // 디버깅용 로그
-        const response = await axios.get(`${import.meta.env.VITE_API_URL}/v2/racla/ping`, {
+        const response = await apiClient.get<any>(`/v2/racla/ping`, {
           timeout: 5000, // 5초 타임아웃 설정
         })
 

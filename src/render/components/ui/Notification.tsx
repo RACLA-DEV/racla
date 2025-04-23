@@ -1,15 +1,9 @@
+import { Icon } from '@iconify/react'
 import { RootState } from '@render/store'
 import type { NotificationContainerProps } from '@src/types/render/NotificationContainerProps'
 import type { NotificationProps } from '@src/types/render/NotificationProps'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
-import {
-  FaCheckCircle,
-  FaExclamationCircle,
-  FaInfoCircle,
-  FaTimes,
-  FaTimesCircle,
-} from 'react-icons/fa'
 import { useSelector } from 'react-redux'
 
 // 알림 컴포넌트
@@ -24,38 +18,36 @@ export function Notification({ notification, onRemove, index }: NotificationProp
       case 'success':
         return {
           background: 'tw:bg-green-500',
-          icon: (
-            <FaCheckCircle className={`tw:text-lg ${theme === 'dark' ? 'tw:text-white' : ''}`} />
-          ),
+          iconName: 'lucide:check-circle',
+          iconColor: 'tw:text-green-500',
+          bgColor: theme === 'dark' ? 'tw:bg-green-900/20' : 'tw:bg-green-100',
         }
       case 'error':
         return {
           background: 'tw:bg-red-500',
-          icon: (
-            <FaTimesCircle className={`tw:text-lg ${theme === 'dark' ? 'tw:text-white' : ''}`} />
-          ),
+          iconName: 'lucide:x-circle',
+          iconColor: 'tw:text-red-500',
+          bgColor: theme === 'dark' ? 'tw:bg-red-900/20' : 'tw:bg-red-100',
         }
       case 'warning':
         return {
           background: 'tw:bg-amber-500',
-          icon: (
-            <FaExclamationCircle
-              className={`tw:text-lg ${theme === 'dark' ? 'tw:text-white' : ''}`}
-            />
-          ),
+          iconName: 'lucide:alert-circle',
+          iconColor: 'tw:text-amber-500',
+          bgColor: theme === 'dark' ? 'tw:bg-amber-900/20' : 'tw:bg-amber-100',
         }
       case 'info':
       default:
         return {
           background: 'tw:bg-blue-500',
-          icon: (
-            <FaInfoCircle className={`tw:text-lg ${theme === 'dark' ? 'tw:text-white' : ''}`} />
-          ),
+          iconName: 'lucide:info',
+          iconColor: 'tw:text-blue-500',
+          bgColor: theme === 'dark' ? 'tw:bg-blue-900/20' : 'tw:bg-blue-100',
         }
     }
   }
 
-  const { background, icon } = getTypeStyles()
+  const { background, iconName, iconColor, bgColor } = getTypeStyles()
 
   // 프로그레스 바 애니메이션
   useEffect(() => {
@@ -74,7 +66,7 @@ export function Notification({ notification, onRemove, index }: NotificationProp
   return (
     <motion.div
       id={`notification-${id}`}
-      className='tw:flex tw:w-full tw:max-w-sm tw:overflow-hidden tw:rounded-lg tw:shadow-lg'
+      className='tw:flex tw:text-sm tw:w-full tw:max-w-sm tw:overflow-hidden tw:rounded-lg tw:shadow-lg tw:mt-2'
       initial={{ opacity: 0, x: 300 }}
       animate={{
         opacity: isRemoving ? 0 : 1,
@@ -84,21 +76,27 @@ export function Notification({ notification, onRemove, index }: NotificationProp
       exit={{ opacity: 0, x: 300 }}
       style={{ zIndex: 1000 - index }} // 새 알림이 항상 위에 오도록
     >
-      <div className={`tw:w-2 tw:flex-shrink-0 ${background}`}></div>
+      {/* <div className={`tw:w-2 tw:flex-shrink-0 ${background}`}></div> */}
 
-      <div className='tw:flex-grow tw:bg-white tw:pt-4 tw:px-4 tw:dark:bg-slate-800'>
-        <div className='tw:flex tw:items-start'>
-          <div className={`tw:flex-shrink-0 tw:text-${type} tw:mr-3`}>{icon}</div>
+      <div className='tw:flex-grow tw:bg-white tw:dark:bg-slate-900'>
+        <div className='tw:flex tw:items-center tw:pt-3 tw:px-4'>
+          <div className='tw:flex-shrink-0 tw:mr-2'>
+            <div
+              className={`tw:flex tw:items-center tw:w-5 tw:h-5 tw:justify-center tw:rounded-sm ${bgColor}`}
+            >
+              <Icon icon={iconName} className={`tw:w-4 tw:h-4 ${iconColor}`} />
+            </div>
+          </div>
 
           <div className='tw:flex-grow'>
-            <p className='tw:text-sm tw:text-slate-800 tw:dark:text-slate-200'>{message}</p>
+            <p className='tw:text-xs tw:text-slate-800 tw:dark:text-slate-200'>{message}</p>
           </div>
 
           <button
             onClick={() => onRemove(id)}
             className='tw:ml-2 tw:flex-shrink-0 tw:text-slate-400 tw:hover:text-slate-500 tw:focus:outline-none tw:dark:text-slate-500 tw:dark:hover:text-slate-400'
           >
-            <FaTimes />
+            <Icon icon='lucide:x' className='tw:w-4 tw:h-4' />
           </button>
         </div>
 
@@ -119,9 +117,12 @@ export function Notification({ notification, onRemove, index }: NotificationProp
 export function NotificationContainer({ notifications, onRemove }: NotificationContainerProps) {
   // 최대 5개까지만 표시
   const visibleNotifications = notifications.slice(-5)
+  const { isLoading } = useSelector((state: RootState) => state.app)
 
   return (
-    <div className='tw:fixed tw:right-4 tw:bottom-4 tw:z-50 tw:space-y-2'>
+    <div
+      className={`tw:fixed tw:right-2 tw:bottom-10 tw:z-50 tw:space-y-2 tw:transition-opacity tw:duration-300 ${isLoading ? 'tw:opacity-0 tw:pointer-events-none' : 'tw:opacity-100'}`}
+    >
       <AnimatePresence>
         {visibleNotifications.map((notification, index) => (
           <Notification

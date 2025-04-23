@@ -2,7 +2,7 @@ import { RootState } from '@render/store'
 import type { ChildrenReactNodeProps } from '@src/types/render/ChildrenReactNodeProps'
 import React, { lazy, Suspense } from 'react'
 import { useSelector } from 'react-redux'
-import ComponentLoading from '../app/ComponentLoading'
+import PageLoading from '../app/PageLoading'
 
 // 지연 로딩을 위한 컴포넌트 임포트
 const Footer = lazy(() => import('./Footer'))
@@ -49,13 +49,7 @@ const AppLayout: React.FC<ChildrenReactNodeProps> = ({ children }) => {
           </Suspense>
 
           {/* 메인 컨텐츠 영역 */}
-          <Suspense
-            fallback={
-              <div className='tw:flex-1 tw:flex tw:items-center tw:justify-center'>
-                <ComponentLoading />
-              </div>
-            }
-          >
+          <Suspense fallback={<PageLoading />}>
             <MainContent>{children}</MainContent>
           </Suspense>
         </div>

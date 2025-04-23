@@ -464,6 +464,7 @@ export const globalDictionary = {
   gmaeDictionary: {
     // Electron 환경에서는 모달 확인 프로세스를 거치도록, 웹 환경에서는 바로 링크 열도록 함
     djmax_respect_v: {
+      name: 'DJMAX RESPECT V',
       keyModeList: [4, 5, 6, 8],
       levelList: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
       difficulty: {
@@ -522,6 +523,7 @@ export const globalDictionary = {
       ],
     },
     wjmax: {
+      name: 'WJMAX',
       keyModeList: ['4', '4P', '6', '6P'],
       levelList: [
         1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25,
@@ -552,6 +554,7 @@ export const globalDictionary = {
       dlcList: [],
     },
     platina_lab: {
+      name: 'PLATiNA :: LAB',
       keyModeList: [4, 5, 6, 8],
       levelList: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
       difficulty: {

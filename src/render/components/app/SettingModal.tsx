@@ -472,8 +472,9 @@ const StorageInfo = ({ theme }: { theme: string }) => {
   )
 }
 
-export default function SettingModal({ theme }: { theme: string }) {
+export default function SettingModal() {
   const dispatch = useDispatch()
+  const { theme } = useSelector((state: RootState) => state.ui)
   const { isSetting, settingData } = useSelector((state: RootState) => state.app)
   const { font } = useSelector((state: RootState) => state.app.settingData)
   const [activeCategory, setActiveCategory] = useState<string>('general')

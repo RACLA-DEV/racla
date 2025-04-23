@@ -2,14 +2,14 @@ import { createLog } from '@render/libs/logging'
 import { RootState } from '@render/store'
 import { setOpenExternalLink } from '@render/store/slices/uiSlice'
 import type { IUserNameRequest, IUserNameResponse } from '@src/types/common/IUserName'
-import axios from 'axios'
+import { ProxyResponse } from '@src/types/dto/proxy/ProxyResponse'
 import { useEffect, useRef, useState } from 'react'
 import { FaCircleInfo, FaDiscord, FaLink, FaV } from 'react-icons/fa6'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
+import apiClient from '../../../libs/apiClient'
 import { useAuth } from '../../hooks/useAuth'
 import { useNotificationSystem } from '../../hooks/useNotifications'
-
 export default function LoginPage() {
   const navigate = useNavigate()
   const { login, isLoggedIn } = useAuth()
@@ -29,9 +29,11 @@ export default function LoginPage() {
     }
   }, [isLoggedIn, navigate])
 
-  const getUserName = async <T = IUserNameResponse, R = IUserNameRequest>(body: R): Promise<T> => {
-    const { data } = await axios.post<T>(
-      `${import.meta.env.VITE_PROXY_API_URL || 'http://localhost:3000/api/proxy'}?url=https://v-archive.net/client/login`,
+  const getUserName = async <T = IUserNameResponse, R = IUserNameRequest>(
+    body: R,
+  ): Promise<ProxyResponse<T>> => {
+    const { data } = await apiClient.postProxy<ProxyResponse<T>>(
+      `https://v-archive.net/client/login`,
       body,
     )
     return data
@@ -137,9 +139,9 @@ export default function LoginPage() {
             // V-ARCHIVE API로 유저 이름 가져오기
             const result = await getUserName({ userNo, token })
 
-            if (result.success) {
+            if (result.data.success) {
               // RACLA 서버 API에 V-ARCHIVE 정보로 로그인
-              const response = await axios.post(
+              const response = await apiClient.post<any>(
                 `${import.meta.env.VITE_API_URL || 'http://localhost:3000/api'}/v2/racla/user/login/oauth/vArchive`,
                 { userNo, userToken: token },
               )
@@ -153,7 +155,7 @@ export default function LoginPage() {
                   discordLinked: response.data.discordLinked || false,
                   vArchiveUserNo: Number(userNo),
                   vArchiveUserToken: token,
-                  vArchiveUserName: result.nickname,
+                  vArchiveUserName: result.data.nickname,
                   vArchiveLinked: true,
                 })
 
@@ -201,11 +203,6 @@ export default function LoginPage() {
     }
   }
 
-  const handleRaFileSelect = () => {
-    createLog('debug', 'RACLA 데스크톱 앱으로 생성한 player.txt 파일을 선택해주세요.')
-    raFileInputRef.current?.click()
-  }
-
   const handleVArchiveFileSelect = () => {
     createLog('debug', 'V-ARCHIVE 공식 클라이언트로 생성한 account.txt 파일을 선택해주세요.')
     vArchiveFileInputRef.current?.click()
@@ -221,10 +218,7 @@ export default function LoginPage() {
         return
       }
 
-      const response = await axios.post(
-        `${import.meta.env.VITE_API_URL || 'http://localhost:3000/api'}/v2/racla/user/login/oauth/discord`,
-        { code },
-      )
+      const response = await apiClient.post<any>(`/v2/racla/user/login/oauth/discord`, { code })
 
       if (response.status === 200 && response.data) {
         const success = await login({
@@ -237,10 +231,12 @@ export default function LoginPage() {
           vArchiveUserToken: response.data.varchiveUserToken || '',
           vArchiveUserName:
             response.data.varchiveUserNo && response.data.varchiveUserToken
-              ? await getUserName({
-                  userNo: response.data.varchiveUserNo,
-                  token: response.data.varchiveUserToken,
-                })
+              ? (
+                  await getUserName({
+                    userNo: response.data.varchiveUserNo,
+                    token: response.data.varchiveUserToken,
+                  })
+                ).data.nickname
               : '',
           vArchiveLinked: response.data.varchiveLinked || false,
         })
@@ -256,46 +252,6 @@ export default function LoginPage() {
       createLog('error', 'Discord 로그인 오류:', error.message)
       handleError('Discord로 로그인 중 오류가 발생했습니다.')
     }
-  }
-
-  const handleRegister = async () => {
-    if (!nickname.trim()) {
-      handleError('닉네임을 입력해주세요.')
-      return
-    }
-
-    setIsRegistering(true)
-    try {
-      const response = await axios.post(
-        `${import.meta.env.VITE_API_URL || 'http://localhost:3000/api'}/v2/racla/user/register`,
-        { userName: nickname },
-      )
-
-      if (response.status === 200 && response.data) {
-        await window.electron.createPlayerFile({
-          userNo: response.data.userNo,
-          userToken: response.data.userToken,
-        })
-
-        createLog('debug', '계정 생성이 완료되었습니다.')
-        setNickname('')
-
-        const success = await login({
-          userNo: response.data.userNo,
-          userToken: response.data.userToken,
-          userName: nickname,
-        })
-
-        if (success) {
-          showNotification(`${nickname}님 RACLA에 오신 것을 환영합니다.`, 'success')
-          navigate('/home')
-        }
-      }
-    } catch (error) {
-      createLog('error', '계정 생성 오류:', error.message)
-      handleError('계정 생성 중 오류가 발생했습니다.')
-    }
-    setIsRegistering(false)
   }
 
   return (

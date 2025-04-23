@@ -5,7 +5,7 @@ import { LogLevel } from '@src/types/common/LogLevel'
 import dotenv from 'dotenv'
 import { app } from 'electron'
 import packageJson from '../../../../package.json'
-import { api } from '../../libs/api'
+import apiClient from '../../../libs/apiClient'
 
 @Injectable()
 export class LoggerService {
@@ -57,7 +57,7 @@ export class LoggerService {
         },
       }
 
-      const response = await api.post(`${process.env.VITE_API_URL}/v1/log/client/create`, errorData)
+      const response = await apiClient.post<any>(`/v1/log/client/create`, errorData)
       if (response.status === 200) {
         this.logger.log(`[MAIN] Exception Report Successfully.`)
       } else {

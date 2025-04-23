@@ -16,7 +16,7 @@ const {
   captureGameWindow,
 } = window.electron
 
-function MainPage() {
+function CheatsheetPage() {
   const [activeCategory, setActiveCategory] = useState('process')
   const [searchTerm, setSearchTerm] = useState('')
   const [image, setImage] = useState<Buffer | null>(null)
@@ -245,4 +245,4 @@ function MainPage() {
   )
 }
 
-export default MainPage
+export default CheatsheetPage

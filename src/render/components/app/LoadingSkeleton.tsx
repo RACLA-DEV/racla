@@ -2,14 +2,10 @@ import { RootState } from '@render/store'
 import { useSelector } from 'react-redux'
 import { SyncLoader } from 'react-spinners'
 
-export default function LoadingSkeleton({
-  theme,
-  isLoading,
-}: {
-  theme: string
-  isLoading: boolean
-}) {
+export default function LoadingSkeleton() {
   const { font } = useSelector((state: RootState) => state.app.settingData)
+  const { theme } = useSelector((state: RootState) => state.ui)
+  const { isLoading } = useSelector((state: RootState) => state.app)
   return (
     <div
       className={`${font != 'default' ? 'tw:font-medium' : ''} tw:fixed tw:inset-0 tw:flex tw:flex-col tw:items-center tw:justify-center tw:z-[1000000] tw:transition-all tw:duration-1000 ${

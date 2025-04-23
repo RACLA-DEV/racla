@@ -3,7 +3,7 @@ import { setIsSetting, setSelectedGame } from '@render/store/slices/appSlice'
 import type { GameType } from '@src/types/common/GameType'
 import { AnimatePresence, motion } from 'framer-motion'
 import React, { useState } from 'react'
-import { LuHouse, LuLayers, LuSettings } from 'react-icons/lu'
+import { LuBook, LuHouse, LuLayers, LuSettings } from 'react-icons/lu'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import Tooltip from './Tooltip'
@@ -153,6 +153,30 @@ const IconSidebar: React.FC = () => {
               <LuHouse size={28} />
             </motion.div>
           </Tooltip>
+        </div>
+
+        <div className='tw:flex tw:flex-col tw:items-center'>
+          <div className='tw:mb-4 tw:relative tw:z-10'>
+            <Tooltip content='치트시트'>
+              <motion.div
+                variants={iconAnimation(0)}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => handleNavigation('/test/cheatsheet')}
+                className={`tw:w-12 tw:h-12 tw:flex tw:items-center tw:justify-center tw:rounded-lg tw:cursor-pointer tw:transition-all ${
+                  location === '/test/cheatsheet'
+                    ? theme === 'dark'
+                      ? 'tw:bg-slate-700 tw:text-indigo-400'
+                      : 'tw:bg-white tw:text-indigo-600 tw:shadow-md'
+                    : theme === 'dark'
+                      ? 'tw:bg-slate-800 tw:text-indigo-400 tw:hover:bg-slate-700'
+                      : 'tw:bg-gray-50 tw:shadow-md tw:hover:bg-white tw:hover:shadow-md'
+                }`}
+              >
+                <LuBook size={28} />
+              </motion.div>
+            </Tooltip>
+          </div>
         </div>
 
         <div className='tw:mb-4 tw:relative tw:z-10'>

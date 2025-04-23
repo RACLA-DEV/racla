@@ -4,6 +4,7 @@ import { Notification } from '../render/Notification'
 export interface AppState {
   selectedGame: GameType
   isSetting: boolean
+  isLoading: boolean
   settingData: any
   userData: {
     userName: string

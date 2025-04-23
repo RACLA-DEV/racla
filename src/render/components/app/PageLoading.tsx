@@ -1,7 +1,7 @@
 import { RootState } from '@render/store'
 import { useSelector } from 'react-redux'
 
-export default function ComponentLoading() {
+export default function PageLoading() {
   const { theme } = useSelector((state: RootState) => state.ui)
   return (
     <div
