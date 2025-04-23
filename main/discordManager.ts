@@ -8,8 +8,8 @@ log.transports.console.format = '[{y}-{m}-{d} {h}:{i}:{s}.{ms}] [{level}] {text}
 
 const CLIENT_ID =
   BUILD_DATE.includes('Dev') || process.env.NODE_ENV === 'development'
-    ? '1333772448528728085'
-    : '1331547515744682036'
+    ? '0000000000000000000'
+    : '0000000000000000000'
 
 interface RecentScore {
   songName: string
@@ -121,7 +121,7 @@ class DiscordManager {
   private async getRecentScore(): Promise<RecentScore | null> {
     try {
       const response = await customAxios.get(
-        `${process.env.NODE_ENV === 'production' ? 'https://api.racla.app/api' : 'https://api.service.racla.q-owo-p.space/api'}/v2/racla/play/history/${this.userData.userNo}/djmax_respect_v`,
+        `${process.env.NODE_ENV === 'production' ? 'https://api.racla.app/api' : 'https://api.racla.app/api'}/v2/racla/play/history/${this.userData.userNo}/djmax_respect_v`,
         {
           headers: {
             Authorization: `${this.userData.userNo}|${this.userData.userToken}`,

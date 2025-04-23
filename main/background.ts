@@ -1156,9 +1156,7 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
     if (userNo !== '' && userToken !== '') {
       session.defaultSession.cookies
         .set({
-          url: isProd
-            ? 'https://api.racla.app/proxy'
-            : 'https://api.proxy.racla.q-owo-p.space/proxy',
+          url: isProd ? 'https://api.racla.app/proxy' : 'https://api.racla.app/proxy',
           name: 'Authorization',
           value: `${userNo}|${userToken}`,
           secure: true,
@@ -1171,7 +1169,7 @@ const getAvailablePort = async (startPort: number = 3000): Promise<number> => {
     } else {
       session.defaultSession.cookies
         .remove(
-          isProd ? 'https://api.racla.app/proxy' : 'https://api.proxy.racla.q-owo-p.space/proxy',
+          isProd ? 'https://api.racla.app/proxy' : 'https://api.racla.app/proxy',
           'Authorization',
         )
         .then(() => {

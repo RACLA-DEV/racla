@@ -377,9 +377,7 @@ class OCRApiService {
 
   async uploadForOCR(formData: FormData, where: string): Promise<any> {
     const session = await this.getSession()
-    const baseUrl = this.isProd
-      ? 'https://api.racla.app/api'
-      : 'https://api.service.racla.q-owo-p.space/api'
+    const baseUrl = this.isProd ? 'https://api.racla.app/api' : 'https://api.racla.app/api'
 
     try {
       const response = await customAxios.post(
@@ -630,7 +628,7 @@ async function handleRegularNotification(
     if (gameCode === 'djmax_respect_v') {
       const session = await getSession()
       const backupResponse = await customAxios.get(
-        `${isProd ? 'https://api.racla.app/proxy' : 'https://api.proxy.racla.q-owo-p.space/proxy'}?url=https://v-archive.net/api/archive/${
+        `${isProd ? 'https://api.racla.app/proxy' : 'https://api.racla.app/proxy'}?url=https://v-archive.net/api/archive/${
           session.vArchiveUserName
         }/title/${playData.songData.title}`,
       )
@@ -666,7 +664,7 @@ async function handleVersusNotifications(
         if (gameCode === 'djmax_respect_v') {
           const session = await getSession()
           const backupResponse = await customAxios.get(
-            `${isProd ? 'https://api.racla.app/proxy' : 'https://api.proxy.racla.q-owo-p.space/proxy'}?url=https://v-archive.net/api/archive/${
+            `${isProd ? 'https://api.racla.app/proxy' : 'https://api.racla.app/proxy'}?url=https://v-archive.net/api/archive/${
               session.vArchiveUserName
             }/title/${value.songData.title}`,
           )

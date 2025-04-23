@@ -29,3 +29,9 @@ public/_next-video
 # buildInfo.ts
 /renderer/constants/buildInfo.ts
 renderer/constants/buildInfo.ts
+/renderer/.env.development
+/renderer/.env.production
+/eng.traineddata
+/kor.traineddata
+/.vscode
+/.cursor

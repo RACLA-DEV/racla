@@ -272,7 +272,7 @@
     right: 0;
     left: 0;
     z-index: 1;
-    background-image: url('/images/djmax_respect_v/BG.jpg');
+    background-image: url('https://cdn.racla.app/djmax_respect_v/BG.jpg');
     background-position: center center;
     background-size: cover;
     background-attachment: fixed;
@@ -491,7 +491,7 @@
 .respect_bg_b4 {
   opacity: 50%;
   filter: blur(4px);
-  background-image: url(/images/djmax_respect_v/4B-BG.png);
+  background-image: url(https://cdn.racla.app/djmax_respect_v/4B-BG.png);
   background-size: cover;
   background-repeat: no-repeat;
 }
@@ -499,7 +499,7 @@
 .respect_bg_b5 {
   opacity: 50%;
   filter: blur(4px);
-  background-image: url(/images/djmax_respect_v/5B-BG.png);
+  background-image: url(https://cdn.racla.app/djmax_respect_v/5B-BG.png);
   background-size: cover;
   background-repeat: no-repeat;
 }
@@ -507,7 +507,7 @@
 .respect_bg_b6 {
   opacity: 50%;
   filter: blur(4px);
-  background-image: url(/images/djmax_respect_v/6B-BG.png);
+  background-image: url(https://cdn.racla.app/djmax_respect_v/6B-BG.png);
   background-size: cover;
   background-repeat: no-repeat;
 }
@@ -515,7 +515,7 @@
 .respect_bg_b8 {
   opacity: 50%;
   filter: blur(4px);
-  background-image: url(/images/djmax_respect_v/8B-BG.png);
+  background-image: url(https://cdn.racla.app/djmax_respect_v/8B-BG.png);
   background-size: cover;
   background-repeat: no-repeat;
 }
