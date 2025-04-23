@@ -3,8 +3,8 @@
  * @see https://www.electron.build/configuration/configuration
  */
 const config = {
-  appId: 'zip.r-archive.racla-electron-app',
-  productName: 'RACLA for Desktop',
+  appId: 'app.racla.racla-vite',
+  productName: 'RACLA for Desktop (Vite)',
   copyright: 'Copyright © 2024-2025 RACLA from 공감대로0번길(GGDRN0 STUDIO)',
 
   directories: {

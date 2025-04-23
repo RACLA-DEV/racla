@@ -1,10 +1,10 @@
 {
-  "name": "racla-electron-app",
+  "name": "racla-vite",
   "version": "0.8.0",
   "private": true,
   "packageManager": "pnpm@10.4.0",
-  "description": "RACLA for Desktop",
-  "author": "GGDRN0 STUDIO",
+  "description": "RACLA for Desktop (Vite)",
+  "author": "RACLA from 공감대로0번길(GGDRN0 STUDIO)",
   "main": "dist/main/index.js",
   "scripts": {
     "dev": "rimraf dist && vite",
