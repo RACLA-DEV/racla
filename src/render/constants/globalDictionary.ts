@@ -373,8 +373,9 @@ export const globalDictionary = {
       ],
     },
   },
-  gmaeDictionary: {
+  gameDictionary: {
     djmax_respect_v: {
+      name: 'DJMAX RESPECT V',
       keyModeList: [4, 5, 6, 8],
       levelList: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
       difficulty: {
@@ -437,6 +438,7 @@ export const globalDictionary = {
       ],
     },
     wjmax: {
+      name: 'WJMAX',
       keyModeList: ['4', '4P', '6', '6P'],
       levelList: [
         1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25,
@@ -467,6 +469,7 @@ export const globalDictionary = {
       dlcList: [],
     },
     platina_lab: {
+      name: 'PLATiNA :: LAB',
       keyModeList: [4, 5, 6, 8],
       levelList: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
       difficulty: {
@@ -543,7 +546,7 @@ export const globalDictionary = {
           },
           {
             id: 'vArchiveGrade',
-            icon: 'lucide:ranking',
+            icon: 'lucide:sheet',
             isDisplay: true,
             isOpenBrowser: false,
             link: '/grade',
@@ -577,7 +580,7 @@ export const globalDictionary = {
           },
           {
             id: 'hjaGrade',
-            icon: 'lucide:ranking',
+            icon: 'lucide:sheet',
             isDisplay: true,
             isOpenBrowser: false,
             link: '/hard/grade',
@@ -602,7 +605,7 @@ export const globalDictionary = {
           },
           {
             id: 'utilityRandomSelector',
-            icon: 'lucide:dice',
+            icon: 'lucide:dices',
             isDisplay: true,
             isOpenBrowser: true,
             link: 'https://github.com/wowvv0w/djmax-random-selector-v',
@@ -620,7 +623,7 @@ export const globalDictionary = {
           },
           {
             id: 'utilityBest30',
-            icon: 'lucide:robot',
+            icon: 'lucide:bot',
             isDisplay: true,
             isOpenBrowser: true,
             link: 'https://discord.com/oauth2/authorize?client_id=1147788679306289202&permissions=274877942784&scope=bot',
