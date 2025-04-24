@@ -33,7 +33,7 @@
     "dotenv": "^16.5.0",
     "electron-builder-squirrel-windows": "^26.0.12",
     "electron-updater": "^6.6.2",
-    "framer-motion": "^12.8.0",
+    "framer-motion": "^12.8.2",
     "get-windows": "^9.2.0",
     "nest-winston": "^1.10.2",
     "node-abi": "^4.3.0",

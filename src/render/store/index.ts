@@ -29,7 +29,7 @@ const appPersistConfig = {
     'isLoggedIn',
     'notifications',
     'isLoading',
-  ], // isSetting은 유지하지 않음
+  ],
 }
 
 const rootReducer = combineReducers({

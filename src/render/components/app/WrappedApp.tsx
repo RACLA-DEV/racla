@@ -35,7 +35,7 @@ export default function WrappedApp() {
   const { logout } = useAuth()
 
   // 곡 데이터 로드 함수
-  const loadSongDataFromAPI = useCallback(async (gameCode: string) => {
+  const loadSongDataFromAPI = useCallback(async (gameCode: string, showNotifications = false) => {
     try {
       const apiUrl = import.meta.env.VITE_API_URL
       let endpoint = ''
@@ -97,7 +97,7 @@ export default function WrappedApp() {
           ? `${gameCode} 곡 데이터 로드 및 저장 완료`
           : `${gameCode} Song data loaded and saved`,
       )
-      isLoading &&
+      showNotifications &&
         showNotification(
           {
             mode: 'i18n',
@@ -109,7 +109,7 @@ export default function WrappedApp() {
       return data
     } catch (error) {
       await createLog('error', `${gameCode} 곡 데이터 로드 실패:`, error.message)
-      isLoading &&
+      showNotifications &&
         showNotification(
           {
             mode: 'i18n',
@@ -126,7 +126,7 @@ export default function WrappedApp() {
           if (localData && localData.length > 0) {
             dispatch(setSongData({ data: localData, gameCode }))
             await createLog('debug', `${gameCode} 로컬 곡 데이터 로드 완료`)
-            isLoading &&
+            showNotifications &&
               showNotification(
                 {
                   mode: 'i18n',
@@ -140,7 +140,7 @@ export default function WrappedApp() {
         }
       } catch (localError) {
         await createLog('error', `${gameCode} 로컬 곡 데이터 로드 실패:`, localError)
-        isLoading &&
+        showNotifications &&
           showNotification(
             {
               mode: 'i18n',
@@ -156,11 +156,14 @@ export default function WrappedApp() {
   }, [])
 
   // 모든 게임 데이터 로드
-  const loadAllSongData = useCallback(async () => {
-    const games = ['djmax_respect_v', 'wjmax', 'platina_lab']
-    const promises = games.map((game) => loadSongDataFromAPI(game))
-    await Promise.allSettled(promises)
-  }, [loadSongDataFromAPI])
+  const loadAllSongData = useCallback(
+    async (showNotifications = false) => {
+      const games = ['djmax_respect_v', 'wjmax', 'platina_lab']
+      const promises = games.map((game) => loadSongDataFromAPI(game, showNotifications))
+      await Promise.allSettled(promises)
+    },
+    [loadSongDataFromAPI],
+  )
 
   // 오버레이 모드 확인 및 설정
   useEffect(() => {
@@ -314,8 +317,8 @@ export default function WrappedApp() {
             logout()
           }
 
-          // 3. 곡 데이터 로드
-          await loadAllSongData()
+          // 3. 곡 데이터 로드 (초기 로딩 시에만 알림 표시)
+          await loadAllSongData(true)
           dispatch(setIsLoading(false))
         } catch (error) {
           createLog(
@@ -331,7 +334,7 @@ export default function WrappedApp() {
         initializeApp()
       }
 
-      // 5분마다 곡 데이터 리프레시
+      // 5분마다 곡 데이터 리프레시 (알림 표시 없음)
       const songRefreshInterval = setInterval(
         () => {
           createLog(
@@ -340,7 +343,7 @@ export default function WrappedApp() {
               ? '5분 주기 곡 데이터 새로고침 중...'
               : '5-minute song data refresh in progress...',
           )
-          loadAllSongData()
+          loadAllSongData(false) // 알림 표시 안함
         },
         5 * 60 * 1000,
       ) // 5분마다 실행
