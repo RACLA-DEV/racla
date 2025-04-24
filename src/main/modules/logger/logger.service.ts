@@ -57,7 +57,7 @@ export class LoggerService {
         },
       }
 
-      const response = await apiClient.post<any>(`/v1/log/client/create`, errorData)
+      const response = await apiClient.post<any>(`/v2/racla/log/client/create`, errorData)
       if (response.status === 200) {
         this.logger.log(`[MAIN] Exception Report Successfully.`)
       } else {
