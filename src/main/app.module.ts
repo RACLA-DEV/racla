@@ -7,6 +7,8 @@ import { app } from 'electron'
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
 import { AuthModule } from './modules/auth/auth.module'
+import { DiscordManagerModule } from './modules/discord-manager/discord-manager.module'
+import { DiscordManagerService } from './modules/discord-manager/discord-manager.service'
 import { FileManagerModule } from './modules/file-manager/file-manager.module'
 import { GameMonitorModule } from './modules/game-monitor/game-monitor.module'
 import { ImageProcessorModule } from './modules/image-processor/image-processor.module'
@@ -58,6 +60,7 @@ export const winstonConfig = {
     FileManagerModule,
     AuthModule,
     UpdateManagerModule,
+    DiscordManagerModule,
   ],
   controllers: [AppController],
   providers: [AppService],
@@ -66,11 +69,13 @@ export class AppModule implements OnModuleInit, OnModuleDestroy {
   constructor(
     private readonly overlayWindowService: OverlayWindowService,
     private readonly updateManagerService: UpdateManagerService,
+    private readonly discordManagerService: DiscordManagerService,
   ) {}
 
   async onModuleInit() {
     await this.overlayWindowService.initialize()
     await this.updateManagerService.initialize()
+    await this.discordManagerService.initialize()
   }
 
   onModuleDestroy() {
