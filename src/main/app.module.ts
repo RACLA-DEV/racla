@@ -16,6 +16,8 @@ import { MessageModule } from './modules/message/message.module'
 import { OverlayWindowModule } from './modules/overlay-window/overlay-window.module'
 import { OverlayWindowService } from './modules/overlay-window/overlay-window.service'
 import { ProcessModule } from './modules/process/process.module'
+import { UpdateManagerModule } from './modules/update-manager/update-manager.module'
+import { UpdateManagerService } from './modules/update-manager/update-manager.service'
 
 // Winston 설정을 별도 상수로 분리
 export const winstonConfig = {
@@ -55,15 +57,20 @@ export const winstonConfig = {
     ImageProcessorModule,
     FileManagerModule,
     AuthModule,
+    UpdateManagerModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule implements OnModuleInit, OnModuleDestroy {
-  constructor(private readonly overlayWindowService: OverlayWindowService) {}
+  constructor(
+    private readonly overlayWindowService: OverlayWindowService,
+    private readonly updateManagerService: UpdateManagerService,
+  ) {}
 
   async onModuleInit() {
     await this.overlayWindowService.initialize()
+    await this.updateManagerService.initialize()
   }
 
   onModuleDestroy() {

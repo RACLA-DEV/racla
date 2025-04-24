@@ -1,22 +1,24 @@
 {
-  "time_hour": "시",
-  "time_minute": "분",
-  "time_second": "초",
-  "time_day": "일",
-  "time_month": "월",
-  "time_year": "년",
-  "time_ago": "전",
-  "time_before": "전",
-  "time_after": "후",
-  "time_just_now": "방금 전",
-  "hour": "시간",
-  "minute": "분",
-  "second": "초",
-  "day": "일",
-  "week": "주",
-  "month": "달",
-  "year": "년",
   "copyright": "Developed by RACLA from 공감대로0번길(GGDRN0 STUDIO)",
+  "general": {
+    "time_hour": "시",
+    "time_minute": "분",
+    "time_second": "초",
+    "time_day": "일",
+    "time_month": "월",
+    "time_year": "년",
+    "time_ago": "전",
+    "time_before": "전",
+    "time_after": "후",
+    "time_just_now": "방금 전",
+    "hour": "시간",
+    "minute": "분",
+    "second": "초",
+    "day": "일",
+    "week": "주",
+    "month": "달",
+    "year": "년"
+  },
   "externalLinkModal": {
     "title": "외부 링크 열기",
     "description": "이 링크는 사용자의 브라우저에서 열립니다. 신뢰할 수 있는 링크인지 확인 후 이동해주세요.",
@@ -46,5 +48,10 @@
     "dark": "다크 모드",
     "changeLight": "라이트 모드로 전환",
     "changeDark": "다크 모드로 전환"
+  },
+  "update": {
+    "updateAvailable": "업데이트 준비 중",
+    "downloading": "업데이트 다운로드 중",
+    "downloaded": "업데이트 적용을 위해 앱 재시작이 필요합니다. 클릭 시 앱을 재시작합니다."
   }
 }

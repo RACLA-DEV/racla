@@ -78,6 +78,14 @@ declare global {
         defaultPath?: string
         filters?: Array<{ name: string; extensions: string[] }>
       }) => Promise<string | null>
+
+      // 업데이트 관련
+      onUpdateAvailable: (callback: (version: string) => void) => void
+      onDownloadProgress: (
+        callback: (progress: { percent: number; transferred: number; total: number }) => void,
+      ) => void
+      onUpdateDownloaded: (callback: (version: string) => void) => void
+      updateApp: () => void
     }
   }
 }

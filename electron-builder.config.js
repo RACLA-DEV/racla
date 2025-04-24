@@ -3,8 +3,8 @@
  * @see https://www.electron.build/configuration/configuration
  */
 const config = {
-  appId: 'app.racla.racla-vite',
-  productName: 'RACLA for Desktop (Vite)',
+  appId: 'app.racla.racla-electron-app',
+  productName: 'RACLA for Desktop',
   copyright: 'Copyright © 2024-2025 RACLA from 공감대로0번길(GGDRN0 STUDIO)',
 
   directories: {
@@ -36,8 +36,8 @@ const config = {
 
   publish: {
     provider: 'github',
-    owner: 'R-ARCHIVE-TEAM',
-    repo: 'racla',
+    owner: 'RACLA-DEV',
+    repo: 'racla-vite',
     releaseType: 'release',
   },
 

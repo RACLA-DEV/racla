@@ -80,4 +80,14 @@ contextBridge.exposeInMainWorld('electron', {
     defaultPath?: string
     filters?: Array<{ name: string; extensions: string[] }>
   }) => ipcRenderer.invoke('file-manager:open-file-dialog', options),
+
+  // 업데이트 관련
+  onUpdateAvailable: (callback: (version: string) => void) =>
+    ipcRenderer.on('update-available', (_event, version) => callback(version)),
+  onDownloadProgress: (
+    callback: (progress: { percent: number; transferred: number; total: number }) => void,
+  ) => ipcRenderer.on('download-progress', (_event, progress) => callback(progress)),
+  onUpdateDownloaded: (callback: (version: string) => void) =>
+    ipcRenderer.on('update-downloaded', (_event, version) => callback(version)),
+  updateApp: () => ipcRenderer.send('update-app'),
 })

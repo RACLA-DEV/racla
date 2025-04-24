@@ -3,6 +3,7 @@ import { useAuth } from '@render/hooks/useAuth'
 import { lazy, Suspense, useCallback, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Outlet, useLocation } from 'react-router-dom'
+import { v4 as uuidv4 } from 'uuid'
 import apiClient from '../../../libs/apiClient'
 import { useNotificationSystem } from '../../hooks/useNotifications'
 import { createLog } from '../../libs/logger'
@@ -33,6 +34,100 @@ export default function WrappedApp() {
   const { notifications, removeNotification, showNotification } = useNotificationSystem()
   const dispatch = useDispatch()
   const { logout } = useAuth()
+  const [updateNotificationId, setUpdateNotificationId] = useState<string | null>(null)
+
+  // 업데이트 관련 이벤트 리스너
+  useEffect(() => {
+    if (!window.electron) return
+
+    // 업데이트 가용 시 이벤트 리스너
+    const updateAvailableHandler = (version: string) => {
+      createLog('info', 'Update Available:', version)
+      const id = uuidv4()
+      setUpdateNotificationId(id)
+      dispatch({
+        type: 'app/addNotification',
+        payload: {
+          id,
+          message: {
+            mode: 'i18n',
+            value: 'update.updateAvailable',
+            ns: 'common',
+          },
+          type: 'update',
+          updateInfo: { version },
+          isRemoving: false,
+        },
+      })
+    }
+
+    // 다운로드 진행 상황 이벤트 리스너
+    const downloadProgressHandler = (progress: {
+      percent: number
+      transferred: number
+      total: number
+    }) => {
+      createLog('info', 'Update Download Progress:', progress)
+      if (updateNotificationId) {
+        dispatch({
+          type: 'app/updateNotification',
+          payload: {
+            id: updateNotificationId,
+            data: {
+              message: {
+                mode: 'i18n',
+                value: 'update.downloading',
+                ns: 'common',
+                props: {
+                  percent: Math.round(progress.percent),
+                },
+              },
+              updateInfo: { progress },
+            },
+          },
+        })
+      }
+    }
+
+    // 업데이트 다운로드 완료 이벤트 리스너
+    const updateDownloadedHandler = (version: string) => {
+      createLog('info', 'Update Downloaded:', version)
+      if (updateNotificationId) {
+        dispatch({
+          type: 'app/updateNotification',
+          payload: {
+            id: updateNotificationId,
+            data: {
+              message: {
+                mode: 'i18n',
+                value: 'update.downloaded',
+                ns: 'common',
+              },
+              updateInfo: { version, isDownloaded: true },
+            },
+          },
+        })
+      }
+    }
+
+    // 이벤트 리스너 등록
+    if (window.electron.onUpdateAvailable) {
+      window.electron.onUpdateAvailable(updateAvailableHandler)
+    }
+
+    if (window.electron.onDownloadProgress) {
+      window.electron.onDownloadProgress(downloadProgressHandler)
+    }
+
+    if (window.electron.onUpdateDownloaded) {
+      window.electron.onUpdateDownloaded(updateDownloadedHandler)
+    }
+
+    // 정리 함수
+    return () => {
+      // 이벤트 리스너 정리 (필요하다면 구현)
+    }
+  }, [dispatch, updateNotificationId])
 
   // 곡 데이터 로드 함수
   const loadSongDataFromAPI = useCallback(async (gameCode: string, showNotifications = false) => {
