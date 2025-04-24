@@ -1,5 +1,5 @@
-import { GLOBAL_DICTONARY } from '@main/constants/GLOBAL_DICTONARY'
 import { Injectable, Logger } from '@nestjs/common'
+import { GLOBAL_DICTONARY } from '@src/constants/GLOBAL_DICTONARY'
 import type { Result } from 'get-windows'
 import type { ProcessDescriptor } from 'ps-list'
 

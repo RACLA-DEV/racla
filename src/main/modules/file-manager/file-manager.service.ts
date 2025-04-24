@@ -6,7 +6,7 @@ import { app, shell } from 'electron'
 import * as fs from 'fs'
 import * as os from 'os'
 import * as path from 'path'
-import { globalDictionary } from '../../../render/constants/globalDictionary'
+import { globalDictionary } from '../../../constants/globalDictionary'
 
 // globalDictionary의 기본값을 사용하여 기본 설정 생성
 function createDefaultSettings(): SettingsData {

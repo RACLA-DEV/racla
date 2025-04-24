@@ -1,7 +1,10 @@
 import i18next from 'i18next'
 import { initReactI18next } from 'react-i18next'
-import common from './ko/common.json'
-import settings from './ko/settings.json'
+import ko_common from './ko/common.json'
+import ko_games from './ko/games.json'
+import ko_languages from './ko/languages.json'
+import ko_menu from './ko/menu.json'
+import ko_settings from './ko/settings.json'
 
 export const defaultNS = 'common'
 
@@ -10,8 +13,11 @@ i18next.use(initReactI18next).init({
   debug: true,
   resources: {
     ko: {
-      common,
-      settings,
+      common: ko_common,
+      games: ko_games,
+      menu: ko_menu,
+      settings: ko_settings,
+      languages: ko_languages,
     },
   },
   defaultNS,
