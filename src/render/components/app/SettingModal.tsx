@@ -365,10 +365,10 @@ const StorageInfo = ({ theme }: { theme: string }) => {
                   </span>
                   <button
                     onClick={() => openFolder('documents')}
-                    className={`tw:p-2 tw:rounded-lg ${
+                    className={`tw:p-2 tw:rounded-lg tw:cursor-pointer ${
                       theme === 'dark'
-                        ? 'hover:tw:bg-slate-600 tw:text-indigo-400'
-                        : 'hover:tw:bg-gray-100 tw:text-indigo-600'
+                        ? 'hover:tw:text-slate-600 tw:text-indigo-400'
+                        : 'hover:tw:text-gray-100 tw:text-indigo-600'
                     }`}
                   >
                     <Icon icon='lucide:folder-open' className='tw:w-4 tw:h-4' />
@@ -393,10 +393,10 @@ const StorageInfo = ({ theme }: { theme: string }) => {
                   </span>
                   <button
                     onClick={() => openFolder('pictures')}
-                    className={`tw:p-2 tw:rounded-lg ${
+                    className={`tw:p-2 tw:rounded-lg tw:cursor-pointer ${
                       theme === 'dark'
-                        ? 'hover:tw:bg-slate-600 tw:text-indigo-400'
-                        : 'hover:tw:bg-gray-100 tw:text-indigo-600'
+                        ? 'hover:tw:text-slate-600 tw:text-indigo-400'
+                        : 'hover:tw:text-gray-100 tw:text-indigo-600'
                     }`}
                   >
                     <Icon icon='lucide:folder-open' className='tw:w-4 tw:h-4' />
@@ -452,10 +452,10 @@ const StorageInfo = ({ theme }: { theme: string }) => {
                   </span>
                   <button
                     onClick={() => openFolder('logs')}
-                    className={`tw:p-2 tw:rounded-lg ${
+                    className={`tw:p-2 tw:rounded-lg tw:cursor-pointer ${
                       theme === 'dark'
-                        ? 'hover:tw:bg-slate-600 tw:text-indigo-400'
-                        : 'hover:tw:bg-gray-100 tw:text-indigo-600'
+                        ? 'hover:tw:text-slate-600 tw:text-indigo-400'
+                        : 'hover:tw:text-gray-100 tw:text-indigo-600'
                     }`}
                   >
                     <Icon icon='lucide:folder-open' className='tw:w-4 tw:h-4' />

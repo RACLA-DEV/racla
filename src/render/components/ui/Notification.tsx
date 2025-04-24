@@ -118,25 +118,29 @@ export function Notification({ notification, onRemove, index }: NotificationProp
                       ns: message.ns,
                       ...(message?.props ? message.props : {}),
                     })}
-                {updateInfo?.version && (
-                  <span className='tw:text-xs tw:ml-1 tw:font-bold'>(v{updateInfo.version})</span>
-                )}
               </p>
             </div>
           </div>
 
-          {updateInfo?.progress && !updateInfo.isDownloaded && (
-            <div className='tw:mt-2 tw:flex tw:justify-end tw:h-1 tw:w-full tw:rounded tw:bg-slate-200 tw:dark:bg-slate-700'>
+          {updateInfo?.progress && !updateInfo.isDownloaded ? (
+            <div className='tw:mt-2 tw:flex tw:justify-start tw:h-1 tw:w-full tw:rounded tw:bg-slate-200 tw:dark:bg-slate-700'>
               <div
                 className={`tw:h-full ${background} tw:rounded tw:transition-all tw:duration-300`}
                 style={{ width: `${updateInfo.progress.percent}%` }}
+              ></div>
+            </div>
+          ) : (
+            <div className='tw:mt-2 tw:flex tw:justify-start tw:h-1 tw:w-full tw:rounded tw:bg-slate-200 tw:dark:bg-slate-700'>
+              <div
+                className={`tw:h-full ${background} tw:rounded tw:transition-all tw:duration-300`}
+                style={{ width: `0%` }}
               ></div>
             </div>
           )}
 
           {updateInfo?.isDownloaded && (
             <div className='tw:mt-2 tw:mb-2 tw:text-center tw:text-xs tw:text-purple-600 tw:dark:text-purple-400'>
-              {t('common:click_to_update')}
+              {t('update.clickToUpdate', { ns: 'common' })}
             </div>
           )}
         </div>

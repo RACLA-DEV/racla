@@ -79,9 +79,9 @@ export class AuthService {
   async openDiscordLogin(): Promise<string> {
     try {
       const state = crypto.randomBytes(16).toString('hex')
-      const DISCORD_CLIENT_ID = process.env.DISCORD_CLIENT_ID || '1331547515744682036'
+      const DISCORD_CLIENT_ID = '1331547515744682036'
       const startPort = 54321
-      const endPort = 54326
+      const endPort = 54325
 
       return this.tryCreateServerOnPorts(state, DISCORD_CLIENT_ID, startPort, endPort)
     } catch (error) {

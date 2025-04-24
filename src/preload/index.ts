@@ -89,5 +89,5 @@ contextBridge.exposeInMainWorld('electron', {
   ) => ipcRenderer.on('download-progress', (_event, progress) => callback(progress)),
   onUpdateDownloaded: (callback: (version: string) => void) =>
     ipcRenderer.on('update-downloaded', (_event, version) => callback(version)),
-  updateApp: () => ipcRenderer.send('update-app'),
+  updateApp: () => ipcRenderer.invoke('update-manager:update-app'),
 })

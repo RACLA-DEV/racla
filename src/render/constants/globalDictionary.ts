@@ -12,7 +12,7 @@ export const globalDictionary = {
       defaultValue: true,
       isEditable: false,
       requiresRestart: true,
-      isVisible: true,
+      isVisible: false,
     },
     autoCaptureMode: {
       id: 'autoCaptureMode',
@@ -23,7 +23,7 @@ export const globalDictionary = {
     },
     autoCaptureIntervalTime: {
       id: 'autoCaptureIntervalTime',
-      defaultValue: 1000,
+      defaultValue: 3000,
       isEditable: true,
       requiresRestart: false,
       isVisible: true,
@@ -121,7 +121,7 @@ export const globalDictionary = {
       id: 'autoUpdate',
       defaultValue: true,
       isEditable: true,
-      requiresRestart: false,
+      requiresRestart: true,
       isVisible: true,
     },
     autoRemoveBlackPixel: {

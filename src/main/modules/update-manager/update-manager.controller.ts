@@ -7,7 +7,7 @@ import { UpdateManagerService } from './update-manager.service'
 export class UpdateManagerController {
   constructor(private readonly updateManagerService: UpdateManagerService) {}
 
-  @IpcHandle('update-app')
+  @IpcHandle('update-manager:update-app')
   async updateApp(): Promise<void> {
     // 전역 단축키 해제
     globalShortcut.unregisterAll()

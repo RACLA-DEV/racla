@@ -1,0 +1,215 @@
+{
+  "racla": {
+    "raclaNavTitle": "RACLA",
+    "raclaHome": "홈",
+    "raclaOverlay": "오버레이",
+    "raclaSettings": "설정",
+    "raclaFeedback": "피드백 센터",
+    "raclaLicense": "라이선스 및 이용약관",
+    "raclaCheatsheet": "치트시트"
+  },
+  "quickMenu": {
+    "quickMenuNavTitle": "바로가기 메뉴",
+    "login": "로그인",
+    "logout": "로그아웃",
+    "raclaHome": "RACLA 바로가기",
+    "vArchiveHome": "V-ARCHIVE 바로가기",
+    "hjaHome": "전일 아카이브 바로가기",
+    "close": "닫기"
+  },
+  "djmax_respect_v": {
+    "vArchiveNavTitle": "V-ARCHIVE",
+    "vArchiveRegScore": {
+      "name": {
+        "startWithSup": "",
+        "base": "기록 등록",
+        "lastWithSup": ""
+      },
+      "description": "V-ARCHIVE 기록 등록"
+    },
+    "vArchiveMyBoard": {
+      "name": {
+        "startWithSup": "",
+        "base": "성과표",
+        "lastWithSup": ""
+      },
+      "description": "V-ARCHIVE 성과표"
+    },
+    "vArchiveDjpower": {
+      "name": {
+        "startWithSup": "",
+        "base": "DJPOWER",
+        "lastWithSup": ""
+      },
+      "description": "V-ARCHIVE MAX DJ POWER"
+    },
+    "vArchiveDb": {
+      "name": {
+        "startWithSup": "",
+        "base": "데이터베이스",
+        "lastWithSup": ""
+      },
+      "description": "V-ARCHIVE 데이터베이스"
+    },
+    "vArchiveGrade": {
+      "name": {
+        "startWithSup": "",
+        "base": "서열표",
+        "lastWithSup": ""
+      },
+      "description": "V-ARCHIVE 서열표"
+    },
+    "hjaNavTitle": "전일 아카이브",
+    "hjaRanking": {
+      "name": {
+        "startWithSup": "",
+        "base": "종합 랭킹",
+        "lastWithSup": ""
+      },
+      "description": "전일 아카이브 종합 랭킹"
+    },
+    "hjaDatabase": {
+      "name": {
+        "startWithSup": "",
+        "base": "랭킹 데이터베이스",
+        "lastWithSup": ""
+      },
+      "description": "전일 아카이브 랭킹 데이터베이스(SC8/MX15+)"
+    },
+    "hjaGrade": {
+      "name": {
+        "startWithSup": "",
+        "base": "하드 판정 서열표",
+        "lastWithSup": ""
+      },
+      "description": "전일 아카이브 하드 판정 서열표(SC8/MX15+)"
+    },
+    "utilityNavTitle": "유틸리티",
+    "utilityNavItemsVArchiveMacro": {
+      "name": {
+        "startWithSup": "",
+        "base": "V-ARCHIVE 매크로",
+        "lastWithSup": ""
+      },
+      "description": "V-ARCHIVE 매크로"
+    },
+    "utilityVArchiveMacro": {
+      "name": {
+        "startWithSup": "",
+        "base": "V-ARCHIVE 매크로",
+        "lastWithSup": ""
+      },
+      "description": "V-ARCHIVE 매크로"
+    },
+    "utilityRandomSelector": {
+      "name": {
+        "startWithSup": "",
+        "base": "랜덤 선곡기",
+        "lastWithSup": ""
+      },
+      "description": "랜덤 선곡기"
+    },
+    "utilityVScouter": {
+      "name": {
+        "startWithSup": "",
+        "base": "V-SCOUTER",
+        "lastWithSup": ""
+      },
+      "description": "V-SCOUTER"
+    },
+    "utilityBest30": {
+      "name": {
+        "startWithSup": "",
+        "base": "BEST 30 디스코드 봇",
+        "lastWithSup": ""
+      },
+      "description": "BEST 30 디스코드 봇"
+    }
+  },
+  "wjmax": {
+    "wjmaxNavTitle": "WJMAX",
+    "wjmaxRegScore": {
+      "name": {
+        "startWithSup": "",
+        "base": "기록 등록",
+        "lastWithSup": ""
+      },
+      "description": "WJMAX 기록 등록"
+    },
+    "wjmaxMyBoard": {
+      "name": {
+        "startWithSup": "",
+        "base": "성과표",
+        "lastWithSup": ""
+      },
+      "description": "WJMAX 성과표"
+    },
+    "wjmaxDb": {
+      "name": {
+        "startWithSup": "",
+        "base": "데이터베이스",
+        "lastWithSup": ""
+      },
+      "description": "WJMAX 데이터베이스"
+    },
+    "wjmaxLeaderboard": {
+      "name": {
+        "startWithSup": "",
+        "base": "리더보드(랭킹)",
+        "lastWithSup": ""
+      },
+      "description": "WJMAX 리더보드(랭킹)"
+    },
+    "wjmaxCourseMaker": {
+      "name": {
+        "startWithSup": "",
+        "base": "코스 메이커",
+        "lastWithSup": ""
+      },
+      "description": "WJMAX 코스 메이커"
+    }
+  },
+  "platina_lab": {
+    "platinaLabNavTitle": "PLATiNA :: LAB",
+    "platinaLabRegScore": {
+      "name": {
+        "startWithSup": "",
+        "base": "기록 등록",
+        "lastWithSup": ""
+      },
+      "description": "PLATiNA :: LAB 기록 등록"
+    },
+    "platinaLabMyBoard": {
+      "name": {
+        "startWithSup": "",
+        "base": "성과표",
+        "lastWithSup": ""
+      },
+      "description": "PLATiNA :: LAB 성과표"
+    },
+    "platinaLabDb": {
+      "name": {
+        "startWithSup": "",
+        "base": "데이터베이스",
+        "lastWithSup": ""
+      },
+      "description": "PLATiNA :: LAB 데이터베이스"
+    },
+    "platinaLabLeaderboard": {
+      "name": {
+        "startWithSup": "",
+        "base": "리더보드(랭킹)",
+        "lastWithSup": ""
+      },
+      "description": "PLATiNA :: LAB 리더보드(랭킹)"
+    },
+    "platinaLabCourseMaker": {
+      "name": {
+        "startWithSup": "",
+        "base": "코스 메이커",
+        "lastWithSup": ""
+      },
+      "description": "PLATiNA :: LAB 코스 메이커"
+    }
+  }
+}

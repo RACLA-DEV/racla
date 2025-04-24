@@ -35,6 +35,7 @@ export default function WrappedApp() {
   const dispatch = useDispatch()
   const { logout } = useAuth()
   const [updateNotificationId, setUpdateNotificationId] = useState<string | null>(null)
+  const [updateVersion, setUpdateVersion] = useState<string | null>(null)
 
   // 업데이트 관련 이벤트 리스너
   useEffect(() => {
@@ -45,6 +46,7 @@ export default function WrappedApp() {
       createLog('info', 'Update Available:', version)
       const id = uuidv4()
       setUpdateNotificationId(id)
+      setUpdateVersion(version)
       dispatch({
         type: 'app/addNotification',
         payload: {
@@ -53,6 +55,7 @@ export default function WrappedApp() {
             mode: 'i18n',
             value: 'update.updateAvailable',
             ns: 'common',
+            props: { version },
           },
           type: 'update',
           updateInfo: { version },
@@ -79,6 +82,7 @@ export default function WrappedApp() {
                 value: 'update.downloading',
                 ns: 'common',
                 props: {
+                  version: updateVersion,
                   percent: Math.round(progress.percent),
                 },
               },
@@ -102,6 +106,7 @@ export default function WrappedApp() {
                 mode: 'i18n',
                 value: 'update.downloaded',
                 ns: 'common',
+                props: { version },
               },
               updateInfo: { version, isDownloaded: true },
             },
