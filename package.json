@@ -7,7 +7,7 @@
   "author": "RACLA from 공감대로0번길(GGDRN0 STUDIO)",
   "main": "dist/main/index.js",
   "scripts": {
-    "dev": "rimraf dist && vite",
+    "dev": "node scripts/generate-build-date.js Dev && rimraf dist && vite",
     "debug": "rimraf dist && vite -- --dsb-debug",
     "build": "node scripts/generate-build-date.js Prod && rimraf dist && vite build",
     "build-prod": "node scripts/generate-build-date.js Prod && rimraf dist && vite build",
