@@ -1,5 +1,5 @@
 {
-  "setting": "설정",
+  "copyright": "DJMAX RESPECT V(©NEOWIZ), WJMAX(©WJMAX STUDIO), PLATiNA :: LAB(©HIGH-END Games).\nWe deeply respect you. <3\nRACLA is dedicated to your remarkable games and services.",
   "hardwareAcceleration": {
     "name": "하드웨어 가속 활성화",
     "description": "하드웨어 가속은 GPU를 사용하여 RACLA 데스크톱 앱이 더 부드럽게 동작하게 해줍니다. 앱의 화면에 문제가 발생한다면 이 설정을 비활성화 해보시기 바랍니다. 설정을 변경하면 앱이 다시 시작됩니다."
@@ -10,7 +10,12 @@
   },
   "autoCaptureIntervalTime": {
     "name": "자동 캡처 간격",
-    "description": "자동 캡처 모드의 간격을 설정합니다."
+    "description": "자동 캡처 모드의 간격을 설정합니다.",
+    "1000": "1초",
+    "2000": "2초",
+    "3000": "3초",
+    "5000": "5초",
+    "10000": "10초"
   },
   "autoCaptureProcessIntervalTime": {
     "name": "자동 캡처 처리 간격",
@@ -18,15 +23,23 @@
   },
   "language": {
     "name": "언어",
-    "description": "프로그램의 언어를 설정합니다."
+    "description": "프로그램의 언어를 설정합니다.",
+    "en_US": "English (United States) Translated by Claude Sonnet 3.7",
+    "ja_JP": "日本語 (Japanese) Translated by Claude Sonnet 3.7",
+    "ko_KR": "한국어 (Korean)"
   },
   "font": {
     "name": "폰트",
-    "description": "프로그램의 폰트를 설정합니다."
+    "description": "프로그램의 폰트를 설정합니다.",
+    "default": "RACLA 스타일",
+    "platina_lab": "PLATiNA :: LAB 스타일"
   },
   "autoCaptureApi": {
     "name": "자동 캡처 API",
-    "description": "자동 캡처 모드에서 사용할 API를 설정합니다."
+    "description": "자동 캡처 모드에서 사용할 API를 설정합니다.",
+    "xcap-api": "XCap API",
+    "eapi": "Electron API",
+    "napi": "Native API (Rust)"
   },
   "visibleBga": {
     "name": "BGA 영상 표시",
@@ -70,7 +83,9 @@
   },
   "saveImageBlurMode": {
     "name": "이미지 저장 시 블러 효과 적용",
-    "description": "이미지 저장 시 블러 효과를 적용합니다."
+    "description": "이미지 저장 시 블러 효과를 적용합니다.",
+    "blur": "블러",
+    "mask": "마스크"
   },
   "resultOverlay": {
     "name": "결과 오버레이 표시",
@@ -146,6 +161,11 @@
   },
   "autoDeleteCapturedImages": {
     "name": "캡처 이미지 자동 삭제",
-    "description": "설정한 기간이 지난 캡처 이미지를 자동으로 삭제합니다. 0으로 설정 시 자동 삭제하지 않습니다."
+    "description": "설정한 기간이 지난 캡처 이미지를 자동으로 삭제합니다. 0으로 설정 시 자동 삭제하지 않습니다.",
+    "0": "자동 삭제 안함",
+    "7": "7일",
+    "14": "14일",
+    "30": "30일",
+    "90": "90일"
   }
 }
