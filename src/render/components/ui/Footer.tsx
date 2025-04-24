@@ -5,9 +5,11 @@ import { RootState } from '@render/store'
 import { setIsOpenExternalLink, setOpenExternalLink } from '@render/store/slices/uiSlice'
 import type { ServerStatus } from '@src/types/common/ServerStatus'
 import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useDispatch, useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
 import apiClient from '../../../libs/apiClient'
+import Tooltip from './Tooltip'
 
 const Footer: React.FC = () => {
   const { theme } = useSelector((state: RootState) => state.ui)
@@ -15,6 +17,7 @@ const Footer: React.FC = () => {
   const [serverStatus, setServerStatus] = useState<ServerStatus | null>(null)
   const [isOnline, setIsOnline] = useState<boolean>(false)
   const dispatch = useDispatch()
+  const { t } = useTranslation(['menu'])
 
   useEffect(() => {
     // 서버 상태 확인 함수
@@ -71,39 +74,53 @@ const Footer: React.FC = () => {
     switch (selectedGame) {
       case 'djmax_respect_v':
         return (
-          <span
-            className='tw:cursor-pointer'
-            onClick={() => handleOpenExternalLink('https://store.steampowered.com/app/960170')}
-          >
-            Resources from DJMAX RESPECT V
-            <span
-              className='tw:ml-1 tw:cursor-pointer'
-              onClick={(e) => {
-                e.stopPropagation()
-                handleOpenExternalLink('https://www.neowiz.com/')
-              }}
-            >
-              (©NEOWIZ)
-            </span>
-          </span>
+          <div>
+            <Tooltip position='top' content='https://store.steampowered.com/app/960170'>
+              <span
+                className='tw:cursor-pointer'
+                onClick={() => handleOpenExternalLink('https://store.steampowered.com/app/960170')}
+              >
+                Resources from DJMAX RESPECT V
+              </span>
+            </Tooltip>
+            <Tooltip position='top' content='https://www.neowiz.com/'>
+              <span
+                className='tw:cursor-pointer'
+                onClick={(e) => {
+                  e.stopPropagation()
+                  handleOpenExternalLink('https://www.neowiz.com/')
+                }}
+              >
+                (©NEOWIZ)
+              </span>
+            </Tooltip>
+          </div>
         )
       case 'wjmax':
         return (
-          <span
-            className='tw:cursor-pointer'
-            onClick={() => handleOpenExternalLink('https://waktaverse.games/gameDetail/wjmax')}
-          >
-            Resources from WJMAX(©WJMAX STUDIO)
-          </span>
+          <>
+            <Tooltip position='top' content='https://waktaverse.games/gameDetail/wjmax'>
+              <span
+                className='tw:cursor-pointer'
+                onClick={() => handleOpenExternalLink('https://waktaverse.games/gameDetail/wjmax')}
+              >
+                Resources from WJMAX(©WJMAX STUDIO)
+              </span>
+            </Tooltip>
+          </>
         )
       case 'platina_lab':
         return (
-          <span
-            className='tw:cursor-pointer'
-            onClick={() => handleOpenExternalLink('https://platinalab.net/')}
-          >
-            PLATiNA :: LAB(HIGH-END Games)
-          </span>
+          <>
+            <Tooltip position='top' content='https://platinalab.net/'>
+              <span
+                className='tw:cursor-pointer'
+                onClick={() => handleOpenExternalLink('https://platinalab.net/')}
+              >
+                PLATiNA :: LAB(HIGH-END Games)
+              </span>
+            </Tooltip>
+          </>
         )
       default:
         return null
@@ -121,26 +138,28 @@ const Footer: React.FC = () => {
       <div className='tw:flex tw:justify-center tw:items-center tw:gap-1 tw:pl-1 tw:h-8 tw:me-auto'>
         <span className='tw:text-xs tw:flex tw:items-center'>
           <span className='tw:flex tw:items-center tw:gap-1'>
-            <span
-              onClick={() => handleOpenExternalLink('https://status.racla.app')}
-              className='tw:cursor-pointer tw:flex tw:items-center tw:gap-1'
-            >
-              <div className='tw:relative tw:flex tw:items-center tw:justify-center tw:mr-1'>
-                <span
-                  className={`tw:text-xs ${isOnline ? 'tw:text-green-500' : 'tw:text-red-500'} tw:relative tw:z-10 tw:align-middle`}
-                >
-                  <Icon icon='lucide:circle' width='10' height='10' />
+            <Tooltip position='top' content='https://status.racla.app'>
+              <span
+                onClick={() => handleOpenExternalLink('https://status.racla.app')}
+                className='tw:cursor-pointer tw:flex tw:items-center tw:gap-1'
+              >
+                <div className='tw:relative tw:flex tw:items-center tw:justify-center tw:mr-1'>
+                  <span
+                    className={`tw:text-xs ${isOnline ? 'tw:text-green-500' : 'tw:text-red-500'} tw:relative tw:z-10 tw:align-middle`}
+                  >
+                    <Icon icon='lucide:circle' width='10' height='10' />
+                  </span>
+                  <div
+                    className={`tw:absolute tw:w-3 tw:h-3 tw:rounded-full tw:animate-custom-ping tw:opacity-40 ${isOnline ? 'tw:bg-green-500' : 'tw:bg-red-500'}`}
+                  />
+                </div>
+                <span className='tw:leading-none'>
+                  {isOnline
+                    ? `Server Connected · ${serverStatus?.version || 'v1.0'} · ${globalDictionary.version}`
+                    : `Server Disconnected · ${globalDictionary.version}`}
                 </span>
-                <div
-                  className={`tw:absolute tw:w-3 tw:h-3 tw:rounded-full tw:animate-custom-ping tw:opacity-40 ${isOnline ? 'tw:bg-green-500' : 'tw:bg-red-500'}`}
-                />
-              </div>
-              <span className='tw:leading-none'>
-                {isOnline
-                  ? `Server Connected - ${serverStatus?.version || 'v1.0'} - ${globalDictionary.version}`
-                  : `Server Disconnected - ${globalDictionary.version}`}
               </span>
-            </span>
+            </Tooltip>
           </span>
         </span>
       </div>
@@ -149,21 +168,23 @@ const Footer: React.FC = () => {
           {selectedGame === 'djmax_respect_v' && (
             <>
               <span>Powered by </span>
-              <span
-                className='tw:text-xs tw:cursor-pointer'
-                onClick={() =>
-                  handleOpenExternalLink('https://github.com/djmax-in/openapi?tab=readme-ov-file')
-                }
-              >
-                V-ARCHIVE
-              </span>
+              <Tooltip position='top' content='https://v-archive.net'>
+                <span
+                  className='tw:text-xs tw:cursor-pointer'
+                  onClick={() => handleOpenExternalLink('https://v-archive.net')}
+                >
+                  {t('djmax_respect_v.vArchiveNavTitle')}
+                </span>
+              </Tooltip>
               <span> & </span>
-              <span
-                className='tw:text-xs tw:cursor-pointer'
-                onClick={() => handleOpenExternalLink('https://hard-archive.com')}
-              >
-                전일 아카이브
-              </span>
+              <Tooltip position='top' content='https://hard-archive.com'>
+                <span
+                  className='tw:text-xs tw:cursor-pointer'
+                  onClick={() => handleOpenExternalLink('https://hard-archive.com')}
+                >
+                  {t('djmax_respect_v.hjaNavTitle')}
+                </span>
+              </Tooltip>
               <span> · </span>
             </>
           )}
@@ -171,9 +192,11 @@ const Footer: React.FC = () => {
           {selectedGame && renderGameSpecificContent()}
           <span> · </span>
         </>
-        <Link className='tw:text-xs tw:cursor-pointer' to='/license'>
-          라이선스 및 이용약관
-        </Link>
+        <Tooltip position='top' content={t('racla.raclaLicense')}>
+          <Link className='tw:text-xs tw:cursor-pointer' to='/license'>
+            {t('racla.raclaLicense')}
+          </Link>
+        </Tooltip>
       </div>
     </div>
   )

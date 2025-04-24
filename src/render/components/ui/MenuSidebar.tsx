@@ -10,9 +10,11 @@ import {
 } from '@render/store/slices/uiSlice'
 import { motion } from 'framer-motion'
 import React, { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { FaCircleUser } from 'react-icons/fa6'
 import { useDispatch, useSelector } from 'react-redux'
 import { useLocation, useNavigate } from 'react-router-dom'
+import Tooltip from './Tooltip'
 
 const MenuSidebar: React.FC = () => {
   const { theme, sidebarCollapsed } = useSelector((state: RootState) => state.ui)
@@ -23,6 +25,7 @@ const MenuSidebar: React.FC = () => {
   const { showNotification } = useNotificationSystem()
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const location = useLocation()
+  const { t } = useTranslation(['menu'])
 
   // 사이드바 토글 핸들러
   const handleToggleSidebar = () => {
@@ -45,7 +48,10 @@ const MenuSidebar: React.FC = () => {
   const handleLogout = async () => {
     const success = await logout()
     if (success) {
-      showNotification('정상적으로 로그아웃 되었습니다.', 'success')
+      showNotification({
+        mode: 'i18n',
+        value: 'auth.logoutSuccess',
+      })
       navigate('/home')
     }
     setIsDropdownOpen(false)
@@ -66,7 +72,6 @@ const MenuSidebar: React.FC = () => {
                 .filter((page) => page.isDisplay)
                 .map((page) => ({
                   id: page.id,
-                  label: typeof page.name === 'object' ? page.name.base : page.name,
                   icon: page.icon, // 이미 lucide 아이콘 ID가 들어 있음
                   path: page.link,
                   isExternal: page.isOpenBrowser,
@@ -76,7 +81,6 @@ const MenuSidebar: React.FC = () => {
               if (menuItems.length > 0) {
                 navItems.push({
                   id: category.id,
-                  label: category.name,
                   icon: 'lucide:folder',
                   path: category.link || '/',
                   subItems: menuItems,
@@ -96,7 +100,6 @@ const MenuSidebar: React.FC = () => {
                 .filter((page) => page.isDisplay)
                 .map((page) => ({
                   id: page.id,
-                  label: typeof page.name === 'object' ? page.name.base : page.name,
                   icon: page.icon, // 이미 lucide 아이콘 ID가 들어 있음
                   path: page.link,
                   isExternal: page.isOpenBrowser,
@@ -105,7 +108,6 @@ const MenuSidebar: React.FC = () => {
               if (menuItems.length > 0) {
                 navItems.push({
                   id: category.id,
-                  label: category.name,
                   icon: 'lucide:folder',
                   path: category.link || '/',
                   subItems: menuItems,
@@ -125,7 +127,6 @@ const MenuSidebar: React.FC = () => {
                 .filter((page) => page.isDisplay)
                 .map((page) => ({
                   id: page.id,
-                  label: typeof page.name === 'object' ? page.name.base : page.name,
                   icon: page.icon, // 이미 lucide 아이콘 ID가 들어 있음
                   path: page.link,
                   isExternal: page.isOpenBrowser,
@@ -134,7 +135,6 @@ const MenuSidebar: React.FC = () => {
               if (menuItems.length > 0) {
                 navItems.push({
                   id: category.id,
-                  label: category.name,
                   icon: 'lucide:folder',
                   path: category.link || '/',
                   subItems: menuItems,
@@ -146,32 +146,7 @@ const MenuSidebar: React.FC = () => {
         break
 
       default:
-        // 기본적으로 RACLA 메뉴 표시
-        if (globalDictionary.navDictionary.projectRa) {
-          Object.values(globalDictionary.navDictionary.projectRa).forEach((category) => {
-            if (category.isDisplay) {
-              const menuItems = category.pages
-                .filter((page) => page.isDisplay)
-                .map((page) => ({
-                  id: page.id,
-                  label: typeof page.name === 'object' ? page.name.base : page.name,
-                  icon: page.icon, // 이미 lucide 아이콘 ID가 들어 있음
-                  path: page.link,
-                  isExternal: page.isOpenBrowser,
-                }))
-
-              if (menuItems.length > 0) {
-                navItems.push({
-                  id: category.id,
-                  label: category.name,
-                  icon: 'lucide:folder',
-                  path: category.link || '/',
-                  subItems: menuItems,
-                })
-              }
-            }
-          })
-        }
+        null
     }
     return navItems
   }
@@ -257,7 +232,7 @@ const MenuSidebar: React.FC = () => {
             className={`tw:border-b ${theme === 'dark' ? 'tw:border-slate-700' : 'tw:border-gray-200'}`}
           >
             <div className='tw:flex tw:items-center tw:justify-between tw:py-2 tw:px-4'>
-              <span className='tw:font-bold'>바로가기 메뉴</span>
+              <span className='tw:font-bold'>{t('quickMenu.quickMenuNavTitle')}</span>
               <span
                 onClick={() => setIsDropdownOpen(false)}
                 className={`tw:flex tw:p-1 tw:rounded-md tw:transition-colors tw:cursor-pointer ${
@@ -266,7 +241,9 @@ const MenuSidebar: React.FC = () => {
                     : 'tw:hover:bg-white tw:hover:shadow-md'
                 }`}
               >
-                <Icon icon='lucide:x' className='tw:w-4 tw:h-4' />
+                <Tooltip position='left' content={t('quickMenu.close')}>
+                  <Icon icon='lucide:x' className='tw:w-4 tw:h-4' />
+                </Tooltip>
               </span>
             </div>
           </li>
@@ -278,7 +255,7 @@ const MenuSidebar: React.FC = () => {
               onClick={() => handleOpenExternalLink('https://racla.app/')}
             >
               <Icon icon='lucide:home' className='tw:w-4 tw:h-4 tw:mr-2' />
-              RACLA 바로가기
+              {t('quickMenu.raclaHome')}
             </span>
           </li>
           <li
@@ -298,7 +275,7 @@ const MenuSidebar: React.FC = () => {
                 }}
               >
                 <Icon icon='lucide:archive' className='tw:w-4 tw:h-4 tw:mr-2' />
-                V-ARCHIVE 바로가기
+                {t('quickMenu.vArchiveHome')}
               </span>
             </li>
           ) : (
@@ -313,7 +290,7 @@ const MenuSidebar: React.FC = () => {
                 }}
               >
                 <Icon icon='lucide:archive' className='tw:w-4 tw:h-4 tw:mr-2' />
-                V-ARCHIVE 바로가기
+                {t('quickMenu.vArchiveHome')}
               </span>
             </li>
           )}
@@ -331,7 +308,7 @@ const MenuSidebar: React.FC = () => {
               }}
             >
               <Icon icon='lucide:hard-drive' className='tw:w-4 tw:h-4 tw:mr-2' />
-              전일 아카이브 바로가기
+              {t('quickMenu.hjaHome')}
             </span>
           </li>
           <li
@@ -349,7 +326,7 @@ const MenuSidebar: React.FC = () => {
                 }}
               >
                 <Icon icon='lucide:log-out' className='tw:w-4 tw:h-4 tw:mr-2' />
-                로그아웃
+                {t('quickMenu.logout')}
               </span>
             </li>
           ) : (
@@ -364,7 +341,7 @@ const MenuSidebar: React.FC = () => {
                 }}
               >
                 <Icon icon='lucide:log-in' className='tw:w-4 tw:h-4 tw:mr-2' />
-                로그인
+                {t('quickMenu.login')}
               </span>
             </li>
           )}
@@ -396,7 +373,7 @@ const MenuSidebar: React.FC = () => {
                   <motion.div className='tw:flex tw:items-center tw:p-2 tw:mb-2'>
                     <Icon icon={item.icon} className='tw:w-4 tw:h-4 tw:mr-2 tw:text-indigo-500' />
                     <span className='tw:font-semibold tw:text-sm tw:uppercase tw:tracking-wider'>
-                      {item.label}
+                      {t(`${selectedGame}.${item.id}`)}
                     </span>
                   </motion.div>
                   <motion.ul className='tw:pl-3 tw:space-y-1'>
@@ -416,7 +393,7 @@ const MenuSidebar: React.FC = () => {
                           }`}
                         >
                           <Icon icon={subItem.icon} className='tw:w-4 tw:h-4 tw:mr-2' />
-                          <span>{subItem.label}</span>
+                          <span>{t(`${selectedGame}.${subItem.id}.name.base`)}</span>
                           {subItem.isExternal && (
                             <Icon
                               icon='lucide:external-link'
@@ -439,7 +416,7 @@ const MenuSidebar: React.FC = () => {
                   }`}
                 >
                   <Icon icon={item.icon} className='tw:w-5 tw:h-5 tw:mr-3' />
-                  <span>{item.label}</span>
+                  <span>{t(`${selectedGame}.${item.id}`)}</span>
                   {item.isExternal && (
                     <Icon
                       icon='lucide:external-link'

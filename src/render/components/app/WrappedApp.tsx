@@ -27,7 +27,7 @@ const LoadingSkeleton = lazy(() => import('./LoadingSkeleton'))
 const SettingModal = lazy(() => import('./SettingModal'))
 
 export default function WrappedApp() {
-  const { isLoading } = useSelector((state: RootState) => state.app)
+  const { isLoading, settingData } = useSelector((state: RootState) => state.app)
   const [isOverlayMode, setIsOverlayMode] = useState(false)
   const location = useLocation()
   const { notifications, removeNotification, showNotification } = useNotificationSystem()
@@ -56,7 +56,11 @@ export default function WrappedApp() {
 
       const response = await fetch(`${apiUrl}${endpoint}`)
       if (!response.ok) {
-        throw new Error(`API 요청 실패: ${response.status}`)
+        throw new Error(
+          settingData.language === 'ko_KR'
+            ? `API 요청 실패: ${response.status}`
+            : `API request failed: ${response.status}`,
+        )
       }
 
       const data = await response.json()
@@ -67,22 +71,39 @@ export default function WrappedApp() {
       if (window.electron && window.electron.saveSongData) {
         createLog(
           'info',
-          `${gameCode} 저장 전 데이터 타입: ${typeof data}, 배열 여부: ${Array.isArray(data)}, 길이: ${data?.length || 0}`,
+          settingData.language === 'ko_KR'
+            ? `${gameCode} 저장 전 데이터 타입: ${typeof data}, 배열 여부: ${Array.isArray(data)}, 길이: ${data?.length || 0}`
+            : `${gameCode} Saved data type: ${typeof data}, is array: ${Array.isArray(data)}, length: ${data?.length || 0}`,
         )
 
         // gameCode와 data가 뒤바뀌지 않도록 확인
         if (!Array.isArray(data)) {
-          await createLog('error', `${gameCode} 곡 데이터가 배열이 아님:`, data)
+          await createLog(
+            'error',
+            settingData.language === 'ko_KR'
+              ? `${gameCode} 곡 데이터가 배열이 아님:`
+              : `${gameCode} Song data is not an array:`,
+            data,
+          )
           return data
         }
 
         await window.electron.saveSongData({ gameCode, songData: data })
       }
 
-      createLog('debug', `${gameCode} 곡 데이터 로드 및 저장 완료`)
+      createLog(
+        'debug',
+        settingData.language === 'ko_KR'
+          ? `${gameCode} 곡 데이터 로드 및 저장 완료`
+          : `${gameCode} Song data loaded and saved`,
+      )
       isLoading &&
         showNotification(
-          `${globalDictionary.gmaeDictionary[gameCode].name} 데이터베이스 동기화 성공 :)`,
+          {
+            mode: 'i18n',
+            value: 'database.syncSuccess',
+            props: { gameName: globalDictionary.gameDictionary[gameCode].name },
+          },
           'success',
         )
       return data
@@ -90,7 +111,11 @@ export default function WrappedApp() {
       await createLog('error', `${gameCode} 곡 데이터 로드 실패:`, error.message)
       isLoading &&
         showNotification(
-          `${globalDictionary.gmaeDictionary[gameCode].name} 데이터베이스 동기화 실패 :(`,
+          {
+            mode: 'i18n',
+            value: 'database.syncError',
+            props: { gameName: globalDictionary.gameDictionary[gameCode].name },
+          },
           'error',
         )
 
@@ -103,7 +128,11 @@ export default function WrappedApp() {
             await createLog('debug', `${gameCode} 로컬 곡 데이터 로드 완료`)
             isLoading &&
               showNotification(
-                `${globalDictionary.gmaeDictionary[gameCode].name} 로컬 데이터베이스 로드 성공`,
+                {
+                  mode: 'i18n',
+                  value: 'database.syncLocalSuccess',
+                  props: { gameName: globalDictionary.gameDictionary[gameCode].name },
+                },
                 'success',
               )
             return localData
@@ -113,7 +142,11 @@ export default function WrappedApp() {
         await createLog('error', `${gameCode} 로컬 곡 데이터 로드 실패:`, localError)
         isLoading &&
           showNotification(
-            `${globalDictionary.gmaeDictionary[gameCode].name} 로컬 데이터베이스 로드 실패`,
+            {
+              mode: 'i18n',
+              value: 'database.syncLocalError',
+              props: { gameName: globalDictionary.gameDictionary[gameCode].name },
+            },
             'error',
           )
       }
@@ -149,7 +182,10 @@ export default function WrappedApp() {
 
       // 서버에서 데이터 로드 및 초기화 로직
       const initializeApp = async () => {
-        createLog('debug', '🚀 앱 초기화 시작')
+        createLog(
+          'debug',
+          settingData.language === 'ko_KR' ? '🚀 앱 초기화 시작' : '🚀 App initialization started',
+        )
 
         // 설정 모달 상태 초기화
         dispatch(setIsSetting(false))
@@ -160,10 +196,18 @@ export default function WrappedApp() {
             if (window.electron && window.electron.loadSettings) {
               const settings = await window.electron.loadSettings()
               dispatch(setSettingData(settings))
-              createLog('debug', '설정 로드됨:', settings)
+              createLog(
+                'debug',
+                settingData.language === 'ko_KR' ? '설정 로드됨:' : 'Settings loaded:',
+                settings,
+              )
             }
           } catch (error) {
-            createLog('error', '설정 로드 실패:', error.message)
+            createLog(
+              'error',
+              settingData.language === 'ko_KR' ? '설정 로드 실패:' : 'Settings load failed:',
+              error.message,
+            )
           }
 
           // 2. 세션 데이터 로드 및 자동 로그인
@@ -172,7 +216,13 @@ export default function WrappedApp() {
               const session = await window.electron.getSession()
               if (session && session.userNo && session.userToken) {
                 try {
-                  createLog('debug', '세션 데이터가 존재하여 자동 로그인 요청:', session)
+                  createLog(
+                    'debug',
+                    settingData.language === 'ko_KR'
+                      ? '세션 데이터가 존재하여 자동 로그인 요청:'
+                      : 'Session data exists, requesting auto-login:',
+                    session,
+                  )
                   const response = await apiClient.post<any>(`/v2/racla/user/login`, {
                     userNo: session.userNo,
                     userToken: session.userToken,
@@ -195,7 +245,11 @@ export default function WrappedApp() {
 
                   const success = await window.electron.login(session)
                   if (success) {
-                    createLog('debug', '로그인 성공:', session)
+                    createLog(
+                      'debug',
+                      settingData.language === 'ko_KR' ? '로그인 성공:' : 'Login successful:',
+                      session,
+                    )
                     // 사용자 정보 설정
                     dispatch(
                       setUserData({
@@ -226,28 +280,49 @@ export default function WrappedApp() {
                     }
                     dispatch(setIsLoggedIn(true))
                     showNotification(
-                      `${session.userName}님 RACLA에 오신 것을 환영합니다.`,
+                      {
+                        mode: 'i18n',
+                        value: 'auth.loginSuccess',
+                        props: { userName: session.userName },
+                      },
                       'success',
                     )
                   } else {
-                    createLog('error', '세션 로드 실패:', session)
+                    createLog(
+                      'error',
+                      settingData.language === 'ko_KR' ? '세션 로드 실패:' : 'Session load failed:',
+                      session,
+                    )
                     logout()
                   }
                 } catch (error) {
-                  createLog('error', '로그인 API 오류:', error.message)
+                  createLog(
+                    'error',
+                    settingData.language === 'ko_KR' ? '로그인 API 오류:' : 'Login API error:',
+                    error.message,
+                  )
                   logout()
                 }
               }
             }
           } catch (error) {
-            createLog('error', '세션 로드 실패:', error.message)
+            createLog(
+              'error',
+              settingData.language === 'ko_KR' ? '세션 로드 실패:' : 'Session load failed:',
+              error.message,
+            )
             logout()
           }
 
           // 3. 곡 데이터 로드
           await loadAllSongData()
+          dispatch(setIsLoading(false))
         } catch (error) {
-          createLog('error', '앱 초기화 실패:', error.message)
+          createLog(
+            'error',
+            settingData.language === 'ko_KR' ? '앱 초기화 실패:' : 'App initialization failed:',
+            error.message,
+          )
         }
       }
 
@@ -259,7 +334,12 @@ export default function WrappedApp() {
       // 5분마다 곡 데이터 리프레시
       const songRefreshInterval = setInterval(
         () => {
-          createLog('debug', '5분 주기 곡 데이터 새로고침 중...')
+          createLog(
+            'debug',
+            settingData.language === 'ko_KR'
+              ? '5분 주기 곡 데이터 새로고침 중...'
+              : '5-minute song data refresh in progress...',
+          )
           loadAllSongData()
         },
         5 * 60 * 1000,
@@ -277,16 +357,8 @@ export default function WrappedApp() {
     // 오버레이 모드 감지
     const isOverlayPath = location.pathname == '/overlay'
     setIsOverlayMode(isOverlayPath)
-
-    // 로딩 상태 처리
-    if (isOverlayPath) {
-      // 오버레이 모드일 때는 로딩 화면 바로 숨김
+    if (isLoading && isOverlayPath) {
       dispatch(setIsLoading(false))
-    } else {
-      // 일반 모드일 때는 지연 후 로딩 숨김
-      setTimeout(() => {
-        dispatch(setIsLoading(false))
-      }, 2000)
     }
   }, [location.pathname])
 

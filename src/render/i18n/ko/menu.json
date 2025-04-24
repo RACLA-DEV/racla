@@ -5,7 +5,17 @@
     "raclaOverlay": "오버레이",
     "raclaSettings": "설정",
     "raclaFeedback": "피드백 센터",
-    "raclaLicense": "라이선스 및 이용약관"
+    "raclaLicense": "라이선스 및 이용약관",
+    "raclaCheatsheet": "치트시트"
+  },
+  "quickMenu": {
+    "quickMenuNavTitle": "바로가기 메뉴",
+    "login": "로그인",
+    "logout": "로그아웃",
+    "raclaHome": "RACLA 바로가기",
+    "vArchiveHome": "V-ARCHIVE 바로가기",
+    "hjaHome": "전일 아카이브 바로가기",
+    "close": "닫기"
   },
   "djmax_respect_v": {
     "vArchiveNavTitle": "V-ARCHIVE",

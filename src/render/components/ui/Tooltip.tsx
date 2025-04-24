@@ -34,7 +34,7 @@ const Tooltip: React.FC<TooltipProps> = ({ children, content, position = 'right'
         <div
           className={`tw:absolute tw:z-50 tw:px-2 tw:py-1 tw:text-xs tw:rounded tw:whitespace-nowrap tw:pointer-events-none tw:opacity-90 ${
             theme === 'dark'
-              ? 'tw:bg-slate-800 tw:text-slate-200 tw:shadow-lg'
+              ? 'tw:bg-slate-900 tw:text-slate-200 tw:shadow-lg'
               : 'tw:bg-gray-700 tw:text-white tw:shadow-md'
           } ${getPositionClass()}`}
         >

@@ -92,7 +92,12 @@ export function Notification({ notification, onRemove, index }: NotificationProp
 
           <div className='tw:flex-grow'>
             <p className='tw:text-xs tw:text-slate-800 tw:dark:text-slate-200'>
-              {message.mode === 'string' ? message.value : t(message.value, { ns: message.ns })}
+              {message.mode === 'string'
+                ? message.value
+                : t(message.value, {
+                    ns: message.ns,
+                    ...(message?.props ? message.props : {}),
+                  })}
             </p>
           </div>
 

@@ -3,17 +3,18 @@ import { setIsSetting, setSelectedGame } from '@render/store/slices/appSlice'
 import type { GameType } from '@src/types/common/GameType'
 import { AnimatePresence, motion } from 'framer-motion'
 import React, { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { LuBook, LuHouse, LuLayers, LuSettings } from 'react-icons/lu'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import Tooltip from './Tooltip'
-
 const IconSidebar: React.FC = () => {
   const { theme } = useSelector((state: RootState) => state.ui)
   const { selectedGame } = useSelector((state: RootState) => state.app)
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const location = window.location.hash.substring(1) // 현재 경로 가져오기
+  const { t } = useTranslation(['menu'])
 
   // 로고 인덱스 상태 관리
   const [djmaxLogoIndex, setDjmaxLogoIndex] = useState(0)
@@ -134,7 +135,7 @@ const IconSidebar: React.FC = () => {
       {/* 상단 홈 버튼 */}
       <div className='tw:flex tw:flex-col tw:items-center'>
         <div className='tw:mb-4 tw:relative tw:z-10'>
-          <Tooltip content='홈'>
+          <Tooltip content={t('racla.raclaHome')}>
             <motion.div
               variants={iconAnimation(0)}
               whileHover={{ scale: 1.1 }}
@@ -157,7 +158,7 @@ const IconSidebar: React.FC = () => {
 
         <div className='tw:flex tw:flex-col tw:items-center'>
           <div className='tw:mb-4 tw:relative tw:z-10'>
-            <Tooltip content='치트시트'>
+            <Tooltip content={t('racla.raclaCheatsheet')}>
               <motion.div
                 variants={iconAnimation(0)}
                 whileHover={{ scale: 1.1 }}
@@ -180,7 +181,7 @@ const IconSidebar: React.FC = () => {
         </div>
 
         <div className='tw:mb-4 tw:relative tw:z-10'>
-          <Tooltip content='오버레이'>
+          <Tooltip content={t('racla.raclaOverlay')}>
             <motion.div
               variants={iconAnimation(0)}
               whileHover={{ scale: 1.1 }}
@@ -246,7 +247,7 @@ const IconSidebar: React.FC = () => {
 
       {/* 설정 버튼 (하단) */}
       <div className='tw:mb-10 tw:relative tw:z-10'>
-        <Tooltip content='설정'>
+        <Tooltip content={t('racla.raclaSettings')}>
           <motion.div
             variants={iconAnimation(5)}
             whileHover={{ scale: 1.1 }}

@@ -22,5 +22,29 @@
     "description": "이 링크는 사용자의 브라우저에서 열립니다. 신뢰할 수 있는 링크인지 확인 후 이동해주세요.",
     "open": "열기",
     "cancel": "취소"
+  },
+  "database": {
+    "syncSuccess": "{{gameName}} 데이터베이스 동기화 성공 :)",
+    "syncError": "{{gameName}} 데이터베이스 동기화 실패 :(",
+    "syncLocalSuccess": "{{gameName}} 로컬 데이터베이스 로드 성공",
+    "syncLocalError": "{{gameName}} 로컬 데이터베이스 로드 실패"
+  },
+  "auth": {
+    "loginSuccess": "{{userName}}님 RACLA에 오신 것을 환영합니다.",
+    "loginFailed": "로그인에 실패했습니다. 다시 시도해주세요.",
+    "logoutSuccess": "로그아웃되었습니다.",
+    "logoutFailed": "로그아웃에 실패했습니다. 다시 시도해주세요."
+  },
+  "ui": {
+    "minimize": "최소화",
+    "restore": "원래 크기로",
+    "maximize": "최대화",
+    "close": "닫기"
+  },
+  "theme": {
+    "light": "라이트 모드",
+    "dark": "다크 모드",
+    "changeLight": "라이트 모드로 전환",
+    "changeDark": "다크 모드로 전환"
   }
 }
