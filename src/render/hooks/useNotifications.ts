@@ -16,7 +16,12 @@ export function useNotificationSystem() {
 
   const showNotification = useCallback(
     (
-      message: { mode: 'string' | 'i18n'; ns?: string; value: string },
+      message: {
+        mode: 'string' | 'i18n'
+        ns?: string
+        value: string
+        props?: Record<string, string>
+      },
       type: 'success' | 'error' | 'info' | 'warning' = 'info',
       duration = 5000,
     ) => {
