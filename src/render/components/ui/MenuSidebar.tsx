@@ -1,4 +1,5 @@
 import { Icon } from '@iconify/react'
+import { globalDictionary } from '@render/constants/globalDictionary'
 import { useAuth } from '@render/hooks/useAuth'
 import { useNotificationSystem } from '@render/hooks/useNotifications'
 import { RootState } from '@render/store'
@@ -7,7 +8,6 @@ import {
   setOpenExternalLink,
   toggleSidebar,
 } from '@render/store/slices/uiSlice'
-import { globalDictionary } from '@src/constants/globalDictionary'
 import { motion } from 'framer-motion'
 import React, { useState } from 'react'
 import { FaCircleUser } from 'react-icons/fa6'

@@ -12,15 +12,7 @@
     "paths": {
       "@render/*": ["src/render/*"],
       "@main/*": ["src/main/*"],
-      "@src/*": ["src/*"],
-      "@styles/*": ["src/render/styles/*"],
-      "@components/*": ["src/render/components/*"],
-      "@constants/*": ["src/render/constants/*"],
-      "@utils/*": ["src/render/utils/*"],
-      "@hooks/*": ["src/render/hooks/*"],
-      "@libs/*": ["src/render/libs/*"],
-      "@assets/*": ["src/render/assets/*"],
-      "@store/*": ["src/render/store/*"]
+      "@src/*": ["src/*"]
     },
     "resolveJsonModule": true,
     "types": ["./src/preload"],

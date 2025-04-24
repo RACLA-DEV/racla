@@ -1,4 +1,5 @@
 import { RootState } from '@render/store'
+import { useTranslation } from 'react-i18next'
 import { useSelector } from 'react-redux'
 import { SyncLoader } from 'react-spinners'
 
@@ -6,6 +7,7 @@ export default function LoadingSkeleton() {
   const { font } = useSelector((state: RootState) => state.app.settingData)
   const { theme } = useSelector((state: RootState) => state.ui)
   const { isLoading } = useSelector((state: RootState) => state.app)
+  const { t } = useTranslation()
   return (
     <div
       className={`${font != 'default' ? 'tw:font-medium' : ''} tw:fixed tw:inset-0 tw:flex tw:flex-col tw:items-center tw:justify-center tw:z-[1000000] tw:transition-all tw:duration-1000 ${
@@ -49,7 +51,7 @@ export default function LoadingSkeleton() {
         <span
           className={`tw:text-xs ${theme === 'dark' ? 'tw:text-slate-400' : 'tw:text-indigo-500'}`}
         >
-          Developed by RACLA from 공감대로0번길(GGDRN0 STUDIO)
+          {t('copyright')}
         </span>
       </div>
     </div>

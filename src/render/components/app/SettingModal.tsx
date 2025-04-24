@@ -1,20 +1,22 @@
 import { Icon } from '@iconify/react'
+import { globalDictionary } from '@render/constants/globalDictionary'
+import { useNotificationSystem } from '@render/hooks/useNotifications'
 import { createLog } from '@render/libs/logger'
 import { RootState } from '@render/store'
 import { setIsSetting, setSettingData } from '@render/store/slices/appSlice'
-import { globalDictionary } from '@src/constants/globalDictionary'
 import type { SettingsData } from '@src/types/common/SettingData'
 import type { SettingItem } from '@src/types/common/SettingItem'
 import { useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useDispatch, useSelector } from 'react-redux'
 import { SyncLoader } from 'react-spinners'
 
 // 카테고리 정의
 const settingCategories = {
-  general: { name: '일반', icon: 'lucide:settings' },
-  storage: { name: '저장공간', icon: 'lucide:database' },
-  autoStart: { name: '게임 자동 실행', icon: 'lucide:play' },
-  capture: { name: '자동 캡처 모드', icon: 'lucide:camera' },
+  general: { id: 'general', name: '일반', icon: 'lucide:settings' },
+  storage: { id: 'storage', name: '저장공간', icon: 'lucide:database' },
+  autoStart: { id: 'autoStart', name: '게임 자동 실행', icon: 'lucide:play' },
+  capture: { id: 'capture', name: '자동 캡처 모드', icon: 'lucide:camera' },
 }
 
 // 설정 항목을 카테고리별로 분류
@@ -122,16 +124,18 @@ const FileSelector = ({
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null)
 
+  const { language } = useSelector((state: RootState) => state.app.settingData)
+
   const handleSelectFile = async () => {
     if (disabled) return
 
     if (window.electron?.openFileDialog) {
       try {
         const filePath = await window.electron.openFileDialog({
-          title: '파일 선택',
+          title: language === 'ko_KR' ? '파일 선택' : 'Select File',
           filters: [
-            { name: '실행 파일', extensions: ['exe'] },
-            { name: '모든 파일', extensions: ['*'] },
+            { name: language === 'ko_KR' ? '실행 파일' : 'Executable File', extensions: ['exe'] },
+            { name: language === 'ko_KR' ? '모든 파일' : 'All Files', extensions: ['*'] },
           ],
         })
 
@@ -139,7 +143,11 @@ const FileSelector = ({
           onChange(filePath)
         }
       } catch (error) {
-        console.error('파일 선택 오류:', error.message)
+        createLog(
+          'error',
+          language === 'ko_KR' ? '파일 선택 오류:' : 'File selection error:',
+          error.message,
+        )
         // 오류 시 기존 방식으로 폴백
         fileInputRef.current?.click()
       }
@@ -196,6 +204,7 @@ const SelectBox = ({
   disabled?: boolean
   theme: string
 }) => {
+  const { t } = useTranslation(['settings'])
   return (
     <select
       value={value}
@@ -211,7 +220,7 @@ const SelectBox = ({
         .filter((option) => option.id !== undefined)
         .map((option) => (
           <option key={option.id} value={option.id}>
-            {option.name}
+            {t(`${id}.${option.id}`)}
           </option>
         ))}
     </select>
@@ -222,6 +231,9 @@ const SelectBox = ({
 const StorageInfo = ({ theme }: { theme: string }) => {
   const dispatch = useDispatch()
   const { settingData } = useSelector((state: RootState) => state.app)
+  const { language } = useSelector((state: RootState) => state.app.settingData)
+  const { showNotification } = useNotificationSystem()
+  const { t } = useTranslation(['settings'])
   const [storageInfo, setStorageInfo] = useState({
     total: 0,
     free: 0,
@@ -258,7 +270,11 @@ const StorageInfo = ({ theme }: { theme: string }) => {
           }
         }
       } catch (error) {
-        createLog('error', '스토리지 정보 로딩 실패:', error.message)
+        createLog(
+          'error',
+          language === 'ko_KR' ? '스토리지 정보 로딩 실패:' : 'Storage information loading failed:',
+          error.message,
+        )
       } finally {
         setIsLoading(false)
       }
@@ -289,14 +305,20 @@ const StorageInfo = ({ theme }: { theme: string }) => {
       if (window.electron) {
         const result = await window.electron.clearAllLogs()
         if (result) {
-          window.alert('모든 로그 파일이 삭제되었습니다.')
+          showNotification(
+            { mode: 'i18n', ns: 'settings', value: 'log.clearAllLogsSuccess' },
+            'success',
+          )
         } else {
-          window.alert('로그 파일 삭제 중 오류가 발생했습니다.')
+          showNotification(
+            { mode: 'i18n', ns: 'settings', value: 'log.clearAllLogsError' },
+            'error',
+          )
         }
       }
     } catch (error) {
       createLog('error', '로그 파일 삭제 실패:', error.message)
-      window.alert('로그 파일 삭제 중 오류가 발생했습니다.')
+      showNotification({ mode: 'i18n', ns: 'settings', value: 'log.clearAllLogsError' }, 'error')
     } finally {
       setIsCleaningLogs(false)
     }
@@ -336,7 +358,7 @@ const StorageInfo = ({ theme }: { theme: string }) => {
               }`}
             >
               <div className='tw:flex tw:justify-between tw:items-center'>
-                <h1 className='tw:text-sm'>RACLA 설정 파일</h1>
+                <h1 className='tw:text-sm'>{t('storageSettingFile')}</h1>
                 <div className='tw:flex tw:items-center tw:gap-3'>
                   <span className='tw:font-mono tw:text-sm'>
                     {formatBytes(storageInfo.appDataSize)}
@@ -364,7 +386,7 @@ const StorageInfo = ({ theme }: { theme: string }) => {
               }`}
             >
               <div className='tw:flex tw:justify-between tw:items-center'>
-                <h1 className='tw:text-sm'>RACLA 캡처 이미지</h1>
+                <h1 className='tw:text-sm'>{t('storageCaptureImage')}</h1>
                 <div className='tw:flex tw:items-center tw:gap-3'>
                   <span className='tw:font-mono tw:text-sm'>
                     {formatBytes(storageInfo.imageDataSize)}
@@ -388,13 +410,13 @@ const StorageInfo = ({ theme }: { theme: string }) => {
                 }`}
               >
                 <div>
-                  <h1 className='tw:text-sm'>이미지 자동 삭제 기간</h1>
+                  <h1 className='tw:text-sm'>{t('autoDeleteCapturedImages.name')}</h1>
                   <p
                     className={`tw:text-xs tw:mt-1 ${
                       theme === 'dark' ? 'tw:text-slate-400' : 'tw:text-gray-600'
                     }`}
                   >
-                    설정한 기간이 지난 캡처 이미지를 자동으로 삭제합니다
+                    {t('autoDeleteCapturedImages.description')}
                   </p>
                 </div>
                 <select
@@ -406,11 +428,11 @@ const StorageInfo = ({ theme }: { theme: string }) => {
                       : 'tw:bg-white tw:text-gray-800 tw:border-gray-300'
                   }`}
                 >
-                  <option value={0}>자동 삭제 안함</option>
-                  <option value={7}>7일</option>
-                  <option value={14}>14일</option>
-                  <option value={30}>30일</option>
-                  <option value={90}>90일</option>
+                  <option value={0}>{t('autoDeleteCapturedImages.0')}</option>
+                  <option value={7}>{t('autoDeleteCapturedImages.7')}</option>
+                  <option value={14}>{t('autoDeleteCapturedImages.14')}</option>
+                  <option value={30}>{t('autoDeleteCapturedImages.30')}</option>
+                  <option value={90}>{t('autoDeleteCapturedImages.90')}</option>
                 </select>
               </div>
             </div>
@@ -423,7 +445,7 @@ const StorageInfo = ({ theme }: { theme: string }) => {
               }`}
             >
               <div className='tw:flex tw:justify-between tw:items-center'>
-                <h1 className='tw:text-sm'>RACLA 로그 파일</h1>
+                <h1 className='tw:text-sm'>{t('storageLogs')}</h1>
                 <div className='tw:flex tw:items-center tw:gap-3'>
                   <span className='tw:font-mono tw:text-sm'>
                     {formatBytes(storageInfo.logDataSize)}
@@ -454,12 +476,12 @@ const StorageInfo = ({ theme }: { theme: string }) => {
                   {isCleaningLogs ? (
                     <>
                       <Icon icon='lucide:loader' className='tw:w-3 tw:h-3 tw:animate-spin' />
-                      삭제 중...
+                      {t('storageLogsDeleting')}
                     </>
                   ) : (
                     <>
                       <Icon icon='lucide:trash-2' className='tw:w-3 tw:h-3' />
-                      로그 전체 삭제
+                      {t('storageLogsDeleteAll')}
                     </>
                   )}
                 </button>
@@ -480,6 +502,7 @@ export default function SettingModal() {
   const [activeCategory, setActiveCategory] = useState<string>('general')
   const [localSettings, setLocalSettings] = useState<Record<string, any>>({})
   const [hasChanges, setHasChanges] = useState<boolean>(false)
+  const { t } = useTranslation(['settings'])
   const categorizedSettings = categorizeSettings()
 
   // 모달이 열릴 때 설정 데이터를 로컬 상태로 복사
@@ -529,10 +552,10 @@ export default function SettingModal() {
   // 설정 적용
   const applySettings = (settingsToApply: SettingsData) => {
     // 재시작이 필요한 설정이 변경되었는지 확인
-    const requiresRestart = Object.entries(settingsToApply).some(([key, value]) => {
-      const setting = globalDictionary.settingDictionary[key]
-      return setting?.requiresRestart && value !== settingData[key]
-    })
+    // const requiresRestart = Object.entries(settingsToApply).some(([key, value]) => {
+    //   const setting = globalDictionary.settingDictionary[key]
+    //   return setting?.requiresRestart && value !== settingData[key]
+    // })
 
     // 설정 저장
     dispatch(setSettingData(settingsToApply))
@@ -543,13 +566,13 @@ export default function SettingModal() {
     }
 
     // 재시작이 필요한 경우 알림
-    if (requiresRestart) {
-      // 사용자에게 재시작이 필요하다는 알림 표시
-      if (window.confirm('설정을 적용하려면 앱을 재시작해야 합니다. 지금 재시작하시겠습니까?')) {
-        // 실제 restartApp이 구현되면 해당 기능 호출
-        window.location.reload()
-      }
-    }
+    // if (requiresRestart) {
+    //   // 사용자에게 재시작이 필요하다는 알림 표시
+    //   if (window.confirm('설정을 적용하려면 앱을 재시작해야 합니다. 지금 재시작하시겠습니까?')) {
+    //     // 실제 restartApp이 구현되면 해당 기능 호출
+    //     window.location.reload()
+    //   }
+    // }
   }
 
   // 모달 닫기
@@ -558,21 +581,21 @@ export default function SettingModal() {
   }
 
   // 설정 리셋
-  const resetSettings = () => {
-    if (window.confirm('모든 설정을 기본값으로 되돌리시겠습니까?')) {
-      const defaultSettings = Object.entries(globalDictionary.settingDictionary).reduce(
-        (acc, [key, value]) => {
-          acc[key] = value.defaultValue
-          return acc
-        },
-        {} as Record<string, any>,
-      )
+  // const resetSettings = () => {
+  //   if (window.confirm('모든 설정을 기본값으로 되돌리시겠습니까?')) {
+  //     const defaultSettings = Object.entries(globalDictionary.settingDictionary).reduce(
+  //       (acc, [key, value]) => {
+  //         acc[key] = value.defaultValue
+  //         return acc
+  //       },
+  //       {} as Record<string, any>,
+  //     )
 
-      setLocalSettings(defaultSettings)
-      // 즉시 설정 저장
-      applySettings(defaultSettings as SettingsData)
-    }
-  }
+  //     setLocalSettings(defaultSettings)
+  //     // 즉시 설정 저장
+  //     applySettings(defaultSettings as SettingsData)
+  //   }
+  // }
 
   return (
     <div
@@ -601,7 +624,7 @@ export default function SettingModal() {
           <div className='tw:flex tw:justify-between tw:items-center'>
             <div className='tw:flex tw:items-center tw:gap-2'>
               <Icon icon='lucide:settings' className='tw:w-5 tw:h-5' />
-              <h2 className='tw:text-lg tw:font-bold'>설정</h2>
+              <h2 className='tw:text-lg tw:font-bold'>{t('settings')}</h2>
             </div>
             <button
               onClick={closeModal}
@@ -637,7 +660,7 @@ export default function SettingModal() {
                 }`}
               >
                 {/* <Icon icon={category.icon} className='tw:w-5 tw:h-5' /> */}
-                <span className='tw:text-sm'>{category.name}</span>
+                <span className='tw:text-sm'>{t(`${category.id}`)}</span>
               </span>
             ))}
           </div>
@@ -664,23 +687,21 @@ export default function SettingModal() {
                   >
                     <div className='tw:flex tw:justify-between tw:items-center tw:gap-8'>
                       <div className='tw:flex-1'>
-                        <h3 className='tw:text-sm tw:mb-2'>{setting.name}</h3>
+                        <h3 className='tw:text-sm tw:mb-2'>{t(`${setting.id}.name`)}</h3>
                         <p
                           className={`tw:text-sm tw:mb-2 ${
                             theme === 'dark' ? 'tw:text-slate-400' : 'tw:text-gray-600'
                           }`}
                         >
-                          {setting.description}
+                          {t(`${setting.id}.description`)}
                         </p>
                         {setting.requiresRestart && (
                           <p className='tw:text-sm tw:mt-2 tw:text-amber-500'>
-                            ※ 이 설정은 적용하려면 앱을 재시작해야 합니다.
+                            {t('requiresRestart')}
                           </p>
                         )}
                         {!setting.isEditable && (
-                          <p className='tw:text-sm tw:mt-2 tw:text-red-500'>
-                            ※ 현재 버전에서는 수정할 수 없는 설정값입니다.
-                          </p>
+                          <p className='tw:text-sm tw:mt-2 tw:text-red-500'>{t('uneditable')}</p>
                         )}
                       </div>
 
@@ -728,12 +749,13 @@ export default function SettingModal() {
                         }}
                         className={`tw:px-4 tw:py-2 tw:rounded-lg tw:transition-colors tw:font-medium tw:flex tw:justify-center tw:items-center tw:gap-2 tw:cursor-pointer tw:duration-300 tw:bg-indigo-600 tw:hover:bg-indigo-700 tw:text-white`}
                       >
-                        <Icon icon='lucide:refresh-cw' className='tw:w-4 tw:h-4' />앱 재시작
+                        <Icon icon='lucide:refresh-cw' className='tw:w-4 tw:h-4' />
+                        {t('restartApp')}
                       </button>
 
                       <div className='tw:mt-4 tw:text-xs tw:opacity-70 tw:text-center'>
                         <p className='tw:mb-1'>{globalDictionary.version}</p>
-                        <p className='tw:whitespace-pre-line'>{globalDictionary.copyright}</p>
+                        <p className='tw:whitespace-pre-line'>{t('copyright')}</p>
                       </div>
                     </div>
                   </div>

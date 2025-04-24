@@ -16,6 +16,7 @@ import uiReducer from './slices/uiSlice'
 const uiPersistConfig = {
   key: 'ui',
   storage,
+  blacklist: ['isOpenExternalLink', 'openExternalLink'],
 }
 
 const appPersistConfig = {

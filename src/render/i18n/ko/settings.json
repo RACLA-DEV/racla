@@ -1,4 +1,17 @@
 {
+  "settings": "설정",
+  "general": "일반",
+  "storage": "저장공간",
+  "storageSettingFile": "RACLA 설정 파일",
+  "storageCaptureImage": "RACLA 캡처 이미지",
+  "storageLogs": "RACLA 로그 파일",
+  "storageLogsDeleting": "삭제 중...",
+  "storageLogsDeleteAll": "로그 파일 삭제",
+  "autoStart": "게임 자동 실행",
+  "capture": "자동 캡처 모드",
+  "restartApp": "앱 재시작",
+  "requiresRestart": "※ 이 설정은 적용하려면 앱을 재시작해야 합니다.",
+  "uneditable": "※ 현재 버전에서는 수정할 수 없는 설정값입니다.",
   "copyright": "DJMAX RESPECT V(©NEOWIZ), WJMAX(©WJMAX STUDIO), PLATiNA :: LAB(©HIGH-END Games).\nWe deeply respect you. <3\nRACLA is dedicated to your remarkable games and services.",
   "hardwareAcceleration": {
     "name": "하드웨어 가속 활성화",
@@ -167,5 +180,9 @@
     "14": "14일",
     "30": "30일",
     "90": "90일"
+  },
+  "log": {
+    "clearAllLogsSuccess": "모든 로그 파일이 삭제되었습니다.",
+    "clearAllLogsError": "로그 파일 삭제 중 오류가 발생했습니다."
   }
 }

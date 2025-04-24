@@ -1,6 +1,7 @@
 // 렌더러에서 사용하는 상수
-import packageJson from '../../package.json'
+import packageJson from '../../../package.json'
 import { BUILD_DATE } from './buildInfo'
+
 export const globalDictionary = {
   version: `${packageJson.version} ${BUILD_DATE}`,
   blurDataURL:

@@ -1,6 +1,7 @@
 import { RootState } from '@render/store'
 import { setIsOpenExternalLink, setOpenExternalLink } from '@render/store/slices/uiSlice'
 import { useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useDispatch, useSelector } from 'react-redux'
 
 export default function ExternalLinkModal() {
@@ -9,6 +10,7 @@ export default function ExternalLinkModal() {
   )
   const { font } = useSelector((state: RootState) => state.app.settingData)
   const dispatch = useDispatch()
+  const { t } = useTranslation()
 
   // ESC 키 누름 감지
   useEffect(() => {
@@ -48,12 +50,10 @@ export default function ExternalLinkModal() {
               : 'tw:bg-white tw:text-indigo-950'
           }`}
         >
-          <h3 className='tw:text-lg tw:font-bold tw:mb-4 tw:text-center'>외부 링크 열기</h3>
-          <p className='tw:mb-6 tw:text-center tw:text-sm'>
-            이 링크는 사용자의 브라우저에서 열립니다.
-            <br />
-            신뢰할 수 있는 링크인지 확인 후 이동해주세요.
-          </p>
+          <h3 className='tw:text-lg tw:font-bold tw:mb-4 tw:text-center'>
+            {t('externalLinkModal.title')}
+          </h3>
+          <p className='tw:mb-6 tw:text-center tw:text-sm'>{t('externalLinkModal.description')}</p>
           <div
             className={`tw:mb-6 tw:h-20 tw:overflow-y-auto tw:rounded tw:p-2 ${
               theme === 'dark' ? 'tw:bg-slate-700' : 'tw:bg-indigo-50'
@@ -79,7 +79,7 @@ export default function ExternalLinkModal() {
                 dispatch(setOpenExternalLink(''))
               }}
             >
-              취소
+              {t('externalLinkModal.cancel')}
             </button>
             <button
               className={`tw:px-4 tw:py-1.5 tw:text-sm tw:rounded tw:cursor-pointer tw:text-white ${
@@ -93,7 +93,7 @@ export default function ExternalLinkModal() {
                 dispatch(setOpenExternalLink(''))
               }}
             >
-              열기
+              {t('externalLinkModal.open')}
             </button>
           </div>
         </div>

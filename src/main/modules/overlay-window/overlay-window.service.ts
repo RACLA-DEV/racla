@@ -1,4 +1,4 @@
-import { GLOBAL_DICTONARY } from '@src/constants/GLOBAL_DICTONARY'
+import { GLOBAL_DICTONARY } from '@main/constants/GLOBAL_DICTONARY'
 import { join } from 'node:path'
 
 import { Injectable, Logger } from '@nestjs/common'

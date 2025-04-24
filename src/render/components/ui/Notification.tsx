@@ -4,6 +4,7 @@ import type { NotificationContainerProps } from '@src/types/render/NotificationC
 import type { NotificationProps } from '@src/types/render/NotificationProps'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useSelector } from 'react-redux'
 
 // 알림 컴포넌트
@@ -11,6 +12,7 @@ export function Notification({ notification, onRemove, index }: NotificationProp
   const { id, message, type, isRemoving } = notification
   const [progress, setProgress] = useState(100)
   const { theme } = useSelector((state: RootState) => state.ui)
+  const { t } = useTranslation(['common', 'settings', 'languages', 'games', 'menu'])
 
   // 타입에 따른 스타일 및 아이콘 설정
   const getTypeStyles = () => {
@@ -89,7 +91,9 @@ export function Notification({ notification, onRemove, index }: NotificationProp
           </div>
 
           <div className='tw:flex-grow'>
-            <p className='tw:text-xs tw:text-slate-800 tw:dark:text-slate-200'>{message}</p>
+            <p className='tw:text-xs tw:text-slate-800 tw:dark:text-slate-200'>
+              {message.mode === 'string' ? message.value : t(message.value, { ns: message.ns })}
+            </p>
           </div>
 
           <button

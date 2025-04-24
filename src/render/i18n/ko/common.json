@@ -16,5 +16,11 @@
   "week": "주",
   "month": "달",
   "year": "년",
-  "copyright": "Developed by RACLA from 공감대로0번길(GGDRN0 STUDIO)"
+  "copyright": "Developed by RACLA from 공감대로0번길(GGDRN0 STUDIO)",
+  "externalLinkModal": {
+    "title": "외부 링크 열기",
+    "description": "이 링크는 사용자의 브라우저에서 열립니다. 신뢰할 수 있는 링크인지 확인 후 이동해주세요.",
+    "open": "열기",
+    "cancel": "취소"
+  }
 }

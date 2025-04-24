@@ -15,7 +15,11 @@ export function useNotificationSystem() {
   const notifications = useSelector((state: RootState) => state.app.notifications)
 
   const showNotification = useCallback(
-    (message: string, type: 'success' | 'error' | 'info' | 'warning' = 'info', duration = 5000) => {
+    (
+      message: { mode: 'string' | 'i18n'; ns?: string; value: string },
+      type: 'success' | 'error' | 'info' | 'warning' = 'info',
+      duration = 5000,
+    ) => {
       const id = uuidv4()
 
       // Redux를 통해 알림 추가
