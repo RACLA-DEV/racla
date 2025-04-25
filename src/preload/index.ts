@@ -1,6 +1,7 @@
 import type { LogLevel } from '@src/types/common/LogLevel'
 import type { SessionData } from '@src/types/common/SessionData'
 import type { SettingsData } from '@src/types/common/SettingData'
+import { SongData } from '@src/types/common/SongData'
 import { contextBridge, ipcRenderer } from 'electron'
 import type { ProcessDescriptor } from 'ps-list'
 
@@ -27,7 +28,7 @@ contextBridge.exposeInMainWorld('electron', {
   getGameWindow: () => ipcRenderer.invoke('monitor:get-game-window'),
 
   // 로깅 관련
-  sendLog: (level: LogLevel, where: string, ...args: any[]) =>
+  sendLog: (level: LogLevel, where: string, ...args: unknown[]) =>
     ipcRenderer.invoke('logger:create-log', level, where, ...args),
 
   // 캡처 관련
@@ -38,7 +39,7 @@ contextBridge.exposeInMainWorld('electron', {
   saveSettings: (settings: SettingsData) =>
     ipcRenderer.invoke('file-manager:save-settings', settings),
   loadSettings: () => ipcRenderer.invoke('file-manager:load-settings'),
-  saveSongData: (data: { gameCode: string; songData: any[] }) =>
+  saveSongData: (data: { gameCode: string; songData: SongData[] }) =>
     ipcRenderer.invoke('file-manager:save-song-data', data),
   loadSongData: (gameCode: string) => ipcRenderer.invoke('file-manager:load-song-data', gameCode),
 
@@ -78,16 +79,16 @@ contextBridge.exposeInMainWorld('electron', {
   openFileDialog: (options: {
     title?: string
     defaultPath?: string
-    filters?: Array<{ name: string; extensions: string[] }>
+    filters?: { name: string; extensions: string[] }[]
   }) => ipcRenderer.invoke('file-manager:open-file-dialog', options),
 
   // 업데이트 관련
   onUpdateAvailable: (callback: (version: string) => void) =>
-    ipcRenderer.on('update-available', (_event, version) => callback(version)),
+    ipcRenderer.on('update-available', (_event, version: string) => callback(version)),
   onDownloadProgress: (
     callback: (progress: { percent: number; transferred: number; total: number }) => void,
   ) => ipcRenderer.on('download-progress', (_event, progress) => callback(progress)),
   onUpdateDownloaded: (callback: (version: string) => void) =>
-    ipcRenderer.on('update-downloaded', (_event, version) => callback(version)),
+    ipcRenderer.on('update-downloaded', (_event, version: string) => callback(version)),
   updateApp: () => ipcRenderer.invoke('update-manager:update-app'),
 })

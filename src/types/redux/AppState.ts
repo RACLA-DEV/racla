@@ -1,11 +1,13 @@
 import { GameType } from '../common/GameType'
+import { SettingsData } from '../common/SettingData'
+import { SongData } from '../common/SongData'
 import { Notification } from '../render/Notification'
 
 export interface AppState {
   selectedGame: GameType
   isSetting: boolean
   isLoading: boolean
-  settingData: any
+  settingData: SettingsData
   userData: {
     userName: string
     userNo: string
@@ -27,9 +29,9 @@ export interface AppState {
   isLoggedIn: boolean
   notifications: Notification[]
   songData: {
-    djmax_respect_v: any[]
-    wjmax: any[]
-    platina_lab: any[]
+    djmax_respect_v: SongData[]
+    wjmax: SongData[]
+    platina_lab: SongData[]
     lastUpdated: {
       djmax_respect_v: number | null
       wjmax: number | null

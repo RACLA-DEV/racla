@@ -1,7 +1,8 @@
 import type { Notification } from '@src/types/render/Notification'
+import type { NotificationContainerProps } from '@src/types/render/NotificationContainerProps'
 
 export interface NotificationProps {
   notification: Notification
-  onRemove: (id: string) => void
+  onRemove: NotificationContainerProps['onRemove']
   index: number
 }

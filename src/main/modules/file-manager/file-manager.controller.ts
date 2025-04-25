@@ -2,6 +2,7 @@ import { IpcHandle } from '@doubleshot/nest-electron'
 import { Controller, Logger } from '@nestjs/common'
 import type { SessionData } from '@src/types/common/SessionData'
 import type { SettingsData } from '@src/types/common/SettingData'
+import { SongData } from '@src/types/common/SongData'
 import type { StorageInfo } from '@src/types/common/StroageInfo'
 import { dialog } from 'electron'
 import { FileManagerService } from './file-manager.service'
@@ -12,32 +13,32 @@ export class FileManagerController {
   constructor(private readonly fileManagerService: FileManagerService) {}
 
   @IpcHandle('file-manager:save-settings')
-  async saveSettings(settings: SettingsData): Promise<SettingsData> {
+  saveSettings(settings: SettingsData): SettingsData {
     return this.fileManagerService.saveSettings(settings)
   }
 
   @IpcHandle('file-manager:load-settings')
-  async loadSettings(): Promise<SettingsData> {
+  loadSettings(): SettingsData {
     return this.fileManagerService.loadSettings()
   }
 
   @IpcHandle('file-manager:save-session')
-  async saveSession(session: SessionData): Promise<SessionData> {
+  saveSession(session: SessionData): SessionData {
     return this.fileManagerService.saveSession(session)
   }
 
   @IpcHandle('file-manager:load-session')
-  async loadSession(): Promise<SessionData> {
+  loadSession(): SessionData {
     return this.fileManagerService.loadSession()
   }
 
   @IpcHandle('file-manager:clear-session')
-  async clearSession(): Promise<void> {
+  clearSession(): void {
     return this.fileManagerService.clearSession()
   }
 
   @IpcHandle('file-manager:save-song-data')
-  async saveSongData(data: { gameCode: string; songData: any[] }): Promise<boolean> {
+  saveSongData(data: { gameCode: string; songData: SongData[] }): boolean {
     try {
       const { gameCode, songData } = data
       this.logger.log(`곡 데이터 저장 요청 - 게임 코드: ${gameCode}`)
@@ -59,7 +60,7 @@ export class FileManagerController {
   }
 
   @IpcHandle('file-manager:load-song-data')
-  async loadSongData(gameCode: string): Promise<any[]> {
+  loadSongData(gameCode: string): SongData[] {
     return this.fileManagerService.loadSongData(gameCode)
   }
 
@@ -82,7 +83,7 @@ export class FileManagerController {
   }
 
   @IpcHandle('file-manager:open-folder')
-  async openFolder(folderType: 'documents' | 'pictures' | 'logs' | 'appData'): Promise<boolean> {
+  openFolder(folderType: 'documents' | 'pictures' | 'logs' | 'appData'): boolean {
     try {
       return this.fileManagerService.openFolder(folderType)
     } catch (error) {
@@ -92,12 +93,12 @@ export class FileManagerController {
   }
 
   @IpcHandle('file-manager:get-folder-paths')
-  async getFolderPaths() {
+  getFolderPaths() {
     return this.fileManagerService.getFolderPaths()
   }
 
   @IpcHandle('file-manager:clear-all-logs')
-  async clearAllLogs() {
+  clearAllLogs() {
     return this.fileManagerService.clearAllLogs()
   }
 
@@ -105,11 +106,11 @@ export class FileManagerController {
   async openFileDialog(options: {
     title?: string
     defaultPath?: string
-    filters?: Array<{ name: string; extensions: string[] }>
+    filters?: { name: string; extensions: string[] }[]
   }): Promise<string | null> {
     try {
       const result = await dialog.showOpenDialog({
-        title: options.title || '파일 선택',
+        title: options.title ?? '파일 선택',
         defaultPath: options.defaultPath,
         filters: options.filters || [{ name: '모든 파일', extensions: ['*'] }],
         properties: ['openFile'],

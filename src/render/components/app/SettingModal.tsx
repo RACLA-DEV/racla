@@ -19,6 +19,49 @@ const settingCategories = {
   capture: { id: 'capture', name: '자동 캡처 모드', icon: 'lucide:camera' },
 }
 
+// 설정 항목이 특정 카테고리에 속하는지 확인하는 함수들
+const isGeneralSetting = (settingId: string): boolean => {
+  return (
+    settingId.includes('hardwareAcceleration') ||
+    settingId.includes('language') ||
+    settingId.includes('autoUpdate') ||
+    settingId.includes('visible') ||
+    settingId.includes('closeToTray') ||
+    settingId.includes('isNotificationSound')
+  )
+}
+
+const isCaptureSetting = (settingId: string): boolean => {
+  return (
+    settingId.includes('autoCapture') &&
+    !settingId.includes('autoCaptureDjmax') &&
+    !settingId.includes('autoCaptureWjmax') &&
+    !settingId.includes('autoCapturePlatina')
+  )
+}
+
+const isStorageSetting = (settingId: string): boolean => {
+  return (
+    settingId.includes('saveImage') ||
+    settingId.includes('saveImageWhen') ||
+    settingId.includes('saveImageWith') ||
+    settingId.includes('saveImageWithout') ||
+    settingId.includes('saveImageBlur')
+  )
+}
+
+const isGameCaptureSetting = (settingId: string): boolean => {
+  return (
+    settingId.includes('autoCaptureDjmax') ||
+    settingId.includes('autoCaptureWjmax') ||
+    settingId.includes('autoCapturePlatina')
+  )
+}
+
+const isAutoStartSetting = (settingId: string): boolean => {
+  return settingId.includes('autoStart') || settingId.includes('StartGame')
+}
+
 // 설정 항목을 카테고리별로 분류
 const categorizeSettings = () => {
   const { settingDictionary } = globalDictionary
@@ -38,37 +81,15 @@ const categorizeSettings = () => {
       return
     }
 
-    if (
-      settingId.includes('hardwareAcceleration') ||
-      settingId.includes('language') ||
-      settingId.includes('autoUpdate') ||
-      settingId.includes('visible') ||
-      settingId.includes('closeToTray') ||
-      settingId.includes('isNotificationSound')
-    ) {
+    if (isGeneralSetting(settingId)) {
       categorized.general.push({ id: settingId, ...settingValue })
-    } else if (
-      settingId.includes('autoCapture') &&
-      !settingId.includes('autoCaptureDjmax') &&
-      !settingId.includes('autoCaptureWjmax') &&
-      !settingId.includes('autoCapturePlatina')
-    ) {
+    } else if (isCaptureSetting(settingId)) {
       categorized.capture.push({ id: settingId, ...settingValue })
-    } else if (
-      settingId.includes('saveImage') ||
-      settingId.includes('saveImageWhen') ||
-      settingId.includes('saveImageWith') ||
-      settingId.includes('saveImageWithout') ||
-      settingId.includes('saveImageBlur')
-    ) {
+    } else if (isStorageSetting(settingId)) {
       categorized.storage.push({ id: settingId, ...settingValue })
-    } else if (
-      settingId.includes('autoCaptureDjmax') ||
-      settingId.includes('autoCaptureWjmax') ||
-      settingId.includes('autoCapturePlatina')
-    ) {
+    } else if (isGameCaptureSetting(settingId)) {
       categorized.capture.push({ id: settingId, ...settingValue })
-    } else if (settingId.includes('autoStart') || settingId.includes('StartGame')) {
+    } else if (isAutoStartSetting(settingId)) {
       categorized.autoStart.push({ id: settingId, ...settingValue })
     } else {
       categorized.general.push({ id: settingId, ...settingValue })
@@ -80,13 +101,11 @@ const categorizeSettings = () => {
 
 // 토글 스위치 컴포넌트
 const ToggleSwitch = ({
-  id,
   value,
   onChange,
   disabled = false,
   theme,
 }: {
-  id: string
   value: boolean
   onChange: (value: boolean) => void
   disabled?: boolean
@@ -110,47 +129,51 @@ const ToggleSwitch = ({
 
 // 파일 선택 컴포넌트
 const FileSelector = ({
-  id,
   value,
   onChange,
   disabled = false,
   theme,
 }: {
-  id: string
   value: string
   onChange: (value: string) => void
   disabled?: boolean
   theme: string
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null)
-
   const { language } = useSelector((state: RootState) => state.app.settingData)
+
+  const getDialogConfig = () => {
+    return {
+      title: language === 'ko_KR' ? '파일 선택' : 'Select File',
+      filters: [
+        { name: language === 'ko_KR' ? '실행 파일' : 'Executable File', extensions: ['exe'] },
+        { name: language === 'ko_KR' ? '모든 파일' : 'All Files', extensions: ['*'] },
+      ],
+    }
+  }
+
+  const handleElectronFileDialog = async () => {
+    try {
+      const filePath = await window.electron.openFileDialog(getDialogConfig())
+      if (filePath) {
+        onChange(filePath)
+      }
+    } catch (error) {
+      createLog(
+        'error',
+        language === 'ko_KR' ? '파일 선택 오류:' : 'File selection error:',
+        error.message,
+      )
+      // 오류 시 기존 방식으로 폴백
+      fileInputRef.current?.click()
+    }
+  }
 
   const handleSelectFile = async () => {
     if (disabled) return
 
     if (window.electron?.openFileDialog) {
-      try {
-        const filePath = await window.electron.openFileDialog({
-          title: language === 'ko_KR' ? '파일 선택' : 'Select File',
-          filters: [
-            { name: language === 'ko_KR' ? '실행 파일' : 'Executable File', extensions: ['exe'] },
-            { name: language === 'ko_KR' ? '모든 파일' : 'All Files', extensions: ['*'] },
-          ],
-        })
-
-        if (filePath) {
-          onChange(filePath)
-        }
-      } catch (error) {
-        createLog(
-          'error',
-          language === 'ko_KR' ? '파일 선택 오류:' : 'File selection error:',
-          error.message,
-        )
-        // 오류 시 기존 방식으로 폴백
-        fileInputRef.current?.click()
-      }
+      await handleElectronFileDialog()
     } else {
       // 기존 파일 선택 방식으로 폴백
       fileInputRef.current?.click()
@@ -199,8 +222,8 @@ const SelectBox = ({
 }: {
   id: string
   value: string | number
-  options: Array<{ id: string | number; name: string }>
-  onChange: (value: string | number) => void
+  options: { id: string | number; name: string }[]
+  onChange: (value: string) => void
   disabled?: boolean
   theme: string
 }) => {
@@ -280,7 +303,7 @@ const StorageInfo = ({ theme }: { theme: string }) => {
       }
     }
 
-    fetchStorageInfo()
+    void fetchStorageInfo()
   }, [isCleaningLogs, settingData])
 
   const formatBytes = (bytes: number) => {
@@ -341,6 +364,46 @@ const StorageInfo = ({ theme }: { theme: string }) => {
     }
   }
 
+  // 폴더 항목 컴포넌트
+  const FolderItem = ({
+    title,
+    path,
+    size,
+    folderType,
+    children,
+  }: {
+    title: string
+    path: string
+    size: number
+    folderType: 'documents' | 'pictures' | 'logs' | 'appData'
+    children?: React.ReactNode
+  }) => (
+    <div
+      className={`tw:px-4 tw:pt-3 tw:pb-4 tw:rounded-lg tw:border ${
+        theme === 'dark' ? 'tw:bg-slate-700 tw:border-slate-600' : 'tw:bg-white tw:border-gray-200'
+      }`}
+    >
+      <div className='tw:flex tw:justify-between tw:items-center'>
+        <h1 className='tw:text-sm'>{title}</h1>
+        <div className='tw:flex tw:items-center tw:gap-3'>
+          <span className='tw:font-mono tw:text-sm'>{formatBytes(size)}</span>
+          <button
+            onClick={() => openFolder(folderType)}
+            className={`tw:p-2 tw:rounded-lg tw:cursor-pointer ${
+              theme === 'dark'
+                ? 'hover:tw:text-slate-600 tw:text-indigo-400'
+                : 'hover:tw:text-gray-100 tw:text-indigo-600'
+            }`}
+          >
+            <Icon icon='lucide:folder-open' className='tw:w-4 tw:h-4' />
+          </button>
+        </div>
+      </div>
+      <div className='tw:text-sm tw:opacity-70 tw:truncate'>{path}</div>
+      {children}
+    </div>
+  )
+
   return (
     <div className='tw:space-y-6'>
       {isLoading ? (
@@ -350,60 +413,19 @@ const StorageInfo = ({ theme }: { theme: string }) => {
       ) : (
         <>
           <div className='tw:space-y-4'>
-            <div
-              className={`tw:px-4 tw:pt-3 tw:pb-4 tw:rounded-lg tw:border ${
-                theme === 'dark'
-                  ? 'tw:bg-slate-700 tw:border-slate-600'
-                  : 'tw:bg-white tw:border-gray-200'
-              }`}
-            >
-              <div className='tw:flex tw:justify-between tw:items-center'>
-                <h1 className='tw:text-sm'>{t('storageSettingFile')}</h1>
-                <div className='tw:flex tw:items-center tw:gap-3'>
-                  <span className='tw:font-mono tw:text-sm'>
-                    {formatBytes(storageInfo.appDataSize)}
-                  </span>
-                  <button
-                    onClick={() => openFolder('documents')}
-                    className={`tw:p-2 tw:rounded-lg tw:cursor-pointer ${
-                      theme === 'dark'
-                        ? 'hover:tw:text-slate-600 tw:text-indigo-400'
-                        : 'hover:tw:text-gray-100 tw:text-indigo-600'
-                    }`}
-                  >
-                    <Icon icon='lucide:folder-open' className='tw:w-4 tw:h-4' />
-                  </button>
-                </div>
-              </div>
-              <div className='tw:text-sm tw:opacity-70 tw:truncate'>{folderPaths.documents}</div>
-            </div>
+            <FolderItem
+              title={t('storageSettingFile')}
+              path={folderPaths.documents}
+              size={storageInfo.appDataSize}
+              folderType='documents'
+            />
 
-            <div
-              className={`tw:px-4 tw:pt-3 tw:pb-4 tw:rounded-lg tw:border ${
-                theme === 'dark'
-                  ? 'tw:bg-slate-700 tw:border-slate-600'
-                  : 'tw:bg-white tw:border-gray-200'
-              }`}
+            <FolderItem
+              title={t('storageCaptureImage')}
+              path={folderPaths.pictures}
+              size={storageInfo.imageDataSize}
+              folderType='pictures'
             >
-              <div className='tw:flex tw:justify-between tw:items-center'>
-                <h1 className='tw:text-sm'>{t('storageCaptureImage')}</h1>
-                <div className='tw:flex tw:items-center tw:gap-3'>
-                  <span className='tw:font-mono tw:text-sm'>
-                    {formatBytes(storageInfo.imageDataSize)}
-                  </span>
-                  <button
-                    onClick={() => openFolder('pictures')}
-                    className={`tw:p-2 tw:rounded-lg tw:cursor-pointer ${
-                      theme === 'dark'
-                        ? 'hover:tw:text-slate-600 tw:text-indigo-400'
-                        : 'hover:tw:text-gray-100 tw:text-indigo-600'
-                    }`}
-                  >
-                    <Icon icon='lucide:folder-open' className='tw:w-4 tw:h-4' />
-                  </button>
-                </div>
-              </div>
-              <div className='tw:text-sm tw:opacity-70 tw:truncate'>{folderPaths.pictures}</div>
               <div
                 className={`tw:mt-3 tw:pt-3 tw:flex tw:justify-between tw:items-center tw:border-t ${
                   theme === 'dark' ? 'tw:border-slate-600' : 'tw:border-gray-200'
@@ -435,34 +457,14 @@ const StorageInfo = ({ theme }: { theme: string }) => {
                   <option value={90}>{t('autoDeleteCapturedImages.90')}</option>
                 </select>
               </div>
-            </div>
+            </FolderItem>
 
-            <div
-              className={`tw:px-4 tw:pt-3 tw:pb-4 tw:rounded-lg tw:border ${
-                theme === 'dark'
-                  ? 'tw:bg-slate-700 tw:border-slate-600'
-                  : 'tw:bg-white tw:border-gray-200'
-              }`}
+            <FolderItem
+              title={t('storageLogs')}
+              path={folderPaths.logs}
+              size={storageInfo.logDataSize}
+              folderType='logs'
             >
-              <div className='tw:flex tw:justify-between tw:items-center'>
-                <h1 className='tw:text-sm'>{t('storageLogs')}</h1>
-                <div className='tw:flex tw:items-center tw:gap-3'>
-                  <span className='tw:font-mono tw:text-sm'>
-                    {formatBytes(storageInfo.logDataSize)}
-                  </span>
-                  <button
-                    onClick={() => openFolder('logs')}
-                    className={`tw:p-2 tw:rounded-lg tw:cursor-pointer ${
-                      theme === 'dark'
-                        ? 'hover:tw:text-slate-600 tw:text-indigo-400'
-                        : 'hover:tw:text-gray-100 tw:text-indigo-600'
-                    }`}
-                  >
-                    <Icon icon='lucide:folder-open' className='tw:w-4 tw:h-4' />
-                  </button>
-                </div>
-              </div>
-              <div className='tw:text-sm tw:opacity-70 tw:truncate'>{folderPaths.logs}</div>
               <div className='tw:mt-2 tw:flex tw:justify-end'>
                 <button
                   onClick={clearAllLogs}
@@ -486,7 +488,7 @@ const StorageInfo = ({ theme }: { theme: string }) => {
                   )}
                 </button>
               </div>
-            </div>
+            </FolderItem>
           </div>
         </>
       )}
@@ -500,8 +502,7 @@ export default function SettingModal() {
   const { isSetting, settingData } = useSelector((state: RootState) => state.app)
   const { font } = useSelector((state: RootState) => state.app.settingData)
   const [activeCategory, setActiveCategory] = useState<string>('general')
-  const [localSettings, setLocalSettings] = useState<Record<string, any>>({})
-  const [hasChanges, setHasChanges] = useState<boolean>(false)
+  const [localSettings, setLocalSettings] = useState<SettingsData>({} as SettingsData)
   const { t } = useTranslation(['settings'])
   const categorizedSettings = categorizeSettings()
 
@@ -525,7 +526,7 @@ export default function SettingModal() {
   }, [isSetting])
 
   // 설정 값 변경 핸들러
-  const handleSettingChange = (id: string, value: any) => {
+  const handleSettingChange = (id: string, value: string | number | boolean) => {
     // offList 처리
     const settingEntry = Object.entries(globalDictionary.settingDictionary).find(
       ([key]) => key === id,
@@ -546,7 +547,7 @@ export default function SettingModal() {
     setLocalSettings(newSettings)
 
     // 즉시 설정 저장
-    applySettings(newSettings as SettingsData)
+    applySettings(newSettings)
   }
 
   // 설정 적용
@@ -717,7 +718,6 @@ export default function SettingModal() {
                           />
                         ) : setting.isFile ? (
                           <FileSelector
-                            id={setting.id}
                             value={localSettings[setting.id] ?? setting.defaultValue}
                             onChange={(value) => handleSettingChange(setting.id, value)}
                             disabled={!setting.isEditable}
@@ -725,7 +725,6 @@ export default function SettingModal() {
                           />
                         ) : (
                           <ToggleSwitch
-                            id={setting.id}
                             value={localSettings[setting.id] ?? setting.defaultValue}
                             onChange={(value) => handleSettingChange(setting.id, value)}
                             disabled={!setting.isEditable}

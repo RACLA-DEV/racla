@@ -8,6 +8,6 @@ export class AppController {
 
   @IpcHandle('app:restart')
   restartApp(): void {
-    return this.appService.restartApp()
+    this.appService.restartApp()
   }
 }

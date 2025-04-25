@@ -11,18 +11,15 @@ process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = 'true'
 async function electronAppInit() {
   const isDev = !app.isPackaged
   app.on('window-all-closed', () => {
-    if (process.platform !== 'darwin')
-      app.quit()
+    if (process.platform !== 'darwin') app.quit()
   })
 
   if (isDev) {
     if (process.platform === 'win32') {
       process.on('message', (data) => {
-        if (data === 'graceful-exit')
-          app.quit()
+        if (data === 'graceful-exit') app.quit()
       })
-    }
-    else {
+    } else {
       process.on('SIGTERM', () => {
         app.quit()
       })
@@ -36,17 +33,13 @@ async function bootstrap() {
   try {
     await electronAppInit()
 
-    const nestApp = await NestFactory.createMicroservice<MicroserviceOptions>(
-      AppModule,
-      {
-        strategy: new ElectronIpcTransport('IpcTransport'),
-        logger: WinstonModule.createLogger(winstonConfig),
-      },
-    )
+    const nestApp = await NestFactory.createMicroservice<MicroserviceOptions>(AppModule, {
+      strategy: new ElectronIpcTransport('IpcTransport'),
+      logger: WinstonModule.createLogger(winstonConfig),
+    })
 
     await nestApp.listen()
-  }
-  catch (error) {
+  } catch (error) {
     console.error('Bootstrap error:', error)
     app.quit()
   }

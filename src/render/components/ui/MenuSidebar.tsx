@@ -321,7 +321,7 @@ const MenuSidebar: React.FC = () => {
                   theme === 'dark' ? 'tw:hover:bg-slate-700' : 'tw:hover:bg-indigo-50'
                 }`}
                 onClick={() => {
-                  handleLogout()
+                  void handleLogout()
                   setIsDropdownOpen(false)
                 }}
               >

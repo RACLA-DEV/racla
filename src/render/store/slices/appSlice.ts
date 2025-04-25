@@ -1,6 +1,7 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit'
 import { createLog } from '@render/libs/logger'
 import type { GameType } from '@src/types/common/GameType'
+import { SongData } from '@src/types/common/SongData'
 import type { AppState } from '@src/types/redux/AppState'
 import type { Notification } from '@src/types/render/Notification'
 
@@ -91,7 +92,7 @@ export const appSlice = createSlice({
     setIsLoggedIn: (state, action: PayloadAction<boolean>) => {
       state.isLoggedIn = action.payload
     },
-    setSongData: (state, action: PayloadAction<{ data: any[]; gameCode: string }>) => {
+    setSongData: (state, action: PayloadAction<{ data: SongData[]; gameCode: string }>) => {
       const { data, gameCode } = action.payload
 
       // 유효성 검증 추가

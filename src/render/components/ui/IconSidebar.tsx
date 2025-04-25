@@ -98,13 +98,12 @@ const IconSidebar: React.FC = () => {
     },
   }
 
-  const iconAnimation = (index: number) => ({
+  const iconAnimation = () => ({
     hidden: { scale: 0.8, opacity: 0 },
     visible: {
       scale: 1,
       opacity: 1,
       transition: {
-        // delay: 0.2 + index * 0.1,
         duration: 0.4,
         type: 'spring',
         stiffness: 260,
@@ -137,10 +136,12 @@ const IconSidebar: React.FC = () => {
         <div className='tw:mb-4 tw:relative tw:z-10'>
           <Tooltip content={t('racla.raclaHome')}>
             <motion.div
-              variants={iconAnimation(0)}
+              variants={iconAnimation()}
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => handleNavigation('/home')}
+              onClick={() => {
+                handleNavigation('/home')
+              }}
               className={`tw:w-12 tw:h-12 tw:flex tw:items-center tw:justify-center tw:rounded-lg tw:cursor-pointer tw:transition-all ${
                 location === '/home'
                   ? theme === 'dark'
@@ -160,10 +161,12 @@ const IconSidebar: React.FC = () => {
           <div className='tw:mb-4 tw:relative tw:z-10'>
             <Tooltip content={t('racla.raclaCheatsheet')}>
               <motion.div
-                variants={iconAnimation(0)}
+                variants={iconAnimation()}
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => handleNavigation('/test/cheatsheet')}
+                onClick={() => {
+                  handleNavigation('/test/cheatsheet')
+                }}
                 className={`tw:w-12 tw:h-12 tw:flex tw:items-center tw:justify-center tw:rounded-lg tw:cursor-pointer tw:transition-all ${
                   location === '/test/cheatsheet'
                     ? theme === 'dark'
@@ -183,10 +186,12 @@ const IconSidebar: React.FC = () => {
         <div className='tw:mb-4 tw:relative tw:z-10'>
           <Tooltip content={t('racla.raclaOverlay')}>
             <motion.div
-              variants={iconAnimation(0)}
+              variants={iconAnimation()}
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => handleNavigation('/overlay/settings')}
+              onClick={() => {
+                handleNavigation('/overlay/settings')
+              }}
               className={`tw:w-12 tw:h-12 tw:flex tw:items-center tw:justify-center tw:rounded-lg tw:cursor-pointer tw:transition-all ${
                 location === '/overlay/settings'
                   ? theme === 'dark'
@@ -208,10 +213,10 @@ const IconSidebar: React.FC = () => {
             theme === 'dark' ? 'tw:border-slate-700' : 'tw:border-gray-300'
           }`}
         >
-          {gameIcons.map((game, index) => (
+          {gameIcons.map((game) => (
             <Tooltip key={game.id} content={game.tooltip}>
               <motion.div
-                variants={iconAnimation(index + 1)}
+                variants={iconAnimation()}
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={game.onClick}
@@ -249,7 +254,7 @@ const IconSidebar: React.FC = () => {
       <div className='tw:mb-10 tw:relative tw:z-10'>
         <Tooltip content={t('racla.raclaSettings')}>
           <motion.div
-            variants={iconAnimation(5)}
+            variants={iconAnimation()}
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.95 }}
             onClick={handleOpenSettings}
