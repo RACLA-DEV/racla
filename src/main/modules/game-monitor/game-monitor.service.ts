@@ -1,7 +1,11 @@
 import { GLOBAL_DICTONARY } from '@main/constants/GLOBAL_DICTONARY'
 import { Injectable, Logger } from '@nestjs/common'
+import type { OverlayBounds } from '@src/types/common/OverlayBounds'
+import { BrowserWindow, screen } from 'electron'
 import type { Result } from 'get-windows'
 import type { ProcessDescriptor } from 'ps-list'
+import { MainWindowService } from '../main-window/main-window.service'
+import { OverlayWindowService } from '../overlay-window/overlay-window.service'
 
 @Injectable()
 export class GameMonitorService {
@@ -12,6 +16,159 @@ export class GameMonitorService {
   private cachedWindow: Result | null = null
   private lastCheckTime = 0
   private readonly CACHE_DURATION = 100 // 100ms 캐시
+
+  // 모니터링 관련 변수
+  private updateInterval: NodeJS.Timeout | null = null
+  private isProcessingUpdate = false
+  private lastGameWindowBounds: { x: number; y: number; width: number; height: number } | null =
+    null
+  private readonly UPDATE_INTERVAL = 16 // 약 60fps에 해당하는 시간 간격
+  private readonly STANDARD_RESOLUTIONS = [
+    640, 720, 800, 1024, 1128, 1280, 1366, 1600, 1680, 1760, 1920, 2048, 2288, 2560, 3072, 3200,
+    3840, 5120,
+  ]
+  private isMaximized = false
+
+  constructor(
+    private readonly mainWindowService: MainWindowService,
+    private readonly overlayWindowService: OverlayWindowService,
+  ) {
+    this.mainWindowService.onClosed(async () => {
+      await this.overlayWindowService.destroyOverlay()
+    })
+  }
+
+  public async initialize(): Promise<void> {
+    this.startWindowMonitoring()
+    await this.overlayWindowService.createOverlayInit()
+  }
+
+  private startWindowMonitoring(): void {
+    // 기존 인터벌 및 리스너 정리
+    this.cleanup()
+
+    // 메인 윈도우 포커스 이벤트 리스너 추가
+    const mainWindow = this.mainWindowService.getWindow()
+    if (!mainWindow) {
+      this.logger.warn('Main window not found')
+      return
+    }
+
+    mainWindow.on('focus', async () => {
+      this.logger.debug('Main window focused, stopping monitoring and hiding overlay')
+      this.stopMonitoring()
+      const overlayWindow = await this.overlayWindowService.getOverlayWindow()
+      overlayWindow?.hide()
+    })
+
+    mainWindow.on('blur', async () => {
+      this.logger.debug('Main window blurred, creating overlay and starting monitoring')
+      this.startMonitoring()
+    })
+
+    // 초기 상태 설정
+    if (!mainWindow.isFocused()) {
+      // 비동기 작업을 Promise로 처리
+      Promise.resolve()
+        .then(async () => {
+          await this.overlayWindowService.createOverlayInit()
+          this.startMonitoring()
+        })
+        .catch((error) => {
+          this.logger.error('Error in initial overlay setup:', error.message)
+        })
+    }
+  }
+
+  private startMonitoring(): void {
+    if (this.updateInterval) {
+      return
+    }
+
+    this.updateInterval = setInterval(() => {
+      if (!this.isProcessingUpdate) {
+        Promise.resolve()
+          .then(() => this.handleGameWindowChange())
+          .catch((error) => {
+            this.logger.error('Error in window monitoring:', error.message)
+            this.isProcessingUpdate = false
+          })
+      }
+    }, this.UPDATE_INTERVAL)
+  }
+
+  private stopMonitoring(): void {
+    if (this.updateInterval) {
+      clearInterval(this.updateInterval)
+      this.updateInterval = null
+    }
+    this.isProcessingUpdate = false
+    this.lastGameWindowBounds = null
+  }
+
+  private async handleGameWindowChange(): Promise<void> {
+    this.isProcessingUpdate = true
+    try {
+      const gameWindow = await this.getGameWindowInfo()
+      const overlayWindow = await this.overlayWindowService.getOverlayWindow()
+
+      if (!gameWindow || !overlayWindow) {
+        if (overlayWindow?.isVisible()) {
+          overlayWindow.hide()
+          this.lastGameWindowBounds = null
+        }
+        return
+      }
+
+      const isBoundsChanged =
+        !this.lastGameWindowBounds ||
+        this.lastGameWindowBounds.x !== gameWindow.bounds.x ||
+        this.lastGameWindowBounds.y !== gameWindow.bounds.y ||
+        this.lastGameWindowBounds.width !== gameWindow.bounds.width ||
+        this.lastGameWindowBounds.height !== gameWindow.bounds.height
+
+      if (isBoundsChanged) {
+        this.lastGameWindowBounds = { ...gameWindow.bounds }
+        await this.updateOverlayPosition(overlayWindow)
+        if (!overlayWindow.isVisible()) {
+          overlayWindow.show()
+        }
+      }
+
+      // 활성 윈도우 정보 가져와서 오버레이로 전송
+      try {
+        const activeWindow = await this.getActiveWindows()
+        if (activeWindow && overlayWindow) {
+          this.overlayWindowService.sendMessage(
+            JSON.stringify({
+              type: 'active-windows',
+              data: activeWindow,
+              isMaximized: this.isMaximized,
+            }),
+          )
+        }
+      } catch (error) {
+        this.logger.error('Error getting active window info:', error.message)
+      }
+    } catch (error) {
+      this.logger.error('Error in handleGameWindowChange:', error.message)
+    } finally {
+      this.isProcessingUpdate = false
+    }
+  }
+
+  public cleanup(): void {
+    this.stopMonitoring()
+
+    // 메인 윈도우 이벤트 리스너 제거
+    const mainWindow = this.mainWindowService.getWindow()
+    if (mainWindow) {
+      mainWindow.removeAllListeners('focus')
+      mainWindow.removeAllListeners('blur')
+    }
+
+    this.overlayWindowService.destroyOverlay()
+  }
 
   public async getActiveWindows(): Promise<Result> {
     const { activeWindow } = await import('get-windows')
@@ -70,5 +227,86 @@ export class GameMonitorService {
 
   public getGameWindowBounds() {
     return this.gameWindow
+  }
+
+  public async updateOverlayPosition(overlayWindow: BrowserWindow): Promise<void> {
+    try {
+      if (!overlayWindow) {
+        this.logger.warn('Overlay window not initialized')
+        return
+      }
+
+      const gameWindow = await this.getGameWindowInfo()
+      if (!gameWindow) {
+        this.logger.debug('No game window found')
+        overlayWindow.hide()
+        return
+      }
+
+      // 표준 해상도인지 확인하여 isMaximized 결정
+      this.isMaximized = this.STANDARD_RESOLUTIONS.includes(gameWindow.bounds.width)
+
+      // 게임 윈도우가 있는 디스플레이의 스케일 팩터 가져오기
+      const display = screen.getDisplayNearestPoint({
+        x: gameWindow.bounds.x,
+        y: gameWindow.bounds.y,
+      })
+      const scaleFactor = display.scaleFactor
+
+      const newBounds = this.calculateOverlayBounds(
+        gameWindow.bounds,
+        this.isMaximized,
+        scaleFactor,
+      )
+      overlayWindow.setBounds(newBounds)
+
+      if (!overlayWindow.isVisible()) {
+        overlayWindow.show()
+      }
+    } catch (error) {
+      this.logger.error('Failed to update overlay position:', error.message)
+    }
+  }
+
+  private calculateOverlayBounds(
+    gameBounds: { x: number; y: number; width: number; height: number },
+    isFullscreen: boolean,
+    scaleFactor: number,
+  ): OverlayBounds {
+    if (isFullscreen) {
+      const aspectRatio = 16 / 9
+      const targetHeight = gameBounds.width / aspectRatio
+      const blackBarHeight = (gameBounds.height - targetHeight) / 2
+
+      return {
+        x: Math.round(gameBounds.x / scaleFactor),
+        y: Math.round((gameBounds.y + blackBarHeight) / scaleFactor),
+        width: Math.round(gameBounds.width / scaleFactor),
+        height: Math.round(targetHeight / scaleFactor),
+      }
+    } else {
+      const isNonStandardRatio = (gameBounds.width / 16) * 9 !== gameBounds.height
+      const removedPixels = isNonStandardRatio
+        ? (gameBounds.height - (gameBounds.width / 16) * 9) / 2
+        : 0
+
+      return {
+        x: Math.round(gameBounds.x / scaleFactor) + (isNonStandardRatio ? removedPixels : 0),
+        y:
+          Math.round(gameBounds.y / scaleFactor) +
+          (isNonStandardRatio
+            ? (gameBounds.height - (gameBounds.width / 16) * 9) / scaleFactor
+            : 0),
+        width:
+          Math.round(gameBounds.width / scaleFactor) - (isNonStandardRatio ? removedPixels * 2 : 0),
+        height: Math.round(
+          isNonStandardRatio
+            ? (gameBounds.height - (gameBounds.height - (gameBounds.width / 16) * 9)) /
+                scaleFactor -
+                removedPixels
+            : gameBounds.height / scaleFactor,
+        ),
+      }
+    }
   }
 }

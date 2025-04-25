@@ -1,5 +1,6 @@
 import { createOverlayLog } from '@render/libs/logger'
 import { RootState } from '@render/store'
+import type { Result } from 'get-windows'
 import type { ProcessDescriptor } from 'ps-list'
 
 import { useEffect, useState } from 'react'
@@ -10,9 +11,12 @@ type OverlayMode = 'debug' | 'transparent' | 'minimal' | 'full'
 
 function OverlayPage() {
   const [processes, setProcesses] = useState<ProcessDescriptor[]>([])
+  const [activeWindows, setActiveWindows] = useState<Result | null>(null)
   const [messages, setMessages] = useState<string[]>([])
   const [overlayMode, setOverlayMode] = useState<OverlayMode>('debug')
   const { font } = useSelector((state: RootState) => state.app.settingData)
+  const isOverlayMode = useSelector((state: RootState) => state.ui.isOverlayMode)
+  const [isMaximized, setIsMaximized] = useState(false)
 
   useEffect(() => {
     // 문서 스타일 설정
@@ -32,6 +36,13 @@ function OverlayPage() {
       })
     }
 
+    // 활성 윈도우 초기 로드
+    if (window.electron && window.electron.getActiveWindows) {
+      window.electron.getActiveWindows().then((result) => {
+        setActiveWindows(result as Result)
+      })
+    }
+
     // 오버레이 메시지 수신
     if (window.electron && window.electron.onOverlayMessage) {
       window.electron.onOverlayMessage((message) => {
@@ -39,6 +50,10 @@ function OverlayPage() {
           const data = JSON.parse(message)
           if (data.type === 'process-list') {
             setProcesses(data.data as ProcessDescriptor[])
+          }
+          if (data.type === 'active-windows') {
+            setActiveWindows(data.data as Result)
+            setIsMaximized(data.isMaximized)
           }
           setMessages((prev) => [...prev, JSON.stringify(data)])
         } catch (error) {
@@ -64,40 +79,39 @@ function OverlayPage() {
     }
   }, [])
 
-  // 디버그 모드인 경우에만 내용 표시
+  // 디버그 모드인 경우에도 동일한 UI 적용
   if (overlayMode === 'debug') {
     return (
       <div
-        style={{
-          background: 'rgba(0, 0, 0, 0)',
-          color: 'white',
-          padding: '1rem',
-          height: '100vh',
-          overflow: 'hidden',
-          fontFamily: 'monospace',
-          borderRadius: '8px',
-        }}
-        className={`${font != 'default' ? 'tw:font-medium' : ''}`}
+        className={`tw:flex tw:flex-col tw:h-full tw:w-full tw:relative tw:bg-transparent tw:p-2`}
       >
-        <h2>Overlay Window (Debug Mode)</h2>
-        <div style={{ display: 'flex', gap: '1rem', height: 'calc(100vh - 4rem)' }}>
-          <div style={{ flex: 1, overflow: 'hidden' }}>
-            <h3>Process List</h3>
-            {processes.map((process) => (
-              <div key={process.pid} style={{ fontSize: '0.9rem', marginBottom: '0.5rem' }}>
-                {process.name} (PID:
-                {process.pid})
-              </div>
-            ))}
-          </div>
-          <div style={{ flex: 1, overflow: 'auto' }}>
-            <h3>Messages</h3>
-            {messages.map((msg, idx) => (
-              <div key={idx} style={{ fontSize: '0.9rem', marginBottom: '0.5rem' }}>
-                {msg}
-              </div>
-            ))}
-          </div>
+        <div
+          style={{
+            background: 'rgba(0, 0, 0, 0.7)',
+            color: 'white',
+            padding: '15px',
+            borderRadius: '8px',
+            fontFamily: 'monospace',
+            width: 'auto',
+            maxWidth: '400px',
+          }}
+          className={`${font != 'default' ? 'tw:font-medium' : ''}`}
+        >
+          <h2 style={{ margin: '0 0 10px 0', fontSize: '18px' }}>활성 윈도우</h2>
+          {activeWindows ? (
+            <div style={{ fontSize: '0.9rem' }}>
+              <div style={{ marginBottom: '5px', fontWeight: 'bold' }}>{activeWindows.title}</div>
+              {activeWindows.owner && (
+                <div style={{ fontSize: '0.8rem', opacity: '0.9' }}>
+                  <div>{activeWindows.owner.name}</div>
+                  <div>PID: {activeWindows.owner.processId}</div>
+                  <div>Overlay Mode: {String(isOverlayMode)}</div>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div>활성 윈도우 없음</div>
+          )}
         </div>
       </div>
     )
@@ -114,9 +128,9 @@ function OverlayPage() {
       <div
         style={{
           position: 'absolute',
-          bottom: '20px',
-          right: '20px',
-          background: 'rgba(0, 0, 0, 0.5)',
+          top: '20px',
+          left: '20px',
+          background: 'rgba(0, 0, 0, 0.7)',
           color: 'white',
           padding: '10px',
           borderRadius: '5px',
@@ -124,8 +138,18 @@ function OverlayPage() {
           fontFamily: 'monospace',
         }}
       >
-        {/* 미니멀 모드 UI 내용 */}
-        <div>RACLA Overlay Active</div>
+        {activeWindows ? (
+          <div>
+            <div style={{ fontWeight: 'bold' }}>{activeWindows.title}</div>
+            {activeWindows.owner && (
+              <div style={{ fontSize: '10px', opacity: '0.9', marginTop: '3px' }}>
+                {activeWindows.owner.name}
+              </div>
+            )}
+          </div>
+        ) : (
+          <div>활성 윈도우 없음</div>
+        )}
       </div>
     )
   }
@@ -133,20 +157,31 @@ function OverlayPage() {
   // 기본 또는 full 모드
   return (
     <div style={{ width: '100%', height: '100vh', position: 'relative' }}>
-      {/* 오버레이 UI 구현 */}
       <div
         style={{
           position: 'absolute',
           top: '20px',
-          right: '20px',
+          left: '20px',
           background: 'rgba(0, 0, 0, 0.7)',
           color: 'white',
           padding: '15px',
           borderRadius: '10px',
           fontFamily: 'sans-serif',
+          maxWidth: '300px',
         }}
       >
-        RACLA Overlay
+        {activeWindows ? (
+          <div>
+            <div style={{ fontWeight: 'bold' }}>{activeWindows.title}</div>
+            {activeWindows.owner && (
+              <div style={{ fontSize: '13px', opacity: '0.9', marginTop: '5px' }}>
+                {activeWindows.owner.name}
+              </div>
+            )}
+          </div>
+        ) : (
+          <div>활성 윈도우 없음</div>
+        )}
       </div>
     </div>
   )

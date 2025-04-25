@@ -1,5 +1,6 @@
 import { globalDictionary } from '@render/constants/globalDictionary'
 import { useAuth } from '@render/hooks/useAuth'
+import { setOverlayMode } from '@render/store/slices/uiSlice'
 import { lazy, Suspense, useCallback, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Outlet, useLocation } from 'react-router-dom'
@@ -29,7 +30,7 @@ const SettingModal = lazy(() => import('./SettingModal'))
 
 export default function WrappedApp() {
   const { isLoading, settingData } = useSelector((state: RootState) => state.app)
-  const [isOverlayMode, setIsOverlayMode] = useState(false)
+  const isOverlayMode = useSelector((state: RootState) => state.ui.isOverlayMode)
   const location = useLocation()
   const { notifications, removeNotification, showNotification } = useNotificationSystem()
   const dispatch = useDispatch()
@@ -459,37 +460,42 @@ export default function WrappedApp() {
   useEffect(() => {
     // 오버레이 모드 감지
     const isOverlayPath = location.pathname == '/overlay'
-    setIsOverlayMode(isOverlayPath)
+    createLog('debug', 'Overlay Mode:', isOverlayPath)
+    dispatch(setOverlayMode(isOverlayPath))
     if (isLoading && isOverlayPath) {
       dispatch(setIsLoading(false))
     }
   }, [location.pathname])
 
-  return (
-    <ThemeProvider>
-      {!isOverlayMode && <LoadingSkeleton />}
+  if (isOverlayMode) {
+    return <>{!isLoading && <Outlet />}</>
+  } else {
+    return (
+      <ThemeProvider>
+        {!isOverlayMode && <LoadingSkeleton />}
 
-      {/* 하위 라우트 렌더링 */}
-      {!isLoading && <Outlet />}
+        {/* 하위 라우트 렌더링 */}
+        {!isLoading && <Outlet />}
 
-      {/* 알림 컴포넌트 (오버레이 모드가 아닐 때만 표시) */}
-      {!isOverlayMode && (
-        <Suspense fallback={<div />}>
-          <NotificationContainer notifications={notifications} onRemove={removeNotification} />
-        </Suspense>
-      )}
+        {/* 알림 컴포넌트 (오버레이 모드가 아닐 때만 표시) */}
+        {!isOverlayMode && (
+          <Suspense fallback={<div />}>
+            <NotificationContainer notifications={notifications} onRemove={removeNotification} />
+          </Suspense>
+        )}
 
-      {/* 외부 링크 모달 (오버레이 모드가 아닐 때만 표시) */}
-      {!isOverlayMode && (
-        <Suspense fallback={<div />}>
-          <ExternalLinkModal />
-        </Suspense>
-      )}
-      {!isOverlayMode && (
-        <Suspense fallback={<div />}>
-          <SettingModal />
-        </Suspense>
-      )}
-    </ThemeProvider>
-  )
+        {/* 외부 링크 모달 (오버레이 모드가 아닐 때만 표시) */}
+        {!isOverlayMode && (
+          <Suspense fallback={<div />}>
+            <ExternalLinkModal />
+          </Suspense>
+        )}
+        {!isOverlayMode && (
+          <Suspense fallback={<div />}>
+            <SettingModal />
+          </Suspense>
+        )}
+      </ThemeProvider>
+    )
+  }
 }

@@ -114,13 +114,13 @@ export class FileManagerService {
   }
 
   public saveSession(session: SessionData): SessionData {
-    const sessionPath = path.join(this.documentsPath, 'sessions.json')
+    const sessionPath = path.join(this.documentsPath, 'session.json')
     fs.writeFileSync(sessionPath, JSON.stringify(session, null, 2), 'utf-8')
     return session
   }
 
   public loadSession(): SessionData {
-    const sessionPath = path.join(this.documentsPath, 'sessions.json')
+    const sessionPath = path.join(this.documentsPath, 'session.json')
 
     if (!fs.existsSync(sessionPath)) {
       return defaultSession
@@ -136,7 +136,7 @@ export class FileManagerService {
   }
 
   public clearSession(): void {
-    const sessionPath = path.join(this.documentsPath, 'sessions.json')
+    const sessionPath = path.join(this.documentsPath, 'session.json')
     if (fs.existsSync(sessionPath)) {
       fs.unlinkSync(sessionPath)
     }

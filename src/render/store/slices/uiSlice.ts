@@ -5,6 +5,7 @@ const initialState: UIState = {
   sidebarCollapsed: false,
   openExternalLink: '',
   isOpenExternalLink: false,
+  isOverlayMode: false,
 }
 
 export const uiSlice = createSlice({
@@ -16,6 +17,9 @@ export const uiSlice = createSlice({
     },
     setTheme: (state, action: PayloadAction<'light' | 'dark'>) => {
       state.theme = action.payload
+    },
+    setOverlayMode: (state, action: PayloadAction<boolean>) => {
+      state.isOverlayMode = action.payload
     },
     toggleSidebar: (state) => {
       state.sidebarCollapsed = !state.sidebarCollapsed
@@ -39,6 +43,7 @@ export const {
   setSidebarCollapsed,
   setOpenExternalLink,
   setIsOpenExternalLink,
+  setOverlayMode,
 } = uiSlice.actions
 
 export default uiSlice.reducer
