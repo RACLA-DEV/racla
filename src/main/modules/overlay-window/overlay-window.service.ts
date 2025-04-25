@@ -13,6 +13,7 @@ export class OverlayWindowService {
   private readonly logger = new Logger(OverlayWindowService.name)
   private isProcessingUpdate = false
   private updateInterval: NodeJS.Timeout | null = null
+  private isMaximized = false
   private readonly UPDATE_INTERVAL = 16 // 약 60fps에 해당하는 시간 간격
   private readonly STANDARD_RESOLUTIONS = [
     640, 720, 800, 1024, 1128, 1280, 1366, 1600, 1680, 1760, 1920, 2048, 2288, 2560, 3072, 3200,
@@ -33,6 +34,7 @@ export class OverlayWindowService {
 
   public async initialize(): Promise<void> {
     this.startWindowMonitoring()
+    await this.createOverlayInit()
   }
 
   private startWindowMonitoring(): void {
@@ -49,12 +51,11 @@ export class OverlayWindowService {
     mainWindow.on('focus', async () => {
       this.logger.debug('Main window focused, stopping monitoring and destroying overlay')
       this.stopMonitoring()
-      await this.destroyOverlay()
+      this.overlayWindow?.hide()
     })
 
     mainWindow.on('blur', async () => {
       this.logger.debug('Main window blurred, creating overlay and starting monitoring')
-      await this.createOverlayInit()
       this.startMonitoring()
     })
 
@@ -125,6 +126,22 @@ export class OverlayWindowService {
           this.overlayWindow?.show()
         }
       }
+
+      // 활성 윈도우 정보 가져와서 오버레이로 전송
+      try {
+        const activeWindow = await this.gameMonitorService.getActiveWindows()
+        if (activeWindow && this.overlayWindow) {
+          this.sendMessage(
+            JSON.stringify({
+              type: 'active-windows',
+              data: activeWindow,
+              isMaximized: this.isMaximized,
+            }),
+          )
+        }
+      } catch (error) {
+        this.logger.error('Error getting active window info:', error.message)
+      }
     } catch (error) {
       this.logger.error('Error in handleGameWindowChange:', error.message)
     } finally {
@@ -193,9 +210,6 @@ export class OverlayWindowService {
     this.overlayWindow.setAlwaysOnTop(true, 'screen-saver')
     this.overlayWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true })
 
-    // 마우스 이벤트 무시 설정 추가
-    this.overlayWindow.setIgnoreMouseEvents(true, { forward: true })
-
     const URL = isDev
       ? `${process.env.DS_RENDERER_URL}#/overlay`
       : `file://${join(app.getAppPath(), 'dist/render/index.html')}#/overlay`
@@ -214,6 +228,11 @@ export class OverlayWindowService {
   }
 
   public async createOverlayInit(): Promise<BrowserWindow | null> {
+    if (this.overlayWindow) {
+      this.overlayWindow.focus()
+      return this.overlayWindow
+    }
+
     const isDev = !app.isPackaged
     const preloadPath = isDev
       ? join(app.getAppPath(), '../preload/index.js')
@@ -234,6 +253,7 @@ export class OverlayWindowService {
       show: false,
       useContentSize: true,
       webPreferences: {
+        devTools: isDev,
         contextIsolation: true,
         preload: preloadPath,
       },
@@ -242,9 +262,6 @@ export class OverlayWindowService {
     this.overlayWindow.setIgnoreMouseEvents(true, { forward: true })
     this.overlayWindow.setAlwaysOnTop(true, 'screen-saver')
     this.overlayWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true })
-
-    // 마우스 이벤트 무시 설정 추가
-    this.overlayWindow.setIgnoreMouseEvents(true, { forward: true })
 
     const URL = isDev
       ? `${process.env.DS_RENDERER_URL}#/overlay`
@@ -289,7 +306,7 @@ export class OverlayWindowService {
       }
 
       // 표준 해상도인지 확인하여 isMaximized 결정
-      const isMaximized = this.STANDARD_RESOLUTIONS.includes(gameWindow.bounds.width)
+      this.isMaximized = this.STANDARD_RESOLUTIONS.includes(gameWindow.bounds.width)
 
       // 게임 윈도우가 있는 디스플레이의 스케일 팩터 가져오기
       const display = screen.getDisplayNearestPoint({
@@ -298,7 +315,11 @@ export class OverlayWindowService {
       })
       const scaleFactor = display.scaleFactor
 
-      const newBounds = this.calculateOverlayBounds(gameWindow.bounds, isMaximized, scaleFactor)
+      const newBounds = this.calculateOverlayBounds(
+        gameWindow.bounds,
+        this.isMaximized,
+        scaleFactor,
+      )
 
       this.overlayWindow.setBounds(newBounds)
       if (!this.overlayWindow.isVisible()) {
@@ -320,10 +341,10 @@ export class OverlayWindowService {
       const blackBarHeight = (gameBounds.height - targetHeight) / 2
 
       return {
-        x: Math.round(gameBounds.x / scaleFactor),
-        y: Math.round((gameBounds.y + blackBarHeight) / scaleFactor),
-        width: Math.round(gameBounds.width / scaleFactor),
-        height: Math.round(targetHeight / scaleFactor),
+        x: Math.round(gameBounds.x / scaleFactor) + 48,
+        y: Math.round((gameBounds.y + blackBarHeight) / scaleFactor) + 48,
+        width: Math.round(gameBounds.width / scaleFactor) + 96,
+        height: Math.round(targetHeight / scaleFactor) + 96,
       }
     } else {
       const isNonStandardRatio = (gameBounds.width / 16) * 9 !== gameBounds.height

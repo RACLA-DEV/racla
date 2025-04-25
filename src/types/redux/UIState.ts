@@ -3,4 +3,5 @@ export interface UIState {
   sidebarCollapsed: boolean
   openExternalLink: string
   isOpenExternalLink: boolean
+  isOverlayMode: boolean
 }
