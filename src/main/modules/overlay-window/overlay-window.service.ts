@@ -19,6 +19,36 @@ export class OverlayWindowService {
     640, 720, 800, 1024, 1128, 1280, 1366, 1600, 1680, 1760, 1920, 2048, 2288, 2560, 3072, 3200,
     3840, 5120,
   ]
+  private readonly isDev = !app.isPackaged
+  private readonly preloadPath = this.isDev
+    ? join(app.getAppPath(), '../preload/index.js')
+    : join(app.getAppPath(), 'dist/preload/index.js')
+  private readonly OVERLAY_SETTING = {
+    width: 1280,
+    height: 720,
+    frame: false,
+    transparent: true,
+    backgroundColor: '#00000000',
+    alwaysOnTop: true,
+    focusable: false,
+    skipTaskbar: true,
+    hasShadow: false,
+    type: 'toolbar',
+    autoHideMenuBar: true,
+    show: false,
+    resizable: false,
+    thickFrame: false,
+    roundedCorners: false,
+    useContentSize: true,
+    webPreferences: {
+      contextIsolation: true,
+      preload: this.preloadPath,
+      devTools: this.isDev,
+    },
+  }
+  private readonly URL = this.isDev
+    ? `${process.env.DS_RENDERER_URL}#/overlay`
+    : `file://${join(app.getAppPath(), 'dist/render/index.html')}#/overlay`
 
   private lastGameWindowBounds: { x: number; y: number; width: number; height: number } | null =
     null
@@ -180,42 +210,14 @@ export class OverlayWindowService {
       return this.overlayWindow
     }
 
-    const isDev = !app.isPackaged
-    const preloadPath = isDev
-      ? join(app.getAppPath(), '../preload/index.js')
-      : join(app.getAppPath(), 'dist/preload/index.js')
-
-    this.overlayWindow = new BrowserWindow({
-      width: 1280,
-      height: 720,
-      frame: false,
-      transparent: true,
-      backgroundColor: '#00000000',
-      alwaysOnTop: true,
-      focusable: false,
-      skipTaskbar: true,
-      hasShadow: false,
-      type: 'toolbar',
-      autoHideMenuBar: true,
-      show: false,
-      useContentSize: true,
-      webPreferences: {
-        contextIsolation: true,
-        preload: preloadPath,
-        devTools: isDev,
-      },
-    })
+    this.overlayWindow = new BrowserWindow(this.OVERLAY_SETTING)
 
     this.overlayWindow.setIgnoreMouseEvents(true, { forward: true })
     this.overlayWindow.setAlwaysOnTop(true, 'screen-saver')
     this.overlayWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true })
 
-    const URL = isDev
-      ? `${process.env.DS_RENDERER_URL}#/overlay`
-      : `file://${join(app.getAppPath(), 'dist/render/index.html')}#/overlay`
-
-    if (URL) {
-      this.overlayWindow.loadURL(`${URL}`)
+    if (this.URL) {
+      this.overlayWindow.loadURL(`${this.URL}`)
     } else {
       this.logger.error('Failed to determine URL for overlay window')
     }
@@ -233,42 +235,14 @@ export class OverlayWindowService {
       return this.overlayWindow
     }
 
-    const isDev = !app.isPackaged
-    const preloadPath = isDev
-      ? join(app.getAppPath(), '../preload/index.js')
-      : join(app.getAppPath(), 'dist/preload/index.js')
-
-    this.overlayWindow = new BrowserWindow({
-      width: 1280,
-      height: 720,
-      frame: false,
-      transparent: true,
-      backgroundColor: '#00000000',
-      alwaysOnTop: true,
-      focusable: false,
-      skipTaskbar: true,
-      hasShadow: false,
-      type: 'toolbar',
-      autoHideMenuBar: true,
-      show: false,
-      useContentSize: true,
-      webPreferences: {
-        devTools: isDev,
-        contextIsolation: true,
-        preload: preloadPath,
-      },
-    })
+    this.overlayWindow = new BrowserWindow(this.OVERLAY_SETTING)
 
     this.overlayWindow.setIgnoreMouseEvents(true, { forward: true })
     this.overlayWindow.setAlwaysOnTop(true, 'screen-saver')
     this.overlayWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true })
 
-    const URL = isDev
-      ? `${process.env.DS_RENDERER_URL}#/overlay`
-      : `file://${join(app.getAppPath(), 'dist/render/index.html')}#/overlay`
-
-    if (URL) {
-      this.overlayWindow.loadURL(`${URL}`)
+    if (this.URL) {
+      this.overlayWindow.loadURL(`${this.URL}`)
     } else {
       this.logger.error('Failed to determine URL for overlay window')
     }
@@ -341,10 +315,10 @@ export class OverlayWindowService {
       const blackBarHeight = (gameBounds.height - targetHeight) / 2
 
       return {
-        x: Math.round(gameBounds.x / scaleFactor) + 48,
-        y: Math.round((gameBounds.y + blackBarHeight) / scaleFactor) + 48,
-        width: Math.round(gameBounds.width / scaleFactor) + 96,
-        height: Math.round(targetHeight / scaleFactor) + 96,
+        x: Math.round(gameBounds.x / scaleFactor),
+        y: Math.round((gameBounds.y + blackBarHeight) / scaleFactor),
+        width: Math.round(gameBounds.width / scaleFactor),
+        height: Math.round(targetHeight / scaleFactor),
       }
     } else {
       const isNonStandardRatio = (gameBounds.width / 16) * 9 !== gameBounds.height

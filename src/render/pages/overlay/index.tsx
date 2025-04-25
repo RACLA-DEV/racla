@@ -17,6 +17,7 @@ function OverlayPage() {
   const { font } = useSelector((state: RootState) => state.app.settingData)
   const isOverlayMode = useSelector((state: RootState) => state.ui.isOverlayMode)
   const [isMaximized, setIsMaximized] = useState(false)
+
   useEffect(() => {
     // 문서 스타일 설정
     document.body.style.background = 'transparent'
@@ -82,9 +83,7 @@ function OverlayPage() {
   if (overlayMode === 'debug') {
     return (
       <div
-        className={`tw:flex tw:flex-col tw:h-full tw:w-full tw:relative tw:bg-transparent ${
-          isMaximized ? 'tw:p-12' : 'tw:p-2'
-        }`}
+        className={`tw:flex tw:flex-col tw:h-full tw:w-full tw:relative tw:bg-transparent tw:p-2`}
       >
         <div
           style={{
