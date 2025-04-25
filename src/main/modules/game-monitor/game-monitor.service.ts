@@ -15,19 +15,23 @@ export class GameMonitorService {
   private gameWindow: Result | null = null
   private cachedWindow: Result | null = null
   private lastCheckTime = 0
-  private readonly CACHE_DURATION = 100 // 100ms 캐시
+  private readonly CACHE_DURATION = 300 // 100ms에서 300ms로 증가
 
   // 모니터링 관련 변수
   private updateInterval: NodeJS.Timeout | null = null
   private isProcessingUpdate = false
   private lastGameWindowBounds: { x: number; y: number; width: number; height: number } | null =
     null
-  private readonly UPDATE_INTERVAL = 16 // 약 60fps에 해당하는 시간 간격
+  private readonly UPDATE_INTERVAL = 100 // 약 60fps에서 10fps로 변경 (성능 개선)
+  private readonly BOUNDS_CHANGE_THRESHOLD = 5 // 경계값 변화 임계값 (픽셀)
   private readonly STANDARD_RESOLUTIONS = [
     640, 720, 800, 1024, 1128, 1280, 1366, 1600, 1680, 1760, 1920, 2048, 2288, 2560, 3072, 3200,
     3840, 5120,
   ]
   private isMaximized = false
+  private lastOverlayUpdateTime = 0
+  private readonly MIN_UPDATE_INTERVAL = 150 // 오버레이 위치 업데이트 최소 간격 (ms)
+  private isInitialized = false // 초기화 상태를 추적하는 변수 추가
 
   constructor(
     private readonly mainWindowService: MainWindowService,
@@ -40,7 +44,7 @@ export class GameMonitorService {
 
   public async initialize(): Promise<void> {
     this.startWindowMonitoring()
-    await this.overlayWindowService.createOverlayInit()
+    // 오버레이 초기화는 최초 블러 이벤트에서 수행하도록 변경
   }
 
   private startWindowMonitoring(): void {
@@ -63,21 +67,21 @@ export class GameMonitorService {
 
     mainWindow.on('blur', async () => {
       this.logger.debug('Main window blurred, creating overlay and starting monitoring')
-      this.startMonitoring()
+
+      // 최초 블러 이벤트에만 오버레이 초기화
+      if (!this.isInitialized) {
+        this.logger.debug('First blur event - initializing overlay')
+        this.isInitialized = true
+        await this.overlayWindowService.createOverlayInit()
+      }
+
+      // 약간의 지연을 주어 포커스 전환 중 떨림 방지
+      setTimeout(() => {
+        this.startMonitoring()
+      }, 100)
     })
 
-    // 초기 상태 설정
-    if (!mainWindow.isFocused()) {
-      // 비동기 작업을 Promise로 처리
-      Promise.resolve()
-        .then(async () => {
-          await this.overlayWindowService.createOverlayInit()
-          this.startMonitoring()
-        })
-        .catch((error) => {
-          this.logger.error('Error in initial overlay setup:', error.message)
-        })
-    }
+    // 초기 상태 설정 로직 제거 (최초 블러 이벤트에서 처리)
   }
 
   private startMonitoring(): void {
@@ -120,22 +124,21 @@ export class GameMonitorService {
         return
       }
 
-      const isBoundsChanged =
-        !this.lastGameWindowBounds ||
-        this.lastGameWindowBounds.x !== gameWindow.bounds.x ||
-        this.lastGameWindowBounds.y !== gameWindow.bounds.y ||
-        this.lastGameWindowBounds.width !== gameWindow.bounds.width ||
-        this.lastGameWindowBounds.height !== gameWindow.bounds.height
+      const isBoundsChanged = this.checkSignificantBoundsChange(gameWindow.bounds)
 
-      if (isBoundsChanged) {
+      const now = Date.now()
+      const isTimeToUpdate = now - this.lastOverlayUpdateTime >= this.MIN_UPDATE_INTERVAL
+
+      if (isBoundsChanged && isTimeToUpdate) {
         this.lastGameWindowBounds = { ...gameWindow.bounds }
+        this.lastOverlayUpdateTime = now
         await this.updateOverlayPosition(overlayWindow)
         if (!overlayWindow.isVisible()) {
           overlayWindow.show()
         }
       }
 
-      // 활성 윈도우 정보 가져와서 오버레이로 전송
+      // 활성 윈도우 정보 가져와서 오버레이로 전송 (떨림과 관계없는 부분은 그대로 유지)
       try {
         const activeWindow = await this.getActiveWindows()
         if (activeWindow && overlayWindow) {
@@ -155,6 +158,23 @@ export class GameMonitorService {
     } finally {
       this.isProcessingUpdate = false
     }
+  }
+
+  // 경계값 변화가 임계값을 초과하는지 확인하는 헬퍼 메서드
+  private checkSignificantBoundsChange(newBounds: {
+    x: number
+    y: number
+    width: number
+    height: number
+  }): boolean {
+    if (!this.lastGameWindowBounds) return true
+
+    return (
+      Math.abs(this.lastGameWindowBounds.x - newBounds.x) > this.BOUNDS_CHANGE_THRESHOLD ||
+      Math.abs(this.lastGameWindowBounds.y - newBounds.y) > this.BOUNDS_CHANGE_THRESHOLD ||
+      Math.abs(this.lastGameWindowBounds.width - newBounds.width) > this.BOUNDS_CHANGE_THRESHOLD ||
+      Math.abs(this.lastGameWindowBounds.height - newBounds.height) > this.BOUNDS_CHANGE_THRESHOLD
+    )
   }
 
   public cleanup(): void {

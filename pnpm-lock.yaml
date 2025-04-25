@@ -59,6 +59,9 @@ importers:
       electron-updater:
         specifier: ^6.6.2
         version: 6.6.2
+      esbuild:
+        specifier: 0.25.3
+        version: 0.25.3
       framer-motion:
         specifier: ^12.8.2
         version: 12.9.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)

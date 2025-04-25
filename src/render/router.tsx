@@ -12,11 +12,9 @@ const Overlay = lazy(() => import('./pages/overlay'))
 // 기본 레이아웃이 적용된 라우트를 위한 컴포넌트
 const DefaultLayout = () => {
   return (
-    <Suspense fallback={<PageLoading />}>
-      <AppLayout>
-        <Outlet />
-      </AppLayout>
-    </Suspense>
+    <AppLayout>
+      <Outlet />
+    </AppLayout>
   )
 }
 
@@ -24,11 +22,7 @@ const DefaultLayout = () => {
 export const router = createHashRouter([
   {
     path: '/',
-    element: (
-      <Suspense fallback={<PageLoading />}>
-        <WrappedApp />
-      </Suspense>
-    ),
+    element: <WrappedApp />,
     children: [
       // 레이아웃이 필요한 페이지들은 DefaultLayout 하위로 그룹화
       {
