@@ -93,14 +93,14 @@ export default function LoginPage() {
 
               if (response.status === 200) {
                 const success = await login({
-                  userNo: response.data.userNo,
-                  userToken: response.data.userToken,
-                  userName: response.data.userName ?? '',
-                  discordUid: response.data.discordUid ?? '',
-                  discordLinked: response.data.discordLinked ?? false,
+                  userNo: response.data?.userNo,
+                  userToken: response.data?.userToken,
+                  userName: response.data?.userName ?? '',
+                  discordUid: response.data?.discordUid ?? '',
+                  discordLinked: response.data?.discordLinked ?? false,
                   vArchiveUserNo: Number(userNo),
                   vArchiveUserToken: token,
-                  vArchiveUserName: result.data.nickname,
+                  vArchiveUserName: result.data?.nickname,
                   vArchiveLinked: true,
                 })
 
@@ -175,17 +175,17 @@ export default function LoginPage() {
         vArchiveLinked?: boolean
       }>(`/v2/racla/user/login/oauth/discord`, { code })
 
-      if (response.status === 200 && response.data) {
+      if (response.status === 200) {
         const success = await login({
-          userNo: response.data.userNo,
-          userToken: response.data.userToken,
-          userName: response.data.userName ?? '',
-          discordUid: response.data.discordUid ?? '',
+          userNo: response.data?.userNo,
+          userToken: response.data?.userToken,
+          userName: response.data?.userName ?? '',
+          discordUid: response.data?.discordUid ?? '',
           discordLinked: true,
-          vArchiveUserNo: response.data.vArchiveUserNo ?? 0,
-          vArchiveUserToken: response.data.vArchiveUserToken ?? '',
+          vArchiveUserNo: response.data?.vArchiveUserNo ?? 0,
+          vArchiveUserToken: response.data?.vArchiveUserToken ?? '',
           vArchiveUserName:
-            response.data.vArchiveUserNo && response.data.vArchiveUserToken
+            response.data?.vArchiveUserNo && response.data?.vArchiveUserToken
               ? (
                   await getUserName({
                     userNo: response.data.vArchiveUserNo,
@@ -193,7 +193,7 @@ export default function LoginPage() {
                   })
                 ).data.nickname
               : '',
-          vArchiveLinked: response.data.vArchiveLinked ?? false,
+          vArchiveLinked: response.data?.vArchiveLinked ?? false,
         })
 
         if (success) {

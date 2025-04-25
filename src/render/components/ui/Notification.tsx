@@ -49,7 +49,10 @@ export function Notification({ notification, onRemove, index }: NotificationProp
       },
     }
 
-    return typeStyles[type] || typeStyles.info
+    // 유효한 타입인지 확인하고 기본값 제공
+    return type && typeof type === 'string' && type in typeStyles
+      ? typeStyles[type]
+      : typeStyles.info
   }
 
   const { background, iconName, iconColor, bgColor } = getTypeStyles()

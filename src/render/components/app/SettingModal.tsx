@@ -560,8 +560,8 @@ export default function SettingModal() {
   // 설정 값 변경 핸들러
   const handleSettingChange = (id: string, value: string | number | boolean) => {
     const updatedSettings = (prev: SettingsData) => {
-      // 인덱스 서명을 가진 인터페이스 확장
-      const newSettings = { ...prev } as SettingsData & { [key: string]: string | number | boolean }
+      // Record를 사용해 타입 정의
+      const newSettings = { ...prev } as SettingsData & Record<string, string | number | boolean>
 
       // 상호 배타적인 설정 처리 (예: 알림음)
       if (id.endsWith('Sound') && value === true) {
@@ -578,7 +578,7 @@ export default function SettingModal() {
       }
 
       // 안전하게 설정 할당
-      if (id in newSettings) {
+      if (id && typeof id === 'string' && id in newSettings) {
         newSettings[id] = value
       }
 

@@ -59,8 +59,7 @@ const TitleBar: React.FC = () => {
       {/* 중앙 타이틀 - 선택된 게임 이름 표시 */}
       <div className='tw:flex-1 tw:text-sm tw:text-center tw:font-bold'>
         {selectedGame &&
-          globalDictionary.gameDictionary &&
-          globalDictionary.gameDictionary[
+          globalDictionary.gameDictionary?.[
             selectedGame as keyof typeof globalDictionary.gameDictionary
           ]?.name}
       </div>
