@@ -8,7 +8,8 @@
   <p>
     <img src="https://img.shields.io/github/license/RACLA-DEV/racla-vite?color=blue" alt="License">
     <img src="https://img.shields.io/badge/platforms-Windows-brightgreen" alt="Platforms">
-    <img src="https://github.com/RACLA-DEV/racla-vite/actions/workflows/build.yml/badge.svg" alt="Build Status">
+    <a href="https://github.com/RACLA-DEV/racla/actions/workflows/build.yml"><img src="https://github.com/RACLA-DEV/racla/actions/workflows/build.yml/badge.svg?branch=main" alt="Build Verification"></a>
+    <a href="https://app.codacy.com/gh/RACLA-DEV/racla/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade"><img src="https://app.codacy.com/project/badge/Grade/e6c8071c93564fcbb7624bd09e912a1a"/></a>
   </p>
 </div>
 
