@@ -11,12 +11,12 @@ import { DiscordManagerModule } from './modules/discord-manager/discord-manager.
 import { DiscordManagerService } from './modules/discord-manager/discord-manager.service'
 import { FileManagerModule } from './modules/file-manager/file-manager.module'
 import { GameMonitorModule } from './modules/game-monitor/game-monitor.module'
+import { GameMonitorService } from './modules/game-monitor/game-monitor.service'
 import { ImageProcessorModule } from './modules/image-processor/image-processor.module'
 import { LoggerModule } from './modules/logger/logger.module'
 import { MainWindowModule } from './modules/main-window/main-window.module'
 import { MessageModule } from './modules/message/message.module'
 import { OverlayWindowModule } from './modules/overlay-window/overlay-window.module'
-import { OverlayWindowService } from './modules/overlay-window/overlay-window.service'
 import { ProcessModule } from './modules/process/process.module'
 import { UpdateManagerModule } from './modules/update-manager/update-manager.module'
 import { UpdateManagerService } from './modules/update-manager/update-manager.service'
@@ -67,18 +67,18 @@ export const winstonConfig = {
 })
 export class AppModule implements OnModuleInit, OnModuleDestroy {
   constructor(
-    private readonly overlayWindowService: OverlayWindowService,
+    private readonly gameMonitorService: GameMonitorService,
     private readonly updateManagerService: UpdateManagerService,
     private readonly discordManagerService: DiscordManagerService,
   ) {}
 
   async onModuleInit() {
-    await this.overlayWindowService.initialize()
     await this.updateManagerService.initialize()
     await this.discordManagerService.initialize()
+    await this.gameMonitorService.initialize()
   }
 
   onModuleDestroy() {
-    this.overlayWindowService.cleanup()
+    this.gameMonitorService.cleanup()
   }
 }
