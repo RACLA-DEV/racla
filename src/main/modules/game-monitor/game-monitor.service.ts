@@ -42,7 +42,7 @@ export class GameMonitorService {
     })
   }
 
-  public async initialize(): Promise<void> {
+  public initialize(): void {
     this.startWindowMonitoring()
     // 오버레이 초기화는 최초 블러 이벤트에서 수행하도록 변경
   }
@@ -113,50 +113,57 @@ export class GameMonitorService {
   private async handleGameWindowChange(): Promise<void> {
     this.isProcessingUpdate = true
     try {
-      const gameWindow = await this.getGameWindowInfo()
-      const overlayWindow = await this.overlayWindowService.getOverlayWindow()
-
-      if (!gameWindow || !overlayWindow) {
-        if (overlayWindow?.isVisible()) {
-          overlayWindow.hide()
-          this.lastGameWindowBounds = null
-        }
-        return
-      }
-
-      const isBoundsChanged = this.checkSignificantBoundsChange(gameWindow.bounds)
-
-      const now = Date.now()
-      const isTimeToUpdate = now - this.lastOverlayUpdateTime >= this.MIN_UPDATE_INTERVAL
-
-      if (isBoundsChanged && isTimeToUpdate) {
-        this.lastGameWindowBounds = { ...gameWindow.bounds }
-        this.lastOverlayUpdateTime = now
-        await this.updateOverlayPosition(overlayWindow)
-        if (!overlayWindow.isVisible()) {
-          overlayWindow.show()
-        }
-      }
-
-      // 활성 윈도우 정보 가져와서 오버레이로 전송 (떨림과 관계없는 부분은 그대로 유지)
-      try {
-        const activeWindow = await this.getActiveWindows()
-        if (activeWindow && overlayWindow) {
-          this.overlayWindowService.sendMessage(
-            JSON.stringify({
-              type: 'active-windows',
-              data: activeWindow,
-              isMaximized: this.isMaximized,
-            }),
-          )
-        }
-      } catch (error) {
-        this.logger.error('Error getting active window info:', error.message)
-      }
+      await this.updateGameWindowOverlay()
+      await this.sendActiveWindowInfo()
     } catch (error) {
       this.logger.error('Error in handleGameWindowChange:', error.message)
     } finally {
       this.isProcessingUpdate = false
+    }
+  }
+
+  private async updateGameWindowOverlay(): Promise<void> {
+    const gameWindow = await this.getGameWindowInfo()
+    const overlayWindow = await this.overlayWindowService.getOverlayWindow()
+
+    if (!gameWindow || !overlayWindow) {
+      if (overlayWindow?.isVisible()) {
+        overlayWindow.hide()
+        this.lastGameWindowBounds = null
+      }
+      return
+    }
+
+    const isBoundsChanged = this.checkSignificantBoundsChange(gameWindow.bounds)
+    const now = Date.now()
+    const isTimeToUpdate = now - this.lastOverlayUpdateTime >= this.MIN_UPDATE_INTERVAL
+
+    if (isBoundsChanged && isTimeToUpdate) {
+      this.lastGameWindowBounds = { ...gameWindow.bounds }
+      this.lastOverlayUpdateTime = now
+      await this.updateOverlayPosition(overlayWindow)
+      if (!overlayWindow.isVisible()) {
+        overlayWindow.show()
+      }
+    }
+  }
+
+  private async sendActiveWindowInfo(): Promise<void> {
+    try {
+      const activeWindow = await this.getActiveWindows()
+      const overlayWindow = await this.overlayWindowService.getOverlayWindow()
+
+      if (activeWindow && overlayWindow) {
+        this.overlayWindowService.sendMessage(
+          JSON.stringify({
+            type: 'active-windows',
+            data: activeWindow,
+            isMaximized: this.isMaximized,
+          }),
+        )
+      }
+    } catch (error) {
+      this.logger.error('Error getting active window info:', error.message)
     }
   }
 
@@ -187,7 +194,7 @@ export class GameMonitorService {
       mainWindow.removeAllListeners('blur')
     }
 
-    this.overlayWindowService.destroyOverlay()
+    void this.overlayWindowService.destroyOverlay()
   }
 
   public async getActiveWindows(): Promise<Result> {

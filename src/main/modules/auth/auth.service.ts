@@ -24,7 +24,7 @@ export class AuthService {
     }
   }
 
-  async logout(): Promise<boolean> {
+  logout(): boolean {
     try {
       this.logger.log('User logout')
       this.fileManagerService.clearSession()
@@ -35,17 +35,17 @@ export class AuthService {
     }
   }
 
-  async checkLoggedIn(): Promise<boolean> {
+  checkLoggedIn(): boolean {
     try {
       const sessionData = this.fileManagerService.loadSession()
-      return !!(sessionData && sessionData.userNo && sessionData.userToken)
+      return !!(sessionData?.userNo && sessionData.userToken)
     } catch (error) {
       this.logger.error(`Check login status error: ${error.message}`, error.stack)
       return false
     }
   }
 
-  async getSession(): Promise<SessionData> {
+  getSession(): SessionData {
     try {
       return this.fileManagerService.loadSession()
     } catch (error) {
@@ -54,7 +54,7 @@ export class AuthService {
     }
   }
 
-  async createPlayerFile(data: { userNo: string; userToken: string }): Promise<boolean> {
+  createPlayerFile(data: { userNo: string; userToken: string }): boolean {
     try {
       const { userNo, userToken } = data
       if (!userNo || !userToken) {
@@ -105,7 +105,7 @@ export class AuthService {
     const REDIRECT_URI = `http://localhost:${currentPort}/oauth/discord/callback`
 
     return new Promise((resolve, reject) => {
-      server = http.createServer(async (req, res) => {
+      server = http.createServer((req, res) => {
         if (req.url?.startsWith('/oauth/discord/callback')) {
           const urlObj = new URL(req.url, `http://localhost:${currentPort}`)
           const code = urlObj.searchParams.get('code')

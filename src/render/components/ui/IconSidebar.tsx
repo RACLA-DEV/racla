@@ -36,7 +36,9 @@ const IconSidebar: React.FC = () => {
     {
       id: 'djmax_respect_v' as GameType,
       tooltip: 'DJMAX RESPECT V',
-      iconUrl: `https://cdn.racla.app/djmax_respect_v/${djmaxLogos[djmaxLogoIndex]}`,
+      iconUrl: djmaxLogos[djmaxLogoIndex]
+        ? `https://cdn.racla.app/djmax_respect_v/${djmaxLogos[djmaxLogoIndex]}`
+        : 'https://cdn.racla.app/djmax_respect_v/new_logo_0.png',
       onClick: () => {
         // 이미지 변경과 게임 선택을 분리
         if (selectedGame === 'djmax_respect_v') {
@@ -51,7 +53,9 @@ const IconSidebar: React.FC = () => {
     {
       id: 'wjmax' as GameType,
       tooltip: 'WJMAX',
-      iconUrl: `https://cdn.racla.app/wjmax/${wjmaxLogos[wjmaxLogoIndex]}`,
+      iconUrl: wjmaxLogos[wjmaxLogoIndex]
+        ? `https://cdn.racla.app/wjmax/${wjmaxLogos[wjmaxLogoIndex]}`
+        : 'https://cdn.racla.app/wjmax/new_logo_0.png',
       onClick: () => {
         if (selectedGame === 'wjmax') {
           // 이미 선택된 경우 로고만 변경
@@ -66,7 +70,9 @@ const IconSidebar: React.FC = () => {
       id: 'platina_lab' as GameType,
       tooltip: 'PLATiNA :: LAB',
       iconUrl: 'https://cdn.racla.app/platina_lab/new_logo.png',
-      onClick: () => handleGameSelect('platina_lab'),
+      onClick: () => {
+        handleGameSelect('platina_lab')
+      },
     },
   ]
 

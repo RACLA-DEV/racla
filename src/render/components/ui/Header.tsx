@@ -1,5 +1,6 @@
 import { Icon } from '@iconify/react'
 import { globalDictionary } from '@render/constants/globalDictionary'
+import { createLog } from '@render/libs/logger'
 import { RootState } from '@render/store'
 import { toggleTheme } from '@render/store/slices/uiSlice'
 import React, { useEffect, useState } from 'react'
@@ -19,10 +20,10 @@ const TitleBar: React.FC = () => {
   // 최대화 상태 이벤트 리스너 (실제로는 preload 파일에서 이벤트를 전달해야 함)
   useEffect(() => {
     const handleMaximizeChange = (e: any, maximized: boolean) => {
+      createLog('debug', 'Maximize change:', maximized, e)
       setIsMaximized(maximized)
     }
 
-    // 이 부분은 실제로 preload에서 구현해야 합니다
     window.addEventListener('maximize-change', handleMaximizeChange as any)
 
     return () => {
@@ -54,7 +55,11 @@ const TitleBar: React.FC = () => {
 
       {/* 중앙 타이틀 - 선택된 게임 이름 표시 */}
       <div className='tw:flex-1 tw:text-sm tw:text-center tw:font-bold'>
-        {globalDictionary.gameDictionary[selectedGame].name}
+        {selectedGame &&
+          globalDictionary.gameDictionary &&
+          globalDictionary.gameDictionary[
+            selectedGame as keyof typeof globalDictionary.gameDictionary
+          ]?.name}
       </div>
 
       {/* 오른쪽 컨트롤 버튼 영역 */}

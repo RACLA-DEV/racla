@@ -29,6 +29,6 @@ export class DiscordManagerController {
 
   @IpcHandle('discord-manager:destroy')
   destroy() {
-    return this.discordManagerService.destroy()
+    this.discordManagerService.destroy()
   }
 }

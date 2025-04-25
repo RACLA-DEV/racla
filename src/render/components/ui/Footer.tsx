@@ -47,7 +47,7 @@ const Footer: React.FC = () => {
     }
 
     // 초기 실행
-    checkServerStatus()
+    void checkServerStatus()
 
     // 30초마다 실행되는 인터벌 설정
     const interval = setInterval(() => {
@@ -78,7 +78,9 @@ const Footer: React.FC = () => {
             <Tooltip position='top' content='https://store.steampowered.com/app/960170'>
               <span
                 className='tw:cursor-pointer'
-                onClick={() => handleOpenExternalLink('https://store.steampowered.com/app/960170')}
+                onClick={() => {
+                  handleOpenExternalLink('https://store.steampowered.com/app/960170')
+                }}
               >
                 Resources from DJMAX RESPECT V
               </span>
@@ -102,7 +104,9 @@ const Footer: React.FC = () => {
             <Tooltip position='top' content='https://waktaverse.games/gameDetail/wjmax'>
               <span
                 className='tw:cursor-pointer'
-                onClick={() => handleOpenExternalLink('https://waktaverse.games/gameDetail/wjmax')}
+                onClick={() => {
+                  handleOpenExternalLink('https://waktaverse.games/gameDetail/wjmax')
+                }}
               >
                 Resources from WJMAX(©WJMAX STUDIO)
               </span>
@@ -115,7 +119,9 @@ const Footer: React.FC = () => {
             <Tooltip position='top' content='https://platinalab.net/'>
               <span
                 className='tw:cursor-pointer'
-                onClick={() => handleOpenExternalLink('https://platinalab.net/')}
+                onClick={() => {
+                  handleOpenExternalLink('https://platinalab.net/')
+                }}
               >
                 PLATiNA :: LAB(HIGH-END Games)
               </span>
@@ -140,7 +146,9 @@ const Footer: React.FC = () => {
           <span className='tw:flex tw:items-center tw:gap-1'>
             <Tooltip position='top' content='https://status.racla.app'>
               <span
-                onClick={() => handleOpenExternalLink('https://status.racla.app')}
+                onClick={() => {
+                  handleOpenExternalLink('https://status.racla.app')
+                }}
                 className='tw:cursor-pointer tw:flex tw:items-center tw:gap-1'
               >
                 <div className='tw:relative tw:flex tw:items-center tw:justify-center tw:mr-1'>
@@ -171,7 +179,9 @@ const Footer: React.FC = () => {
               <Tooltip position='top' content='https://v-archive.net'>
                 <span
                   className='tw:text-xs tw:cursor-pointer'
-                  onClick={() => handleOpenExternalLink('https://v-archive.net')}
+                  onClick={() => {
+                    handleOpenExternalLink('https://v-archive.net')
+                  }}
                 >
                   {t('djmax_respect_v.vArchiveNavTitle')}
                 </span>
@@ -180,7 +190,9 @@ const Footer: React.FC = () => {
               <Tooltip position='top' content='https://hard-archive.com'>
                 <span
                   className='tw:text-xs tw:cursor-pointer'
-                  onClick={() => handleOpenExternalLink('https://hard-archive.com')}
+                  onClick={() => {
+                    handleOpenExternalLink('https://hard-archive.com')
+                  }}
                 >
                   {t('djmax_respect_v.hjaNavTitle')}
                 </span>

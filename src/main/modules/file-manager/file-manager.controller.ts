@@ -43,7 +43,7 @@ export class FileManagerController {
       const { gameCode, songData } = data
       this.logger.log(`곡 데이터 저장 요청 - 게임 코드: ${gameCode}`)
       this.logger.log(
-        `songData 타입: ${typeof songData}, 배열 여부: ${Array.isArray(songData)}, 길이: ${songData?.length || 0}`,
+        `songData 타입: ${typeof songData}, 배열 여부: ${Array.isArray(songData)}, 길이: ${songData.length || 0}`,
       )
 
       if (!Array.isArray(songData)) {
@@ -112,7 +112,7 @@ export class FileManagerController {
       const result = await dialog.showOpenDialog({
         title: options.title ?? '파일 선택',
         defaultPath: options.defaultPath,
-        filters: options.filters || [{ name: '모든 파일', extensions: ['*'] }],
+        filters: options.filters ?? [{ name: '모든 파일', extensions: ['*'] }],
         properties: ['openFile'],
       })
 

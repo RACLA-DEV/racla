@@ -120,7 +120,7 @@ function CheatsheetPage() {
         title: 'createLog()',
         description: '로그를 생성합니다',
         example: 'createLog("info", "로그 메시지")',
-        usage: async () => {
+        usage: () => {
           createLog('debug', '로그 메시지')
         },
       },
@@ -149,11 +149,14 @@ function CheatsheetPage() {
 
   const categories = Object.keys(electronCheatSheet)
 
-  const filteredFunctions = electronCheatSheet[activeCategory]?.filter(
-    (item) =>
-      item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.description.toLowerCase().includes(searchTerm.toLowerCase()),
-  )
+  const filteredFunctions =
+    activeCategory && electronCheatSheet[activeCategory as keyof typeof electronCheatSheet]
+      ? electronCheatSheet[activeCategory as keyof typeof electronCheatSheet].filter(
+          (item) =>
+            item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            item.description.toLowerCase().includes(searchTerm.toLowerCase()),
+        )
+      : []
 
   return (
     <div className='tw:container tw:mx-auto tw:p-8'>
@@ -166,7 +169,9 @@ function CheatsheetPage() {
           type='text'
           placeholder='함수나 설명 검색...'
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          onChange={(e) => {
+            setSearchTerm(e.target.value)
+          }}
           className='tw:w-full tw:px-4 tw:py-2 tw:rounded-lg tw:border tw:border-gray-300 tw:focus:ring-2 tw:focus:ring-blue-500'
         />
       </div>

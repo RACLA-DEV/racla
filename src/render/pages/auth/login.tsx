@@ -52,7 +52,7 @@ export default function LoginPage() {
     const fileReader = new FileReader()
 
     fileReader.onload = async () => {
-      const text = fileReader.result?.toString().trim() || ''
+      const text = fileReader.result?.toString().trim() ?? ''
 
       try {
         if (
@@ -215,13 +215,17 @@ export default function LoginPage() {
                     ref={vArchiveFileInputRef}
                     type='file'
                     accept='.txt'
-                    onChange={onVArchiveFileChange}
+                    onChange={(e) => {
+                      void onVArchiveFileChange(e)
+                    }}
                     className='tw:hidden'
                   />
 
                   {/* 로그인 버튼 */}
                   <button
-                    onClick={handleDiscordLogin}
+                    onClick={() => {
+                      void handleDiscordLogin()
+                    }}
                     className='tw:flex tw:w-full tw:items-center tw:justify-center tw:gap-2 tw:rounded-md tw:bg-[#5865F2] tw:px-4 tw:py-3 tw:text-white tw:transition-colors hover:tw:bg-[#4752C4]'
                   >
                     <FaDiscord className='tw:text-lg' />

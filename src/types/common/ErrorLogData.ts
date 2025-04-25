@@ -8,5 +8,8 @@ export interface ErrorLogData {
   clientLogLevel: 'ERROR' | 'WARN' | 'INFO'
   clientLogMessage: string
   clientLogStacktrace?: string
-  clientAdditionalInfo?: any
+  clientAdditionalInfo?: {
+    context?: string
+    args?: string
+  }
 }

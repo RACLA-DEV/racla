@@ -203,7 +203,14 @@ export default function WrappedApp() {
           {
             mode: 'i18n',
             value: 'database.syncSuccess',
-            props: { gameName: globalDictionary.gameDictionary[gameCode].name },
+            props: {
+              gameName:
+                gameCode && globalDictionary.gameDictionary
+                  ? globalDictionary.gameDictionary[
+                      gameCode as keyof typeof globalDictionary.gameDictionary
+                    ]?.name || ''
+                  : '',
+            },
           },
           'success',
         )
@@ -215,7 +222,14 @@ export default function WrappedApp() {
           {
             mode: 'i18n',
             value: 'database.syncError',
-            props: { gameName: globalDictionary.gameDictionary[gameCode].name },
+            props: {
+              gameName:
+                gameCode && globalDictionary.gameDictionary
+                  ? globalDictionary.gameDictionary[
+                      gameCode as keyof typeof globalDictionary.gameDictionary
+                    ]?.name || ''
+                  : '',
+            },
           },
           'error',
         )
@@ -232,7 +246,14 @@ export default function WrappedApp() {
                 {
                   mode: 'i18n',
                   value: 'database.syncLocalSuccess',
-                  props: { gameName: globalDictionary.gameDictionary[gameCode].name },
+                  props: {
+                    gameName:
+                      gameCode && globalDictionary.gameDictionary
+                        ? globalDictionary.gameDictionary[
+                            gameCode as keyof typeof globalDictionary.gameDictionary
+                          ]?.name || ''
+                        : '',
+                  },
                 },
                 'success',
               )
@@ -246,7 +267,14 @@ export default function WrappedApp() {
             {
               mode: 'i18n',
               value: 'database.syncLocalError',
-              props: { gameName: globalDictionary.gameDictionary[gameCode].name },
+              props: {
+                gameName:
+                  gameCode && globalDictionary.gameDictionary
+                    ? globalDictionary.gameDictionary[
+                        gameCode as keyof typeof globalDictionary.gameDictionary
+                      ]?.name || ''
+                    : '',
+              },
             },
             'error',
           )
@@ -318,7 +346,7 @@ export default function WrappedApp() {
           try {
             if (window.electron?.getSession) {
               const session = await window.electron.getSession()
-              if (session && session.userNo && session.userToken) {
+              if (session?.userNo && session?.userToken) {
                 try {
                   createLog(
                     'debug',
@@ -444,7 +472,7 @@ export default function WrappedApp() {
               ? '5분 주기 곡 데이터 새로고침 중...'
               : '5-minute song data refresh in progress...',
           )
-          loadAllSongData(false) // 알림 표시 안함
+          void loadAllSongData(false) // 알림 표시 안함
         },
         5 * 60 * 1000,
       ) // 5분마다 실행

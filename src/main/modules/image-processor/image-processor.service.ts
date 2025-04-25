@@ -98,7 +98,7 @@ export class ImageProcessorService {
   }
 
   private async processFullscreenImage(pngImage: Buffer): Promise<Buffer> {
-    return sharp(pngImage).resize(1920, 1080).toBuffer()
+    return await sharp(pngImage).resize(1920, 1080).toBuffer()
   }
 
   private findActualHeight(data: Buffer, width: number, height: number, channels: number): number {
@@ -106,7 +106,11 @@ export class ImageProcessorService {
       let isNonBlackRow = false
       for (let x = 0; x < width; x++) {
         const idx = (y * width + x) * channels
-        if (data[idx] !== 0 || data[idx + 1] !== 0 || data[idx + 2] !== 0) {
+        if (
+          idx >= 0 &&
+          idx + 2 < data.length &&
+          (data[idx] !== 0 || data[idx + 1] !== 0 || data[idx + 2] !== 0)
+        ) {
           isNonBlackRow = true
           break
         }

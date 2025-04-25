@@ -22,7 +22,9 @@ export default function ExternalLinkModal() {
     }
 
     window.addEventListener('keydown', handleEscKey)
-    return () => window.removeEventListener('keydown', handleEscKey)
+    return () => {
+      window.removeEventListener('keydown', handleEscKey)
+    }
   }, [isOpenExternalLink])
 
   return (

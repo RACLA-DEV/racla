@@ -18,7 +18,7 @@ interface GameData {
 export class DiscordManagerService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(DiscordManagerService.name)
   private client: Client
-  private isConnected: boolean = false
+  private isConnected = false
   private startTimestamp: number | null = null
 
   constructor() {
@@ -72,7 +72,7 @@ export class DiscordManagerService implements OnModuleInit, OnModuleDestroy {
                   ? 'PLATiNA :: LAB'
                   : null
           } - ${gameData.songName}`,
-          state: `${String(gameData.button).replace('B', '')}B | ${gameData.pattern}${gameData?.level && gameData.gameCode === 'platina_lab' ? ` Lv.${gameData?.level})` : ''} | ${gameData.score.toFixed(2)}% ${gameData?.max && gameData.score == 100 ? (gameData?.max == 0 ? 'MAX' : `MAX-${gameData?.max}`) : ''} ${gameData.maxCombo && gameData.score !== 100 && gameData.gameCode != 'platina_lab' ? '(MAX COMBO)' : ''}`,
+          state: `${String(gameData.button).replace('B', '')}B | ${gameData.pattern}${gameData.level && gameData.gameCode === 'platina_lab' ? ` Lv.${gameData.level})` : ''} | ${gameData.score.toFixed(2)}% ${gameData.max && gameData.score == 100 ? (gameData.max == 0 ? 'MAX' : `MAX-${gameData.max}`) : ''} ${gameData.maxCombo && gameData.score !== 100 && gameData.gameCode != 'platina_lab' ? '(MAX COMBO)' : ''}`,
           largeImageKey: 'racla_logo',
           largeImageText: 'RACLA for Desktop (Vite)',
           startTimestamp: this.startTimestamp,
@@ -90,7 +90,7 @@ export class DiscordManagerService implements OnModuleInit, OnModuleDestroy {
       details: 'RACLA for Desktop (Vite)',
       largeImageKey: 'racla_logo',
       largeImageText: 'RACLA for Desktop (Vite)',
-      startTimestamp: this.startTimestamp || Date.now(),
+      startTimestamp: this.startTimestamp ?? Date.now(),
     })
   }
 
