@@ -9,7 +9,7 @@ export class LoggerController {
 
   @IpcHandle('logger:create-log')
   public handlecreateLog(args: [LogLevel?, string?, ...unknown[]]): boolean {
-    this.loggingService.createLog(...args)
+    void this.loggingService.createLog(...args)
     return true
   }
 }

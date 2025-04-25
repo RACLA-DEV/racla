@@ -15,7 +15,7 @@ export class LoggerService {
     dotenv.config({ path: !app.isPackaged ? '.env.development' : '.env.production' })
   }
 
-  public async createLog(level: LogLevel = 'info', where: string = 'MAIN', ...args: unknown[]) {
+  public createLog(level: LogLevel = 'info', where = 'MAIN', ...args: unknown[]) {
     const logPrefix = `[${where}] `
     const logContent = args
       .map((arg) => (typeof arg === 'object' ? JSON.stringify(arg, null, 2) : arg.toString()))
@@ -24,7 +24,7 @@ export class LoggerService {
 
     switch (level) {
       case 'error':
-        this.sendErrorLog(where, new Error(message))
+        void this.sendErrorLog(where, new Error(message))
         this.logger.error(message)
         break
       case 'warn':
@@ -53,7 +53,7 @@ export class LoggerService {
         clientLogStacktrace: error instanceof Error ? error.stack : null,
         clientAdditionalInfo: {
           context: context?.toString(),
-          args: args?.toString(),
+          args: args.toString(),
         },
       }
 

@@ -9,7 +9,7 @@ import { MainWindowService } from './main-window.service'
 @Module({
   imports: [
     ElectronModule.registerAsync({
-      useFactory: async () => {
+      useFactory: () => {
         const isDev = !app.isPackaged
         const preloadPath = isDev
           ? join(app.getAppPath(), '../preload/index.js')

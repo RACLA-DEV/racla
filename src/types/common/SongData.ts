@@ -15,13 +15,9 @@ export interface PatternDifficulty {
   patternFileName?: string | null
 }
 
-export interface PatternSet {
-  [difficultyName: string]: PatternDifficulty
-}
+export interface PatternSet extends Record<string, PatternDifficulty> {}
 
-export interface KeyPatterns {
-  [keyMode: string]: PatternSet
-}
+export interface KeyPatterns extends Record<string, PatternSet> {}
 
 export interface SongData {
   title: number

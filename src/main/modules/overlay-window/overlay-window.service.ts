@@ -39,11 +39,11 @@ export class OverlayWindowService {
     ? `${process.env.DS_RENDERER_URL}#/overlay`
     : `file://${join(app.getAppPath(), 'dist/render/index.html')}#/overlay`
 
-  public async getOverlayWindow(): Promise<BrowserWindow | null> {
+  public getOverlayWindow(): BrowserWindow | null {
     return this.overlayWindow
   }
 
-  public async createOverlay(): Promise<BrowserWindow | null> {
+  public createOverlay(): BrowserWindow | null {
     if (this.overlayWindow) {
       this.overlayWindow.focus()
       return this.overlayWindow
@@ -56,7 +56,7 @@ export class OverlayWindowService {
     this.overlayWindow.setVisibleOnAllWorkspaces(true)
 
     if (this.URL) {
-      this.overlayWindow.loadURL(`${this.URL}`)
+      this.overlayWindow.loadURL(this.URL)
     } else {
       this.logger.error('Failed to determine URL for overlay window')
     }
@@ -68,7 +68,7 @@ export class OverlayWindowService {
     return this.overlayWindow
   }
 
-  public async createOverlayInit(): Promise<BrowserWindow | null> {
+  public createOverlayInit(): BrowserWindow | null {
     if (this.overlayWindow) {
       this.overlayWindow.focus()
       return this.overlayWindow
@@ -81,7 +81,7 @@ export class OverlayWindowService {
     this.overlayWindow.setVisibleOnAllWorkspaces(true)
 
     if (this.URL) {
-      this.overlayWindow.loadURL(`${this.URL}`)
+      this.overlayWindow.loadURL(this.URL)
     } else {
       this.logger.error('Failed to determine URL for overlay window')
     }
@@ -93,7 +93,7 @@ export class OverlayWindowService {
     return this.overlayWindow
   }
 
-  public async destroyOverlay(): Promise<void> {
+  public destroyOverlay(): void {
     if (this.overlayWindow) {
       this.overlayWindow.destroy()
       this.overlayWindow = null

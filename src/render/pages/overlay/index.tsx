@@ -21,7 +21,7 @@ function OverlayPage() {
 
     const searchParams = new URLSearchParams(window.location.search)
     const mode = searchParams.get('mode') as OverlayMode
-    if (mode && ['debug', 'transparent', 'minimal', 'full'].includes(mode)) {
+    if (['debug', 'transparent', 'minimal', 'full'].includes(mode)) {
       setOverlayMode(mode)
     }
 
@@ -80,7 +80,7 @@ function OverlayPage() {
             width: 'auto',
             maxWidth: '400px',
           }}
-          className={`${font != 'default' ? 'tw:font-medium' : ''}`}
+          className={font != 'default' ? 'tw:font-medium' : ''}
         >
           <h2 style={{ margin: '0 0 10px 0', fontSize: '18px' }}>활성 윈도우</h2>
           {activeWindows ? (

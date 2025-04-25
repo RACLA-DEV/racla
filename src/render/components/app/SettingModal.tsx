@@ -201,7 +201,9 @@ const FileSelector = ({
       />
       <input ref={fileInputRef} type='file' onChange={handleFileChange} className='tw:hidden' />
       <button
-        onClick={handleSelectFile}
+        onClick={() => {
+          void handleSelectFile()
+        }}
         disabled={disabled}
         className={`tw:p-2 tw:rounded-lg tw:transition-colors tw:bg-indigo-600 hover:tw:bg-indigo-700 tw:text-white ${disabled ? 'tw:opacity-50 tw:cursor-not-allowed' : ''}`}
       >
@@ -231,7 +233,9 @@ const SelectBox = ({
   return (
     <select
       value={value}
-      onChange={(e) => onChange(e.target.value)}
+      onChange={(e) => {
+        onChange(e.target.value)
+      }}
       disabled={disabled}
       className={`tw:p-2 tw:min-w-[180px] tw:text-sm tw:rounded-lg tw:transition-colors tw:border ${
         theme === 'dark'
@@ -240,7 +244,7 @@ const SelectBox = ({
       } ${disabled ? 'tw:opacity-50 tw:cursor-not-allowed' : ''}`}
     >
       {options
-        .filter((option) => option.id !== undefined)
+        .filter((option) => option.id)
         .map((option) => (
           <option key={option.id} value={option.id}>
             {t(`${id}.${option.id}`)}
@@ -313,7 +317,11 @@ const StorageInfo = ({ theme }: { theme: string }) => {
     const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB']
     const i = Math.floor(Math.log(bytes) / Math.log(k))
 
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
+    // 인덱스가 유효한지 확인
+    if (i >= 0 && i < sizes.length) {
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
+    }
+    return bytes + ' Bytes'
   }
 
   const openFolder = async (folderType: 'documents' | 'pictures' | 'logs' | 'appData') => {
@@ -388,7 +396,9 @@ const StorageInfo = ({ theme }: { theme: string }) => {
         <div className='tw:flex tw:items-center tw:gap-3'>
           <span className='tw:font-mono tw:text-sm'>{formatBytes(size)}</span>
           <button
-            onClick={() => openFolder(folderType)}
+            onClick={() => {
+              void openFolder(folderType)
+            }}
             className={`tw:p-2 tw:rounded-lg tw:cursor-pointer ${
               theme === 'dark'
                 ? 'hover:tw:text-slate-600 tw:text-indigo-400'
@@ -467,7 +477,9 @@ const StorageInfo = ({ theme }: { theme: string }) => {
             >
               <div className='tw:mt-2 tw:flex tw:justify-end'>
                 <button
-                  onClick={clearAllLogs}
+                  onClick={() => {
+                    void clearAllLogs()
+                  }}
                   disabled={isCleaningLogs || storageInfo.logDataSize === 0}
                   className={`tw:px-2 tw:py-1 tw:text-xs tw:rounded tw:transition-colors tw:flex tw:items-center tw:gap-1 ${
                     theme === 'dark'
@@ -522,58 +534,37 @@ export default function SettingModal() {
     }
 
     window.addEventListener('keydown', handleEscKey)
-    return () => window.removeEventListener('keydown', handleEscKey)
+    return () => {
+      window.removeEventListener('keydown', handleEscKey)
+    }
   }, [isSetting])
 
   // 설정 값 변경 핸들러
   const handleSettingChange = (id: string, value: string | number | boolean) => {
-    // offList 처리
-    const settingEntry = Object.entries(globalDictionary.settingDictionary).find(
-      ([key]) => key === id,
-    )
+    setSettingData((prev) => {
+      const newSettings = { ...prev }
 
-    if (!settingEntry) return
+      // 상호 배타적인 설정 처리 (예: 알림음)
+      if (id.endsWith('Sound') && value === true) {
+        const offItems = Object.keys(globalDictionary.settingDictionary).filter(
+          (key) => key.endsWith('Sound') && key !== id,
+        )
 
-    const [_, setting] = settingEntry
-    const newSettings = { ...localSettings, [id]: value }
+        // 안전하게 할당
+        offItems.forEach((offItem) => {
+          if (offItem && typeof offItem === 'string' && offItem in newSettings) {
+            newSettings[offItem as keyof typeof newSettings] = false
+          }
+        })
+      }
 
-    // offList가 있는 경우 관련 설정 값을 false로 설정
-    if ('offList' in setting && setting.offList && value === true) {
-      setting.offList.forEach((offItem) => {
-        newSettings[offItem] = false
-      })
-    }
+      // 안전하게 설정 할당
+      if (id in newSettings) {
+        newSettings[id as keyof typeof newSettings] = value as any
+      }
 
-    setLocalSettings(newSettings)
-
-    // 즉시 설정 저장
-    applySettings(newSettings)
-  }
-
-  // 설정 적용
-  const applySettings = (settingsToApply: SettingsData) => {
-    // 재시작이 필요한 설정이 변경되었는지 확인
-    // const requiresRestart = Object.entries(settingsToApply).some(([key, value]) => {
-    //   const setting = globalDictionary.settingDictionary[key]
-    //   return setting?.requiresRestart && value !== settingData[key]
-    // })
-
-    // 설정 저장
-    dispatch(setSettingData(settingsToApply))
-
-    // electron 설정 저장 호출
-    if (window.electron?.saveSettings) {
-      window.electron.saveSettings(settingsToApply)
-    }
-
-    // 재시작이 필요한 경우 알림
-    // if (requiresRestart) {
-    //   // 사용자에게 재시작이 필요하다는 알림 표시
-    //   if (window.confirm('설정을 적용하려면 앱을 재시작해야 합니다. 지금 재시작하시겠습니까?')) {
-    //     // 실제 restartApp이 구현되면 해당 기능 호출
-    //     window.location.reload()
-    //   }
-    // }
+      return newSettings
+    })
   }
 
   // 모달 닫기
@@ -660,8 +651,7 @@ export default function SettingModal() {
                       : 'hover:tw:bg-gray-100 tw:text-gray-700'
                 }`}
               >
-                {/* <Icon icon={category.icon} className='tw:w-5 tw:h-5' /> */}
-                <span className='tw:text-sm'>{t(`${category.id}`)}</span>
+                <span className='tw:text-sm'>{t(category.id)}</span>
               </span>
             ))}
           </div>
@@ -672,69 +662,73 @@ export default function SettingModal() {
               <StorageInfo theme={theme} />
             ) : (
               <>
-                {(
-                  categorizedSettings[activeCategory as keyof typeof categorizedSettings] || []
-                ).map((setting: SettingItem, index: number) => (
-                  <div
-                    key={setting.id}
-                    className={`tw:pb-8 ${
-                      index !==
-                      categorizedSettings[activeCategory as keyof typeof categorizedSettings]
-                        .length -
-                        1
-                        ? 'tw:border-b tw:mb-8'
-                        : ''
-                    } ${theme === 'dark' ? 'tw:border-slate-700' : 'tw:border-gray-200'}`}
-                  >
-                    <div className='tw:flex tw:justify-between tw:items-center tw:gap-8'>
-                      <div className='tw:flex-1'>
-                        <h3 className='tw:text-sm tw:mb-2'>{t(`${setting.id}.name`)}</h3>
-                        <p
-                          className={`tw:text-sm tw:mb-2 ${
-                            theme === 'dark' ? 'tw:text-slate-400' : 'tw:text-gray-600'
-                          }`}
-                        >
-                          {t(`${setting.id}.description`)}
-                        </p>
-                        {setting.requiresRestart && (
-                          <p className='tw:text-sm tw:mt-2 tw:text-amber-500'>
-                            {t('requiresRestart')}
+                {categorizedSettings[activeCategory as keyof typeof categorizedSettings].map(
+                  (setting) => (
+                    <div
+                      key={setting.id}
+                      className={`tw:pb-8 ${
+                        categorizedSettings[activeCategory as keyof typeof categorizedSettings]
+                          .length - 1
+                          ? 'tw:border-b tw:mb-8'
+                          : ''
+                      } ${theme === 'dark' ? 'tw:border-slate-700' : 'tw:border-gray-200'}`}
+                    >
+                      <div className='tw:flex tw:justify-between tw:items-center tw:gap-8'>
+                        <div className='tw:flex-1'>
+                          <h3 className='tw:text-sm tw:mb-2'>{t(`${setting.id}.name`)}</h3>
+                          <p
+                            className={`tw:text-sm tw:mb-2 ${
+                              theme === 'dark' ? 'tw:text-slate-400' : 'tw:text-gray-600'
+                            }`}
+                          >
+                            {t(`${setting.id}.description`)}
                           </p>
-                        )}
-                        {!setting.isEditable && (
-                          <p className='tw:text-sm tw:mt-2 tw:text-red-500'>{t('uneditable')}</p>
-                        )}
-                      </div>
+                          {setting.requiresRestart && (
+                            <p className='tw:text-sm tw:mt-2 tw:text-amber-500'>
+                              {t('requiresRestart')}
+                            </p>
+                          )}
+                          {!setting.isEditable && (
+                            <p className='tw:text-sm tw:mt-2 tw:text-red-500'>{t('uneditable')}</p>
+                          )}
+                        </div>
 
-                      <div className='tw:flex tw:items-center tw:ml-4'>
-                        {setting.selectList ? (
-                          <SelectBox
-                            id={setting.id}
-                            value={localSettings[setting.id] ?? setting.defaultValue}
-                            options={setting.selectList}
-                            onChange={(value) => handleSettingChange(setting.id, value)}
-                            disabled={!setting.isEditable}
-                            theme={theme}
-                          />
-                        ) : setting.isFile ? (
-                          <FileSelector
-                            value={localSettings[setting.id] ?? setting.defaultValue}
-                            onChange={(value) => handleSettingChange(setting.id, value)}
-                            disabled={!setting.isEditable}
-                            theme={theme}
-                          />
-                        ) : (
-                          <ToggleSwitch
-                            value={localSettings[setting.id] ?? setting.defaultValue}
-                            onChange={(value) => handleSettingChange(setting.id, value)}
-                            disabled={!setting.isEditable}
-                            theme={theme}
-                          />
-                        )}
+                        <div className='tw:flex tw:items-center tw:ml-4'>
+                          {setting.selectList ? (
+                            <SelectBox
+                              id={setting.id}
+                              value={localSettings[setting.id] ?? setting.defaultValue}
+                              options={setting.selectList}
+                              onChange={(value) => {
+                                handleSettingChange(setting.id, value)
+                              }}
+                              disabled={!setting.isEditable}
+                              theme={theme}
+                            />
+                          ) : setting.isFile ? (
+                            <FileSelector
+                              value={localSettings[setting.id] ?? setting.defaultValue}
+                              onChange={(value) => {
+                                handleSettingChange(setting.id, value)
+                              }}
+                              disabled={!setting.isEditable}
+                              theme={theme}
+                            />
+                          ) : (
+                            <ToggleSwitch
+                              value={localSettings[setting.id] ?? setting.defaultValue}
+                              onChange={(value) => {
+                                handleSettingChange(setting.id, value)
+                              }}
+                              disabled={!setting.isEditable}
+                              theme={theme}
+                            />
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  ),
+                )}
 
                 {/* 앱 재시작 버튼 (일반 카테고리일 때만 표시) */}
                 {activeCategory === 'general' && (

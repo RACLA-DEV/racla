@@ -3,11 +3,7 @@ import { globalDictionary } from '@render/constants/globalDictionary'
 import { useAuth } from '@render/hooks/useAuth'
 import { useNotificationSystem } from '@render/hooks/useNotifications'
 import { RootState } from '@render/store'
-import {
-  setIsOpenExternalLink,
-  setOpenExternalLink,
-  toggleSidebar,
-} from '@render/store/slices/uiSlice'
+import { setIsOpenExternalLink, setOpenExternalLink } from '@render/store/slices/uiSlice'
 import { motion } from 'framer-motion'
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -28,9 +24,9 @@ const MenuSidebar: React.FC = () => {
   const { t } = useTranslation(['menu'])
 
   // 사이드바 토글 핸들러
-  const handleToggleSidebar = () => {
-    dispatch(toggleSidebar())
-  }
+  // const handleToggleSidebar = () => {
+  //   dispatch(toggleSidebar())
+  // }
 
   // 드롭다운 토글 핸들러
   const toggleDropdown = () => {
@@ -234,7 +230,9 @@ const MenuSidebar: React.FC = () => {
             <div className='tw:flex tw:items-center tw:justify-between tw:py-2 tw:px-4'>
               <span className='tw:font-bold'>{t('quickMenu.quickMenuNavTitle')}</span>
               <span
-                onClick={() => setIsDropdownOpen(false)}
+                onClick={() => {
+                  setIsDropdownOpen(false)
+                }}
                 className={`tw:flex tw:p-1 tw:rounded-md tw:transition-colors tw:cursor-pointer ${
                   theme === 'dark'
                     ? 'tw:hover:bg-slate-700'
@@ -252,7 +250,9 @@ const MenuSidebar: React.FC = () => {
               className={`tw:flex tw:w-full tw:text-left tw:py-2 tw:px-4 tw:transition-colors tw:cursor-pointer ${
                 theme === 'dark' ? 'tw:hover:bg-slate-700' : 'tw:hover:bg-indigo-50'
               }`}
-              onClick={() => handleOpenExternalLink('https://racla.app/')}
+              onClick={() => {
+                handleOpenExternalLink('https://racla.app/')
+              }}
             >
               <Icon icon='lucide:home' className='tw:w-4 tw:h-4 tw:mr-2' />
               {t('quickMenu.raclaHome')}
@@ -380,7 +380,9 @@ const MenuSidebar: React.FC = () => {
                     {item.subItems.map((subItem) => (
                       <motion.li key={subItem.id} variants={itemAnimation} whileHover={{ x: 4 }}>
                         <motion.div
-                          onClick={() => handleItemClick(item, subItem)}
+                          onClick={() => {
+                            handleItemClick(item, subItem)
+                          }}
                           className={`tw:flex tw:items-center tw:p-2 tw:rounded-md tw:cursor-pointer tw:transition-colors ${
                             theme === 'dark' &&
                             !location.pathname.includes(item.path + subItem.path)
@@ -410,7 +412,9 @@ const MenuSidebar: React.FC = () => {
                 <motion.div
                   variants={itemAnimation}
                   whileHover={{ x: 4 }}
-                  onClick={() => handleItemClick(null, item)}
+                  onClick={() => {
+                    handleItemClick(null, item)
+                  }}
                   className={`tw:flex tw:items-center tw:p-2.5 tw:rounded-md tw:cursor-pointer tw:transition-colors ${
                     theme === 'dark' ? 'tw:hover:bg-slate-700' : 'tw:hover:bg-indigo-50'
                   }`}

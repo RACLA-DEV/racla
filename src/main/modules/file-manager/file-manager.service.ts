@@ -18,7 +18,9 @@ function createDefaultSettings(): SettingsData {
 
   // settingDictionary의 모든 설정 항목을 기본 설정으로 추가
   Object.entries(settingDict).forEach(([key, setting]) => {
-    defaultSettings[key] = setting.defaultValue
+    if (key && typeof key === 'string' && key.trim() !== '') {
+      ;(defaultSettings as any)[key] = setting.defaultValue
+    }
   })
 
   return defaultSettings
@@ -144,7 +146,7 @@ export class FileManagerService {
 
   public saveSongData(songData: SongData[], gameCode: string): void {
     try {
-      if (!songData || !Array.isArray(songData)) {
+      if (!Array.isArray(songData)) {
         this.logger.error(`songData가 유효하지 않음: ${typeof songData}`)
         return
       }
@@ -184,7 +186,7 @@ export class FileManagerService {
   /**
    * 시스템 스토리지 정보와 RACLA가 사용하는 저장 공간 정보를 반환합니다.
    */
-  public async getStorageInfo(): Promise<StorageInfo> {
+  public getStorageInfo(): StorageInfo {
     try {
       // 앱 데이터 폴더 크기 계산
       const appDataSize = this.getFolderSize(this.documentsPath)

@@ -1,6 +1,7 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit'
 import { createLog } from '@render/libs/logger'
 import type { GameType } from '@src/types/common/GameType'
+import { SettingsData } from '@src/types/common/SettingData'
 import { SongData } from '@src/types/common/SongData'
 import type { AppState } from '@src/types/redux/AppState'
 import type { Notification } from '@src/types/render/Notification'
@@ -9,7 +10,7 @@ const initialState: AppState = {
   selectedGame: 'djmax_respect_v',
   isSetting: false,
   isLoading: true,
-  settingData: {},
+  settingData: {} as SettingsData,
   userData: {
     userName: '',
     userNo: '',
@@ -115,9 +116,12 @@ export const appSlice = createSlice({
       if (gameCode === 'djmax_respect_v' || gameCode === 'wjmax' || gameCode === 'platina_lab') {
         // 타입 단언을 통해 올바른 키 사용 보장
         const validKey = gameCode as keyof typeof state.songData.lastUpdated
-        state.songData[validKey] = data
-        state.songData.lastUpdated[validKey] = Date.now()
-        createLog('debug', `setSongData: ${gameCode} 데이터 설정 완료`)
+        // 안전한 타입 체크를 통한 할당
+        if (validKey === 'djmax_respect_v' || validKey === 'wjmax' || validKey === 'platina_lab') {
+          state.songData[validKey] = data
+          state.songData.lastUpdated[validKey] = Date.now()
+          createLog('debug', `setSongData: ${gameCode} 데이터 설정 완료`)
+        }
       } else {
         createLog('error', `유효하지 않은 게임 코드: ${gameCode}`)
       }
@@ -166,7 +170,7 @@ export const appSlice = createSlice({
       const { id, data } = action.payload
       const index = state.notifications.findIndex((notification) => notification.id === id)
 
-      if (index !== -1) {
+      if (index !== -1 && index >= 0 && index < state.notifications.length) {
         state.notifications[index] = { ...state.notifications[index], ...data }
       }
     },
@@ -174,7 +178,7 @@ export const appSlice = createSlice({
       const id = action.payload
       const index = state.notifications.findIndex((notification) => notification.id === id)
 
-      if (index !== -1) {
+      if (index !== -1 && index >= 0 && index < state.notifications.length) {
         // isRemoving 플래그만 설정하고 실제 제거는 별도로 처리
         state.notifications[index].isRemoving = true
       }

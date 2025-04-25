@@ -16,44 +16,40 @@ export function Notification({ notification, onRemove, index }: NotificationProp
 
   // 타입에 따른 스타일 및 아이콘 설정
   const getTypeStyles = () => {
-    switch (type) {
-      case 'success':
-        return {
-          background: 'tw:bg-green-500',
-          iconName: 'lucide:check-circle',
-          iconColor: 'tw:text-green-500',
-          bgColor: theme === 'dark' ? 'tw:bg-green-900/20' : 'tw:bg-green-100',
-        }
-      case 'error':
-        return {
-          background: 'tw:bg-red-500',
-          iconName: 'lucide:x-circle',
-          iconColor: 'tw:text-red-500',
-          bgColor: theme === 'dark' ? 'tw:bg-red-900/20' : 'tw:bg-red-100',
-        }
-      case 'warning':
-        return {
-          background: 'tw:bg-amber-500',
-          iconName: 'lucide:alert-circle',
-          iconColor: 'tw:text-amber-500',
-          bgColor: theme === 'dark' ? 'tw:bg-amber-900/20' : 'tw:bg-amber-100',
-        }
-      case 'update':
-        return {
-          background: 'tw:bg-purple-500',
-          iconName: 'lucide:download',
-          iconColor: 'tw:text-purple-500',
-          bgColor: theme === 'dark' ? 'tw:bg-purple-900/20' : 'tw:bg-purple-100',
-        }
-      case 'info':
-      default:
-        return {
-          background: 'tw:bg-blue-500',
-          iconName: 'lucide:info',
-          iconColor: 'tw:text-blue-500',
-          bgColor: theme === 'dark' ? 'tw:bg-blue-900/20' : 'tw:bg-blue-100',
-        }
+    const typeStyles = {
+      success: {
+        background: 'tw:bg-green-500',
+        iconName: 'lucide:check-circle',
+        iconColor: 'tw:text-green-500',
+        bgColor: theme === 'dark' ? 'tw:bg-green-900/20' : 'tw:bg-green-100',
+      },
+      error: {
+        background: 'tw:bg-red-500',
+        iconName: 'lucide:x-circle',
+        iconColor: 'tw:text-red-500',
+        bgColor: theme === 'dark' ? 'tw:bg-red-900/20' : 'tw:bg-red-100',
+      },
+      warning: {
+        background: 'tw:bg-amber-500',
+        iconName: 'lucide:alert-circle',
+        iconColor: 'tw:text-amber-500',
+        bgColor: theme === 'dark' ? 'tw:bg-amber-900/20' : 'tw:bg-amber-100',
+      },
+      update: {
+        background: 'tw:bg-purple-500',
+        iconName: 'lucide:download',
+        iconColor: 'tw:text-purple-500',
+        bgColor: theme === 'dark' ? 'tw:bg-purple-900/20' : 'tw:bg-purple-100',
+      },
+      info: {
+        background: 'tw:bg-blue-500',
+        iconName: 'lucide:info',
+        iconColor: 'tw:text-blue-500',
+        bgColor: theme === 'dark' ? 'tw:bg-blue-900/20' : 'tw:bg-blue-100',
+      },
     }
+
+    return typeStyles[type] || typeStyles.info
   }
 
   const { background, iconName, iconColor, bgColor } = getTypeStyles()
@@ -68,7 +64,9 @@ export function Notification({ notification, onRemove, index }: NotificationProp
         })
       }, 100)
 
-      return () => clearInterval(intervalId)
+      return () => {
+        clearInterval(intervalId)
+      }
     }
   }, [notification.duration])
 

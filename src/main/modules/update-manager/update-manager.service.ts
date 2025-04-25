@@ -11,7 +11,7 @@ export class UpdateManagerService {
     private readonly fileManagerService: FileManagerService,
   ) {}
 
-  async initialize(): Promise<void> {
+  initialize(): void {
     this.logger.log('Initializing update manager...')
 
     const mainWindow = this.mainWindowService.getWindow()
