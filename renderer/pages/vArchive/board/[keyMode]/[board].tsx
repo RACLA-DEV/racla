@@ -276,10 +276,12 @@ const Board = () => {
           .filter(
             (pattern: any) =>
               pattern.dlcCode === 'VL2' ||
-              pattern.dlcCode === 'TEK' ||
+              pattern.dlcCode === 'BA' ||
               pattern.dlcCode === 'PLI1' ||
               pattern.name === 'Kill Trap' ||
-              pattern.name === 'Diomedes ~Extended Mix~',
+              pattern.name === 'Diomedes ~Extended Mix~' ||
+              pattern.name === 'Phoenix Virus' ||
+              pattern.name === 'alliance',
           )
           .sort((a: any, b: any) => b.djpower - a.djpower)
 
@@ -288,10 +290,12 @@ const Board = () => {
           .filter(
             (pattern: any) =>
               pattern.dlcCode !== 'VL2' &&
-              pattern.dlcCode !== 'TEK' &&
+              pattern.dlcCode !== 'BA' &&
               pattern.dlcCode !== 'PLI1' &&
               pattern.name !== 'Kill Trap' &&
-              pattern.name !== 'Diomedes ~Extended Mix~',
+              pattern.name !== 'Diomedes ~Extended Mix~' &&
+              pattern.name !== 'Phoenix Virus' &&
+              pattern.name !== 'alliance',
           )
           .sort((a: any, b: any) => b.djpower - a.djpower)
 

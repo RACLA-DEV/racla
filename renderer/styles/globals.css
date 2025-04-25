@@ -916,6 +916,21 @@
   background-color: gray;
 }
 
+.respect_dlc_logo_BA {
+  color: #06cefa;
+}
+.respect_dlc_logo_BA span {
+  display: inline-block;
+  background: linear-gradient(90deg, #05ccfc 37%, #fff 37%);
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  color: transparent !important;
+}
+
+.respect_dlc_code_BA {
+  background: linear-gradient(90deg, #09bae1 50%, #fff 50%);
+}
+
 .respect_dlc_code_VL2 {
   background: linear-gradient(157deg, #91f233 60%, #55a305 60%);
 }

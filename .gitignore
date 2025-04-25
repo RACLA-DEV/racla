@@ -35,3 +35,4 @@ renderer/constants/buildInfo.ts
 /kor.traineddata
 /.vscode
 /.cursor
+/main/discordManager.ts

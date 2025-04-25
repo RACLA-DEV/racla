@@ -56,8 +56,8 @@ export default function VArchiveDjPowerPage() {
           const dlcCode = R.path(['dlcCode'], item)
           const name = R.path(['name'], item)
           return (
-            !['VL2', 'TEK', 'PLI1'].includes(dlcCode) &&
-            !['Diomedes ~Extended Mix~', 'Kill Trap'].includes(name)
+            !['VL2', 'PLI1', 'BA'].includes(dlcCode) &&
+            !['Diomedes ~Extended Mix~', 'Kill Trap', 'alliance', 'Phoenix Virus'].includes(name)
             // (!['FAL', 'VL', 'CP', 'TEK'].includes(dlcCode) && !['Kamui', 'BlueWhite'].includes(name))
           )
         }),
@@ -88,8 +88,8 @@ export default function VArchiveDjPowerPage() {
             const name = R.path(['name'], item)
             // return (['FAL', 'VL', 'CP', 'TEK'].includes(dlcCode) || ['Kamui', 'BlueWhite'].includes(name)) && !['From Hell to Breakfast', 'SURVIVOR'].includes(name)
             return (
-              ['VL2', 'TEK', 'PLI1'].includes(dlcCode) ||
-              ['Diomedes ~Extended Mix~', 'Kill Trap'].includes(name)
+              ['VL2', 'PLI1', 'BA'].includes(dlcCode) ||
+              ['Diomedes ~Extended Mix~', 'Kill Trap', 'alliance', 'Phoenix Virus'].includes(name)
             )
           }),
           data,

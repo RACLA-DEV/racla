@@ -8,8 +8,8 @@ log.transports.console.format = '[{y}-{m}-{d} {h}:{i}:{s}.{ms}] [{level}] {text}
 
 const CLIENT_ID =
   BUILD_DATE.includes('Dev') || process.env.NODE_ENV === 'development'
-    ? '0000000000000000000'
-    : '0000000000000000000'
+    ? '1333772448528728085'
+    : '1331547515744682036'
 
 interface RecentScore {
   songName: string
