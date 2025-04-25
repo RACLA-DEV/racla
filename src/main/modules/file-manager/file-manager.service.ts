@@ -4,22 +4,19 @@ import type { SettingsData } from '@src/types/common/SettingData'
 import type { SongData } from '@src/types/common/SongData'
 import type { StorageInfo } from '@src/types/common/StroageInfo'
 import { app, shell } from 'electron'
-import * as fs from 'fs'
+import * as fs from 'fs-extra'
 import * as path from 'path'
 import { globalDictionary } from '../../../render/constants/globalDictionary'
 
 // globalDictionary의 기본값을 사용하여 기본 설정 생성
 function createDefaultSettings(): SettingsData {
   const settingDict = globalDictionary.settingDictionary
-  const defaultSettings: SettingsData = {
-    theme: 'light',
-    sidebarCollapsed: false,
-  }
+  const defaultSettings: SettingsData & Record<string, string | number | boolean> = {}
 
   // settingDictionary의 모든 설정 항목을 기본 설정으로 추가
   Object.entries(settingDict).forEach(([key, setting]) => {
     if (key && typeof key === 'string' && key.trim() !== '') {
-      ;(defaultSettings as any)[key] = setting.defaultValue
+      defaultSettings[key] = setting.defaultValue
     }
   })
 

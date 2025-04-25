@@ -1,17 +1,7 @@
 import { IpcHandle } from '@doubleshot/nest-electron'
 import { Controller } from '@nestjs/common'
+import type { PlayData } from '@src/types/common/PlayData'
 import { DiscordManagerService } from './discord-manager.service'
-
-interface GameData {
-  songName?: string
-  button?: string
-  pattern?: string
-  score?: number
-  max?: number
-  level?: number
-  maxCombo?: boolean
-  gameCode?: string
-}
 
 @Controller()
 export class DiscordManagerController {
@@ -23,7 +13,7 @@ export class DiscordManagerController {
   }
 
   @IpcHandle('discord-manager:update-presence')
-  async updatePresence(gameData: GameData) {
+  async updatePresence(gameData: PlayData) {
     return this.discordManagerService.updatePresence(gameData)
   }
 

@@ -16,6 +16,17 @@ const {
   captureGameWindow,
 } = window.electron
 
+const electronActions = {
+  captureGame: async () => {
+    const image = await captureGameWindow('DJMAX RESPECT V')
+    return image
+  },
+
+  logError: async () => {
+    createLog('error', new Error('에러 메시지'))
+  },
+}
+
 function CheatsheetPage() {
   const [activeCategory, setActiveCategory] = useState('process')
   const [searchTerm, setSearchTerm] = useState('')
@@ -120,8 +131,8 @@ function CheatsheetPage() {
         title: 'createLog()',
         description: '로그를 생성합니다',
         example: 'createLog("info", "로그 메시지")',
-        usage: () => {
-          createLog('debug', '로그 메시지')
+        usage: async () => {
+          await electronActions.logError()
         },
       },
       {
@@ -129,7 +140,7 @@ function CheatsheetPage() {
         description: '에러 로그를 생성합니다',
         example: 'createLog("error", "에러 메시지")',
         usage: async () => {
-          createLog('error', new Error('에러 메시지'))
+          await electronActions.logError()
         },
       },
     ],
@@ -139,7 +150,7 @@ function CheatsheetPage() {
         description: '게임 윈도우를 캡처합니다',
         example: 'const image = await captureGameWindow("DJMAX RESPECT V")',
         usage: async () => {
-          const image = await captureGameWindow('DJMAX RESPECT V')
+          const image = await electronActions.captureGame()
           setImage(image)
           createLog('debug', '게임 윈도우 캡처 완료')
         },

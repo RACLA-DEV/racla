@@ -6,11 +6,11 @@ import type { Result } from 'get-windows'
 import type { ProcessDescriptor } from 'ps-list'
 
 declare global {
-  // namespace React {
-  //   interface CSSProperties {
-  //     WebkitAppRegion?: 'drag' | 'no-drag'
-  //   }
-  // }
+  namespace React {
+    interface CSSProperties {
+      WebkitAppRegion?: 'drag' | 'no-drag'
+    }
+  }
   interface Window {
     electron: {
       // 메세징 관련

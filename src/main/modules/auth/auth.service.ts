@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common'
 import type { SessionData } from '@src/types/common/SessionData'
 import * as crypto from 'crypto'
 import { shell } from 'electron'
-import * as fs from 'fs'
+import * as fs from 'fs-extra'
 import * as http from 'http'
 import * as path from 'path'
 import { FileManagerService } from '../file-manager/file-manager.service'
@@ -61,7 +61,7 @@ export class AuthService {
         throw new Error('유효하지 않은 사용자 데이터')
       }
 
-      const documentsPath = path.join(this.fileManagerService['documentsPath'])
+      const documentsPath = path.join(this.fileManagerService.getFolderPaths().documents)
       const playerFilePath = path.join(documentsPath, 'player.txt')
 
       // 파일 내용 생성 (RACLA 형식: userNo|userToken)
@@ -127,7 +127,7 @@ export class AuthService {
         }
       })
 
-      server.on('error', (error: any) => {
+      server.on('error', (error: { code: string; message: string }) => {
         if (error.code === 'EADDRINUSE') {
           this.logger.log(`포트 ${currentPort}는 이미 사용 중, 다음 포트 시도...`)
           // 현재 서버 닫기

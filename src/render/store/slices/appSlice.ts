@@ -1,4 +1,5 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit'
+import { globalDictionary } from '@render/constants/globalDictionary'
 import { createLog } from '@render/libs/logger'
 import type { GameType } from '@src/types/common/GameType'
 import { SettingsData } from '@src/types/common/SettingData'
@@ -43,6 +44,45 @@ const initialState: AppState = {
   },
 }
 
+// 노래 데이터 유효성 검증 함수
+const isValidSongData = (data: any, gameCode: any): boolean => {
+  if (!data || !Array.isArray(data)) {
+    createLog(
+      'error',
+      `setSongData: 유효하지 않은 데이터 형식, 타입: ${typeof data}, 배열 여부: ${Array.isArray(data)}`,
+    )
+    return false
+  }
+
+  if (!gameCode || typeof gameCode !== 'string') {
+    createLog('error', `setSongData: 유효하지 않은 게임코드: ${gameCode}`)
+    return false
+  }
+
+  createLog('debug', `setSongData: ${gameCode} 데이터 설정 중, 항목 수: ${data.length}`)
+  return true
+}
+
+// 게임 코드 유효성 검증 및 데이터 업데이트 함수
+const updateSongDataIfValidGameCode = (state: any, data: SongData[], gameCode: string): void => {
+  // GameType 타입의 유효한 값인지 확인
+  if (isValidGameCode(gameCode)) {
+    // 타입 단언을 통해 올바른 키 사용 보장
+    const validKey = gameCode as GameType
+    // 안전한 타입 체크를 통한 할당
+    state.songData[validKey] = data
+    state.songData.lastUpdated[validKey] = Date.now()
+    createLog('debug', `setSongData: ${gameCode} 데이터 설정 완료`)
+  } else {
+    createLog('error', `유효하지 않은 게임 코드: ${gameCode}`)
+  }
+}
+
+// GameType 타입의 유효한 값인지 확인하는 함수
+const isValidGameCode = (gameCode: string): gameCode is GameType => {
+  return globalDictionary.supportGameList.includes(gameCode as GameType)
+}
+
 export const appSlice = createSlice({
   name: 'app',
   initialState,
@@ -53,7 +93,7 @@ export const appSlice = createSlice({
     setIsSetting: (state, action: PayloadAction<boolean>) => {
       state.isSetting = action.payload
     },
-    setSettingData: (state, action: PayloadAction<any>) => {
+    setSettingData: (state, action: PayloadAction<SettingsData>) => {
       state.settingData = action.payload
     },
     setUserData: (
@@ -96,35 +136,11 @@ export const appSlice = createSlice({
     setSongData: (state, action: PayloadAction<{ data: SongData[]; gameCode: string }>) => {
       const { data, gameCode } = action.payload
 
-      // 유효성 검증 추가
-      if (!data || !Array.isArray(data)) {
-        createLog(
-          'error',
-          `setSongData: 유효하지 않은 데이터 형식, 타입: ${typeof data}, 배열 여부: ${Array.isArray(data)}`,
-        )
-        return
-      }
-
-      if (!gameCode || typeof gameCode !== 'string') {
-        createLog('error', `setSongData: 유효하지 않은 게임코드: ${gameCode}`)
-        return
-      }
-
-      createLog('debug', `setSongData: ${gameCode} 데이터 설정 중, 항목 수: ${data.length}`)
+      // 유효성 검증
+      if (!isValidSongData(data, gameCode)) return
 
       // 게임코드 유효성 검증
-      if (gameCode === 'djmax_respect_v' || gameCode === 'wjmax' || gameCode === 'platina_lab') {
-        // 타입 단언을 통해 올바른 키 사용 보장
-        const validKey = gameCode as keyof typeof state.songData.lastUpdated
-        // 안전한 타입 체크를 통한 할당
-        if (validKey === 'djmax_respect_v' || validKey === 'wjmax' || validKey === 'platina_lab') {
-          state.songData[validKey] = data
-          state.songData.lastUpdated[validKey] = Date.now()
-          createLog('debug', `setSongData: ${gameCode} 데이터 설정 완료`)
-        }
-      } else {
-        createLog('error', `유효하지 않은 게임 코드: ${gameCode}`)
-      }
+      updateSongDataIfValidGameCode(state, data, gameCode)
     },
     logout: (state) => {
       state.userData = {

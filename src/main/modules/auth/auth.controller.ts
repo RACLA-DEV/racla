@@ -21,10 +21,10 @@ export class AuthController {
   }
 
   @IpcHandle('auth:logout')
-  async logout(): Promise<boolean> {
+  logout(): boolean {
     try {
       this.logger.log('User logout')
-      return await this.authService.logout()
+      return this.authService.logout()
     } catch (error) {
       this.logger.error(`Logout error: ${error.message}`, error.stack)
       return false
@@ -32,9 +32,9 @@ export class AuthController {
   }
 
   @IpcHandle('auth:check-logged-in')
-  async checkLoggedIn(): Promise<boolean> {
+  checkLoggedIn(): boolean {
     try {
-      return await this.authService.checkLoggedIn()
+      return this.authService.checkLoggedIn()
     } catch (error) {
       this.logger.error(`Check login status error: ${error.message}`, error.stack)
       return false
@@ -52,9 +52,9 @@ export class AuthController {
   }
 
   @IpcHandle('auth:create-player-file')
-  async createPlayerFile(data: { userNo: string; userToken: string }): Promise<boolean> {
+  createPlayerFile(data: { userNo: string; userToken: string }): boolean {
     try {
-      return await this.authService.createPlayerFile(data)
+      return this.authService.createPlayerFile(data)
     } catch (error) {
       this.logger.error(`Create player file error: ${error.message}`, error.stack)
       return false

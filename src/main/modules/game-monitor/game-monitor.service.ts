@@ -37,8 +37,8 @@ export class GameMonitorService {
     private readonly mainWindowService: MainWindowService,
     private readonly overlayWindowService: OverlayWindowService,
   ) {
-    this.mainWindowService.onClosed(async () => {
-      await this.overlayWindowService.destroyOverlay()
+    this.mainWindowService.onClosed(() => {
+      this.overlayWindowService.destroyOverlay()
     })
   }
 
@@ -194,7 +194,7 @@ export class GameMonitorService {
       mainWindow.removeAllListeners('blur')
     }
 
-    void this.overlayWindowService.destroyOverlay()
+    this.overlayWindowService.destroyOverlay()
   }
 
   public async getActiveWindows(): Promise<Result> {

@@ -4,6 +4,7 @@ import { useAuth } from '@render/hooks/useAuth'
 import { useNotificationSystem } from '@render/hooks/useNotifications'
 import { RootState } from '@render/store'
 import { setIsOpenExternalLink, setOpenExternalLink } from '@render/store/slices/uiSlice'
+import type { MenuItem } from '@src/types/render/MenuItem'
 import { motion } from 'framer-motion'
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -150,8 +151,8 @@ const MenuSidebar: React.FC = () => {
   const menuItems = getMenuItems()
 
   // 항목 클릭 핸들러
-  const handleItemClick = (item: any, subItem: any) => {
-    if (item) {
+  const handleItemClick = (item: MenuItem, subItem?: MenuItem) => {
+    if (subItem) {
       if (subItem.isExternal && subItem.path) {
         // 외부 링크는 requestOpenExternalLink 사용하여 모달 확인 과정 거치도록 변경
         dispatch(setOpenExternalLink(subItem.path))
