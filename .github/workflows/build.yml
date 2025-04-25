@@ -25,7 +25,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
 
       - name: Setup PNPM
-        uses: pnpm/action-setup@v3
+        uses: pnpm/action-setup@v4
         with:
           version: 10.9.0
           run_install: false
@@ -46,12 +46,14 @@ jobs:
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
 
-      # Windows에서 필요한 추가 종속성
-      - name: Install Windows Build Tools (Windows)
+      # Windows에서 필요한 추가 설정
+      - name: Setup Visual Studio for Windows builds
         if: matrix.os == 'windows-latest'
-        run: |
-          npm config set msvs_version 2019
         shell: pwsh
+        run: |
+          echo "Setting up VS environment variables"
+        env:
+          npm_config_msvs_version: 2019
 
       # 환경 변수 설정
       - name: Setup environment variables
@@ -59,6 +61,8 @@ jobs:
 
       - name: Build application
         run: pnpm build
+        env:
+          npm_config_msvs_version: 2019
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
