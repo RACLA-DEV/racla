@@ -559,8 +559,9 @@ export default function SettingModal() {
 
   // 설정 값 변경 핸들러
   const handleSettingChange = (id: string, value: string | number | boolean) => {
-    setSettingData((prev) => {
-      const newSettings = { ...prev }
+    const updatedSettings = (prev: SettingsData) => {
+      // 인덱스 서명을 가진 인터페이스 확장
+      const newSettings = { ...prev } as SettingsData & { [key: string]: string | number | boolean }
 
       // 상호 배타적인 설정 처리 (예: 알림음)
       if (id.endsWith('Sound') && value === true) {
@@ -571,18 +572,27 @@ export default function SettingModal() {
         // 안전하게 할당
         offItems.forEach((offItem) => {
           if (offItem && typeof offItem === 'string' && offItem in newSettings) {
-            newSettings[offItem as keyof typeof newSettings] = false
+            newSettings[offItem] = false
           }
         })
       }
 
       // 안전하게 설정 할당
       if (id in newSettings) {
-        newSettings[id as keyof typeof newSettings] = value as SettingsData[keyof SettingsData]
+        newSettings[id] = value
       }
 
-      return newSettings
-    })
+      return newSettings as SettingsData
+    }
+
+    // Redux 상태 업데이트
+    const newSettings = updatedSettings(settingData)
+    dispatch(setSettingData(newSettings))
+
+    // electron을 통해 설정 저장
+    if (window.electron?.saveSettings) {
+      window.electron.saveSettings(newSettings)
+    }
   }
 
   // 모달 닫기

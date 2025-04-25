@@ -11,17 +11,18 @@ import { OverlayWindowService } from '../overlay-window/overlay-window.service'
 export class GameMonitorService {
   private readonly logger = new Logger(GameMonitorService.name)
   // 게임 프로세스 정보를 저장
-  private gameProcess: ProcessDescriptor | null = null
-  private gameWindow: Result | null = null
-  private cachedWindow: Result | null = null
+  private gameProcess: ProcessDescriptor | undefined = undefined
+  private gameWindow: Result | undefined = undefined
+  private cachedWindow: Result | undefined = undefined
   private lastCheckTime = 0
   private readonly CACHE_DURATION = 300 // 100ms에서 300ms로 증가
 
   // 모니터링 관련 변수
-  private updateInterval: NodeJS.Timeout | null = null
+  private updateInterval: NodeJS.Timeout | undefined = undefined
   private isProcessingUpdate = false
-  private lastGameWindowBounds: { x: number; y: number; width: number; height: number } | null =
-    null
+  private lastGameWindowBounds:
+    | { x: number; y: number; width: number; height: number }
+    | undefined = undefined
   private readonly UPDATE_INTERVAL = 100 // 약 60fps에서 10fps로 변경 (성능 개선)
   private readonly BOUNDS_CHANGE_THRESHOLD = 5 // 경계값 변화 임계값 (픽셀)
   private readonly STANDARD_RESOLUTIONS = [
@@ -93,7 +94,7 @@ export class GameMonitorService {
       if (!this.isProcessingUpdate) {
         Promise.resolve()
           .then(() => this.handleGameWindowChange())
-          .catch((error) => {
+          .catch((error: Error) => {
             this.logger.error('Error in window monitoring:', error.message)
             this.isProcessingUpdate = false
           })
@@ -104,10 +105,10 @@ export class GameMonitorService {
   private stopMonitoring(): void {
     if (this.updateInterval) {
       clearInterval(this.updateInterval)
-      this.updateInterval = null
+      this.updateInterval = undefined
     }
     this.isProcessingUpdate = false
-    this.lastGameWindowBounds = null
+    this.lastGameWindowBounds = undefined
   }
 
   private async handleGameWindowChange(): Promise<void> {
@@ -129,7 +130,7 @@ export class GameMonitorService {
     if (!gameWindow || !overlayWindow) {
       if (overlayWindow?.isVisible()) {
         overlayWindow.hide()
-        this.lastGameWindowBounds = null
+        this.lastGameWindowBounds = undefined
       }
       return
     }
@@ -210,16 +211,16 @@ export class GameMonitorService {
   public async checkGameStatus(processName: string[] | string): Promise<boolean> {
     if (Array.isArray(processName)) {
       const processes = await this.getProcessList()
-      this.gameProcess = processes.find((p) => processName.includes(p.name)) || null
+      this.gameProcess = processes.find((p) => processName.includes(p.name)) || undefined
       return !!this.gameProcess
     } else {
       const processes = await this.getProcessList()
-      this.gameProcess = processes.find((p) => p.name === processName) || null
+      this.gameProcess = processes.find((p) => p.name === processName) || undefined
       return !!this.gameProcess
     }
   }
 
-  public async getGameWindowInfo(): Promise<Result | null> {
+  public async getGameWindowInfo(): Promise<Result | undefined> {
     try {
       const now = Date.now()
       if (this.cachedWindow && now - this.lastCheckTime < this.CACHE_DURATION) {
@@ -233,11 +234,11 @@ export class GameMonitorService {
         return activeWindow
       }
 
-      this.cachedWindow = null
-      return null
+      this.cachedWindow = undefined
+      return undefined
     } catch (error) {
       this.logger.error('getGameWindowInfo Error:', error.message)
-      return null
+      return undefined
     }
   }
 

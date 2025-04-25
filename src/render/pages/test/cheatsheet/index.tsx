@@ -22,7 +22,7 @@ const electronActions = {
     return image
   },
 
-  logError: async () => {
+  logError: () => {
     createLog('error', new Error('에러 메시지'))
   },
 }
@@ -160,14 +160,13 @@ function CheatsheetPage() {
 
   const categories = Object.keys(electronCheatSheet)
 
-  const filteredFunctions =
-    activeCategory && electronCheatSheet[activeCategory as keyof typeof electronCheatSheet]
-      ? electronCheatSheet[activeCategory as keyof typeof electronCheatSheet].filter(
-          (item) =>
-            item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            item.description.toLowerCase().includes(searchTerm.toLowerCase()),
-        )
-      : []
+  const filteredFunctions = electronCheatSheet[
+    activeCategory as keyof typeof electronCheatSheet
+  ].filter(
+    (item) =>
+      item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.description.toLowerCase().includes(searchTerm.toLowerCase()),
+  )
 
   return (
     <div className='tw:container tw:mx-auto tw:p-8'>
@@ -219,7 +218,7 @@ function CheatsheetPage() {
           </div>
 
           <div className='tw:grid tw:gap-6'>
-            {filteredFunctions?.map((item) => (
+            {filteredFunctions.map((item) => (
               <div
                 key={item.title}
                 className='tw:bg-white tw:dark:bg-gray-800 tw:rounded-lg tw:shadow-lg tw:p-6 tw:space-y-4'

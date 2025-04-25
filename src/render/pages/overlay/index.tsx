@@ -9,7 +9,7 @@ import { useSelector } from 'react-redux'
 type OverlayMode = 'debug' | 'transparent' | 'minimal' | 'full'
 
 function OverlayPage() {
-  const [activeWindows, setActiveWindows] = useState<Result | null>(null)
+  const [activeWindows, setActiveWindows] = useState<Result | undefined>(undefined)
   const [overlayMode, setOverlayMode] = useState<OverlayMode>('debug')
   const { font } = useSelector((state: RootState) => state.app.settingData)
   const isOverlayMode = useSelector((state: RootState) => state.ui.isOverlayMode)

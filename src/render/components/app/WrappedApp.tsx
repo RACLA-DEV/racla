@@ -140,7 +140,7 @@ export default function WrappedApp() {
   }, [dispatch, updateNotificationId])
 
   // 곡 데이터 로드 함수
-  const loadSongDataFromAPI = useCallback(async (gameCode: string, showNotifications = false) => {
+  const loadSongDataFromAPI = useCallback(async (gameCode: GameType, showNotifications = false) => {
     try {
       const apiUrl = import.meta.env.VITE_API_URL
       let endpoint = ''
@@ -208,12 +208,11 @@ export default function WrappedApp() {
             mode: 'i18n',
             value: 'database.syncSuccess',
             props: {
-              gameName:
-                gameCode && globalDictionary.gameDictionary
-                  ? globalDictionary.gameDictionary[
-                      gameCode as keyof typeof globalDictionary.gameDictionary
-                    ]?.name || ''
-                  : '',
+              gameName: gameCode
+                ? globalDictionary.gameDictionary[
+                    gameCode as keyof typeof globalDictionary.gameDictionary
+                  ]?.name || ''
+                : '',
             },
           },
           'success',
@@ -227,12 +226,11 @@ export default function WrappedApp() {
             mode: 'i18n',
             value: 'database.syncError',
             props: {
-              gameName:
-                gameCode && globalDictionary.gameDictionary
-                  ? globalDictionary.gameDictionary[
-                      gameCode as keyof typeof globalDictionary.gameDictionary
-                    ]?.name || ''
-                  : '',
+              gameName: gameCode
+                ? globalDictionary.gameDictionary[
+                    gameCode as keyof typeof globalDictionary.gameDictionary
+                  ]?.name || ''
+                : '',
             },
           },
           'error',
@@ -251,12 +249,11 @@ export default function WrappedApp() {
                   mode: 'i18n',
                   value: 'database.syncLocalSuccess',
                   props: {
-                    gameName:
-                      gameCode && globalDictionary.gameDictionary
-                        ? globalDictionary.gameDictionary[
-                            gameCode as keyof typeof globalDictionary.gameDictionary
-                          ]?.name || ''
-                        : '',
+                    gameName: gameCode
+                      ? globalDictionary.gameDictionary[
+                          gameCode as keyof typeof globalDictionary.gameDictionary
+                        ]?.name || ''
+                      : '',
                   },
                 },
                 'success',
@@ -272,12 +269,11 @@ export default function WrappedApp() {
               mode: 'i18n',
               value: 'database.syncLocalError',
               props: {
-                gameName:
-                  gameCode && globalDictionary.gameDictionary
-                    ? globalDictionary.gameDictionary[
-                        gameCode as keyof typeof globalDictionary.gameDictionary
-                      ]?.name || ''
-                    : '',
+                gameName: gameCode
+                  ? globalDictionary.gameDictionary[
+                      gameCode as keyof typeof globalDictionary.gameDictionary
+                    ]?.name || ''
+                  : '',
               },
             },
             'error',
@@ -377,15 +373,16 @@ export default function WrappedApp() {
                     const data = response.data
                     session.userNo = data.userNo
                     session.userToken = data.userToken
-                    session.userName = data.userName || session.userName || ''
-                    session.discordUid = data.discordUid || session.discordUid || ''
-                    session.discordLinked = data.discordLinked || session.discordLinked || false
-                    session.vArchiveLinked = data.vArchiveLinked || session.vArchiveLinked || false
-                    session.vArchiveUserNo = data.vArchiveUserNo || session.vArchiveUserNo || 0
+                    session.userName = (data.userName ?? session.userName) || ''
+                    session.discordUid = (data.discordUid ?? session.discordUid) || ''
+                    session.discordLinked = (data.discordLinked ?? session.discordLinked) || false
+                    session.vArchiveLinked =
+                      (data.vArchiveLinked ?? session.vArchiveLinked) || false
+                    session.vArchiveUserNo = (data.vArchiveUserNo ?? session.vArchiveUserNo) || 0
                     session.vArchiveUserToken =
-                      data.vArchiveUserToken || session.vArchiveUserToken || ''
+                      (data.vArchiveUserToken ?? session.vArchiveUserToken) || ''
                     session.vArchiveUserName =
-                      data.vArchiveUserName || session.vArchiveUserName || ''
+                      (data.vArchiveUserName ?? session.vArchiveUserName) || ''
                   }
 
                   const success = await window.electron.login(session)

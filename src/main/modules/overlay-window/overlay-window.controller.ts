@@ -22,6 +22,7 @@ export class OverlayWindowController {
 
   @IpcHandle('overlay:close')
   closeOverlay(): Observable<boolean> {
-    return from(void this.overlayWindowService.destroyOverlay()).pipe(map(() => true))
+    this.overlayWindowService.destroyOverlay()
+    return of(true)
   }
 }

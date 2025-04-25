@@ -8,10 +8,13 @@ import * as fs from 'fs-extra'
 import * as path from 'path'
 import { globalDictionary } from '../../../render/constants/globalDictionary'
 
+// 설정 데이터를 위한 타입 별칭을 정의하여 인터섹션 타입 대신 사용
+type ExtendedSettingsData = SettingsData & { [key: string]: string | number | boolean }
+
 // globalDictionary의 기본값을 사용하여 기본 설정 생성
 function createDefaultSettings(): SettingsData {
   const settingDict = globalDictionary.settingDictionary
-  const defaultSettings: SettingsData & Record<string, string | number | boolean> = {}
+  const defaultSettings: ExtendedSettingsData = {} as ExtendedSettingsData
 
   // settingDictionary의 모든 설정 항목을 기본 설정으로 추가
   Object.entries(settingDict).forEach(([key, setting]) => {
@@ -44,7 +47,7 @@ export class FileManagerService {
   private logsPath: string
   private appDataPath: string
   private logger = new Logger(FileManagerService.name)
-  private imageCleanupInterval: NodeJS.Timeout | null = null
+  private imageCleanupInterval: NodeJS.Timeout | undefined = undefined
 
   constructor() {
     this.documentsPath = path.join(app.getPath('documents'), 'RACLA')
@@ -370,7 +373,7 @@ export class FileManagerService {
     // 기존 인터벌 제거
     if (this.imageCleanupInterval) {
       clearInterval(this.imageCleanupInterval)
-      this.imageCleanupInterval = null
+      this.imageCleanupInterval = undefined
     }
 
     // 설정 로드
