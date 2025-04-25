@@ -45,7 +45,7 @@ const initialState: AppState = {
 }
 
 // 노래 데이터 유효성 검증 함수
-const isValidSongData = (data: any, gameCode: any): boolean => {
+const isValidSongData = (data: SongData[], gameCode: GameType): boolean => {
   if (!data || !Array.isArray(data)) {
     createLog(
       'error',
@@ -64,11 +64,15 @@ const isValidSongData = (data: any, gameCode: any): boolean => {
 }
 
 // 게임 코드 유효성 검증 및 데이터 업데이트 함수
-const updateSongDataIfValidGameCode = (state: any, data: SongData[], gameCode: string): void => {
+const updateSongDataIfValidGameCode = (
+  state: AppState,
+  data: SongData[],
+  gameCode: GameType,
+): void => {
   // GameType 타입의 유효한 값인지 확인
   if (isValidGameCode(gameCode)) {
     // 타입 단언을 통해 올바른 키 사용 보장
-    const validKey = gameCode as GameType
+    const validKey = gameCode
     // 안전한 타입 체크를 통한 할당
     state.songData[validKey] = data
     state.songData.lastUpdated[validKey] = Date.now()
@@ -79,8 +83,8 @@ const updateSongDataIfValidGameCode = (state: any, data: SongData[], gameCode: s
 }
 
 // GameType 타입의 유효한 값인지 확인하는 함수
-const isValidGameCode = (gameCode: string): gameCode is GameType => {
-  return globalDictionary.supportGameList.includes(gameCode as GameType)
+const isValidGameCode = (gameCode: GameType): gameCode is GameType => {
+  return (globalDictionary.supportGameList as GameType[]).includes(gameCode)
 }
 
 export const appSlice = createSlice({
@@ -133,7 +137,7 @@ export const appSlice = createSlice({
     setIsLoggedIn: (state, action: PayloadAction<boolean>) => {
       state.isLoggedIn = action.payload
     },
-    setSongData: (state, action: PayloadAction<{ data: SongData[]; gameCode: string }>) => {
+    setSongData: (state, action: PayloadAction<{ data: SongData[]; gameCode: GameType }>) => {
       const { data, gameCode } = action.payload
 
       // 유효성 검증

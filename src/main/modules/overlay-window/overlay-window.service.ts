@@ -5,7 +5,7 @@ import { app, BrowserWindow, BrowserWindowConstructorOptions } from 'electron'
 
 @Injectable()
 export class OverlayWindowService {
-  private overlayWindow: BrowserWindow | null = null
+  private overlayWindow: BrowserWindow | undefined = undefined
   private readonly logger = new Logger(OverlayWindowService.name)
   private readonly isDev = !app.isPackaged
   private readonly preloadPath = this.isDev
@@ -39,11 +39,11 @@ export class OverlayWindowService {
     ? `${process.env.DS_RENDERER_URL}#/overlay`
     : `file://${join(app.getAppPath(), 'dist/render/index.html')}#/overlay`
 
-  public getOverlayWindow(): BrowserWindow | null {
+  public getOverlayWindow(): BrowserWindow | undefined {
     return this.overlayWindow
   }
 
-  public createOverlay(): BrowserWindow | null {
+  public createOverlay(): BrowserWindow | undefined {
     if (this.overlayWindow) {
       this.overlayWindow.focus()
       return this.overlayWindow
@@ -62,13 +62,13 @@ export class OverlayWindowService {
     }
 
     this.overlayWindow.on('closed', () => {
-      this.overlayWindow = null
+      this.overlayWindow = undefined
     })
 
     return this.overlayWindow
   }
 
-  public createOverlayInit(): BrowserWindow | null {
+  public createOverlayInit(): BrowserWindow | undefined {
     if (this.overlayWindow) {
       this.overlayWindow.focus()
       return this.overlayWindow
@@ -87,7 +87,7 @@ export class OverlayWindowService {
     }
 
     this.overlayWindow.on('closed', () => {
-      this.overlayWindow = null
+      this.overlayWindow = undefined
     })
 
     return this.overlayWindow
@@ -96,7 +96,7 @@ export class OverlayWindowService {
   public destroyOverlay(): void {
     if (this.overlayWindow) {
       this.overlayWindow.destroy()
-      this.overlayWindow = null
+      this.overlayWindow = undefined
     }
   }
 

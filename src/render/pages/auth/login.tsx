@@ -91,13 +91,13 @@ export default function LoginPage() {
                 { userNo, userToken: token },
               )
 
-              if (response.status === 200 && response.data) {
+              if (response.status === 200) {
                 const success = await login({
                   userNo: response.data.userNo,
                   userToken: response.data.userToken,
-                  userName: response.data.userName || '',
-                  discordUid: response.data.discordUid || '',
-                  discordLinked: response.data.discordLinked || false,
+                  userName: response.data.userName ?? '',
+                  discordUid: response.data.discordUid ?? '',
+                  discordLinked: response.data.discordLinked ?? false,
                   vArchiveUserNo: Number(userNo),
                   vArchiveUserToken: token,
                   vArchiveUserName: result.data.nickname,
@@ -179,11 +179,11 @@ export default function LoginPage() {
         const success = await login({
           userNo: response.data.userNo,
           userToken: response.data.userToken,
-          userName: response.data.userName || '',
-          discordUid: response.data.discordUid || '',
+          userName: response.data.userName ?? '',
+          discordUid: response.data.discordUid ?? '',
           discordLinked: true,
-          vArchiveUserNo: response.data.vArchiveUserNo || 0,
-          vArchiveUserToken: response.data.vArchiveUserToken || '',
+          vArchiveUserNo: response.data.vArchiveUserNo ?? 0,
+          vArchiveUserToken: response.data.vArchiveUserToken ?? '',
           vArchiveUserName:
             response.data.vArchiveUserNo && response.data.vArchiveUserToken
               ? (
@@ -193,7 +193,7 @@ export default function LoginPage() {
                   })
                 ).data.nickname
               : '',
-          vArchiveLinked: response.data.vArchiveLinked || false,
+          vArchiveLinked: response.data.vArchiveLinked ?? false,
         })
 
         if (success) {
@@ -236,7 +236,7 @@ export default function LoginPage() {
                     type='file'
                     accept='.txt'
                     onChange={(e) => {
-                      void onVArchiveFileChange(e)
+                      onVArchiveFileChange(e)
                     }}
                     className='tw:hidden'
                   />

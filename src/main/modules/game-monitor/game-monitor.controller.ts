@@ -1,8 +1,8 @@
 import type { Result } from 'get-windows'
 
-import type { ProcessDescriptor } from 'ps-list'
 import { IpcHandle } from '@doubleshot/nest-electron'
 import { Controller } from '@nestjs/common'
+import type { ProcessDescriptor } from 'ps-list'
 import { from, Observable } from 'rxjs'
 import { GameMonitorService } from './game-monitor.service'
 
@@ -26,7 +26,7 @@ export class GameMonitorController {
   }
 
   @IpcHandle('monitor:get-game-window')
-  getGameWindow(): Observable<Result | null> {
+  getGameWindow(): Observable<Result | undefined> {
     return from(this.gameMonitorService.getGameWindowInfo())
   }
 }

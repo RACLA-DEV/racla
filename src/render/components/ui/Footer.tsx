@@ -14,7 +14,7 @@ import Tooltip from './Tooltip'
 const Footer: React.FC = () => {
   const { theme } = useSelector((state: RootState) => state.ui)
   const { selectedGame } = useSelector((state: RootState) => state.app)
-  const [serverStatus, setServerStatus] = useState<ServerStatus | null>(null)
+  const [serverStatus, setServerStatus] = useState<ServerStatus | undefined>(undefined)
   const [isOnline, setIsOnline] = useState<boolean>(false)
   const dispatch = useDispatch()
   const { t } = useTranslation(['menu'])
