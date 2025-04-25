@@ -16,7 +16,7 @@
 ## 📋 개요
 
 RACLA는 **GGDRN0 STUDIO**에서 개발한 종합리듬 게임 성과 관리 도구입니다.  
-본 레포지토리에서는 Nextron로 개발된 RACLA 데스크톱 앱의 소스코드와 최종 결과물인 소프트웨어를 **Windows**, **Mac(Intel)** 플랫폼으로 배포합니다.
+해당 브랜치에서는 Nextron로 개발된 RACLA 데스크톱 앱의 소스코드와 최종 결과물인 소프트웨어를 **Windows**, **Mac(Intel)** 플랫폼으로 배포합니다.
 
 > 📢 **안내**: 0.8 버전대부터 사용할 Vite 기반의 데스크톱 앱은 [RACLA-DEV/racla-vite](https://github.com/RACLA-DEV/racla)에서 확인하실 수 있습니다.
 
