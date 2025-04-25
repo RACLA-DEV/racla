@@ -169,7 +169,7 @@ export default function WrappedApp() {
       // 곡 데이터 저장 (Redux 및 로컬)
       dispatch(setSongData({ data, gameCode }))
 
-      if (window.electron && window.electron.saveSongData) {
+      if (window.electron?.saveSongData) {
         createLog(
           'info',
           settingData.language === 'ko_KR'
@@ -179,7 +179,7 @@ export default function WrappedApp() {
 
         // gameCode와 data가 뒤바뀌지 않도록 확인
         if (!Array.isArray(data)) {
-          await createLog(
+          createLog(
             'error',
             settingData.language === 'ko_KR'
               ? `${gameCode} 곡 데이터가 배열이 아님:`
@@ -209,7 +209,7 @@ export default function WrappedApp() {
         )
       return data
     } catch (error) {
-      await createLog('error', `${gameCode} 곡 데이터 로드 실패:`, error.message)
+      createLog('error', `${gameCode} 곡 데이터 로드 실패:`, error.message)
       showNotifications &&
         showNotification(
           {
@@ -222,11 +222,11 @@ export default function WrappedApp() {
 
       // 로컬에 저장된 데이터 로드 시도
       try {
-        if (window.electron && window.electron.loadSongData) {
+        if (window.electron?.loadSongData) {
           const localData = await window.electron.loadSongData(gameCode)
           if (localData && localData.length > 0) {
             dispatch(setSongData({ data: localData, gameCode }))
-            await createLog('debug', `${gameCode} 로컬 곡 데이터 로드 완료`)
+            createLog('debug', `${gameCode} 로컬 곡 데이터 로드 완료`)
             showNotifications &&
               showNotification(
                 {
@@ -240,7 +240,7 @@ export default function WrappedApp() {
           }
         }
       } catch (localError) {
-        await createLog('error', `${gameCode} 로컬 곡 데이터 로드 실패:`, localError)
+        createLog('error', `${gameCode} 로컬 곡 데이터 로드 실패:`, localError)
         showNotifications &&
           showNotification(
             {
@@ -297,7 +297,7 @@ export default function WrappedApp() {
         try {
           // 1. 설정 로드
           try {
-            if (window.electron && window.electron.loadSettings) {
+            if (window.electron?.loadSettings) {
               const settings = await window.electron.loadSettings()
               dispatch(setSettingData(settings))
               createLog(
@@ -316,7 +316,7 @@ export default function WrappedApp() {
 
           // 2. 세션 데이터 로드 및 자동 로그인
           try {
-            if (window.electron && window.electron.getSession) {
+            if (window.electron?.getSession) {
               const session = await window.electron.getSession()
               if (session && session.userNo && session.userToken) {
                 try {
@@ -432,7 +432,7 @@ export default function WrappedApp() {
 
       // 앱 초기화 실행
       if (isLoading) {
-        initializeApp()
+        void initializeApp()
       }
 
       // 5분마다 곡 데이터 리프레시 (알림 표시 없음)

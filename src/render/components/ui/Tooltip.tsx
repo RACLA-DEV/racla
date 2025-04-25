@@ -26,8 +26,12 @@ const Tooltip: React.FC<TooltipProps> = ({ children, content, position = 'right'
   return (
     <div
       className='tw:relative tw:inline-block'
-      onMouseEnter={() => setIsVisible(true)}
-      onMouseLeave={() => setIsVisible(false)}
+      onMouseEnter={() => {
+        setIsVisible(true)
+      }}
+      onMouseLeave={() => {
+        setIsVisible(false)
+      }}
     >
       {children}
       {isVisible && (

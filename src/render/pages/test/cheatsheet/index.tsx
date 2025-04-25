@@ -65,7 +65,7 @@ function CheatsheetPage() {
         usage: async () => {
           try {
             await createOverlay()
-            await createLog('debug', '오버레이가 생성되었습니다')
+            createLog('debug', '오버레이가 생성되었습니다')
           } catch (error) {
             createLog('error', '오버레이 생성 실패:', error.message)
           }
@@ -77,7 +77,7 @@ function CheatsheetPage() {
         example: 'await closeOverlay()',
         usage: async () => {
           await closeOverlay()
-          await createLog('debug', '오버레이가 닫혔습니다')
+          createLog('debug', '오버레이가 닫혔습니다')
         },
       },
       {
@@ -95,7 +95,7 @@ function CheatsheetPage() {
                 data: 'test message',
               }),
             )
-            await createLog('debug', '오버레이로 메시지 전송됨')
+            createLog('debug', '오버레이로 메시지 전송됨')
           } catch (error) {
             createLog('error', '오버레이 메시지 전송 실패:', error.message)
           }
@@ -119,17 +119,17 @@ function CheatsheetPage() {
       {
         title: 'createLog()',
         description: '로그를 생성합니다',
-        example: 'await createLog("info", "로그 메시지")',
+        example: 'createLog("info", "로그 메시지")',
         usage: async () => {
-          await createLog('debug', '로그 메시지')
+          createLog('debug', '로그 메시지')
         },
       },
       {
         title: 'createLog() - Error',
         description: '에러 로그를 생성합니다',
-        example: 'await createLog("error", "에러 메시지")',
+        example: 'createLog("error", "에러 메시지")',
         usage: async () => {
-          await createLog('error', new Error('에러 메시지'))
+          createLog('error', new Error('에러 메시지'))
         },
       },
     ],
@@ -141,7 +141,7 @@ function CheatsheetPage() {
         usage: async () => {
           const image = await captureGameWindow('DJMAX RESPECT V')
           setImage(image)
-          await createLog('debug', '게임 윈도우 캡처 완료')
+          createLog('debug', '게임 윈도우 캡처 완료')
         },
       },
     ],
@@ -188,7 +188,9 @@ function CheatsheetPage() {
               <button
                 type='button'
                 key={category}
-                onClick={() => setActiveCategory(category)}
+                onClick={() => {
+                  setActiveCategory(category)
+                }}
                 className={`tw:px-4 tw:py-2 tw:rounded-lg ${
                   activeCategory === category
                     ? 'tw:bg-blue-500 tw:text-white'

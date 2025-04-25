@@ -1,10 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common'
 import type { SessionData } from '@src/types/common/SessionData'
 import type { SettingsData } from '@src/types/common/SettingData'
+import type { SongData } from '@src/types/common/SongData'
 import type { StorageInfo } from '@src/types/common/StroageInfo'
 import { app, shell } from 'electron'
 import * as fs from 'fs'
-import * as os from 'os'
 import * as path from 'path'
 import { globalDictionary } from '../../../render/constants/globalDictionary'
 
@@ -142,7 +142,7 @@ export class FileManagerService {
     }
   }
 
-  public saveSongData(songData: any[], gameCode: string): void {
+  public saveSongData(songData: SongData[], gameCode: string): void {
     try {
       if (!songData || !Array.isArray(songData)) {
         this.logger.error(`songData가 유효하지 않음: ${typeof songData}`)
@@ -165,7 +165,7 @@ export class FileManagerService {
     }
   }
 
-  public loadSongData(gameCode: string): any[] {
+  public loadSongData(gameCode: string): SongData[] {
     const dataPath = path.join(this.documentsPath, `${gameCode}_songs.json`)
 
     if (!fs.existsSync(dataPath)) {
@@ -174,7 +174,7 @@ export class FileManagerService {
 
     try {
       const songData = fs.readFileSync(dataPath, 'utf-8')
-      return JSON.parse(songData) as any[]
+      return JSON.parse(songData) as SongData[]
     } catch (error) {
       this.logger.error(`${gameCode} 곡 데이터 파일 읽기 오류:`, error)
       return []
@@ -186,10 +186,6 @@ export class FileManagerService {
    */
   public async getStorageInfo(): Promise<StorageInfo> {
     try {
-      // OS별 시스템 드라이브 정보
-      const homeDir = os.homedir()
-      const rootPath = path.parse(homeDir).root
-
       // 앱 데이터 폴더 크기 계산
       const appDataSize = this.getFolderSize(this.documentsPath)
 
@@ -199,17 +195,11 @@ export class FileManagerService {
       // 로그 폴더 크기 계산
       const logDataSize = this.getFolderSize(this.logsPath)
 
-      // OS 정보를 이용해 디스크 정보 추정
-      const totalMem = os.totalmem()
-      const freeMem = os.freemem()
-      const used = totalMem - freeMem
-      const usedPercentage = Math.round((used / totalMem) * 100)
-
       return {
-        total: totalMem,
-        free: freeMem,
-        used,
-        usedPercentage,
+        total: 0,
+        free: 0,
+        used: 0,
+        usedPercentage: 0,
         appDataSize,
         imageDataSize,
         logDataSize,

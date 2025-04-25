@@ -3,7 +3,7 @@ import dayjs from 'dayjs'
 
 const { sendLog } = window.electron
 
-export function createLog(level: LogLevel, ...args: any[]) {
+export function createLog(level: LogLevel, ...args: unknown[]) {
   sendLog(level, 'RENDERER', ...args)
   const styles = {
     error: 'color: #ff5555; font-weight: bold',
@@ -70,7 +70,7 @@ export function createLog(level: LogLevel, ...args: any[]) {
   }
 }
 
-export function createOverlayLog(level: LogLevel, ...args: any[]) {
+export function createOverlayLog(level: LogLevel, ...args: unknown[]) {
   sendLog(level, 'OVERLAY', ...args)
   const styles = {
     error: 'color: #ff5555; font-weight: bold',

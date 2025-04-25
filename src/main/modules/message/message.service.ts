@@ -3,8 +3,6 @@ import { BrowserWindow } from 'electron'
 
 @Injectable()
 export class MessageService {
-  constructor() {}
-
   public getTime(): number {
     return new Date().getTime()
   }

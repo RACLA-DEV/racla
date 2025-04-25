@@ -15,10 +15,10 @@ export class LoggerService {
     dotenv.config({ path: !app.isPackaged ? '.env.development' : '.env.production' })
   }
 
-  public async createLog(level: LogLevel = 'info', where: string = 'MAIN', ...args: any[]) {
+  public async createLog(level: LogLevel = 'info', where: string = 'MAIN', ...args: unknown[]) {
     const logPrefix = `[${where}] `
     const logContent = args
-      .map((arg) => (typeof arg === 'object' ? JSON.stringify(arg, null, 2) : arg))
+      .map((arg) => (typeof arg === 'object' ? JSON.stringify(arg, null, 2) : arg.toString()))
       .join('\n')
     const message = `${logPrefix}${logContent}`
 
@@ -40,7 +40,7 @@ export class LoggerService {
     }
   }
 
-  private async sendErrorLog(where: string, error: Error, context?: any, ...args: any[]) {
+  private async sendErrorLog(where: string, error: Error, context?: unknown, ...args: unknown[]) {
     try {
       const errorData: ErrorLogData = {
         clientPlatform: `ELECTRON_${where.toUpperCase()}`,
@@ -52,8 +52,8 @@ export class LoggerService {
         clientLogMessage: error instanceof Error ? error.message : String(error),
         clientLogStacktrace: error instanceof Error ? error.stack : null,
         clientAdditionalInfo: {
-          context: context,
-          args: args,
+          context: context?.toString(),
+          args: args?.toString(),
         },
       }
 

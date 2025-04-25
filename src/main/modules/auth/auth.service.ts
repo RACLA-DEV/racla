@@ -138,7 +138,7 @@ export class AuthService {
           resolve(this.tryCreateServerOnPorts(state, clientId, currentPort + 1, endPort))
         } else {
           this.logger.error(`Discord OAuth 로그인 오류: ${error.message}`)
-          reject(error)
+          reject(new Error(`Discord OAuth 로그인 오류: ${error.message}`))
         }
       })
 

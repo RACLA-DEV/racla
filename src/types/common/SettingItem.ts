@@ -2,10 +2,10 @@ export interface SettingItem {
   id: string
   name: string
   description: string
-  defaultValue: any
+  defaultValue: string | number | boolean
   isEditable: boolean
   requiresRestart: boolean
-  selectList?: Array<{ id: string | number; name: string }>
+  selectList?: { id: string | number; name: string }[]
   isFile?: boolean
   isVisible?: boolean
   offList?: string[]

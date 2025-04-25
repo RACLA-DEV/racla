@@ -31,7 +31,7 @@ declare global {
       onOverlayMessage: (callback: (data: any) => void) => void
 
       // 로깅 관련
-      sendLog: (level: LogLevel, where: string, ...args: any[]) => void
+      sendLog: (level: LogLevel, where: string, ...args: unknown[]) => void
 
       //캡처 관련
       captureGameWindow: (gameTitle: string) => Promise<Buffer | null>
@@ -39,8 +39,8 @@ declare global {
       // 파일 관리자 관련
       saveSettings: (settings: SettingsData) => Promise<SettingsData>
       loadSettings: () => Promise<SettingsData>
-      saveSongData: (data: { gameCode: string; songData: any[] }) => Promise<boolean>
-      loadSongData: (gameCode: string) => Promise<any[]>
+      saveSongData: (data: { gameCode: string; songData: SongData[] }) => Promise<boolean>
+      loadSongData: (gameCode: string) => Promise<SongData[]>
 
       // 윈도우 컨트롤 관련
       closeApp: () => void
@@ -76,7 +76,7 @@ declare global {
       openFileDialog: (options: {
         title?: string
         defaultPath?: string
-        filters?: Array<{ name: string; extensions: string[] }>
+        filters?: { name: string; extensions: string[] }[]
       }) => Promise<string | null>
 
       // 업데이트 관련

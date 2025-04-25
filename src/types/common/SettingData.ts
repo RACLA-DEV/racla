@@ -7,6 +7,7 @@ export interface SettingsData {
   autoCaptureMode?: boolean
   autoCaptureIntervalTime?: number
   language?: string
+  font?: string
   autoCaptureApi?: string
   visibleAnimation?: boolean
   captureOnlyFocused?: boolean

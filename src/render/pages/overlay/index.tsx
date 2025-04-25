@@ -1,7 +1,6 @@
 import { createOverlayLog } from '@render/libs/logger'
 import { RootState } from '@render/store'
 import type { Result } from 'get-windows'
-import type { ProcessDescriptor } from 'ps-list'
 
 import { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
@@ -10,13 +9,10 @@ import { useSelector } from 'react-redux'
 type OverlayMode = 'debug' | 'transparent' | 'minimal' | 'full'
 
 function OverlayPage() {
-  const [processes, setProcesses] = useState<ProcessDescriptor[]>([])
   const [activeWindows, setActiveWindows] = useState<Result | null>(null)
-  const [messages, setMessages] = useState<string[]>([])
   const [overlayMode, setOverlayMode] = useState<OverlayMode>('debug')
   const { font } = useSelector((state: RootState) => state.app.settingData)
   const isOverlayMode = useSelector((state: RootState) => state.ui.isOverlayMode)
-  const [isMaximized, setIsMaximized] = useState(false)
 
   useEffect(() => {
     // 문서 스타일 설정
@@ -29,33 +25,22 @@ function OverlayPage() {
       setOverlayMode(mode)
     }
 
-    // 프로세스 리스트 초기 로드
-    if (window.electron && window.electron.getProcessList) {
-      window.electron.getProcessList().then((result) => {
-        setProcesses(result as ProcessDescriptor[])
-      })
-    }
-
     // 활성 윈도우 초기 로드
-    if (window.electron && window.electron.getActiveWindows) {
+    if (window.electron?.getActiveWindows) {
       window.electron.getActiveWindows().then((result) => {
         setActiveWindows(result as Result)
       })
     }
 
     // 오버레이 메시지 수신
-    if (window.electron && window.electron.onOverlayMessage) {
+    if (window.electron?.onOverlayMessage) {
       window.electron.onOverlayMessage((message) => {
         try {
           const data = JSON.parse(message)
-          if (data.type === 'process-list') {
-            setProcesses(data.data as ProcessDescriptor[])
-          }
           if (data.type === 'active-windows') {
             setActiveWindows(data.data as Result)
-            setIsMaximized(data.isMaximized)
+            // setIsMaximized(data.isMaximized)
           }
-          setMessages((prev) => [...prev, JSON.stringify(data)])
         } catch (error) {
           createOverlayLog('error', 'Failed to parse message:', error.message)
         }
@@ -66,7 +51,7 @@ function OverlayPage() {
     const handleKeyDown = (e: KeyboardEvent) => {
       // ESC 키로 오버레이 닫기
       if (e.key === 'Escape') {
-        if (window.electron && window.electron.closeOverlay) {
+        if (window.electron?.closeOverlay) {
           window.electron.closeOverlay()
         }
       }
