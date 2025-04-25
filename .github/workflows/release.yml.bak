@@ -66,9 +66,10 @@ jobs:
       # Windows 빌드
       - name: Build Windows Installer
         if: matrix.os == 'windows-latest'
-        run: npx electron-builder --win --config electron-builder.config.js
+        run: npx electron-builder --win --config electron-builder.config.js --publish always
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
           npm_config_msvs_version: 2019
 
       - name: Release
@@ -81,4 +82,5 @@ jobs:
             dist/electron/*.yml
             dist/electron/*.blockmap
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}

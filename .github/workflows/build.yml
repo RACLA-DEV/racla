@@ -63,6 +63,17 @@ jobs:
         run: pnpm build
         env:
           npm_config_msvs_version: 2019
+          GH_TOKEN: ${{ secrets.TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
+
+      # Electron 빌더 실행 (패키징만, 게시 안 함)
+      - name: Package Electron App
+        if: matrix.os == 'windows-latest'
+        run: npx electron-builder --win --config electron-builder.config.js --publish never
+        env:
+          GH_TOKEN: ${{ secrets.TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
+          npm_config_msvs_version: 2019
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
