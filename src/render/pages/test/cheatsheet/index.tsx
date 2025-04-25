@@ -132,7 +132,7 @@ function CheatsheetPage() {
         description: '로그를 생성합니다',
         example: 'createLog("info", "로그 메시지")',
         usage: async () => {
-          await electronActions.logError()
+          void electronActions.logError()
         },
       },
       {
@@ -140,7 +140,7 @@ function CheatsheetPage() {
         description: '에러 로그를 생성합니다',
         example: 'createLog("error", "에러 메시지")',
         usage: async () => {
-          await electronActions.logError()
+          void electronActions.logError()
         },
       },
     ],
@@ -227,7 +227,9 @@ function CheatsheetPage() {
                   <h3 className='tw:text-xl tw:font-bold tw:text-blue-600'>{item.title}</h3>
                   <button
                     type='button'
-                    onClick={item.usage}
+                    onClick={() => {
+                      void item.usage()
+                    }}
                     className='tw:px-4 tw:py-2 tw:bg-green-500 tw:text-white tw:rounded-lg tw:hover:bg-green-600'
                   >
                     실행하기

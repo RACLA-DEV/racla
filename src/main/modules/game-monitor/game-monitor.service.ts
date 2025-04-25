@@ -94,8 +94,12 @@ export class GameMonitorService {
       if (!this.isProcessingUpdate) {
         Promise.resolve()
           .then(() => this.handleGameWindowChange())
-          .catch((error: Error) => {
-            this.logger.error('Error in window monitoring:', error.message)
+          .catch((error: unknown) => {
+            if (error instanceof Error) {
+              this.logger.error('Error in window monitoring:', error.message)
+            } else {
+              this.logger.error('Error in window monitoring:', String(error))
+            }
             this.isProcessingUpdate = false
           })
       }

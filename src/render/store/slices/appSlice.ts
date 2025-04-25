@@ -46,16 +46,13 @@ const initialState: AppState = {
 
 // 노래 데이터 유효성 검증 함수
 const isValidSongData = (data: SongData[], gameCode: GameType): boolean => {
-  if (!data || !Array.isArray(data)) {
-    createLog(
-      'error',
-      `setSongData: 유효하지 않은 데이터 형식, 타입: ${typeof data}, 배열 여부: ${Array.isArray(data)}`,
-    )
+  if (!data) {
+    createLog('error', `setSongData: 데이터가 존재하지 않음`)
     return false
   }
 
   if (!gameCode || typeof gameCode !== 'string') {
-    createLog('error', `setSongData: 유효하지 않은 게임코드: ${gameCode}`)
+    createLog('error', `setSongData: 유효하지 않은 게임코드: ${String(gameCode)}`)
     return false
   }
 
@@ -74,9 +71,17 @@ const updateSongDataIfValidGameCode = (
     // 타입 단언을 통해 올바른 키 사용 보장
     const validKey = gameCode
     // 안전한 타입 체크를 통한 할당
-    state.songData[validKey] = data
-    state.songData.lastUpdated[validKey] = Date.now()
-    createLog('debug', `setSongData: ${gameCode} 데이터 설정 완료`)
+    if (
+      validKey &&
+      typeof validKey === 'string' &&
+      Object.prototype.hasOwnProperty.call(state.songData, validKey)
+    ) {
+      state.songData[validKey] = data
+      if (Object.prototype.hasOwnProperty.call(state.songData.lastUpdated, validKey)) {
+        state.songData.lastUpdated[validKey] = Date.now()
+      }
+      createLog('debug', `setSongData: ${gameCode} 데이터 설정 완료`)
+    }
   } else {
     createLog('error', `유효하지 않은 게임 코드: ${gameCode}`)
   }
@@ -200,7 +205,9 @@ export const appSlice = createSlice({
 
       if (index !== -1 && index >= 0 && index < state.notifications.length) {
         // isRemoving 플래그만 설정하고 실제 제거는 별도로 처리
-        state.notifications[index].isRemoving = true
+        if (state.notifications[index]) {
+          state.notifications[index].isRemoving = true
+        }
       }
     },
     deleteNotification: (state, action: PayloadAction<string>) => {

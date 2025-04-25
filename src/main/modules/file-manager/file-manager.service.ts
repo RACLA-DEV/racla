@@ -9,7 +9,7 @@ import * as path from 'path'
 import { globalDictionary } from '../../../render/constants/globalDictionary'
 
 // 설정 데이터를 위한 타입 별칭을 정의하여 인터섹션 타입 대신 사용
-type ExtendedSettingsData = SettingsData & { [key: string]: string | number | boolean }
+type ExtendedSettingsData = SettingsData & Record<string, string | number | boolean>
 
 // globalDictionary의 기본값을 사용하여 기본 설정 생성
 function createDefaultSettings(): SettingsData {
