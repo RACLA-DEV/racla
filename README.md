@@ -1,4 +1,4 @@
-# RACLA Desktop App (Vite)
+# RACLA Desktop App
 
 ![RACLA](https://cdn.gongroin.com/gongroin/og-image-racla.png)
 
