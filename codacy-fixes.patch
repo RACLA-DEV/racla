@@ -1,0 +1,405 @@
+diff --git a/src/main/modules/message/message.service.ts b/src/main/modules/message/message.service.ts
+--- a/src/main/modules/message/message.service.ts
++++ b/src/main/modules/message/message.service.ts
+@@ -12,1 +12,1 @@
+-  public sendToRenderer(window: BrowserWindow, channel: string, message: any): void {
++  public sendToRenderer(window: BrowserWindow, channel: string, message: unknown): void {
+diff --git a/src/types/redux/AppState.ts b/src/types/redux/AppState.ts
+--- a/src/types/redux/AppState.ts
++++ b/src/types/redux/AppState.ts
+@@ -8,1 +8,1 @@
+-  settingData: any
++  settingData: unknown
+@@ -30,1 +30,1 @@
+-    djmax_respect_v: any[]
++    djmax_respect_v: unknown[]
+@@ -31,1 +31,1 @@
+-    wjmax: any[]
++    wjmax: unknown[]
+@@ -32,1 +32,1 @@
+-    platina_lab: any[]
++    platina_lab: unknown[]
+diff --git a/src/main/modules/auth/auth.service.ts b/src/main/modules/auth/auth.service.ts
+--- a/src/main/modules/auth/auth.service.ts
++++ b/src/main/modules/auth/auth.service.ts
+@@ -41,1 +41,1 @@
+-      return !!(sessionData && sessionData.userNo && sessionData.userToken)
++      return !!(sessionData?.userNo && sessionData.userToken)
+@@ -64,1 +64,1 @@
+-      const documentsPath = path.join(this.fileManagerService['documentsPath'])
++      const documentsPath = path.join(this.fileManagerService.documentsPath)
+@@ -130,1 +130,1 @@
+-      server.on('error', (error: any) => {
++      server.on('error', (error: unknown) => {
+diff --git a/src/render/components/ui/IconSidebar.tsx b/src/render/components/ui/IconSidebar.tsx
+--- a/src/render/components/ui/IconSidebar.tsx
++++ b/src/render/components/ui/IconSidebar.tsx
+@@ -69,1 +69,1 @@
+-      onClick: () => handleGameSelect('platina_lab'),
++      onClick: () => { handleGameSelect('platina_lab'); },
+@@ -143,1 +143,1 @@
+-              onClick={() => handleNavigation('/home')}
++              onClick={() => { handleNavigation('/home'); }}
+@@ -166,1 +166,1 @@
+-                onClick={() => handleNavigation('/test/cheatsheet')}
++                onClick={() => { handleNavigation('/test/cheatsheet'); }}
+@@ -189,1 +189,1 @@
+-              onClick={() => handleNavigation('/overlay/settings')}
++              onClick={() => { handleNavigation('/overlay/settings'); }}
+diff --git a/src/main/modules/file-manager/file-manager.service.ts b/src/main/modules/file-manager/file-manager.service.ts
+--- a/src/main/modules/file-manager/file-manager.service.ts
++++ b/src/main/modules/file-manager/file-manager.service.ts
+@@ -145,1 +145,1 @@
+-  public saveSongData(songData: any[], gameCode: string): void {
++  public saveSongData(songData: unknown[], gameCode: string): void {
+@@ -168,1 +168,1 @@
+-  public loadSongData(gameCode: string): any[] {
++  public loadSongData(gameCode: string): unknown[] {
+@@ -177,1 +177,1 @@
+-      return JSON.parse(songData) as any[]
++      return JSON.parse(songData) as unknown[]
+diff --git a/src/types/dto/proxy/ProxyRequest.ts b/src/types/dto/proxy/ProxyRequest.ts
+--- a/src/types/dto/proxy/ProxyRequest.ts
++++ b/src/types/dto/proxy/ProxyRequest.ts
+@@ -5,1 +5,1 @@
+-  data?: Record<string, any>
++  data?: Record<string, unknown>
+diff --git a/src/render/pages/test/cheatsheet/index.tsx b/src/render/pages/test/cheatsheet/index.tsx
+--- a/src/render/pages/test/cheatsheet/index.tsx
++++ b/src/render/pages/test/cheatsheet/index.tsx
+@@ -169,1 +169,1 @@
+-          onChange={(e) => setSearchTerm(e.target.value)}
++          onChange={(e) => { setSearchTerm(e.target.value); }}
+@@ -191,1 +191,1 @@
+-                onClick={() => setActiveCategory(category)}
++                onClick={() => { setActiveCategory(category); }}
+diff --git a/src/main/index.ts b/src/main/index.ts
+--- a/src/main/index.ts
++++ b/src/main/index.ts
+@@ -55,1 +55,1 @@
+-bootstrap()
++void bootstrap()
+diff --git a/src/types/common/SettingItem.ts b/src/types/common/SettingItem.ts
+--- a/src/types/common/SettingItem.ts
++++ b/src/types/common/SettingItem.ts
+@@ -5,1 +5,1 @@
+-  defaultValue: any
++  defaultValue: unknown
+@@ -8,1 +8,1 @@
+-  selectList?: Array<{ id: string | number; name: string }>
++  selectList?: { id: string | number; name: string }[]
+diff --git a/src/main/modules/game-monitor/game-monitor.service.ts b/src/main/modules/game-monitor/game-monitor.service.ts
+--- a/src/main/modules/game-monitor/game-monitor.service.ts
++++ b/src/main/modules/game-monitor/game-monitor.service.ts
+@@ -77,1 +77,1 @@
+-        .catch((error) => {
++        .catch((error: unknown) => {
+@@ -170,1 +170,1 @@
+-    this.overlayWindowService.destroyOverlay()
++    void this.overlayWindowService.destroyOverlay()
+diff --git a/src/render/components/app/ExternalLinkModal.tsx b/src/render/components/app/ExternalLinkModal.tsx
+--- a/src/render/components/app/ExternalLinkModal.tsx
++++ b/src/render/components/app/ExternalLinkModal.tsx
+@@ -25,1 +25,1 @@
+-    return () => window.removeEventListener('keydown', handleEscKey)
++    return () => { window.removeEventListener('keydown', handleEscKey); }
+diff --git a/src/main/modules/discord-manager/discord-manager.controller.ts b/src/main/modules/discord-manager/discord-manager.controller.ts
+--- a/src/main/modules/discord-manager/discord-manager.controller.ts
++++ b/src/main/modules/discord-manager/discord-manager.controller.ts
+@@ -32,1 +32,1 @@
+-    return this.discordManagerService.destroy()
++    this.discordManagerService.destroy();
+diff --git a/src/render/pages/overlay/index.tsx b/src/render/pages/overlay/index.tsx
+--- a/src/render/pages/overlay/index.tsx
++++ b/src/render/pages/overlay/index.tsx
+@@ -33,1 +33,1 @@
+-    if (window.electron && window.electron.getProcessList) {
++    if (window.electron?.getProcessList) {
+@@ -40,1 +40,1 @@
+-    if (window.electron && window.electron.getActiveWindows) {
++    if (window.electron?.getActiveWindows) {
+@@ -47,1 +47,1 @@
+-    if (window.electron && window.electron.onOverlayMessage) {
++    if (window.electron?.onOverlayMessage) {
+@@ -69,1 +69,1 @@
+-        if (window.electron && window.electron.closeOverlay) {
++        if (window.electron?.closeOverlay) {
+@@ -98,1 +98,1 @@
+-          className={`${font != 'default' ? 'tw:font-medium' : ''}`}
++          className={font != 'default' ? 'tw:font-medium' : ''}
+diff --git a/src/main/modules/file-manager/file-manager.controller.ts b/src/main/modules/file-manager/file-manager.controller.ts
+--- a/src/main/modules/file-manager/file-manager.controller.ts
++++ b/src/main/modules/file-manager/file-manager.controller.ts
+@@ -36,1 +36,1 @@
+-    return this.fileManagerService.clearSession()
++    this.fileManagerService.clearSession();
+@@ -40,1 +40,1 @@
+-  async saveSongData(data: { gameCode: string; songData: any[] }): Promise<boolean> {
++  async saveSongData(data: { gameCode: string; songData: unknown[] }): Promise<boolean> {
+@@ -45,1 +45,1 @@
+-        `songData íì: ${typeof songData}, ë°°ì´ ì¬ë¶: ${Array.isArray(songData)}, ê¸¸ì´: ${songData?.length || 0}`,
++        `songData íì: ${typeof songData}, ë°°ì´ ì¬ë¶: ${Array.isArray(songData)}, ê¸¸ì´: ${songData.length || 0}`,
+@@ -62,1 +62,1 @@
+-  async loadSongData(gameCode: string): Promise<any[]> {
++  async loadSongData(gameCode: string): Promise<unknown[]> {
+@@ -108,1 +108,1 @@
+-    filters?: Array<{ name: string; extensions: string[] }>
++    filters?: { name: string; extensions: string[] }[]
+@@ -112,1 +112,1 @@
+-        title: options.title || 'íì¼ ì í',
++        title: options.title ?? 'íì¼ ì í',
+@@ -114,1 +114,1 @@
+-        filters: options.filters || [{ name: 'ëª¨ë  íì¼', extensions: ['*'] }],
++        filters: options.filters ?? [{ name: 'ëª¨ë  íì¼', extensions: ['*'] }],
+diff --git a/src/render/components/app/WrappedApp.tsx b/src/render/components/app/WrappedApp.tsx
+--- a/src/render/components/app/WrappedApp.tsx
++++ b/src/render/components/app/WrappedApp.tsx
+@@ -172,1 +172,1 @@
+-      if (window.electron && window.electron.saveSongData) {
++      if (window.electron?.saveSongData) {
+@@ -212,1 +212,1 @@
+-      await createLog('error', `${gameCode} ê³¡ ë°ì´í° ë¡ë ì¤í¨:`, error.message)
++       createLog('error', `${gameCode} ê³¡ ë°ì´í° ë¡ë ì¤í¨:`, error.message)
+@@ -225,1 +225,1 @@
+-        if (window.electron && window.electron.loadSongData) {
++        if (window.electron?.loadSongData) {
+@@ -229,1 +229,1 @@
+-            await createLog('debug', `${gameCode} ë¡ì»¬ ê³¡ ë°ì´í° ë¡ë ìë£`)
++             createLog('debug', `${gameCode} ë¡ì»¬ ê³¡ ë°ì´í° ë¡ë ìë£`)
+@@ -243,1 +243,1 @@
+-        await createLog('error', `${gameCode} ë¡ì»¬ ê³¡ ë°ì´í° ë¡ë ì¤í¨:`, localError)
++         createLog('error', `${gameCode} ë¡ì»¬ ê³¡ ë°ì´í° ë¡ë ì¤í¨:`, localError)
+@@ -300,1 +300,1 @@
+-            if (window.electron && window.electron.loadSettings) {
++            if (window.electron?.loadSettings) {
+@@ -319,1 +319,1 @@
+-            if (window.electron && window.electron.getSession) {
++            if (window.electron?.getSession) {
+@@ -321,1 +321,1 @@
+-              if (session && session.userNo && session.userToken) {
++              if (session?.userNo && session.userToken) {
+@@ -330,1 +330,1 @@
+-                  const response = await apiClient.post<any>(`/v2/racla/user/login`, {
++                  const response = await apiClient.post<unknown>(`/v2/racla/user/login`, {
+@@ -435,1 +435,1 @@
+-        initializeApp()
++        void initializeApp()
+@@ -447,1 +447,1 @@
+-          loadAllSongData(false) // ìë¦¼ íì ìí¨
++          void loadAllSongData(false) // ìë¦¼ íì ìí¨
+diff --git a/src/types/common/ErrorLogData.ts b/src/types/common/ErrorLogData.ts
+--- a/src/types/common/ErrorLogData.ts
++++ b/src/types/common/ErrorLogData.ts
+@@ -11,1 +11,1 @@
+-  clientAdditionalInfo?: any
++  clientAdditionalInfo?: unknown
+diff --git a/src/preload/index.ts b/src/preload/index.ts
+--- a/src/preload/index.ts
++++ b/src/preload/index.ts
+@@ -10,1 +10,1 @@
+-  onReplyMsg: (cb: (msg: string) => any) =>
++  onReplyMsg: (cb: (msg: string) => unknown) =>
+@@ -19,1 +19,1 @@
+-  onOverlayMessage: (callback: (data: any) => void) =>
++  onOverlayMessage: (callback: (data: unknown) => void) =>
+@@ -20,1 +20,1 @@
+-    ipcRenderer.on('overlay-msg', (_event, message) => callback(message)),
++    ipcRenderer.on('overlay-msg', (_event, message) => { callback(message); }),
+@@ -30,1 +30,1 @@
+-  sendLog: (level: LogLevel, where: string, ...args: any[]) =>
++  sendLog: (level: LogLevel, where: string, ...args: unknown[]) =>
+@@ -41,1 +41,1 @@
+-  saveSongData: (data: { gameCode: string; songData: any[] }) =>
++  saveSongData: (data: { gameCode: string; songData: unknown[] }) =>
+@@ -55,1 +55,1 @@
+-    ipcRenderer.on('confirm-external-link', (_event, url: string) => callback(url)),
++    ipcRenderer.on('confirm-external-link', (_event, url: string) => { callback(url); }),
+@@ -81,1 +81,1 @@
+-    filters?: Array<{ name: string; extensions: string[] }>
++    filters?: { name: string; extensions: string[] }[]
+@@ -86,1 +86,1 @@
+-    ipcRenderer.on('update-available', (_event, version) => callback(version)),
++    ipcRenderer.on('update-available', (_event, version) => { callback(version); }),
+@@ -89,1 +89,1 @@
+-  ) => ipcRenderer.on('download-progress', (_event, progress) => callback(progress)),
++  ) => ipcRenderer.on('download-progress', (_event, progress) => { callback(progress); }),
+@@ -91,1 +91,1 @@
+-    ipcRenderer.on('update-downloaded', (_event, version) => callback(version)),
++    ipcRenderer.on('update-downloaded', (_event, version) => { callback(version); }),
+diff --git a/src/render/components/app/SettingModal.tsx b/src/render/components/app/SettingModal.tsx
+--- a/src/render/components/app/SettingModal.tsx
++++ b/src/render/components/app/SettingModal.tsx
+@@ -202,1 +202,1 @@
+-  options: Array<{ id: string | number; name: string }>
++  options: { id: string | number; name: string }[]
+@@ -211,1 +211,1 @@
+-      onChange={(e) => onChange(e.target.value)}
++      onChange={(e) => { onChange(e.target.value); }}
+@@ -283,1 +283,1 @@
+-    fetchStorageInfo()
++    void fetchStorageInfo()
+@@ -424,1 +424,1 @@
+-                  onChange={(e) => handleAutoDeleteChange(Number(e.target.value))}
++                  onChange={(e) => { handleAutoDeleteChange(Number(e.target.value)); }}
+@@ -503,1 +503,1 @@
+-  const [localSettings, setLocalSettings] = useState<Record<string, any>>({})
++  const [localSettings, setLocalSettings] = useState<Record<string, unknown>>({})
+@@ -524,1 +524,1 @@
+-    return () => window.removeEventListener('keydown', handleEscKey)
++    return () => { window.removeEventListener('keydown', handleEscKey); }
+@@ -528,1 +528,1 @@
+-  const handleSettingChange = (id: string, value: any) => {
++  const handleSettingChange = (id: string, value: unknown) => {
+@@ -651,1 +651,1 @@
+-                onClick={() => setActiveCategory(key)}
++                onClick={() => { setActiveCategory(key); }}
+@@ -663,1 +663,1 @@
+-                <span className='tw:text-sm'>{t(`${category.id}`)}</span>
++                <span className='tw:text-sm'>{t(category.id)}</span>
+@@ -714,1 +714,1 @@
+-                            onChange={(value) => handleSettingChange(setting.id, value)}
++                            onChange={(value) => { handleSettingChange(setting.id, value); }}
+diff --git a/src/render/components/ui/Header.tsx b/src/render/components/ui/Header.tsx
+--- a/src/render/components/ui/Header.tsx
++++ b/src/render/components/ui/Header.tsx
+@@ -21,1 +21,1 @@
+-    const handleMaximizeChange = (e: any, maximized: boolean) => {
++    const handleMaximizeChange = (e: unknown, maximized: boolean) => {
+@@ -26,1 +26,1 @@
+-    window.addEventListener('maximize-change', handleMaximizeChange as any)
++    window.addEventListener('maximize-change', handleMaximizeChange as unknown)
+@@ -29,1 +29,1 @@
+-      window.removeEventListener('maximize-change', handleMaximizeChange as any)
++      window.removeEventListener('maximize-change', handleMaximizeChange as unknown)
+diff --git a/src/render/components/ui/Notification.tsx b/src/render/components/ui/Notification.tsx
+--- a/src/render/components/ui/Notification.tsx
++++ b/src/render/components/ui/Notification.tsx
+@@ -71,1 +71,1 @@
+-      return () => clearInterval(intervalId)
++      return () => { clearInterval(intervalId); }
+diff --git a/src/render/components/ui/MenuSidebar.tsx b/src/render/components/ui/MenuSidebar.tsx
+--- a/src/render/components/ui/MenuSidebar.tsx
++++ b/src/render/components/ui/MenuSidebar.tsx
+@@ -157,1 +157,1 @@
+-  const handleItemClick = (item: any, subItem: any) => {
++  const handleItemClick = (item: unknown, subItem: any) => {
+@@ -237,1 +237,1 @@
+-                onClick={() => setIsDropdownOpen(false)}
++                onClick={() => { setIsDropdownOpen(false); }}
+@@ -255,1 +255,1 @@
+-              onClick={() => handleOpenExternalLink('https://racla.app/')}
++              onClick={() => { handleOpenExternalLink('https://racla.app/'); }}
+@@ -324,1 +324,1 @@
+-                  handleLogout()
++                  void handleLogout()
+@@ -383,1 +383,1 @@
+-                          onClick={() => handleItemClick(item, subItem)}
++                          onClick={() => { handleItemClick(item, subItem); }}
+@@ -413,1 +413,1 @@
+-                  onClick={() => handleItemClick(null, item)}
++                  onClick={() => { handleItemClick(null, item); }}
+diff --git a/src/render/pages/auth/login.tsx b/src/render/pages/auth/login.tsx
+--- a/src/render/pages/auth/login.tsx
++++ b/src/render/pages/auth/login.tsx
+@@ -55,1 +55,1 @@
+-      const text = fileReader.result?.toString().trim() || ''
++      const text = fileReader.result?.toString().trim() ?? ''
+@@ -79,1 +79,1 @@
+-              const response = await apiClient.post<any>(
++              const response = await apiClient.post<unknown>(
+@@ -156,1 +156,1 @@
+-      const response = await apiClient.post<any>(`/v2/racla/user/login/oauth/discord`, { code })
++      const response = await apiClient.post<unknown>(`/v2/racla/user/login/oauth/discord`, { code })
+diff --git a/src/main/app.controller.ts b/src/main/app.controller.ts
+--- a/src/main/app.controller.ts
++++ b/src/main/app.controller.ts
+@@ -11,1 +11,1 @@
+-    return this.appService.restartApp()
++    this.appService.restartApp();
+diff --git a/src/render/components/ui/Footer.tsx b/src/render/components/ui/Footer.tsx
+--- a/src/render/components/ui/Footer.tsx
++++ b/src/render/components/ui/Footer.tsx
+@@ -31,1 +31,1 @@
+-        const response = await apiClient.get<any>(`/v2/racla/ping`, {
++        const response = await apiClient.get<unknown>(`/v2/racla/ping`, {
+@@ -50,1 +50,1 @@
+-    checkServerStatus()
++    void checkServerStatus()
+@@ -81,1 +81,1 @@
+-                onClick={() => handleOpenExternalLink('https://store.steampowered.com/app/960170')}
++                onClick={() => { handleOpenExternalLink('https://store.steampowered.com/app/960170'); }}
+@@ -105,1 +105,1 @@
+-                onClick={() => handleOpenExternalLink('https://waktaverse.games/gameDetail/wjmax')}
++                onClick={() => { handleOpenExternalLink('https://waktaverse.games/gameDetail/wjmax'); }}
+@@ -118,1 +118,1 @@
+-                onClick={() => handleOpenExternalLink('https://platinalab.net/')}
++                onClick={() => { handleOpenExternalLink('https://platinalab.net/'); }}
+@@ -143,1 +143,1 @@
+-                onClick={() => handleOpenExternalLink('https://status.racla.app')}
++                onClick={() => { handleOpenExternalLink('https://status.racla.app'); }}
+@@ -174,1 +174,1 @@
+-                  onClick={() => handleOpenExternalLink('https://v-archive.net')}
++                  onClick={() => { handleOpenExternalLink('https://v-archive.net'); }}
+@@ -183,1 +183,1 @@
+-                  onClick={() => handleOpenExternalLink('https://hard-archive.com')}
++                  onClick={() => { handleOpenExternalLink('https://hard-archive.com'); }}
+diff --git a/src/main/modules/discord-manager/discord-manager.service.ts b/src/main/modules/discord-manager/discord-manager.service.ts
+--- a/src/main/modules/discord-manager/discord-manager.service.ts
++++ b/src/main/modules/discord-manager/discord-manager.service.ts
+@@ -21,1 +21,1 @@
+-  private isConnected: boolean = false
++  private isConnected = false
+@@ -75,1 +75,1 @@
+-          state: `${String(gameData.button).replace('B', '')}B | ${gameData.pattern}${gameData?.level && gameData.gameCode === 'platina_lab' ? ` Lv.${gameData?.level})` : ''} | ${gameData.score.toFixed(2)}% ${gameData?.max && gameData.score == 100 ? (gameData?.max == 0 ? 'MAX' : `MAX-${gameData?.max}`) : ''} ${gameData.maxCombo && gameData.score !== 100 && gameData.gameCode != 'platina_lab' ? '(MAX COMBO)' : ''}`,
++          state: `${String(gameData.button).replace('B', '')}B | ${gameData.pattern}${gameData.level && gameData.gameCode === 'platina_lab' ? ` Lv.${gameData?.level})` : ''} | ${gameData.score.toFixed(2)}% ${gameData?.max && gameData.score == 100 ? (gameData?.max == 0 ? 'MAX' : `MAX-${gameData?.max}`) : ''} ${gameData.maxCombo && gameData.score !== 100 && gameData.gameCode != 'platina_lab' ? '(MAX COMBO)' : ''}`,
+@@ -93,1 +93,1 @@
+-      startTimestamp: this.startTimestamp || Date.now(),
++      startTimestamp: this.startTimestamp ?? Date.now(),
+diff --git a/src/main/modules/overlay-window/overlay-window.service.ts b/src/main/modules/overlay-window/overlay-window.service.ts
+--- a/src/main/modules/overlay-window/overlay-window.service.ts
++++ b/src/main/modules/overlay-window/overlay-window.service.ts
+@@ -59,1 +59,1 @@
+-      this.overlayWindow.loadURL(`${this.URL}`)
++      this.overlayWindow.loadURL(this.URL)
+diff --git a/src/main/modules/logger/logger.service.ts b/src/main/modules/logger/logger.service.ts
+--- a/src/main/modules/logger/logger.service.ts
++++ b/src/main/modules/logger/logger.service.ts
+@@ -18,1 +18,1 @@
+-  public async createLog(level: LogLevel = 'info', where: string = 'MAIN', ...args: any[]) {
++  public async createLog(level: LogLevel = 'info', where = 'MAIN', ...args: any[]) {
+@@ -27,1 +27,1 @@
+-        this.sendErrorLog(where, new Error(message))
++        void this.sendErrorLog(where, new Error(message))
+@@ -43,1 +43,1 @@
+-  private async sendErrorLog(where: string, error: Error, context?: any, ...args: any[]) {
++  private async sendErrorLog(where: string, error: Error, context?: unknown, ...args: any[]) {
+@@ -60,1 +60,1 @@
+-      const response = await apiClient.post<any>(`/v2/racla/log/client/create`, errorData)
++      const response = await apiClient.post<unknown>(`/v2/racla/log/client/create`, errorData)
+diff --git a/src/render/components/ui/Tooltip.tsx b/src/render/components/ui/Tooltip.tsx
+--- a/src/render/components/ui/Tooltip.tsx
++++ b/src/render/components/ui/Tooltip.tsx
+@@ -29,1 +29,1 @@
+-      onMouseEnter={() => setIsVisible(true)}
++      onMouseEnter={() => { setIsVisible(true); }}
+@@ -30,1 +30,1 @@
+-      onMouseLeave={() => setIsVisible(false)}
++      onMouseLeave={() => { setIsVisible(false); }}
+diff --git a/src/render/store/slices/appSlice.ts b/src/render/store/slices/appSlice.ts
+--- a/src/render/store/slices/appSlice.ts
++++ b/src/render/store/slices/appSlice.ts
+@@ -54,1 +54,1 @@
+-    setSettingData: (state, action: PayloadAction<any>) => {
++    setSettingData: (state, action: PayloadAction<unknown>) => {
+@@ -94,1 +94,1 @@
+-    setSongData: (state, action: PayloadAction<{ data: any[]; gameCode: string }>) => {
++    setSongData: (state, action: PayloadAction<{ data: unknown[]; gameCode: string }>) => {
+diff --git a/src/main/modules/logger/logger.controller.ts b/src/main/modules/logger/logger.controller.ts
+--- a/src/main/modules/logger/logger.controller.ts
++++ b/src/main/modules/logger/logger.controller.ts
+@@ -12,1 +12,1 @@
+-  public handleCreateLog(args: any[]): boolean {
++  public handleCreateLog(args: unknown[]): boolean {
+@@ -13,1 +13,1 @@
+-    this.loggingService.createLog(...args)
++    void this.loggingService.createLog(...args)

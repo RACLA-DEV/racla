@@ -6,10 +6,9 @@
   <p><strong>종합리듬 게임 성과 관리 도구</strong></p>
   
   <p>
-    <a href="https://github.com/RACLA-DEV/racla-vite/blob/main/LICENSE">
-      <img src="https://img.shields.io/github/license/RACLA-DEV/racla-vite?color=blue" alt="License">
-    </a>
+    <img src="https://img.shields.io/github/license/RACLA-DEV/racla-vite?color=blue" alt="License">
     <img src="https://img.shields.io/badge/platforms-Windows-brightgreen" alt="Platforms">
+    <img src="https://github.com/RACLA-DEV/racla-vite/actions/workflows/build.yml/badge.svg" alt="Build Status">
   </p>
 </div>
 
@@ -57,12 +56,14 @@ RACLA는 **GGDRN0 STUDIO**에서 개발한 종합리듬 게임 성과 관리 도
 ## 📜 라이선스
 
 ### 소프트웨어 라이선스
+
 > 이 소프트웨어의 소스코드는 [MIT 라이선스](https://github.com/RACLA-DEV/racla/blob/main/LICENSE)에 따라 제공됩니다.
 >
 > 자세한 내용은 소스코드에 포함된 `LICENSE` 파일을 참조하시기 바랍니다.
 
 ### 제3자 리소스
+
 ⚠️ 본 소프트웨어에는 제3자의 이미지, 아이콘, 폰트 등 일부 리소스가 포함되어 있을 수 있습니다.
 
-* 이러한 제3자 리소스는 각각의 라이선스 조건이 적용됩니다
-* 해당 리소스의 원저작자가 명시한 라이선스를 반드시 준수해야 합니다
+- 이러한 제3자 리소스는 각각의 라이선스 조건이 적용됩니다
+- 해당 리소스의 원저작자가 명시한 라이선스를 반드시 준수해야 합니다

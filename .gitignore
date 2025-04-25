@@ -22,7 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-/.github/workflows
 /.cursor
 /.env.production
 /.env.development
