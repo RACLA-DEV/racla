@@ -34,7 +34,7 @@ export class FileManagerController {
 
   @IpcHandle('file-manager:clear-session')
   clearSession(): void {
-    return this.fileManagerService.clearSession()
+    this.fileManagerService.clearSession()
   }
 
   @IpcHandle('file-manager:save-song-data')

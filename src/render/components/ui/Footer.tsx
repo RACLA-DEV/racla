@@ -28,7 +28,7 @@ const Footer: React.FC = () => {
           'Checking server status...',
           `${import.meta.env.VITE_API_URL}/v2/racla/ping`,
         ) // 디버깅용 로그
-        const response = await apiClient.get<any>(`/v2/racla/ping`, {
+        const response = await apiClient.get<ServerStatus>(`/v2/racla/ping`, {
           timeout: 5000, // 5초 타임아웃 설정
         })
 
@@ -52,7 +52,7 @@ const Footer: React.FC = () => {
     // 30초마다 실행되는 인터벌 설정
     const interval = setInterval(() => {
       createLog('debug', 'Running interval check...') // 디버깅용 로그
-      checkServerStatus()
+      void checkServerStatus()
     }, 30000)
 
     // 클린업 함수

@@ -116,7 +116,9 @@ const ToggleSwitch = ({
       className={`tw:relative tw:w-10 tw:h-5 tw:rounded-full tw:transition-all tw:duration-300 tw:cursor-pointer ${
         disabled ? 'tw:opacity-50 tw:cursor-not-allowed' : ''
       } ${value ? 'tw:bg-indigo-600' : theme === 'dark' ? 'tw:bg-slate-700' : 'tw:bg-gray-300'}`}
-      onClick={() => !disabled && onChange(!value)}
+      onClick={() => {
+        !disabled && onChange(!value)
+      }}
     >
       <div
         className={`tw:absolute tw:w-4 tw:h-4 tw:rounded-full tw:transition-all tw:duration-300 tw:top-0.5 tw:bg-white tw:shadow-md ${
@@ -254,7 +256,54 @@ const SelectBox = ({
   )
 }
 
-// 스토리지 정보 컴포넌트
+// 폴더 항목 컴포넌트
+const FolderItem = ({
+  title,
+  path,
+  size,
+  folderType,
+  theme,
+  formatBytes,
+  openFolder,
+  children,
+}: {
+  title: string
+  path: string
+  size: number
+  folderType: 'documents' | 'pictures' | 'logs' | 'appData'
+  theme: string
+  formatBytes: (bytes: number) => string
+  openFolder: (folderType: 'documents' | 'pictures' | 'logs' | 'appData') => Promise<void>
+  children?: React.ReactNode
+}) => (
+  <div
+    className={`tw:px-4 tw:pt-3 tw:pb-4 tw:rounded-lg tw:border ${
+      theme === 'dark' ? 'tw:bg-slate-700 tw:border-slate-600' : 'tw:bg-white tw:border-gray-200'
+    }`}
+  >
+    <div className='tw:flex tw:justify-between tw:items-center'>
+      <h1 className='tw:text-sm'>{title}</h1>
+      <div className='tw:flex tw:items-center tw:gap-3'>
+        <span className='tw:font-mono tw:text-sm'>{formatBytes(size)}</span>
+        <button
+          onClick={() => {
+            void openFolder(folderType)
+          }}
+          className={`tw:p-2 tw:rounded-lg tw:cursor-pointer ${
+            theme === 'dark'
+              ? 'hover:tw:text-slate-600 tw:text-indigo-400'
+              : 'hover:tw:text-gray-100 tw:text-indigo-600'
+          }`}
+        >
+          <Icon icon='lucide:folder-open' className='tw:w-4 tw:h-4' />
+        </button>
+      </div>
+    </div>
+    <div className='tw:text-sm tw:opacity-70 tw:truncate'>{path}</div>
+    {children}
+  </div>
+)
+
 const StorageInfo = ({ theme }: { theme: string }) => {
   const dispatch = useDispatch()
   const { settingData } = useSelector((state: RootState) => state.app)
@@ -372,48 +421,6 @@ const StorageInfo = ({ theme }: { theme: string }) => {
     }
   }
 
-  // 폴더 항목 컴포넌트
-  const FolderItem = ({
-    title,
-    path,
-    size,
-    folderType,
-    children,
-  }: {
-    title: string
-    path: string
-    size: number
-    folderType: 'documents' | 'pictures' | 'logs' | 'appData'
-    children?: React.ReactNode
-  }) => (
-    <div
-      className={`tw:px-4 tw:pt-3 tw:pb-4 tw:rounded-lg tw:border ${
-        theme === 'dark' ? 'tw:bg-slate-700 tw:border-slate-600' : 'tw:bg-white tw:border-gray-200'
-      }`}
-    >
-      <div className='tw:flex tw:justify-between tw:items-center'>
-        <h1 className='tw:text-sm'>{title}</h1>
-        <div className='tw:flex tw:items-center tw:gap-3'>
-          <span className='tw:font-mono tw:text-sm'>{formatBytes(size)}</span>
-          <button
-            onClick={() => {
-              void openFolder(folderType)
-            }}
-            className={`tw:p-2 tw:rounded-lg tw:cursor-pointer ${
-              theme === 'dark'
-                ? 'hover:tw:text-slate-600 tw:text-indigo-400'
-                : 'hover:tw:text-gray-100 tw:text-indigo-600'
-            }`}
-          >
-            <Icon icon='lucide:folder-open' className='tw:w-4 tw:h-4' />
-          </button>
-        </div>
-      </div>
-      <div className='tw:text-sm tw:opacity-70 tw:truncate'>{path}</div>
-      {children}
-    </div>
-  )
-
   return (
     <div className='tw:space-y-6'>
       {isLoading ? (
@@ -428,6 +435,9 @@ const StorageInfo = ({ theme }: { theme: string }) => {
               path={folderPaths.documents}
               size={storageInfo.appDataSize}
               folderType='documents'
+              theme={theme}
+              formatBytes={formatBytes}
+              openFolder={openFolder}
             />
 
             <FolderItem
@@ -435,6 +445,9 @@ const StorageInfo = ({ theme }: { theme: string }) => {
               path={folderPaths.pictures}
               size={storageInfo.imageDataSize}
               folderType='pictures'
+              theme={theme}
+              formatBytes={formatBytes}
+              openFolder={openFolder}
             >
               <div
                 className={`tw:mt-3 tw:pt-3 tw:flex tw:justify-between tw:items-center tw:border-t ${
@@ -453,7 +466,9 @@ const StorageInfo = ({ theme }: { theme: string }) => {
                 </div>
                 <select
                   value={autoDeleteDays}
-                  onChange={(e) => handleAutoDeleteChange(Number(e.target.value))}
+                  onChange={(e) => {
+                    handleAutoDeleteChange(Number(e.target.value))
+                  }}
                   className={`tw:p-2 tw:min-w-[120px] tw:text-sm tw:rounded-lg tw:transition-colors tw:border ${
                     theme === 'dark'
                       ? 'tw:bg-slate-700 tw:text-white tw:border-slate-600'
@@ -474,6 +489,9 @@ const StorageInfo = ({ theme }: { theme: string }) => {
               path={folderPaths.logs}
               size={storageInfo.logDataSize}
               folderType='logs'
+              theme={theme}
+              formatBytes={formatBytes}
+              openFolder={openFolder}
             >
               <div className='tw:mt-2 tw:flex tw:justify-end'>
                 <button
@@ -560,7 +578,7 @@ export default function SettingModal() {
 
       // 안전하게 설정 할당
       if (id in newSettings) {
-        newSettings[id as keyof typeof newSettings] = value as any
+        newSettings[id as keyof typeof newSettings] = value as SettingsData[keyof SettingsData]
       }
 
       return newSettings
@@ -640,7 +658,9 @@ export default function SettingModal() {
             {Object.entries(settingCategories).map(([key, category]) => (
               <span
                 key={key}
-                onClick={() => setActiveCategory(key)}
+                onClick={() => {
+                  setActiveCategory(key)
+                }}
                 className={`tw:flex tw:items-center tw:cursor-pointer tw:gap-3 tw:px-4 tw:py-3 tw:rounded-lg tw:transition-colors tw:text-left ${
                   activeCategory === key
                     ? theme === 'dark'

@@ -13,9 +13,9 @@ export class AppService implements OnApplicationBootstrap {
 
   onApplicationBootstrap() {
     // 메인 윈도우가 닫히기 직전에 오버레이 제거
-    this.mainWindow?.on('close', async () => {
+    this.mainWindow?.on('close', () => {
       try {
-        await this.overlayWindowService.destroyOverlay()
+        this.overlayWindowService.destroyOverlay()
       } catch (error) {
         console.error('오버레이 제거 중 오류 발생:', error)
       }

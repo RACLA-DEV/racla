@@ -11,9 +11,7 @@ export class OverlayWindowController {
 
   @IpcHandle('overlay:create')
   createOverlay(): Observable<boolean> {
-    return from(this.overlayWindowService.createOverlay()).pipe(
-      map(window => !!window),
-    )
+    return from(void this.overlayWindowService.createOverlay()).pipe(map((window) => !!window))
   }
 
   @IpcHandle('overlay:send')
@@ -24,8 +22,6 @@ export class OverlayWindowController {
 
   @IpcHandle('overlay:close')
   closeOverlay(): Observable<boolean> {
-    return from(this.overlayWindowService.destroyOverlay()).pipe(
-      map(() => true),
-    )
+    return from(void this.overlayWindowService.destroyOverlay()).pipe(map(() => true))
   }
 }

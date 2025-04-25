@@ -73,9 +73,9 @@ export class AppModule implements OnModuleInit, OnModuleDestroy {
   ) {}
 
   async onModuleInit() {
-    await this.updateManagerService.initialize()
+    this.updateManagerService.initialize()
+    this.gameMonitorService.initialize()
     await this.discordManagerService.initialize()
-    await this.gameMonitorService.initialize()
   }
 
   onModuleDestroy() {

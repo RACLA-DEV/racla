@@ -1,6 +1,6 @@
 export interface SettingsData {
-  theme: 'light' | 'dark'
-  sidebarCollapsed: boolean
+  theme?: 'light' | 'dark'
+  sidebarCollapsed?: boolean
   hardwareAcceleration?: boolean
   homeButtonAlignRight?: boolean
   visibleBga?: boolean

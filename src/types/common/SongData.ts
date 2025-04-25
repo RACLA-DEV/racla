@@ -15,9 +15,9 @@ export interface PatternDifficulty {
   patternFileName?: string | null
 }
 
-export interface PatternSet extends Record<string, PatternDifficulty> {}
+export type PatternSet = Record<string, PatternDifficulty>
 
-export interface KeyPatterns extends Record<string, PatternSet> {}
+export type KeyPatterns = Record<string, PatternSet>
 
 export interface SongData {
   title: number

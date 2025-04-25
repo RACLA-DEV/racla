@@ -1,6 +1,7 @@
 import { globalDictionary } from '@render/constants/globalDictionary'
 import { useAuth } from '@render/hooks/useAuth'
 import { setOverlayMode } from '@render/store/slices/uiSlice'
+import { GameType } from '@src/types/common/GameType'
 import { lazy, Suspense, useCallback, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Outlet, useLocation } from 'react-router-dom'
@@ -27,6 +28,9 @@ const NotificationContainer = lazy(() =>
 const ExternalLinkModal = lazy(() => import('./ExternalLinkModal'))
 const LoadingSkeleton = lazy(() => import('./LoadingSkeleton'))
 const SettingModal = lazy(() => import('./SettingModal'))
+
+// 하드코딩된 배열 대신 타입에서 유효한 게임 배열 생성
+const VALID_GAMES: GameType[] = globalDictionary.supportGameList as GameType[]
 
 export default function WrappedApp() {
   const { isLoading, settingData } = useSelector((state: RootState) => state.app)
@@ -287,8 +291,7 @@ export default function WrappedApp() {
   // 모든 게임 데이터 로드
   const loadAllSongData = useCallback(
     async (showNotifications = false) => {
-      const games = ['djmax_respect_v', 'wjmax', 'platina_lab']
-      const promises = games.map((game) => loadSongDataFromAPI(game, showNotifications))
+      const promises = VALID_GAMES.map((game) => loadSongDataFromAPI(game, showNotifications))
       await Promise.allSettled(promises)
     },
     [loadSongDataFromAPI],
@@ -355,7 +358,17 @@ export default function WrappedApp() {
                       : 'Session data exists, requesting auto-login:',
                     session,
                   )
-                  const response = await apiClient.post<any>(`/v2/racla/user/login`, {
+                  const response = await apiClient.post<{
+                    userNo: string
+                    userToken: string
+                    userName?: string
+                    discordUid?: string
+                    discordLinked?: boolean
+                    vArchiveLinked?: boolean
+                    vArchiveUserNo?: number
+                    vArchiveUserToken?: string
+                    vArchiveUserName?: string | { success: boolean; nickname: string }
+                  }>(`/v2/racla/user/login`, {
                     userNo: session.userNo,
                     userToken: session.userToken,
                   })
@@ -368,7 +381,7 @@ export default function WrappedApp() {
                     session.discordUid = data.discordUid || session.discordUid || ''
                     session.discordLinked = data.discordLinked || session.discordLinked || false
                     session.vArchiveLinked = data.vArchiveLinked || session.vArchiveLinked || false
-                    session.vArchiveUserNo = data.vArchiveUserNo || session.vArchiveUserNo || ''
+                    session.vArchiveUserNo = data.vArchiveUserNo || session.vArchiveUserNo || 0
                     session.vArchiveUserToken =
                       data.vArchiveUserToken || session.vArchiveUserToken || ''
                     session.vArchiveUserName =

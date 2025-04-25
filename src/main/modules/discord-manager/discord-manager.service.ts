@@ -1,18 +1,8 @@
 import { Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common'
+import type { PlayData } from '@src/types/common/PlayData'
 import { Client } from 'discord-rpc'
 import dotenv from 'dotenv'
 import { app } from 'electron'
-
-interface GameData {
-  songName?: string
-  button?: string
-  pattern?: string
-  score?: number
-  max?: number
-  level?: number
-  maxCombo?: boolean
-  gameCode?: string
-}
 
 @Injectable()
 export class DiscordManagerService implements OnModuleInit, OnModuleDestroy {
@@ -57,7 +47,7 @@ export class DiscordManagerService implements OnModuleInit, OnModuleDestroy {
     }
   }
 
-  async updatePresence(gameData?: GameData): Promise<void> {
+  async updatePresence(gameData?: PlayData): Promise<void> {
     if (!this.isConnected) return
 
     try {

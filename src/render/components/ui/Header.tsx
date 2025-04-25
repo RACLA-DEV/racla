@@ -19,15 +19,18 @@ const TitleBar: React.FC = () => {
 
   // 최대화 상태 이벤트 리스너 (실제로는 preload 파일에서 이벤트를 전달해야 함)
   useEffect(() => {
-    const handleMaximizeChange = (e: any, maximized: boolean) => {
+    const handleMaximizeChange = (e: CustomEvent<boolean>, maximized: boolean) => {
       createLog('debug', 'Maximize change:', maximized, e)
       setIsMaximized(maximized)
     }
 
-    window.addEventListener('maximize-change', handleMaximizeChange as any)
+    window.addEventListener('maximize-change', handleMaximizeChange as unknown as EventListener)
 
     return () => {
-      window.removeEventListener('maximize-change', handleMaximizeChange as any)
+      window.removeEventListener(
+        'maximize-change',
+        handleMaximizeChange as unknown as EventListener,
+      )
     }
   }, [])
 

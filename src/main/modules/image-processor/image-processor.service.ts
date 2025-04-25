@@ -102,24 +102,39 @@ export class ImageProcessorService {
   }
 
   private findActualHeight(data: Buffer, width: number, height: number, channels: number): number {
+    return this.findFirstNonBlackRowFromBottom(data, width, height, channels)
+  }
+
+  private findFirstNonBlackRowFromBottom(
+    data: Buffer,
+    width: number,
+    height: number,
+    channels: number,
+  ): number {
     for (let y = height - 1; y >= 0; y--) {
-      let isNonBlackRow = false
-      for (let x = 0; x < width; x++) {
-        const idx = (y * width + x) * channels
-        if (
-          idx >= 0 &&
-          idx + 2 < data.length &&
-          (data[idx] !== 0 || data[idx + 1] !== 0 || data[idx + 2] !== 0)
-        ) {
-          isNonBlackRow = true
-          break
-        }
-      }
-      if (isNonBlackRow) {
+      if (this.isNonBlackRow(data, width, y, channels)) {
         return y + 1
       }
     }
     return height
+  }
+
+  private isNonBlackRow(data: Buffer, width: number, y: number, channels: number): boolean {
+    for (let x = 0; x < width; x++) {
+      const idx = (y * width + x) * channels
+      if (this.isNonBlackPixel(data, idx)) {
+        return true
+      }
+    }
+    return false
+  }
+
+  private isNonBlackPixel(data: Buffer, idx: number): boolean {
+    return (
+      idx >= 0 &&
+      idx + 2 < data.length &&
+      (data[idx] !== 0 || data[idx + 1] !== 0 || data[idx + 2] !== 0)
+    )
   }
 
   async captureGameWindow(gameTitle: string): Promise<Buffer | null> {

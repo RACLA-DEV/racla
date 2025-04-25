@@ -45,7 +45,7 @@ export default function LoginPage() {
     window.electron.logout()
   }
 
-  const onVArchiveFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const onVArchiveFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
 
@@ -76,7 +76,17 @@ export default function LoginPage() {
 
             if (result.data.success) {
               // RACLA 서버 API에 V-ARCHIVE 정보로 로그인
-              const response = await apiClient.post<any>(
+              const response = await apiClient.post<{
+                userNo: string
+                userToken: string
+                userName?: string
+                discordUid?: string
+                discordLinked?: boolean
+                vArchiveLinked?: boolean
+                vArchiveUserNo?: number
+                vArchiveUserToken?: string
+                vArchiveUserName?: string | { success: boolean; nickname: string }
+              }>(
                 `${import.meta.env.VITE_API_URL || 'http://localhost:3000/api'}/v2/racla/user/login/oauth/vArchive`,
                 { userNo, userToken: token },
               )
@@ -153,7 +163,17 @@ export default function LoginPage() {
         return
       }
 
-      const response = await apiClient.post<any>(`/v2/racla/user/login/oauth/discord`, { code })
+      const response = await apiClient.post<{
+        userNo: string
+        userToken: string
+        userName?: string
+        discordUid?: string
+        discordLinked?: boolean
+        vArchiveUserNo?: number
+        vArchiveUserToken?: string
+        vArchiveUserName?: string | { success: boolean; nickname: string }
+        vArchiveLinked?: boolean
+      }>(`/v2/racla/user/login/oauth/discord`, { code })
 
       if (response.status === 200 && response.data) {
         const success = await login({
@@ -162,18 +182,18 @@ export default function LoginPage() {
           userName: response.data.userName || '',
           discordUid: response.data.discordUid || '',
           discordLinked: true,
-          vArchiveUserNo: response.data.varchiveUserNo || '',
-          vArchiveUserToken: response.data.varchiveUserToken || '',
+          vArchiveUserNo: response.data.vArchiveUserNo || 0,
+          vArchiveUserToken: response.data.vArchiveUserToken || '',
           vArchiveUserName:
-            response.data.varchiveUserNo && response.data.varchiveUserToken
+            response.data.vArchiveUserNo && response.data.vArchiveUserToken
               ? (
                   await getUserName({
-                    userNo: response.data.varchiveUserNo,
-                    token: response.data.varchiveUserToken,
+                    userNo: response.data.vArchiveUserNo,
+                    token: response.data.vArchiveUserToken,
                   })
                 ).data.nickname
               : '',
-          vArchiveLinked: response.data.varchiveLinked || false,
+          vArchiveLinked: response.data.vArchiveLinked || false,
         })
 
         if (success) {

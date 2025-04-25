@@ -15,7 +15,7 @@ export class LoggerService {
     dotenv.config({ path: !app.isPackaged ? '.env.development' : '.env.production' })
   }
 
-  public createLog(level: LogLevel = 'info', where = 'MAIN', ...args: unknown[]) {
+  public createLog(level: LogLevel = 'info', where = 'MAIN', ...args: unknown[]): boolean {
     const logPrefix = `[${where}] `
     const logContent = args
       .map((arg) => (typeof arg === 'object' ? JSON.stringify(arg, null, 2) : arg.toString()))
@@ -38,6 +38,7 @@ export class LoggerService {
         this.logger.log(message)
         break
     }
+    return true
   }
 
   private async sendErrorLog(where: string, error: Error, context?: unknown, ...args: unknown[]) {
@@ -57,7 +58,10 @@ export class LoggerService {
         },
       }
 
-      const response = await apiClient.post<any>(`/v2/racla/log/client/create`, errorData)
+      const response = await apiClient.post<Record<string, unknown>>(
+        `/v2/racla/log/client/create`,
+        errorData,
+      )
       if (response.status === 200) {
         this.logger.log(`[MAIN] Exception Report Successfully.`)
       } else {

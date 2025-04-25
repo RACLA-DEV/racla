@@ -5,37 +5,37 @@ import React from 'react'
 import { useSelector } from 'react-redux'
 import { useLocation } from 'react-router-dom'
 
+// 애니메이션 변수를 컴포넌트 외부로 분리
+const contentAnimation = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.5,
+      ease: 'easeOut',
+      delay: 0.3,
+      when: 'beforeChildren',
+      staggerChildren: 0.2,
+    },
+  },
+}
+
+const childAnimation = {
+  hidden: { opacity: 0, x: 20 },
+  visible: {
+    opacity: 1,
+    x: 0,
+    transition: {
+      duration: 0.4,
+      ease: 'easeOut',
+    },
+  },
+}
+
 const MainContent: React.FC<ChildrenReactNodeProps> = ({ children }) => {
   const { theme } = useSelector((state: RootState) => state.ui)
   const location = useLocation()
-
-  // 애니메이션 변수
-  const contentAnimation = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.5,
-        ease: 'easeOut',
-        delay: 0.3,
-        when: 'beforeChildren',
-        staggerChildren: 0.2,
-      },
-    },
-  }
-
-  const childAnimation = {
-    hidden: { opacity: 0, x: 20 },
-    visible: {
-      opacity: 1,
-      x: 0,
-      transition: {
-        duration: 0.4,
-        ease: 'easeOut',
-      },
-    },
-  }
 
   return (
     <motion.div
