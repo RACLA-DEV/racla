@@ -288,7 +288,7 @@ export class OcrManagerService {
   getMaskingRegions(gameCode: string, screenType: string): OCRRegion[] {
     const settings: SettingsData = this.fileManagerService.loadSettings()
 
-    const regions = this.profileRegions[gameCode]?.[screenType]
+    const regions = this.profileRegions[gameCode][screenType]
     if (!regions) return []
 
     let regionsToMask: OCRRegion[] = []
