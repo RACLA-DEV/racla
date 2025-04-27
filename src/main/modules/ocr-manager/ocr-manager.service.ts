@@ -34,7 +34,7 @@ export interface OCRResultInfo {
 // OCR 추출 결과 인터페이스
 export interface ExtractedRegionsResult {
   regions: { [key: string]: Buffer }
-  texts: { [key: string]: string }
+  texts: Record<string, string>
 }
 
 @Injectable()
