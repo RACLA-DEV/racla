@@ -41,9 +41,8 @@ export class FileManagerController {
   saveSongData(data: { gameCode: string; songData: SongData[] }): boolean {
     try {
       const { gameCode, songData } = data
-      this.logger.log(`곡 데이터 저장 요청 - 게임 코드: ${gameCode}`)
       this.logger.log(
-        `songData 타입: ${typeof songData}, 배열 여부: ${Array.isArray(songData)}, 길이: ${songData.length || 0}`,
+        `곡 데이터 저장 요청 - 게임 코드: ${gameCode}, 배열 여부: ${Array.isArray(songData)}, 길이: ${songData.length || 0}`,
       )
 
       if (!Array.isArray(songData)) {
