@@ -70,7 +70,7 @@ export class AppModule implements OnModuleInit, OnModuleDestroy {
 
   constructor(private readonly gameMonitorService: GameMonitorService) {}
 
-  async onModuleInit() {}
+  async onModuleInit() { this.logger.log('Module initialized'); }
 
   onModuleDestroy() {
     if (this.isInitialized) {
