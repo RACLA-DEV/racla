@@ -26,10 +26,12 @@ contextBridge.exposeInMainWorld('electron', {
   getActiveWindows: () => ipcRenderer.invoke('monitor:get-active-windows'),
   checkGameStatus: (processName: string) => ipcRenderer.invoke('monitor:check-game', processName),
   getGameWindow: () => ipcRenderer.invoke('monitor:get-game-window'),
+  initializeMonitor: () => ipcRenderer.invoke('monitor:initialize'),
 
   // 로깅 관련
   sendLog: (level: LogLevel, where: string, ...args: unknown[]) =>
     ipcRenderer.invoke('logger:create-log', level, where, ...args),
+  clearAllLogs: () => ipcRenderer.invoke('file-manager:clear-all-logs'),
 
   // 캡처 관련
   captureGameWindow: (gameTitle: string) =>
@@ -48,10 +50,8 @@ contextBridge.exposeInMainWorld('electron', {
   minimizeApp: () => ipcRenderer.send('window:minimize'),
   maximizeApp: () => ipcRenderer.send('window:maximize'),
 
-  // 외부 URL 열기
+  // 외부 URL 열기 관련
   openExternalUrl: (url: string) => ipcRenderer.invoke('window:open-external-url', url),
-
-  // 외부 링크 확인 이벤트
   onConfirmExternalLink: (callback: (url: string) => void) =>
     ipcRenderer.on('confirm-external-link', (_event, url: string) => callback(url)),
 
@@ -70,12 +70,9 @@ contextBridge.exposeInMainWorld('electron', {
   getFolderPaths: () => ipcRenderer.invoke('file-manager:get-folder-paths'),
   openFolder: (folderType: 'documents' | 'pictures' | 'logs' | 'appData') =>
     ipcRenderer.invoke('file-manager:open-folder', folderType),
-  clearAllLogs: () => ipcRenderer.invoke('file-manager:clear-all-logs'),
 
-  // 앱 재시작 관련
+  // 앱 관련
   restartApp: () => ipcRenderer.invoke('app:restart'),
-
-  // 파일 선택 다이얼로그 관련
   openFileDialog: (options: {
     title?: string
     defaultPath?: string
@@ -91,4 +88,8 @@ contextBridge.exposeInMainWorld('electron', {
   onUpdateDownloaded: (callback: (version: string) => void) =>
     ipcRenderer.on('update-downloaded', (_event, version: string) => callback(version)),
   updateApp: () => ipcRenderer.invoke('update-manager:update-app'),
+  initializeUpdate: () => ipcRenderer.invoke('update-manager:initialize'),
+
+  // 디스코드 관련
+  initializeDiscord: () => ipcRenderer.invoke('discord-manager:initialize'),
 })

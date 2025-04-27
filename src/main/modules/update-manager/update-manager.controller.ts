@@ -15,4 +15,9 @@ export class UpdateManagerController {
     // 업데이트 설치 및 앱 재시작
     this.updateManagerService.quitAndInstall()
   }
+
+  @IpcHandle('update-manager:initialize')
+  initialize(): void {
+    this.updateManagerService.initialize()
+  }
 }

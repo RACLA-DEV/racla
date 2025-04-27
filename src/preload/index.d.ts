@@ -29,9 +29,11 @@ declare global {
       sendToOverlay: (message: string) => Promise<boolean>
       getProcessList: () => Promise<ProcessDescriptor[]>
       onOverlayMessage: (callback: (data: any) => void) => void
+      initializeMonitor: () => Promise<void>
 
       // 로깅 관련
       sendLog: (level: LogLevel, where: string, ...args: unknown[]) => void
+      clearAllLogs: () => Promise<boolean>
 
       //캡처 관련
       captureGameWindow: (gameTitle: string) => Promise<Buffer | null>
@@ -49,6 +51,7 @@ declare global {
       openExternalUrl: (url: string) => void
       onConfirmExternalLink: (callback: (url: string) => void) => void
 
+      // 로그인 관련
       login: (sessionData: SessionData) => Promise<boolean>
       logout: () => Promise<boolean>
       checkLoggedIn: () => Promise<boolean>
@@ -67,12 +70,8 @@ declare global {
       }>
       openFolder: (folderType: 'documents' | 'pictures' | 'logs' | 'appData') => Promise<boolean>
 
-      // 앱 재시작 관련
+      // 앱 관련
       restartApp: () => Promise<boolean>
-
-      // 로그 관련
-      clearAllLogs: () => Promise<boolean>
-
       openFileDialog: (options: {
         title?: string
         defaultPath?: string
@@ -86,6 +85,10 @@ declare global {
       ) => void
       onUpdateDownloaded: (callback: (version: string) => void) => void
       updateApp: () => void
+      initializeUpdate: () => void
+
+      // 디스코드 관련
+      initializeDiscord: () => void
     }
   }
 }

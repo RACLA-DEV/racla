@@ -3,12 +3,12 @@ import * as winston from 'winston'
 import { Module, OnModuleDestroy, OnModuleInit } from '@nestjs/common'
 import { WinstonModule, utilities as nestWinstonModuleUtilities } from 'nest-winston'
 
+import { Logger } from '@nestjs/common'
 import { app } from 'electron'
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
 import { AuthModule } from './modules/auth/auth.module'
 import { DiscordManagerModule } from './modules/discord-manager/discord-manager.module'
-import { DiscordManagerService } from './modules/discord-manager/discord-manager.service'
 import { FileManagerModule } from './modules/file-manager/file-manager.module'
 import { GameMonitorModule } from './modules/game-monitor/game-monitor.module'
 import { GameMonitorService } from './modules/game-monitor/game-monitor.service'
@@ -19,7 +19,6 @@ import { MessageModule } from './modules/message/message.module'
 import { OverlayWindowModule } from './modules/overlay-window/overlay-window.module'
 import { ProcessModule } from './modules/process/process.module'
 import { UpdateManagerModule } from './modules/update-manager/update-manager.module'
-import { UpdateManagerService } from './modules/update-manager/update-manager.service'
 
 // Winston 설정을 별도 상수로 분리
 export const winstonConfig = {
@@ -66,19 +65,18 @@ export const winstonConfig = {
   providers: [AppService],
 })
 export class AppModule implements OnModuleInit, OnModuleDestroy {
-  constructor(
-    private readonly gameMonitorService: GameMonitorService,
-    private readonly updateManagerService: UpdateManagerService,
-    private readonly discordManagerService: DiscordManagerService,
-  ) {}
+  private readonly logger = new Logger(AppModule.name)
+  private isInitialized = false
 
-  async onModuleInit() {
-    this.updateManagerService.initialize()
-    this.gameMonitorService.initialize()
-    await this.discordManagerService.initialize()
-  }
+  constructor(private readonly gameMonitorService: GameMonitorService) {}
+
+  async onModuleInit() {}
 
   onModuleDestroy() {
-    this.gameMonitorService.cleanup()
+    if (this.isInitialized) {
+      this.logger.log('Service cleanup started')
+      this.gameMonitorService.cleanup()
+      this.logger.log('Service cleanup completed')
+    }
   }
 }

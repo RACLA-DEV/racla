@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 
 import { createLog } from '@render/libs/logger'
+import type { LogLevel } from '@src/types/common/LogLevel'
 import { Buffer } from 'buffer'
 
 const {
@@ -22,8 +23,8 @@ const electronActions = {
     return image
   },
 
-  logError: () => {
-    createLog('error', new Error('에러 메시지'))
+  createLog: (type: LogLevel, message: string) => {
+    createLog(type, message)
   },
 }
 
@@ -132,7 +133,7 @@ function CheatsheetPage() {
         description: '로그를 생성합니다',
         example: 'createLog("info", "로그 메시지")',
         usage: async () => {
-          void electronActions.logError()
+          electronActions.createLog('info', '로그 메시지')
         },
       },
       {
@@ -140,7 +141,7 @@ function CheatsheetPage() {
         description: '에러 로그를 생성합니다',
         example: 'createLog("error", "에러 메시지")',
         usage: async () => {
-          void electronActions.logError()
+          electronActions.createLog('error', '에러 메시지')
         },
       },
     ],
