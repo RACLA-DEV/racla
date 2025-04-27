@@ -3,6 +3,8 @@ import { Injectable, Logger } from '@nestjs/common'
 import { Window } from 'node-screenshots'
 import { Buffer } from 'node:buffer'
 import sharp from 'sharp'
+import * as Tesseract from 'tesseract.js'
+import { OCRRegion } from '../ocr-manager/ocr-manager.service'
 
 @Injectable()
 export class ImageProcessorService {
@@ -152,5 +154,111 @@ export class ImageProcessorService {
       this.logger.error('Error capturing game window:', error.message)
       throw error
     }
+  }
+
+  /**
+   * 이미지에서 특정 영역을 추출하는 메서드
+   */
+  async extractRegion(imageBuffer: Buffer, region: OCRRegion): Promise<Buffer> {
+    try {
+      return await sharp(imageBuffer).extract(region).grayscale().linear(1.5, 0).toBuffer()
+    } catch (error) {
+      this.logger.error(`이미지 영역 추출 중 오류 발생: ${error.message}`)
+      throw error
+    }
+  }
+
+  /**
+   * 추출된 이미지에서 텍스트를 인식하는 메서드
+   */
+  async recognizeText(buffer: Buffer): Promise<string> {
+    const worker = await Tesseract.createWorker('eng')
+    try {
+      await worker.setParameters({
+        tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ ',
+      })
+
+      const {
+        data: { text },
+      } = await worker.recognize(buffer)
+
+      return text || ''
+    } catch (error) {
+      this.logger.error(`OCR 텍스트 인식 중 오류 발생: ${error.message}`)
+      return ''
+    } finally {
+      if (worker) {
+        try {
+          await worker.terminate()
+        } catch (error) {
+          this.logger.error(`Tesseract 워커 종료 중 오류 발생: ${error.message}`)
+        }
+      }
+    }
+  }
+
+  /**
+   * 프로필 마스크 적용 메서드
+   */
+  async applyProfileMask(
+    imageBuffer: Buffer,
+    regions: OCRRegion[],
+    blurMode = 'black',
+  ): Promise<Buffer> {
+    try {
+      const image = sharp(imageBuffer)
+
+      if (regions.length === 0) return imageBuffer
+
+      const overlays = await Promise.all(
+        regions.map(async (region) => ({
+          input: await this.createMask(imageBuffer, region, blurMode),
+          left: region.left,
+          top: region.top,
+        })),
+      )
+
+      return await image.composite(overlays).toBuffer()
+    } catch (error) {
+      this.logger.error(`프로필 마스크 적용 중 오류 발생: ${error.message}`)
+      return imageBuffer
+    }
+  }
+
+  /**
+   * 마스크 생성 메서드
+   */
+  private async createMask(
+    imageBuffer: Buffer,
+    region: OCRRegion,
+    blurMode: string,
+  ): Promise<Buffer> {
+    if (blurMode === 'black') {
+      return await this.createBlackMask(region)
+    }
+    return await this.createBlurMask(imageBuffer, region)
+  }
+
+  /**
+   * 검은색 마스크 생성 메서드
+   */
+  private async createBlackMask(region: OCRRegion): Promise<Buffer> {
+    return await sharp({
+      create: {
+        width: region.width,
+        height: region.height,
+        channels: 4,
+        background: '#000000',
+      },
+    })
+      .jpeg()
+      .toBuffer()
+  }
+
+  /**
+   * 블러 마스크 생성 메서드
+   */
+  private async createBlurMask(imageBuffer: Buffer, region: OCRRegion): Promise<Buffer> {
+    return await sharp(imageBuffer).extract(region).blur(15).toBuffer()
   }
 }
