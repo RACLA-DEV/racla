@@ -83,7 +83,7 @@ const updateSongDataIfValidGameCode = (
       createLog('debug', `setSongData: ${gameCode} 데이터 설정 완료`)
     }
   } else {
-    createLog('error', `유효하지 않은 게임 코드: ${gameCode}`)
+    createLog('error', `유효하지 않은 게임 코드`)
   }
 }
 

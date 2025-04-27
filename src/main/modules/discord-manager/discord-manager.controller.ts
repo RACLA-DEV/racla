@@ -8,8 +8,8 @@ export class DiscordManagerController {
   constructor(private readonly discordManagerService: DiscordManagerService) {}
 
   @IpcHandle('discord-manager:initialize')
-  async initialize() {
-    return this.discordManagerService.initialize()
+  async initialize(): Promise<void> {
+    await this.discordManagerService.initialize();
   }
 
   @IpcHandle('discord-manager:update-presence')

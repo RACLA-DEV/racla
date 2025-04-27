@@ -28,3 +28,6 @@ dist-ssr
 /src/render/.env.development
 /src/render/.env.production
 /.cursorrules
+
+#Ignore cursor AI rules
+.cursor\rules\codacy.mdc

@@ -29,4 +29,9 @@ export class GameMonitorController {
   getGameWindow(): Observable<Result | undefined> {
     return from(this.gameMonitorService.getGameWindowInfo())
   }
+
+  @IpcHandle('monitor:initialize')
+  initialize(): void {
+    this.gameMonitorService.initialize()
+  }
 }

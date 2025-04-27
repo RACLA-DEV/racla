@@ -62,8 +62,11 @@ export class FileManagerService {
     this.ensureDirectoryExists(this.picturesPath)
     this.ensureDirectoryExists(this.logsPath)
 
-    // 앱 시작 시 설정에 따라 이미지 자동 삭제 스케줄러 시작
-    this.initImageCleanupScheduler()
+    // 앱 시작 후 약간 지연된 후 이미지 자동 삭제 스케줄러 시작
+    // 이벤트 핸들러가 준비될 시간을 확보
+    setTimeout(() => {
+      this.initImageCleanupScheduler()
+    }, 3000)
   }
 
   private ensureDirectoryExists(dirPath: string): void {
@@ -370,32 +373,38 @@ export class FileManagerService {
    * 설정 변경 시 이미지 정리 스케줄러를 초기화합니다.
    */
   public initImageCleanupScheduler(): void {
-    // 기존 인터벌 제거
-    if (this.imageCleanupInterval) {
-      clearInterval(this.imageCleanupInterval)
-      this.imageCleanupInterval = undefined
-    }
+    try {
+      // 기존 인터벌 제거
+      if (this.imageCleanupInterval) {
+        clearInterval(this.imageCleanupInterval)
+        this.imageCleanupInterval = undefined
+      }
 
-    // 설정 로드
-    const settings = this.loadSettings()
-    const autoDeleteDays = settings.autoDeleteCapturedImages || 0
+      // 설정 로드
+      const settings = this.loadSettings()
+      const autoDeleteDays = settings.autoDeleteCapturedImages || 0
 
-    // 자동 삭제 설정이 활성화된 경우에만 스케줄러 시작
-    if (autoDeleteDays > 0) {
-      // 24시간마다 실행 (1일 = 24 * 60 * 60 * 1000 밀리초)
-      this.imageCleanupInterval = setInterval(
-        () => {
+      // 자동 삭제 설정이 활성화된 경우에만 스케줄러 시작
+      if (autoDeleteDays > 0) {
+        // 24시간마다 실행 (1일 = 24 * 60 * 60 * 1000 밀리초)
+        this.imageCleanupInterval = setInterval(
+          () => {
+            this.cleanupOldCapturedImages(autoDeleteDays)
+          },
+          24 * 60 * 60 * 1000,
+        )
+
+        // 초기 실행은 약간 지연 후 실행
+        setTimeout(() => {
           this.cleanupOldCapturedImages(autoDeleteDays)
-        },
-        24 * 60 * 60 * 1000,
-      )
+        }, 5000)
 
-      // 초기 실행
-      this.cleanupOldCapturedImages(autoDeleteDays)
-
-      this.logger.log(
-        `이미지 자동 삭제 스케줄러가 활성화되었습니다: ${autoDeleteDays}일 이상 된 이미지 삭제`,
-      )
+        this.logger.log(
+          `이미지 자동 삭제 스케줄러가 활성화되었습니다: ${autoDeleteDays}일 이상 된 이미지 삭제`,
+        )
+      }
+    } catch (error) {
+      this.logger.error(`이미지 정리 스케줄러 초기화 중 오류 발생: ${error.message}`)
     }
   }
 }
