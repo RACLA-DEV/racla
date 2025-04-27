@@ -132,7 +132,7 @@ export class OcrManagerService {
     imageBuffer: Buffer,
     settings: any,
   ): Promise<ExtractedRegionsResult> {
-    const regions: { [key: string]: Buffer } = {}
+    const regions: Record<string, Buffer> = {}
     const texts: { [key: string]: string } = {}
 
     if (gameCode === 'djmax_respect_v') {
