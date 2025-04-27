@@ -31,3 +31,4 @@ dist-ssr
 
 #Ignore cursor AI rules
 .cursor\rules\codacy.mdc
+/.codacy
