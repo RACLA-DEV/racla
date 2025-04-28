@@ -23,10 +23,10 @@ export interface SettingsData {
   hjaOverlay?: boolean
   recentOverlay?: boolean
   alwaysOverlay?: boolean
-  autoCaptureOcrResultRegion?: boolean
-  autoCaptureOcrOpen3Region?: boolean
-  autoCaptureOcrOpen2Region?: boolean
-  autoCaptureOcrVersusRegion?: boolean
+  autoCaptureDjmaxRespectVOcrResultRegion?: boolean
+  autoCaptureDjmaxRespectVOcrOpen3Region?: boolean
+  autoCaptureDjmaxRespectVOcrOpen2Region?: boolean
+  autoCaptureDjmaxRespectVOcrVersusRegion?: boolean
   autoCaptureWjmaxOcrResultRegion?: boolean
   autoCapturePlatinaLabOcrResultRegion?: boolean
   autoStartGame?: boolean
@@ -35,7 +35,7 @@ export interface SettingsData {
   autoStartGameWjmaxPath?: string
   autoStartGamePlatinaLab?: boolean
   isMiniMode?: boolean
-  closeToTray?: boolean
+  hideToTray?: boolean
   isNotificationSound?: boolean
   autoDeleteCapturedImages?: number
   // 필요에 따라 다른 설정들도 추가할 수 있습니다.

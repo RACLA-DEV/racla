@@ -3,7 +3,6 @@ import { Injectable, Logger } from '@nestjs/common'
 import { Window } from 'node-screenshots'
 import { Buffer } from 'node:buffer'
 import sharp from 'sharp'
-import * as Tesseract from 'tesseract.js'
 import { OCRRegion } from '../ocr-manager/ocr-manager.service'
 
 @Injectable()
@@ -165,35 +164,6 @@ export class ImageProcessorService {
     } catch (error) {
       this.logger.error(`이미지 영역 추출 중 오류 발생: ${error.message}`)
       throw error
-    }
-  }
-
-  /**
-   * 추출된 이미지에서 텍스트를 인식하는 메서드
-   */
-  async recognizeText(buffer: Buffer): Promise<string> {
-    const worker = await Tesseract.createWorker('eng')
-    try {
-      await worker.setParameters({
-        tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ ',
-      })
-
-      const {
-        data: { text },
-      } = await worker.recognize(buffer)
-
-      return text || ''
-    } catch (error) {
-      this.logger.error(`OCR 텍스트 인식 중 오류 발생: ${error.message}`)
-      return ''
-    } finally {
-      if (worker) {
-        try {
-          await worker.terminate()
-        } catch (error) {
-          this.logger.error(`Tesseract 워커 종료 중 오류 발생: ${error.message}`)
-        }
-      }
     }
   }
 

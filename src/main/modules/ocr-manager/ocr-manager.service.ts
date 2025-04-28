@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { SettingsData } from '@src/types/common/SettingData'
+import * as Tesseract from 'tesseract.js'
 import { FileManagerService } from '../file-manager/file-manager.service'
 import { ImageProcessorService } from '../image-processor/image-processor.service'
 
@@ -15,6 +16,7 @@ export interface OCRRegion {
 export interface ProfileRegion {
   myProfile: OCRRegion
   otherProfile: OCRRegion
+  chat: OCRRegion
 }
 
 // 게임별 화면 타입에 따른 영역 인터페이스
@@ -47,42 +49,51 @@ export class OcrManagerService {
       result: {
         myProfile: { left: 1542, top: 26, width: 320, height: 68 },
         otherProfile: { left: 1, top: 1, width: 1, height: 1 },
+        chat: { left: 1, top: 1, width: 1, height: 1 },
       },
       select: {
         myProfile: { left: 1522, top: 22, width: 320, height: 68 },
         otherProfile: { left: 1, top: 1, width: 1, height: 1 },
+        chat: { left: 1, top: 1, width: 1, height: 1 },
       },
       open3: {
         myProfile: { left: 211, top: 177, width: 320, height: 68 },
         otherProfile: { left: 777, top: 116, width: 1106, height: 852 },
+        chat: { left: 1, top: 1, width: 1, height: 1 },
       },
       open2: {
         myProfile: { left: 310, top: 176, width: 321, height: 69 },
         otherProfile: { left: 1290, top: 176, width: 321, height: 69 },
+        chat: { left: 1, top: 1, width: 1, height: 1 },
       },
       versus: {
         myProfile: { left: 201, top: 867, width: 320, height: 68 },
         otherProfile: { left: 1401, top: 867, width: 320, height: 68 },
+        chat: { left: 1, top: 1, width: 1, height: 1 },
       },
       collection: {
         myProfile: { left: 1512, top: 22, width: 320, height: 68 },
         otherProfile: { left: 1, top: 1, width: 1, height: 1 },
+        chat: { left: 1, top: 1, width: 1, height: 1 },
       },
       openSelect: {
         myProfile: { left: 1361, top: 216, width: 320, height: 68 },
         otherProfile: { left: 1363, top: 318, width: 316, height: 464 },
+        chat: { left: 58, top: 687, width: 524, height: 256 },
       },
     },
     wjmax: {
       result: {
         myProfile: { left: 1546, top: 32, width: 342, height: 70 },
         otherProfile: { left: 1, top: 1, width: 1, height: 1 },
+        chat: { left: 1, top: 1, width: 1, height: 1 },
       },
     },
     platina_lab: {
       result: {
         myProfile: { left: 1452, top: 14, width: 422, height: 88 },
         otherProfile: { left: 1, top: 1, width: 1, height: 1 },
+        chat: { left: 1, top: 1, width: 1, height: 1 },
       },
     },
   }
@@ -125,47 +136,77 @@ export class OcrManagerService {
   ) {}
 
   /**
+   * 추출된 이미지에서 텍스트를 인식하는 메서드
+   */
+  async recognizeText(buffer: Buffer): Promise<string> {
+    const worker = await Tesseract.createWorker('eng')
+    try {
+      await worker.setParameters({
+        tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ ',
+      })
+
+      const {
+        data: { text },
+      } = await worker.recognize(buffer)
+
+      return text || ''
+    } catch (error) {
+      this.logger.error(`OCR 텍스트 인식 중 오류 발생: ${error.message}`)
+      return ''
+    } finally {
+      if (worker) {
+        try {
+          await worker.terminate()
+        } catch (error) {
+          this.logger.error(`Tesseract 워커 종료 중 오류 발생: ${error.message}`)
+        }
+      }
+    }
+  }
+
+  /**
    * 이미지에서 OCR 영역을 추출하고 텍스트를 인식하는 메서드
    */
   async extractRegions(
     gameCode: string,
     imageBuffer: Buffer,
-    settings: any,
+    settings: SettingsData,
   ): Promise<ExtractedRegionsResult> {
     const regions: Record<string, Buffer> = {}
-    const texts: { [key: string]: string } = {}
+    const texts: Record<string, string> = {}
 
     if (gameCode === 'djmax_respect_v') {
-      if (settings.autoCaptureOcrResultRegion) {
+      if (settings.autoCaptureDjmaxRespectVOcrResultRegion) {
         regions.result = await this.imageProcessor.extractRegion(
           imageBuffer,
           this.ocrRegions.djmax_respect_v.result,
         )
-        texts.result = await this.imageProcessor.recognizeText(regions.result)
+        texts.result = await this.recognizeText(regions.result)
       }
 
-      if (settings.autoCaptureOcrVersusRegion) {
-        regions.versus = await this.imageProcessor.extractRegion(
-          imageBuffer,
-          this.ocrRegions.djmax_respect_v.versus,
-        )
-        texts.versus = await this.imageProcessor.recognizeText(regions.versus)
-      }
+      // Versus 영역 추출 주석 처리, 구클라부터 문제가 잦게 발생하여 일시적으로 비활성화
+      // if (settings.autoCaptureDjmaxRespectVOcrVersusRegion) {
+      //   regions.versus = await this.imageProcessor.extractRegion(
+      //     imageBuffer,
+      //     this.ocrRegions.djmax_respect_v.versus,
+      //   )
+      //   texts.versus = await this.imageProcessor.recognizeText(regions.versus)
+      // }
 
-      if (settings.autoCaptureOcrOpen3Region) {
+      if (settings.autoCaptureDjmaxRespectVOcrOpen3Region) {
         regions.open3 = await this.imageProcessor.extractRegion(
           imageBuffer,
           this.ocrRegions.djmax_respect_v.open3,
         )
-        texts.open3 = await this.imageProcessor.recognizeText(regions.open3)
+        texts.open3 = await this.recognizeText(regions.open3)
       }
 
-      if (settings.autoCaptureOcrOpen2Region) {
+      if (settings.autoCaptureDjmaxRespectVOcrOpen2Region) {
         regions.open2 = await this.imageProcessor.extractRegion(
           imageBuffer,
           this.ocrRegions.djmax_respect_v.open2,
         )
-        texts.open2 = await this.imageProcessor.recognizeText(regions.open2)
+        texts.open2 = await this.recognizeText(regions.open2)
       }
     } else if (gameCode === 'wjmax') {
       if (settings.autoCaptureWjmaxOcrResultRegion) {
@@ -173,7 +214,7 @@ export class OcrManagerService {
           imageBuffer,
           this.ocrRegions.wjmax.result,
         )
-        texts.result = await this.imageProcessor.recognizeText(regions.result)
+        texts.result = await this.recognizeText(regions.result)
       }
     } else if (gameCode === 'platina_lab') {
       if (settings.autoCapturePlatinaLabOcrResultRegion) {
@@ -181,7 +222,7 @@ export class OcrManagerService {
           imageBuffer,
           this.ocrRegions.platina_lab.result,
         )
-        texts.result = await this.imageProcessor.recognizeText(regions.result)
+        texts.result = await this.recognizeText(regions.result)
       }
     }
 
@@ -191,7 +232,11 @@ export class OcrManagerService {
   /**
    * 텍스트 분석을 통해 결과 화면인지 판단하는 메서드
    */
-  async determineResultScreen(gameCode: string, texts: any, settings: any): Promise<OCRResultInfo> {
+  async determineResultScreen(
+    gameCode: string,
+    texts: Record<string, string>,
+    settings: SettingsData,
+  ): Promise<OCRResultInfo> {
     const resultInfo: OCRResultInfo = {
       isResult: [],
       text: '',
@@ -199,7 +244,7 @@ export class OcrManagerService {
     }
 
     if (gameCode === 'djmax_respect_v') {
-      if (settings.autoCaptureOcrResultRegion && texts.result) {
+      if (settings.autoCaptureDjmaxRespectVOcrResultRegion && texts.result) {
         resultInfo.isResult = this.checkResultKeywords(
           texts.result,
           this.resultKeywords.djmax_respect_v.result,
@@ -218,7 +263,7 @@ export class OcrManagerService {
       //   }
       // }
 
-      if (!resultInfo.where && settings.autoCaptureOcrOpen3Region && texts.open3) {
+      if (!resultInfo.where && settings.autoCaptureDjmaxRespectVOcrOpen3Region && texts.open3) {
         const keywords = this.resultKeywords.djmax_respect_v.open3
         const normalizedText = texts.open3.trim().replaceAll(' ', '').toUpperCase()
 
@@ -229,7 +274,7 @@ export class OcrManagerService {
         }
       }
 
-      if (!resultInfo.where && settings.autoCaptureOcrOpen2Region && texts.open2) {
+      if (!resultInfo.where && settings.autoCaptureDjmaxRespectVOcrOpen2Region && texts.open2) {
         const keywords = this.resultKeywords.djmax_respect_v.open2
         const normalizedText = texts.open2.trim().replaceAll(' ', '').toUpperCase()
 
@@ -297,11 +342,7 @@ export class OcrManagerService {
       if (screenType === 'result' || screenType === 'select' || screenType === 'collection') {
         regionsToMask = [regions.myProfile]
       } else if (screenType === 'openSelect') {
-        regionsToMask = [
-          regions.myProfile,
-          regions.otherProfile,
-          { left: 58, top: 687, width: 524, height: 256 },
-        ]
+        regionsToMask = [regions.myProfile, regions.otherProfile, regions.chat]
       } else {
         regionsToMask = [regions.myProfile, regions.otherProfile]
       }
@@ -309,13 +350,13 @@ export class OcrManagerService {
       if (screenType === 'result' || screenType === 'select' || screenType === 'collection') {
         regionsToMask = []
       } else if (screenType === 'openSelect') {
-        regionsToMask = [regions.otherProfile, { left: 58, top: 687, width: 524, height: 256 }]
+        regionsToMask = [regions.otherProfile, regions.chat]
       } else {
         regionsToMask = [regions.otherProfile]
       }
     } else {
       if (screenType === 'openSelect') {
-        regionsToMask = [{ left: 58, top: 687, width: 524, height: 256 }]
+        regionsToMask = [regions.chat]
       }
     }
 

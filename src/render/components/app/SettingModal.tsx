@@ -26,7 +26,7 @@ const isGeneralSetting = (settingId: string): boolean => {
     settingId.includes('language') ||
     settingId.includes('autoUpdate') ||
     settingId.includes('visible') ||
-    settingId.includes('closeToTray') ||
+    settingId.includes('hideToTray') ||
     settingId.includes('isNotificationSound')
   )
 }

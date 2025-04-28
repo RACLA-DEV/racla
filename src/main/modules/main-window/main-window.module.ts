@@ -3,11 +3,13 @@ import { BrowserWindow, app } from 'electron'
 import { ElectronModule } from '@doubleshot/nest-electron'
 import { Module } from '@nestjs/common'
 import path, { join } from 'node:path'
+import { FileManagerModule } from '../file-manager/file-manager.module'
 import { MainWindowController } from './main-window.controller'
 import { MainWindowService } from './main-window.service'
 
 @Module({
   imports: [
+    FileManagerModule,
     ElectronModule.registerAsync({
       useFactory: () => {
         const isDev = !app.isPackaged
