@@ -1,9 +1,9 @@
-export interface IUserNameRequest {
+export interface UserNameRequest {
   userNo: string
   token: string
 }
 
-export interface IUserNameResponse {
+export interface UserNameResponse {
   success: boolean
   nickname?: string
   error?: string

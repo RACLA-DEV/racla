@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common'
 
-import type { ErrorLogData } from '@src/types/common/ErrorLogData'
-import { LogLevel } from '@src/types/common/LogLevel'
+import type { ClientErrorLogRequest } from '@src/types/dto/log/ClientErrorLogReqeust'
+import { LogLevel } from '@src/types/dto/log/LogLevel'
 import dotenv from 'dotenv'
 import { app } from 'electron'
 import packageJson from '../../../../package.json'
@@ -43,7 +43,7 @@ export class LoggerService {
 
   private async sendErrorLog(where: string, error: Error, context?: unknown, ...args: unknown[]) {
     try {
-      const errorData: ErrorLogData = {
+      const errorData: ClientErrorLogRequest = {
         clientPlatform: `ELECTRON_${where.toUpperCase()}`,
         clientOs: process.platform,
         clientUserAgent: `racla-electron-app/${packageJson.version}`,

@@ -4,8 +4,8 @@ import { useNotificationSystem } from '@render/hooks/useNotifications'
 import { createLog } from '@render/libs/logger'
 import { RootState } from '@render/store'
 import { setIsSetting, setSettingData } from '@render/store/slices/appSlice'
-import type { SettingsData } from '@src/types/common/SettingData'
-import type { SettingItem } from '@src/types/common/SettingItem'
+import type { SettingsData } from '@src/types/settings/SettingData'
+import type { SettingItem } from '@src/types/settings/SettingItem'
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useDispatch, useSelector } from 'react-redux'
@@ -26,7 +26,7 @@ const isGeneralSetting = (settingId: string): boolean => {
     settingId.includes('language') ||
     settingId.includes('autoUpdate') ||
     settingId.includes('visible') ||
-    settingId.includes('closeToTray') ||
+    settingId.includes('hideToTray') ||
     settingId.includes('isNotificationSound')
   )
 }

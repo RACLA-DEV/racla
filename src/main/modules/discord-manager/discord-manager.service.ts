@@ -1,5 +1,5 @@
 import { Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common'
-import type { PlayData } from '@src/types/common/PlayData'
+import type { PlayData } from '@src/types/games/PlayData'
 import { Client } from 'discord-rpc'
 import dotenv from 'dotenv'
 import { app } from 'electron'

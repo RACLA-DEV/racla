@@ -1,4 +1,4 @@
-import type { LogLevel } from '@src/types/common/LogLevel'
+import type { LogLevel } from '@src/types/dto/log/LogLevel'
 import dayjs from 'dayjs'
 
 const { sendLog } = window.electron

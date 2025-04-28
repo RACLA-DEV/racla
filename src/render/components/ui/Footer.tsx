@@ -3,7 +3,7 @@ import { globalDictionary } from '@render/constants/globalDictionary'
 import { createLog } from '@render/libs/logger'
 import { RootState } from '@render/store'
 import { setIsOpenExternalLink, setOpenExternalLink } from '@render/store/slices/uiSlice'
-import type { ServerStatus } from '@src/types/common/ServerStatus'
+import type { ServerStatusResponse } from '@src/types/dto/ping/ServerStatusResponse'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useDispatch, useSelector } from 'react-redux'
@@ -14,27 +14,29 @@ import Tooltip from './Tooltip'
 const Footer: React.FC = () => {
   const { theme } = useSelector((state: RootState) => state.ui)
   const { selectedGame } = useSelector((state: RootState) => state.app)
-  const [serverStatus, setServerStatus] = useState<ServerStatus | undefined>(undefined)
+  const [ServerStatusResponse, setServerStatusResponse] = useState<
+    ServerStatusResponse | undefined
+  >(undefined)
   const [isOnline, setIsOnline] = useState<boolean>(false)
   const dispatch = useDispatch()
   const { t } = useTranslation(['menu'])
 
   useEffect(() => {
     // 서버 상태 확인 함수
-    const checkServerStatus = async () => {
+    const checkServerStatusResponse = async () => {
       try {
         createLog(
           'info',
           'Checking server status...',
           `${import.meta.env.VITE_API_URL}/v2/racla/ping`,
         ) // 디버깅용 로그
-        const response = await apiClient.get<ServerStatus>(`/v2/racla/ping`, {
+        const response = await apiClient.get<ServerStatusResponse>(`/v2/racla/ping`, {
           timeout: 5000, // 5초 타임아웃 설정
         })
 
         if (response.status === 200) {
           createLog('debug', 'Server response:', response.data) // 디버깅용 로그
-          setServerStatus(response.data)
+          setServerStatusResponse(response.data)
           setIsOnline(true)
         } else {
           createLog('debug', 'Server error status:', response.status) // 디버깅용 로그
@@ -47,12 +49,12 @@ const Footer: React.FC = () => {
     }
 
     // 초기 실행
-    void checkServerStatus()
+    void checkServerStatusResponse()
 
     // 30초마다 실행되는 인터벌 설정
     const interval = setInterval(() => {
       createLog('debug', 'Running interval check...') // 디버깅용 로그
-      void checkServerStatus()
+      void checkServerStatusResponse()
     }, 30000)
 
     // 클린업 함수
@@ -163,7 +165,7 @@ const Footer: React.FC = () => {
                 </div>
                 <span className='tw:leading-none'>
                   {isOnline
-                    ? `Server Connected · ${serverStatus?.version || 'v1.0'} · ${globalDictionary.version}`
+                    ? `Server Connected · ${ServerStatusResponse?.version || 'v1.0'} · ${globalDictionary.version}`
                     : `Server Disconnected · ${globalDictionary.version}`}
                 </span>
               </span>

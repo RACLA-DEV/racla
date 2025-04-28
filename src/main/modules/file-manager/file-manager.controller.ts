@@ -1,9 +1,9 @@
 import { IpcHandle } from '@doubleshot/nest-electron'
 import { Controller, Logger } from '@nestjs/common'
-import type { SessionData } from '@src/types/common/SessionData'
-import type { SettingsData } from '@src/types/common/SettingData'
-import { SongData } from '@src/types/common/SongData'
-import type { StorageInfo } from '@src/types/common/StroageInfo'
+import { SongData } from '@src/types/games/SongData'
+import type { SessionData } from '@src/types/sessions/SessionData'
+import type { SettingsData } from '@src/types/settings/SettingData'
+import type { StorageInfo } from '@src/types/storage/StroageInfo'
 import { dialog } from 'electron'
 import { FileManagerService } from './file-manager.service'
 

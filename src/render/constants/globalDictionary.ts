@@ -249,7 +249,7 @@ export const globalDictionary = {
       defaultValue: false,
       isEditable: true,
       requiresRestart: false,
-      isVisible: true,
+      isVisible: false, // 구클라부터 문제가 잦게 발생하여 일시적으로 비활성화
     },
     autoCaptureWjmaxOcrResultRegion: {
       id: 'autoCaptureWjmaxOcrResultRegion',
@@ -310,8 +310,8 @@ export const globalDictionary = {
       requiresRestart: false,
       isVisible: false,
     },
-    closeToTray: {
-      id: 'closeToTray',
+    hideToTray: {
+      id: 'hideToTray',
       defaultValue: false,
       isEditable: true,
       requiresRestart: false,

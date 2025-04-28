@@ -1,38 +1,21 @@
 import { Injectable, Logger } from '@nestjs/common'
 
+import { GLOBAL_DICTONARY } from '@src/main/constants/GLOBAL_DICTONARY'
+import { OCRRegion } from '@src/types/ocr/OcrRegion'
+import { ProfileRegion } from '@src/types/ocr/ProfileRegion'
+import { SettingsData } from '@src/types/settings/SettingData'
 import { Window } from 'node-screenshots'
 import { Buffer } from 'node:buffer'
 import sharp from 'sharp'
-import * as Tesseract from 'tesseract.js'
-import { OCRRegion } from '../ocr-manager/ocr-manager.service'
-
+import { FileManagerService } from '../file-manager/file-manager.service'
 @Injectable()
 export class ImageProcessorService {
   private readonly logger = new Logger(ImageProcessorService.name)
 
-  private readonly standardResolutions = [
-    { width: 640, height: 360 },
-    { width: 720, height: 405 },
-    { width: 800, height: 450 },
-    { width: 1024, height: 576 },
-    { width: 1128, height: 635 },
-    { width: 1280, height: 720 },
-    { width: 1366, height: 768 },
-    { width: 1600, height: 900 },
-    { width: 1680, height: 945 },
-    { width: 1760, height: 990 },
-    { width: 1920, height: 1080 },
-    { width: 2048, height: 1152 },
-    { width: 2288, height: 1287 },
-    { width: 2560, height: 1440 },
-    { width: 3072, height: 1728 },
-    { width: 3200, height: 1800 },
-    { width: 3840, height: 2160 },
-    { width: 5120, height: 2880 },
-  ]
+  constructor(private readonly fileManagerService: FileManagerService) {}
 
   isStandardResolution(width: number, height: number): boolean {
-    return this.standardResolutions.some(
+    return GLOBAL_DICTONARY.STANDARD_RESOLUTIONS.some(
       (res) => Math.abs(width / height - res.width / res.height) < 0.01,
     )
   }
@@ -169,35 +152,6 @@ export class ImageProcessorService {
   }
 
   /**
-   * 추출된 이미지에서 텍스트를 인식하는 메서드
-   */
-  async recognizeText(buffer: Buffer): Promise<string> {
-    const worker = await Tesseract.createWorker('eng')
-    try {
-      await worker.setParameters({
-        tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ ',
-      })
-
-      const {
-        data: { text },
-      } = await worker.recognize(buffer)
-
-      return text || ''
-    } catch (error) {
-      this.logger.error(`OCR 텍스트 인식 중 오류 발생: ${error.message}`)
-      return ''
-    } finally {
-      if (worker) {
-        try {
-          await worker.terminate()
-        } catch (error) {
-          this.logger.error(`Tesseract 워커 종료 중 오류 발생: ${error.message}`)
-        }
-      }
-    }
-  }
-
-  /**
    * 프로필 마스크 적용 메서드
    */
   async applyProfileMask(
@@ -260,5 +214,48 @@ export class ImageProcessorService {
    */
   private async createBlurMask(imageBuffer: Buffer, region: OCRRegion): Promise<Buffer> {
     return await sharp(imageBuffer).extract(region).blur(15).toBuffer()
+  }
+
+  /**
+   * 게임 프로필 마스크 영역 가져오기
+   */
+  getProfileRegions(gameCode: string, screenType: string): ProfileRegion | null {
+    return GLOBAL_DICTONARY.PROFILE_REGIONS[gameCode]?.[screenType] || null
+  }
+
+  /**
+   * 마스킹할 영역 목록 가져오기
+   */
+  getMaskingRegions(gameCode: string, screenType: string): OCRRegion[] {
+    const settings: SettingsData = this.fileManagerService.loadSettings()
+
+    const regions = GLOBAL_DICTONARY.PROFILE_REGIONS[gameCode][screenType]
+    if (!regions) return []
+
+    let regionsToMask: OCRRegion[] = []
+
+    if (settings.saveImageWithoutAllProfileWhenCapture) {
+      if (screenType === 'result' || screenType === 'select' || screenType === 'collection') {
+        regionsToMask = [regions.myProfile]
+      } else if (screenType === 'openSelect') {
+        regionsToMask = [regions.myProfile, regions.otherProfile, regions.chat]
+      } else {
+        regionsToMask = [regions.myProfile, regions.otherProfile]
+      }
+    } else if (settings.saveImageWithoutOtherProfileWhenCapture) {
+      if (screenType === 'result' || screenType === 'select' || screenType === 'collection') {
+        regionsToMask = []
+      } else if (screenType === 'openSelect') {
+        regionsToMask = [regions.otherProfile, regions.chat]
+      } else {
+        regionsToMask = [regions.otherProfile]
+      }
+    } else {
+      if (screenType === 'openSelect') {
+        regionsToMask = [regions.chat]
+      }
+    }
+
+    return regionsToMask
   }
 }

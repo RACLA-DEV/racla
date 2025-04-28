@@ -1,5 +1,5 @@
 import { createLog } from '@render/libs/logger'
-import type { SessionData } from '@src/types/common/SessionData'
+import type { SessionData } from '@src/types/sessions/SessionData'
 import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from '../store'
 import {

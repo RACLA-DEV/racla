@@ -1,8 +1,8 @@
 import { Icon } from '@iconify/react/dist/iconify.js'
 import { createLog } from '@render/libs/logger'
 import { setOpenExternalLink } from '@render/store/slices/uiSlice'
-import type { IUserNameRequest, IUserNameResponse } from '@src/types/common/IUserName'
 import { ProxyResponse } from '@src/types/dto/proxy/ProxyResponse'
+import type { UserNameRequest, UserNameResponse } from '@src/types/users/UserName'
 import { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FaDiscord, FaV } from 'react-icons/fa6'
@@ -28,7 +28,7 @@ export default function LoginPage() {
     }
   }, [isLoggedIn, navigate])
 
-  const getUserName = async <T = IUserNameResponse, R = IUserNameRequest>(
+  const getUserName = async <T = UserNameResponse, R = UserNameRequest>(
     body: R,
   ): Promise<ProxyResponse<T>> => {
     const { data } = await apiClient.postProxy<ProxyResponse<T>>(

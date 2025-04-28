@@ -1,6 +1,6 @@
 import { IpcHandle } from '@doubleshot/nest-electron'
 import { Controller } from '@nestjs/common'
-import type { PlayData } from '@src/types/common/PlayData'
+import type { PlayData } from '@src/types/games/PlayData'
 import { DiscordManagerService } from './discord-manager.service'
 
 @Controller()
@@ -9,7 +9,7 @@ export class DiscordManagerController {
 
   @IpcHandle('discord-manager:initialize')
   async initialize(): Promise<void> {
-    await this.discordManagerService.initialize();
+    await this.discordManagerService.initialize()
   }
 
   @IpcHandle('discord-manager:update-presence')

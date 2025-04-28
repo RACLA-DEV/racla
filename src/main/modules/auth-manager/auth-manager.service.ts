@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common'
-import type { SessionData } from '@src/types/common/SessionData'
+import type { SessionData } from '@src/types/sessions/SessionData'
 import * as crypto from 'crypto'
 import { shell } from 'electron'
 import * as fs from 'fs-extra'
@@ -8,8 +8,8 @@ import * as path from 'path'
 import { FileManagerService } from '../file-manager/file-manager.service'
 
 @Injectable()
-export class AuthService {
-  private readonly logger = new Logger(AuthService.name)
+export class AuthManagerService {
+  private readonly logger = new Logger(AuthManagerService.name)
 
   constructor(private readonly fileManagerService: FileManagerService) {}
 

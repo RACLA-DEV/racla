@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 
 import { createLog } from '@render/libs/logger'
-import type { LogLevel } from '@src/types/common/LogLevel'
+import type { LogLevel } from '@src/types/dto/log/LogLevel'
 import { Buffer } from 'buffer'
 
 const {

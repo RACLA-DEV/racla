@@ -1,128 +1,45 @@
+import { GLOBAL_DICTONARY } from '@main/constants/GLOBAL_DICTONARY'
 import { Injectable, Logger } from '@nestjs/common'
-import { SettingsData } from '@src/types/common/SettingData'
-import { FileManagerService } from '../file-manager/file-manager.service'
+import { ExtractedRegionsResult } from '@src/types/ocr/ExtractedRegionsResult'
+import { OCRResultInfo } from '@src/types/ocr/OcrResultInfo'
+import { SettingsData } from '@src/types/settings/SettingData'
+import * as Tesseract from 'tesseract.js'
 import { ImageProcessorService } from '../image-processor/image-processor.service'
-
-// OCR 영역 인터페이스
-export interface OCRRegion {
-  width: number
-  height: number
-  left: number
-  top: number
-}
-
-// 프로파일 영역 인터페이스
-export interface ProfileRegion {
-  myProfile: OCRRegion
-  otherProfile: OCRRegion
-}
-
-// 게임별 화면 타입에 따른 영역 인터페이스
-export interface GameRegions {
-  [key: string]: {
-    [screenType: string]: ProfileRegion
-  }
-}
-
-// OCR 결과 인터페이스
-export interface OCRResultInfo {
-  isResult: string[]
-  text: string
-  where: string
-}
-
-// OCR 추출 결과 인터페이스
-export interface ExtractedRegionsResult {
-  regions: Record<string, Buffer>
-  texts: Record<string, string>
-}
 
 @Injectable()
 export class OcrManagerService {
   private readonly logger = new Logger(OcrManagerService.name)
 
-  // 프로필 마스킹 영역 정의 (개인정보 보호)
-  private readonly profileRegions: GameRegions = {
-    djmax_respect_v: {
-      result: {
-        myProfile: { left: 1542, top: 26, width: 320, height: 68 },
-        otherProfile: { left: 1, top: 1, width: 1, height: 1 },
-      },
-      select: {
-        myProfile: { left: 1522, top: 22, width: 320, height: 68 },
-        otherProfile: { left: 1, top: 1, width: 1, height: 1 },
-      },
-      open3: {
-        myProfile: { left: 211, top: 177, width: 320, height: 68 },
-        otherProfile: { left: 777, top: 116, width: 1106, height: 852 },
-      },
-      open2: {
-        myProfile: { left: 310, top: 176, width: 321, height: 69 },
-        otherProfile: { left: 1290, top: 176, width: 321, height: 69 },
-      },
-      versus: {
-        myProfile: { left: 201, top: 867, width: 320, height: 68 },
-        otherProfile: { left: 1401, top: 867, width: 320, height: 68 },
-      },
-      collection: {
-        myProfile: { left: 1512, top: 22, width: 320, height: 68 },
-        otherProfile: { left: 1, top: 1, width: 1, height: 1 },
-      },
-      openSelect: {
-        myProfile: { left: 1361, top: 216, width: 320, height: 68 },
-        otherProfile: { left: 1363, top: 318, width: 316, height: 464 },
-      },
-    },
-    wjmax: {
-      result: {
-        myProfile: { left: 1546, top: 32, width: 342, height: 70 },
-        otherProfile: { left: 1, top: 1, width: 1, height: 1 },
-      },
-    },
-    platina_lab: {
-      result: {
-        myProfile: { left: 1452, top: 14, width: 422, height: 88 },
-        otherProfile: { left: 1, top: 1, width: 1, height: 1 },
-      },
-    },
-  }
+  constructor(private readonly imageProcessor: ImageProcessorService) {}
 
-  // OCR 인식 영역 정의 (화면 타입 구분을 위한 영역)
-  private readonly ocrRegions = {
-    djmax_respect_v: {
-      result: { width: 230, height: 24, left: 100, top: 236 },
-      versus: { width: 151, height: 106, left: 748, top: 45 },
-      open3: { width: 78, height: 24, left: 236, top: 724 },
-      open2: { width: 80, height: 26, left: 335, top: 723 },
-    },
-    wjmax: {
-      result: { width: 135, height: 21, left: 1038, top: 307 },
-    },
-    platina_lab: {
-      result: { width: 100, height: 26, left: 694, top: 864 },
-    },
-  }
+  /**
+   * 추출된 이미지에서 텍스트를 인식하는 메서드
+   */
+  async recognizeText(buffer: Buffer): Promise<string> {
+    const worker = await Tesseract.createWorker('eng')
+    try {
+      await worker.setParameters({
+        tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ ',
+      })
 
-  // 결과 화면 키워드 (각 영역별로 다른 키워드 지정)
-  private readonly resultKeywords = {
-    djmax_respect_v: {
-      result: ['JUDGEMENT', 'DETAILS', 'DETAIL', 'JUDGE', 'JUDGEMENT DETAILS'],
-      versus: ['RE'],
-      open3: ['SCORE', 'ORE'],
-      open2: ['SCORE', 'ORE'],
-    },
-    wjmax: {
-      result: ['JUDGEMENT', 'JUDGE', 'MENT', 'MENTS', 'JUDGEMENTS'],
-    },
-    platina_lab: {
-      result: ['COMBO', 'COM', 'MBO'],
-    },
-  }
+      const {
+        data: { text },
+      } = await worker.recognize(buffer)
 
-  constructor(
-    private readonly imageProcessor: ImageProcessorService,
-    private readonly fileManagerService: FileManagerService,
-  ) {}
+      return text || ''
+    } catch (error) {
+      this.logger.error(`OCR 텍스트 인식 중 오류 발생: ${error.message}`)
+      return ''
+    } finally {
+      if (worker) {
+        try {
+          await worker.terminate()
+        } catch (error) {
+          this.logger.error(`Tesseract 워커 종료 중 오류 발생: ${error.message}`)
+        }
+      }
+    }
+  }
 
   /**
    * 이미지에서 OCR 영역을 추출하고 텍스트를 인식하는 메서드
@@ -130,58 +47,59 @@ export class OcrManagerService {
   async extractRegions(
     gameCode: string,
     imageBuffer: Buffer,
-    settings: any,
+    settings: SettingsData,
   ): Promise<ExtractedRegionsResult> {
     const regions: Record<string, Buffer> = {}
-    const texts: { [key: string]: string } = {}
+    const texts: Record<string, string> = {}
 
     if (gameCode === 'djmax_respect_v') {
-      if (settings.autoCaptureOcrResultRegion) {
+      if (settings.autoCaptureDjmaxRespectVOcrResultRegion) {
         regions.result = await this.imageProcessor.extractRegion(
           imageBuffer,
-          this.ocrRegions.djmax_respect_v.result,
+          GLOBAL_DICTONARY.OCR_REGIONS.djmax_respect_v.result,
         )
-        texts.result = await this.imageProcessor.recognizeText(regions.result)
+        texts.result = await this.recognizeText(regions.result)
       }
 
-      if (settings.autoCaptureOcrVersusRegion) {
-        regions.versus = await this.imageProcessor.extractRegion(
-          imageBuffer,
-          this.ocrRegions.djmax_respect_v.versus,
-        )
-        texts.versus = await this.imageProcessor.recognizeText(regions.versus)
-      }
+      // Versus 영역 추출 주석 처리, 구클라부터 문제가 잦게 발생하여 일시적으로 비활성화
+      // if (settings.autoCaptureDjmaxRespectVOcrVersusRegion) {
+      //   regions.versus = await this.imageProcessor.extractRegion(
+      //     imageBuffer,
+      //     this.ocrRegions.djmax_respect_v.versus,
+      //   )
+      //   texts.versus = await this.imageProcessor.recognizeText(regions.versus)
+      // }
 
-      if (settings.autoCaptureOcrOpen3Region) {
+      if (settings.autoCaptureDjmaxRespectVOcrOpen3Region) {
         regions.open3 = await this.imageProcessor.extractRegion(
           imageBuffer,
-          this.ocrRegions.djmax_respect_v.open3,
+          GLOBAL_DICTONARY.OCR_REGIONS.djmax_respect_v.open3,
         )
-        texts.open3 = await this.imageProcessor.recognizeText(regions.open3)
+        texts.open3 = await this.recognizeText(regions.open3)
       }
 
-      if (settings.autoCaptureOcrOpen2Region) {
+      if (settings.autoCaptureDjmaxRespectVOcrOpen2Region) {
         regions.open2 = await this.imageProcessor.extractRegion(
           imageBuffer,
-          this.ocrRegions.djmax_respect_v.open2,
+          GLOBAL_DICTONARY.OCR_REGIONS.djmax_respect_v.open2,
         )
-        texts.open2 = await this.imageProcessor.recognizeText(regions.open2)
+        texts.open2 = await this.recognizeText(regions.open2)
       }
     } else if (gameCode === 'wjmax') {
       if (settings.autoCaptureWjmaxOcrResultRegion) {
         regions.result = await this.imageProcessor.extractRegion(
           imageBuffer,
-          this.ocrRegions.wjmax.result,
+          GLOBAL_DICTONARY.OCR_REGIONS.wjmax.result,
         )
-        texts.result = await this.imageProcessor.recognizeText(regions.result)
+        texts.result = await this.recognizeText(regions.result)
       }
     } else if (gameCode === 'platina_lab') {
       if (settings.autoCapturePlatinaLabOcrResultRegion) {
         regions.result = await this.imageProcessor.extractRegion(
           imageBuffer,
-          this.ocrRegions.platina_lab.result,
+          GLOBAL_DICTONARY.OCR_REGIONS.platina_lab.result,
         )
-        texts.result = await this.imageProcessor.recognizeText(regions.result)
+        texts.result = await this.recognizeText(regions.result)
       }
     }
 
@@ -191,7 +109,11 @@ export class OcrManagerService {
   /**
    * 텍스트 분석을 통해 결과 화면인지 판단하는 메서드
    */
-  async determineResultScreen(gameCode: string, texts: any, settings: any): Promise<OCRResultInfo> {
+  async determineResultScreen(
+    gameCode: string,
+    texts: Record<string, string>,
+    settings: SettingsData,
+  ): Promise<OCRResultInfo> {
     const resultInfo: OCRResultInfo = {
       isResult: [],
       text: '',
@@ -199,10 +121,10 @@ export class OcrManagerService {
     }
 
     if (gameCode === 'djmax_respect_v') {
-      if (settings.autoCaptureOcrResultRegion && texts.result) {
+      if (settings.autoCaptureDjmaxRespectVOcrResultRegion && texts.result) {
         resultInfo.isResult = this.checkResultKeywords(
           texts.result,
-          this.resultKeywords.djmax_respect_v.result,
+          GLOBAL_DICTONARY.RESULT_KEYWORDS.djmax_respect_v.result,
         )
         if (resultInfo.isResult.length > 0) {
           resultInfo.where = 'result'
@@ -218,8 +140,8 @@ export class OcrManagerService {
       //   }
       // }
 
-      if (!resultInfo.where && settings.autoCaptureOcrOpen3Region && texts.open3) {
-        const keywords = this.resultKeywords.djmax_respect_v.open3
+      if (!resultInfo.where && settings.autoCaptureDjmaxRespectVOcrOpen3Region && texts.open3) {
+        const keywords = GLOBAL_DICTONARY.RESULT_KEYWORDS.djmax_respect_v.open3
         const normalizedText = texts.open3.trim().replaceAll(' ', '').toUpperCase()
 
         if (keywords.some((keyword) => normalizedText.includes(keyword))) {
@@ -229,8 +151,8 @@ export class OcrManagerService {
         }
       }
 
-      if (!resultInfo.where && settings.autoCaptureOcrOpen2Region && texts.open2) {
-        const keywords = this.resultKeywords.djmax_respect_v.open2
+      if (!resultInfo.where && settings.autoCaptureDjmaxRespectVOcrOpen2Region && texts.open2) {
+        const keywords = GLOBAL_DICTONARY.RESULT_KEYWORDS.djmax_respect_v.open2
         const normalizedText = texts.open2.trim().replaceAll(' ', '').toUpperCase()
 
         if (keywords.some((keyword) => normalizedText.includes(keyword))) {
@@ -243,7 +165,7 @@ export class OcrManagerService {
       if (settings.autoCaptureWjmaxOcrResultRegion && texts.result) {
         resultInfo.isResult = this.checkResultKeywords(
           texts.result,
-          this.resultKeywords.wjmax.result,
+          GLOBAL_DICTONARY.RESULT_KEYWORDS.wjmax.result,
         )
         if (resultInfo.isResult.length > 0) {
           resultInfo.where = 'result'
@@ -254,7 +176,7 @@ export class OcrManagerService {
       if (settings.autoCapturePlatinaLabOcrResultRegion && texts.result) {
         resultInfo.isResult = this.checkResultKeywords(
           texts.result,
-          this.resultKeywords.platina_lab.result,
+          GLOBAL_DICTONARY.RESULT_KEYWORDS.platina_lab.result,
         )
         if (resultInfo.isResult.length > 0) {
           resultInfo.where = 'result'
@@ -273,52 +195,5 @@ export class OcrManagerService {
     return keywords.filter(
       (value) => text.toUpperCase().trim().includes(value) && text.length !== 0,
     )
-  }
-
-  /**
-   * 게임 프로필 마스크 영역 가져오기
-   */
-  getProfileRegions(gameCode: string, screenType: string): ProfileRegion | null {
-    return this.profileRegions[gameCode]?.[screenType] || null
-  }
-
-  /**
-   * 마스킹할 영역 목록 가져오기
-   */
-  getMaskingRegions(gameCode: string, screenType: string): OCRRegion[] {
-    const settings: SettingsData = this.fileManagerService.loadSettings()
-
-    const regions = this.profileRegions[gameCode][screenType]
-    if (!regions) return []
-
-    let regionsToMask: OCRRegion[] = []
-
-    if (settings.saveImageWithoutAllProfileWhenCapture) {
-      if (screenType === 'result' || screenType === 'select' || screenType === 'collection') {
-        regionsToMask = [regions.myProfile]
-      } else if (screenType === 'openSelect') {
-        regionsToMask = [
-          regions.myProfile,
-          regions.otherProfile,
-          { left: 58, top: 687, width: 524, height: 256 },
-        ]
-      } else {
-        regionsToMask = [regions.myProfile, regions.otherProfile]
-      }
-    } else if (settings.saveImageWithoutOtherProfileWhenCapture) {
-      if (screenType === 'result' || screenType === 'select' || screenType === 'collection') {
-        regionsToMask = []
-      } else if (screenType === 'openSelect') {
-        regionsToMask = [regions.otherProfile, { left: 58, top: 687, width: 524, height: 256 }]
-      } else {
-        regionsToMask = [regions.otherProfile]
-      }
-    } else {
-      if (screenType === 'openSelect') {
-        regionsToMask = [{ left: 58, top: 687, width: 524, height: 256 }]
-      }
-    }
-
-    return regionsToMask
   }
 }

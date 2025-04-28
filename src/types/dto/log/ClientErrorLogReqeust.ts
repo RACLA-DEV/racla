@@ -1,4 +1,4 @@
-export interface ErrorLogData {
+export interface ClientErrorLogRequest {
   clientPlatform?: string
   clientOs?: string
   clientBrowser?: string

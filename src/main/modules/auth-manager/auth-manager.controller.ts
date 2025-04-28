@@ -1,82 +1,82 @@
 import { IpcHandle } from '@doubleshot/nest-electron'
 import { Controller, Logger } from '@nestjs/common'
-import type { SessionData } from '@src/types/common/SessionData'
-import { AuthService } from './auth.service'
+import type { SessionData } from '@src/types/sessions/SessionData'
+import { AuthManagerService } from './auth-manager.service'
 
 @Controller()
-export class AuthController {
-  private readonly logger = new Logger(AuthController.name)
+export class AuthManagerController {
+  private readonly logger = new Logger(AuthManagerController.name)
 
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authManagerService: AuthManagerService) {}
 
-  @IpcHandle('auth:login')
+  @IpcHandle('auth-manager:login')
   async login(sessionData: SessionData): Promise<boolean> {
     try {
       this.logger.log(`User login attempt: ${sessionData.userNo}`)
-      return await this.authService.login(sessionData)
+      return await this.authManagerService.login(sessionData)
     } catch (error) {
       this.logger.error(`Login error: ${error.message}`, error.stack)
       return false
     }
   }
 
-  @IpcHandle('auth:logout')
+  @IpcHandle('auth-manager:logout')
   logout(): boolean {
     try {
       this.logger.log('User logout')
-      return this.authService.logout()
+      return this.authManagerService.logout()
     } catch (error) {
       this.logger.error(`Logout error: ${error.message}`, error.stack)
       return false
     }
   }
 
-  @IpcHandle('auth:check-logged-in')
+  @IpcHandle('auth-manager:check-logged-in')
   checkLoggedIn(): boolean {
     try {
-      return this.authService.checkLoggedIn()
+      return this.authManagerService.checkLoggedIn()
     } catch (error) {
       this.logger.error(`Check login status error: ${error.message}`, error.stack)
       return false
     }
   }
 
-  @IpcHandle('auth:get-session')
+  @IpcHandle('auth-manager:get-session')
   async getSession(): Promise<SessionData> {
     try {
-      return await this.authService.getSession()
+      return await this.authManagerService.getSession()
     } catch (error) {
       this.logger.error(`Get session error: ${error.message}`, error.stack)
       return null
     }
   }
 
-  @IpcHandle('auth:create-player-file')
+  @IpcHandle('auth-manager:create-player-file')
   createPlayerFile(data: { userNo: string; userToken: string }): boolean {
     try {
-      return this.authService.createPlayerFile(data)
+      return this.authManagerService.createPlayerFile(data)
     } catch (error) {
       this.logger.error(`Create player file error: ${error.message}`, error.stack)
       return false
     }
   }
 
-  @IpcHandle('auth:open-discord-login')
+  @IpcHandle('auth-manager:open-discord-login')
   async openDiscordLogin(): Promise<string> {
     try {
       this.logger.log('Discord OAuth 로그인 요청 받음')
-      return await this.authService.openDiscordLogin()
+      return await this.authManagerService.openDiscordLogin()
     } catch (error) {
       this.logger.error(`Discord OAuth 로그인 실패: ${error.message}`, error.stack)
       return null
     }
   }
 
-  @IpcHandle('auth:open-browser')
+  @IpcHandle('auth-manager:open-browser')
   async openBrowser(url: string): Promise<boolean> {
     try {
       this.logger.log(`외부 URL 열기: ${url}`)
-      return await this.authService.openBrowser(url)
+      return await this.authManagerService.openBrowser(url)
     } catch (error) {
       this.logger.error(`외부 URL 열기 실패: ${error.message}`, error.stack)
       return false
