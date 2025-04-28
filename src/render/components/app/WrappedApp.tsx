@@ -1,7 +1,7 @@
 import { globalDictionary } from '@render/constants/globalDictionary'
 import { useAuth } from '@render/hooks/useAuth'
 import { setOverlayMode } from '@render/store/slices/uiSlice'
-import { GameType } from '@src/types/common/GameType'
+import { GameType } from '@src/types/games/GameType'
 import React, { lazy, Suspense, useCallback, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Outlet, useLocation } from 'react-router-dom'

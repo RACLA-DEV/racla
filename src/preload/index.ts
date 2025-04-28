@@ -1,7 +1,7 @@
-import type { LogLevel } from '@src/types/common/LogLevel'
-import type { SessionData } from '@src/types/common/SessionData'
-import type { SettingsData } from '@src/types/common/SettingData'
-import { SongData } from '@src/types/common/SongData'
+import type { LogLevel } from '@src/types/dto/log/LogLevel'
+import { SongData } from '@src/types/games/SongData'
+import type { SessionData } from '@src/types/sessions/SessionData'
+import type { SettingsData } from '@src/types/settings/SettingData'
 import { contextBridge, ipcRenderer } from 'electron'
 import type { ProcessDescriptor } from 'ps-list'
 
@@ -12,7 +12,7 @@ contextBridge.exposeInMainWorld('electron', {
     ipcRenderer.on('reply-msg', (_event, msg: string) => cb(msg)),
 
   // 프로세스 관련
-  getPsList: (): Promise<ProcessDescriptor[]> => ipcRenderer.invoke('process:list'),
+  getPsList: (): Promise<ProcessDescriptor[]> => ipcRenderer.invoke('process-manager:list'),
 
   // 오버레이 관련
   createOverlay: (): Promise<boolean> => ipcRenderer.invoke('overlay:create'),
@@ -56,14 +56,14 @@ contextBridge.exposeInMainWorld('electron', {
     ipcRenderer.on('confirm-external-link', (_event, url: string) => callback(url)),
 
   // 로그인 관련
-  login: (sessionData: SessionData) => ipcRenderer.invoke('auth:login', sessionData),
-  logout: () => ipcRenderer.invoke('auth:logout'),
-  checkLoggedIn: () => ipcRenderer.invoke('auth:check-logged-in'),
-  getSession: () => ipcRenderer.invoke('auth:get-session'),
+  login: (sessionData: SessionData) => ipcRenderer.invoke('auth-manager:login', sessionData),
+  logout: () => ipcRenderer.invoke('auth-manager:logout'),
+  checkLoggedIn: () => ipcRenderer.invoke('auth-manager:check-logged-in'),
+  getSession: () => ipcRenderer.invoke('auth-manager:get-session'),
   createPlayerFile: (data: { userNo: string; userToken: string }) =>
-    ipcRenderer.invoke('auth:create-player-file', data),
-  openDiscordLogin: () => ipcRenderer.invoke('auth:open-discord-login'),
-  openBrowser: (url: string) => ipcRenderer.invoke('auth:open-browser', url),
+    ipcRenderer.invoke('auth-manager:create-player-file', data),
+  openDiscordLogin: () => ipcRenderer.invoke('auth-manager:open-discord-login'),
+  openBrowser: (url: string) => ipcRenderer.invoke('auth-manager:open-browser', url),
 
   // 파일 관리자 관련
   getStorageInfo: () => ipcRenderer.invoke('file-manager:get-storage-info'),

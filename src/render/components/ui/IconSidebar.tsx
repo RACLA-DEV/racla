@@ -1,6 +1,6 @@
 import { RootState } from '@render/store'
 import { setIsSetting, setSelectedGame } from '@render/store/slices/appSlice'
-import type { GameType } from '@src/types/common/GameType'
+import type { GameType } from '@src/types/games/GameType'
 import { AnimatePresence, motion } from 'framer-motion'
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'

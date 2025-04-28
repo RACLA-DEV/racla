@@ -1,4 +1,4 @@
-import type { Notification } from '@src/types/render/Notification'
+import type { Notification } from '@src/types/notifications/Notification'
 
 export interface NotificationContainerProps {
   notifications: Notification[]

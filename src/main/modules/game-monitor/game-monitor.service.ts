@@ -1,6 +1,6 @@
 import { GLOBAL_DICTONARY } from '@main/constants/GLOBAL_DICTONARY'
 import { Injectable, Logger } from '@nestjs/common'
-import type { OverlayBounds } from '@src/types/common/OverlayBounds'
+import type { OverlayBounds } from '@src/types/overlay/OverlayBounds'
 import { BrowserWindow, screen } from 'electron'
 import type { Result } from 'get-windows'
 import type { ProcessDescriptor } from 'ps-list'

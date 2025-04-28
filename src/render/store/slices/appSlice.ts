@@ -1,11 +1,11 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit'
 import { globalDictionary } from '@render/constants/globalDictionary'
 import { createLog } from '@render/libs/logger'
-import type { GameType } from '@src/types/common/GameType'
-import { SettingsData } from '@src/types/common/SettingData'
-import { SongData } from '@src/types/common/SongData'
+import type { GameType } from '@src/types/games/GameType'
+import { SongData } from '@src/types/games/SongData'
+import type { Notification } from '@src/types/notifications/Notification'
 import type { AppState } from '@src/types/redux/AppState'
-import type { Notification } from '@src/types/render/Notification'
+import { SettingsData } from '@src/types/settings/SettingData'
 
 const initialState: AppState = {
   selectedGame: 'djmax_respect_v',

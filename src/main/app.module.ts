@@ -7,7 +7,7 @@ import { Logger } from '@nestjs/common'
 import { app } from 'electron'
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
-import { AuthModule } from './modules/auth/auth.module'
+import { AuthManagerModule } from './modules/auth-manager/auth-manager.module'
 import { DiscordManagerModule } from './modules/discord-manager/discord-manager.module'
 import { FileManagerModule } from './modules/file-manager/file-manager.module'
 import { GameMonitorModule } from './modules/game-monitor/game-monitor.module'
@@ -17,7 +17,7 @@ import { LoggerModule } from './modules/logger/logger.module'
 import { MainWindowModule } from './modules/main-window/main-window.module'
 import { MessageModule } from './modules/message/message.module'
 import { OverlayWindowModule } from './modules/overlay-window/overlay-window.module'
-import { ProcessModule } from './modules/process/process.module'
+import { ProcessManagerModule } from './modules/process-manager/process-manager.module'
 import { UpdateManagerModule } from './modules/update-manager/update-manager.module'
 
 // Winston 설정을 별도 상수로 분리
@@ -51,13 +51,13 @@ export const winstonConfig = {
     WinstonModule.forRoot(winstonConfig),
     MainWindowModule,
     OverlayWindowModule,
-    ProcessModule,
+    ProcessManagerModule,
     MessageModule,
     GameMonitorModule,
     LoggerModule,
     ImageProcessorModule,
     FileManagerModule,
-    AuthModule,
+    AuthManagerModule,
     UpdateManagerModule,
     DiscordManagerModule,
   ],
@@ -70,7 +70,9 @@ export class AppModule implements OnModuleInit, OnModuleDestroy {
 
   constructor(private readonly gameMonitorService: GameMonitorService) {}
 
-  async onModuleInit() { this.logger.log('Module initialized'); }
+  async onModuleInit() {
+    this.logger.log('Module initialized')
+  }
 
   onModuleDestroy() {
     if (this.isInitialized) {

@@ -1,7 +1,7 @@
-import { GameType } from '../common/GameType'
-import { SettingsData } from '../common/SettingData'
-import { SongData } from '../common/SongData'
-import { Notification } from '../render/Notification'
+import { GameType } from '../games/GameType'
+import { SongData } from '../games/SongData'
+import { Notification } from '../notifications/Notification'
+import { SettingsData } from '../settings/SettingData'
 
 export interface AppState {
   selectedGame: GameType

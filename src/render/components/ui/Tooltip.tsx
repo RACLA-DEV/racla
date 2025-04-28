@@ -1,5 +1,5 @@
 import { RootState } from '@render/store'
-import type { TooltipProps } from '@src/types/render/TooltipProps'
+import type { TooltipProps } from '@src/types/tooltip/TooltipProps'
 import React, { useState } from 'react'
 import { useSelector } from 'react-redux'
 
