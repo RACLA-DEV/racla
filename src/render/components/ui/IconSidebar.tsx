@@ -38,8 +38,8 @@ const IconSidebar: React.FC = () => {
       tooltip: 'DJMAX RESPECT V',
       iconUrl:
         djmaxLogoIndex >= 0 && djmaxLogoIndex < djmaxLogos.length
-          ? `https://cdn.racla.app/djmax_respect_v/${djmaxLogos[djmaxLogoIndex]}`
-          : 'https://cdn.racla.app/djmax_respect_v/new_logo_0.png',
+          ? `${import.meta.env.VITE_CDN_URL}/djmax_respect_v/${djmaxLogos[djmaxLogoIndex]}`
+          : `${import.meta.env.VITE_CDN_URL}/djmax_respect_v/new_logo_0.png`,
       onClick: () => {
         // 이미지 변경과 게임 선택을 분리
         if (selectedGame === 'djmax_respect_v') {
@@ -56,8 +56,8 @@ const IconSidebar: React.FC = () => {
       tooltip: 'WJMAX',
       iconUrl:
         wjmaxLogoIndex >= 0 && wjmaxLogoIndex < wjmaxLogos.length
-          ? `https://cdn.racla.app/wjmax/${wjmaxLogos[wjmaxLogoIndex]}`
-          : 'https://cdn.racla.app/wjmax/new_logo_0.png',
+          ? `${import.meta.env.VITE_CDN_URL}/wjmax/${wjmaxLogos[wjmaxLogoIndex]}`
+          : `${import.meta.env.VITE_CDN_URL}/wjmax/new_logo_0.png`,
       onClick: () => {
         if (selectedGame === 'wjmax') {
           // 이미 선택된 경우 로고만 변경
@@ -71,7 +71,7 @@ const IconSidebar: React.FC = () => {
     {
       id: 'platina_lab' as GameType,
       tooltip: 'PLATiNA :: LAB',
-      iconUrl: 'https://cdn.racla.app/platina_lab/new_logo.png',
+      iconUrl: `${import.meta.env.VITE_CDN_URL}/platina_lab/new_logo.png`,
       onClick: () => {
         handleGameSelect('platina_lab')
       },
