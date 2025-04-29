@@ -26,9 +26,10 @@
 /* 메인 레이아웃 - 좌우 패널 + 중앙 게임 영역 */
 .mainGameArea {
   display: flex;
-  gap: 1rem;
   width: 100%;
-  height: 100%;
+  height: 850px;
+  max-height: 90vh;
+  overflow: hidden;
 }
 
 /* 왼쪽 패널 - 점수 및 컨트롤 */
@@ -42,9 +43,10 @@
 /* 중앙 패널 - 게임 영역 */
 .centerPanel {
   display: flex;
-  flex: 1;
-  justify-content: center;
-  align-items: flex-start;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  height: 100%;
   overflow: hidden;
 }
 
@@ -371,57 +373,65 @@
 .gameArea {
   position: relative;
   margin: 0 auto;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
-  background-color: #222;
-  height: 600px;
+  background-color: #f9fafb;
+  height: 800px;
   overflow: hidden;
 }
 
-.lightTheme .gameArea {
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  background-color: #e0e0e0;
+.darkTheme .gameArea {
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  background-color: #1e293b;
 }
 
 /* 레인 */
 .lane {
   position: absolute;
-  transition: background-color 0.1s ease;
-  border-right: 1px solid #444;
-  background-color: #333;
+  top: 0;
+  z-index: 1;
+  border-radius: 0;
+  background-color: rgba(0, 0, 0, 0.03);
   height: 100%;
 }
 
-.lightTheme .lane {
-  border-right: 1px solid #ccc;
-  background-color: #d0d0d0;
+.darkTheme .lane {
+  background-color: rgba(255, 255, 255, 0.03);
 }
 
-.lane:last-child {
-  border-right: none;
+.laneDivider {
+  position: absolute;
+  top: 0;
+  z-index: 2;
+  background-color: rgba(0, 0, 0, 0.1);
+  width: 2px;
+}
+
+.darkTheme .laneDivider {
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
 .pressedLane {
-  background-color: rgba(255, 255, 255, 0.15);
+  transition: background-color 0.1s ease;
+  background-color: rgba(79, 70, 229, 0.1) !important;
 }
 
-.lightTheme .pressedLane {
-  background-color: rgba(0, 0, 0, 0.1);
+.darkTheme .pressedLane {
+  background-color: rgba(79, 70, 229, 0.15) !important;
 }
 
 /* 판정선 */
 .judgementLine {
   position: absolute;
-  z-index: 20;
-  box-shadow: 0 0 10px white;
-  background-color: rgba(255, 255, 255, 0.8);
+  z-index: 5;
+  box-shadow: 0 0 10px rgba(79, 70, 229, 0.5);
+  background-color: rgba(79, 70, 229, 0.7);
   height: 4px;
 }
 
-.lightTheme .judgementLine {
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-  background-color: rgba(0, 0, 0, 0.7);
+.darkTheme .judgementLine {
+  box-shadow: 0 0 15px rgba(99, 102, 241, 0.6);
+  background-color: rgba(99, 102, 241, 0.8);
 }
 
 /* 노트 스타일 */

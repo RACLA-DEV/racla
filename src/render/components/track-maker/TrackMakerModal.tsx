@@ -1,6 +1,9 @@
+import { Icon } from '@iconify/react/dist/iconify.js'
 import { RootState } from '@render/store'
+import { setIsTrackMaker } from '@render/store/slices/appSlice'
 import React, { useState } from 'react'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
+import Tooltip from '../ui/Tooltip'
 import TrackMaker from './TrackMaker'
 import styles from './TrackMakerModal.module.css'
 import TrackPlayer from './TrackPlayer'
@@ -12,6 +15,7 @@ const TrackMakerModal: React.FC = () => {
   const [pattern, setPattern] = useState<any[]>([])
   const [bpm, setBpm] = useState<number>(120)
   const [keyMode, setKeyMode] = useState<'4B' | '5B' | '6B' | '8B'>('4B')
+  const dispatch = useDispatch()
 
   const handleTabSelect = (tab: string) => {
     setSelectedTab(tab)
@@ -36,7 +40,7 @@ const TrackMakerModal: React.FC = () => {
       }`}
     >
       <div
-        className={`tw:pt-2 ${theme == 'dark' ? 'tw:border-b tw:border-slate-700' : 'tw:border-b tw:border-gray-200'}`}
+        className={`tw:pt-2 tw:flex tw:justify-between ${theme == 'dark' ? 'tw:border-b tw:border-slate-700' : 'tw:border-b tw:border-gray-200'}`}
       >
         <div className='tw:flex'>
           <button
@@ -60,6 +64,20 @@ const TrackMakerModal: React.FC = () => {
             플레이
           </button>
         </div>
+        <span
+          onClick={() => {
+            dispatch(setIsTrackMaker(false))
+          }}
+          className={`tw:flex tw:p-1 tw:mr-4 tw:mb-2 tw:rounded-md tw:transition-colors tw:cursor-pointer ${
+            theme === 'dark'
+              ? 'tw:text-red-500 tw:hover:bg-slate-700'
+              : 'tw:hover:bg-white tw:hover:shadow-md'
+          }`}
+        >
+          <Tooltip position='left' content={'닫기'}>
+            <Icon icon='lucide:x' className='tw:w-4 tw:h-4' />
+          </Tooltip>
+        </span>
       </div>
 
       <div className={styles.content}>

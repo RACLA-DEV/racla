@@ -1,6 +1,6 @@
 import { Icon } from '@iconify/react'
 import { RootState } from '@render/store'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { KeyMode, Note, TrackPlayerProps } from '../../../types/games/TrackMaker'
 import styles from './TrackPlayer.module.css'
@@ -72,12 +72,15 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
 
   // 게임판 크기
   const LANE_WIDTH = 60
-  const GAME_HEIGHT = 600
+  const GAME_HEIGHT = 800 // 높이 증가
   const NOTE_HEIGHT = 20
   const JUDGEMENT_LINE_Y = GAME_HEIGHT - 100
 
   // 첫 노트 지연 시간
   const INITIAL_DELAY = 3000 // 3초
+
+  // 미리 보이는 노트 시간 범위 (ms)
+  const VISIBLE_NOTE_RANGE = 4000 // 노트가 미리 보이기 시작하는 시간
 
   // 판정 범위 (ms)
   const JUDGEMENT = {
@@ -150,8 +153,8 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
   }
 
   // 키 입력 처리
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
       if (!isPlaying) return
 
       // 키 상태 업데이트
@@ -160,16 +163,19 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
       // 노트 판정
       const keyTime = performance.now() - startTimeRef.current
       checkNoteHit(e.key.toLowerCase(), keyTime)
-    }
+    },
+    [isPlaying],
+  )
 
-    const handleKeyUp = (e: KeyboardEvent) => {
-      // 키 상태 업데이트
-      setKeyState((prev) => ({ ...prev, [e.key.toLowerCase()]: false }))
+  const handleKeyUp = useCallback((e: KeyboardEvent) => {
+    // 키 상태 업데이트
+    setKeyState((prev) => ({ ...prev, [e.key.toLowerCase()]: false }))
 
-      // 롱노트 처리
-      checkLongNoteRelease(e.key.toLowerCase())
-    }
+    // 롱노트 처리
+    checkLongNoteRelease(e.key.toLowerCase())
+  }, [])
 
+  useEffect(() => {
     window.addEventListener('keydown', handleKeyDown)
     window.addEventListener('keyup', handleKeyUp)
 
@@ -177,7 +183,7 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
       window.removeEventListener('keydown', handleKeyDown)
       window.removeEventListener('keyup', handleKeyUp)
     }
-  }, [isPlaying])
+  }, [handleKeyDown, handleKeyUp])
 
   // 노트 판정
   const checkNoteHit = (key: string, keyTime: number) => {
@@ -344,24 +350,25 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
     setMaxCombo((prev) => Math.max(prev, combo + 1))
   }
 
-  // 노트 렌더링
+  // 노트 렌더링 - 개선된 필터링으로 자연스러운 등장 구현
   const renderNotes = () => {
     if (!isPlaying || !gameAreaRef.current) return null
 
     const gameWidth = laneCount * LANE_WIDTH
 
-    // 현재 화면에 표시할 노트만 필터링
+    // 현재 화면에 표시할 노트만 필터링 - 미리 보이는 범위 활용
     const notesInView = visibleNotesRef.current.filter((note) => {
-      const noteY = calculateNoteY(note.time)
+      const timeOffset = note.time - currentTime
+
       // 롱노트의 경우 endTime도 고려
       if (note.isLong && note.endTime) {
-        const endY = calculateNoteY(note.endTime)
-        return (
-          (endY > -NOTE_HEIGHT && noteY < GAME_HEIGHT) ||
-          (endY < GAME_HEIGHT && noteY > -NOTE_HEIGHT)
-        )
+        const endTimeOffset = note.endTime - currentTime
+        // 롱노트의 끝이 판정선을 지났거나 시작이 미리 보이는 범위 안에 있으면 표시
+        return endTimeOffset > -VISIBLE_NOTE_RANGE || timeOffset < VISIBLE_NOTE_RANGE
       }
-      return noteY > -NOTE_HEIGHT && noteY < GAME_HEIGHT
+
+      // 일반 노트는 이미 지나간 노트는 제외하고, 앞으로 나올 노트 중 범위 안에 있는 것만 표시
+      return timeOffset > -500 && timeOffset < VISIBLE_NOTE_RANGE
     })
 
     return notesInView.map((note) => {
@@ -417,7 +424,7 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
     })
   }
 
-  // 레인 렌더링
+  // 레인 렌더링 - 전체 높이 활용 및 속도 조절 시 경계선 유지
   const renderLanes = () => {
     if (!gameAreaRef.current) return null
 
@@ -433,9 +440,24 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
           style={{
             left: `${i * LANE_WIDTH}px`,
             width: `${LANE_WIDTH}px`,
+            height: `${GAME_HEIGHT}px`, // 전체 높이 적용
           }}
         />,
       )
+
+      // 마지막 레인을 제외하고 구분선 추가
+      if (i < laneCount - 1) {
+        lanes.push(
+          <div
+            key={`lane-divider-${i}`}
+            className={styles.laneDivider}
+            style={{
+              left: `${(i + 1) * LANE_WIDTH - 1}px`,
+              height: `${GAME_HEIGHT}px`, // 전체 높이 적용
+            }}
+          />,
+        )
+      }
     }
 
     return lanes
@@ -493,12 +515,23 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
     )
   }
 
-  // 노트 Y 좌표 계산 (시간 -> 픽셀)
-  const calculateNoteY = (noteTime: number) => {
-    const timeOffset = noteTime - currentTime
-    // 스크롤 속도를 10-300 범위에서 적용 (값이 클수록 빠름)
-    return JUDGEMENT_LINE_Y - timeOffset * (scrollSpeed / 1000)
-  }
+  // 노트 Y 좌표 계산 (시간 -> 픽셀) - 자연스러운 등장을 위한 개선
+  const calculateNoteY = useCallback(
+    (noteTime: number) => {
+      const timeOffset = noteTime - currentTime
+      const pixelOffset = timeOffset * (scrollSpeed / 1000)
+
+      // 노트가 자연스럽게 등장하도록 처리
+      if (timeOffset > VISIBLE_NOTE_RANGE) {
+        // 범위 밖이면 화면 위쪽(음수 위치)에 배치
+        return -NOTE_HEIGHT
+      }
+
+      // 판정선 기준으로 위치 계산
+      return JUDGEMENT_LINE_Y - pixelOffset
+    },
+    [currentTime, scrollSpeed, VISIBLE_NOTE_RANGE],
+  )
 
   // 속도 배수로 표시
   const getSpeedMultiplier = (speed: number) => {
@@ -594,7 +627,10 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
           <div
             ref={gameAreaRef}
             className={styles.gameArea}
-            style={{ width: `${laneCount * LANE_WIDTH}px` }}
+            style={{
+              width: `${laneCount * LANE_WIDTH}px`,
+              height: `${GAME_HEIGHT}px`, // 전체 높이 적용
+            }}
           >
             {renderLanes()}
 
