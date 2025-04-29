@@ -49,11 +49,7 @@ const MainContent: React.FC<ChildrenReactNodeProps> = ({ children }) => {
       }`}
     >
       {/* 컨텐츠 영역 */}
-      <motion.div
-        variants={childAnimation}
-        key={location.pathname}
-        className='tw:p-6 tw:h-full tw:pr-9 tw:pb-12'
-      >
+      <motion.div variants={childAnimation} key={location.pathname} className='tw:p-4 tw:h-full'>
         {/* 무조건 자식 컴포넌트 렌더링 */}
         {children}
       </motion.div>

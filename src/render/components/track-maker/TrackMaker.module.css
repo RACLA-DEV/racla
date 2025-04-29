@@ -1,0 +1,402 @@
+.editorContainer {
+  display: flex;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.editorContainer.darkTheme {
+  background-color: #1a1a1a;
+  color: #e0e0e0;
+}
+
+.sidebar {
+  border-right: 1px solid #ddd;
+  background-color: #f5f5f5;
+  padding: 16px;
+  width: 280px;
+  overflow-y: auto;
+}
+
+.sidebar.darkTheme {
+  border-right: 1px solid #334155; /* slate-700 */
+  background-color: #1e293b; /* slate-800 */
+  color: #e2e8f0; /* slate-200 */
+}
+
+.editorMain {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.editorMain.darkTheme {
+  background-color: #1e293b; /* slate-800 */
+}
+
+.timeIndicator {
+  border-bottom: 1px solid #ddd;
+  background-color: #f8fafc; /* slate-50 */
+  padding: 8px;
+  font-family: monospace;
+}
+
+.timeIndicator.darkTheme {
+  border-bottom: 1px solid #475569; /* slate-600 */
+  background-color: #334155; /* slate-700 */
+  color: #e2e8f0; /* slate-200 */
+}
+
+.previewInfo {
+  color: #666;
+  font-size: 12px;
+}
+
+.darkTheme .previewInfo {
+  color: #cbd5e1; /* slate-300 */
+}
+
+.editorGrid {
+  position: relative;
+  flex: 1;
+  background-color: #f1f5f9; /* slate-100 */
+  overflow: auto;
+}
+
+.editorGrid.darkTheme {
+  background-color: #0f172a; /* slate-900 */
+}
+
+.editorContent {
+  position: relative;
+  width: 100%;
+}
+
+.controlGroup {
+  margin-bottom: 20px;
+}
+
+.fileInput {
+  margin-top: 8px;
+  width: 100%;
+}
+
+/* 그리드 라인 */
+.horizontalLine {
+  position: absolute;
+  background-color: rgba(0, 0, 0, 0.1);
+  width: 100%;
+  height: 1px;
+}
+
+.darkTheme .horizontalLine {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.verticalLine {
+  position: absolute;
+  background-color: rgba(0, 0, 0, 0.1);
+  width: 1px;
+  height: 100%;
+}
+
+.darkTheme .verticalLine {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.measureLine {
+  background-color: rgba(0, 0, 0, 0.5);
+  height: 2px;
+}
+
+.darkTheme .measureLine {
+  background-color: rgba(255, 255, 255, 0.5);
+}
+
+.quarterBeatLine {
+  background-color: rgba(0, 0, 0, 0.3);
+  height: 1.5px;
+}
+
+.darkTheme .quarterBeatLine {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+.eighthBeatLine {
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+.darkTheme .eighthBeatLine {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.timeLabel {
+  position: absolute;
+  top: -20px;
+  left: 4px;
+  color: #666;
+  font-size: 10px;
+}
+
+.darkTheme .timeLabel {
+  color: #cbd5e1; /* slate-300 */
+}
+
+/* 노트 스타일 */
+.note {
+  position: absolute;
+  z-index: 10;
+  transition: box-shadow 0.15s ease;
+  cursor: pointer;
+  box-sizing: border-box;
+  border: 1px solid #334155; /* slate-700 */
+  user-select: none;
+}
+
+.note:hover {
+  box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.4); /* indigo-600 with opacity */
+}
+
+.previewNote {
+  position: absolute;
+  opacity: 0.5;
+  z-index: 9;
+  box-sizing: border-box;
+  border: 1px dashed #334155; /* slate-700 */
+  pointer-events: none;
+  user-select: none;
+}
+
+.darkTheme .previewNote {
+  border-color: #94a3b8; /* slate-400 */
+}
+
+.normalNote {
+  border-color: #334155; /* slate-700 */
+  background-color: rgba(255, 255, 255, 0.9);
+}
+
+.darkTheme .normalNote {
+  border-color: #94a3b8; /* slate-400 */
+  background-color: rgba(226, 232, 240, 0.9); /* slate-200 */
+}
+
+.fxNote {
+  z-index: 5;
+  border-color: #b45309; /* amber-700 */
+  background-color: rgba(251, 191, 36, 0.8); /* amber-400 */
+}
+
+.darkTheme .fxNote {
+  border-color: #d97706; /* amber-600 */
+  background-color: rgba(251, 191, 36, 0.8); /* amber-400 */
+}
+
+.lrNote {
+  z-index: 4;
+  border-color: #1e40af; /* blue-800 */
+  background-color: rgba(59, 130, 246, 0.8); /* blue-500 */
+}
+
+.darkTheme .lrNote {
+  border-color: #3b82f6; /* blue-500 */
+  background-color: rgba(59, 130, 246, 0.8); /* blue-500 */
+}
+
+.enterNote {
+  z-index: 3;
+  border-color: #15803d; /* green-700 */
+  background-color: rgba(34, 197, 94, 0.8); /* green-500 */
+}
+
+.darkTheme .enterNote {
+  border-color: #22c55e; /* green-500 */
+  background-color: rgba(34, 197, 94, 0.8); /* green-500 */
+}
+
+.longNote {
+  opacity: 0.8;
+  border-radius: 4px;
+}
+
+.longNote::after {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  cursor: ns-resize;
+  border-radius: 0 0 4px 4px;
+  background: repeating-linear-gradient(
+    45deg,
+    rgba(0, 0, 0, 0.1),
+    rgba(0, 0, 0, 0.1) 5px,
+    transparent 5px,
+    transparent 10px
+  );
+  height: 10px;
+  content: '';
+}
+
+.darkTheme .longNote::after {
+  background: repeating-linear-gradient(
+    45deg,
+    rgba(255, 255, 255, 0.1),
+    rgba(255, 255, 255, 0.1) 5px,
+    transparent 5px,
+    transparent 10px
+  );
+}
+
+.longNoteLabel {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  color: rgba(0, 0, 0, 0.7);
+  font-weight: bold;
+  font-size: 10px;
+  text-shadow: 0 0 2px rgba(255, 255, 255, 0.8);
+}
+
+.darkTheme .longNoteLabel {
+  color: rgba(255, 255, 255, 0.8);
+  text-shadow: 0 0 2px rgba(0, 0, 0, 0.8);
+}
+
+.dragIndicator {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+  pointer-events: none;
+  color: rgba(0, 0, 0, 0.8);
+  font-weight: bold;
+  font-size: 14px;
+  text-shadow: 0 0 3px rgba(255, 255, 255, 0.8);
+}
+
+.darkTheme .dragIndicator {
+  color: rgba(255, 255, 255, 0.8);
+  text-shadow: 0 0 3px rgba(0, 0, 0, 0.8);
+}
+
+/* Ctrl 키 가이드 */
+.ctrlGuide {
+  position: fixed;
+  bottom: 56px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  animation: fade 0.125s ease-in-out;
+  border-radius: 8px;
+  background-color: oklch(58.5% 0.233 277.117);
+  padding: 8px 16px;
+  color: white;
+  font-size: 14px;
+}
+
+/* Shift 키 가이드 */
+.shiftGuide {
+  position: fixed;
+  bottom: 56px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  animation: fade 0.125s ease-in-out;
+  border-radius: 8px;
+  background-color: rgba(220, 38, 38, 0.9);
+  padding: 8px 16px;
+  color: white;
+  font-size: 14px;
+}
+
+.darkTheme.shiftGuide {
+  background-color: rgba(248, 113, 113, 0.8);
+  color: white;
+}
+
+/* 실행 취소/다시 실행 스타일 */
+.undoRedoButton {
+  transition: all 0.2s;
+  cursor: pointer;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background-color: #f3f4f6;
+  padding: 4px 8px;
+  font-size: 14px;
+}
+
+.undoRedoButton:hover:not(:disabled) {
+  background-color: #e5e7eb;
+}
+
+.undoRedoButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.darkTheme .undoRedoButton {
+  border-color: #374151;
+  background-color: #1f2937;
+  color: #e5e7eb;
+}
+
+.darkTheme .undoRedoButton:hover:not(:disabled) {
+  background-color: #374151;
+}
+
+/* 마우스 툴팁 스타일 */
+.mouseTooltip {
+  position: fixed;
+  transform-origin: left center;
+  z-index: 1000;
+  animation: tooltip-fade 0.2s ease-in-out;
+  transition: transform 0.1s ease-out;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  background-color: rgba(255, 255, 255, 0.9);
+  padding: 6px 10px;
+  pointer-events: none; /* 툴팁이 마우스 이벤트를 방해하지 않도록 */
+  font-size: 12px;
+  font-family: monospace;
+}
+
+.mouseTooltip.darkTheme {
+  border-color: rgba(255, 255, 255, 0.1);
+  background-color: rgba(30, 41, 59, 0.9); /* slate-800 */
+  color: #e2e8f0; /* slate-200 */
+}
+
+.mouseTooltipTime {
+  margin-bottom: 2px;
+  font-weight: bold;
+}
+
+.mouseTooltipBeat {
+  opacity: 0.8;
+}
+
+@keyframes tooltip-fade {
+  0% {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes fade {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
