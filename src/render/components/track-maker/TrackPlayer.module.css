@@ -1,0 +1,118 @@
+.playerContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #111;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  color: white;
+}
+
+.gameInfo {
+  display: flex;
+  justify-content: space-between;
+  background-color: #222;
+  padding: 10px;
+  width: 100%;
+}
+
+.scoreDisplay {
+  display: flex;
+  gap: 20px;
+}
+
+.controls {
+  display: flex;
+  gap: 10px;
+}
+
+.startButton,
+.stopButton {
+  cursor: pointer;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 16px;
+  font-weight: bold;
+}
+
+.startButton {
+  background-color: #4caf50;
+  color: white;
+}
+
+.stopButton {
+  background-color: #f44336;
+  color: white;
+}
+
+.gameArea {
+  position: relative;
+  margin: 0 auto;
+  background-color: #222;
+  height: 600px;
+  overflow: hidden;
+}
+
+.lane {
+  position: absolute;
+  border-right: 1px solid #444;
+  background-color: #333;
+  height: 100%;
+}
+
+.pressedLane {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.judgementLine {
+  position: absolute;
+  z-index: 20;
+  background-color: rgba(255, 255, 255, 0.8);
+  height: 4px;
+}
+
+/* 노트 스타일 */
+.note {
+  position: absolute;
+  z-index: 10;
+  cursor: pointer;
+  box-sizing: border-box;
+  border: 1px solid #000;
+}
+
+.normalNote {
+  border-color: #444;
+  background-color: rgba(255, 255, 255, 0.9);
+}
+
+.fxNote {
+  z-index: 5;
+  border-color: #cc8500;
+  background-color: rgba(255, 165, 0, 0.8);
+}
+
+.lrNote {
+  z-index: 4;
+  border-color: #0056b3;
+  background-color: rgba(0, 123, 255, 0.8);
+}
+
+.enterNote {
+  z-index: 3;
+  border-color: #1e7e34;
+  background-color: rgba(40, 167, 69, 0.8);
+}
+
+.pressedNote {
+  opacity: 0.5;
+}
+
+.keyGuide {
+  margin-top: 20px;
+  border-radius: 4px;
+  background-color: #333;
+  padding: 10px;
+  width: 80%;
+  text-align: center;
+}

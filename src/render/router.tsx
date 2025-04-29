@@ -8,6 +8,7 @@ const AppLayout = lazy(() => import('./components/ui/AppLayout'))
 const Login = lazy(() => import('./pages/auth/login'))
 const MainPage = lazy(() => import('./pages/home'))
 const Overlay = lazy(() => import('./pages/overlay'))
+const RaclaTrackMaker = lazy(() => import('./pages/track-maker/RaclaTrackMaker'))
 
 // 기본 레이아웃이 적용된 라우트를 위한 컴포넌트
 const DefaultLayout = () => {
@@ -45,6 +46,14 @@ export const router = createHashRouter([
             element: (
               <Suspense fallback={<PageLoading />}>
                 <Login />
+              </Suspense>
+            ),
+          },
+          {
+            path: 'track-maker',
+            element: (
+              <Suspense fallback={<PageLoading />}>
+                <RaclaTrackMaker />
               </Suspense>
             ),
           },
