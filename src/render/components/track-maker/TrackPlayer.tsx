@@ -3,10 +3,10 @@ import { KeyMode, Note, TrackPlayerProps } from '../../../types/games/TrackMaker
 import styles from './TrackPlayer.module.css'
 
 const KEY_MAPS = {
-  '4k': ['d', 'f', 'j', 'k'],
-  '5k': ['d', 'f', 'space', 'j', 'k'],
-  '6k': ['s', 'd', 'f', 'j', 'k', 'l'],
-  '8k': ['a', 's', 'd', 'f', 'j', 'k', 'l', ';'],
+  '4B': ['d', 'f', 'j', 'k'],
+  '5B': ['d', 'f', 'space', 'j', 'k'],
+  '6B': ['s', 'd', 'f', 'j', 'k', 'l'],
+  '8B': ['a', 's', 'd', 'f', 'j', 'k', 'l', ';'],
 }
 
 const SPECIAL_KEYS = {
@@ -439,7 +439,7 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
         {/* 키 가이드 */}
         <div>
           <h4>키 가이드</h4>
-          <p>일반 노트: {KEY_MAPS[keyMode].join(', ')}</p>
+          <p>일반 노트: {KEY_MAPS[keyMode]?.join(', ') || '키 설정 없음'}</p>
           <p>
             FX 노트: {SPECIAL_KEYS.fx_left}, {SPECIAL_KEYS.fx_right}
           </p>
