@@ -1,6 +1,7 @@
 import { Icon } from '@iconify/react/dist/iconify.js'
 import { RootState } from '@render/store'
 import { setIsTrackMaker } from '@render/store/slices/appSlice'
+import type { Note } from '@src/types/track-maker/TrackMaker'
 import React, { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import Tooltip from '../ui/Tooltip'
@@ -12,7 +13,7 @@ const TrackMakerModal: React.FC = () => {
   const { isTrackMaker, settingData } = useSelector((state: RootState) => state.app)
   const { theme } = useSelector((state: RootState) => state.ui)
   const [selectedTab, setSelectedTab] = useState<string>('editor')
-  const [pattern, setPattern] = useState<any[]>([])
+  const [pattern, setPattern] = useState<Note[]>([])
   const [bpm, setBpm] = useState<number>(120)
   const [keyMode, setKeyMode] = useState<'4B' | '5B' | '6B' | '8B'>('4B')
   const dispatch = useDispatch()
@@ -21,7 +22,7 @@ const TrackMakerModal: React.FC = () => {
     setSelectedTab(tab)
   }
 
-  const handlePatternChange = (newPattern: any[]) => {
+  const handlePatternChange = (newPattern: Note[]) => {
     setPattern(newPattern)
   }
 
@@ -49,7 +50,9 @@ const TrackMakerModal: React.FC = () => {
                 ? `tw:border-b-2 tw:border-indigo-500 ${theme === 'dark' ? 'tw:text-gray-200' : 'tw:text-gray-700'}`
                 : 'tw:text-gray-400 tw:hover:text-gray-700'
             }`}
-            onClick={() => handleTabSelect('editor')}
+            onClick={() => {
+              handleTabSelect('editor')
+            }}
           >
             에디터
           </button>
@@ -59,7 +62,9 @@ const TrackMakerModal: React.FC = () => {
                 ? `tw:border-b-2 tw:border-indigo-500 ${theme === 'dark' ? 'tw:text-gray-200' : 'tw:text-gray-700'}`
                 : 'tw:text-gray-400 tw:hover:text-gray-700'
             }`}
-            onClick={() => handleTabSelect('player')}
+            onClick={() => {
+              handleTabSelect('player')
+            }}
           >
             플레이
           </button>
