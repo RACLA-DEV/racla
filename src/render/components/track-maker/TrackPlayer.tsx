@@ -1,4 +1,7 @@
+import { Icon } from '@iconify/react'
+import { RootState } from '@render/store'
 import React, { useEffect, useRef, useState } from 'react'
+import { useSelector } from 'react-redux'
 import { KeyMode, Note, TrackPlayerProps } from '../../../types/games/TrackMaker'
 import styles from './TrackPlayer.module.css'
 
@@ -19,6 +22,12 @@ const SPECIAL_KEYS = {
 
 type KeyState = {
   [key: string]: boolean
+}
+
+type JudgementDisplay = {
+  text: 'PERFECT' | 'GREAT' | 'GOOD' | 'BAD' | 'MISS'
+  timestamp: number
+  id: string
 }
 
 const getLaneCount = (keyMode: KeyMode): number => {
@@ -43,6 +52,10 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
   const [combo, setCombo] = useState<number>(0)
   const [maxCombo, setMaxCombo] = useState<number>(0)
   const [keyState, setKeyState] = useState<KeyState>({})
+  const [scrollSpeed, setScrollSpeed] = useState<number>(500)
+  const [currentJudgement, setCurrentJudgement] = useState<JudgementDisplay | null>(null)
+  const [judgementsEnabled, setJudgementsEnabled] = useState<boolean>(true)
+  const [showGuide, setShowGuide] = useState<boolean>(true)
 
   const gameAreaRef = useRef<HTMLDivElement>(null)
   const animationRef = useRef<number | null>(null)
@@ -51,11 +64,20 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
   const pressedNotesRef = useRef<Set<string>>(new Set())
   const laneCount = getLaneCount(keyMode)
 
+  // 테마 상태 가져오기
+  const theme = useSelector((state: RootState) => state.ui.theme)
+
+  // 판정 애니메이션 지속 시간
+  const JUDGEMENT_DISPLAY_DURATION = 500 // ms
+
   // 게임판 크기
   const LANE_WIDTH = 60
   const GAME_HEIGHT = 600
   const NOTE_HEIGHT = 20
   const JUDGEMENT_LINE_Y = GAME_HEIGHT - 100
+
+  // 첫 노트 지연 시간
+  const INITIAL_DELAY = 3000 // 3초
 
   // 판정 범위 (ms)
   const JUDGEMENT = {
@@ -72,8 +94,26 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
     setScore(0)
     setCombo(0)
     setMaxCombo(0)
+    setCurrentJudgement(null)
+    setJudgementsEnabled(true)
     pressedNotesRef.current.clear()
-    visibleNotesRef.current = [...pattern].sort((a, b) => a.time - b.time)
+
+    // 첫 노트 지연을 위해 모든 노트 시간에 INITIAL_DELAY 추가
+    visibleNotesRef.current = [...pattern]
+      .map((note) => {
+        // 깊은 복사를 위해 새 객체 생성
+        const newNote = { ...note }
+        newNote.time += INITIAL_DELAY
+
+        // 롱노트인 경우 endTime도 조정
+        if (newNote.isLong && newNote.endTime) {
+          newNote.endTime += INITIAL_DELAY
+        }
+
+        return newNote
+      })
+      .sort((a, b) => a.time - b.time)
+
     startTimeRef.current = performance.now()
 
     if (animationRef.current) {
@@ -86,6 +126,8 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
   // 게임 종료
   const stopGame = () => {
     setIsPlaying(false)
+    setCurrentJudgement(null)
+
     if (animationRef.current) {
       cancelAnimationFrame(animationRef.current)
       animationRef.current = null
@@ -172,7 +214,7 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
       } else if (noteType === 'fx' || noteType === 'lr') {
         return note.lane === laneIndex
       } else if (noteType === 'enter') {
-        return true // Enter 키는 레인 무관
+        return true
       }
 
       return false
@@ -257,10 +299,26 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
   }
 
   // 점수 및 콤보 업데이트
-  const updateScore = (judgement: 'PERFECT' | 'GREAT' | 'GOOD' | 'BAD' | 'MISS') => {
+  const updateScore = (judgementText: 'PERFECT' | 'GREAT' | 'GOOD' | 'BAD' | 'MISS') => {
     let scoreAdd = 0
 
-    switch (judgement) {
+    // 판정 표시 업데이트 - 언제나 하나의 판정만 표시
+    if (judgementsEnabled) {
+      const newJudgement = {
+        text: judgementText,
+        timestamp: performance.now(),
+        id: Math.random().toString(36).substring(2, 9),
+      }
+
+      setCurrentJudgement(newJudgement)
+
+      // 일정 시간 후 판정 텍스트 지우기 (타이머 기반)
+      setTimeout(() => {
+        setCurrentJudgement((prev) => (prev && prev.id === newJudgement.id ? null : prev))
+      }, JUDGEMENT_DISPLAY_DURATION)
+    }
+
+    switch (judgementText) {
       case 'PERFECT':
         scoreAdd = 100
         setCombo((prev) => prev + 1)
@@ -326,7 +384,7 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
       let noteHeight = NOTE_HEIGHT
       if (note.isLong && note.endTime) {
         const endY = calculateNoteY(note.endTime)
-        noteHeight = Math.max(20, Math.abs(noteY - endY)) // 최소 높이 20px 보장
+        noteHeight = Math.max(20, Math.abs(noteY - endY))
       }
 
       // 노트 타입에 따른 스타일 클래스
@@ -366,7 +424,7 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
     const lanes = []
 
     for (let i = 0; i < laneCount; i++) {
-      const isPressed = keyState[KEY_MAPS[keyMode][i]]
+      const isPressed = keyState[KEY_MAPS[keyMode]?.[i] || '']
 
       lanes.push(
         <div
@@ -383,71 +441,257 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
     return lanes
   }
 
+  // 판정 표시 렌더링
+  const renderJudgement = () => {
+    if (!currentJudgement || !gameAreaRef.current) return null
+
+    const gameWidth = laneCount * LANE_WIDTH
+
+    // 판정 표시에 따른 스타일 클래스
+    const judgementClass =
+      currentJudgement.text === 'PERFECT'
+        ? styles.perfectJudgement
+        : currentJudgement.text === 'GREAT'
+          ? styles.greatJudgement
+          : currentJudgement.text === 'GOOD'
+            ? styles.goodJudgement
+            : currentJudgement.text === 'BAD'
+              ? styles.badJudgement
+              : styles.missJudgement
+
+    return (
+      <div
+        key={currentJudgement.id}
+        className={`${styles.judgementDisplay} ${judgementClass}`}
+        style={{
+          left: `${gameWidth / 2}px`,
+          top: `${JUDGEMENT_LINE_Y - 30}px`,
+        }}
+      >
+        {currentJudgement.text}
+      </div>
+    )
+  }
+
+  // 콤보 표시 렌더링
+  const renderCombo = () => {
+    if (combo <= 1 || !gameAreaRef.current) return null
+
+    const gameWidth = laneCount * LANE_WIDTH
+
+    return (
+      <div
+        className={styles.comboDisplay}
+        style={{
+          left: `${gameWidth / 2}px`,
+          top: '70px',
+        }}
+      >
+        <div className={styles.comboCount}>{combo}</div>
+        <div className={styles.comboText}>COMBO</div>
+      </div>
+    )
+  }
+
   // 노트 Y 좌표 계산 (시간 -> 픽셀)
   const calculateNoteY = (noteTime: number) => {
     const timeOffset = noteTime - currentTime
-    // 노트가 아래에서 위로 올라오므로 판정선을 기준으로 계산
-    // 스크롤 속도 조정을 위해 0.3 계수 사용 (값이 클수록 빠름)
-    const scrollSpeed = 0.3
-    return JUDGEMENT_LINE_Y - timeOffset * scrollSpeed
+    // 스크롤 속도를 10-300 범위에서 적용 (값이 클수록 빠름)
+    return JUDGEMENT_LINE_Y - timeOffset * (scrollSpeed / 1000)
+  }
+
+  // 속도 배수로 표시
+  const getSpeedMultiplier = (speed: number) => {
+    return (speed / 100).toFixed(1) + 'x'
   }
 
   return (
-    <div className={styles.playerContainer}>
-      <div className={styles.gameInfo}>
-        <div className={styles.scoreDisplay}>
-          <div>점수: {score}</div>
-          <div>콤보: {combo}</div>
-          <div>최대 콤보: {maxCombo}</div>
+    <div
+      className={`${styles.playerContainer} ${theme === 'dark' ? styles.darkTheme : styles.lightTheme}`}
+    >
+      <div className={styles.mainGameArea}>
+        {/* 왼쪽 패널 - 게임 정보 */}
+        <div className={styles.leftPanel}>
+          <div className={styles.scorePanel}>
+            <div className={styles.scorePanelHeader}>
+              <Icon icon='material-symbols:scoreboard' className={styles.scoreIcon} />
+              <h3>점수</h3>
+            </div>
+            <div className={styles.scoreValue}>{score}</div>
+            <div className={styles.scoreDetails}>
+              <div className={styles.statRow}>
+                <span>현재 콤보</span>
+                <span>{combo}</span>
+              </div>
+              <div className={styles.statRow}>
+                <span>최대 콤보</span>
+                <span>{maxCombo}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className={styles.controlPanel}>
+            <div className={styles.speedPanel}>
+              <div className={styles.speedHeader}>
+                <Icon icon='material-symbols:speed' className={styles.speedIcon} />
+                <h3>노트 속도</h3>
+              </div>
+              <div className={styles.speedValue}>{getSpeedMultiplier(scrollSpeed)}</div>
+              {!isPlaying && (
+                <div className={styles.speedControl}>
+                  <input
+                    type='range'
+                    min='50'
+                    max='1000'
+                    step='50'
+                    value={scrollSpeed}
+                    onChange={(e) => setScrollSpeed(parseInt(e.target.value))}
+                    className={styles.speedSlider}
+                  />
+                </div>
+              )}
+            </div>
+
+            <div className={styles.gameControls}>
+              {!isPlaying ? (
+                <button className={styles.startButton} onClick={startGame}>
+                  <Icon icon='material-symbols:play-arrow' className={styles.controlIcon} />
+                  시작하기
+                </button>
+              ) : (
+                <button className={styles.stopButton} onClick={stopGame}>
+                  <Icon icon='material-symbols:stop' className={styles.controlIcon} />
+                  중지하기
+                </button>
+              )}
+            </div>
+
+            {!isPlaying && (
+              <div className={styles.optionsPanel}>
+                <label className={styles.optionCheckbox}>
+                  <input
+                    type='checkbox'
+                    checked={judgementsEnabled}
+                    onChange={() => setJudgementsEnabled(!judgementsEnabled)}
+                  />
+                  <span>판정 표시</span>
+                </label>
+                <label className={styles.optionCheckbox}>
+                  <input
+                    type='checkbox'
+                    checked={showGuide}
+                    onChange={() => setShowGuide(!showGuide)}
+                  />
+                  <span>키 가이드 표시</span>
+                </label>
+              </div>
+            )}
+          </div>
         </div>
 
-        <div className={styles.controls}>
-          {!isPlaying ? (
-            <button className={styles.startButton} onClick={startGame}>
-              시작하기
-            </button>
-          ) : (
-            <button className={styles.stopButton} onClick={stopGame}>
-              중지하기
-            </button>
-          )}
+        {/* 중앙 - 게임 영역 */}
+        <div className={styles.centerPanel}>
+          <div
+            ref={gameAreaRef}
+            className={styles.gameArea}
+            style={{ width: `${laneCount * LANE_WIDTH}px` }}
+          >
+            {renderLanes()}
+
+            <div
+              className={styles.judgementLine}
+              style={{
+                top: `${JUDGEMENT_LINE_Y}px`,
+                width: `${laneCount * LANE_WIDTH}px`,
+              }}
+            />
+
+            {renderNotes()}
+
+            {renderJudgement()}
+
+            {renderCombo()}
+          </div>
         </div>
-      </div>
 
-      <div
-        ref={gameAreaRef}
-        className={styles.gameArea}
-        style={{ width: `${laneCount * LANE_WIDTH}px` }}
-      >
-        {/* 레인 */}
-        {renderLanes()}
+        {/* 오른쪽 패널 - 키 가이드 */}
+        {showGuide && (
+          <div className={styles.rightPanel}>
+            <div className={styles.keyGuidePanel}>
+              <div className={styles.keyGuideHeader}>
+                <Icon icon='material-symbols:keyboard' className={styles.keyIcon} />
+                <h3>플레이 방법</h3>
+              </div>
+              <div className={styles.keyBindings}>
+                <div className={styles.keySection}>
+                  <h4>일반 노트</h4>
+                  <div className={styles.keyList}>
+                    {KEY_MAPS[keyMode]?.map((key, index) => (
+                      <div key={index} className={styles.keyBox}>
+                        <span>{key.toUpperCase()}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
 
-        {/* 판정 라인 */}
-        <div
-          className={styles.judgementLine}
-          style={{
-            top: `${JUDGEMENT_LINE_Y}px`,
-            width: `${laneCount * LANE_WIDTH}px`,
-          }}
-        />
+                <div className={styles.keySection}>
+                  <h4>FX 노트</h4>
+                  <div className={styles.keyList}>
+                    <div className={styles.keyBox}>
+                      <span>{SPECIAL_KEYS.fx_left.toUpperCase()}</span>
+                    </div>
+                    <div className={styles.keyBox}>
+                      <span>{SPECIAL_KEYS.fx_right}</span>
+                    </div>
+                  </div>
+                </div>
 
-        {/* 노트 */}
-        {renderNotes()}
-      </div>
+                <div className={styles.keySection}>
+                  <h4>LR 노트</h4>
+                  <div className={styles.keyList}>
+                    <div className={styles.keyBox}>
+                      <span>{SPECIAL_KEYS.lr_left.toUpperCase()}</span>
+                    </div>
+                    <div className={styles.keyBox}>
+                      <span>{SPECIAL_KEYS.lr_right}</span>
+                    </div>
+                  </div>
+                </div>
 
-      <div className={styles.keyGuide}>
-        {/* 키 가이드 */}
-        <div>
-          <h4>키 가이드</h4>
-          <p>일반 노트: {KEY_MAPS[keyMode]?.join(', ') || '키 설정 없음'}</p>
-          <p>
-            FX 노트: {SPECIAL_KEYS.fx_left}, {SPECIAL_KEYS.fx_right}
-          </p>
-          <p>
-            LR 노트: {SPECIAL_KEYS.lr_left}, {SPECIAL_KEYS.lr_right}
-          </p>
-          <p>Enter 노트: {SPECIAL_KEYS.enter}</p>
-        </div>
+                <div className={styles.keySection}>
+                  <h4>Enter 노트</h4>
+                  <div className={styles.keyList}>
+                    <div className={styles.keyBox}>
+                      <span>ENTER</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className={styles.judgementGuide}>
+              <h4>판정 기준</h4>
+              <div className={styles.judgementList}>
+                <div className={`${styles.judgementItem} ${styles.perfectColor}`}>
+                  <span>PERFECT</span>
+                  <span>±{JUDGEMENT.PERFECT}ms</span>
+                </div>
+                <div className={`${styles.judgementItem} ${styles.greatColor}`}>
+                  <span>GREAT</span>
+                  <span>±{JUDGEMENT.GREAT}ms</span>
+                </div>
+                <div className={`${styles.judgementItem} ${styles.goodColor}`}>
+                  <span>GOOD</span>
+                  <span>±{JUDGEMENT.GOOD}ms</span>
+                </div>
+                <div className={`${styles.judgementItem} ${styles.badColor}`}>
+                  <span>BAD</span>
+                  <span>±{JUDGEMENT.BAD}ms</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )

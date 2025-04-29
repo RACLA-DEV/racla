@@ -489,7 +489,7 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
         const data = JSON.parse(e.target?.result as string)
         handlePatternChange(data.notes || [])
         onBpmChange(data.bpm || 120)
-        onKeyModeChange(data.keyMode || '4k')
+        onKeyModeChange(data.keyMode || '4B')
       } catch (error) {
         console.error('Invalid pattern file', error)
       }
@@ -762,8 +762,8 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
       <div
         className={`${styles.mouseTooltip} ${theme === 'dark' ? styles.darkTheme : ''}`}
         style={{
-          left: `${mousePosition.x - 32}px`, // 마우스 오른쪽으로 약간 오프셋
-          top: `${mousePosition.y - 64}px`,
+          left: `${mousePosition.x + 32}px`, // 마우스 오른쪽으로 약간 오프셋
+          top: `${mousePosition.y - 16}px`,
         }}
       >
         <div className={styles.mouseTooltipTime}>{mousePosition.time}ms</div>
@@ -779,7 +779,7 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
 
   return (
     <div className={getThemeClass(styles.editorContainer)}>
-      <div className={getThemeClass(styles.sidebar)}>
+      <div className={`${getThemeClass(styles.sidebar)} tw:custom-scrollbar`}>
         <div className={styles.controlGroup}>
           <label className='tw:block tw:text-sm tw:font-medium tw:mb-2' htmlFor='bpmInput'>
             BPM
@@ -817,10 +817,10 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
             value={keyMode}
             onChange={(e) => onKeyModeChange(e.target.value as KeyMode)}
           >
-            <option value='4k'>4K</option>
-            <option value='5k'>5K</option>
-            <option value='6k'>6K</option>
-            <option value='8k'>8K</option>
+            <option value='4B'>4B</option>
+            <option value='5B'>5B</option>
+            <option value='6B'>6B</option>
+            <option value='8B'>8B</option>
           </select>
         </div>
 
@@ -961,7 +961,7 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
         </div>
         <div
           ref={editorRef}
-          className={getThemeClass(styles.editorGrid)}
+          className={`${getThemeClass(styles.editorGrid)} tw:custom-scrollbar`}
           onClick={handleEditorClick}
           onMouseMove={handleEditorMouseMove}
           onMouseLeave={handleEditorMouseLeave}

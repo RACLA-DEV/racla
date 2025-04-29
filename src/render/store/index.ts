@@ -29,6 +29,7 @@ const appPersistConfig = {
     'isLoggedIn',
     'notifications',
     'isLoading',
+    'isTrackMaker',
   ],
 }
 

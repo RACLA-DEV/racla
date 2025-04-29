@@ -1,10 +1,10 @@
 import { RootState } from '@render/store'
-import { setIsSetting, setSelectedGame } from '@render/store/slices/appSlice'
+import { setIsSetting, setIsTrackMaker, setSelectedGame } from '@render/store/slices/appSlice'
 import type { GameType } from '@src/types/games/GameType'
 import { AnimatePresence, motion } from 'framer-motion'
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { LuBook, LuHouse, LuLayers, LuMusic, LuSettings } from 'react-icons/lu'
+import { LuBook, LuGamepad, LuHouse, LuLayers, LuSettings } from 'react-icons/lu'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import Tooltip from './Tooltip'
@@ -91,6 +91,10 @@ const IconSidebar: React.FC = () => {
 
   const handleOpenSettings = () => {
     dispatch(setIsSetting(true))
+  }
+
+  const handleOpenTrackMaker = () => {
+    dispatch(setIsTrackMaker(true))
   }
 
   // 애니메이션 변수
@@ -198,9 +202,7 @@ const IconSidebar: React.FC = () => {
                 variants={iconAnimation()}
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => {
-                  handleNavigation('/track-maker')
-                }}
+                onClick={handleOpenTrackMaker}
                 className={`tw:w-12 tw:h-12 tw:flex tw:items-center tw:justify-center tw:rounded-lg tw:cursor-pointer tw:transition-all ${
                   location === '/track-maker'
                     ? theme === 'dark'
@@ -211,7 +213,7 @@ const IconSidebar: React.FC = () => {
                       : 'tw:bg-gray-50 tw:shadow-md tw:hover:bg-white tw:hover:shadow-md'
                 }`}
               >
-                <LuMusic size={28} />
+                <LuGamepad size={28} />
               </motion.div>
             </Tooltip>
           </div>
