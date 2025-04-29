@@ -13,7 +13,7 @@ import Tooltip from './Tooltip'
 
 const Footer: React.FC = () => {
   const { theme } = useSelector((state: RootState) => state.ui)
-  const { selectedGame } = useSelector((state: RootState) => state.app)
+  const { selectedGame, isTrackMaker } = useSelector((state: RootState) => state.app)
   const [ServerStatusResponse, setServerStatusResponse] = useState<
     ServerStatusResponse | undefined
   >(undefined)
@@ -73,65 +73,74 @@ const Footer: React.FC = () => {
   }
 
   const renderGameSpecificContent = () => {
-    switch (selectedGame) {
-      case 'djmax_respect_v':
-        return (
-          <div>
-            <Tooltip position='top' content='https://store.steampowered.com/app/960170'>
-              <span
-                className='tw:cursor-pointer'
-                onClick={() => {
-                  handleOpenExternalLink('https://store.steampowered.com/app/960170')
-                }}
-              >
-                Resources from DJMAX RESPECT V
-              </span>
-            </Tooltip>
-            <Tooltip position='top' content='https://www.neowiz.com/'>
-              <span
-                className='tw:cursor-pointer'
-                onClick={(e) => {
-                  e.stopPropagation()
-                  handleOpenExternalLink('https://www.neowiz.com/')
-                }}
-              >
-                (©NEOWIZ)
-              </span>
-            </Tooltip>
-          </div>
-        )
-      case 'wjmax':
-        return (
-          <>
-            <Tooltip position='top' content='https://waktaverse.games/gameDetail/wjmax'>
-              <span
-                className='tw:cursor-pointer'
-                onClick={() => {
-                  handleOpenExternalLink('https://waktaverse.games/gameDetail/wjmax')
-                }}
-              >
-                Resources from WJMAX(©WJMAX STUDIO)
-              </span>
-            </Tooltip>
-          </>
-        )
-      case 'platina_lab':
-        return (
-          <>
-            <Tooltip position='top' content='https://platinalab.net/'>
-              <span
-                className='tw:cursor-pointer'
-                onClick={() => {
-                  handleOpenExternalLink('https://platinalab.net/')
-                }}
-              >
-                PLATiNA :: LAB(HIGH-END Games)
-              </span>
-            </Tooltip>
-          </>
-        )
-      default:
-        return null
+    if (isTrackMaker) {
+      return <></>
+    } else {
+      switch (selectedGame) {
+        case 'djmax_respect_v':
+          return (
+            <>
+              <div>
+                <Tooltip position='top' content='https://store.steampowered.com/app/960170'>
+                  <span
+                    className='tw:cursor-pointer'
+                    onClick={() => {
+                      handleOpenExternalLink('https://store.steampowered.com/app/960170')
+                    }}
+                  >
+                    Resources from DJMAX RESPECT V
+                  </span>
+                </Tooltip>
+                <Tooltip position='top' content='https://www.neowiz.com/'>
+                  <span
+                    className='tw:cursor-pointer'
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      handleOpenExternalLink('https://www.neowiz.com/')
+                    }}
+                  >
+                    (©NEOWIZ)
+                  </span>
+                </Tooltip>
+              </div>
+              <span> · </span>
+            </>
+          )
+        case 'wjmax':
+          return (
+            <>
+              <Tooltip position='top' content='https://waktaverse.games/gameDetail/wjmax'>
+                <span
+                  className='tw:cursor-pointer'
+                  onClick={() => {
+                    handleOpenExternalLink('https://waktaverse.games/gameDetail/wjmax')
+                  }}
+                >
+                  Resources from WJMAX(©WJMAX STUDIO)
+                </span>
+              </Tooltip>
+              <span> · </span>
+            </>
+          )
+        case 'platina_lab':
+          return (
+            <>
+              <Tooltip position='top' content='https://platinalab.net/'>
+                <span
+                  className='tw:cursor-pointer'
+                  onClick={() => {
+                    handleOpenExternalLink('https://platinalab.net/')
+                  }}
+                >
+                  PLATiNA :: LAB(HIGH-END Games)
+                </span>
+              </Tooltip>
+              <span> · </span>
+            </>
+          )
+        default:
+          return null
+      }
     }
   }
 
@@ -204,7 +213,6 @@ const Footer: React.FC = () => {
           )}
 
           {selectedGame && renderGameSpecificContent()}
-          <span> · </span>
         </>
         <Tooltip position='top' content={t('racla.raclaLicense')}>
           <Link className='tw:text-xs tw:cursor-pointer' to='/license'>

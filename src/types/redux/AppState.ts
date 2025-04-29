@@ -6,6 +6,7 @@ import { SettingsData } from '../settings/SettingData'
 export interface AppState {
   selectedGame: GameType
   isSetting: boolean
+  isTrackMaker: boolean
   isLoading: boolean
   settingData: SettingsData
   userData: {

@@ -12,10 +12,10 @@ const { closeApp, minimizeApp, maximizeApp } = window.electron
 
 const TitleBar: React.FC = () => {
   const { theme } = useSelector((state: RootState) => state.ui)
-  const { selectedGame } = useSelector((state: RootState) => state.app)
+  const { selectedGame, isTrackMaker } = useSelector((state: RootState) => state.app)
   const dispatch = useDispatch()
   const [isMaximized, setIsMaximized] = useState(false)
-  const { t } = useTranslation()
+  const { t } = useTranslation(['common', 'menu'])
 
   // 최대화 상태 이벤트 리스너 (실제로는 preload 파일에서 이벤트를 전달해야 함)
   useEffect(() => {
@@ -58,17 +58,23 @@ const TitleBar: React.FC = () => {
 
       {/* 중앙 타이틀 - 선택된 게임 이름 표시 */}
       <div className='tw:flex-1 tw:text-sm tw:text-center tw:font-bold'>
-        {selectedGame &&
-          globalDictionary.gameDictionary?.[
-            selectedGame as keyof typeof globalDictionary.gameDictionary
-          ]?.name}
+        {isTrackMaker
+          ? t('racla.raclaTrackMaker', { ns: 'menu' })
+          : selectedGame &&
+            globalDictionary.gameDictionary?.[
+              selectedGame as keyof typeof globalDictionary.gameDictionary
+            ]?.name}
       </div>
 
       {/* 오른쪽 컨트롤 버튼 영역 */}
       <div className='tw:w-32 tw:flex tw:items-center tw:justify-end tw:space-x-2 webkit-app-region-no-drag'>
         <Tooltip
           position='bottom'
-          content={theme === 'dark' ? t('theme.changeLight') : t('theme.changeDark')}
+          content={
+            theme === 'dark'
+              ? t('theme.changeLight', { ns: 'common' })
+              : t('theme.changeDark', { ns: 'common' })
+          }
         >
           <button
             onClick={handleToggleTheme}
@@ -82,7 +88,7 @@ const TitleBar: React.FC = () => {
           </button>
         </Tooltip>
 
-        <Tooltip position='bottom' content={t('ui.minimize')}>
+        <Tooltip position='bottom' content={t('ui.minimize', { ns: 'common' })}>
           <button
             onClick={() => minimizeApp()}
             className={`tw:p-1.5 tw:rounded tw:transition-all ${
@@ -95,7 +101,12 @@ const TitleBar: React.FC = () => {
           </button>
         </Tooltip>
 
-        <Tooltip position='bottom' content={isMaximized ? t('ui.restore') : t('ui.maximize')}>
+        <Tooltip
+          position='bottom'
+          content={
+            isMaximized ? t('ui.restore', { ns: 'common' }) : t('ui.maximize', { ns: 'common' })
+          }
+        >
           <button
             onClick={handleMaximizeToggle}
             className={`tw:p-1.5 tw:rounded tw:transition-all ${
@@ -112,7 +123,7 @@ const TitleBar: React.FC = () => {
           </button>
         </Tooltip>
 
-        <Tooltip position='bottom' content={t('ui.close')}>
+        <Tooltip position='bottom' content={t('ui.close', { ns: 'common' })}>
           <button
             onClick={() => closeApp()}
             className='tw:p-1.5 tw:rounded tw:text-red-500 tw:hover:bg-red-500 tw:hover:text-white tw:transition-all'

@@ -10,6 +10,7 @@ import { SettingsData } from '@src/types/settings/SettingData'
 const initialState: AppState = {
   selectedGame: 'djmax_respect_v',
   isSetting: false,
+  isTrackMaker: false,
   isLoading: true,
   settingData: {} as SettingsData,
   userData: {
@@ -101,6 +102,9 @@ export const appSlice = createSlice({
     },
     setIsSetting: (state, action: PayloadAction<boolean>) => {
       state.isSetting = action.payload
+    },
+    setIsTrackMaker: (state, action: PayloadAction<boolean>) => {
+      state.isTrackMaker = action.payload
     },
     setSettingData: (state, action: PayloadAction<SettingsData>) => {
       state.settingData = action.payload
@@ -233,6 +237,7 @@ export const appSlice = createSlice({
 export const {
   setSelectedGame,
   setIsSetting,
+  setIsTrackMaker,
   setSettingData,
   setUserData,
   setIsUploading,

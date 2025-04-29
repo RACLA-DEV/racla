@@ -1,105 +1,478 @@
+/* 기본 컨테이너 */
 .playerContainer {
   display: flex;
   flex-direction: column;
   align-items: center;
+  transition: all 0.3s ease;
   background-color: #111;
+  padding: 1rem;
   width: 100%;
   height: 100%;
   overflow: hidden;
   color: white;
 }
 
-.gameInfo {
+/* 다크/라이트 테마 */
+.darkTheme {
+  background-color: #1d293d;
+  color: white;
+}
+
+.lightTheme {
+  background-color: #ffffff;
+  color: #333;
+}
+
+/* 메인 레이아웃 - 좌우 패널 + 중앙 게임 영역 */
+.mainGameArea {
+  display: flex;
+  width: 100%;
+  height: 850px;
+  max-height: 90vh;
+  overflow: hidden;
+}
+
+/* 왼쪽 패널 - 점수 및 컨트롤 */
+.leftPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 250px;
+}
+
+/* 중앙 패널 - 게임 영역 */
+.centerPanel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* 오른쪽 패널 - 키 가이드 */
+.rightPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 250px;
+}
+
+/* 스코어 패널 */
+.scorePanel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  background-color: rgba(0, 0, 0, 0.3);
+  padding: 1rem;
+}
+
+.lightTheme .scorePanel {
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+.scorePanelHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.scoreIcon {
+  color: #ffcc00;
+  font-size: 1.2rem;
+}
+
+.scoreValue {
+  margin: 0.5rem 0;
+  color: #ffcc00;
+  font-weight: bold;
+  font-size: 2.5rem;
+  text-align: center;
+  text-shadow: 0 0 10px rgba(255, 204, 0, 0.5);
+}
+
+.scoreDetails {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 0.5rem;
+}
+
+.lightTheme .scoreDetails {
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.statRow {
   display: flex;
   justify-content: space-between;
-  background-color: #222;
-  padding: 10px;
+  margin-bottom: 0.25rem;
+}
+
+/* 컨트롤 패널 */
+.controlPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  background-color: rgba(0, 0, 0, 0.3);
+  padding: 1rem;
+}
+
+.lightTheme .controlPanel {
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+/* 속도 컨트롤 */
+.speedPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.speedHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.speedIcon {
+  color: #00ccff;
+  font-size: 1.2rem;
+}
+
+.speedValue {
+  color: #00ccff;
+  font-weight: bold;
+  font-size: 1.8rem;
+  text-align: center;
+  text-shadow: 0 0 10px rgba(0, 204, 255, 0.5);
+}
+
+.speedControl {
+  padding: 0.5rem 0;
+}
+
+.speedSlider {
+  cursor: pointer;
   width: 100%;
 }
 
-.scoreDisplay {
+/* 버튼들 */
+.gameControls {
   display: flex;
-  gap: 20px;
-}
-
-.controls {
-  display: flex;
-  gap: 10px;
+  justify-content: center;
 }
 
 .startButton,
 .stopButton {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
   cursor: pointer;
   border: none;
-  border-radius: 4px;
-  padding: 8px 16px;
+  border-radius: 50px;
+  padding: 0.75rem 1.5rem;
+  min-width: 140px;
   font-weight: bold;
+  font-size: 1rem;
 }
 
 .startButton {
+  box-shadow: 0 4px 10px rgba(76, 175, 80, 0.3);
   background-color: #4caf50;
   color: white;
 }
 
+.startButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(76, 175, 80, 0.4);
+  background-color: #3d9140;
+}
+
 .stopButton {
+  box-shadow: 0 4px 10px rgba(244, 67, 54, 0.3);
   background-color: #f44336;
   color: white;
 }
 
-.gameArea {
-  position: relative;
-  margin: 0 auto;
-  background-color: #222;
-  height: 600px;
-  overflow: hidden;
+.stopButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(244, 67, 54, 0.4);
+  background-color: #d32f2f;
 }
 
-.lane {
-  position: absolute;
-  border-right: 1px solid #444;
-  background-color: #333;
-  height: 100%;
+.controlIcon {
+  font-size: 1.2rem;
 }
 
-.pressedLane {
+/* 옵션 체크박스 */
+.optionsPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.optionCheckbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  padding: 0.25rem;
+}
+
+.optionCheckbox:hover {
+  border-radius: 4px;
   background-color: rgba(255, 255, 255, 0.1);
 }
 
+.lightTheme .optionCheckbox:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.optionCheckbox input[type='checkbox'] {
+  cursor: pointer;
+  width: 18px;
+  height: 18px;
+}
+
+/* 키 가이드 패널 */
+.keyGuidePanel {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  background-color: rgba(0, 0, 0, 0.3);
+  padding: 1rem;
+}
+
+.lightTheme .keyGuidePanel {
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+.keyGuideHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.keyIcon {
+  color: #aa77ff;
+  font-size: 1.2rem;
+}
+
+.keyBindings {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.keySection {
+  margin-bottom: 0.5rem;
+}
+
+.keySection h4 {
+  opacity: 0.8;
+  margin: 0 0 0.5rem 0;
+  font-size: 0.9rem;
+}
+
+.keyList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.keyBox {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 0.4rem 0.6rem;
+  min-width: 2rem;
+  font-weight: bold;
+  font-size: 0.8rem;
+}
+
+.lightTheme .keyBox {
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* 판정 가이드 */
+.judgementGuide {
+  margin-top: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  background-color: rgba(0, 0, 0, 0.3);
+  padding: 1rem;
+}
+
+.lightTheme .judgementGuide {
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+.judgementGuide h4 {
+  opacity: 0.8;
+  margin: 0 0 0.5rem 0;
+  font-size: 0.9rem;
+}
+
+.judgementList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.judgementItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 4px;
+  padding: 0.3rem 0.5rem;
+  font-size: 0.9rem;
+}
+
+.perfectColor {
+  background-color: rgba(0, 255, 255, 0.2);
+  color: #00ffff;
+}
+
+.greatColor {
+  background-color: rgba(0, 255, 0, 0.2);
+  color: #00ff00;
+}
+
+.goodColor {
+  background-color: rgba(255, 255, 0, 0.2);
+  color: #ffff00;
+}
+
+.badColor {
+  background-color: rgba(255, 153, 0, 0.2);
+  color: #ff9900;
+}
+
+.missColor {
+  background-color: rgba(255, 0, 0, 0.2);
+  color: #ff0000;
+}
+
+/* 게임 영역 */
+.gameArea {
+  position: relative;
+  margin: 0 auto;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  background-color: #f9fafb;
+  height: 800px;
+  overflow: hidden;
+}
+
+.darkTheme .gameArea {
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  background-color: #1e293b;
+}
+
+/* 레인 */
+.lane {
+  position: absolute;
+  top: 0;
+  z-index: 1;
+  border-radius: 0;
+  background-color: rgba(0, 0, 0, 0.03);
+  height: 100%;
+}
+
+.darkTheme .lane {
+  background-color: rgba(255, 255, 255, 0.03);
+}
+
+.laneDivider {
+  position: absolute;
+  top: 0;
+  z-index: 2;
+  background-color: rgba(0, 0, 0, 0.1);
+  width: 2px;
+}
+
+.darkTheme .laneDivider {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.pressedLane {
+  transition: background-color 0.1s ease;
+  background-color: rgba(79, 70, 229, 0.1) !important;
+}
+
+.darkTheme .pressedLane {
+  background-color: rgba(79, 70, 229, 0.15) !important;
+}
+
+/* 판정선 */
 .judgementLine {
   position: absolute;
-  z-index: 20;
-  background-color: rgba(255, 255, 255, 0.8);
+  z-index: 5;
+  box-shadow: 0 0 10px rgba(79, 70, 229, 0.5);
+  background-color: rgba(79, 70, 229, 0.7);
   height: 4px;
+}
+
+.darkTheme .judgementLine {
+  box-shadow: 0 0 15px rgba(99, 102, 241, 0.6);
+  background-color: rgba(99, 102, 241, 0.8);
 }
 
 /* 노트 스타일 */
 .note {
   position: absolute;
   z-index: 10;
+  transition: opacity 0.1s ease;
   cursor: pointer;
   box-sizing: border-box;
   border: 1px solid #000;
 }
 
 .normalNote {
+  box-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
   border-color: #444;
   background-color: rgba(255, 255, 255, 0.9);
 }
 
+.lightTheme .normalNote {
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+  border-color: #666;
+  background-color: rgba(50, 50, 50, 0.9);
+}
+
 .fxNote {
   z-index: 5;
+  box-shadow: 0 0 8px rgba(255, 165, 0, 0.5);
   border-color: #cc8500;
   background-color: rgba(255, 165, 0, 0.8);
 }
 
 .lrNote {
   z-index: 4;
+  box-shadow: 0 0 8px rgba(0, 123, 255, 0.5);
   border-color: #0056b3;
   background-color: rgba(0, 123, 255, 0.8);
 }
 
 .enterNote {
   z-index: 3;
+  box-shadow: 0 0 8px rgba(40, 167, 69, 0.5);
   border-color: #1e7e34;
   background-color: rgba(40, 167, 69, 0.8);
 }
@@ -108,11 +481,102 @@
   opacity: 0.5;
 }
 
-.keyGuide {
-  margin-top: 20px;
-  border-radius: 4px;
-  background-color: #333;
-  padding: 10px;
-  width: 80%;
+/* 판정 표시 스타일 */
+.judgementDisplay {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  z-index: 200;
+  animation: judgementAnim 0.5s ease-out forwards;
+  pointer-events: none;
+  font-weight: bold;
+  font-size: 32px;
+  letter-spacing: 1px;
+  text-shadow: 0 0 10px rgba(0, 0, 0, 0.9);
+}
+
+.perfectJudgement {
+  color: #00ffff;
+  text-shadow: 0 0 15px #00ffff;
+}
+
+.greatJudgement {
+  color: #00ff00;
+  text-shadow: 0 0 15px #00ff00;
+}
+
+.goodJudgement {
+  color: #ffff00;
+  text-shadow: 0 0 15px #ffff00;
+}
+
+.badJudgement {
+  color: #ff9900;
+  text-shadow: 0 0 15px #ff9900;
+}
+
+.missJudgement {
+  color: #ff0000;
+  text-shadow: 0 0 15px #ff0000;
+}
+
+/* 콤보 표시 스타일 */
+.comboDisplay {
+  position: absolute;
+  transform: translate(-50%, 0);
+  z-index: 150;
+  width: 120px;
+  color: #ffffff;
+  font-weight: bold;
   text-align: center;
+  text-shadow: 0 0 8px rgba(0, 0, 0, 0.8);
+}
+
+.lightTheme .comboDisplay {
+  color: #333;
+  text-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
+}
+
+.comboCount {
+  animation: pulseCombo 1s infinite;
+  font-size: 42px;
+  line-height: 1;
+  text-shadow: 0 0 15px rgba(255, 255, 255, 0.7);
+}
+
+.comboText {
+  opacity: 0.9;
+  margin-top: 5px;
+  font-size: 16px;
+}
+
+/* 애니메이션 */
+@keyframes judgementAnim {
+  0% {
+    transform: translate(-50%, -50%) scale(0.5);
+    opacity: 0;
+  }
+  20% {
+    transform: translate(-50%, -50%) scale(1.2);
+    opacity: 1;
+  }
+  80% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(0.9);
+    opacity: 0;
+  }
+}
+
+@keyframes pulseCombo {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
 }

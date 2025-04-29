@@ -34,16 +34,15 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
   const [currentTime, setCurrentTime] = useState<number>(0)
   const [selectedNoteType, setSelectedNoteType] = useState<NoteType>('normal')
   const [isLongNote, setIsLongNote] = useState<boolean>(false)
-  const [zoom, setZoom] = useState<number>(1) // 줌 레벨
-  const [startLongNote, setStartLongNote] = useState<Note | null>(null)
+  const [zoom, setZoom] = useState<number>(2)
   const [previewPosition, setPreviewPosition] = useState<{ x: number; y: number } | null>(null)
-  const [activeDivision, setActiveDivision] = useState<number>(16) // 기본 16비트
+  const [activeDivision, setActiveDivision] = useState<number>(16)
   const [draggedNote, setDraggedNote] = useState<{
     noteId: string
     startY: number
     isResizing: boolean
   } | null>(null)
-  const [songLength, setSongLength] = useState<number>(120000) // 기본 2분 (밀리초)
+  const [songLength, setSongLength] = useState<number>(120000)
   const [isCtrlPressed, setIsCtrlPressed] = useState<boolean>(false)
   const [isShiftPressed, setIsShiftPressed] = useState<boolean>(false)
   const [isDragging, setIsDragging] = useState<boolean>(false)
@@ -53,14 +52,23 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
     time: number
     beat: string
   } | null>(null)
+  const [hoveredNote, setHoveredNote] = useState<Note | null>(null)
 
   // 히스토리 및 실행 취소/다시 실행 상태
-  const [history, setHistory] = useState<Note[][]>([]) // 패턴 히스토리
-  const [currentHistoryIndex, setCurrentHistoryIndex] = useState<number>(-1) // 현재 히스토리 인덱스
-  const [isUndoRedo, setIsUndoRedo] = useState<boolean>(false) // 실행 취소/다시 실행 중인지 여부
+  const [history, setHistory] = useState<Note[][]>([])
+  const [currentHistoryIndex, setCurrentHistoryIndex] = useState<number>(-1)
+  const [isUndoRedo, setIsUndoRedo] = useState<boolean>(false)
+
+  // 초기 패턴 저장 상태
+  const [initialPattern, setInitialPattern] = useState<Note[]>([])
+  const [initialBpm, setInitialBpm] = useState<number>(bpm)
+  const [initialKeyMode, setInitialKeyMode] = useState<KeyMode>(keyMode)
 
   const editorRef = useRef<HTMLDivElement>(null)
   const laneCount = getLaneCount(keyMode)
+
+  // 파일 입력 참조 추가
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   // 에디터 높이를 곡 길이와 줌 레벨에 따라 동적으로 계산
   const getEditorHeight = () => {
@@ -77,31 +85,58 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
     return ((60000 / bpm) * 4) / division
   }
 
-  // 기본 그리드 크기 (16 비트 기준)
+  // 기본 그리드 크기 (activeDivision 기준)
   const gridSizeMs = getGridSizeMs(activeDivision)
 
-  // BPM 변경 시 노트 시간 재계산 및 에디터 높이 조정
+  // 시간을 가이드 그리드에 맞추는 함수 (노트 위치 결정에만 사용)
+  // 이 함수는 오직 새 노트 생성 시 가이드에 맞추기 위해서만 사용해야 함
+  const snapToGrid = (timeMs: number): number => {
+    const beatDuration = getGridSizeMs(activeDivision)
+    return Math.round(timeMs / beatDuration) * beatDuration
+  }
+
+  // 밀리초를 BPM 기반 비트로 변환 (개선됨)
+  // 이 함수는 UI 표시 용도로만 사용 (노트 위치 결정에 사용하면 안 됨)
+  const msToBeats = (ms: number): string => {
+    const beatDuration = 60000 / bpm // 한 비트 길이
+    const beatsPerMeasure = 4 // 한 마디는 4비트
+
+    // 총 비트 수 계산
+    const totalBeats = ms / beatDuration
+
+    // 마디 번호 (1부터 시작)
+    const measures = Math.floor(totalBeats / beatsPerMeasure) + 1
+
+    // 마디 내 비트 번호 (1부터 시작)
+    const beats = Math.floor(totalBeats % beatsPerMeasure) + 1
+
+    // 비트 내 상대적 위치 계산
+    const measureDuration = beatDuration * beatsPerMeasure
+    const measurePosition = ms % measureDuration
+    const beatPosition = measurePosition % beatDuration
+
+    // 현재 비트 내에서의 상대적 위치를 activeDivision 기준으로 계산
+    const divisionSize = beatDuration / (activeDivision / 4)
+    const subdivisionIndex = Math.floor(beatPosition / divisionSize) + 1
+
+    return `${measures}:${beats}:${subdivisionIndex}/${activeDivision / 4}`
+  }
+
+  // BPM 변경 시 노트 위치 재계산 효과
   useEffect(() => {
     if (pattern.length > 0) {
-      // 새 BPM 기준으로 모든 노트의 시간을 재조정
-      const updatedPattern = pattern.map((note) => {
-        // 원래 시간이 몇 비트에 해당하는지 계산
-        const oldBeatPosition = (note.time / ((60000 / bpm) * 4)) * activeDivision
-        // 동일한 비트 위치로 새 시간 계산
-        const newTime = Math.round(oldBeatPosition) * getGridSizeMs(activeDivision)
-
-        if (note.isLong && note.endTime) {
-          const oldEndBeatPosition = (note.endTime / ((60000 / bpm) * 4)) * activeDivision
-          const newEndTime = Math.round(oldEndBeatPosition) * getGridSizeMs(activeDivision)
-          return { ...note, time: newTime, endTime: newEndTime }
-        }
-
-        return { ...note, time: newTime }
-      })
-
-      onPatternChange(updatedPattern)
+      console.log(`BPM 변경됨: ${bpm}BPM`)
+      // BPM 변경 시에는 노트의 밀리초 위치를 정확하게 유지
+      // 노트 위치는 밀리초 단위로 저장되므로 BPM 변경해도 영향 없음
     }
   }, [bpm])
+
+  // 가이드 분할 변경 시 효과
+  useEffect(() => {
+    console.log(`가이드 분할 변경됨: ${activeDivision}분할`)
+    // 가이드 분할이 변경되어도 노트의 밀리초 위치는 변경되지 않음
+    // 가이드는 UI 표시 및 새 노트 생성 시 스냅에만 사용됨
+  }, [activeDivision])
 
   // 스크롤을 가장 하단으로 설정 또는 곡 길이 변경 시 스크롤 조정
   useEffect(() => {
@@ -109,19 +144,6 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
       editorRef.current.scrollTop = EDITOR_HEIGHT
     }
   }, [EDITOR_HEIGHT])
-
-  // 밀리초를 BPM 기반 박자로 변환
-  const msToBeats = (ms: number): string => {
-    const beatsPerMeasure = 4 // 한 마디는 4비트
-    const totalBeats = ms / (60000 / bpm)
-    const measures = Math.floor(totalBeats / beatsPerMeasure)
-    const beats = Math.floor(totalBeats % beatsPerMeasure) + 1
-
-    // 비트 내에서의 위치 (activeDivision 기준)
-    const subdivision = Math.floor((totalBeats % 1) * activeDivision) + 1
-
-    return `${measures + 1}:${beats}:${subdivision}/${activeDivision}`
-  }
 
   // 히스토리 추가
   const addToHistory = (newPattern: Note[]) => {
@@ -144,6 +166,16 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
 
   // 패턴 변경 함수 오버라이드 (히스토리 추가)
   const handlePatternChange = (newPattern: Note[]) => {
+    // 패턴이 비어있으면 호버 상태 초기화
+    if (newPattern.length === 0) {
+      setHoveredNote(null)
+    }
+
+    // 호버된 노트가 있고, 새 패턴에 해당 노트가 없는 경우 호버 상태 초기화
+    if (hoveredNote && !newPattern.some((note) => note.id === hoveredNote.id)) {
+      setHoveredNote(null)
+    }
+
     onPatternChange(newPattern)
     addToHistory(newPattern)
   }
@@ -218,7 +250,7 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
     }
   }, [history, currentHistoryIndex])
 
-  // 에디터 마우스 이동 처리 (롱노트 및 위치 미리보기)
+  // 에디터 마우스 이동 처리 (롱노트 및 위치 미리보기) 수정
   const handleEditorMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!editorRef.current) return
 
@@ -229,9 +261,10 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
     // 뒤집힌 좌표계: 높을수록 작은 시간 (위에서 아래로)
     const y = EDITOR_HEIGHT - (e.clientY - rect.top + scrollTop)
 
-    // 마우스 위치에 해당하는 시간 및 박자 계산
+    // 마우스 위치에 해당하는 시간 및 비트 계산
     const pixelsPerMs = zoom * 0.1
-    const mouseTime = Math.round(y / pixelsPerMs)
+    const rawTime = y / pixelsPerMs
+    const mouseTime = snapToGrid(rawTime)
     const mouseBeat = msToBeats(mouseTime)
 
     // 마우스 실제 스크린 위치 저장
@@ -249,32 +282,36 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
     // 드래그 중인 경우
     if (draggedNote) {
       setIsDragging(true)
-      const { noteId, startY, isResizing } = draggedNote
+      const { noteId, isResizing } = draggedNote
       const noteIndex = pattern.findIndex((note) => note.id === noteId)
 
       if (noteIndex !== -1) {
         const note = pattern[noteIndex]
-        const pixelsPerMs = zoom * 0.1
+
+        // 클라이언트 좌표를 에디터 내부 좌표로 변환
+        const editorY = EDITOR_HEIGHT - (e.clientY - rect.top + scrollTop)
 
         if (isResizing && note.isLong) {
           // 롱노트 크기 조절 모드
-          const deltaY = y - startY
-          const timeDelta = Math.round(deltaY / pixelsPerMs / gridSizeMs) * gridSizeMs
-
-          // 최소 길이 보장 (1/4 비트)
+          // 최소 길이 설정 (기준: 1/4 비트)
           const minLength = getGridSizeMs(4)
-          // note.time + timeDelta가 음수가 될 수 있으므로, 롱노트 끝시간이 최소한 시작시간 + 최소길이가 되도록 함
-          const newEndTime = Math.max(note.time + minLength, note.time + timeDelta)
 
-          const updatedNote = { ...note, endTime: newEndTime }
-          const newPattern = [...pattern]
-          newPattern[noteIndex] = updatedNote
-          onPatternChange(newPattern)
+          // 롱노트의 새 끝 시간 계산 (그리드에 맞춤)
+          const newEndTime = Math.max(note.time + minLength, snapToGrid(editorY / pixelsPerMs))
+
+          // 변경된 길이가 너무 크지 않은지 검사 (최대 10초로 제한)
+          const maxDuration = 10000 // 10초
+          const finalEndTime = Math.min(note.time + maxDuration, newEndTime)
+
+          // 노트 업데이트
+          if (finalEndTime !== note.endTime) {
+            const updatedNote = { ...note, endTime: finalEndTime }
+            const newPattern = [...pattern]
+            newPattern[noteIndex] = updatedNote
+            onPatternChange(newPattern)
+          }
         } else if (isCtrlPressed) {
           // 노트 이동 모드 (Ctrl 키 누름)
-          const deltaY = y - startY
-          const timeDelta = Math.round(deltaY / pixelsPerMs / gridSizeMs) * gridSizeMs
-
           // 레인 계산
           const laneWidth = rect.width / laneCount
           const newLane = Math.floor(x / laneWidth)
@@ -289,8 +326,8 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
             finalLane = Math.min(Math.max(0, newLane), laneCount - 1) // normal 노트는 유효 레인 내에서만
           }
 
-          // 새 시간 계산 (음수가 되지 않도록)
-          const newTime = Math.max(0, note.time + timeDelta)
+          // 새 시간 계산 (그리드에 맞춤, 음수가 되지 않도록)
+          const newTime = Math.max(0, snapToGrid(editorY / pixelsPerMs))
 
           // 노트 업데이트
           const updatedNote = {
@@ -299,7 +336,7 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
             lane: finalLane,
           }
 
-          // 롱노트인 경우 endTime도 같이 이동
+          // 롱노트인 경우 endTime도 같이 이동 (상대적 길이 유지)
           if (note.isLong && note.endTime) {
             const duration = note.endTime - note.time
             updatedNote.endTime = newTime + duration
@@ -308,49 +345,83 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
           const newPattern = [...pattern]
           newPattern[noteIndex] = updatedNote
           onPatternChange(newPattern)
-
-          // 드래그 기준점 업데이트 (계속 이동하기 위해)
-          setDraggedNote({ noteId, startY: y, isResizing })
         }
       }
     }
   }
 
-  // 롱노트 드래그 시작
-  const handleNoteDragStart = (
-    e: React.MouseEvent,
-    noteId: string,
-    isResizing: boolean = false,
-  ) => {
-    e.stopPropagation()
-    if (!editorRef.current) return
+  // 롱노트 드래그 종료 함수 수정
+  const handleNoteDragEnd = () => {
+    console.log('노트 드래그 종료')
 
+    setDraggedNote(null)
+    setIsDragging(false)
+
+    // 드래그 중 선택 방지 해제
+    document.body.style.userSelect = ''
+
+    // 현재 상태를 히스토리에 추가
+    if (!isUndoRedo) {
+      addToHistory([...pattern])
+    }
+
+    // 이벤트 리스너 제거
+    window.removeEventListener('mouseup', handleNoteDragEnd)
+  }
+
+  // 롱노트 크기 조절 관련 이벤트 핸들러 수정
+  const handleResizeHandleMouseDown = (e: React.MouseEvent, noteId: string, note: Note) => {
+    e.stopPropagation()
+    e.preventDefault()
+
+    // 이미 드래그 중이면 무시
+    if (isDragging) return
+
+    console.log('롱노트 크기 조절 시작:', noteId)
+
+    // 노트 드래그 시작 - 크기 조절 모드로 설정
+    setHoveredNote(note)
+    setIsDragging(true)
+    setDraggedNote({
+      noteId,
+      startY: e.clientY,
+      isResizing: true, // 크기 조절 모드로 설정
+    })
+
+    // mouseup 이벤트를 window에 추가하여 어디서든 마우스 버튼을 놓았을 때 드래그가 종료되도록 함
+    window.addEventListener('mouseup', handleNoteDragEnd)
+
+    // 드래그 중 선택 방지
+    document.body.style.userSelect = 'none'
+  }
+
+  // 노트 드래그 시작 - 이벤트 핸들러 수정
+  const handleNoteDragStart = (noteId: string, e: React.MouseEvent) => {
+    e.stopPropagation()
+    e.preventDefault()
+
+    // 이미 드래그 중이면 무시
+    if (isDragging) return
+
+    // 현재 드래그 중인 노트 찾기
     const note = pattern.find((n) => n.id === noteId)
     if (!note) return
 
-    // resizing이 아닌데 isLong이 아닌 경우도 드래그 허용 (Ctrl로 이동)
-    if (!isResizing && !note.isLong && !isCtrlPressed) return
+    console.log('노트 드래그 시작:', noteId)
 
-    // 현재 마우스 위치 (뒤집힌 좌표계)
-    const rect = editorRef.current.getBoundingClientRect()
-    const scrollTop = editorRef.current.scrollTop
-    const y = EDITOR_HEIGHT - (e.clientY - rect.top + scrollTop)
-
-    setDraggedNote({ noteId, startY: y, isResizing })
+    setHoveredNote(note)
     setIsDragging(true)
+    setDraggedNote({
+      noteId,
+      startY: e.clientY,
+      isResizing: false,
+    })
 
-    // 마우스 이벤트 설정
-    document.addEventListener('mouseup', handleNoteDragEnd)
-  }
+    // mouseup 이벤트를 window에 추가
+    window.addEventListener('mouseup', handleNoteDragEnd)
 
-  // 롱노트 드래그 종료
-  const handleNoteDragEnd = () => {
-    setDraggedNote(null)
-    // 드래그 상태를 약간 지연시켜 종료 - 클릭 이벤트와 충돌 방지
-    setTimeout(() => {
-      setIsDragging(false)
-    }, 50)
-    document.removeEventListener('mouseup', handleNoteDragEnd)
+    // 드래그 중 선택 방지
+    document.body.style.userSelect = 'none'
   }
 
   // 에디터 마우스 떠남 처리
@@ -359,7 +430,7 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
     setMousePosition(null)
   }
 
-  // 에디터 클릭시 노트 추가
+  // 에디터 클릭시 노트 추가 - FX/LR 레인 계산 문제 수정
   const handleEditorClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!editorRef.current || isDragging || isCtrlPressed) return
 
@@ -376,89 +447,127 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
 
     // 시간 계산 (y 좌표를 시간으로 변환)
     const pixelsPerMs = zoom * 0.1 // 확대/축소에 따른 픽셀당 밀리초
-    const clickTime = Math.round(y / pixelsPerMs / gridSizeMs) * gridSizeMs
+    const rawTime = y / pixelsPerMs
 
-    // 디버그용 로그
-    console.log('Click position:', { x, y, scrollTop, lane, clickTime })
+    // 정확한 그리드 위치에 맞추기
+    const snappedTime = snapToGrid(rawTime)
+    console.log(`노트 생성: ${rawTime}ms → ${snappedTime}ms (가이드: ${activeDivision})`)
 
-    // 노트 유형에 따른 처리
-    if (selectedNoteType === 'normal') {
-      if (isLongNote) {
-        // 롱노트 처리
-        if (startLongNote === null) {
-          // 롱노트 시작점 설정
-          const newNote: Note = {
-            id: uuidv4(),
-            type: 'normal',
-            lane,
-            time: clickTime,
-            isLong: true,
-            endTime: clickTime + getGridSizeMs(4), // 기본 길이: 1/4 비트
-          }
-          handlePatternChange([...pattern, newNote])
-        } else {
-          // 롱노트 끝점 설정 - 이제 사용하지 않음 (드래그로 대체)
-          setStartLongNote(null)
-        }
-      } else {
-        // 일반 노트 추가
-        const newNote: Note = {
-          id: uuidv4(),
-          type: 'normal',
-          lane,
-          time: clickTime,
-          isLong: false,
-        }
-        handlePatternChange([...pattern, newNote])
-      }
-    } else if (selectedNoteType === 'fx') {
-      // FX 노트 (좌/우 반으로 나눔)
-      const isRight = lane >= laneCount / 2
-      const newNote: Note = {
-        id: uuidv4(),
-        type: 'fx',
-        lane: isRight ? 1 : 0, // 0: 왼쪽, 1: 오른쪽
-        time: clickTime,
-        isLong: isLongNote,
-        endTime: isLongNote ? clickTime + getGridSizeMs(4) : undefined,
-      }
-      handlePatternChange([...pattern, newNote])
-    } else if (selectedNoteType === 'lr') {
-      // LR 노트 (좌/우 반으로 나눔)
-      const isRight = lane >= laneCount / 2
-      const newNote: Note = {
-        id: uuidv4(),
-        type: 'lr',
-        lane: isRight ? 1 : 0, // 0: 왼쪽, 1: 오른쪽
-        time: clickTime,
-        isLong: isLongNote,
-        endTime: isLongNote ? clickTime + getGridSizeMs(4) : undefined,
-      }
-      handlePatternChange([...pattern, newNote])
+    // FX 및 LR 노트의 레인 위치 보정
+    let finalLane = lane
+    if (selectedNoteType === 'fx' || selectedNoteType === 'lr') {
+      // 에디터를 정확히 절반으로 나누어 왼쪽/오른쪽 판정
+      finalLane = x < rect.width / 2 ? 0 : 1
     } else if (selectedNoteType === 'enter') {
-      // Enter 노트 (전체 레인)
-      const newNote: Note = {
-        id: uuidv4(),
-        type: 'enter',
-        lane: 0, // 전체 레인 사용
-        time: clickTime,
-        isLong: isLongNote,
-        endTime: isLongNote ? clickTime + getGridSizeMs(4) : undefined,
-      }
-      handlePatternChange([...pattern, newNote])
+      finalLane = 0
     }
+
+    // 위치가 겹치는 노트 확인 (정확히 같은 시간, 같은 레인에 노트가 있는지)
+    const existingNoteIndex = pattern.findIndex(
+      (note) =>
+        Math.abs(note.time - snappedTime) < 1 &&
+        note.lane === finalLane &&
+        note.type === selectedNoteType,
+    )
+
+    // 이미 같은 위치에 노트가 있으면 무시
+    if (existingNoteIndex !== -1) {
+      return
+    }
+
+    // 새 노트 객체 생성 (msToBeats는 표시용으로만 사용)
+    const newNote: Note = {
+      id: uuidv4(),
+      time: snappedTime,
+      lane: finalLane,
+      type: selectedNoteType, // 선택된 노트 타입 사용
+      isLong: isLongNote, // 롱노트 여부
+    }
+
+    // 롱노트인 경우 endTime 추가
+    if (isLongNote) {
+      // 기본 롱노트 길이를 그리드 사이즈의 2배로 설정
+      newNote.endTime = snappedTime + gridSizeMs * 2
+    }
+
+    // 패턴에 노트 추가
+    handlePatternChange([...pattern, newNote])
   }
 
   // 노트 삭제
   const handleNoteClick = (e: React.MouseEvent, noteId: string) => {
     e.stopPropagation()
+
+    // 드래그 중에는 클릭 이벤트를 무시
     if (isDragging) return
 
     // Shift 키를 누른 상태에서만 삭제
     if (isShiftPressed) {
-      const newPattern = pattern.filter((note) => note.id !== noteId)
-      handlePatternChange(newPattern)
+      console.log('노트 삭제 시도:', noteId)
+
+      // 패턴 길이 기록
+      const oldPatternLength = pattern.length
+
+      try {
+        // 노트 삭제 직접 구현 (filter 대신 새 배열 생성)
+        const newPattern = []
+        for (let i = 0; i < pattern.length; i++) {
+          if (pattern[i].id !== noteId) {
+            newPattern.push(pattern[i])
+          } else {
+            console.log('삭제할 노트 발견:', pattern[i])
+          }
+        }
+
+        // 실제로 노트가 제거되었는지 확인
+        if (newPattern.length === oldPatternLength) {
+          console.warn('노트가 제거되지 않았습니다:', noteId)
+        } else {
+          console.log(`노트 삭제 성공: ${oldPatternLength} → ${newPattern.length}`)
+
+          // 현재 호버된 노트가 삭제되는 노트라면 호버 상태 초기화
+          if (hoveredNote && hoveredNote.id === noteId) {
+            setHoveredNote(null)
+          }
+
+          onPatternChange(newPattern)
+        }
+      } catch (error) {
+        console.error('노트 삭제 중 오류 발생:', error)
+      }
     }
+  }
+
+  // 노트 마우스 다운 이벤트 처리 - 롱노트 처리 수정
+  const handleNoteMouseDown = (e: React.MouseEvent, noteId: string, note: Note) => {
+    // shift 키가 눌렸을 때는 삭제 모드 우선
+    if (isShiftPressed) {
+      handleNoteClick(e, noteId)
+      return
+    }
+
+    // Ctrl 키가 눌려있으면 이동 모드 우선 (롱노트 여부와 관계없이)
+    if (isCtrlPressed) {
+      handleNoteDragStart(noteId, e)
+      return
+    }
+
+    // 롱노트인 경우 크기 조절 모드로 전환 (Ctrl 키가 눌려있지 않을 때)
+    if (note.isLong) {
+      handleResizeHandleMouseDown(e, noteId, note)
+      return
+    }
+  }
+
+  // 노트 호버 시작
+  const handleNoteMouseEnter = (e: React.MouseEvent, note: Note) => {
+    if (isDragging) return
+    setHoveredNote(note)
+  }
+
+  // 노트 호버 종료
+  const handleNoteMouseLeave = () => {
+    setHoveredNote(null)
   }
 
   // 패턴 저장
@@ -467,6 +576,7 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
       notes: pattern,
       bpm,
       keyMode,
+      activeDivision, // 비트 분할 정보도 저장
     })
 
     const blob = new Blob([patternData], { type: 'application/json' })
@@ -487,9 +597,20 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
     reader.onload = (e) => {
       try {
         const data = JSON.parse(e.target?.result as string)
-        handlePatternChange(data.notes || [])
+
+        // 패턴에 저장된 비트 분할 정보가 있으면 적용 (하위 호환성 유지)
+        if (data.activeDivision) {
+          setActiveDivision(data.activeDivision)
+        }
+
+        // 노트 데이터 불러오기
+        // 노트의 밀리초 위치는 절대 변경하지 않음
+        const loadedNotes = data.notes || []
+        console.log('패턴 불러옴 - 노트 위치는 정확히 유지됨:', loadedNotes)
+
+        onPatternChange(loadedNotes)
         onBpmChange(data.bpm || 120)
-        onKeyModeChange(data.keyMode || '4k')
+        onKeyModeChange(data.keyMode || '4B')
       } catch (error) {
         console.error('Invalid pattern file', error)
       }
@@ -520,7 +641,7 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
     }
   }
 
-  // 노트 렌더링
+  // 노트 렌더링 - 롱노트 핸들 이벤트 수정
   const renderNotes = () => {
     if (!editorRef.current) return null
 
@@ -544,6 +665,7 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
       }
 
       // 뒤집힌 좌표계에서 노트 위치 계산
+      // 노트 위치는 정확히 note.time 밀리초 위치에 그려짐 (그리드에 맞추지 않음)
       const top =
         EDITOR_HEIGHT -
         note.time * pixelsPerMs -
@@ -560,13 +682,27 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
               ? styles.enterNote
               : styles.normalNote
 
-      // 커서 스타일 - Ctrl 키를 누르고 있으면 이동 커서로 변경
-      const cursorStyle = isCtrlPressed ? 'move' : note.isLong ? 'ns-resize' : 'pointer'
+      // 드래그 중인 노트인지 확인
+      const isDraggingThis = draggedNote && draggedNote.noteId === note.id
+
+      // 커서 스타일 결정
+      let cursorStyle = 'pointer'
+
+      if (isDraggingThis) {
+        // 드래그 중인 노트의 커서
+        cursorStyle = draggedNote.isResizing ? 'ns-resize' : 'move'
+      } else if (isCtrlPressed) {
+        // Ctrl 키 누름 - 이동 모드
+        cursorStyle = 'move'
+      } else if (note.isLong) {
+        // 롱노트는 기본적으로 크기 조절 커서
+        cursorStyle = 'ns-resize'
+      }
 
       return (
         <div
           key={note.id}
-          className={`${styles.note} ${noteTypeClass} ${note.isLong ? styles.longNote : ''}`}
+          className={`${styles.note} ${noteTypeClass} ${note.isLong ? styles.longNote : ''} ${isDraggingThis ? styles.dragging : ''}`}
           style={{
             left: `${left}px`,
             top: `${top}px`,
@@ -575,26 +711,9 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
             cursor: cursorStyle,
           }}
           onClick={(e) => handleNoteClick(e, note.id)}
-          onMouseDown={(e) => {
-            if (note.isLong) {
-              // 롱노트 하단 부분(리사이징 영역)인지 확인
-              const rect = e.currentTarget.getBoundingClientRect()
-              const clickY = e.clientY
-              const bottomAreaY = rect.bottom - 20 // 하단 20px을 리사이징 영역으로 간주
-
-              // Ctrl 키가 눌렸을 때는 항상 이동 모드가 우선
-              if (isCtrlPressed) {
-                // 이동 모드
-                handleNoteDragStart(e, note.id, false)
-              } else if (clickY > bottomAreaY) {
-                // 리사이징 모드
-                handleNoteDragStart(e, note.id, true)
-              }
-            } else if (isCtrlPressed) {
-              // 일반 노트 이동 모드
-              handleNoteDragStart(e, note.id, false)
-            }
-          }}
+          onMouseEnter={(e) => handleNoteMouseEnter(e, note)}
+          onMouseLeave={handleNoteMouseLeave}
+          onMouseDown={(e) => handleNoteMouseDown(e, note.id, note)}
         >
           {note.isLong && <span className={styles.longNoteLabel}>LONG</span>}
           {isCtrlPressed && (
@@ -602,6 +721,7 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
               <span>↕</span>
             </div>
           )}
+          {note.isLong && <div className={styles.resizeHandle} title='크기 조절'></div>}
         </div>
       )
     })
@@ -609,8 +729,9 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
 
   // 미리보기 노트 렌더링
   const renderPreviewNote = () => {
-    // Ctrl 키 또는 Shift 키를 누른 상태에서는 미리보기 노트를 표시하지 않음
-    if (!previewPosition || !editorRef.current || isCtrlPressed || isShiftPressed) return null
+    // Ctrl 키 또는 Shift 키를 누른 상태이거나 노트 위에 호버 중인 경우 미리보기 노트를 표시하지 않음
+    if (!previewPosition || !editorRef.current || isCtrlPressed || isShiftPressed || hoveredNote)
+      return null
 
     const editorWidth = editorRef.current.clientWidth
     const laneWidth = editorRef.current.clientWidth / laneCount
@@ -618,7 +739,8 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
 
     // 레인과 시간 계산
     const lane = Math.floor(previewPosition.x / laneWidth)
-    const clickTime = Math.round(previewPosition.y / pixelsPerMs / gridSizeMs) * gridSizeMs
+    const rawTime = previewPosition.y / pixelsPerMs
+    const clickTime = snapToGrid(rawTime)
 
     let left = 0
     let width = laneWidth
@@ -690,65 +812,101 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
 
     // 수평선 (비트 구분)
     const measureMs = (60000 / bpm) * 4 // 한 마디 (4비트)
-
-    // 마디 최대 표시 개수를 BPM과 곡 길이에 따라 조정
     const maxTime = Math.max(songLength, measureMs * 30) // 최소 30마디 또는 사용자 지정 길이
 
-    // 먼저 모든 마디선(measure)을 명시적으로 추가
-    for (let measure = 0; measure <= Math.ceil(maxTime / measureMs); measure++) {
-      const time = measure * measureMs
-      const linePosition = EDITOR_HEIGHT - time * pixelsPerMs
+    // 모든 그리드 라인을 그리기 위한 계산
+    const beatDurationMs = getGridSizeMs(activeDivision)
 
-      lines.push(
-        <div
-          key={`measure-${measure}`}
-          className={`${styles.horizontalLine} ${styles.measureLine}`}
-          style={{
-            top: `${linePosition}px`,
-            width: `${editorWidth}px`,
-          }}
-        >
-          <span className={styles.timeLabel}>{msToBeats(time)}</span>
-        </div>,
-      )
+    // 가독성을 위해 변수 정의
+    const quarterBeatMs = measureMs / 4 // 1/4 비트 (한 비트)
+    const eighthBeatMs = measureMs / 8 // 1/8 비트
+
+    // 부동 소수점 비교를 위한 함수
+    const isCloseToMultiple = (value: number, divisor: number): boolean => {
+      // 더 관대한 허용 오차 사용
+      const epsilon = 0.1
+      const remainder = value % divisor
+      // 0에 가깝거나 divisor에 가까우면 true
+      return remainder < epsilon || Math.abs(remainder - divisor) < epsilon
     }
 
-    // 그 다음 일반 비트 분할 표시
-    for (let time = 0; time <= maxTime; time += getGridSizeMs(activeDivision)) {
-      // 이미 추가한 마디선은 건너뛰기
-      if (Math.round((time * 1000) % Math.round(measureMs * 1000)) === 0) {
-        continue
-      }
+    // 모든 비트 위치에 그리드 라인 추가
+    for (let time = 0; time <= maxTime; time += beatDurationMs) {
+      // 마디의 시작 위치인지 확인 (정확성 개선)
+      const isMeasureStart = isCloseToMultiple(time, measureMs)
 
-      // 정확한 나머지 계산을 위해 정수 형태로 변환
-      const scaledTime = Math.round(time * 1000)
-      const scaledQuarterBeat = Math.round((measureMs / 4) * 1000)
-      const scaledEighthBeat = Math.round((measureMs / 8) * 1000)
+      // 비트의 시작 위치인지 확인 (1/4 비트)
+      const isBeatStart = !isMeasureStart && isCloseToMultiple(time, quarterBeatMs)
 
-      // 정확한 나머지 계산
-      const isQuarterBeat = scaledTime % scaledQuarterBeat === 0
-      const isEighthBeat = scaledTime % scaledEighthBeat === 0
+      // 8분음표 위치 확인
+      const isEighthBeat = !isMeasureStart && !isBeatStart && isCloseToMultiple(time, eighthBeatMs)
 
       // 뒤집힌 좌표계에서 그리드 라인 위치 계산
       const linePosition = EDITOR_HEIGHT - time * pixelsPerMs
 
-      let lineClass = styles.horizontalLine
-      if (isQuarterBeat) {
-        lineClass = `${styles.horizontalLine} ${styles.quarterBeatLine}`
-      } else if (isEighthBeat) {
-        lineClass = `${styles.horizontalLine} ${styles.eighthBeatLine}`
+      // 마디 시작 라인
+      if (isMeasureStart) {
+        const measureNumber = Math.round(time / measureMs) + 1
+        lines.push(
+          <div
+            key={`measure-${time}`}
+            className={`${styles.horizontalLine} ${styles.measureLine}`}
+            style={{
+              top: `${linePosition}px`,
+              width: `${editorWidth}px`,
+            }}
+          >
+            <span className={styles.timeLabel}>
+              {measureNumber}:1:1/{activeDivision}
+            </span>
+          </div>,
+        )
       }
-
-      lines.push(
-        <div
-          key={`h-${time}`}
-          className={lineClass}
-          style={{
-            top: `${linePosition}px`,
-            width: `${editorWidth}px`,
-          }}
-        />,
-      )
+      // 1/4 비트 라인 (비트 시작)
+      else if (isBeatStart) {
+        const measureIndex = Math.floor(time / measureMs)
+        const beatIndex = Math.round((time % measureMs) / quarterBeatMs) + 1
+        lines.push(
+          <div
+            key={`beat-${time}`}
+            className={`${styles.horizontalLine} ${styles.quarterBeatLine}`}
+            style={{
+              top: `${linePosition}px`,
+              width: `${editorWidth}px`,
+            }}
+          >
+            <span className={styles.beatLabel}>
+              {measureIndex + 1}:{beatIndex}
+            </span>
+          </div>,
+        )
+      }
+      // 1/8 비트 라인
+      else if (isEighthBeat) {
+        lines.push(
+          <div
+            key={`eighth-${time}`}
+            className={`${styles.horizontalLine} ${styles.eighthBeatLine}`}
+            style={{
+              top: `${linePosition}px`,
+              width: `${editorWidth}px`,
+            }}
+          />,
+        )
+      }
+      // 일반 그리드 라인
+      else {
+        lines.push(
+          <div
+            key={`grid-${time}`}
+            className={styles.horizontalLine}
+            style={{
+              top: `${linePosition}px`,
+              width: `${editorWidth}px`,
+            }}
+          />,
+        )
+      }
     }
 
     return lines
@@ -756,18 +914,76 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
 
   // 마우스 툴팁 렌더링
   const renderMouseTooltip = () => {
-    if (!mousePosition) return null
+    // 노트 위에 마우스가 있을 때는 마우스 툴팁을 표시하지 않음
+    if (!mousePosition || hoveredNote) return null
+
+    // 현재 마우스 위치의 정확한 밀리초 표시
+    const exactMs = mousePosition.time
+
+    const currentBeat = msToBeats(exactMs)
 
     return (
       <div
         className={`${styles.mouseTooltip} ${theme === 'dark' ? styles.darkTheme : ''}`}
         style={{
-          left: `${mousePosition.x - 32}px`, // 마우스 오른쪽으로 약간 오프셋
-          top: `${mousePosition.y - 64}px`,
+          left: `${mousePosition.x + 32}px`, // 마우스 오른쪽으로 약간 오프셋
+          top: `${mousePosition.y - 16}px`,
         }}
       >
-        <div className={styles.mouseTooltipTime}>{mousePosition.time}ms</div>
-        <div className={styles.mouseTooltipBeat}>{mousePosition.beat}</div>
+        <div className={styles.mouseTooltipTime}>{currentBeat}</div>
+        <div>위치: {exactMs.toFixed(0)}ms</div>
+      </div>
+    )
+  }
+
+  // 노트 정보 툴팁 렌더링
+  const renderNoteTooltip = () => {
+    if (!hoveredNote) return null
+
+    // 노트 타입을 한글로 표시
+    const typeText = {
+      normal: '일반',
+      fx: 'FX',
+      lr: 'LR',
+      enter: 'Enter',
+    }[hoveredNote.type]
+
+    // 롱노트인 경우 길이 계산
+    const duration =
+      hoveredNote.isLong && hoveredNote.endTime
+        ? `길이: ${hoveredNote.endTime - hoveredNote.time}ms`
+        : ''
+
+    // 노트의 레인 위치
+    const laneText = {
+      normal: `레인: ${hoveredNote.lane + 1}`,
+      fx: hoveredNote.lane === 0 ? 'FX: 왼쪽' : 'FX: 오른쪽',
+      lr: hoveredNote.lane === 0 ? 'LR: 왼쪽' : 'LR: 오른쪽',
+      enter: 'Enter',
+    }[hoveredNote.type]
+
+    // 노트가 현재 가이드 그리드에서 어느 위치에 있는지 계산 (단순 참고용)
+    const noteBeatLabel = msToBeats(hoveredNote.time)
+
+    return (
+      <div
+        className={`${styles.noteTooltip} ${theme === 'dark' ? styles.darkTheme : ''}`}
+        style={{
+          left: `${mousePosition?.x + 80}px`,
+          top: `${mousePosition?.y - 16}px`,
+        }}
+      >
+        <div>
+          <strong>
+            {typeText} {hoveredNote.isLong ? '롱' : ''}노트
+          </strong>
+        </div>
+        <div>{laneText}</div>
+        <div>비트: {noteBeatLabel}</div>
+        {duration && <div>{duration}</div>}
+        <div>
+          <strong>위치: {hoveredNote.time.toFixed(0)}ms</strong>
+        </div>
       </div>
     )
   }
@@ -777,9 +993,57 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
     return theme === 'dark' ? `${baseClass} ${styles.darkTheme}` : baseClass
   }
 
+  // 초기 패턴 저장
+  useEffect(() => {
+    if (history.length === 0) {
+      setInitialPattern([...pattern])
+      setInitialBpm(bpm)
+      setInitialKeyMode(keyMode)
+    }
+  }, [])
+
+  // 패턴 초기화
+  const resetPattern = () => {
+    if (confirm('정말로 패턴을 초기 상태로 되돌리시겠습니까? 모든 변경사항이 사라집니다.')) {
+      onPatternChange([...initialPattern])
+      onBpmChange(initialBpm)
+      onKeyModeChange(initialKeyMode)
+      setActiveDivision(16)
+
+      // 파일 입력 필드 초기화
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ''
+      }
+
+      // 히스토리 초기화
+      const newHistory = [[...initialPattern]]
+      setHistory(newHistory)
+      setCurrentHistoryIndex(0)
+    }
+  }
+
+  // componentDidMount와 componentWillUnmount에 해당하는 효과 추가
+  useEffect(() => {
+    // 전역 마우스업 이벤트 핸들러 추가
+    const handleGlobalMouseUp = () => {
+      if (isDragging) {
+        handleNoteDragEnd()
+      }
+    }
+
+    // 전역 이벤트 리스너 등록
+    window.addEventListener('mouseup', handleGlobalMouseUp)
+
+    // 컴포넌트가 언마운트될 때 모든 이벤트 리스너 제거
+    return () => {
+      window.removeEventListener('mouseup', handleGlobalMouseUp)
+      window.removeEventListener('mouseup', handleNoteDragEnd)
+    }
+  }, [isDragging])
+
   return (
     <div className={getThemeClass(styles.editorContainer)}>
-      <div className={getThemeClass(styles.sidebar)}>
+      <div className={`${getThemeClass(styles.sidebar)} tw:custom-scrollbar`}>
         <div className={styles.controlGroup}>
           <label className='tw:block tw:text-sm tw:font-medium tw:mb-2' htmlFor='bpmInput'>
             BPM
@@ -817,10 +1081,10 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
             value={keyMode}
             onChange={(e) => onKeyModeChange(e.target.value as KeyMode)}
           >
-            <option value='4k'>4K</option>
-            <option value='5k'>5K</option>
-            <option value='6k'>6K</option>
-            <option value='8k'>8K</option>
+            <option value='4B'>4B</option>
+            <option value='5B'>5B</option>
+            <option value='6B'>6B</option>
+            <option value='8B'>8B</option>
           </select>
         </div>
 
@@ -884,11 +1148,13 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
         </div>
 
         <div className={styles.controlGroup}>
-          <label className='tw:block tw:text-sm tw:font-medium tw:mb-2'>줌</label>
+          <label className='tw:block tw:text-sm tw:font-medium tw:mb-2'>
+            줌({zoom.toFixed(1)}x)
+          </label>
           <input
             type='range'
             min='0.5'
-            max='2'
+            max='10'
             step='0.1'
             className='tw:w-full tw:h-2 tw:bg-gray-200 tw:rounded-lg tw:appearance-none tw:cursor-pointer dark:tw:bg-slate-700'
             value={zoom}
@@ -934,38 +1200,39 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
           <input
             type='file'
             accept='.json'
+            ref={fileInputRef}
             onChange={handleLoadPattern}
             className='tw:block tw:w-full tw:text-sm tw:text-gray-500 dark:tw:text-slate-400 tw:mt-2 tw:file:mr-4 tw:file:py-2 tw:file:px-4 tw:file:rounded-full tw:file:border-0 tw:file:text-sm tw:file:font-semibold tw:file:bg-indigo-50 tw:file:text-indigo-700 hover:tw:file:bg-indigo-100 dark:tw:file:bg-indigo-900 dark:tw:file:text-indigo-200'
           />
         </div>
 
         <div className={styles.controlGroup}>
-          <button
-            onClick={() => onPatternChange([])}
-            className='tw:w-full tw:inline-flex tw:justify-center tw:rounded-lg tw:border tw:border-gray-300 tw:shadow-sm tw:px-4 tw:py-2 tw:bg-white tw:text-base tw:font-medium tw:text-gray-700 tw:hover:bg-gray-50 tw:focus:outline-none tw:focus:ring-2 tw:focus:ring-indigo-500 dark:tw:bg-slate-700 dark:tw:text-slate-200 dark:tw:border-slate-600 dark:tw:hover:bg-slate-600'
-          >
-            모두 지우기
-          </button>
+          <div className='tw:grid tw:grid-cols-2 tw:gap-2'>
+            <button
+              onClick={resetPattern}
+              className='tw:w-full tw:inline-flex tw:justify-center tw:rounded-lg tw:border tw:border-yellow-500 tw:shadow-sm tw:px-4 tw:py-2 tw:bg-yellow-50 tw:text-base tw:font-medium tw:text-yellow-700 tw:hover:bg-yellow-100 tw:focus:outline-none tw:focus:ring-2 tw:focus:ring-yellow-500 dark:tw:bg-yellow-900 dark:tw:text-yellow-200 dark:tw:border-yellow-800 dark:tw:hover:bg-yellow-800'
+            >
+              초기화
+            </button>
+
+            <button
+              onClick={() => onPatternChange([])}
+              className='tw:w-full tw:inline-flex tw:justify-center tw:rounded-lg tw:border tw:border-red-500 tw:shadow-sm tw:px-4 tw:py-2 tw:bg-red-50 tw:text-base tw:font-medium tw:text-red-700 tw:hover:bg-red-50 tw:focus:outline-none tw:focus:ring-2 tw:focus:ring-red-500 dark:tw:bg-slate-700 dark:tw:text-slate-200 dark:tw:border-slate-600 dark:tw:hover:bg-slate-600'
+            >
+              모두 지우기
+            </button>
+          </div>
         </div>
       </div>
 
       <div className={getThemeClass(styles.editorMain)}>
-        <div className={getThemeClass(styles.timeIndicator)}>
-          {msToBeats(currentTime)} - {currentTime}ms
-          {previewPosition && editorRef.current && (
-            <span className={styles.previewInfo}>
-              {' | '}위치: {Math.round(previewPosition.y / (zoom * 0.1))}ms
-              {' | '}비트: {msToBeats(Math.round(previewPosition.y / (zoom * 0.1)))}
-            </span>
-          )}
-        </div>
         <div
           ref={editorRef}
-          className={getThemeClass(styles.editorGrid)}
+          className={`${getThemeClass(styles.editorGrid)} tw:custom-scrollbar`}
           onClick={handleEditorClick}
           onMouseMove={handleEditorMouseMove}
           onMouseLeave={handleEditorMouseLeave}
-          onScroll={(e) => {
+          onScroll={() => {
             if (editorRef.current) {
               // 뒤집힌 좌표계에서 스크롤 위치 변환
               const invertedPosition = EDITOR_HEIGHT - editorRef.current.scrollTop
@@ -987,6 +1254,19 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
             {renderPreviewNote()}
           </div>
         </div>
+        <div className={getThemeClass(styles.timeIndicator)}>
+          {previewPosition && editorRef.current ? (
+            <span className={styles.previewInfo}>
+              {msToBeats(currentTime)} - {currentTime.toFixed(0)}ms
+              {' | '}비트: {msToBeats(Math.round(previewPosition.y / (zoom * 0.1)))}
+              {' | '}위치: {Math.round(previewPosition.y / (zoom * 0.1))}ms
+            </span>
+          ) : (
+            <span className={styles.previewInfo}>
+              {msToBeats(currentTime)} - {currentTime.toFixed(0)}ms
+            </span>
+          )}
+        </div>
       </div>
 
       {/* Ctrl 키 가이드 메시지 */}
@@ -1005,6 +1285,9 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
 
       {/* 마우스 위치 툴팁 */}
       {renderMouseTooltip()}
+
+      {/* 노트 정보 툴팁 */}
+      {renderNoteTooltip()}
     </div>
   )
 }
