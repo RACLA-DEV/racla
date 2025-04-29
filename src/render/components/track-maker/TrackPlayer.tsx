@@ -1,8 +1,9 @@
 import { Icon } from '@iconify/react'
 import { RootState } from '@render/store'
+import type { JudgementDisplay, KeyState } from '@src/types/track-maker/JudgementDisplay'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useSelector } from 'react-redux'
-import { KeyMode, Note, TrackPlayerProps } from '../../../types/games/TrackMaker'
+import type { KeyMode, Note, TrackPlayerProps } from '../../../types/track-maker/TrackMaker'
 import styles from './TrackPlayer.module.css'
 
 const KEY_MAPS = {
@@ -18,16 +19,6 @@ const SPECIAL_KEYS = {
   lr_left: 'x',
   lr_right: '.',
   enter: 'enter',
-}
-
-type KeyState = {
-  [key: string]: boolean
-}
-
-type JudgementDisplay = {
-  text: 'PERFECT' | 'GREAT' | 'GOOD' | 'BAD' | 'MISS'
-  timestamp: number
-  id: string
 }
 
 const getLaneCount = (keyMode: KeyMode): number => {
@@ -431,7 +422,7 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
     const lanes = []
 
     for (let i = 0; i < laneCount; i++) {
-      const isPressed = keyState[KEY_MAPS[keyMode]?.[i] || '']
+      const isPressed = Boolean(keyState[KEY_MAPS[keyMode]?.[i]] || false)
 
       lanes.push(
         <div
@@ -578,7 +569,9 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
                     max='1000'
                     step='50'
                     value={scrollSpeed}
-                    onChange={(e) => setScrollSpeed(parseInt(e.target.value))}
+                    onChange={(e) => {
+                      setScrollSpeed(parseInt(e.target.value))
+                    }}
                     className={styles.speedSlider}
                   />
                 </div>
@@ -605,7 +598,9 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
                   <input
                     type='checkbox'
                     checked={judgementsEnabled}
-                    onChange={() => setJudgementsEnabled(!judgementsEnabled)}
+                    onChange={() => {
+                      setJudgementsEnabled(!judgementsEnabled)
+                    }}
                   />
                   <span>판정 표시</span>
                 </label>
@@ -613,7 +608,9 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
                   <input
                     type='checkbox'
                     checked={showGuide}
-                    onChange={() => setShowGuide(!showGuide)}
+                    onChange={() => {
+                      setShowGuide(!showGuide)
+                    }}
                   />
                   <span>키 가이드 표시</span>
                 </label>
@@ -662,7 +659,7 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
                 <div className={styles.keySection}>
                   <h4>일반 노트</h4>
                   <div className={styles.keyList}>
-                    {KEY_MAPS[keyMode]?.map((key, index) => (
+                    {(KEY_MAPS[keyMode] || []).map((key, index) => (
                       <div key={index} className={styles.keyBox}>
                         <span>{key.toUpperCase()}</span>
                       </div>

@@ -2,7 +2,12 @@ import { RootState } from '@render/store'
 import React, { useEffect, useRef, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { v4 as uuidv4 } from 'uuid'
-import { KeyMode, Note, NoteType, TrackMakerProps } from '../../../types/games/TrackMaker'
+import type {
+  KeyMode,
+  Note,
+  NoteType,
+  TrackMakerProps,
+} from '../../../types/track-maker/TrackMaker'
 import styles from './TrackMaker.module.css'
 
 const getLaneCount = (keyMode: KeyMode): number => {
@@ -511,11 +516,11 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
       try {
         // 노트 삭제 직접 구현 (filter 대신 새 배열 생성)
         const newPattern = []
-        for (let i = 0; i < pattern.length; i++) {
-          if (pattern[i].id !== noteId) {
-            newPattern.push(pattern[i])
+        for (const note of pattern) {
+          if (note && typeof note === 'object' && 'id' in note && note.id !== noteId) {
+            newPattern.push(note)
           } else {
-            console.log('삭제할 노트 발견:', pattern[i])
+            console.log('삭제할 노트 발견:', note.id)
           }
         }
 
@@ -710,10 +715,16 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
             height: `${height}px`,
             cursor: cursorStyle,
           }}
-          onClick={(e) => handleNoteClick(e, note.id)}
-          onMouseEnter={(e) => handleNoteMouseEnter(e, note)}
+          onClick={(e) => {
+            handleNoteClick(e, note.id)
+          }}
+          onMouseEnter={(e) => {
+            handleNoteMouseEnter(e, note)
+          }}
           onMouseLeave={handleNoteMouseLeave}
-          onMouseDown={(e) => handleNoteMouseDown(e, note.id, note)}
+          onMouseDown={(e) => {
+            handleNoteMouseDown(e, note.id, note)
+          }}
         >
           {note.isLong && <span className={styles.longNoteLabel}>LONG</span>}
           {isCtrlPressed && (
@@ -1118,7 +1129,9 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
                     ? 'tw:bg-indigo-600 tw:text-white dark:tw:bg-indigo-500'
                     : 'tw:bg-gray-100 tw:text-gray-700 hover:tw:bg-gray-200 dark:tw:bg-slate-700 dark:tw:text-slate-200 dark:hover:tw:bg-slate-600'
                 }`}
-                onClick={() => setSelectedNoteType(type)}
+                onClick={() => {
+                  setSelectedNoteType(type)
+                }}
               >
                 {type === 'normal' && '일반'}
                 {type === 'fx' && 'FX'}
