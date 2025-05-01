@@ -62,6 +62,8 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
   const startTimeRef = useRef<number>(0)
   const visibleNotesRef = useRef<Note[]>([])
   const pressedNotesRef = useRef<Set<string>>(new Set())
+  const longNoteTicksRef = useRef<Record<string, number>>({}) // 롱노트 틱 카운트 정보 저장
+  const longNoteJudgementsRef = useRef<Record<string, string>>({}) // 롱노트의 최초 판정 저장
   const laneCount = getLaneCount(keyMode)
 
   // 테마 상태 가져오기
@@ -72,12 +74,13 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
 
   // 게임판 크기
   const LANE_WIDTH = 60
-  const GAME_HEIGHT = 800 // 높이 증가
   const NOTE_HEIGHT = 20
-  const JUDGEMENT_LINE_Y = GAME_HEIGHT - 100
+  const JUDGEMENT_LINE_POSITION = 0.85 // 판정선 위치 (화면 높이의 비율, 더 아래로 내림)
 
   // 첫 노트 지연 시간
   const INITIAL_DELAY = 3000 // 3초
+  // 마지막 노트 지연 시간
+  const ENDING_DELAY = 1000 // 3초
 
   // 미리 보이는 노트 시간 범위 (ms)
   const VISIBLE_NOTE_RANGE = 4000 // 노트가 미리 보이기 시작하는 시간
@@ -90,6 +93,30 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
     BAD: 200,
   }
 
+  // 판정선 위치 계산을 위한 효과
+  const [judgementLineY, setJudgementLineY] = useState(0)
+
+  // 게임 영역 크기가 변경될 때마다 판정선 위치 업데이트
+  useEffect(() => {
+    const updateJudgementLinePosition = () => {
+      if (gameAreaRef.current) {
+        const gameHeight = gameAreaRef.current.clientHeight
+        setJudgementLineY(gameHeight * JUDGEMENT_LINE_POSITION)
+      }
+    }
+
+    // 초기 로드 시 설정
+    updateJudgementLinePosition()
+
+    // 리사이즈 이벤트 리스너 추가
+    window.addEventListener('resize', updateJudgementLinePosition)
+
+    // 클린업
+    return () => {
+      window.removeEventListener('resize', updateJudgementLinePosition)
+    }
+  }, [])
+
   // 게임 시작
   const startGame = () => {
     setIsPlaying(true)
@@ -99,7 +126,17 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
     setMaxCombo(0)
     setCurrentJudgement(null)
     setJudgementsEnabled(true)
+    // 판정 카운트 초기화
+    setJudgementCounts({
+      PERFECT: 0,
+      GREAT: 0,
+      GOOD: 0,
+      BAD: 0,
+      MISS: 0,
+    })
     pressedNotesRef.current.clear()
+    longNoteTicksRef.current = {} // 롱노트 틱 정보 초기화
+    longNoteJudgementsRef.current = {} // 롱노트 판정 정보 초기화
 
     // 첫 노트 지연을 위해 모든 노트 시간에 INITIAL_DELAY 추가
     visibleNotesRef.current = [...pattern]
@@ -143,10 +180,147 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
     const elapsedTime = now - startTimeRef.current
     setCurrentTime(elapsedTime)
 
-    // 게임 종료 조건 체크
+    // 판정 범위 밖으로 지나간 노트를 미스로 처리
+    const missedNotes = visibleNotesRef.current.filter((note) => {
+      // 롱노트는 눌린 상태인 경우 무시
+      if (note.isLong && pressedNotesRef.current.has(note.id)) {
+        return false
+      }
+      // 노트가 판정선을 지나간 경우 (판정선 + 판정 범위를 지남)
+      return note.time < elapsedTime - JUDGEMENT.BAD
+    })
+
+    // 미스 처리된 노트들 제거 및 미스 판정 처리
+    if (missedNotes.length > 0) {
+      // 각 미스 노트마다 미스 판정 처리
+      missedNotes.forEach((note) => {
+        updateScore('MISS')
+        visibleNotesRef.current = visibleNotesRef.current.filter((n) => n.id !== note.id)
+      })
+    }
+
+    // 롱노트 틱 처리 (BPM에 맞게 콤보 추가)
+    const beatDuration = 60000 / bpm // 한 비트당 시간 (ms)
+
+    // 누르고 있는 롱노트 처리
+    pressedNotesRef.current.forEach((noteId) => {
+      const longNote = visibleNotesRef.current.find(
+        (note) => note.id === noteId && note.isLong && note.endTime,
+      )
+      if (longNote) {
+        const noteDuration = longNote.endTime! - longNote.time
+        if (noteDuration > beatDuration) {
+          // 롱노트 틱 정보 초기화 (처음이면)
+          if (!longNoteTicksRef.current[noteId]) {
+            longNoteTicksRef.current[noteId] = longNote.time + beatDuration
+          }
+
+          // 현재 시간이 다음 틱 시간을 지났는지 확인
+          while (
+            longNoteTicksRef.current[noteId] < elapsedTime &&
+            longNoteTicksRef.current[noteId] < longNote.endTime!
+          ) {
+            // 콤보 업데이트 (틱당 1콤보)
+            setCombo((prev) => prev + 1)
+
+            // 최초 판정에 따른 점수 가산
+            const initialJudgement = longNoteJudgementsRef.current[noteId] || 'PERFECT'
+            let tickScore = 0
+
+            // 최초 판정에 따른 점수 계산
+            switch (initialJudgement) {
+              case 'PERFECT':
+                tickScore = 50 // 기본 틱 점수
+                break
+              case 'GREAT':
+                tickScore = 40 // 80% 점수
+                break
+              case 'GOOD':
+                tickScore = 25 // 50% 점수
+                break
+              case 'BAD':
+                tickScore = 10 // 20% 점수
+                break
+              default:
+                tickScore = 50
+            }
+
+            // 스코어 업데이트 (판정 표시 없음)
+            setScore((prev) => prev + tickScore)
+
+            // 다음 틱 시간 계산
+            longNoteTicksRef.current[noteId] += beatDuration
+          }
+        }
+      }
+    })
+
+    // 롱노트의 종료 시간 체크 및 자동 처리
+    const longNotesToCheck = visibleNotesRef.current.filter(
+      (note) =>
+        note.isLong &&
+        pressedNotesRef.current.has(note.id) &&
+        note.endTime &&
+        note.endTime < elapsedTime,
+    )
+
+    if (longNotesToCheck.length > 0) {
+      longNotesToCheck.forEach((note) => {
+        // 롱노트 ID 저장 (판정 중복 방지용)
+        const noteId = note.id
+
+        // 최초 판정이 MISS인 경우, 판정하지 않음 (이미 미스 처리된 롱노트)
+        const initialJudgement = longNoteJudgementsRef.current[noteId]
+        if (initialJudgement === 'MISS') {
+          // 롱노트가 끝까지 눌려있는 경우 노트 제거만 처리
+          visibleNotesRef.current = visibleNotesRef.current.filter((n) => n.id !== noteId)
+          pressedNotesRef.current.delete(noteId)
+          delete longNoteTicksRef.current[noteId]
+          delete longNoteJudgementsRef.current[noteId]
+          return
+        }
+
+        // 롱노트가 끝까지 눌려있는 경우 자동으로 성공 처리
+        visibleNotesRef.current = visibleNotesRef.current.filter((n) => n.id !== noteId)
+        pressedNotesRef.current.delete(noteId)
+
+        // 롱노트 틱 정보 삭제
+        delete longNoteTicksRef.current[noteId]
+
+        // 롱노트 땔 때 판정 항상 적용
+        const initialJudgementValue = longNoteJudgementsRef.current[noteId] || 'PERFECT'
+        updateScore(initialJudgementValue as 'PERFECT' | 'GREAT' | 'GOOD' | 'BAD' | 'MISS')
+
+        // 롱노트 판정 정보 삭제
+        delete longNoteJudgementsRef.current[noteId]
+      })
+    }
+
+    // 게임 종료 조건 체크 - 마지막 노트 이후 3초 지연 추가
     if (visibleNotesRef.current.length === 0 && pressedNotesRef.current.size === 0) {
-      stopGame()
-      return
+      // 마지막 노트가 끝난 시간 계산
+      let lastNoteEndTime = 0
+
+      // 패턴 배열에서 마지막 노트의 시간을 찾음
+      if (pattern.length > 0) {
+        const lastNotes = [...pattern].sort((a, b) => {
+          // 롱노트인 경우 endTime 사용, 아닌 경우 time 사용
+          const aTime = a.isLong && a.endTime ? a.endTime : a.time
+          const bTime = b.isLong && b.endTime ? b.endTime : b.time
+          return bTime - aTime // 내림차순 정렬
+        })
+
+        // 가장 마지막 노트의 종료 시간 (롱노트면 endTime, 아니면 time)
+        const lastNote = lastNotes[0]
+        lastNoteEndTime = lastNote.isLong && lastNote.endTime ? lastNote.endTime : lastNote.time
+        lastNoteEndTime += INITIAL_DELAY // 초기 지연 시간 추가
+      }
+
+      // 마지막 노트 이후 ENDING_DELAY 시간이 지났는지 확인
+      if (elapsedTime > lastNoteEndTime + ENDING_DELAY) {
+        stopGame()
+        return
+      }
     }
 
     animationRef.current = requestAnimationFrame(updateGame)
@@ -211,9 +385,31 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
       noteType = 'enter'
     }
 
+    // 이미 누른 롱노트가 있는지 확인
+    const pressedLongNote = visibleNotesRef.current.find(
+      (note) =>
+        note.isLong &&
+        pressedNotesRef.current.has(note.id) &&
+        note.type === noteType &&
+        ((noteType === 'normal' && note.lane === laneIndex) ||
+          (noteType === 'fx' && note.lane === laneIndex) ||
+          (noteType === 'lr' && note.lane === laneIndex) ||
+          noteType === 'enter'),
+    )
+
+    // 이미 누른 롱노트가 있으면 중복 처리 방지
+    if (pressedLongNote) {
+      return
+    }
+
     // 해당 레인 및 타입에 맞는 노트 찾기
     const targetNotes = visibleNotesRef.current.filter((note) => {
-      if (note.type !== noteType) return false
+      // 판정 가능한 범위 내에 있는 노트만 선택 (판정선과 가까운 노트만)
+      const timeOffset = note.time - keyTime
+      const isWithinJudgementRange = Math.abs(timeOffset) <= JUDGEMENT.BAD * 2
+
+      // 타입과 레인이 일치하고 판정 범위 내에 있는 노트만 필터링
+      if (note.type !== noteType || !isWithinJudgementRange) return false
 
       if (noteType === 'normal') {
         return note.lane === laneIndex
@@ -226,9 +422,8 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
       return false
     })
 
+    // 노트가 없으면 미스 처리하지 않고 그냥 리턴
     if (targetNotes.length === 0) {
-      // 노트 없는 키 입력 (미스)
-      updateScore('MISS')
       return
     }
 
@@ -243,38 +438,119 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
 
     // 판정 범위 내에 있는지 확인
     if (timeDiff <= JUDGEMENT.BAD) {
+      // 판정 결정
+      let judgementText: 'PERFECT' | 'GREAT' | 'GOOD' | 'BAD' | 'MISS'
+
+      if (timeDiff <= JUDGEMENT.PERFECT) {
+        judgementText = 'PERFECT'
+      } else if (timeDiff <= JUDGEMENT.GREAT) {
+        judgementText = 'GREAT'
+      } else if (timeDiff <= JUDGEMENT.GOOD) {
+        judgementText = 'GOOD'
+      } else {
+        judgementText = 'BAD'
+      }
+
       // 롱노트 시작 또는 일반 노트 처리
       if (closestNote.isLong) {
+        // 이미 누른 롱노트가 아닌지 한번 더 확인 (중복 방지)
+        if (!pressedNotesRef.current.has(closestNote.id)) {
+          pressedNotesRef.current.add(closestNote.id)
+          // 롱노트의 경우 최초 판정 저장
+          longNoteJudgementsRef.current[closestNote.id] = judgementText
+          // 점수 및 콤보 업데이트
+          updateScore(judgementText)
+        }
+      } else {
+        // 일반 노트는 바로 제거
+        visibleNotesRef.current = visibleNotesRef.current.filter(
+          (note) => note.id !== closestNote.id,
+        )
+        // 점수 및 콤보 업데이트
+        updateScore(judgementText)
+      }
+    } else {
+      // 판정 범위 밖 (미스)
+      updateScore('MISS')
+
+      // 미스 판정된 롱노트일 경우 ID를 기록
+      if (closestNote.isLong) {
         pressedNotesRef.current.add(closestNote.id)
+        longNoteJudgementsRef.current[closestNote.id] = 'MISS'
       } else {
         // 일반 노트는 바로 제거
         visibleNotesRef.current = visibleNotesRef.current.filter(
           (note) => note.id !== closestNote.id,
         )
       }
-
-      // 점수 및 콤보 업데이트
-      if (timeDiff <= JUDGEMENT.PERFECT) {
-        updateScore('PERFECT')
-      } else if (timeDiff <= JUDGEMENT.GREAT) {
-        updateScore('GREAT')
-      } else if (timeDiff <= JUDGEMENT.GOOD) {
-        updateScore('GOOD')
-      } else {
-        updateScore('BAD')
-      }
-    } else {
-      // 판정 범위 밖 (미스)
-      updateScore('MISS')
     }
   }
 
   // 롱노트 키 뗌 처리
   const checkLongNoteRelease = (key: string) => {
-    // 롱노트 중인지 확인
-    const longNote = visibleNotesRef.current.find((note) => pressedNotesRef.current.has(note.id))
+    const keyMap = KEY_MAPS[keyMode]
+
+    // 일반 키 입력 (레인에 따라)
+    let laneIndex = keyMap.indexOf(key)
+    let noteType = 'normal'
+
+    // 특수 키 입력 (FX, LR, Enter)
+    if (key === SPECIAL_KEYS.fx_left) {
+      laneIndex = 0
+      noteType = 'fx'
+    } else if (key === SPECIAL_KEYS.fx_right) {
+      laneIndex = 1
+      noteType = 'fx'
+    } else if (key === SPECIAL_KEYS.lr_left) {
+      laneIndex = 0
+      noteType = 'lr'
+    } else if (key === SPECIAL_KEYS.lr_right) {
+      laneIndex = 1
+      noteType = 'lr'
+    } else if (key === SPECIAL_KEYS.enter) {
+      laneIndex = 0
+      noteType = 'enter'
+    }
+
+    // 롱노트 중인지 확인 - 레인과 타입에 맞는 롱노트만 검색
+    const longNote = visibleNotesRef.current.find(
+      (note) =>
+        note.isLong &&
+        pressedNotesRef.current.has(note.id) &&
+        note.type === noteType &&
+        ((noteType === 'normal' && note.lane === laneIndex) ||
+          (noteType === 'fx' && note.lane === laneIndex) ||
+          (noteType === 'lr' && note.lane === laneIndex) ||
+          noteType === 'enter'),
+    )
 
     if (!longNote) return
+
+    // 롱노트 ID 저장 (판정 중복 방지용)
+    const noteId = longNote.id
+
+    // 이 롱노트에 대한 release 판정이 이미 처리되었는지 확인
+    if (!visibleNotesRef.current.some((note) => note.id === noteId)) {
+      // 이미 처리된 노트면 중복 방지
+      return
+    }
+
+    // 롱노트 제거 처리
+    visibleNotesRef.current = visibleNotesRef.current.filter((note) => note.id !== noteId)
+
+    // 롱노트 상태에서 제거
+    pressedNotesRef.current.delete(noteId)
+
+    // 롱노트 틱 정보 삭제
+    delete longNoteTicksRef.current[noteId]
+
+    // 최초 판정이 MISS인 경우, 판정하지 않음 (이미 미스 처리된 롱노트)
+    const initialJudgement = longNoteJudgementsRef.current[noteId]
+    if (initialJudgement === 'MISS') {
+      // 미스 판정된 롱노트는 더이상 판정하지 않음
+      delete longNoteJudgementsRef.current[noteId]
+      return
+    }
 
     // 롱노트 종료 시간 체크
     const keyTime = performance.now() - startTimeRef.current
@@ -282,31 +558,43 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
 
     if (keyTime >= shouldEndTime - JUDGEMENT.BAD) {
       // 정상 종료 (판정 범위 내)
-      visibleNotesRef.current = visibleNotesRef.current.filter((note) => note.id !== longNote.id)
-      pressedNotesRef.current.delete(longNote.id)
-
       const timeDiff = Math.abs(shouldEndTime - keyTime)
 
+      let judgementText: 'PERFECT' | 'GREAT' | 'GOOD' | 'BAD' | 'MISS'
+
       if (timeDiff <= JUDGEMENT.PERFECT) {
-        updateScore('PERFECT')
+        judgementText = 'PERFECT'
       } else if (timeDiff <= JUDGEMENT.GREAT) {
-        updateScore('GREAT')
+        judgementText = 'GREAT'
       } else if (timeDiff <= JUDGEMENT.GOOD) {
-        updateScore('GOOD')
+        judgementText = 'GOOD'
       } else {
-        updateScore('BAD')
+        judgementText = 'BAD'
       }
+
+      updateScore(judgementText)
     } else {
       // 일찍 뗌 (미스)
-      visibleNotesRef.current = visibleNotesRef.current.filter((note) => note.id !== longNote.id)
-      pressedNotesRef.current.delete(longNote.id)
       updateScore('MISS')
     }
+
+    // 롱노트 판정 정보 삭제 (기존 판정 정보 제거하여 중복 방지)
+    delete longNoteJudgementsRef.current[noteId]
   }
+
+  useEffect(() => {
+    setMaxCombo((prev) => Math.max(prev, combo))
+  }, [combo])
 
   // 점수 및 콤보 업데이트
   const updateScore = (judgementText: 'PERFECT' | 'GREAT' | 'GOOD' | 'BAD' | 'MISS') => {
     let scoreAdd = 0
+
+    // 판정 횟수 업데이트
+    setJudgementCounts((prev) => ({
+      ...prev,
+      [judgementText]: prev[judgementText] + 1,
+    }))
 
     // 판정 표시 업데이트 - 언제나 하나의 판정만 표시
     if (judgementsEnabled) {
@@ -345,9 +633,7 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
         setCombo(0)
         break
     }
-
     setScore((prev) => prev + scoreAdd)
-    setMaxCombo((prev) => Math.max(prev, combo + 1))
   }
 
   // 노트 렌더링 - 개선된 필터링으로 자연스러운 등장 구현
@@ -372,7 +658,6 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
     })
 
     return notesInView.map((note) => {
-      const noteY = calculateNoteY(note.time)
       let noteX = 0
       let noteWidth = LANE_WIDTH
 
@@ -387,11 +672,19 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
         noteWidth = gameWidth
       }
 
-      // 롱노트 높이 계산
+      // 롱노트 높이와 위치 계산 - 트랙 메이커와 동일하게 수정
       let noteHeight = NOTE_HEIGHT
+      let noteY = calculateNoteY(note.time)
+
       if (note.isLong && note.endTime) {
+        // 롱노트의 끝 위치 계산
         const endY = calculateNoteY(note.endTime)
-        noteHeight = Math.max(20, Math.abs(noteY - endY))
+
+        // 높이 계산 - 시작 위치와 끝 위치의 차이
+        noteHeight = Math.abs(noteY - endY)
+
+        // 노트의 시작 위치 조정 - 항상 위쪽(더 작은 y값)에서 시작
+        noteY = Math.min(noteY, endY)
       }
 
       // 노트 타입에 따른 스타일 클래스
@@ -428,6 +721,7 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
   const renderLanes = () => {
     if (!gameAreaRef.current) return null
 
+    const gameHeight = gameAreaRef.current.clientHeight || 600
     const lanes = []
 
     for (let i = 0; i < laneCount; i++) {
@@ -440,7 +734,7 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
           style={{
             left: `${i * LANE_WIDTH}px`,
             width: `${LANE_WIDTH}px`,
-            height: `${GAME_HEIGHT}px`, // 전체 높이 적용
+            height: `${gameHeight}px`, // 동적 높이 적용
           }}
         />,
       )
@@ -453,7 +747,7 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
             className={styles.laneDivider}
             style={{
               left: `${(i + 1) * LANE_WIDTH - 1}px`,
-              height: `${GAME_HEIGHT}px`, // 전체 높이 적용
+              height: `${gameHeight}px`, // 동적 높이 적용
             }}
           />,
         )
@@ -467,6 +761,8 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
   const renderJudgement = () => {
     if (!currentJudgement || !gameAreaRef.current) return null
 
+    const gameHeight = gameAreaRef.current.clientHeight || 600
+    const judgementLineY = gameHeight * JUDGEMENT_LINE_POSITION
     const gameWidth = laneCount * LANE_WIDTH
 
     // 판정 표시에 따른 스타일 클래스
@@ -487,7 +783,7 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
         className={`${styles.judgementDisplay} ${judgementClass}`}
         style={{
           left: `${gameWidth / 2}px`,
-          top: `${JUDGEMENT_LINE_Y - 30}px`,
+          top: `${judgementLineY - 30}px`,
         }}
       >
         {currentJudgement.text}
@@ -518,6 +814,10 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
   // 노트 Y 좌표 계산 (시간 -> 픽셀) - 자연스러운 등장을 위한 개선
   const calculateNoteY = useCallback(
     (noteTime: number) => {
+      // 게임 영역 높이 동적 획득
+      const gameHeight = gameAreaRef.current ? gameAreaRef.current.clientHeight : 600
+      const judgementLineY = gameHeight * JUDGEMENT_LINE_POSITION
+
       const timeOffset = noteTime - currentTime
       const pixelOffset = timeOffset * (scrollSpeed / 1000)
 
@@ -528,7 +828,7 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
       }
 
       // 판정선 기준으로 위치 계산
-      return JUDGEMENT_LINE_Y - pixelOffset
+      return judgementLineY - pixelOffset
     },
     [currentTime, scrollSpeed, VISIBLE_NOTE_RANGE],
   )
@@ -544,7 +844,7 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
     >
       <div className={styles.mainGameArea}>
         {/* 왼쪽 패널 - 게임 정보 */}
-        <div className={styles.leftPanel}>
+        <div className={`${styles.leftPanel} tw:custom-scrollbar`}>
           <div className={styles.scorePanel}>
             <div className={styles.scorePanelHeader}>
               <Icon icon='material-symbols:scoreboard' className={styles.scoreIcon} />
@@ -630,7 +930,7 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
                     type='checkbox'
                     checked={judgementsEnabled}
                     onChange={() => {
-                      setJudgementsEnabled(!judgementsEnabled)
+                      setJudgementsEnabled((prev) => !prev)
                     }}
                   />
                   <span>판정 표시</span>
@@ -640,7 +940,7 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
                     type='checkbox'
                     checked={showGuide}
                     onChange={() => {
-                      setShowGuide(!showGuide)
+                      setShowGuide((prev) => !prev)
                     }}
                   />
                   <span>키 가이드 표시</span>
@@ -650,7 +950,7 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
                     type='checkbox'
                     checked={metronomeEnabled}
                     onChange={() => {
-                      setMetronomeEnabled(!metronomeEnabled)
+                      setMetronomeEnabled((prev) => !prev)
                     }}
                   />
                   <span>메트로놈</span>
@@ -660,7 +960,7 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
                     type='checkbox'
                     checked={hitSoundEnabled}
                     onChange={() => {
-                      setHitSoundEnabled(!hitSoundEnabled)
+                      setHitSoundEnabled((prev) => !prev)
                     }}
                   />
                   <span>타격음</span>
@@ -677,7 +977,6 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
             className={styles.gameArea}
             style={{
               width: `${laneCount * LANE_WIDTH}px`,
-              height: `${GAME_HEIGHT}px`, // 전체 높이 적용
             }}
           >
             {renderLanes()}
@@ -685,8 +984,7 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
             <div
               className={styles.judgementLine}
               style={{
-                top: `${JUDGEMENT_LINE_Y}px`,
-                width: `${laneCount * LANE_WIDTH}px`,
+                top: `${judgementLineY}px`,
               }}
             />
 
