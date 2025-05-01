@@ -20,6 +20,61 @@ RACLA는 **GGDRN0 STUDIO**에서 개발한 종합리듬 게임 성과 관리 도
 
 > 📢 **안내**: 0.7 버전대까지 사용된 Nextron 기반의 데스크톱 앱의 소스코드는 [RACLA-DEV/racla](https://github.com/RACLA-DEV/racla/tree/main-nextron)에서 확인하실 수 있습니다.
 
+## 📜 개발 일지
+
+> RACLA 0.8.0 Developer Note #2 - Track Maker / Pattern Editor Demo - 2025. 4. 29.
+
+<div align="center">
+  <a href="https://youtu.be/xX_rC5ixWaI?t=0s" target="_blank">
+    <img src="https://img.youtube.com/vi/xX_rC5ixWaI/0.jpg" alt="Developer Note" width="600">
+    <p>👆 이미지를 클릭하면 최근에 업로드된 개발 일지 영상으로 이동합니다</p>
+  </a>
+</div>
+
+### To-Do (Main Process)
+
+- [x] Auth Manager (V-ARCHIVE, Discord 로그인 및 연동 모듈)
+- [x] Discord Manager (Discord Rich Presence 모듈)
+- [x] File Manager (설정, 세션, 로그 파일 관리 모듈)
+- [x] Game Monitor (지원하는 게임 실행 상태를 주기적으로 확인하여 관련 서비스를 제공하는 통합 관리 모듈)
+- [x] Image Processor (성과 이미지 전처리 모듈)
+- [x] Logger (메인 프로세스, 렌더러 프로세스 로그 통합 모듈)
+- [x] Main Window (메인 윈도우 모듈)
+- [x] Message (메인 프로세스와 렌더러 프로세스간 메세지 교환을 확인하는 테스트 용도의 모듈)
+- [x] OCR Manager (Image Processor에서 처리된 성과 이미지의 결과창 여부를 판단하는 모듈)
+- [x] Overlay Window (오버레이 윈도우 모듈)
+- [x] Process Manager (사용자 환경에서 실행 중인 프로세스를 확인하는 모듈)
+- [x] Update Manager (앱 업데이트 관리 모듈)
+
+### To-Do (Renderer Process)
+
+- [x] 앱 초기화 로직 (Discord Manager, Overlway Window, Update Manager 호출, 수록곡 DB 업데이트, 자동 로그인 등등)
+- [x] 앱 레이아웃 (Header, Navigation Bar, Footer, Common Component, Etc...)
+- [x] 치트시트
+- [ ] 홈
+- [x] 로그인 및 제3자 서비스 연동 회원가입
+- [ ] 오버레이
+- [x] 트랙 메이커 (패턴 제작 및 공유, 연습 모드)
+- [ ] DMRV - V-ARCHIVE - 기록 등록
+- [ ] DMRV - V-ARCHIVE - 성과표
+- [ ] DMRV - V-ARCHIVE - MAX DJ POWER
+- [ ] DMRV - V-ARCHIVE - 데이터베이스
+- [ ] DMRV - V-ARCHIVE - 서열표
+- [ ] DMRV - 전일 아카이브 - 종합 랭킹
+- [ ] DMRV - 전일 아카이브 - 랭킹 데이터베이스
+- [ ] DMRV - 전일 아카이브 - 하드 판정 서열표
+- [ ] WJMAX - 기록 등록
+- [ ] WJMAX - 성과표
+- [ ] WJMAX - 데이터베이스
+- [ ] PLATiNA :: LAB - 기록 등록
+- [ ] PLATiNA :: LAB - 성과표
+- [ ] PLATiNA :: LAB - 데이터베이스
+- [ ] 설정 - 계정 (내 계정 정보, V-ARCHIVE, Discord 연동 상태 관리 등)
+- [x] 설정 - 일반 (기본적인 앱 설정)
+- [x] 설정 - 저장 공간 (설정, 성과 이미지, 로그 파일 관리)
+- [x] 설정 - 게임 자동 실행
+- [x] 설정 - 자동 캡처 모드 (0.7 대비 간소화)
+
 ## 🛠️ 개발 환경 설정
 
 ### 필수 요구사항
@@ -92,7 +147,7 @@ racla/
 
 ## 🔧 기술 스택
 
-- **프레임워크**: Electron 35, React 19, NestJS 11, DoubleShot
+- **프레임워크**: Electron 36, React 19, NestJS 11, DoubleShot
 - **상태 관리**: Redux Toolkit, Redux Persist
 - **스타일링**: TailwindCSS 4
 - **빌드 도구**: Vite 6, Electron Builder, DoubleShot Builder
