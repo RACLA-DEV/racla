@@ -47,6 +47,15 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
   const [currentJudgement, setCurrentJudgement] = useState<JudgementDisplay | null>(null)
   const [judgementsEnabled, setJudgementsEnabled] = useState<boolean>(true)
   const [showGuide, setShowGuide] = useState<boolean>(true)
+  const [metronomeEnabled, setMetronomeEnabled] = useState<boolean>(true)
+  const [hitSoundEnabled, setHitSoundEnabled] = useState<boolean>(true)
+  const [judgementCounts, setJudgementCounts] = useState<Record<string, number>>({
+    PERFECT: 0,
+    GREAT: 0,
+    GOOD: 0,
+    BAD: 0,
+    MISS: 0,
+  })
 
   const gameAreaRef = useRef<HTMLDivElement>(null)
   const animationRef = useRef<number | null>(null)
@@ -551,6 +560,28 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
                 <span>최대 콤보</span>
                 <span>{maxCombo}</span>
               </div>
+              <div className={styles.judgementStats}>
+                <div className={`${styles.judgementStat} ${styles.perfectColor}`}>
+                  <span>PERFECT</span>
+                  <span>{judgementCounts.PERFECT}</span>
+                </div>
+                <div className={`${styles.judgementStat} ${styles.greatColor}`}>
+                  <span>GREAT</span>
+                  <span>{judgementCounts.GREAT}</span>
+                </div>
+                <div className={`${styles.judgementStat} ${styles.goodColor}`}>
+                  <span>GOOD</span>
+                  <span>{judgementCounts.GOOD}</span>
+                </div>
+                <div className={`${styles.judgementStat} ${styles.badColor}`}>
+                  <span>BAD</span>
+                  <span>{judgementCounts.BAD}</span>
+                </div>
+                <div className={`${styles.judgementStat} ${styles.missColor}`}>
+                  <span>MISS</span>
+                  <span>{judgementCounts.MISS}</span>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -613,6 +644,26 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
                     }}
                   />
                   <span>키 가이드 표시</span>
+                </label>
+                <label className={styles.optionCheckbox}>
+                  <input
+                    type='checkbox'
+                    checked={metronomeEnabled}
+                    onChange={() => {
+                      setMetronomeEnabled(!metronomeEnabled)
+                    }}
+                  />
+                  <span>메트로놈</span>
+                </label>
+                <label className={styles.optionCheckbox}>
+                  <input
+                    type='checkbox'
+                    checked={hitSoundEnabled}
+                    onChange={() => {
+                      setHitSoundEnabled(!hitSoundEnabled)
+                    }}
+                  />
+                  <span>타격음</span>
                 </label>
               </div>
             )}
