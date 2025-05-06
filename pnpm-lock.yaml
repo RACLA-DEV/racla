@@ -5,7 +5,7 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
-  node-abi: 4.5.0
+  node-abi: 4.8.0
 
 importers:
 
@@ -81,8 +81,8 @@ importers:
         specifier: ^1.10.2
         version: 1.10.2(@nestjs/common@11.1.0(reflect-metadata@0.2.2)(rxjs@7.8.2))(winston@3.17.0)
       node-abi:
-        specifier: 4.5.0
-        version: 4.5.0
+        specifier: 4.8.0
+        version: 4.8.0
       node-screenshots:
         specifier: ^0.2.1
         version: 0.2.1
@@ -3050,8 +3050,8 @@ packages:
       '@nestjs/common': ^5.0.0 || ^6.6.0 || ^7.0.0 || ^8.0.0 || ^9.0.0 || ^10.0.0 || ^11.0.0
       winston: ^3.0.0
 
-  node-abi@4.5.0:
-    resolution: {integrity: sha512-bjO1R1ylXYB1oC0RTm5yy+8yBjlIfhYK1Un44tyMQkVETrrg68TIw4yKP4wzpi9UxIZ2pXzp2pixo/kqoXfjGw==}
+  node-abi@4.8.0:
+    resolution: {integrity: sha512-+P1Mf1XNURT+wN9UK8cjtHSwmmG02iAsX0JaYDDdXgMUe5eybde3AKpGGxOrkDmPkuonYJ6WjIRrNVQe0kjmFg==}
     engines: {node: '>=22.12.0'}
 
   node-addon-api@1.7.2:
@@ -4541,7 +4541,7 @@ snapshots:
       detect-libc: 2.0.4
       fs-extra: 10.1.0
       got: 11.8.6
-      node-abi: 4.5.0
+      node-abi: 4.8.0
       node-api-version: 0.2.0
       ora: 5.4.1
       read-binary-file-arch: 1.0.6
@@ -4560,7 +4560,7 @@ snapshots:
       detect-libc: 2.0.4
       got: 11.8.6
       graceful-fs: 4.2.11
-      node-abi: 4.5.0
+      node-abi: 4.8.0
       node-api-version: 0.2.1
       node-gyp: 11.2.0
       ora: 5.4.1
@@ -7183,7 +7183,7 @@ snapshots:
       fast-safe-stringify: 2.1.1
       winston: 3.17.0
 
-  node-abi@4.5.0:
+  node-abi@4.8.0:
     dependencies:
       semver: 7.7.1
 
