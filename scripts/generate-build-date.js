@@ -1,5 +1,5 @@
-import dayjs from 'dayjs'
-import fs from 'fs'
+const dayjs = require('dayjs')
+const fs = require('fs')
 
 const buildTime = dayjs().format('YYYYMMDDHHmm')
 
