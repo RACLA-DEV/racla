@@ -86,10 +86,10 @@ export default function LoginPage() {
                 vArchiveUserNo?: number
                 vArchiveUserToken?: string
                 vArchiveUserName?: string | { success: boolean; nickname: string }
-              }>(
-                `${import.meta.env.VITE_API_URL || 'http://localhost:3000/api'}/v2/racla/user/login/oauth/vArchive`,
-                { userNo, userToken: token },
-              )
+              }>(`/v2/racla/user/login/oauth/vArchive`, {
+                userNo,
+                userToken: token,
+              })
 
               if (response.status === 200) {
                 const success = await login({

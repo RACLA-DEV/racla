@@ -2,6 +2,7 @@ import { globalDictionary } from '@render/constants/globalDictionary'
 import { useAuth } from '@render/hooks/useAuth'
 import { setOverlayMode } from '@render/store/slices/uiSlice'
 import { GameType } from '@src/types/games/GameType'
+import { SongData } from '@src/types/games/SongData'
 import React, { lazy, Suspense, useCallback, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Outlet, useLocation } from 'react-router-dom'
@@ -224,7 +225,6 @@ export default function WrappedApp() {
   // 곡 데이터 로드 함수
   const loadSongDataFromAPI = useCallback(async (gameCode: GameType, showNotifications = false) => {
     try {
-      const apiUrl = import.meta.env.VITE_API_URL
       let endpoint = ''
 
       switch (gameCode) {
@@ -241,8 +241,8 @@ export default function WrappedApp() {
           return null
       }
 
-      const response = await fetch(`${apiUrl}${endpoint}`)
-      if (!response.ok) {
+      const response = await apiClient.get<SongData[]>(endpoint)
+      if (response.status !== 200) {
         throw new Error(
           settingData.language === 'ko_KR'
             ? `API 요청 실패: ${response.status}`
@@ -250,7 +250,7 @@ export default function WrappedApp() {
         )
       }
 
-      const data = await response.json()
+      const data = response.data
 
       // 곡 데이터 저장 (Redux 및 로컬)
       dispatch(setSongData({ data, gameCode }))

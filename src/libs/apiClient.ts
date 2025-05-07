@@ -1,15 +1,17 @@
 import type { ProxyRequest } from '@src/types/dto/proxy/ProxyRequest'
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
-import packageJson from '../../package.json'
 
 class ProxyClient {
   private client: AxiosInstance
 
-  constructor(baseURL: string = 'https://api.racla.app/api') {
+  constructor(
+    baseURL: string = process.env.NODE_ENV === 'development'
+      ? 'https://dev.api.racla.app/api'
+      : 'https://api.racla.app/api',
+  ) {
     this.client = axios.create({
       baseURL,
       headers: {
-        'User-Agent': `racla-electron-app/${packageJson.version}`,
         'Content-Type': 'application/json',
       },
       withCredentials: true,
