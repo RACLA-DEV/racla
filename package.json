@@ -34,7 +34,7 @@
     "dotenv": "^16.5.0",
     "electron-builder-squirrel-windows": "^26.0.15",
     "electron-updater": "^6.6.2",
-    "esbuild": "0.25.3",
+    "esbuild": "0.25.4",
     "framer-motion": "^12.10.0",
     "fs-extra": "^11.3.0",
     "get-windows": "^9.2.0",
