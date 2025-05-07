@@ -25,11 +25,7 @@ const Footer: React.FC = () => {
     // 서버 상태 확인 함수
     const checkServerStatusResponse = async () => {
       try {
-        createLog(
-          'info',
-          'Checking server status...',
-          `${import.meta.env.VITE_API_URL}/v2/racla/ping`,
-        ) // 디버깅용 로그
+        createLog('info', 'Checking server status...', `/v2/racla/ping`) // 디버깅용 로그
         const response = await apiClient.get<ServerStatusResponse>(`/v2/racla/ping`, {
           timeout: 5000, // 5초 타임아웃 설정
         })
