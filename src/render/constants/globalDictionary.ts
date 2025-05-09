@@ -379,6 +379,7 @@ export const globalDictionary = {
       name: 'DJMAX RESPECT V',
       keyModeList: [4, 5, 6, 8],
       levelList: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
+      jacketsUrl: '/djmax_respect_v/jackets',
       difficulty: {
         NM: {
           name: 'djmax_respect_v.difficulty.NM.name',
@@ -440,6 +441,7 @@ export const globalDictionary = {
     },
     wjmax: {
       name: 'WJMAX',
+      jacketsUrl: '/wjmax/resources/jackets',
       keyModeList: ['4', '4P', '6', '6P'],
       levelList: [
         1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25,
@@ -471,6 +473,7 @@ export const globalDictionary = {
     },
     platina_lab: {
       name: 'PLATiNA :: LAB',
+      jacketsUrl: '/platina_lab/jackets/resized',
       keyModeList: [4, 5, 6, 8],
       levelList: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
       difficulty: {

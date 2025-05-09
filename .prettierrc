@@ -1,25 +1,25 @@
 {
-    "useTabs": false,
-    "plugins": [
-        "prettier-plugin-organize-imports",
-        "prettier-plugin-tailwindcss",
-        "prettier-plugin-style-order",
-        "prettier-plugin-css-order"
-    ],
-    "semi": false,
-    "tabWidth": 2,
-    "printWidth": 100,
-    "singleQuote": true,
-    "trailingComma": "all",
-    "jsxSingleQuote": true,
-    "bracketSpacing": true,
-    "importOrderBuiltinModules": true,
-    "importOrder": [
-        "^(react/(.*)$)|^(react$)",
-        "^(next/(.*)$)|^(next$)",
-        "<THIRD_PARTY_MODULES>",
-        "^(?!.*[.]css$)[./].*$"
-    ],
-    "importOrderParserPlugins": ["typescript", "jsx", "decorators-legacy"],
-    "importOrderTypeScriptVersion": "5.0.0"
+  "useTabs": false,
+  "plugins": [
+    "prettier-plugin-organize-imports",
+    "prettier-plugin-tailwindcss",
+    "prettier-plugin-style-order",
+    "prettier-plugin-css-order"
+  ],
+  "semi": false,
+  "tabWidth": 2,
+  "printWidth": 100,
+  "singleQuote": true,
+  "trailingComma": "all",
+  "jsxSingleQuote": true,
+  "bracketSpacing": true,
+  "importOrderBuiltinModules": true,
+  "importOrder": [
+    "^(react/(.*)$)|^(react$)",
+    "^(next/(.*)$)|^(next$)",
+    "<THIRD_PARTY_MODULES>",
+    "^(?!.*[.]css$)[./].*$"
+  ],
+  "importOrderParserPlugins": ["typescript", "jsx", "decorators-legacy"],
+  "importOrderTypeScriptVersion": "5.0.0"
 }

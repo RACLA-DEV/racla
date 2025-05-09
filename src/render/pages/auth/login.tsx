@@ -61,7 +61,7 @@ export default function LoginPage() {
             const token = text.split(' ')[1]
 
             const response = await apiClient.post<SessionData>(
-              `/v3/racla/player/login/oauth/v-archive`,
+              `/v3/racla/player/login/oauth/vArchive`,
               {
                 externalServiceUserNo: userNo,
                 externalServiceUserToken: token,

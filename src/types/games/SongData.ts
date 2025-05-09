@@ -1,4 +1,4 @@
-export interface PatternDifficulty {
+export interface PatternInfo {
   patternName?: {
     ko: string
     en: string
@@ -9,13 +9,14 @@ export interface PatternDifficulty {
   patterner?: string | null
   version?: string | null
   score?: string | null
-  maxCombo?: number | null
+  maxCombo?: boolean | null
   maxScore?: number | null
   combo?: number | null
   patternFileName?: string | null
+  max?: number | null
 }
 
-export type PatternSet = Record<string, PatternDifficulty>
+export type PatternSet = Record<string, PatternInfo>
 
 export type KeyPatterns = Record<string, PatternSet>
 
