@@ -5,6 +5,7 @@ import type { GameType } from '@src/types/games/GameType'
 import { SongData } from '@src/types/games/SongData'
 import type { Notification } from '@src/types/notifications/Notification'
 import type { AppState } from '@src/types/redux/AppState'
+import { SessionData } from '@src/types/sessions/SessionData'
 import { SettingsData } from '@src/types/settings/SettingData'
 
 const initialState: AppState = {
@@ -14,18 +15,22 @@ const initialState: AppState = {
   isLoading: true,
   settingData: {} as SettingsData,
   userData: {
-    userName: '',
-    userNo: '',
-    userToken: '',
-    randomTitle: Math.floor(Math.random() * 652 + 1).toString(),
-    discordUid: '',
-    discordLinked: false,
-    vArchiveLinked: false,
-  },
-  vArchiveUserData: {
-    userName: '',
-    userNo: '',
-    userToken: '',
+    playerId: 0,
+    playerToken: '',
+    playerName: '',
+    playerNickname: '',
+    isSetupPassword: false,
+    profileImageUrl: '',
+    vArchiveUserInfo: {
+      isLinked: false,
+      userNo: 0,
+      token: '',
+      nickname: '',
+    },
+    discordUserInfo: {
+      isLinked: false,
+      uid: '',
+    },
   },
   isDetectedGame: false,
   isUploading: false,
@@ -109,19 +114,9 @@ export const appSlice = createSlice({
     setSettingData: (state, action: PayloadAction<SettingsData>) => {
       state.settingData = action.payload
     },
-    setUserData: (
-      state,
-      action: PayloadAction<{
-        userName?: string
-        userNo?: string
-        userToken?: string
-        discordUid?: string
-        discordLinked?: boolean
-        vArchiveLinked?: boolean
-      }>,
-    ) => {
+    setUserData: (state, action: PayloadAction<SessionData>) => {
       state.userData = { ...state.userData, ...action.payload }
-      if (state.userData.userNo && state.userData.userToken) {
+      if (state.userData.playerId && state.userData.playerToken) {
         state.isLoggedIn = true
       }
     },
@@ -130,12 +125,6 @@ export const appSlice = createSlice({
     },
     setIsMiniMode: (state, action: PayloadAction<boolean>) => {
       state.isMiniMode = action.payload
-    },
-    setVArchiveUserData: (
-      state,
-      action: PayloadAction<{ userName?: string; userNo?: string; userToken?: string }>,
-    ) => {
-      state.vArchiveUserData = { ...state.vArchiveUserData, ...action.payload }
     },
     setPlatform: (state, action: PayloadAction<string>) => {
       state.platform = action.payload
@@ -157,18 +146,22 @@ export const appSlice = createSlice({
     },
     logout: (state) => {
       state.userData = {
-        userName: '',
-        userNo: '',
-        userToken: '',
-        randomTitle: Math.floor(Math.random() * 652 + 1).toString(),
-        discordUid: '',
-        discordLinked: false,
-        vArchiveLinked: false,
-      }
-      state.vArchiveUserData = {
-        userName: '',
-        userNo: '',
-        userToken: '',
+        playerId: 0,
+        playerToken: '',
+        playerName: '',
+        playerNickname: '',
+        isSetupPassword: false,
+        profileImageUrl: '',
+        vArchiveUserInfo: {
+          isLinked: false,
+          userNo: 0,
+          token: '',
+          nickname: '',
+        },
+        discordUserInfo: {
+          isLinked: false,
+          uid: '',
+        },
       }
       state.isLoggedIn = false
     },
@@ -242,7 +235,6 @@ export const {
   setUserData,
   setIsUploading,
   setIsMiniMode,
-  setVArchiveUserData,
   setPlatform,
   setIsLoggedIn,
   setIsLoading,

@@ -16,11 +16,7 @@ const AppLayout: React.FC<ChildrenReactNodeProps> = ({ children }) => {
   const { font } = useSelector((state: RootState) => state.app.settingData)
   return (
     <div
-      className={`tw:flex tw:flex-col tw:h-screen ${font != 'default' ? 'tw:font-medium' : ''} ${
-        theme === 'dark'
-          ? 'tw:bg-gradient-to-br tw:from-slate-900/95 tw:via-slate-900/95 tw:to-slate-900'
-          : 'tw:bg-gradient-to-br tw:from-indigo-50 tw:via-white/90 tw:to-white/40'
-      }`}
+      className={`tw:flex tw:flex-col tw:h-screen tw:dark:bg-gradient-to-br tw:dark:from-slate-900/95 tw:dark:via-slate-900/95 tw:dark:to-slate-900 tw:bg-gradient-to-br tw:from-indigo-50 tw:via-white/90 tw:to-white/40 ${font != 'default' ? 'tw:font-medium' : ''}`}
     >
       {/* 커스텀 타이틀바 */}
       <Suspense fallback={<div className='tw:h-10' />}>
@@ -37,11 +33,7 @@ const AppLayout: React.FC<ChildrenReactNodeProps> = ({ children }) => {
 
         {/* 내부 콘텐츠 컨테이너 - 둥근 모서리 적용 */}
         <div
-          className={`tw:flex tw:flex-1 tw:overflow-hidden tw:rounded-tl-xl tw:rounded-bl-xl tw:ml-0 tw:border-t tw:border-l tw:border-b tw:relative tw:mb-8 ${
-            theme === 'dark'
-              ? 'tw:bg-slate-800 tw:border-slate-700/40 tw:backdrop-blur-sm'
-              : 'tw:bg-white tw:border-indigo-100/40 tw:backdrop-blur-sm'
-          }`}
+          className={`tw:flex tw:flex-1 tw:overflow-hidden tw:rounded-tl-xl tw:rounded-bl-xl tw:ml-0 tw:border-t tw:dark:bg-slate-800 tw:dark:border-slate-700/40 tw:bg-white tw:border-indigo-100/40 tw:backdrop-blur-sm tw:dark:backdrop-blur-sm tw:border-l tw:border-b tw:relative tw:mb-8`}
         >
           {/* 메뉴 사이드바 */}
           <Suspense fallback={<div className='tw:w-64' />}>

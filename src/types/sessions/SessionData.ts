@@ -1,11 +1,13 @@
+import { DiscordUserInfo } from './DiscordUserInfo'
+import { VArchiveUserInfo } from './VArchiveUserInfo'
+
 export interface SessionData {
-  userNo?: string
-  userToken?: string
-  userName?: string
-  vArchiveUserNo?: number
-  vArchiveUserToken?: string
-  vArchiveUserName?: string | { success: boolean; nickname: string }
-  discordUid?: string
-  discordLinked?: boolean
-  vArchiveLinked?: boolean
+  playerId: number
+  playerToken: string
+  playerName: string
+  playerNickname?: string
+  isSetupPassword: boolean
+  profileImageUrl?: string
+  vArchiveUserInfo?: VArchiveUserInfo
+  discordUserInfo?: DiscordUserInfo
 }

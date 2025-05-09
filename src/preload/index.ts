@@ -60,7 +60,7 @@ contextBridge.exposeInMainWorld('electron', {
   logout: () => ipcRenderer.invoke('auth-manager:logout'),
   checkLoggedIn: () => ipcRenderer.invoke('auth-manager:check-logged-in'),
   getSession: () => ipcRenderer.invoke('auth-manager:get-session'),
-  createPlayerFile: (data: { userNo: string; userToken: string }) =>
+  createPlayerFile: (data: { playerId: number; playerToken: string }) =>
     ipcRenderer.invoke('auth-manager:create-player-file', data),
   openDiscordLogin: () => ipcRenderer.invoke('auth-manager:open-discord-login'),
   openBrowser: (url: string) => ipcRenderer.invoke('auth-manager:open-browser', url),

@@ -1,6 +1,6 @@
 import { IpcHandle } from '@doubleshot/nest-electron'
 import { Controller, Logger } from '@nestjs/common'
-import type { SessionData } from '@src/types/sessions/SessionData'
+import type { LocalSessionData } from '@src/types/sessions/LocalSessionData'
 import { AuthManagerService } from './auth-manager.service'
 
 @Controller()
@@ -10,9 +10,9 @@ export class AuthManagerController {
   constructor(private readonly authManagerService: AuthManagerService) {}
 
   @IpcHandle('auth-manager:login')
-  async login(sessionData: SessionData): Promise<boolean> {
+  async login(sessionData: LocalSessionData): Promise<boolean> {
     try {
-      this.logger.log(`User login attempt: ${sessionData.userNo}`)
+      this.logger.log(`User login attempt: ${sessionData.playerId}`)
       return await this.authManagerService.login(sessionData)
     } catch (error) {
       this.logger.error(`Login error: ${error.message}`, error.stack)
@@ -42,7 +42,7 @@ export class AuthManagerController {
   }
 
   @IpcHandle('auth-manager:get-session')
-  async getSession(): Promise<SessionData> {
+  async getSession(): Promise<LocalSessionData> {
     try {
       return await this.authManagerService.getSession()
     } catch (error) {
@@ -52,7 +52,7 @@ export class AuthManagerController {
   }
 
   @IpcHandle('auth-manager:create-player-file')
-  createPlayerFile(data: { userNo: string; userToken: string }): boolean {
+  createPlayerFile(data: { playerId: number; playerToken: string }): boolean {
     try {
       return this.authManagerService.createPlayerFile(data)
     } catch (error) {

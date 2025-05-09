@@ -115,7 +115,7 @@ const ToggleSwitch = ({
     <div
       className={`tw:relative tw:w-10 tw:h-5 tw:rounded-full tw:transition-all tw:duration-300 tw:cursor-pointer ${
         disabled ? 'tw:opacity-50 tw:cursor-not-allowed' : ''
-      } ${value ? 'tw:bg-indigo-600' : theme === 'dark' ? 'tw:bg-slate-700' : 'tw:bg-gray-300'}`}
+      } ${value ? 'tw:bg-indigo-600' : 'tw:dark:bg-slate-700 tw:bg-gray-300'}`}
       onClick={() => {
         !disabled && onChange(!value)
       }}
@@ -148,7 +148,10 @@ const FileSelector = ({
     return {
       title: language === 'ko_KR' ? '파일 선택' : 'Select File',
       filters: [
-        { name: language === 'ko_KR' ? '실행 파일' : 'Executable File', extensions: ['exe'] },
+        {
+          name: language === 'ko_KR' ? '실행 파일' : 'Executable File',
+          extensions: ['exe'],
+        },
         { name: language === 'ko_KR' ? '모든 파일' : 'All Files', extensions: ['*'] },
       ],
     }
@@ -195,11 +198,7 @@ const FileSelector = ({
         type='text'
         value={value}
         readOnly
-        className={`tw:p-2 tw:text-sm tw:rounded-lg tw:flex-1 tw:border ${
-          theme === 'dark'
-            ? 'tw:bg-slate-700 tw:text-white tw:border-slate-600'
-            : 'tw:bg-white tw:text-gray-800 tw:border-gray-300'
-        }`}
+        className={`tw:p-2 tw:text-sm tw:rounded-lg tw:flex-1 tw:border tw:dark:bg-slate-700 tw:dark:text-white tw:dark:border-slate-600 tw:bg-white tw:text-gray-800 tw:border-gray-300`}
       />
       <input ref={fileInputRef} type='file' onChange={handleFileChange} className='tw:hidden' />
       <button
@@ -207,7 +206,7 @@ const FileSelector = ({
           void handleSelectFile()
         }}
         disabled={disabled}
-        className={`tw:p-2 tw:rounded-lg tw:transition-colors tw:bg-indigo-600 hover:tw:bg-indigo-700 tw:text-white ${disabled ? 'tw:opacity-50 tw:cursor-not-allowed' : ''}`}
+        className={`tw:p-2 tw:rounded-lg tw:transition-colors tw:bg-indigo-600 tw:hover:bg-indigo-700 tw:text-white ${disabled ? 'tw:opacity-50 tw:cursor-not-allowed' : ''}`}
       >
         <Icon icon='lucide:folder' className='tw:w-4 tw:h-4' />
       </button>
@@ -239,11 +238,9 @@ const SelectBox = ({
         onChange(e.target.value)
       }}
       disabled={disabled}
-      className={`tw:p-2 tw:min-w-[180px] tw:text-sm tw:rounded-lg tw:transition-colors tw:border ${
-        theme === 'dark'
-          ? 'tw:bg-slate-700 tw:text-white tw:border-slate-600'
-          : 'tw:bg-white tw:text-gray-800 tw:border-gray-300'
-      } ${disabled ? 'tw:opacity-50 tw:cursor-not-allowed' : ''}`}
+      className={`tw:p-2 tw:min-w-[180px] tw:text-sm tw:rounded-lg tw:transition-colors tw:border tw:dark:bg-slate-700 tw:dark:text-white tw:dark:border-slate-600 tw:bg-white tw:text-gray-800 tw:border-gray-300 ${
+        disabled ? 'tw:opacity-50 tw:cursor-not-allowed' : ''
+      }`}
     >
       {options
         .filter((option) => option.id)
@@ -277,9 +274,7 @@ const FolderItem = ({
   children?: React.ReactNode
 }) => (
   <div
-    className={`tw:px-4 tw:pt-3 tw:pb-4 tw:rounded-lg tw:border ${
-      theme === 'dark' ? 'tw:bg-slate-700 tw:border-slate-600' : 'tw:bg-white tw:border-gray-200'
-    }`}
+    className={`tw:px-4 tw:pt-3 tw:pb-4 tw:rounded-lg tw:border tw:dark:bg-slate-700 tw:dark:border-slate-600 tw:bg-white tw:border-gray-200`}
   >
     <div className='tw:flex tw:justify-between tw:items-center'>
       <h1 className='tw:text-sm'>{title}</h1>
@@ -289,11 +284,7 @@ const FolderItem = ({
           onClick={() => {
             void openFolder(folderType)
           }}
-          className={`tw:p-2 tw:rounded-lg tw:cursor-pointer ${
-            theme === 'dark'
-              ? 'hover:tw:text-slate-600 tw:text-indigo-400'
-              : 'hover:tw:text-gray-100 tw:text-indigo-600'
-          }`}
+          className={`tw:p-2 tw:rounded-lg tw:cursor-pointer tw:dark:tw:hover:text-slate-600 tw:text-indigo-400`}
         >
           <Icon icon='lucide:folder-open' className='tw:w-4 tw:h-4' />
         </button>
@@ -450,17 +441,11 @@ const StorageInfo = ({ theme }: { theme: string }) => {
               openFolder={openFolder}
             >
               <div
-                className={`tw:mt-3 tw:pt-3 tw:flex tw:justify-between tw:items-center tw:border-t ${
-                  theme === 'dark' ? 'tw:border-slate-600' : 'tw:border-gray-200'
-                }`}
+                className={`tw:mt-3 tw:pt-3 tw:flex tw:justify-between tw:items-center tw:border-t tw:dark:border-slate-600 tw:border-gray-200`}
               >
                 <div>
                   <h1 className='tw:text-sm'>{t('autoDeleteCapturedImages.name')}</h1>
-                  <p
-                    className={`tw:text-xs tw:mt-1 ${
-                      theme === 'dark' ? 'tw:text-slate-400' : 'tw:text-gray-600'
-                    }`}
-                  >
+                  <p className='tw:text-xs tw:mt-1 tw:dark:text-slate-400 tw:text-gray-600'>
                     {t('autoDeleteCapturedImages.description')}
                   </p>
                 </div>
@@ -469,11 +454,7 @@ const StorageInfo = ({ theme }: { theme: string }) => {
                   onChange={(e) => {
                     handleAutoDeleteChange(Number(e.target.value))
                   }}
-                  className={`tw:p-2 tw:min-w-[120px] tw:text-sm tw:rounded-lg tw:transition-colors tw:border ${
-                    theme === 'dark'
-                      ? 'tw:bg-slate-700 tw:text-white tw:border-slate-600'
-                      : 'tw:bg-white tw:text-gray-800 tw:border-gray-300'
-                  }`}
+                  className={`tw:p-2 tw:min-w-[120px] tw:text-sm tw:rounded-lg tw:transition-colors tw:border tw:dark:bg-slate-700 tw:dark:text-white tw:dark:border-slate-600 tw:bg-white tw:text-gray-800 tw:border-gray-300`}
                 >
                   <option value={0}>{t('autoDeleteCapturedImages.0')}</option>
                   <option value={7}>{t('autoDeleteCapturedImages.7')}</option>
@@ -499,11 +480,7 @@ const StorageInfo = ({ theme }: { theme: string }) => {
                     void clearAllLogs()
                   }}
                   disabled={isCleaningLogs || storageInfo.logDataSize === 0}
-                  className={`tw:px-2 tw:py-1 tw:text-xs tw:rounded tw:transition-colors tw:flex tw:items-center tw:gap-1 ${
-                    theme === 'dark'
-                      ? 'tw:bg-red-700 hover:tw:bg-red-800 tw:text-white'
-                      : 'tw:bg-red-600 hover:tw:bg-red-700 tw:text-white'
-                  } ${isCleaningLogs || storageInfo.logDataSize === 0 ? 'tw:opacity-50 tw:cursor-not-allowed' : ''}`}
+                  className={`tw:px-2 tw:py-1 tw:text-xs tw:rounded tw:transition-colors tw:flex tw:items-center tw:gap-1 tw:dark:bg-red-700 tw:dark:hover:bg-red-800 tw:bg-red-600 tw:hover:bg-red-700 tw:text-white ${isCleaningLogs || storageInfo.logDataSize === 0 ? 'tw:opacity-50 tw:cursor-not-allowed' : ''}`}
                 >
                   {isCleaningLogs ? (
                     <>
@@ -633,14 +610,10 @@ export default function SettingModal() {
 
       {/* 모달 내용 */}
       <div
-        className={`tw:relative tw:rounded-xl tw:shadow-2xl tw:w-full tw:max-w-4xl tw:max-h-[90vh] tw:flex tw:flex-col tw:transition-all tw:duration-300 ${
-          theme === 'dark' ? 'tw:bg-slate-800 tw:text-slate-200' : 'tw:bg-white tw:text-gray-800'
-        } ${isSetting ? 'tw:translate-y-0 tw:opacity-100' : 'tw:translate-y-4 tw:opacity-0'}`}
+        className={`tw:relative tw:rounded-xl tw:shadow-2xl tw:w-full tw:max-w-4xl tw:max-h-[90vh] tw:flex tw:flex-col tw:transition-all tw:duration-300 tw:dark:bg-slate-800 tw:text-slate-200' : 'tw:bg-white tw:text-gray-800' } ${isSetting ? 'tw:translate-y-0 tw:opacity-100' : 'tw:translate-y-4 tw:opacity-0'}`}
       >
         {/* 모달 헤더 */}
-        <div
-          className={`tw:py-3 tw:px-5 tw:border-b ${theme === 'dark' ? 'tw:border-slate-700' : 'tw:border-gray-200'}`}
-        >
+        <div className={`tw:py-3 tw:px-5 tw:border-b tw:dark:border-slate-700 tw:border-gray-200`}>
           <div className='tw:flex tw:justify-between tw:items-center'>
             <div className='tw:flex tw:items-center tw:gap-2'>
               <Icon icon='lucide:settings' className='tw:w-5 tw:h-5' />
@@ -648,9 +621,7 @@ export default function SettingModal() {
             </div>
             <button
               onClick={closeModal}
-              className={`tw:p-2 tw:rounded-full tw:transition-colors ${
-                theme === 'dark' ? 'hover:tw:bg-slate-700' : 'hover:tw:bg-gray-200'
-              }`}
+              className={`tw:p-2 tw:rounded-full tw:transition-colors tw:dark:hover:bg-slate-700 tw:hover:bg-gray-200`}
             >
               <Icon icon='lucide:x' className='tw:w-5 tw:h-5' />
             </button>
@@ -661,9 +632,7 @@ export default function SettingModal() {
         <div className='tw:flex tw:flex-1 tw:overflow-hidden'>
           {/* 사이드바 - 카테고리 탭 */}
           <div
-            className={`tw:w-48 tw:p-5 tw:border-r tw:flex tw:flex-col tw:gap-3 ${
-              theme === 'dark' ? 'tw:border-slate-700' : 'tw:border-gray-200'
-            }`}
+            className={`tw:w-48 tw:p-5 tw:border-r tw:flex tw:flex-col tw:gap-3 tw:dark:border-slate-700 tw:border-gray-200`}
           >
             {Object.entries(settingCategories).map(([key, category]) => (
               <span
@@ -673,12 +642,8 @@ export default function SettingModal() {
                 }}
                 className={`tw:flex tw:items-center tw:cursor-pointer tw:gap-3 tw:px-4 tw:py-3 tw:rounded-lg tw:transition-colors tw:text-left ${
                   activeCategory === key
-                    ? theme === 'dark'
-                      ? 'tw:bg-slate-700 tw:text-white'
-                      : 'tw:bg-indigo-100 tw:text-indigo-800'
-                    : theme === 'dark'
-                      ? 'hover:tw:bg-slate-700 tw:text-slate-300'
-                      : 'hover:tw:bg-gray-100 tw:text-gray-700'
+                    ? 'tw:dark:bg-slate-700 tw:dark:text-white tw:bg-indigo-100 tw:text-indigo-800'
+                    : 'tw:dark:hover:bg-slate-700 tw:dark:text-slate-300 tw:hover:bg-gray-100 tw:text-gray-700'
                 }`}
               >
                 <span className='tw:text-sm'>{t(category.id)}</span>
@@ -701,15 +666,13 @@ export default function SettingModal() {
                           .length - 1
                           ? 'tw:border-b tw:mb-8'
                           : ''
-                      } ${theme === 'dark' ? 'tw:border-slate-700' : 'tw:border-gray-200'}`}
+                      } tw:dark:border-slate-700 tw:border-gray-200`}
                     >
                       <div className='tw:flex tw:justify-between tw:items-center tw:gap-8'>
                         <div className='tw:flex-1'>
                           <h3 className='tw:text-sm tw:mb-2'>{t(`${setting.id}.name`)}</h3>
                           <p
-                            className={`tw:text-sm tw:mb-2 ${
-                              theme === 'dark' ? 'tw:text-slate-400' : 'tw:text-gray-600'
-                            }`}
+                            className={`tw:text-sm tw:mb-2 tw:dark:text-slate-400 tw:text-gray-600`}
                           >
                             {t(`${setting.id}.description`)}
                           </p>
@@ -763,7 +726,7 @@ export default function SettingModal() {
                 {/* 앱 재시작 버튼 (일반 카테고리일 때만 표시) */}
                 {activeCategory === 'general' && (
                   <div
-                    className={`tw:pt-4 tw:border-t ${theme === 'dark' ? 'tw:border-slate-700' : 'tw:border-gray-200'}`}
+                    className={`tw:pt-4 tw:border-t tw:dark:border-slate-700 tw:border-gray-200`}
                   >
                     <div className='tw:flex tw:flex-col tw:gap-4'>
                       <button

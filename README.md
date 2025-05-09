@@ -30,8 +30,8 @@ RACLA는 **GGDRN0 STUDIO**에서 개발한 종합리듬 게임 성과 관리 도
 
 ### API URL 설정
 
-API URL은 소스 코드에 직접 설정되어 있으며, 개발 환경에서는 `https://dev.api.racla.app`, 운영 환경에서는 `https://api.racla.app`을 사용합니다.
-개발 환경의 API URL은 접근 제어되어 있으므로 해당 URL을 접근하기 위해서는 별도로 사용 권한을 요청하셔야 합니다.
+API URL은 소스 코드에 직접 설정되어 있으며, 개발 환경에서는 `https://dev.api.racla.app`, 운영 환경에서는 `https://api.racla.app`을 사용합니다.  
+개발 환경의 API URL은 접근 제어되어 있으므로 해당 URL을 접근하기 위해서는 별도로 사용 권한을 요청하셔야 합니다.  
 API URL 설정에 관한 자세한 내용은 `src/libs/apiClient.ts` 파일을 참고해주세요.
 
 ### 환경 변수 설정

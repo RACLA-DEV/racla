@@ -1,3 +1,4 @@
+import { ApiResponse } from '@src/types/dto/common/ApiResponse'
 import type { ProxyRequest } from '@src/types/dto/proxy/ProxyRequest'
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
 
@@ -24,8 +25,8 @@ class ProxyClient {
    * @param config Axios 요청 설정
    * @returns axios 응답 객체를 포함한 Promise
    */
-  async get<T>(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> {
-    return await this.client.get<T>(url, config)
+  async get<T>(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse<ApiResponse<T>>> {
+    return await this.client.get<ApiResponse<T>>(url, config)
   }
 
   /**
@@ -35,12 +36,16 @@ class ProxyClient {
    * @param config Axios 요청 설정
    * @returns axios 응답 객체를 포함한 Promise
    */
-  async post<T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> {
+  async post<T>(
+    url: string,
+    data?: any,
+    config?: AxiosRequestConfig,
+  ): Promise<AxiosResponse<ApiResponse<T>>> {
     const requestConfig: AxiosRequestConfig = {
       ...config,
       withCredentials: true,
     }
-    return await this.client.post<T>(url, data, requestConfig)
+    return await this.client.post<ApiResponse<T>>(url, data, requestConfig)
   }
 
   /**
@@ -54,7 +59,7 @@ class ProxyClient {
     url: string,
     params: Record<string, any> = {},
     headers: Record<string, string> = {},
-  ): Promise<AxiosResponse<T>> {
+  ): Promise<AxiosResponse<ApiResponse<T>>> {
     const request: ProxyRequest = {
       url,
       method: 'GET',
@@ -63,7 +68,7 @@ class ProxyClient {
       headers,
     }
 
-    return await this.client.post<T>('/v2/racla/proxy', request)
+    return await this.client.post<ApiResponse<T>>('/v3/racla/proxy', request)
   }
 
   /**
@@ -77,7 +82,7 @@ class ProxyClient {
     url: string,
     data: Record<string, any> = {},
     headers: Record<string, string> = {},
-  ): Promise<AxiosResponse<T>> {
+  ): Promise<AxiosResponse<ApiResponse<T>>> {
     const request: ProxyRequest = {
       url,
       method: 'POST',
@@ -86,7 +91,7 @@ class ProxyClient {
       headers,
     }
 
-    return await this.client.post<T>('/v2/racla/proxy', request)
+    return await this.client.post<ApiResponse<T>>('/v3/racla/proxy', request)
   }
 }
 

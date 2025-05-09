@@ -45,14 +45,8 @@ const TitleBar: React.FC = () => {
 
   return (
     <div
-      className={`tw:h-10 tw:flex tw:items-center tw:justify-between tw:px-4 tw:select-none tw:w-full tw:z-50 tw:relative webkit-app-region-drag ${
-        theme === 'dark'
-          ? 'tw:bg-transparent tw:text-slate-200'
-          : 'tw:bg-transparent tw:text-gray-800'
-      }`}
+      className={`tw:h-10 tw:flex tw:items-center tw:justify-between tw:px-4 tw:select-none tw:w-full tw:z-50 tw:relative webkit-app-region-drag tw:bg-transparent tw:dark:text-slate-200 tw:text-gray-800`}
     >
-      {/* 하단 그라데이션 효과 제거 */}
-
       {/* 왼쪽 영역 - 비워둠 */}
       <div className='tw:w-32'></div>
 
@@ -78,11 +72,7 @@ const TitleBar: React.FC = () => {
         >
           <button
             onClick={handleToggleTheme}
-            className={`tw:p-1.5 tw:rounded-full tw:transition-all ${
-              theme === 'dark'
-                ? 'tw:hover:bg-slate-800 tw:text-slate-300'
-                : 'tw:hover:bg-white tw:text-gray-600 tw:hover:shadow-sm'
-            }`}
+            className={`tw:p-1.5 tw:rounded-full tw:transition-all tw:dark:hover:bg-slate-800 tw:dark:text-slate-300 tw:hover:bg-white tw:text-gray-600 tw:hover:shadow-sm`}
           >
             <Icon icon={theme === 'dark' ? 'lucide:sun' : 'lucide:moon'} width='16' height='16' />
           </button>
@@ -91,11 +81,7 @@ const TitleBar: React.FC = () => {
         <Tooltip position='bottom' content={t('ui.minimize', { ns: 'common' })}>
           <button
             onClick={() => minimizeApp()}
-            className={`tw:p-1.5 tw:rounded tw:transition-all ${
-              theme === 'dark'
-                ? 'tw:hover:bg-slate-800 tw:text-slate-300'
-                : 'tw:hover:bg-white tw:text-gray-600 tw:hover:shadow-sm'
-            }`}
+            className={`tw:p-1.5 tw:rounded tw:transition-all tw:dark:hover:bg-slate-800 tw:dark:text-slate-300 tw:hover:bg-white tw:text-gray-600 tw:hover:shadow-sm`}
           >
             <Icon icon='lucide:minus' width='16' height='16' />
           </button>
@@ -109,11 +95,7 @@ const TitleBar: React.FC = () => {
         >
           <button
             onClick={handleMaximizeToggle}
-            className={`tw:p-1.5 tw:rounded tw:transition-all ${
-              theme === 'dark'
-                ? 'tw:hover:bg-slate-800 tw:text-slate-300'
-                : 'tw:hover:bg-white tw:text-gray-600 tw:hover:shadow-sm'
-            }`}
+            className={`tw:p-1.5 tw:rounded tw:transition-all tw:dark:hover:bg-slate-800 tw:dark:text-slate-300 tw:hover:bg-white tw:text-gray-600 tw:hover:shadow-sm`}
           >
             <Icon
               icon={isMaximized ? 'lucide:minimize-2' : 'lucide:maximize-2'}

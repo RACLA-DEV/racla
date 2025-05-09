@@ -19,7 +19,8 @@ function UserDetailPage() {
 
       <div className='tw:mt-6'>
         <p className='tw:text-sm tw:text-gray-500'>
-          다음과 같은 URL로 접근할 수 있습니다: <code>/users/123</code>, <code>/users/abc</code> 등
+          다음과 같은 URL로 접근할 수 있습니다: <code>/players/123</code>, <code>/players/abc</code>{' '}
+          등
         </p>
       </div>
     </div>

@@ -1,6 +1,7 @@
 import { GameType } from '../games/GameType'
 import { SongData } from '../games/SongData'
 import { Notification } from '../notifications/Notification'
+import { SessionData } from '../sessions/SessionData'
 import { SettingsData } from '../settings/SettingData'
 
 export interface AppState {
@@ -9,20 +10,7 @@ export interface AppState {
   isTrackMaker: boolean
   isLoading: boolean
   settingData: SettingsData
-  userData: {
-    userName: string
-    userNo: string
-    userToken: string
-    randomTitle: string
-    discordUid: string
-    discordLinked: boolean
-    vArchiveLinked: boolean
-  }
-  vArchiveUserData: {
-    userName: string
-    userNo: string
-    userToken: string
-  }
+  userData: SessionData
   isDetectedGame: boolean
   isUploading: boolean
   isMiniMode: boolean
