@@ -1,8 +1,7 @@
 import { Icon } from '@iconify/react/dist/iconify.js'
 import { createLog } from '@render/libs/logger'
 import { setOpenExternalLink } from '@render/store/slices/uiSlice'
-import { ProxyResponse } from '@src/types/dto/proxy/ProxyResponse'
-import type { UserNameRequest, UserNameResponse } from '@src/types/users/UserName'
+import { SessionData } from '@src/types/sessions/SessionData'
 import { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FaDiscord, FaV } from 'react-icons/fa6'
@@ -27,16 +26,6 @@ export default function LoginPage() {
       navigate('/home')
     }
   }, [isLoggedIn, navigate])
-
-  const getUserName = async <T = UserNameResponse, R = UserNameRequest>(
-    body: R,
-  ): Promise<ProxyResponse<T>> => {
-    const { data } = await apiClient.postProxy<ProxyResponse<T>>(
-      `https://v-archive.net/client/login`,
-      body,
-    )
-    return data
-  }
 
   const handleError = (error: string) => {
     // 실제 알림 시스템 구현 시 사용
@@ -71,55 +60,31 @@ export default function LoginPage() {
             const userNo = text.split(' ')[0]
             const token = text.split(' ')[1]
 
-            // V-ARCHIVE API로 유저 이름 가져오기
-            const result = await getUserName({ userNo, token })
+            const response = await apiClient.post<SessionData>(
+              `/v3/racla/player/login/oauth/v-archive`,
+              {
+                externalServiceUserNo: userNo,
+                externalServiceUserToken: token,
+              },
+            )
 
-            if (result.data.success) {
-              // RACLA 서버 API에 V-ARCHIVE 정보로 로그인
-              const response = await apiClient.post<{
-                userNo: string
-                userToken: string
-                userName?: string
-                discordUid?: string
-                discordLinked?: boolean
-                vArchiveLinked?: boolean
-                vArchiveUserNo?: number
-                vArchiveUserToken?: string
-                vArchiveUserName?: string | { success: boolean; nickname: string }
-              }>(`/v2/racla/user/login/oauth/vArchive`, {
-                userNo,
-                userToken: token,
-              })
+            if (response.status === 200) {
+              const sessionData = response.data.data
+              const success = await login(sessionData)
 
-              if (response.status === 200) {
-                const success = await login({
-                  userNo: response.data?.userNo,
-                  userToken: response.data?.userToken,
-                  userName: response.data?.userName ?? '',
-                  discordUid: response.data?.discordUid ?? '',
-                  discordLinked: response.data?.discordLinked ?? false,
-                  vArchiveUserNo: Number(userNo),
-                  vArchiveUserToken: token,
-                  vArchiveUserName: result.data?.nickname,
-                  vArchiveLinked: true,
-                })
-
-                if (success) {
-                  showNotification(
-                    {
-                      mode: 'i18n',
-                      value: 'auth.loginSuccess',
-                      props: { userName: result.data.nickname },
-                    },
-                    'success',
-                  )
-                  navigate('/home')
-                }
-              } else {
-                handleError('auth.vArchiveLoginFailed')
+              if (success) {
+                showNotification(
+                  {
+                    mode: 'i18n',
+                    value: 'auth.loginSuccess',
+                    props: { userName: sessionData.playerName },
+                  },
+                  'success',
+                )
+                navigate('/home')
               }
             } else {
-              handleError('auth.invalidVArchiveUserInfo')
+              handleError('auth.vArchiveLoginFailed')
             }
           } catch (error) {
             createLog('error', 'V-ARCHIVE Login Error:', error.message)
@@ -163,45 +128,20 @@ export default function LoginPage() {
         return
       }
 
-      const response = await apiClient.post<{
-        userNo: string
-        userToken: string
-        userName?: string
-        discordUid?: string
-        discordLinked?: boolean
-        vArchiveUserNo?: number
-        vArchiveUserToken?: string
-        vArchiveUserName?: string | { success: boolean; nickname: string }
-        vArchiveLinked?: boolean
-      }>(`/v2/racla/user/login/oauth/discord`, { code })
+      const response = await apiClient.post<SessionData>(`/v3/racla/player/login/oauth/discord`, {
+        externalServiceCode: code,
+      })
 
       if (response.status === 200) {
-        const success = await login({
-          userNo: response.data?.userNo,
-          userToken: response.data?.userToken,
-          userName: response.data?.userName ?? '',
-          discordUid: response.data?.discordUid ?? '',
-          discordLinked: true,
-          vArchiveUserNo: response.data?.vArchiveUserNo ?? 0,
-          vArchiveUserToken: response.data?.vArchiveUserToken ?? '',
-          vArchiveUserName:
-            response.data?.vArchiveUserNo && response.data?.vArchiveUserToken
-              ? (
-                  await getUserName({
-                    userNo: response.data.vArchiveUserNo,
-                    token: response.data.vArchiveUserToken,
-                  })
-                ).data.nickname
-              : '',
-          vArchiveLinked: response.data?.vArchiveLinked ?? false,
-        })
+        const sessionData = response.data.data
+        const success = await login(sessionData)
 
         if (success) {
           showNotification(
             {
               mode: 'i18n',
               value: 'auth.loginSuccess',
-              props: { userName: response.data.userName },
+              props: { userName: sessionData.playerName },
             },
             'success',
           )
@@ -219,7 +159,7 @@ export default function LoginPage() {
   return (
     <div className='tw:flex tw:h-[calc(100vh-7rem)] tw:items-center tw:justify-center tw:px-4 tw:py-12'>
       <div className='tw:w-full tw:max-w-md'>
-        <div className='tw:flex tw:flex-col tw:gap-1 tw:overflow-hidden tw:rounded-lg tw:bg-slate-800 tw:p-8 tw:shadow-lg dark:tw:bg-slate-800'>
+        <div className='tw:flex tw:flex-col tw:gap-1 tw:overflow-hidden tw:rounded-lg tw:bg-slate-800 tw:p-8 tw:shadow-lg tw:dark:bg-slate-800'>
           {/* 상단 */}
           <div className='tw:mb-6 tw:flex tw:w-full'>
             <span className='tw:me-auto tw:text-2xl tw:font-bold'>{t('auth.login')}</span>
@@ -246,7 +186,7 @@ export default function LoginPage() {
                     onClick={() => {
                       void handleDiscordLogin()
                     }}
-                    className='tw:flex tw:w-full tw:items-center tw:justify-center tw:gap-2 tw:rounded-md tw:bg-[#5865F2] tw:px-4 tw:py-3 tw:text-white tw:transition-colors hover:tw:bg-[#4752C4]'
+                    className='tw:flex tw:w-full tw:items-center tw:justify-center tw:gap-2 tw:rounded-md tw:bg-[#5865F2] tw:px-4 tw:py-3 tw:text-white tw:transition-colors tw:hover:bg-[#4752C4]'
                   >
                     <FaDiscord className='tw:text-lg' />
                     {t('auth.loginWithDiscord')}
@@ -254,7 +194,7 @@ export default function LoginPage() {
 
                   <button
                     onClick={handleVArchiveFileSelect}
-                    className='tw:flex tw:w-full tw:items-center tw:justify-center tw:gap-2 tw:rounded-md tw:bg-amber-600 tw:px-4 tw:py-3 tw:text-white tw:transition-colors hover:tw:bg-amber-700'
+                    className='tw:flex tw:w-full tw:items-center tw:justify-center tw:gap-2 tw:rounded-md tw:bg-amber-600 tw:px-4 tw:py-3 tw:text-white tw:transition-colors tw:hover:bg-amber-700'
                   >
                     <FaV className='tw:text-base' />
                     {t('auth.loginWithVArchive')}
@@ -269,7 +209,7 @@ export default function LoginPage() {
                     <span>{t('auth.announcement_3')}</span>
                     <span>{t('auth.announcement_4')}</span>
                     <span
-                      className='tw:flex tw:cursor-pointer tw:items-center tw:gap-1 tw:text-blue-400 tw:transition-colors hover:tw:text-blue-300'
+                      className='tw:flex tw:cursor-pointer tw:items-center tw:gap-1 tw:text-blue-400 tw:transition-colors tw:hover:text-blue-300'
                       onClick={() =>
                         dispatch(setOpenExternalLink('https://v-archive.net/downloads'))
                       }

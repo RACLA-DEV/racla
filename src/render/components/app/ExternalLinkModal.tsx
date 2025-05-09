@@ -36,7 +36,7 @@ export default function ExternalLinkModal() {
       }`}
     >
       <div
-        className={`tw:fixed tw:inset-0 ${theme === 'dark' ? 'tw:bg-slate-950/90' : 'tw:bg-indigo-50/90'}`}
+        className={`tw:fixed tw:inset-0 tw:dark:bg-slate-950/90 tw:bg-white/90`}
         onClick={() => {
           dispatch(setIsOpenExternalLink(false))
           dispatch(setOpenExternalLink(''))
@@ -46,36 +46,22 @@ export default function ExternalLinkModal() {
         <div
           className={`tw:p-6 tw:rounded-lg tw:shadow-lg tw:max-w-md tw:w-full tw:mx-4 tw:transition-all tw:duration-300 ${
             isOpenExternalLink ? 'tw:opacity-100 tw:translate-y-0' : 'tw:opacity-0 tw:translate-y-4'
-          } ${
-            theme === 'dark'
-              ? 'tw:bg-slate-800 tw:text-slate-200'
-              : 'tw:bg-white tw:text-indigo-950'
-          }`}
+          } tw:dark:bg-slate-800 tw:dark:text-slate-200 tw:bg-white tw:text-indigo-950`}
         >
           <h3 className='tw:text-lg tw:font-bold tw:mb-4 tw:text-center'>
             {t('externalLinkModal.title')}
           </h3>
           <p className='tw:mb-6 tw:text-center tw:text-sm'>{t('externalLinkModal.description')}</p>
           <div
-            className={`tw:mb-6 tw:h-20 tw:overflow-y-auto tw:rounded tw:p-2 ${
-              theme === 'dark' ? 'tw:bg-slate-700' : 'tw:bg-indigo-50'
-            }`}
+            className={`tw:mb-6 tw:h-20 tw:overflow-y-auto tw:rounded tw:p-2 tw:dark:bg-slate-800 tw:bg-white`}
           >
-            <p
-              className={`tw:break-all tw:text-sm ${
-                theme === 'dark' ? 'tw:text-blue-400' : 'tw:text-blue-600'
-              }`}
-            >
+            <p className={`tw:break-all tw:text-sm tw:dark:text-blue-400 tw:text-blue-600`}>
               {openExternalLink}
             </p>
           </div>
           <div className='tw:flex tw:justify-end tw:gap-2'>
             <button
-              className={`tw:px-4 tw:py-1.5 tw:text-sm tw:rounded tw:cursor-pointer ${
-                theme === 'dark'
-                  ? 'tw:bg-slate-700 hover:tw:bg-slate-600'
-                  : 'tw:bg-indigo-100 hover:tw:bg-indigo-200'
-              }`}
+              className={`tw:px-4 tw:py-1.5 tw:text-sm tw:rounded tw:cursor-pointer tw:dark:bg-slate-700 tw:bg-indigo-100 tw:hover:bg-slate-600 tw:hover:bg-indigo-200`}
               onClick={() => {
                 dispatch(setIsOpenExternalLink(false))
                 dispatch(setOpenExternalLink(''))
@@ -84,11 +70,7 @@ export default function ExternalLinkModal() {
               {t('externalLinkModal.cancel')}
             </button>
             <button
-              className={`tw:px-4 tw:py-1.5 tw:text-sm tw:rounded tw:cursor-pointer tw:text-white ${
-                theme === 'dark'
-                  ? 'tw:bg-blue-600 hover:tw:bg-blue-700'
-                  : 'tw:bg-indigo-600 hover:tw:bg-indigo-700'
-              }`}
+              className={`tw:px-4 tw:py-1.5 tw:text-sm tw:rounded tw:cursor-pointer tw:text-white tw:dark:bg-blue-600 tw:hover:dark:bg-blue-700 tw:bg-indigo-600 tw:hover:bg-indigo-700`}
               onClick={() => {
                 window.electron.openBrowser(openExternalLink)
                 dispatch(setIsOpenExternalLink(false))

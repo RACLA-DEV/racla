@@ -21,7 +21,7 @@ function UsersListPage() {
         {users.map((user) => (
           <li key={user.id} className='tw:p-4 tw:hover:bg-gray-50'>
             <Link
-              to={`/users/${user.id}`}
+              to={`/players/${user.id}`}
               className='tw:flex tw:items-center tw:justify-between tw:text-blue-600 tw:hover:text-blue-800'
             >
               <span>{user.name}</span>
@@ -34,12 +34,12 @@ function UsersListPage() {
       <div className='tw:mt-8 tw:p-4 tw:bg-gray-100 tw:rounded-lg'>
         <h2 className='tw:text-lg tw:font-medium tw:mb-2'>파일 기반 라우팅 설명</h2>
         <p className='tw:text-sm tw:text-gray-600'>
-          이 페이지는 <code>src/render/pages/users/index.tsx</code>에 위치하며,
-          <code>/users</code> 경로로 접근됩니다.
+          이 페이지는 <code>src/render/pages/players/index.tsx</code>에 위치하며,
+          <code>/players</code> 경로로 접근됩니다.
         </p>
         <p className='tw:text-sm tw:text-gray-600 tw:mt-2'>
-          사용자 상세 페이지는 <code>src/render/pages/users/$id.tsx</code>에 위치하며,
-          <code>/users/:id</code> 경로로 자동 매핑됩니다.
+          사용자 상세 페이지는 <code>src/render/pages/players/$id.tsx</code>에 위치하며,
+          <code>/players/:id</code> 경로로 자동 매핑됩니다.
         </p>
       </div>
     </div>

@@ -255,7 +255,7 @@ function CheatsheetPage() {
           아래 링크를 통해 동적 라우팅이 적용된 페이지로 이동할 수 있습니다.
         </p>
         <Link
-          to='/users'
+          to='/players'
           className='tw:inline-block tw:bg-blue-500 tw:text-white tw:py-2 tw:px-4 tw:rounded tw:hover:bg-blue-600'
         >
           사용자 목록 페이지로 이동

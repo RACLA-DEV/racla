@@ -1,21 +1,20 @@
 import { Injectable, Logger } from '@nestjs/common'
-import type { SessionData } from '@src/types/sessions/SessionData'
+import type { LocalSessionData } from '@src/types/sessions/LocalSessionData'
 import * as crypto from 'crypto'
 import { shell } from 'electron'
 import * as fs from 'fs-extra'
 import * as http from 'http'
 import * as path from 'path'
 import { FileManagerService } from '../file-manager/file-manager.service'
-
 @Injectable()
 export class AuthManagerService {
   private readonly logger = new Logger(AuthManagerService.name)
 
   constructor(private readonly fileManagerService: FileManagerService) {}
 
-  async login(sessionData: SessionData): Promise<boolean> {
+  async login(sessionData: LocalSessionData): Promise<boolean> {
     try {
-      this.logger.log(`User login attempt: ${sessionData.userNo}`)
+      this.logger.log(`User login attempt: ${sessionData.playerId}`)
       await this.fileManagerService.saveSession(sessionData)
       return true
     } catch (error) {
@@ -38,14 +37,14 @@ export class AuthManagerService {
   checkLoggedIn(): boolean {
     try {
       const sessionData = this.fileManagerService.loadSession()
-      return !!(sessionData?.userNo && sessionData.userToken)
+      return !!(sessionData?.playerId && sessionData.playerToken)
     } catch (error) {
       this.logger.error(`Check login status error: ${error.message}`, error.stack)
       return false
     }
   }
 
-  getSession(): SessionData {
+  getSession(): LocalSessionData {
     try {
       return this.fileManagerService.loadSession()
     } catch (error) {
@@ -54,18 +53,18 @@ export class AuthManagerService {
     }
   }
 
-  createPlayerFile(data: { userNo: string; userToken: string }): boolean {
+  createPlayerFile(data: { playerId: number; playerToken: string }): boolean {
     try {
-      const { userNo, userToken } = data
-      if (!userNo || !userToken) {
+      const { playerId, playerToken } = data
+      if (!playerId || !playerToken) {
         throw new Error('유효하지 않은 사용자 데이터')
       }
 
       const documentsPath = path.join(this.fileManagerService.getFolderPaths().documents)
       const playerFilePath = path.join(documentsPath, 'player.txt')
 
-      // 파일 내용 생성 (RACLA 형식: userNo|userToken)
-      const fileContent = `${userNo}|${userToken}`
+      // 파일 내용 생성 (RACLA 형식: playerId|playerToken)
+      const fileContent = `${playerId}|${playerToken}`
       fs.writeFileSync(playerFilePath, fileContent, 'utf-8')
 
       this.logger.log(`Player file created: ${playerFilePath}`)

@@ -3,7 +3,6 @@ import { globalDictionary } from '@render/constants/globalDictionary'
 import { createLog } from '@render/libs/logger'
 import { RootState } from '@render/store'
 import { setIsOpenExternalLink, setOpenExternalLink } from '@render/store/slices/uiSlice'
-import type { ServerStatusResponse } from '@src/types/dto/ping/ServerStatusResponse'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useDispatch, useSelector } from 'react-redux'
@@ -14,9 +13,7 @@ import Tooltip from './Tooltip'
 const Footer: React.FC = () => {
   const { theme } = useSelector((state: RootState) => state.ui)
   const { selectedGame, isTrackMaker } = useSelector((state: RootState) => state.app)
-  const [ServerStatusResponse, setServerStatusResponse] = useState<
-    ServerStatusResponse | undefined
-  >(undefined)
+  const [ServerStatusResponse, setServerStatusResponse] = useState<String>('')
   const [isOnline, setIsOnline] = useState<boolean>(false)
   const dispatch = useDispatch()
   const { t } = useTranslation(['menu'])
@@ -25,14 +22,14 @@ const Footer: React.FC = () => {
     // 서버 상태 확인 함수
     const checkServerStatusResponse = async () => {
       try {
-        createLog('info', 'Checking server status...', `/v2/racla/ping`) // 디버깅용 로그
-        const response = await apiClient.get<ServerStatusResponse>(`/v2/racla/ping`, {
+        createLog('info', 'Checking server status...', `/v3/racla/ping`) // 디버깅용 로그
+        const response = await apiClient.get<String>(`/v3/racla/ping`, {
           timeout: 5000, // 5초 타임아웃 설정
         })
 
         if (response.status === 200) {
           createLog('debug', 'Server response:', response.data) // 디버깅용 로그
-          setServerStatusResponse(response.data)
+          setServerStatusResponse(response.data.data)
           setIsOnline(true)
         } else {
           createLog('debug', 'Server error status:', response.status) // 디버깅용 로그
@@ -142,11 +139,7 @@ const Footer: React.FC = () => {
 
   return (
     <div
-      className={`tw:flex tw:fixed tw:w-full tw:h-8 tw:items-center tw:bottom-0 tw:left-0 tw:px-2 tw:z-50 ${
-        theme === 'dark'
-          ? 'tw:border-slate-700/50 tw:text-slate-300'
-          : 'tw:border-indigo-100/50 tw:text-indigo-900'
-      }`}
+      className={`tw:flex tw:fixed tw:w-full tw:h-8 tw:items-center tw:bottom-0 tw:left-0 tw:px-2 tw:z-50 tw:dark:border-slate-700/50 tw:dark:text-slate-300 tw:border-indigo-100/50 tw:text-indigo-900`}
     >
       <div className='tw:flex tw:justify-center tw:items-center tw:gap-1 tw:pl-1 tw:h-8 tw:me-auto'>
         <span className='tw:text-xs tw:flex tw:items-center'>
@@ -170,7 +163,7 @@ const Footer: React.FC = () => {
                 </div>
                 <span className='tw:leading-none'>
                   {isOnline
-                    ? `Server Connected · ${ServerStatusResponse?.version || 'v1.0'} · ${globalDictionary.version}`
+                    ? `Server Connected · ${ServerStatusResponse || ''} · ${globalDictionary.version}`
                     : `Server Disconnected · ${globalDictionary.version}`}
                 </span>
               </span>

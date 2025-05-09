@@ -1,3 +1,4 @@
+import { createLog } from '@render/libs/logger'
 import { RootState } from '@render/store'
 import React, { useEffect, useRef, useState } from 'react'
 import { useSelector } from 'react-redux'
@@ -127,20 +128,15 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
     return `${measures}:${beats}:${subdivisionIndex}/${activeDivision / 4}`
   }
 
-  // BPM 변경 시 노트 위치 재계산 효과
   useEffect(() => {
     if (pattern.length > 0) {
-      console.log(`BPM 변경됨: ${bpm}BPM`)
-      // BPM 변경 시에는 노트의 밀리초 위치를 정확하게 유지
-      // 노트 위치는 밀리초 단위로 저장되므로 BPM 변경해도 영향 없음
+      createLog('debug', `BPM 변경됨: ${bpm}BPM`)
     }
   }, [bpm])
 
   // 가이드 분할 변경 시 효과
   useEffect(() => {
-    console.log(`가이드 분할 변경됨: ${activeDivision}분할`)
-    // 가이드 분할이 변경되어도 노트의 밀리초 위치는 변경되지 않음
-    // 가이드는 UI 표시 및 새 노트 생성 시 스냅에만 사용됨
+    createLog('debug', `가이드 분할 변경됨: ${activeDivision}분할`)
   }, [activeDivision])
 
   // 스크롤을 가장 하단으로 설정 또는 곡 길이 변경 시 스크롤 조정
@@ -357,7 +353,7 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
 
   // 롱노트 드래그 종료 함수 수정
   const handleNoteDragEnd = () => {
-    console.log('노트 드래그 종료')
+    createLog('debug', '노트 드래그 종료')
 
     setDraggedNote(null)
     setIsDragging(false)
@@ -382,7 +378,7 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
     // 이미 드래그 중이면 무시
     if (isDragging) return
 
-    console.log('롱노트 크기 조절 시작:', noteId)
+    createLog('debug', `롱노트 크기 조절 시작: ${noteId}`)
 
     // 노트 드래그 시작 - 크기 조절 모드로 설정
     setHoveredNote(note)
@@ -412,7 +408,7 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
     const note = pattern.find((n) => n.id === noteId)
     if (!note) return
 
-    console.log('노트 드래그 시작:', noteId)
+    createLog('debug', `노트 드래그 시작: ${noteId}`)
 
     setHoveredNote(note)
     setIsDragging(true)
@@ -456,7 +452,7 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
 
     // 정확한 그리드 위치에 맞추기
     const snappedTime = snapToGrid(rawTime)
-    console.log(`노트 생성: ${rawTime}ms → ${snappedTime}ms (가이드: ${activeDivision})`)
+    createLog('debug', `노트 생성: ${rawTime}ms → ${snappedTime}ms (가이드: ${activeDivision})`)
 
     // FX 및 LR 노트의 레인 위치 보정
     let finalLane = lane
@@ -508,7 +504,7 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
 
     // Shift 키를 누른 상태에서만 삭제
     if (isShiftPressed) {
-      console.log('노트 삭제 시도:', noteId)
+      createLog('debug', `노트 삭제 시도: ${noteId}`)
 
       // 패턴 길이 기록
       const oldPatternLength = pattern.length
@@ -520,15 +516,15 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
           if (note && typeof note === 'object' && 'id' in note && note.id !== noteId) {
             newPattern.push(note)
           } else {
-            console.log('삭제할 노트 발견:', note.id)
+            createLog('debug', `삭제할 노트 발견: ${note.id}`)
           }
         }
 
         // 실제로 노트가 제거되었는지 확인
         if (newPattern.length === oldPatternLength) {
-          console.warn('노트가 제거되지 않았습니다:', noteId)
+          createLog('warn', `노트가 제거되지 않았습니다: ${noteId}`)
         } else {
-          console.log(`노트 삭제 성공: ${oldPatternLength} → ${newPattern.length}`)
+          createLog('debug', `노트 삭제 성공: ${oldPatternLength} → ${newPattern.length}`)
 
           // 현재 호버된 노트가 삭제되는 노트라면 호버 상태 초기화
           if (hoveredNote && hoveredNote.id === noteId) {
@@ -538,7 +534,7 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
           onPatternChange(newPattern)
         }
       } catch (error) {
-        console.error('노트 삭제 중 오류 발생:', error)
+        createLog('error', `노트 삭제 중 오류 발생: ${error}`)
       }
     }
   }
@@ -611,13 +607,13 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
         // 노트 데이터 불러오기
         // 노트의 밀리초 위치는 절대 변경하지 않음
         const loadedNotes = data.notes || []
-        console.log('패턴 불러옴 - 노트 위치는 정확히 유지됨:', loadedNotes)
+        createLog('debug', `패턴 불러옴 - 노트 위치는 정확히 유지됨: ${loadedNotes}`)
 
         onPatternChange(loadedNotes)
         onBpmChange(data.bpm || 120)
         onKeyModeChange(data.keyMode || '4B')
       } catch (error) {
-        console.error('Invalid pattern file', error)
+        createLog('error', `Invalid pattern file: ${error}`)
       }
     }
     reader.readAsText(file)
@@ -1062,7 +1058,7 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
           <input
             id='bpmInput'
             type='number'
-            className='tw:block tw:w-full tw:rounded-lg tw:border tw:border-gray-300 tw:shadow-sm tw:py-2 tw:px-3 tw:focus:border-indigo-500 tw:focus:ring-indigo-500 dark:tw:bg-slate-700 dark:tw:border-slate-600 dark:tw:text-white'
+            className='tw:block tw:w-full tw:rounded-lg tw:border tw:border-gray-300 tw:shadow-sm tw:py-2 tw:px-3 tw:focus:border-indigo-500 tw:focus:ring-indigo-500 tw:dark:bg-slate-700 tw:dark:border-slate-600 tw:dark:text-white'
             value={bpm.toString()}
             onChange={(e) => onBpmChange(Number(e.target.value))}
             min={1}
@@ -1077,7 +1073,7 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
           <input
             id='songLengthInput'
             type='number'
-            className='tw:block tw:w-full tw:rounded-lg tw:border tw:border-gray-300 tw:shadow-sm tw:py-2 tw:px-3 tw:focus:border-indigo-500 tw:focus:ring-indigo-500 dark:tw:bg-slate-700 dark:tw:border-slate-600 dark:tw:text-white'
+            className='tw:block tw:w-full tw:rounded-lg tw:border tw:border-gray-300 tw:shadow-sm tw:py-2 tw:px-3 tw:focus:border-indigo-500 tw:focus:ring-indigo-500 tw:dark:bg-slate-700 tw:dark:border-slate-600 tw:dark:text-white'
             value={(songLength / 1000).toString()}
             onChange={(e) => handleSongLengthChange(Number(e.target.value))}
             min={10}
@@ -1088,7 +1084,7 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
         <div className={styles.controlGroup}>
           <label className='tw:block tw:text-sm tw:font-medium tw:mb-2'>키 모드</label>
           <select
-            className='tw:block tw:w-full tw:rounded-lg tw:border tw:border-gray-300 tw:shadow-sm tw:py-2 tw:px-3 tw:focus:border-indigo-500 tw:focus:ring-indigo-500 dark:tw:bg-slate-700 dark:tw:border-slate-600 dark:tw:text-white'
+            className='tw:block tw:w-full tw:rounded-lg tw:border tw:border-gray-300 tw:shadow-sm tw:py-2 tw:px-3 tw:focus:border-indigo-500 tw:focus:ring-indigo-500 tw:dark:bg-slate-700 tw:dark:border-slate-600 tw:dark:text-white'
             value={keyMode}
             onChange={(e) => onKeyModeChange(e.target.value as KeyMode)}
           >
@@ -1107,8 +1103,8 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
                 key={division}
                 className={`tw:px-3 tw:py-2 tw:text-sm tw:rounded-lg tw:transition-colors ${
                   activeDivision === division
-                    ? 'tw:bg-indigo-600 tw:text-white dark:tw:bg-indigo-500'
-                    : 'tw:bg-gray-100 tw:text-gray-700 hover:tw:bg-gray-200 dark:tw:bg-slate-700 dark:tw:text-slate-200 dark:hover:tw:bg-slate-600'
+                    ? 'tw:bg-indigo-600 tw:text-white tw:dark:bg-indigo-500'
+                    : 'tw:bg-gray-100 tw:text-gray-700 tw:hover:bg-gray-200 tw:dark:bg-slate-700 tw:dark:text-slate-200 dark:tw:hover:bg-slate-600'
                 }`}
                 onClick={() => setActiveDivision(division)}
               >
@@ -1126,8 +1122,8 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
                 key={type}
                 className={`tw:px-3 tw:py-2 tw:text-sm tw:rounded-lg tw:transition-colors ${
                   selectedNoteType === type
-                    ? 'tw:bg-indigo-600 tw:text-white dark:tw:bg-indigo-500'
-                    : 'tw:bg-gray-100 tw:text-gray-700 hover:tw:bg-gray-200 dark:tw:bg-slate-700 dark:tw:text-slate-200 dark:hover:tw:bg-slate-600'
+                    ? 'tw:bg-indigo-600 tw:text-white tw:dark:bg-indigo-500'
+                    : 'tw:bg-gray-100 tw:text-gray-700 tw:hover:bg-gray-200 tw:dark:bg-slate-700 tw:dark:text-slate-200 dark:tw:hover:bg-slate-600'
                 }`}
                 onClick={() => {
                   setSelectedNoteType(type)
@@ -1143,17 +1139,17 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
         </div>
 
         <div className={styles.controlGroup}>
-          <div className='tw:flex tw:items-center tw:bg-gray-50 dark:tw:bg-slate-700 tw:rounded-lg tw:p-3'>
+          <div className='tw:flex tw:items-center tw:bg-gray-50 tw:dark:bg-slate-700 tw:rounded-lg tw:p-3'>
             <input
               id='longNote'
               type='checkbox'
-              className='tw:h-4 tw:w-4 tw:rounded tw:border-gray-300 tw:text-indigo-600 tw:focus:ring-indigo-500 dark:tw:border-slate-600'
+              className='tw:h-4 tw:w-4 tw:rounded tw:border-gray-300 tw:text-indigo-600 tw:focus:ring-indigo-500 tw:dark:border-slate-600'
               checked={isLongNote}
               onChange={(e) => setIsLongNote(e.target.checked)}
             />
             <label
               htmlFor='longNote'
-              className='tw:ml-2 tw:block tw:text-sm tw:font-medium tw:text-gray-700 dark:tw:text-slate-300'
+              className='tw:ml-2 tw:block tw:text-sm tw:font-medium tw:text-gray-700 tw:dark:text-slate-300'
             >
               롱노트 (드래그로 길이 조절)
             </label>
@@ -1169,7 +1165,7 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
             min='0.5'
             max='10'
             step='0.1'
-            className='tw:w-full tw:h-2 tw:bg-gray-200 tw:rounded-lg tw:appearance-none tw:cursor-pointer dark:tw:bg-slate-700'
+            className='tw:w-full tw:h-2 tw:bg-gray-200 tw:rounded-lg tw:appearance-none tw:cursor-pointer tw:dark:bg-slate-700'
             value={zoom}
             onChange={(e) => setZoom(Number(e.target.value))}
           />
@@ -1184,7 +1180,7 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
                 currentHistoryIndex > 0
                   ? 'tw:hover:bg-gray-50 tw:focus:outline-none tw:focus:ring-2 tw:focus:ring-indigo-500'
                   : 'tw:opacity-50 tw:cursor-not-allowed'
-              } dark:tw:bg-slate-700 dark:tw:text-slate-200 dark:tw:border-slate-600 dark:tw:hover:bg-slate-600`}
+              } tw:dark:bg-slate-700 tw:dark:text-slate-200 tw:dark:border-slate-600 tw:dark:hover:bg-slate-600`}
             >
               실행 취소
             </button>
@@ -1196,7 +1192,7 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
                 currentHistoryIndex < history.length - 1
                   ? 'tw:hover:bg-gray-50 tw:focus:outline-none tw:focus:ring-2 tw:focus:ring-indigo-500'
                   : 'tw:opacity-50 tw:cursor-not-allowed'
-              } dark:tw:bg-slate-700 dark:tw:text-slate-200 dark:tw:border-slate-600 dark:tw:hover:bg-slate-600`}
+              } tw:dark:bg-slate-700 tw:dark:text-slate-200 tw:dark:border-slate-600 tw:dark:hover:bg-slate-600`}
             >
               다시 실행
             </button>
@@ -1206,7 +1202,7 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
         <div className={styles.controlGroup}>
           <button
             onClick={handleSavePattern}
-            className='tw:w-full tw:inline-flex tw:justify-center tw:rounded-lg tw:border tw:border-transparent tw:shadow-sm tw:px-4 tw:py-2 tw:bg-indigo-600 tw:text-base tw:font-medium tw:text-white tw:hover:bg-indigo-700 tw:focus:outline-none tw:focus:ring-2 tw:focus:ring-indigo-500 dark:tw:bg-indigo-500 dark:tw:hover:bg-indigo-600'
+            className='tw:w-full tw:inline-flex tw:justify-center tw:rounded-lg tw:border tw:border-transparent tw:shadow-sm tw:px-4 tw:py-2 tw:bg-indigo-600 tw:text-base tw:font-medium tw:text-white tw:hover:bg-indigo-700 tw:focus:outline-none tw:focus:ring-2 tw:focus:ring-indigo-500 tw:dark:bg-indigo-500 tw:dark:hover:bg-indigo-600'
           >
             패턴 저장
           </button>
@@ -1215,7 +1211,7 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
             accept='.json'
             ref={fileInputRef}
             onChange={handleLoadPattern}
-            className='tw:block tw:w-full tw:text-sm tw:text-gray-500 dark:tw:text-slate-400 tw:mt-2 tw:file:mr-4 tw:file:py-2 tw:file:px-4 tw:file:rounded-full tw:file:border-0 tw:file:text-sm tw:file:font-semibold tw:file:bg-indigo-50 tw:file:text-indigo-700 hover:tw:file:bg-indigo-100 dark:tw:file:bg-indigo-900 dark:tw:file:text-indigo-200'
+            className='tw:block tw:w-full tw:text-sm tw:text-gray-500 tw:dark:text-slate-400 tw:mt-2 tw:file:mr-4 tw:file:py-2 tw:file:px-4 tw:file:rounded-full tw:file:border-0 tw:file:text-sm tw:file:font-semibold tw:file:bg-indigo-50 tw:file:text-indigo-700 tw:hover:file:bg-indigo-100 tw:dark:file:bg-indigo-900 tw:dark:file:text-indigo-200'
           />
         </div>
 
@@ -1223,14 +1219,14 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
           <div className='tw:grid tw:grid-cols-2 tw:gap-2'>
             <button
               onClick={resetPattern}
-              className='tw:w-full tw:inline-flex tw:justify-center tw:rounded-lg tw:border tw:border-yellow-500 tw:shadow-sm tw:px-4 tw:py-2 tw:bg-yellow-50 tw:text-base tw:font-medium tw:text-yellow-700 tw:hover:bg-yellow-100 tw:focus:outline-none tw:focus:ring-2 tw:focus:ring-yellow-500 dark:tw:bg-yellow-900 dark:tw:text-yellow-200 dark:tw:border-yellow-800 dark:tw:hover:bg-yellow-800'
+              className='tw:w-full tw:inline-flex tw:justify-center tw:rounded-lg tw:border tw:border-yellow-500 tw:shadow-sm tw:px-4 tw:py-2 tw:bg-yellow-50 tw:text-base tw:font-medium tw:text-yellow-700 tw:hover:bg-yellow-100 tw:focus:outline-none tw:focus:ring-2 tw:focus:ring-yellow-500 tw:dark:bg-yellow-900 tw:dark:text-yellow-200 tw:dark:border-yellow-800 tw:dark:hover:bg-yellow-800'
             >
               초기화
             </button>
 
             <button
               onClick={() => onPatternChange([])}
-              className='tw:w-full tw:inline-flex tw:justify-center tw:rounded-lg tw:border tw:border-red-500 tw:shadow-sm tw:px-4 tw:py-2 tw:bg-red-50 tw:text-base tw:font-medium tw:text-red-700 tw:hover:bg-red-50 tw:focus:outline-none tw:focus:ring-2 tw:focus:ring-red-500 dark:tw:bg-slate-700 dark:tw:text-slate-200 dark:tw:border-slate-600 dark:tw:hover:bg-slate-600'
+              className='tw:w-full tw:inline-flex tw:justify-center tw:rounded-lg tw:border tw:border-red-500 tw:shadow-sm tw:px-4 tw:py-2 tw:bg-red-50 tw:text-base tw:font-medium tw:text-red-700 tw:hover:bg-red-50 tw:focus:outline-none tw:focus:ring-2 tw:focus:ring-red-500 tw:dark:bg-slate-700 tw:dark:text-slate-200 tw:dark:border-slate-600 tw:dark:hover:bg-slate-600'
             >
               모두 지우기
             </button>

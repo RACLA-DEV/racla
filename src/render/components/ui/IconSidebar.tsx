@@ -137,11 +137,7 @@ const IconSidebar: React.FC = () => {
       initial='hidden'
       animate='visible'
       variants={sidebarAnimation}
-      className={`tw:flex tw:flex-col tw:items-center tw:px-2 tw:h-full tw:relative tw:justify-between ${
-        theme === 'dark'
-          ? 'tw:bg-transparent tw:text-slate-200'
-          : 'tw:bg-transparent tw:text-gray-800'
-      }`}
+      className={`tw:flex tw:flex-col tw:items-center tw:px-2 tw:h-full tw:relative tw:justify-between tw:bg-transparent tw:dark:text-slate-200 tw:text-gray-800`}
     >
       {/* 상단 홈 버튼 */}
       <div className='tw:flex tw:flex-col tw:items-center'>
@@ -156,12 +152,8 @@ const IconSidebar: React.FC = () => {
               }}
               className={`tw:w-12 tw:h-12 tw:flex tw:items-center tw:justify-center tw:rounded-lg tw:cursor-pointer tw:transition-all ${
                 location === '/home'
-                  ? theme === 'dark'
-                    ? 'tw:bg-slate-700 tw:text-indigo-400'
-                    : 'tw:bg-white tw:text-indigo-600 tw:shadow-md'
-                  : theme === 'dark'
-                    ? 'tw:bg-slate-800 tw:text-indigo-400 tw:hover:bg-slate-700'
-                    : 'tw:bg-gray-50 tw:shadow-md tw:hover:bg-white tw:hover:shadow-md'
+                  ? 'tw:dark:bg-slate-700 tw:dark:text-indigo-400 tw:bg-white tw:text-indigo-600 tw:shadow-md'
+                  : 'tw:dark:bg-slate-800 tw:dark:text-indigo-400 tw:dark:hover:bg-slate-700 tw:bg-gray-50 tw:shadow-md tw:hover:bg-white tw:hover:shadow-md'
               }`}
             >
               <LuHouse size={28} />
@@ -181,12 +173,8 @@ const IconSidebar: React.FC = () => {
                 }}
                 className={`tw:w-12 tw:h-12 tw:flex tw:items-center tw:justify-center tw:rounded-lg tw:cursor-pointer tw:transition-all ${
                   location === '/test/cheatsheet'
-                    ? theme === 'dark'
-                      ? 'tw:bg-slate-700 tw:text-indigo-400'
-                      : 'tw:bg-white tw:text-indigo-600 tw:shadow-md'
-                    : theme === 'dark'
-                      ? 'tw:bg-slate-800 tw:text-indigo-400 tw:hover:bg-slate-700'
-                      : 'tw:bg-gray-50 tw:shadow-md tw:hover:bg-white tw:hover:shadow-md'
+                    ? 'tw:dark:bg-slate-700 tw:dark:text-indigo-400 tw:bg-white tw:text-indigo-600 tw:shadow-md'
+                    : 'tw:dark:bg-slate-800 tw:dark:text-indigo-400 tw:dark:hover:bg-slate-700 tw:bg-gray-50 tw:shadow-md tw:hover:bg-white tw:hover:shadow-md'
                 }`}
               >
                 <LuBook size={28} />
@@ -205,12 +193,8 @@ const IconSidebar: React.FC = () => {
                 onClick={handleOpenTrackMaker}
                 className={`tw:w-12 tw:h-12 tw:flex tw:items-center tw:justify-center tw:rounded-lg tw:cursor-pointer tw:transition-all ${
                   location === '/track-maker'
-                    ? theme === 'dark'
-                      ? 'tw:bg-slate-700 tw:text-indigo-400'
-                      : 'tw:bg-white tw:text-indigo-600 tw:shadow-md'
-                    : theme === 'dark'
-                      ? 'tw:bg-slate-800 tw:text-indigo-400 tw:hover:bg-slate-700'
-                      : 'tw:bg-gray-50 tw:shadow-md tw:hover:bg-white tw:hover:shadow-md'
+                    ? 'tw:dark:bg-slate-700 tw:dark:text-indigo-400 tw:bg-white tw:text-indigo-600 tw:shadow-md'
+                    : 'tw:dark:bg-slate-800 tw:dark:text-indigo-400 tw:dark:hover:bg-slate-700 tw:bg-gray-50 tw:shadow-md tw:hover:bg-white tw:hover:shadow-md'
                 }`}
               >
                 <LuGamepad size={28} />
@@ -230,12 +214,8 @@ const IconSidebar: React.FC = () => {
               }}
               className={`tw:w-12 tw:h-12 tw:flex tw:items-center tw:justify-center tw:rounded-lg tw:cursor-pointer tw:transition-all ${
                 location === '/overlay/settings'
-                  ? theme === 'dark'
-                    ? 'tw:bg-slate-700 tw:text-indigo-400'
-                    : 'tw:bg-white tw:text-indigo-600 tw:shadow-md'
-                  : theme === 'dark'
-                    ? 'tw:bg-slate-800 tw:text-indigo-400 tw:hover:bg-slate-700'
-                    : 'tw:bg-gray-50 tw:shadow-md tw:hover:bg-white tw:hover:shadow-md'
+                  ? 'tw:dark:bg-slate-700 tw:dark:text-indigo-400 tw:bg-white tw:text-indigo-600 tw:shadow-md'
+                  : 'tw:dark:bg-slate-800 tw:dark:text-indigo-400 tw:dark:hover:bg-slate-700 tw:bg-gray-50 tw:shadow-md tw:hover:bg-white tw:hover:shadow-md'
               }`}
             >
               <LuLayers size={28} />
@@ -245,9 +225,7 @@ const IconSidebar: React.FC = () => {
 
         {/* 게임 선택 아이콘들 (중앙) */}
         <div
-          className={`tw:flex tw:flex-col tw:items-center tw:space-y-4 tw:pt-4 tw:border-t tw:relative tw:z-10 ${
-            theme === 'dark' ? 'tw:border-slate-700' : 'tw:border-gray-300'
-          }`}
+          className={`tw:flex tw:flex-col tw:items-center tw:space-y-4 tw:pt-4 tw:border-t tw:relative tw:z-10 tw:dark:border-slate-700 tw:border-gray-300`}
         >
           {gameIcons.map((game) => (
             <Tooltip key={game.id} content={game.tooltip}>
@@ -258,12 +236,8 @@ const IconSidebar: React.FC = () => {
                 onClick={game.onClick}
                 className={`tw:w-12 tw:h-12 tw:flex tw:items-center tw:justify-center tw:rounded-lg tw:overflow-hidden tw:cursor-pointer tw:transition-all ${
                   selectedGame === game.id
-                    ? theme === 'dark'
-                      ? 'tw:bg-slate-700'
-                      : 'tw:bg-white tw:shadow-md'
-                    : theme === 'dark'
-                      ? 'tw:bg-slate-800 tw:hover:bg-slate-700'
-                      : 'tw:bg-gray-50 tw:shadow-md tw:hover:bg-white tw:hover:shadow-md'
+                    ? 'tw:dark:bg-slate-700 tw:bg-white tw:shadow-md'
+                    : 'tw:dark:bg-slate-800 tw:dark:hover:bg-slate-700 tw:bg-gray-50 tw:shadow-md tw:hover:bg-white tw:hover:shadow-md'
                 }`}
               >
                 <AnimatePresence mode='wait'>
@@ -294,11 +268,7 @@ const IconSidebar: React.FC = () => {
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.95 }}
             onClick={handleOpenSettings}
-            className={`tw:w-12 tw:h-12 tw:flex tw:items-center tw:justify-center tw:rounded-lg tw:cursor-pointer tw:transition-all ${
-              theme === 'dark'
-                ? 'tw:bg-slate-800 tw:hover:bg-slate-700 tw:text-indigo-400'
-                : 'tw:bg-gray-50 tw:hover:bg-white tw:text-indigo-600 tw:shadow-md'
-            }`}
+            className={`tw:w-12 tw:h-12 tw:flex tw:items-center tw:justify-center tw:rounded-lg tw:cursor-pointer tw:transition-all tw:dark:bg-slate-800 tw:dark:hover:bg-slate-700 tw:dark:text-indigo-400 tw:bg-gray-50 tw:hover:bg-white tw:text-indigo-600 tw:shadow-md`}
           >
             <LuSettings size={28} />
           </motion.div>

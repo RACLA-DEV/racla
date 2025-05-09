@@ -52,11 +52,11 @@ declare global {
       onConfirmExternalLink: (callback: (url: string) => void) => void
 
       // 로그인 관련
-      login: (sessionData: SessionData) => Promise<boolean>
+      login: (sessionData: LocalSessionData) => Promise<boolean>
       logout: () => Promise<boolean>
       checkLoggedIn: () => Promise<boolean>
       getSession: () => Promise<SessionData>
-      createPlayerFile: (data: { userNo: string; userToken: string }) => Promise<boolean>
+      createPlayerFile: (data: { playerId: number; playerToken: string }) => Promise<boolean>
       openDiscordLogin: () => Promise<string>
       openBrowser: (url: string) => Promise<boolean>
 

@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common'
 import type { SongData } from '@src/types/games/SongData'
+import { LocalSessionData } from '@src/types/sessions/LocalSessionData'
 import type { SessionData } from '@src/types/sessions/SessionData'
 import type { SettingsData } from '@src/types/settings/SettingData'
 import type { StorageInfo } from '@src/types/storage/StroageInfo'
@@ -29,15 +30,22 @@ function createDefaultSettings(): SettingsData {
 const defaultSettings: SettingsData = createDefaultSettings()
 
 const defaultSession: SessionData = {
-  userNo: '',
-  userToken: '',
-  userName: '',
-  vArchiveUserNo: null,
-  vArchiveUserToken: '',
-  vArchiveUserName: '',
-  discordUid: '',
-  discordLinked: false,
-  vArchiveLinked: false,
+  playerId: 0,
+  playerToken: '',
+  playerName: '',
+  playerNickname: '',
+  isSetupPassword: false,
+  profileImageUrl: '',
+  vArchiveUserInfo: {
+    isLinked: false,
+    userNo: 0,
+    token: '',
+    nickname: '',
+  },
+  discordUserInfo: {
+    isLinked: false,
+    uid: '',
+  },
 }
 
 @Injectable()
@@ -118,13 +126,13 @@ export class FileManagerService {
     }
   }
 
-  public saveSession(session: SessionData): SessionData {
+  public saveSession(session: LocalSessionData): LocalSessionData {
     const sessionPath = path.join(this.documentsPath, 'session.json')
     fs.writeFileSync(sessionPath, JSON.stringify(session, null, 2), 'utf-8')
     return session
   }
 
-  public loadSession(): SessionData {
+  public loadSession(): LocalSessionData {
     const sessionPath = path.join(this.documentsPath, 'session.json')
 
     if (!fs.existsSync(sessionPath)) {
@@ -133,7 +141,7 @@ export class FileManagerService {
 
     try {
       const sessionData = fs.readFileSync(sessionPath, 'utf-8')
-      return JSON.parse(sessionData) as SessionData
+      return JSON.parse(sessionData) as LocalSessionData
     } catch (error) {
       this.logger.error('세션 파일 읽기 오류:', error)
       return defaultSession

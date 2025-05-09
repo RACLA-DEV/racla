@@ -36,18 +36,18 @@ const TrackMakerModal: React.FC = () => {
 
   return (
     <div
-      className={`tw:fixed ${settingData.font != 'default' ? 'tw:font-medium' : ''} tw:flex tw:flex-col tw:h-[calc(100vh-72px)] tw:top-[40px] ${theme == 'dark' ? 'tw:bg-slate-800' : 'tw:bg-white'} tw:max-h-screen tw:w-full tw:inset-0 tw:z-50 tw:transition-opacity tw:duration-300 ${
+      className={`tw:fixed ${settingData.font != 'default' ? 'tw:font-medium' : ''} tw:flex tw:flex-col tw:h-[calc(100vh-72px)] tw:top-[40px] tw:dark:bg-slate-800 tw:bg-white tw:max-h-screen tw:w-full tw:inset-0 tw:z-50 tw:transition-opacity tw:duration-300 ${
         isTrackMaker ? 'tw:opacity-100' : 'tw:opacity-0 tw:pointer-events-none'
       }`}
     >
       <div
-        className={`tw:pt-2 tw:flex tw:justify-between ${theme == 'dark' ? 'tw:border-b tw:border-slate-700' : 'tw:border-b tw:border-gray-200'}`}
+        className={`tw:pt-2 tw:flex tw:justify-between tw:dark:border-slate-700 tw:border-gray-200`}
       >
         <div className='tw:flex'>
           <button
             className={`tw:px-4 tw:pb-2 tw:font-medium tw:text-sm tw:focus:outline-none ${
               selectedTab === 'editor'
-                ? `tw:border-b-2 tw:border-indigo-500 ${theme === 'dark' ? 'tw:text-gray-200' : 'tw:text-gray-700'}`
+                ? `tw:border-b-2 tw:border-indigo-500 tw:dark:text-gray-200 tw:text-gray-700`
                 : 'tw:text-gray-400 tw:hover:text-gray-700'
             }`}
             onClick={() => {
@@ -59,7 +59,7 @@ const TrackMakerModal: React.FC = () => {
           <button
             className={`tw:px-4 tw:pb-2 tw:font-medium tw:text-sm tw:focus:outline-none ${
               selectedTab === 'player'
-                ? `tw:border-b-2 tw:border-indigo-500 ${theme === 'dark' ? 'tw:text-gray-200' : 'tw:text-gray-700'}`
+                ? `tw:border-b-2 tw:border-indigo-500 tw:dark:text-gray-200 tw:text-gray-700`
                 : 'tw:text-gray-400 tw:hover:text-gray-700'
             }`}
             onClick={() => {
@@ -73,11 +73,7 @@ const TrackMakerModal: React.FC = () => {
           onClick={() => {
             dispatch(setIsTrackMaker(false))
           }}
-          className={`tw:flex tw:p-1 tw:mr-4 tw:mb-2 tw:rounded-md tw:transition-colors tw:cursor-pointer ${
-            theme === 'dark'
-              ? 'tw:text-red-500 tw:hover:bg-slate-700'
-              : 'tw:hover:bg-white tw:hover:shadow-md'
-          }`}
+          className={`tw:flex tw:p-1 tw:mr-4 tw:mb-2 tw:rounded-md tw:transition-colors tw:cursor-pointer tw:dark:text-red-500 tw:dark:hover:bg-slate-700 tw:hover:bg-white tw:hover:shadow-md`}
         >
           <Tooltip position='left' content={'닫기'}>
             <Icon icon='lucide:x' className='tw:w-4 tw:h-4' />

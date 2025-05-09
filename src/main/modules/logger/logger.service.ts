@@ -59,7 +59,7 @@ export class LoggerService {
       }
 
       const response = await apiClient.post<Record<string, unknown>>(
-        `/v2/racla/log/client/create`,
+        `/v3/racla/log/client/create`,
         errorData,
       )
       if (response.status === 200) {

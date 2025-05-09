@@ -3,6 +3,7 @@ import { useAuth } from '@render/hooks/useAuth'
 import { setOverlayMode } from '@render/store/slices/uiSlice'
 import { GameType } from '@src/types/games/GameType'
 import { SongData } from '@src/types/games/SongData'
+import { SessionData } from '@src/types/sessions/SessionData'
 import React, { lazy, Suspense, useCallback, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Outlet, useLocation } from 'react-router-dom'
@@ -18,7 +19,6 @@ import {
   setSettingData,
   setSongData,
   setUserData,
-  setVArchiveUserData,
 } from '../../store/slices/appSlice'
 import { ThemeProvider } from '../ui/ThemeProvider'
 
@@ -229,13 +229,13 @@ export default function WrappedApp() {
 
       switch (gameCode) {
         case 'djmax_respect_v':
-          endpoint = '/v2/racla/songs/djmax_respect_v/processed'
+          endpoint = '/v3/racla/songs/djmax_respect_v'
           break
         case 'wjmax':
-          endpoint = '/v2/racla/songs/wjmax'
+          endpoint = '/v3/racla/songs/wjmax'
           break
         case 'platina_lab':
-          endpoint = '/v2/racla/songs/platina_lab'
+          endpoint = '/v3/racla/songs/platina_lab'
           break
         default:
           return null
@@ -250,10 +250,10 @@ export default function WrappedApp() {
         )
       }
 
-      const data = response.data
+      const data = response.data.data
 
       // 곡 데이터 저장 (Redux 및 로컬)
-      dispatch(setSongData({ data, gameCode }))
+      dispatch(setSongData({ data: data, gameCode }))
 
       if (window.electron?.saveSongData) {
         createLog(
@@ -523,7 +523,7 @@ export default function WrappedApp() {
               // 세션 로드 후 잠시 지연
               await new Promise((resolve) => setTimeout(resolve, 300))
 
-              if (session?.userNo && session?.userToken) {
+              if (session?.playerId && session?.playerToken) {
                 try {
                   createLog(
                     'debug',
@@ -533,84 +533,40 @@ export default function WrappedApp() {
                     session,
                   )
 
-                  const response = await apiClient.post<{
-                    userNo: string
-                    userToken: string
-                    userName?: string
-                    discordUid?: string
-                    discordLinked?: boolean
-                    vArchiveLinked?: boolean
-                    vArchiveUserNo?: number
-                    vArchiveUserToken?: string
-                    vArchiveUserName?: string | { success: boolean; nickname: string }
-                  }>(`/v2/racla/user/login`, {
-                    userNo: session.userNo,
-                    userToken: session.userToken,
+                  const response = await apiClient.post<SessionData>(`/v3/racla/player/login`, {
+                    playerId: session.playerId,
+                    playerToken: session.playerToken,
                   })
 
                   if (response.status === 200) {
-                    const data = response.data
-                    session.userNo = data.userNo
-                    session.userToken = data.userToken
-                    session.userName = (data.userName ?? session.userName) || ''
-                    session.discordUid = (data.discordUid ?? session.discordUid) || ''
-                    session.discordLinked = (data.discordLinked ?? session.discordLinked) || false
-                    session.vArchiveLinked =
-                      (data.vArchiveLinked ?? session.vArchiveLinked) || false
-                    session.vArchiveUserNo = (data.vArchiveUserNo ?? session.vArchiveUserNo) || 0
-                    session.vArchiveUserToken =
-                      (data.vArchiveUserToken ?? session.vArchiveUserToken) || ''
-                    session.vArchiveUserName =
-                      (data.vArchiveUserName ?? session.vArchiveUserName) || ''
-                  }
+                    const sessionData = response.data.data
 
-                  // API 응답 이후 잠시 지연
-                  await new Promise((resolve) => setTimeout(resolve, 300))
+                    // API 응답 이후 잠시 지연
+                    await new Promise((resolve) => setTimeout(resolve, 300))
 
-                  const success = await window.electron.login(session)
-                  if (success) {
-                    createLog(
-                      'debug',
-                      settingData.language === 'ko_KR' ? '로그인 성공:' : 'Login successful:',
-                      session,
-                    )
-                    // 사용자 정보 설정
-                    dispatch(
-                      setUserData({
-                        userName: session.userName || '',
-                        userNo: session.userNo,
-                        userToken: session.userToken,
-                        discordUid: session.discordUid || '',
-                        discordLinked: session.discordLinked || false,
-                        vArchiveLinked: session.vArchiveLinked || false,
-                      }),
-                    )
+                    const success = await window.electron.login({
+                      playerId: sessionData.playerId,
+                      playerToken: sessionData.playerToken,
+                    })
+                    if (success) {
+                      createLog(
+                        'debug',
+                        settingData.language === 'ko_KR' ? '로그인 성공:' : 'Login successful:',
+                        sessionData,
+                      )
+                      // 사용자 정보 설정
+                      dispatch(setUserData(response.data.data))
 
-                    // V-ARCHIVE 정보 설정
-                    if (session.vArchiveUserNo && session.vArchiveUserToken) {
-                      dispatch(
-                        setVArchiveUserData({
-                          userName:
-                            typeof session.vArchiveUserName === 'object' &&
-                            session.vArchiveUserName?.success
-                              ? session.vArchiveUserName.nickname
-                              : typeof session.vArchiveUserName === 'string'
-                                ? session.vArchiveUserName
-                                : '',
-                          userNo: session.vArchiveUserNo,
-                          userToken: session.vArchiveUserToken,
-                        }),
+                      dispatch(setIsLoggedIn(true))
+                      showNotification(
+                        {
+                          mode: 'i18n',
+                          value: 'auth.loginSuccess',
+                          props: { userName: sessionData.playerName },
+                        },
+                        'success',
                       )
                     }
-                    dispatch(setIsLoggedIn(true))
-                    showNotification(
-                      {
-                        mode: 'i18n',
-                        value: 'auth.loginSuccess',
-                        props: { userName: session.userName },
-                      },
-                      'success',
-                    )
                   } else {
                     createLog(
                       'error',
