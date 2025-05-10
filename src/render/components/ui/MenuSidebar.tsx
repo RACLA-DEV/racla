@@ -248,13 +248,13 @@ const MenuSidebar: React.FC = () => {
             </span>
           </li>
           <li className={`tw:border-t tw:dark:border-slate-700 tw:border-gray-200`}></li>
-          {userData.vArchiveUserInfo.isLinked && userData.vArchiveUserInfo.nickname !== '' ? (
+          {userData.varchiveUserInfo.isLinked && userData.varchiveUserInfo.nickname !== '' ? (
             <li>
               <span
                 className={`tw:flex tw:w-full tw:text-left tw:py-2 tw:px-4 tw:transition-colors tw:cursor-pointer tw:dark:hover:bg-slate-700 tw:hover:bg-indigo-50`}
                 onClick={() => {
                   handleOpenExternalLink(
-                    `https://v-archive.net/archive/${userData.vArchiveUserInfo.nickname}/board`,
+                    `https://v-archive.net/archive/${userData.varchiveUserInfo.nickname}/board`,
                   )
                   setIsDropdownOpen(false)
                 }}

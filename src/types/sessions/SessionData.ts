@@ -8,6 +8,6 @@ export interface SessionData {
   playerNickname?: string
   isSetupPassword: boolean
   profileImageUrl?: string
-  vArchiveUserInfo?: VArchiveUserInfo
+  varchiveUserInfo?: VArchiveUserInfo
   discordUserInfo?: DiscordUserInfo
 }

@@ -1,5 +1,4 @@
 import '@render/App.css'
-import { Link } from 'react-router-dom'
 
 import { useEffect, useState } from 'react'
 
@@ -237,7 +236,7 @@ function CheatsheetPage() {
                   </button>
                 </div>
                 <p>{item.description}</p>
-                <div className='tw:bg-gray-100 tw:p-4 tw:rounded-lg'>
+                <div className='tw:bg-gray-100 tw:dark:bg-gray-900 tw:p-4 tw:rounded-lg'>
                   <pre className='tw:text-sm tw:font-mono tw:whitespace-pre-wrap'>
                     {item.example}
                   </pre>
@@ -246,20 +245,6 @@ function CheatsheetPage() {
             ))}
           </div>
         </div>
-      </div>
-
-      {/* 동적 라우팅 테스트 링크 */}
-      <div className='tw:mt-4 tw:p-4 tw:bg-blue-50 tw:rounded-lg tw:shadow'>
-        <h2 className='tw:text-lg tw:font-medium tw:mb-2'>파일 기반 라우팅 테스트</h2>
-        <p className='tw:mb-3'>
-          아래 링크를 통해 동적 라우팅이 적용된 페이지로 이동할 수 있습니다.
-        </p>
-        <Link
-          to='/players'
-          className='tw:inline-block tw:bg-blue-500 tw:text-white tw:py-2 tw:px-4 tw:rounded tw:hover:bg-blue-600'
-        >
-          사용자 목록 페이지로 이동
-        </Link>
       </div>
     </div>
   )
