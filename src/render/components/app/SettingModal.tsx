@@ -610,7 +610,7 @@ export default function SettingModal() {
 
       {/* 모달 내용 */}
       <div
-        className={`tw:relative tw:rounded-xl tw:shadow-2xl tw:w-full tw:max-w-4xl tw:max-h-[90vh] tw:flex tw:flex-col tw:transition-all tw:duration-300 tw:dark:bg-slate-800 tw:text-slate-200' : 'tw:bg-white tw:text-gray-800' } ${isSetting ? 'tw:translate-y-0 tw:opacity-100' : 'tw:translate-y-4 tw:opacity-0'}`}
+        className={`tw:relative tw:rounded-xl tw:shadow-2xl tw:w-full tw:max-w-4xl tw:max-h-[90vh] tw:flex tw:flex-col tw:transition-all tw:duration-300 tw:dark:bg-slate-800 tw:dark:text-slate-200 tw:bg-white tw:text-gray-800 ${isSetting ? 'tw:translate-y-0 tw:opacity-100' : 'tw:translate-y-4 tw:opacity-0'}`}
       >
         {/* 모달 헤더 */}
         <div className={`tw:py-3 tw:px-5 tw:border-b tw:dark:border-slate-700 tw:border-gray-200`}>

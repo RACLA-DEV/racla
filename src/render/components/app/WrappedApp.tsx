@@ -556,7 +556,6 @@ export default function WrappedApp() {
                       )
                       // 사용자 정보 설정
                       dispatch(setUserData(response.data.data))
-
                       dispatch(setIsLoggedIn(true))
                       showNotification(
                         {

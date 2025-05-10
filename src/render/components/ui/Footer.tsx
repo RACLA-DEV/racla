@@ -139,7 +139,7 @@ const Footer: React.FC = () => {
 
   return (
     <div
-      className={`tw:flex tw:fixed tw:w-full tw:h-8 tw:items-center tw:bottom-0 tw:left-0 tw:px-2 tw:z-50 tw:dark:border-slate-700/50 tw:dark:text-slate-300 tw:border-indigo-100/50 tw:text-indigo-900`}
+      className={`tw:flex tw:fixed tw:w-full tw:h-8 tw:items-center tw:bottom-0 tw:left-0 tw:px-2 tw:z-50 tw:dark:border-slate-700/50 tw:dark:text-slate-200 tw:text-gray-800 tw:border-indigo-100/50`}
     >
       <div className='tw:flex tw:justify-center tw:items-center tw:gap-1 tw:pl-1 tw:h-8 tw:me-auto'>
         <span className='tw:text-xs tw:flex tw:items-center'>
