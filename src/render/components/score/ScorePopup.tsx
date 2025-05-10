@@ -1,9 +1,8 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useSelector } from 'react-redux'
 
 import { Icon } from '@iconify/react/dist/iconify.js'
 import { globalDictionary } from '@render/constants/globalDictionary'
-import { useAuth } from '@render/hooks/useAuth'
 import {
   getDifficultyClassName,
   getDifficultyColor,
@@ -14,9 +13,11 @@ import { createLog } from '@render/libs/logger'
 import { RootState } from '@render/store'
 import { GameType } from '@src/types/games/GameType'
 import { SongData } from '@src/types/games/SongData'
+import { AnimatePresence, motion } from 'framer-motion'
 import * as R from 'ramda'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
+import { PuffLoader } from 'react-spinners'
 import apiClient from '../../../libs/apiClient'
 
 interface ScorePopupComponentProps {
@@ -32,27 +33,39 @@ const ScorePopupComponent = ({
   isVisibleCode = false,
   size = 80,
 }: ScorePopupComponentProps) => {
-  const { songData } = useSelector((state: RootState) => state.app)
-  const { userData, isLoggedIn } = useAuth()
-  const { theme } = useSelector((state: RootState) => state.ui)
+  const { songData, userData, isLoggedIn } = useSelector((state: RootState) => state.app)
   const { font } = useSelector((state: RootState) => state.app.settingData)
-  const [songItem, setSongItem] = useState<SongData | null>(null)
+  const [songItem] = useState<SongData>(
+    R.pipe(
+      R.values,
+      R.flatten,
+    )(songData).find((item: SongData) => String(item.title) === String(songTitle)) as SongData,
+  )
   const [scoreData, setScoreData] = useState<SongData | null>(null)
-  const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [isLoading, setIsLoading] = useState<boolean>(true)
   const [isHovered, setIsHovered] = useState<boolean>(false)
-  const [imageLoaded, setImageLoaded] = useState(false)
   const [tooltipPosition, setTooltipPosition] = useState<{ x: number; y: number } | null>(null)
-  const [game, setGame] = useState<GameType>('djmax_respect_v')
+  const [game, setGame] = useState<GameType>(() => {
+    // 초기 게임 타입 설정
+    switch (true) {
+      case songTitle < 1000000:
+        return 'djmax_respect_v'
+      case songTitle >= 1000000 && songTitle < 20000000:
+        return 'wjmax'
+      case songTitle >= 40000000 && songTitle < 50000000:
+        return 'platina_lab'
+      default:
+        return 'djmax_respect_v'
+    }
+  })
   const tooltipRef = useRef<HTMLDivElement>(null)
   const triggerRef = useRef<HTMLDivElement>(null)
-  const handleImageLoad = useCallback(() => {
-    setImageLoaded(true)
-  }, [])
+
   const { t } = useTranslation(['games'])
 
   // 툴팁 위치 계산
   useEffect(() => {
-    if (isHovered && !isLoading && songItem && triggerRef.current) {
+    if (isHovered && songItem && triggerRef.current) {
       // triggerRef의 위치 기반으로 고정 위치 계산
       const triggerRect = triggerRef.current.getBoundingClientRect()
       const viewportWidth = window.innerWidth
@@ -82,10 +95,11 @@ const ScorePopupComponent = ({
     } else {
       setTooltipPosition(null)
     }
-  }, [isHovered, isLoading, songItem])
+  }, [isHovered, songItem])
 
   useEffect(() => {
     const fetchData = async () => {
+      setIsLoading(true)
       const title = String(songTitle)
 
       setGame(
@@ -103,15 +117,9 @@ const ScorePopupComponent = ({
         })(),
       )
 
-      setSongItem(
-        R.pipe(
-          R.values,
-          R.flatten,
-        )(songData).find((item: SongData) => String(item.title) === title) as SongData,
-      )
-
       if (!isLoggedIn || !songTitle) {
         setIsLoading(false)
+        setScoreData(null)
         return
       }
 
@@ -148,8 +156,13 @@ const ScorePopupComponent = ({
         setIsLoading(false)
       }
     }
-    fetchData()
-  }, [songTitle])
+
+    if (isHovered) {
+      fetchData()
+    } else {
+      setScoreData(null)
+    }
+  }, [songTitle, isLoggedIn, userData, isHovered, game])
 
   const handleMouseEnter = () => {
     setIsHovered(true)
@@ -159,13 +172,16 @@ const ScorePopupComponent = ({
     setIsHovered(false)
   }
 
-  return songItem && !isLoading ? (
+  if (!songItem) return null
+
+  return (
     <>
-      <div
+      <motion.div
         ref={triggerRef}
-        className={`tw:inline-flex tw:flex-col tw:transition-all tw:duration-300 ${
-          isHovered ? 'tw:scale-105' : ''
-        }`}
+        className='tw:inline-flex tw:flex-col'
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1, scale: isHovered ? 1.05 : 1 }}
+        transition={{ duration: 0.3 }}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >
@@ -179,13 +195,10 @@ const ScorePopupComponent = ({
             src={`${import.meta.env.VITE_CDN_URL}${
               globalDictionary.gameDictionary[game]?.jacketsUrl || ''
             }/${songTitle}.jpg`}
-            className={`tw:absolute tw:rounded-md tw:shadow-lg ${
-              imageLoaded ? 'tw:animate-fadeIn' : 'tw:opacity-0'
-            }`}
+            className='tw:absolute tw:rounded-md tw:shadow-lg tw:w-full tw:h-full'
             width={size}
             height={size}
             alt={songItem?.name || ''}
-            onLoad={handleImageLoad}
             style={{ objectFit: 'cover' }}
           />
           {isVisibleCode ? (
@@ -216,128 +229,152 @@ const ScorePopupComponent = ({
             {getSCPatternScoreDisplayText(game, scoreData?.patterns)}
           </span>
         ) : null} */}
-      </div>
+      </motion.div>
 
-      {/* 커스텀 툴팁 - 임시로 항상 표시하도록 수정 */}
-      <div
-        ref={tooltipRef}
-        className={`tw:fixed tw:z-50 tw:rounded-md tw:shadow-lg tw:border tw:backdrop-blur-sm tw:transition-opacity ${
-          isHovered && tooltipPosition
-            ? 'tw:opacity-100 tw:animate-fadeIn'
-            : 'tw:opacity-0 tw:pointer-events-none'
-        } ${
-          theme === 'dark'
-            ? 'tw:bg-slate-800/95 tw:border-slate-700/40'
-            : 'tw:bg-white/95 tw:border-indigo-100/40'
-        } ${font != 'default' ? 'tw:font-medium' : ''}`}
-        style={{
-          left: tooltipPosition ? tooltipPosition.x : 0,
-          top: tooltipPosition ? tooltipPosition.y : 0,
-          maxWidth: '400px',
-          display: tooltipPosition ? 'block' : 'none',
-        }}
-      >
-        <div className='tw:flex tw:gap-2 tw:p-2'>
-          <div className='tw:flex tw:flex-col'>
-            <div className='tw:flex tw:flex-col tw:w-80 tw:h-32 tw:relative tw:mb-2 tw:overflow-hidden tw:rounded-md'>
-              <img
-                loading='lazy'
-                src={`${import.meta.env.VITE_CDN_URL}${
-                  globalDictionary.gameDictionary[game]?.jacketsUrl || ''
-                }/${songTitle}.jpg`}
-                className={`tw:absolute tw:blur-sm`}
-                alt=''
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-              />
-              <div className={`tw:absolute tw:inset-0 tw:bg-slate-800/75`} />
-              <span className='tw:absolute tw:left-0 tw:bottom-1 tw:px-2 tw:font-bold tw:text-left tw:break-keep'>
-                <span className={`tw:font-medium tw:text-xs tw:text-slate-200`}>
-                  {songItem?.composer || songItem?.artist}
-                </span>
-                <br />
-                <span className={`tw:text-xl tw:text-white`}>{songItem?.name}</span>
-              </span>
-              <span
-                className={`tw:absolute tw:text-xs tw:p-1 tw:top-1 tw:right-1 ${game}_dlc_code_wrap tw:animate-fadeInLeft tw:rounded-md tw:bg-opacity-80 tw:bg-slate-900 } p-1`}
-              >
-                <span className={`${game}_dlc_code ${game}_dlc_code_${songItem?.dlcCode ?? ''}`}>
-                  {songItem?.dlc ?? ''}
-                </span>
-              </span>
-            </div>
-            <div
-              className={`tw:flex tw:flex-col tw:gap-2 tw:w-80 tw:p-2 tw:rounded-md ${
-                theme === 'dark' ? 'tw:bg-slate-700/25' : 'tw:bg-indigo-100/25'
-              }`}
-            >
-              {[
-                'NM',
-                'HD',
-                'MX',
-                'SC',
-                'DPC',
-                'EASY',
-                'HARD',
-                'OVER',
-                'PLUS_1',
-                'PLUS_2',
-                'PLUS_3',
-              ].map(
-                (value) =>
-                  songItem?.patterns[`${keyMode}B`]?.[value] !== undefined &&
-                  songItem?.patterns[`${keyMode}B`]?.[value] !== null && (
-                    <div
-                      className='tw:flex tw:flex-col tw:gap-2'
-                      key={'songDataPack_item' + songItem.title + '_hover' + value}
+      {/* 커스텀 툴팁 */}
+      <AnimatePresence>
+        {isHovered && tooltipPosition && (
+          <motion.div
+            ref={tooltipRef}
+            className={`tw:fixed tw:z-50 tw:rounded-md tw:shadow-lg tw:border tw:backdrop-blur-sm tw:dark:bg-slate-800/95 tw:dark:border-slate-700/40 tw:bg-white/95 tw:border-indigo-100/40 ${
+              font != 'default' ? 'tw:font-medium' : ''
+            }`}
+            style={{
+              left: tooltipPosition.x,
+              top: tooltipPosition.y,
+              maxWidth: '400px',
+            }}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 10 }}
+            transition={{ duration: 0.2 }}
+          >
+            {isLoading ? (
+              <div className='tw:flex tw:justify-center tw:items-center tw:p-4 tw:h-40 tw:w-80'>
+                <PuffLoader color='#6a9eff' size={30} />
+              </div>
+            ) : (
+              <div className='tw:flex tw:gap-2 tw:p-2'>
+                <div className='tw:flex tw:flex-col'>
+                  <div className='tw:flex tw:flex-col tw:w-80 tw:h-32 tw:relative tw:mb-2 tw:overflow-hidden tw:rounded-md'>
+                    <img
+                      loading='lazy'
+                      src={`${import.meta.env.VITE_CDN_URL}${
+                        globalDictionary.gameDictionary[game]?.jacketsUrl || ''
+                      }/${songTitle}.jpg`}
+                      className={`tw:absolute tw:blur-sm tw:w-full tw:h-full`}
+                      alt=''
+                      style={{ objectFit: 'cover' }}
+                    />
+                    <div className={`tw:absolute tw:inset-0 tw:bg-slate-800/75`} />
+                    <span className='tw:absolute tw:left-0 tw:bottom-1 tw:px-2 tw:font-bold tw:text-left tw:break-keep'>
+                      <span className={`tw:font-medium tw:text-xs tw:text-slate-200`}>
+                        {songItem?.composer || songItem?.artist}
+                      </span>
+                      <br />
+                      <span className={`tw:text-xl tw:text-white`}>{songItem?.name}</span>
+                    </span>
+                    <span
+                      className={`tw:absolute tw:text-xs tw:p-1 tw:top-1 tw:right-1 ${game}_dlc_code_wrap tw:animate-fadeInLeft tw:rounded-md tw:bg-opacity-80 tw:bg-slate-900 } p-1`}
                     >
-                      <div className='tw:flex tw:items-center tw:gap-1'>
-                        <span className={getDifficultyTextClassName(game, value)}>
-                          {t(globalDictionary.gameDictionary[game].difficulty[value].fullName)}
-                        </span>
-                        <Icon
-                          icon='lucide:star'
-                          height={14}
-                          width={14}
-                          className={getDifficultyColor(game, value)}
-                        />
-                        <span className={getDifficultyClassName(game, value)}>
-                          {songItem?.patterns[`${keyMode}B`][value].level}{' '}
-                          <sup className='tw:text-xs'>
-                            {songItem?.patterns[`${keyMode}B`][value].floor !== undefined &&
-                            songItem?.patterns[`${keyMode}B`][value].floor !== null &&
-                            songItem?.patterns[`${keyMode}B`][value].floor > 0
-                              ? `(${songItem?.patterns[`${keyMode}B`][value].floor}F)`
-                              : null}
-                          </sup>
-                        </span>
-                      </div>
-                      {scoreData && scoreData.patterns[`${keyMode}B`][value] !== undefined ? (
-                        <div
-                          className={`tw:relative tw:w-full tw:h-6 tw:rounded-sm tw:overflow-hidden ${
-                            theme === 'dark' ? 'tw:bg-slate-900' : 'tw:bg-slate-400'
-                          }`}
-                        >
-                          <div
-                            className='tw:h-full tw:transition-all tw:duration-1000 tw:ease-out'
-                            style={{
-                              width: `${scoreData.patterns[`${keyMode}B`][value]?.score ? Number(scoreData.patterns[`${keyMode}B`][value].score) : 0}%`,
-                              backgroundColor: getDifficultyColor(game, value),
-                            }}
-                          />
-                          <div className='tw:absolute tw:text-xs tw:inset-0 tw:flex tw:items-center tw:justify-center tw:font-bold tw:text-white'>
-                            {getScoreDisplayText(game, songItem?.patterns[`${keyMode}B`][value])}
-                          </div>
-                        </div>
-                      ) : null}
-                    </div>
-                  ),
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
+                      <span
+                        className={`${game}_dlc_code ${game}_dlc_code_${songItem?.dlcCode ?? ''}`}
+                      >
+                        {songItem?.dlc ?? ''}
+                      </span>
+                    </span>
+                  </div>
+                  <motion.div
+                    className={`tw:flex tw:flex-col tw:gap-2 tw:w-80 tw:p-2 tw:rounded-md tw:dark:bg-slate-700/25 tw:bg-indigo-100/25`}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.1 }}
+                  >
+                    {[
+                      'NM',
+                      'HD',
+                      'MX',
+                      'SC',
+                      'DPC',
+                      'EASY',
+                      'HARD',
+                      'OVER',
+                      'PLUS_1',
+                      'PLUS_2',
+                      'PLUS_3',
+                    ].map(
+                      (value, index) =>
+                        songItem?.patterns[`${keyMode}B`]?.[value] !== undefined &&
+                        songItem?.patterns[`${keyMode}B`]?.[value] !== null && (
+                          <motion.div
+                            className='tw:flex tw:flex-col tw:gap-2'
+                            key={'songDataPack_item' + songItem.title + '_hover' + value}
+                            initial={{ opacity: 0, y: 5 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.1 + index * 0.05 }}
+                          >
+                            <div className='tw:flex tw:items-center tw:gap-1'>
+                              <span className={getDifficultyTextClassName(game, value)}>
+                                {t(
+                                  globalDictionary.gameDictionary[game].difficulty[value].fullName,
+                                )}
+                              </span>
+                              <Icon
+                                icon='lucide:star'
+                                height={14}
+                                width={14}
+                                className={getDifficultyColor(game, value)}
+                              />
+                              <span className={getDifficultyClassName(game, value)}>
+                                {songItem?.patterns[`${keyMode}B`][value].level}{' '}
+                                <sup className='tw:text-xs'>
+                                  {songItem?.patterns[`${keyMode}B`][value].floor !== undefined &&
+                                  songItem?.patterns[`${keyMode}B`][value].floor !== null &&
+                                  songItem?.patterns[`${keyMode}B`][value].floor > 0
+                                    ? `(${songItem?.patterns[`${keyMode}B`][value].floor}F)`
+                                    : null}
+                                </sup>
+                              </span>
+                            </div>
+                            {scoreData && scoreData.patterns[`${keyMode}B`][value] !== undefined ? (
+                              <div
+                                className={`tw:relative tw:w-full tw:h-6 tw:rounded-sm tw:overflow-hidden tw:dark:bg-slate-900 tw:bg-slate-400`}
+                              >
+                                <motion.div
+                                  className='tw:h-full'
+                                  style={{
+                                    backgroundColor: getDifficultyColor(game, value),
+                                  }}
+                                  initial={{ width: '0%' }}
+                                  animate={{
+                                    width: `${scoreData.patterns[`${keyMode}B`][value]?.score ? Number(scoreData.patterns[`${keyMode}B`][value].score) : 0}%`,
+                                  }}
+                                  transition={{
+                                    duration: 0.8,
+                                    delay: 0.2 + index * 0.05,
+                                    ease: 'easeOut',
+                                  }}
+                                />
+                                <div className='tw:absolute tw:text-xs tw:inset-0 tw:flex tw:items-center tw:justify-center tw:font-bold tw:text-white'>
+                                  {getScoreDisplayText(
+                                    game,
+                                    songItem?.patterns[`${keyMode}B`][value],
+                                  )}
+                                </div>
+                              </div>
+                            ) : null}
+                          </motion.div>
+                        ),
+                    )}
+                  </motion.div>
+                </div>
+              </div>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
-  ) : null
+  )
 }
 
 export default ScorePopupComponent

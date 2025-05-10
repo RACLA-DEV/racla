@@ -53,7 +53,7 @@ export default function ExternalLinkModal() {
           </h3>
           <p className='tw:mb-6 tw:text-center tw:text-sm'>{t('externalLinkModal.description')}</p>
           <div
-            className={`tw:mb-6 tw:h-20 tw:overflow-y-auto tw:rounded tw:p-2 tw:dark:bg-slate-800 tw:bg-white`}
+            className={`tw:mb-6 tw:h-20 tw:overflow-y-auto tw:rounded tw:p-2 tw:dark:bg-slate-900 tw:bg-slate-100`}
           >
             <p className={`tw:break-all tw:text-sm tw:dark:text-blue-400 tw:text-blue-600`}>
               {openExternalLink}
@@ -61,7 +61,7 @@ export default function ExternalLinkModal() {
           </div>
           <div className='tw:flex tw:justify-end tw:gap-2'>
             <button
-              className={`tw:px-4 tw:py-1.5 tw:text-sm tw:rounded tw:cursor-pointer tw:dark:bg-slate-700 tw:bg-indigo-100 tw:hover:bg-slate-600 tw:hover:bg-indigo-200`}
+              className={`tw:px-4 tw:py-1.5 tw:text-sm tw:rounded tw:cursor-pointer tw:dark:bg-slate-700 tw:bg-indigo-100 tw:dark:hover:bg-slate-600 tw:hover:bg-indigo-200`}
               onClick={() => {
                 dispatch(setIsOpenExternalLink(false))
                 dispatch(setOpenExternalLink(''))

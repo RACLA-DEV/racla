@@ -44,8 +44,8 @@ const MainContent: React.FC<ChildrenReactNodeProps> = ({ children }) => {
       variants={contentAnimation}
       className={`tw:flex-1 tw:overflow-x-hidden tw:overflow-y-auto tw:transition-all tw:duration-300 tw:border-l tw:custom-scrollbar tw:pr-3 ${
         theme === 'dark'
-          ? 'tw:text-slate-100 tw:border-slate-700/50'
-          : 'light-theme tw:text-indigo-900 tw:border-indigo-100/50'
+          ? 'tw:dark:text-slate-200 tw:border-slate-700/50'
+          : 'light-theme tw:text-gray-800 tw:border-indigo-100/50'
       }`}
     >
       {/* 컨텐츠 영역 */}
