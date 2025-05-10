@@ -276,8 +276,12 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
       beat: mouseBeat,
     })
 
+    // 드래그 중이 아닐 때만 미리보기 위치 업데이트
     if (!isDragging) {
       setPreviewPosition({ x, y })
+    } else {
+      // 드래그 중에는 미리보기 숨기기
+      setPreviewPosition(null)
     }
 
     // 드래그 중인 경우
@@ -294,8 +298,8 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
 
         if (isResizing && note.isLong) {
           // 롱노트 크기 조절 모드
-          // 최소 길이 설정 (기준: 1/4 비트)
-          const minLength = getGridSizeMs(4)
+          // 최소 길이 설정 (현재 활성화된 비트 분할로 설정)
+          const minLength = getGridSizeMs(activeDivision)
 
           // 롱노트의 새 끝 시간 계산 (그리드에 맞춤)
           const newEndTime = Math.max(note.time + minLength, snapToGrid(editorY / pixelsPerMs))
@@ -355,6 +359,7 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
   const handleNoteDragEnd = () => {
     createLog('debug', '노트 드래그 종료')
 
+    const wasDragging = isDragging
     setDraggedNote(null)
     setIsDragging(false)
 
@@ -368,6 +373,14 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
 
     // 이벤트 리스너 제거
     window.removeEventListener('mouseup', handleNoteDragEnd)
+
+    // 드래그 종료 직후 클릭 이벤트를 방지하기 위한 플래그 설정
+    if (wasDragging) {
+      // 드래그 작업 후 클릭 이벤트가 발생하지 않도록 타임아웃 설정
+      setTimeout(() => {
+        setDraggedNote(null)
+      }, 200)
+    }
   }
 
   // 롱노트 크기 조절 관련 이벤트 핸들러 수정
@@ -435,6 +448,9 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
   const handleEditorClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!editorRef.current || isDragging || isCtrlPressed) return
 
+    // 드래그 작업 직후에는 클릭 이벤트 무시
+    if (draggedNote !== null) return
+
     const rect = editorRef.current.getBoundingClientRect()
     const x = e.clientX - rect.left
 
@@ -487,8 +503,8 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
 
     // 롱노트인 경우 endTime 추가
     if (isLongNote) {
-      // 기본 롱노트 길이를 그리드 사이즈의 2배로 설정
-      newNote.endTime = snappedTime + gridSizeMs * 2
+      // 기본 롱노트 길이를 현재 활성화된 그리드 사이즈에 맞게 설정
+      newNote.endTime = snappedTime + gridSizeMs
     }
 
     // 패턴에 노트 추가
@@ -650,6 +666,9 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
     const laneWidth = editorWidth / laneCount
     const pixelsPerMs = zoom * 0.1
 
+    // 그리드 한 칸의 높이 계산 (일반 노트 높이로 사용)
+    const gridHeight = getGridSizeMs(activeDivision) * pixelsPerMs
+
     return pattern.map((note) => {
       let left = 0
       let width = laneWidth
@@ -667,11 +686,10 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
 
       // 뒤집힌 좌표계에서 노트 위치 계산
       // 노트 위치는 정확히 note.time 밀리초 위치에 그려짐 (그리드에 맞추지 않음)
-      const top =
-        EDITOR_HEIGHT -
-        note.time * pixelsPerMs -
-        (note.isLong && note.endTime ? (note.endTime - note.time) * pixelsPerMs : 20)
-      const height = note.isLong && note.endTime ? (note.endTime - note.time) * pixelsPerMs : 20
+      // 일반 노트의 경우 높이를 그리드 크기에 맞게 조정
+      const noteHeight =
+        note.isLong && note.endTime ? (note.endTime - note.time) * pixelsPerMs : gridHeight
+      const top = EDITOR_HEIGHT - note.time * pixelsPerMs - noteHeight
 
       // 노트 타입에 따른 색상 스타일 클래스
       const noteTypeClass =
@@ -708,7 +726,7 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
             left: `${left}px`,
             top: `${top}px`,
             width: `${width}px`,
-            height: `${height}px`,
+            height: `${noteHeight}px`,
             cursor: cursorStyle,
           }}
           onClick={(e) => {
@@ -723,12 +741,20 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
           }}
         >
           {note.isLong && <span className={styles.longNoteLabel}>LONG</span>}
-          {isCtrlPressed && (
+          {/* {isCtrlPressed && (
             <div className={styles.dragIndicator}>
               <span>↕</span>
             </div>
+          )} */}
+          {note.isLong && (
+            <div
+              className={styles.resizeHandle}
+              style={{
+                height: `${noteHeight / 16}px`,
+              }}
+              title='크기 조절'
+            ></div>
           )}
-          {note.isLong && <div className={styles.resizeHandle} title='크기 조절'></div>}
         </div>
       )
     })
@@ -736,13 +762,23 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
 
   // 미리보기 노트 렌더링
   const renderPreviewNote = () => {
-    // Ctrl 키 또는 Shift 키를 누른 상태이거나 노트 위에 호버 중인 경우 미리보기 노트를 표시하지 않음
-    if (!previewPosition || !editorRef.current || isCtrlPressed || isShiftPressed || hoveredNote)
+    // Ctrl 키 또는 Shift 키를 누른 상태이거나 노트 위에 호버 중인 경우, 또는 드래그 중일 때 미리보기 노트를 표시하지 않음
+    if (
+      !previewPosition ||
+      !editorRef.current ||
+      isCtrlPressed ||
+      isShiftPressed ||
+      hoveredNote ||
+      isDragging
+    )
       return null
 
     const editorWidth = editorRef.current.clientWidth
     const laneWidth = editorRef.current.clientWidth / laneCount
     const pixelsPerMs = zoom * 0.1
+
+    // 그리드 한 칸의 높이 계산 (미리보기 노트 높이로 사용)
+    const gridHeight = getGridSizeMs(activeDivision) * pixelsPerMs
 
     // 레인과 시간 계산
     const lane = Math.floor(previewPosition.x / laneWidth)
@@ -764,8 +800,12 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
       width = editorWidth
     }
 
-    // 뒤집힌 좌표계에서 미리보기 위치 계산
-    const height = 20
+    // 뒤집힌 좌표계에서 미리보기 위치 계산 - 정확히 그리드 높이에 맞게 조정
+    // 롱노트도 일반 노트와 동일하게 한 그리드 높이로 표시
+    const height = gridHeight
+
+    // 그리드에 정확히 맞추기 위해 top 위치 수정
+    // clickTime은 이미 snapToGrid로 그리드에 맞춰진 시간
     const top = EDITOR_HEIGHT - clickTime * pixelsPerMs - height
 
     // 노트 타입에 따른 스타일 클래스
@@ -1258,9 +1298,9 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
               height: `${EDITOR_HEIGHT}px`,
             }}
           >
-            {renderGridLines()}
             {renderNotes()}
             {renderPreviewNote()}
+            {renderGridLines()}
           </div>
         </div>
         <div className={getThemeClass(styles.timeIndicator)}>

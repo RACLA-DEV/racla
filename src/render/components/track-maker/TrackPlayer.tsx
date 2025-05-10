@@ -4,6 +4,7 @@ import type { JudgementDisplay, KeyState } from '@src/types/track-maker/Judgemen
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useSelector } from 'react-redux'
 import type { KeyMode, Note, TrackPlayerProps } from '../../../types/track-maker/TrackMaker'
+import Tooltip from '../ui/Tooltip'
 import styles from './TrackPlayer.module.css'
 
 const KEY_MAPS = {
@@ -36,6 +37,81 @@ const getLaneCount = (keyMode: KeyMode): number => {
   }
 }
 
+// 판정 프리셋 정의
+type JudgementPreset = {
+  name: string
+  values: {
+    PERFECT_PLUS: number
+    PERFECT: number
+    GREAT: number
+    GOOD: number
+    BAD: number
+  }
+}
+
+const JUDGEMENT_PRESETS: JudgementPreset[] = [
+  {
+    name: 'RACLA',
+    values: {
+      PERFECT_PLUS: 25,
+      PERFECT: 50,
+      GREAT: 100,
+      GOOD: 150,
+      BAD: 200,
+    },
+  },
+  {
+    name: 'DJMAX RESPECT V',
+    values: {
+      PERFECT_PLUS: 18,
+      PERFECT: 41.6,
+      GREAT: 83.2,
+      GOOD: 124.8,
+      BAD: 166.4,
+    },
+  },
+  {
+    name: 'WJMAX',
+    values: {
+      PERFECT_PLUS: 41.66,
+      PERFECT: 66.66,
+      GREAT: 133.32,
+      GOOD: 199.92,
+      BAD: 266.58,
+    },
+  },
+  {
+    name: 'EZ2ON REBOOT : R',
+    values: {
+      PERFECT_PLUS: 22,
+      PERFECT: 40,
+      GREAT: 80,
+      GOOD: 120,
+      BAD: 160,
+    },
+  },
+  {
+    name: 'PLATiNA :: LAB',
+    values: {
+      PERFECT_PLUS: 24,
+      PERFECT: 50,
+      GREAT: 80,
+      GOOD: 120,
+      BAD: 160,
+    },
+  },
+  {
+    name: '사용자 지정',
+    values: {
+      PERFECT_PLUS: 25,
+      PERFECT: 50,
+      GREAT: 100,
+      GOOD: 150,
+      BAD: 200,
+    },
+  },
+]
+
 const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
   const [isPlaying, setIsPlaying] = useState<boolean>(false)
   const [currentTime, setCurrentTime] = useState<number>(0)
@@ -50,12 +126,21 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
   const [metronomeEnabled, setMetronomeEnabled] = useState<boolean>(true)
   const [hitSoundEnabled, setHitSoundEnabled] = useState<boolean>(true)
   const [judgementCounts, setJudgementCounts] = useState<Record<string, number>>({
+    PERFECT_PLUS: 0,
     PERFECT: 0,
     GREAT: 0,
     GOOD: 0,
     BAD: 0,
     MISS: 0,
   })
+
+  // 카운트다운 상태 추가
+  const [countdown, setCountdown] = useState<number | null>(null)
+  const [showBarLine, setShowBarLine] = useState<boolean>(false)
+  const [barLinePosition, setBarLinePosition] = useState<number>(0)
+  const [isCountingDown, setIsCountingDown] = useState<boolean>(false)
+  const countdownStartTimeRef = useRef<number>(0)
+  const countdownAnimationRef = useRef<number | null>(null)
 
   const gameAreaRef = useRef<HTMLDivElement>(null)
   const animationRef = useRef<number | null>(null)
@@ -85,13 +170,25 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
   // 미리 보이는 노트 시간 범위 (ms)
   const VISIBLE_NOTE_RANGE = 4000 // 노트가 미리 보이기 시작하는 시간
 
-  // 판정 범위 (ms)
-  const JUDGEMENT = {
+  // 판정 프리셋 및 사용자 지정 상태
+  const [selectedPreset, setSelectedPreset] = useState<string>('DJMAX RESPECT V')
+  const [customJudgement, setCustomJudgement] = useState({
+    PERFECT_PLUS: 25,
     PERFECT: 50,
     GREAT: 100,
     GOOD: 150,
     BAD: 200,
-  }
+  })
+  const [isEditingJudgement, setIsEditingJudgement] = useState<string | null>(null)
+
+  // 현재 활성화된 판정 값들
+  const [activeJudgement, setActiveJudgement] = useState({
+    PERFECT_PLUS: 18,
+    PERFECT: 41.6,
+    GREAT: 83.2,
+    GOOD: 124.8,
+    BAD: 166.4,
+  })
 
   // 판정선 위치 계산을 위한 효과
   const [judgementLineY, setJudgementLineY] = useState(0)
@@ -119,15 +216,94 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
 
   // 게임 시작
   const startGame = () => {
-    setIsPlaying(true)
+    // 카운트다운 시작
+    setCountdown(3)
+    setShowBarLine(true)
+
+    // 카운트다운 시작 시간 기록
+    countdownStartTimeRef.current = performance.now()
+
+    // 카운트다운 및 마디선 애니메이션 시작
+    updateCountdown()
+
+    // 카운트다운 상태 설정
+    setIsCountingDown(true)
+
+    // 카운트다운 시작 시 초기화
+    setIsPlaying(false)
     setCurrentTime(0)
     setScore(0)
     setCombo(0)
     setMaxCombo(0)
     setCurrentJudgement(null)
-    setJudgementsEnabled(true)
+
     // 판정 카운트 초기화
     setJudgementCounts({
+      PERFECT_PLUS: 0,
+      PERFECT: 0,
+      GREAT: 0,
+      GOOD: 0,
+      BAD: 0,
+      MISS: 0,
+    })
+    pressedNotesRef.current.clear()
+    longNoteTicksRef.current = {} // 롱노트 틱 정보 초기화
+    longNoteJudgementsRef.current = {} // 롱노트 판정 정보 초기화
+  }
+
+  // 카운트다운 및 마디선 애니메이션 업데이트
+  const updateCountdown = () => {
+    const now = performance.now()
+    const elapsedTime = now - countdownStartTimeRef.current
+    const totalCountdownDuration = 3000 // 3초(ms)
+
+    // 남은 카운트다운 계산 (초 단위로 내림)
+    const remainingSeconds = Math.ceil((totalCountdownDuration - elapsedTime) / 1000)
+
+    if (remainingSeconds <= 0) {
+      // 카운트다운 완료
+      setCountdown(null)
+      setIsCountingDown(false)
+      startGameAfterCountdown()
+      return
+    }
+
+    if (countdown !== remainingSeconds) {
+      setCountdown(remainingSeconds)
+    }
+
+    // 마디선 위치 계산 - 노트 스피드와 동기화
+    if (gameAreaRef.current) {
+      const gameHeight = gameAreaRef.current.clientHeight
+      const judgementLineY = gameHeight * JUDGEMENT_LINE_POSITION
+
+      // 노트 속도에 맞춰 이동 거리 계산 (마디선이 3초 후에 판정선에 도달)
+      // 시간 * 스크롤 속도 / 1000 = 픽셀 이동 거리 (calculateNoteY 함수와 동일한 공식)
+      const timeRemaining = totalCountdownDuration - elapsedTime
+      const pixelOffset = timeRemaining * (scrollSpeed / 1000)
+
+      // 판정선 위치에서 스크롤 속도에 맞게 빼줌
+      const newPosition = judgementLineY - pixelOffset
+      setBarLinePosition(newPosition)
+    }
+
+    // 다음 프레임 요청
+    countdownAnimationRef.current = requestAnimationFrame(updateCountdown)
+  }
+
+  // 카운트다운 후 실제 게임 시작
+  const startGameAfterCountdown = () => {
+    if (countdownAnimationRef.current) {
+      cancelAnimationFrame(countdownAnimationRef.current)
+      countdownAnimationRef.current = null
+    }
+
+    setIsPlaying(true)
+    setShowBarLine(false) // 카운트다운용 마디선 숨김
+
+    // 판정 카운트 초기화
+    setJudgementCounts({
+      PERFECT_PLUS: 0,
       PERFECT: 0,
       GREAT: 0,
       GOOD: 0,
@@ -166,11 +342,19 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
   // 게임 종료
   const stopGame = () => {
     setIsPlaying(false)
+    setIsCountingDown(false)
     setCurrentJudgement(null)
+    setCountdown(null)
+    setShowBarLine(false)
 
     if (animationRef.current) {
       cancelAnimationFrame(animationRef.current)
       animationRef.current = null
+    }
+
+    if (countdownAnimationRef.current) {
+      cancelAnimationFrame(countdownAnimationRef.current)
+      countdownAnimationRef.current = null
     }
   }
 
@@ -187,7 +371,7 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
         return false
       }
       // 노트가 판정선을 지나간 경우 (판정선 + 판정 범위를 지남)
-      return note.time < elapsedTime - JUDGEMENT.BAD
+      return note.time < elapsedTime - activeJudgement.BAD
     })
 
     // 미스 처리된 노트들 제거 및 미스 판정 처리
@@ -406,7 +590,7 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
     const targetNotes = visibleNotesRef.current.filter((note) => {
       // 판정 가능한 범위 내에 있는 노트만 선택 (판정선과 가까운 노트만)
       const timeOffset = note.time - keyTime
-      const isWithinJudgementRange = Math.abs(timeOffset) <= JUDGEMENT.BAD * 2
+      const isWithinJudgementRange = Math.abs(timeOffset) <= activeJudgement.BAD * 2
 
       // 타입과 레인이 일치하고 판정 범위 내에 있는 노트만 필터링
       if (note.type !== noteType || !isWithinJudgementRange) return false
@@ -437,15 +621,17 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
     const timeDiff = Math.abs(closestNote.time - keyTime)
 
     // 판정 범위 내에 있는지 확인
-    if (timeDiff <= JUDGEMENT.BAD) {
+    if (timeDiff <= activeJudgement.BAD) {
       // 판정 결정
-      let judgementText: 'PERFECT' | 'GREAT' | 'GOOD' | 'BAD' | 'MISS'
+      let judgementText: 'PERFECT_PLUS' | 'PERFECT' | 'GREAT' | 'GOOD' | 'BAD' | 'MISS'
 
-      if (timeDiff <= JUDGEMENT.PERFECT) {
+      if (timeDiff <= activeJudgement.PERFECT_PLUS) {
+        judgementText = 'PERFECT_PLUS'
+      } else if (timeDiff <= activeJudgement.PERFECT) {
         judgementText = 'PERFECT'
-      } else if (timeDiff <= JUDGEMENT.GREAT) {
+      } else if (timeDiff <= activeJudgement.GREAT) {
         judgementText = 'GREAT'
-      } else if (timeDiff <= JUDGEMENT.GOOD) {
+      } else if (timeDiff <= activeJudgement.GOOD) {
         judgementText = 'GOOD'
       } else {
         judgementText = 'BAD'
@@ -556,17 +742,19 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
     const keyTime = performance.now() - startTimeRef.current
     const shouldEndTime = longNote.endTime || longNote.time
 
-    if (keyTime >= shouldEndTime - JUDGEMENT.BAD) {
+    if (keyTime >= shouldEndTime - activeJudgement.BAD) {
       // 정상 종료 (판정 범위 내)
       const timeDiff = Math.abs(shouldEndTime - keyTime)
 
-      let judgementText: 'PERFECT' | 'GREAT' | 'GOOD' | 'BAD' | 'MISS'
+      let judgementText: 'PERFECT_PLUS' | 'PERFECT' | 'GREAT' | 'GOOD' | 'BAD' | 'MISS'
 
-      if (timeDiff <= JUDGEMENT.PERFECT) {
+      if (timeDiff <= activeJudgement.PERFECT_PLUS) {
+        judgementText = 'PERFECT_PLUS'
+      } else if (timeDiff <= activeJudgement.PERFECT) {
         judgementText = 'PERFECT'
-      } else if (timeDiff <= JUDGEMENT.GREAT) {
+      } else if (timeDiff <= activeJudgement.GREAT) {
         judgementText = 'GREAT'
-      } else if (timeDiff <= JUDGEMENT.GOOD) {
+      } else if (timeDiff <= activeJudgement.GOOD) {
         judgementText = 'GOOD'
       } else {
         judgementText = 'BAD'
@@ -587,7 +775,9 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
   }, [combo])
 
   // 점수 및 콤보 업데이트
-  const updateScore = (judgementText: 'PERFECT' | 'GREAT' | 'GOOD' | 'BAD' | 'MISS') => {
+  const updateScore = (
+    judgementText: 'PERFECT_PLUS' | 'PERFECT' | 'GREAT' | 'GOOD' | 'BAD' | 'MISS',
+  ) => {
     let scoreAdd = 0
 
     // 판정 횟수 업데이트
@@ -613,6 +803,10 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
     }
 
     switch (judgementText) {
+      case 'PERFECT_PLUS':
+        scoreAdd = 120 // PERFECT보다 20% 높은 점수
+        setCombo((prev) => prev + 1)
+        break
       case 'PERFECT':
         scoreAdd = 100
         setCombo((prev) => prev + 1)
@@ -767,15 +961,17 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
 
     // 판정 표시에 따른 스타일 클래스
     const judgementClass =
-      currentJudgement.text === 'PERFECT'
-        ? styles.perfectJudgement
-        : currentJudgement.text === 'GREAT'
-          ? styles.greatJudgement
-          : currentJudgement.text === 'GOOD'
-            ? styles.goodJudgement
-            : currentJudgement.text === 'BAD'
-              ? styles.badJudgement
-              : styles.missJudgement
+      currentJudgement.text === 'PERFECT_PLUS'
+        ? styles.perfectPlusJudgement
+        : currentJudgement.text === 'PERFECT'
+          ? styles.perfectJudgement
+          : currentJudgement.text === 'GREAT'
+            ? styles.greatJudgement
+            : currentJudgement.text === 'GOOD'
+              ? styles.goodJudgement
+              : currentJudgement.text === 'BAD'
+                ? styles.badJudgement
+                : styles.missJudgement
 
     return (
       <div
@@ -783,10 +979,10 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
         className={`${styles.judgementDisplay} ${judgementClass}`}
         style={{
           left: `${gameWidth / 2}px`,
-          top: `${judgementLineY - 30}px`,
+          top: `${judgementLineY - 64}px`,
         }}
       >
-        {currentJudgement.text}
+        {currentJudgement.text === 'PERFECT_PLUS' ? 'PERFECT+' : currentJudgement.text}
       </div>
     )
   }
@@ -805,8 +1001,8 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
           top: '70px',
         }}
       >
-        <div className={styles.comboCount}>{combo}</div>
         <div className={styles.comboText}>COMBO</div>
+        <div className={styles.comboCount}>{combo}</div>
       </div>
     )
   }
@@ -833,9 +1029,171 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
     [currentTime, scrollSpeed, VISIBLE_NOTE_RANGE],
   )
 
-  // 속도 배수로 표시
-  const getSpeedMultiplier = (speed: number) => {
-    return (speed / 100).toFixed(1) + 'x'
+  // 속도 표시 함수
+  const getSpeedDisplay = (speed: number) => {
+    return `${speed}`
+  }
+
+  // 직접 입력 상태
+  const [isEditingSpeed, setIsEditingSpeed] = useState<boolean>(false)
+  const [speedInput, setSpeedInput] = useState<string>('')
+
+  // 속도 입력 처리
+  const handleSpeedInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    // 숫자만 입력 가능하도록
+    if (/^\d*$/.test(value)) {
+      setSpeedInput(value)
+    }
+  }
+
+  // 속도 입력 적용
+  const applySpeedInput = () => {
+    const newSpeed = parseInt(speedInput)
+    if (!isNaN(newSpeed) && newSpeed >= 100 && newSpeed <= 3000) {
+      setScrollSpeed(newSpeed)
+    } else {
+      // 유효하지 않은 값이면 현재 속도로 다시 설정
+      setSpeedInput(scrollSpeed.toString())
+    }
+    setIsEditingSpeed(false)
+  }
+
+  // 속도 입력 필드 키 이벤트 처리
+  const handleSpeedInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      applySpeedInput()
+    } else if (e.key === 'Escape') {
+      setIsEditingSpeed(false)
+      setSpeedInput(scrollSpeed.toString())
+    }
+  }
+
+  // 마디선 렌더링
+  const renderBarLine = () => {
+    if (!showBarLine || !gameAreaRef.current) return null
+
+    const gameWidth = laneCount * LANE_WIDTH
+
+    return (
+      <div
+        className={styles.barLine}
+        style={{
+          width: `${gameWidth}px`,
+          top: `${barLinePosition}px`,
+        }}
+      />
+    )
+  }
+
+  // 카운트다운 렌더링
+  const renderCountdown = () => {
+    if (countdown === null || !gameAreaRef.current) return null
+
+    const gameWidth = laneCount * LANE_WIDTH
+
+    return (
+      <div
+        className={styles.countdown}
+        style={{
+          left: `${gameWidth / 2}px`,
+          top: '50%',
+        }}
+      >
+        {countdown}
+      </div>
+    )
+  }
+
+  // 판정 프리셋 변경 처리
+  const handlePresetChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const presetName = e.target.value
+    setSelectedPreset(presetName)
+
+    const preset = JUDGEMENT_PRESETS.find((p) => p.name === presetName)
+    if (preset) {
+      if (presetName === '사용자 지정') {
+        // 사용자 지정 값을 로드
+        setActiveJudgement({ ...customJudgement })
+      } else {
+        // 프리셋 값을 로드
+        setActiveJudgement({ ...preset.values })
+        // 사용자 지정 값도 업데이트 (나중에 사용자 지정으로 돌아갈 때 기억)
+        setCustomJudgement({ ...preset.values })
+      }
+    }
+  }
+
+  // 사용자 지정 판정 값 변경 처리
+  const handleCustomJudgementChange = (type: string, value: string) => {
+    const numValue = parseFloat(value)
+    if (!isNaN(numValue) && numValue > 0) {
+      const newCustomJudgement = { ...customJudgement, [type]: numValue }
+
+      // 판정 값들이 순서대로 증가하도록 제한
+      if (
+        newCustomJudgement.PERFECT_PLUS < newCustomJudgement.PERFECT &&
+        newCustomJudgement.PERFECT < newCustomJudgement.GREAT &&
+        newCustomJudgement.GREAT < newCustomJudgement.GOOD &&
+        newCustomJudgement.GOOD < newCustomJudgement.BAD
+      ) {
+        setCustomJudgement(newCustomJudgement)
+
+        // 사용자 지정 프리셋이 선택된 경우에만 즉시 적용
+        if (selectedPreset === '사용자 지정') {
+          setActiveJudgement(newCustomJudgement)
+        }
+      }
+    }
+
+    setIsEditingJudgement(null)
+  }
+
+  // 사용자 지정 판정 값 편집 렌더링
+  const renderJudgementEditor = (type: string, value: number) => {
+    if (isEditingJudgement === type) {
+      return (
+        <input
+          type='number'
+          min='1'
+          step='0.1'
+          value={value}
+          className={styles.judgementInput}
+          autoFocus
+          onChange={(e) => {
+            const newValue = e.target.value
+            if (newValue) {
+              handleCustomJudgementChange(type, newValue)
+            }
+          }}
+          onBlur={() => setIsEditingJudgement(null)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              handleCustomJudgementChange(type, e.currentTarget.value)
+            } else if (e.key === 'Escape') {
+              setIsEditingJudgement(null)
+            }
+          }}
+        />
+      )
+    }
+
+    return (
+      <span
+        onClick={() => {
+          if (selectedPreset === '사용자 지정' && !isPlaying && !isCountingDown) {
+            setIsEditingJudgement(type)
+          }
+        }}
+        className={
+          selectedPreset === '사용자 지정' && !isPlaying && !isCountingDown
+            ? styles.editableValue
+            : ''
+        }
+      >
+        ±{value.toFixed(1)}ms
+      </span>
+    )
   }
 
   return (
@@ -861,6 +1219,10 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
                 <span>{maxCombo}</span>
               </div>
               <div className={styles.judgementStats}>
+                <div className={`${styles.judgementStat} ${styles.perfectPlusColor}`}>
+                  <span>PERFECT+</span>
+                  <span>{judgementCounts.PERFECT_PLUS}</span>
+                </div>
                 <div className={`${styles.judgementStat} ${styles.perfectColor}`}>
                   <span>PERFECT</span>
                   <span>{judgementCounts.PERFECT}</span>
@@ -890,40 +1252,96 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
               <div className={styles.speedHeader}>
                 <Icon icon='material-symbols:speed' className={styles.speedIcon} />
                 <h3>노트 속도</h3>
+                <div className={styles.infoIconContainer}>
+                  <Tooltip content='노트 속도 계산식: 거리(픽셀) = 시간(ms) × (속도 ÷ 1000)'>
+                    <Icon icon='material-symbols:info-outline' className={styles.infoIcon} />
+                  </Tooltip>
+                </div>
               </div>
-              <div className={styles.speedValue}>{getSpeedMultiplier(scrollSpeed)}</div>
-              {!isPlaying && (
+              <div
+                className={styles.speedValue}
+                onClick={() => {
+                  if (!isPlaying && !isCountingDown && !isEditingSpeed) {
+                    setIsEditingSpeed(true)
+                    setSpeedInput(scrollSpeed.toString())
+                  }
+                }}
+              >
+                {isEditingSpeed ? (
+                  <input
+                    type='text'
+                    value={speedInput}
+                    onChange={handleSpeedInputChange}
+                    onBlur={applySpeedInput}
+                    onKeyDown={handleSpeedInputKeyDown}
+                    className={styles.speedInput}
+                    autoFocus
+                  />
+                ) : (
+                  getSpeedDisplay(scrollSpeed)
+                )}
+              </div>
+              {!isPlaying && !isCountingDown && (
                 <div className={styles.speedControl}>
                   <input
                     type='range'
-                    min='50'
-                    max='1000'
+                    min='100'
+                    max='2000'
                     step='50'
                     value={scrollSpeed}
                     onChange={(e) => {
                       setScrollSpeed(parseInt(e.target.value))
+                      if (isEditingSpeed) {
+                        setSpeedInput(e.target.value)
+                      }
                     }}
                     className={styles.speedSlider}
+                    tabIndex={-1}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault()
+                      }
+                    }}
                   />
                 </div>
               )}
             </div>
 
             <div className={styles.gameControls}>
-              {!isPlaying ? (
-                <button className={styles.startButton} onClick={startGame}>
+              {!isPlaying && !isCountingDown ? (
+                <button
+                  className={styles.startButton}
+                  onClick={startGame}
+                  tabIndex={-1}
+                  onKeyDown={(e) => {
+                    // 엔터키가 버튼 작동으로 이어지지 않도록 방지
+                    if (e.key === 'Enter') {
+                      e.preventDefault()
+                    }
+                  }}
+                >
                   <Icon icon='material-symbols:play-arrow' className={styles.controlIcon} />
                   시작하기
                 </button>
               ) : (
-                <button className={styles.stopButton} onClick={stopGame}>
+                <button
+                  className={styles.stopButton}
+                  onClick={stopGame}
+                  tabIndex={-1}
+                  onKeyDown={(e) => {
+                    // 엔터키가 버튼 작동으로 이어지지 않도록 방지
+                    if (e.key === 'Enter') {
+                      e.preventDefault()
+                    }
+                  }}
+                >
                   <Icon icon='material-symbols:stop' className={styles.controlIcon} />
                   중지하기
                 </button>
               )}
             </div>
 
-            {!isPlaying && (
+            {!isPlaying && !isCountingDown && (
               <div className={styles.optionsPanel}>
                 <label className={styles.optionCheckbox}>
                   <input
@@ -931,6 +1349,12 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
                     checked={judgementsEnabled}
                     onChange={() => {
                       setJudgementsEnabled((prev) => !prev)
+                    }}
+                    tabIndex={-1}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault()
+                      }
                     }}
                   />
                   <span>판정 표시</span>
@@ -942,6 +1366,12 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
                     onChange={() => {
                       setShowGuide((prev) => !prev)
                     }}
+                    tabIndex={-1}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault()
+                      }
+                    }}
                   />
                   <span>키 가이드 표시</span>
                 </label>
@@ -952,6 +1382,12 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
                     onChange={() => {
                       setMetronomeEnabled((prev) => !prev)
                     }}
+                    tabIndex={-1}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault()
+                      }
+                    }}
                   />
                   <span>메트로놈</span>
                 </label>
@@ -961,6 +1397,12 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
                     checked={hitSoundEnabled}
                     onChange={() => {
                       setHitSoundEnabled((prev) => !prev)
+                    }}
+                    tabIndex={-1}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault()
+                      }
                     }}
                   />
                   <span>타격음</span>
@@ -989,9 +1431,9 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
             />
 
             {renderNotes()}
-
+            {renderBarLine()}
+            {renderCountdown()}
             {renderJudgement()}
-
             {renderCombo()}
           </div>
         </div>
@@ -1052,23 +1494,66 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
             </div>
 
             <div className={styles.judgementGuide}>
-              <h4>판정 기준</h4>
+              <div className={styles.judgementHeader}>
+                <h4>판정 기준</h4>
+                {!isPlaying && !isCountingDown && (
+                  <div className={styles.presetSelector}>
+                    <select
+                      value={selectedPreset}
+                      onChange={handlePresetChange}
+                      className={styles.presetSelect}
+                      tabIndex={-1}
+                      disabled={isPlaying || isCountingDown}
+                    >
+                      {JUDGEMENT_PRESETS.map((preset) => (
+                        <option key={preset.name} value={preset.name}>
+                          {preset.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+              </div>
               <div className={styles.judgementList}>
+                <div className={`${styles.judgementItem} ${styles.perfectPlusColor}`}>
+                  <span>PERFECT+</span>
+                  {selectedPreset === '사용자 지정' && !isPlaying && !isCountingDown ? (
+                    renderJudgementEditor('PERFECT_PLUS', customJudgement.PERFECT_PLUS)
+                  ) : (
+                    <span>±{activeJudgement.PERFECT_PLUS.toFixed(1)}ms</span>
+                  )}
+                </div>
                 <div className={`${styles.judgementItem} ${styles.perfectColor}`}>
                   <span>PERFECT</span>
-                  <span>±{JUDGEMENT.PERFECT}ms</span>
+                  {selectedPreset === '사용자 지정' && !isPlaying && !isCountingDown ? (
+                    renderJudgementEditor('PERFECT', customJudgement.PERFECT)
+                  ) : (
+                    <span>±{activeJudgement.PERFECT.toFixed(1)}ms</span>
+                  )}
                 </div>
                 <div className={`${styles.judgementItem} ${styles.greatColor}`}>
                   <span>GREAT</span>
-                  <span>±{JUDGEMENT.GREAT}ms</span>
+                  {selectedPreset === '사용자 지정' && !isPlaying && !isCountingDown ? (
+                    renderJudgementEditor('GREAT', customJudgement.GREAT)
+                  ) : (
+                    <span>±{activeJudgement.GREAT.toFixed(1)}ms</span>
+                  )}
                 </div>
                 <div className={`${styles.judgementItem} ${styles.goodColor}`}>
                   <span>GOOD</span>
-                  <span>±{JUDGEMENT.GOOD}ms</span>
+                  {selectedPreset === '사용자 지정' && !isPlaying && !isCountingDown ? (
+                    renderJudgementEditor('GOOD', customJudgement.GOOD)
+                  ) : (
+                    <span>±{activeJudgement.GOOD.toFixed(1)}ms</span>
+                  )}
                 </div>
                 <div className={`${styles.judgementItem} ${styles.badColor}`}>
                   <span>BAD</span>
-                  <span>±{JUDGEMENT.BAD}ms</span>
+                  {selectedPreset === '사용자 지정' && !isPlaying && !isCountingDown ? (
+                    renderJudgementEditor('BAD', customJudgement.BAD)
+                  ) : (
+                    <span>±{activeJudgement.BAD.toFixed(1)}ms</span>
+                  )}
                 </div>
               </div>
             </div>

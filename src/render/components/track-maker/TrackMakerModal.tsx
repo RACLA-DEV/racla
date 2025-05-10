@@ -91,7 +91,7 @@ const TrackMakerModal: React.FC = () => {
             dispatch(setIsTrackMaker(false))
           }}
         >
-          트랙 메이커 닫기
+          홈으로 돌아가기
         </button>
       </div>
     </div>
