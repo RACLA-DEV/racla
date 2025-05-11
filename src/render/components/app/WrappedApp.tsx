@@ -1,6 +1,7 @@
 import { globalDictionary } from '@render/constants/globalDictionary'
+import { useAlert } from '@render/hooks/useAlert'
 import { useAuth } from '@render/hooks/useAuth'
-import { setOverlayMode } from '@render/store/slices/uiSlice'
+import { setOverlayMode, setSidebarCollapsed } from '@render/store/slices/uiSlice'
 import { GameType } from '@src/types/games/GameType'
 import { SongData } from '@src/types/games/SongData'
 import { SessionData } from '@src/types/sessions/SessionData'
@@ -30,6 +31,7 @@ const ExternalLinkModal = lazy(() => import('./ExternalLinkModal'))
 const LoadingSkeleton = lazy(() => import('./LoadingSkeleton'))
 const SettingModal = lazy(() => import('./SettingModal'))
 const TrackMakerModal = lazy(() => import('../track-maker/TrackMakerModal'))
+const AlertModal = lazy(() => import('./AlertModal'))
 
 // 하드코딩된 배열 대신 타입에서 유효한 게임 배열 생성
 const VALID_GAMES: GameType[] = globalDictionary.supportGameList as GameType[]
@@ -37,8 +39,10 @@ const VALID_GAMES: GameType[] = globalDictionary.supportGameList as GameType[]
 export default function WrappedApp() {
   const { isLoading, settingData } = useSelector((state: RootState) => state.app)
   const isOverlayMode = useSelector((state: RootState) => state.ui.isOverlayMode)
+  const alertModal = useSelector((state: RootState) => state.ui.alertModal)
   const location = useLocation()
   const { notifications, removeNotification, showNotification } = useNotificationSystem()
+  const { handleConfirm, hideAlert } = useAlert()
   const dispatch = useDispatch()
   const { logout } = useAuth()
   const [updateNotificationId, setUpdateNotificationId] = useState<string | null>(null)
@@ -689,6 +693,15 @@ export default function WrappedApp() {
     }
   }, [location.pathname])
 
+  useEffect(() => {
+    const isTrackMakerPath = location.pathname.startsWith('/track-maker')
+    if (isTrackMakerPath) {
+      dispatch(setSidebarCollapsed(true))
+    } else {
+      dispatch(setSidebarCollapsed(false))
+    }
+  }, [location.pathname])
+
   if (isOverlayMode) {
     return <>{!isLoading && <Outlet />}</>
   } else {
@@ -720,6 +733,21 @@ export default function WrappedApp() {
         {!isOverlayMode && (
           <Suspense fallback={<div />}>
             <TrackMakerModal />
+          </Suspense>
+        )}
+        {!isOverlayMode && (
+          <Suspense fallback={<div />}>
+            <AlertModal
+              isOpen={alertModal.isOpen}
+              onClose={hideAlert}
+              title={alertModal.title}
+              message={alertModal.message}
+              type={alertModal.type}
+              confirmMode={alertModal.confirmMode}
+              onConfirm={handleConfirm}
+              confirmText={alertModal.confirmText}
+              cancelText={alertModal.cancelText}
+            />
           </Suspense>
         )}
       </ThemeProvider>

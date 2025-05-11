@@ -14,7 +14,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import Tooltip from './Tooltip'
 
 const MenuSidebar: React.FC = () => {
-  const { theme, sidebarCollapsed } = useSelector((state: RootState) => state.ui)
+  const { sidebarCollapsed } = useSelector((state: RootState) => state.ui)
   const { selectedGame } = useSelector((state: RootState) => state.app)
   const dispatch = useDispatch()
   const navigate = useNavigate()
@@ -324,109 +324,143 @@ const MenuSidebar: React.FC = () => {
   }
 
   return (
-    <motion.div
-      initial='hidden'
-      animate='visible'
-      variants={sidebarAnimation}
-      className={`tw:flex tw:flex-col tw:h-full tw:transition-all tw:duration-300 tw:ease-in-out tw:relative tw:overflow-x-hidden tw:bg-transparent tw:dark:text-slate-200 tw:text-gray-800 ${
-        sidebarCollapsed ? 'tw:w-0 tw:opacity-0 tw:overflow-hidden' : 'tw:w-64'
-      }`}
-    >
-      <div
-        className={`tw:flex tw:transition-all tw:duration-200 tw:absolute tw:top-0 tw:z-40 tw:left-0 tw:right-0 tw:h-[calc(100%-68px)] tw:w-full tw:bg-white/50 tw:dark:bg-slate-800/50 ${
-          isDropdownOpen
-            ? 'tw:opacity-100 tw:backdrop-blur-sm'
-            : 'tw:opacity-0 tw:pointer-events-none'
-        }`}
-        onClick={() => {
-          setIsDropdownOpen(false)
-        }}
-      />
+    <>
       <motion.div
-        className={`tw:flex-1 tw:overflow-x-hidden tw:py-2 tw:text-sm tw:custom-scrollbar tw:pr-2 ${
-          isDropdownOpen ? 'tw:overflow-hidden' : 'tw:overflow-y-auto'
+        initial='hidden'
+        animate='visible'
+        variants={sidebarAnimation}
+        className={`tw:flex tw:flex-col tw:h-full tw:transition-all tw:duration-300 tw:ease-in-out tw:relative tw:overflow-x-hidden tw:bg-transparent tw:dark:text-slate-200 tw:text-gray-800 ${
+          sidebarCollapsed
+            ? 'tw:w-0 tw:transition-[width] tw:duration-300 tw:delay-150'
+            : 'tw:w-64 tw:transition-[width] tw:duration-300'
         }`}
       >
-        <motion.ul className='tw:px-4 tw:space-y-2 tw:relative tw:z-20'>
-          {menuItems.map((item) => (
-            <motion.li key={item.id} variants={categoryAnimation}>
-              {item.subItems ? (
-                // 서브메뉴가 있는 경우 (카테고리)
-                <motion.div className='tw:mb-3'>
-                  <motion.div className='tw:flex tw:items-center tw:p-2 tw:mb-2'>
-                    <Icon icon={item.icon} className='tw:w-4 tw:h-4 tw:mr-2 tw:text-indigo-500' />
-                    <span className='tw:font-semibold tw:text-sm tw:uppercase tw:tracking-wider'>
-                      {t(`${selectedGame}.${item.id}`)}
-                    </span>
+        <div
+          className={`tw:flex tw:transition-all tw:duration-200 tw:absolute tw:top-0 tw:z-40 tw:left-0 tw:right-0 tw:h-[calc(100%-68px)] tw:w-full tw:bg-white/50 tw:dark:bg-slate-800/50 ${
+            isDropdownOpen
+              ? 'tw:opacity-100 tw:backdrop-blur-sm'
+              : 'tw:opacity-0 tw:pointer-events-none'
+          }`}
+          onClick={() => {
+            setIsDropdownOpen(false)
+          }}
+        />
+        <motion.div
+          className={`tw:flex-1 tw:overflow-x-hidden tw:py-2 tw:text-sm tw:custom-scrollbar tw:pr-2 ${
+            isDropdownOpen ? 'tw:overflow-hidden' : 'tw:overflow-y-auto'
+          } ${sidebarCollapsed ? 'tw:opacity-0 tw:transition-opacity tw:duration-100' : 'tw:opacity-100 tw:transition-opacity tw:duration-200 tw:delay-150'}`}
+        >
+          <motion.ul className='tw:px-4 tw:space-y-2 tw:relative tw:z-20'>
+            {menuItems.map((item) => (
+              <motion.li key={item.id} variants={categoryAnimation}>
+                {item.subItems ? (
+                  // 서브메뉴가 있는 경우 (카테고리)
+                  <motion.div className='tw:mb-3'>
+                    <motion.div className='tw:flex tw:items-center tw:p-2 tw:mb-2'>
+                      <Icon icon={item.icon} className='tw:w-4 tw:h-4 tw:mr-2 tw:text-indigo-500' />
+                      <span className='tw:font-semibold tw:text-sm tw:uppercase tw:tracking-wider'>
+                        {t(`${selectedGame}.${item.id}`)}
+                      </span>
+                    </motion.div>
+                    <motion.ul className='tw:pl-3 tw:space-y-1'>
+                      {item.subItems.map((subItem) => (
+                        <motion.li key={subItem.id} variants={itemAnimation} whileHover={{ x: 4 }}>
+                          <motion.div
+                            onClick={() => {
+                              handleItemClick(item, subItem)
+                            }}
+                            className={`tw:flex tw:items-center tw:p-2 tw:rounded-md tw:cursor-pointer tw:transition-colors ${
+                              !location.pathname.includes(item.path + subItem.path)
+                                ? 'tw:dark:hover:bg-slate-700 tw:hover:bg-indigo-50'
+                                : ''
+                            } ${
+                              location.pathname.includes(item.path + subItem.path)
+                                ? 'tw:bg-indigo-500 tw:hover:bg-indigo-600 tw:text-white'
+                                : ''
+                            }`}
+                          >
+                            <Icon icon={subItem.icon} className='tw:w-4 tw:h-4 tw:mr-2' />
+                            <span>{t(`${selectedGame}.${subItem.id}.name.base`)}</span>
+                            {subItem.isExternal && (
+                              <Icon
+                                icon='lucide:external-link'
+                                className='tw:w-3.5 tw:h-3.5 tw:ml-auto tw:opacity-70'
+                              />
+                            )}
+                          </motion.div>
+                        </motion.li>
+                      ))}
+                    </motion.ul>
                   </motion.div>
-                  <motion.ul className='tw:pl-3 tw:space-y-1'>
-                    {item.subItems.map((subItem) => (
-                      <motion.li key={subItem.id} variants={itemAnimation} whileHover={{ x: 4 }}>
-                        <motion.div
-                          onClick={() => {
-                            handleItemClick(item, subItem)
-                          }}
-                          className={`tw:flex tw:items-center tw:p-2 tw:rounded-md tw:cursor-pointer tw:transition-colors ${
-                            !location.pathname.includes(item.path + subItem.path)
-                              ? 'tw:dark:hover:bg-slate-700 tw:hover:bg-indigo-50'
-                              : ''
-                          } ${
-                            location.pathname.includes(item.path + subItem.path)
-                              ? 'tw:bg-indigo-500 tw:hover:bg-indigo-600 tw:text-white'
-                              : ''
-                          }`}
-                        >
-                          <Icon icon={subItem.icon} className='tw:w-4 tw:h-4 tw:mr-2' />
-                          <span>{t(`${selectedGame}.${subItem.id}.name.base`)}</span>
-                          {subItem.isExternal && (
-                            <Icon
-                              icon='lucide:external-link'
-                              className='tw:w-3.5 tw:h-3.5 tw:ml-auto tw:opacity-70'
-                            />
-                          )}
-                        </motion.div>
-                      </motion.li>
-                    ))}
-                  </motion.ul>
-                </motion.div>
-              ) : (
-                // 서브메뉴가 없는 단일 메뉴 항목
-                <motion.div
-                  variants={itemAnimation}
-                  whileHover={{ x: 4 }}
-                  onClick={() => {
-                    handleItemClick(null, item)
-                  }}
-                  className={`tw:flex tw:items-center tw:p-2.5 tw:rounded-md tw:cursor-pointer tw:transition-colors tw:dark:hover:bg-slate-700 tw:hover:bg-indigo-50`}
-                >
-                  <Icon icon={item.icon} className='tw:w-5 tw:h-5 tw:mr-3' />
-                  <span>{t(`${selectedGame}.${item.id}`)}</span>
-                  {item.isExternal && (
-                    <Icon
-                      icon='lucide:external-link'
-                      className='tw:w-4 tw:h-4 tw:ml-auto tw:opacity-70'
-                    />
-                  )}
-                </motion.div>
-              )}
-            </motion.li>
-          ))}
-        </motion.ul>
+                ) : (
+                  // 서브메뉴가 없는 단일 메뉴 항목
+                  <motion.div
+                    variants={itemAnimation}
+                    whileHover={{ x: 4 }}
+                    onClick={() => {
+                      handleItemClick(null, item)
+                    }}
+                    className={`tw:flex tw:items-center tw:p-2.5 tw:rounded-md tw:cursor-pointer tw:transition-colors tw:dark:hover:bg-slate-700 tw:hover:bg-indigo-50`}
+                  >
+                    <Icon icon={item.icon} className='tw:w-5 tw:h-5 tw:mr-3' />
+                    <span>{t(`${selectedGame}.${item.id}`)}</span>
+                    {item.isExternal && (
+                      <Icon
+                        icon='lucide:external-link'
+                        className='tw:w-4 tw:h-4 tw:ml-auto tw:opacity-70'
+                      />
+                    )}
+                  </motion.div>
+                )}
+              </motion.li>
+            ))}
+          </motion.ul>
+        </motion.div>
+
+        {/* 사용자 정보 영역 - 접힌 상태에서는 표시하지 않음 */}
+        <div
+          className={`tw:border-t tw:dark:border-slate-700 tw:border-gray-200 tw:mt-4 tw:relative tw:z-50 ${
+            sidebarCollapsed
+              ? 'tw:opacity-0 tw:transition-opacity tw:duration-100'
+              : 'tw:opacity-100 tw:transition-opacity tw:duration-200 tw:delay-150'
+          }`}
+        >
+          {renderUserDropdown()}
+          <div
+            onClick={toggleDropdown}
+            className={`tw:flex tw:items-center tw:p-4 tw:cursor-pointer tw:transition-colors tw:dark:hover:bg-slate-700 tw:hover:bg-indigo-50`}
+          >
+            <div className='tw:w-8 tw:h-8 tw:rounded-full tw:flex tw:items-center tw:justify-center tw:bg-indigo-500'>
+              <FaCircleUser className='tw:text-white' />
+            </div>
+            <div className='tw:ml-3 tw:overflow-hidden'>
+              <p className='tw:text-sm tw:font-medium tw:truncate'>
+                {isLoggedIn ? userData.playerNickname || '사용자' : '로그인 필요'}
+              </p>
+              <p className='tw:text-xs tw:text-slate-400 tw:truncate'>
+                {isLoggedIn ? userData.playerName : '로그인하여 모든 기능 사용'}
+              </p>
+            </div>
+            <Icon
+              icon={isDropdownOpen ? 'lucide:chevron-down' : 'lucide:chevron-up'}
+              className='tw:w-4 tw:h-4 tw:ml-auto'
+            />
+          </div>
+        </div>
       </motion.div>
 
-      {/* 사용자 정보 영역 */}
+      {/* 축소 모드에서의 사용자 정보 버튼 */}
       <div
-        className={`tw:border-t tw:dark:border-slate-700 tw:border-gray-200 tw:mt-4 tw:relative tw:z-50`}
+        className={`tw:fixed tw:bottom-0 tw:left-0 tw:w-[256px] tw:z-50 tw:transition-all tw:duration-300 tw:p-2 tw:dark:text-slate-200 tw:text-gray-800 ${!sidebarCollapsed ? 'tw:opacity-0 tw:pointer-events-none' : 'tw:opacity-100'}`}
       >
-        {renderUserDropdown()}
         <div
           onClick={toggleDropdown}
-          className={`tw:flex tw:items-center tw:p-4 tw:cursor-pointer tw:transition-colors tw:dark:hover:bg-slate-700 tw:hover:bg-indigo-50`}
+          className='tw:flex tw:items-center tw:bg-white tw:dark:bg-slate-800 tw:rounded-md tw:shadow-lg tw:cursor-pointer tw:transition-all tw:duration-200 tw:hover:bg-indigo-50 tw:dark:hover:bg-slate-700 tw:p-2 tw:border tw:dark:border-slate-700 tw:border-gray-200'
         >
           <div className='tw:w-8 tw:h-8 tw:rounded-full tw:flex tw:items-center tw:justify-center tw:bg-indigo-500'>
             <FaCircleUser className='tw:text-white' />
           </div>
-          <div className='tw:ml-3 tw:overflow-hidden'>
+          <div className='tw:ml-3 tw:overflow-hidden tw:max-w-[100px] tw:mr-auto'>
             <p className='tw:text-sm tw:font-medium tw:truncate'>
               {isLoggedIn ? userData.playerNickname || '사용자' : '로그인 필요'}
             </p>
@@ -436,11 +470,120 @@ const MenuSidebar: React.FC = () => {
           </div>
           <Icon
             icon={isDropdownOpen ? 'lucide:chevron-down' : 'lucide:chevron-up'}
-            className='tw:w-4 tw:h-4 tw:ml-auto'
+            className='tw:w-4 tw:h-4 tw:ml-2'
           />
         </div>
+
+        {/* 축소 모드에서의 사용자 드롭다운 */}
+        <div
+          className={`tw:absolute tw:w-[240px] tw:bottom-[70px] tw:mx-2 tw:left-0 tw:z-50 tw:transition-all tw:duration-200 tw:overflow-hidden tw:dark:bg-slate-800 tw:dark:border-slate-700 tw:bg-white tw:border-gray-200 tw:rounded-md tw:shadow-lg ${
+            isDropdownOpen
+              ? 'tw:opacity-100 tw:max-h-64 tw:border'
+              : 'tw:opacity-0 tw:max-h-0 tw:overflow-hidden'
+          }`}
+        >
+          <ul className='tw:text-xs tw:p-0'>
+            <li className={`tw:border-b tw:dark:border-slate-700 tw:border-gray-200`}>
+              <div className='tw:flex tw:items-center tw:justify-between tw:py-2 tw:px-4'>
+                <span className='tw:font-bold'>{t('quickMenu.quickMenuNavTitle')}</span>
+                <span
+                  onClick={() => {
+                    setIsDropdownOpen(false)
+                  }}
+                  className={`tw:flex tw:p-1 tw:rounded-md tw:transition-colors tw:cursor-pointer tw:dark:hover:bg-slate-700 tw:hover:bg-white tw:hover:shadow-md`}
+                >
+                  <Tooltip position='left' content={t('quickMenu.close')}>
+                    <Icon icon='lucide:x' className='tw:w-4 tw:h-4' />
+                  </Tooltip>
+                </span>
+              </div>
+            </li>
+            <li>
+              <span
+                className={`tw:flex tw:w-full tw:text-left tw:py-2 tw:px-4 tw:transition-colors tw:cursor-pointer tw:dark:hover:bg-slate-700 tw:hover:bg-indigo-50`}
+                onClick={() => {
+                  handleOpenExternalLink('https://racla.app/')
+                }}
+              >
+                <Icon icon='lucide:home' className='tw:w-4 tw:h-4 tw:mr-2' />
+                {t('quickMenu.raclaHome')}
+              </span>
+            </li>
+            <li className={`tw:border-t tw:dark:border-slate-700 tw:border-gray-200`}></li>
+            {userData.varchiveUserInfo.isLinked && userData.varchiveUserInfo.nickname !== '' ? (
+              <li>
+                <span
+                  className={`tw:flex tw:w-full tw:text-left tw:py-2 tw:px-4 tw:transition-colors tw:cursor-pointer tw:dark:hover:bg-slate-700 tw:hover:bg-indigo-50`}
+                  onClick={() => {
+                    handleOpenExternalLink(
+                      `https://v-archive.net/archive/${userData.varchiveUserInfo.nickname}/board`,
+                    )
+                    setIsDropdownOpen(false)
+                  }}
+                >
+                  <Icon icon='lucide:archive' className='tw:w-4 tw:h-4 tw:mr-2' />
+                  {t('quickMenu.vArchiveHome')}
+                </span>
+              </li>
+            ) : (
+              <li>
+                <span
+                  className={`tw:flex tw:w-full tw:text-left tw:py-2 tw:px-4 tw:transition-colors tw:cursor-pointer tw:dark:hover:bg-slate-700 tw:hover:bg-indigo-50`}
+                  onClick={() => {
+                    handleOpenExternalLink('https://v-archive.net/')
+                    setIsDropdownOpen(false)
+                  }}
+                >
+                  <Icon icon='lucide:archive' className='tw:w-4 tw:h-4 tw:mr-2' />
+                  {t('quickMenu.vArchiveHome')}
+                </span>
+              </li>
+            )}
+            <li className={`tw:border-t tw:dark:border-slate-700 tw:border-gray-200`}></li>
+            <li>
+              <span
+                className={`tw:flex tw:w-full tw:text-left tw:py-2 tw:px-4 tw:transition-colors tw:cursor-pointer tw:dark:hover:bg-slate-700 tw:hover:bg-indigo-50`}
+                onClick={() => {
+                  handleOpenExternalLink('https://hard-archive.com')
+                  setIsDropdownOpen(false)
+                }}
+              >
+                <Icon icon='lucide:hard-drive' className='tw:w-4 tw:h-4 tw:mr-2' />
+                {t('quickMenu.hjaHome')}
+              </span>
+            </li>
+            <li className={`tw:border-t tw:dark:border-slate-700 tw:border-gray-200`}></li>
+            {isLoggedIn ? (
+              <li>
+                <span
+                  className={`tw:flex tw:w-full tw:text-left tw:py-2 tw:px-4 tw:text-red-500 tw:transition-colors tw:cursor-pointer tw:dark:hover:bg-slate-700 tw:hover:bg-indigo-50`}
+                  onClick={() => {
+                    void handleLogout()
+                    setIsDropdownOpen(false)
+                  }}
+                >
+                  <Icon icon='lucide:log-out' className='tw:w-4 tw:h-4 tw:mr-2' />
+                  {t('quickMenu.logout')}
+                </span>
+              </li>
+            ) : (
+              <li>
+                <span
+                  className={`tw:flex tw:w-full tw:text-left tw:py-2 tw:px-4 tw:transition-colors tw:cursor-pointer tw:dark:hover:bg-slate-700 tw:hover:bg-indigo-50`}
+                  onClick={() => {
+                    navigate('/auth/login')
+                    setIsDropdownOpen(false)
+                  }}
+                >
+                  <Icon icon='lucide:log-in' className='tw:w-4 tw:h-4 tw:mr-2' />
+                  {t('quickMenu.login')}
+                </span>
+              </li>
+            )}
+          </ul>
+        </div>
       </div>
-    </motion.div>
+    </>
   )
 }
 

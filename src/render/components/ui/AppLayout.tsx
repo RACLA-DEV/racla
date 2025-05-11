@@ -12,7 +12,6 @@ const MainContent = lazy(() => import('./MainContent'))
 const MenuSidebar = lazy(() => import('./MenuSidebar'))
 
 const AppLayout: React.FC<ChildrenReactNodeProps> = ({ children }) => {
-  const { theme } = useSelector((state: RootState) => state.ui)
   const { font } = useSelector((state: RootState) => state.app.settingData)
   return (
     <div

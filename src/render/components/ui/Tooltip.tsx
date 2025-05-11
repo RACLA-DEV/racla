@@ -1,13 +1,10 @@
-import { RootState } from '@render/store'
 import type { TooltipProps } from '@src/types/tooltip/TooltipProps'
 import React, { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { useSelector } from 'react-redux'
 
 const Tooltip: React.FC<TooltipProps> = ({ children, content, position = 'right' }) => {
   const [isVisible, setIsVisible] = useState(false)
   const [tooltipPosition, setTooltipPosition] = useState({ top: 0, left: 0 })
-  const { theme } = useSelector((state: RootState) => state.ui)
   const triggerRef = useRef<HTMLDivElement>(null)
 
   // 툴팁 위치 계산

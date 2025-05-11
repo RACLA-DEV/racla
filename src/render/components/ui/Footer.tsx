@@ -11,7 +11,6 @@ import apiClient from '../../../libs/apiClient'
 import Tooltip from './Tooltip'
 
 const Footer: React.FC = () => {
-  const { theme } = useSelector((state: RootState) => state.ui)
   const { selectedGame, isTrackMaker } = useSelector((state: RootState) => state.app)
   const [ServerStatusResponse, setServerStatusResponse] = useState<String>('')
   const [isOnline, setIsOnline] = useState<boolean>(false)

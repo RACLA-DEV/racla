@@ -190,7 +190,9 @@ const IconSidebar: React.FC = () => {
                 variants={iconAnimation()}
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={handleOpenTrackMaker}
+                onClick={() => {
+                  handleNavigation('/track-maker')
+                }}
                 className={`tw:w-12 tw:h-12 tw:flex tw:items-center tw:justify-center tw:rounded-lg tw:cursor-pointer tw:transition-all ${
                   location === '/track-maker'
                     ? 'tw:dark:bg-slate-700 tw:dark:text-indigo-400 tw:bg-white tw:text-indigo-600 tw:shadow-md'

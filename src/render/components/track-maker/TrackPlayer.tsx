@@ -51,16 +51,6 @@ type JudgementPreset = {
 
 const JUDGEMENT_PRESETS: JudgementPreset[] = [
   {
-    name: 'RACLA',
-    values: {
-      PERFECT_PLUS: 25,
-      PERFECT: 50,
-      GREAT: 100,
-      GOOD: 150,
-      BAD: 200,
-    },
-  },
-  {
     name: 'DJMAX RESPECT V',
     values: {
       PERFECT_PLUS: 18,
@@ -88,6 +78,36 @@ const JUDGEMENT_PRESETS: JudgementPreset[] = [
       GREAT: 80,
       GOOD: 120,
       BAD: 160,
+    },
+  },
+  {
+    name: 'Sixtar Gate: STARTRAIL',
+    values: {
+      PERFECT_PLUS: 36,
+      PERFECT: 54,
+      GREAT: 72,
+      GOOD: 144,
+      BAD: 216,
+    },
+  },
+  {
+    name: 'KALPA: Cosmic Symphony',
+    values: {
+      PERFECT_PLUS: 25,
+      PERFECT: 50,
+      GREAT: 100,
+      GOOD: 150,
+      BAD: 200,
+    },
+  },
+  {
+    name: 'MASH VP! Re:VISION',
+    values: {
+      PERFECT_PLUS: 25,
+      PERFECT: 50,
+      GREAT: 100,
+      GOOD: 150,
+      BAD: 200,
     },
   },
   {

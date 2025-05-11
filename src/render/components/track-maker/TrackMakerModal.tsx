@@ -3,18 +3,19 @@ import { setIsTrackMaker } from '@render/store/slices/appSlice'
 import type { Note } from '@src/types/track-maker/TrackMaker'
 import React, { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import { useNavigate } from 'react-router-dom'
 import TrackMaker from './TrackMaker'
 import styles from './TrackMakerModal.module.css'
 import TrackPlayer from './TrackPlayer'
 
 const TrackMakerModal: React.FC = () => {
   const { isTrackMaker, settingData } = useSelector((state: RootState) => state.app)
-  const { theme } = useSelector((state: RootState) => state.ui)
   const [selectedTab, setSelectedTab] = useState<string>('editor')
   const [pattern, setPattern] = useState<Note[]>([])
   const [bpm, setBpm] = useState<number>(120)
   const [keyMode, setKeyMode] = useState<'4B' | '5B' | '6B' | '8B'>('4B')
   const dispatch = useDispatch()
+  const navigate = useNavigate()
 
   const handleTabSelect = (tab: string) => {
     setSelectedTab(tab)
@@ -30,6 +31,11 @@ const TrackMakerModal: React.FC = () => {
 
   const handleKeyModeChange = (newKeyMode: '4B' | '5B' | '6B' | '8B') => {
     setKeyMode(newKeyMode)
+  }
+
+  const handleCloseModal = () => {
+    dispatch(setIsTrackMaker(false))
+    navigate('/track-maker')
   }
 
   return (
@@ -87,11 +93,9 @@ const TrackMakerModal: React.FC = () => {
               ? `tw:border-b-2 tw:border-indigo-500 tw:dark:text-gray-200 tw:text-gray-700`
               : 'tw:text-gray-400 tw:hover:text-gray-700'
           }`}
-          onClick={() => {
-            dispatch(setIsTrackMaker(false))
-          }}
+          onClick={handleCloseModal}
         >
-          홈으로 돌아가기
+          허브로 돌아가기
         </button>
       </div>
     </div>

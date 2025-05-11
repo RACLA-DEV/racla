@@ -419,6 +419,7 @@
   border-radius: 4px;
   background-color: oklch(37.2% 0.044 257.287);
   padding: 2px 4px;
+  width: 140px;
   color: white;
   font-size: 0.75rem;
 }
