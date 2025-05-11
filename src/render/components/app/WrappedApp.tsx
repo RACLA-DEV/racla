@@ -694,7 +694,8 @@ export default function WrappedApp() {
   }, [location.pathname])
 
   useEffect(() => {
-    const isTrackMakerPath = location.pathname.startsWith('/track-maker')
+    const isTrackMakerPath =
+      location.pathname.startsWith('/track-maker') || location.pathname.startsWith('/overlay')
     if (isTrackMakerPath) {
       dispatch(setSidebarCollapsed(true))
     } else {

@@ -36,7 +36,7 @@ export default function ExternalLinkModal() {
       }`}
     >
       <div
-        className={`tw:fixed tw:inset-0 tw:dark:bg-slate-950/90 tw:bg-white/90`}
+        className={`tw:fixed tw:inset-0 tw:bg-black/60`}
         onClick={() => {
           dispatch(setIsOpenExternalLink(false))
           dispatch(setOpenExternalLink(''))

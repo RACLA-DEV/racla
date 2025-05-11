@@ -4,7 +4,7 @@ import type { GameType } from '@src/types/games/GameType'
 import { AnimatePresence, motion } from 'framer-motion'
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { LuBook, LuGamepad, LuHouse, LuLayers, LuSettings } from 'react-icons/lu'
+import { LuBook, LuGamepad, LuLayers, LuSettings } from 'react-icons/lu'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import Tooltip from './Tooltip'
@@ -49,6 +49,7 @@ const IconSidebar: React.FC = () => {
           // 선택되지 않은 경우 게임 선택
           handleGameSelect('djmax_respect_v')
         }
+        navigate('/home')
       },
     },
     {
@@ -141,93 +142,9 @@ const IconSidebar: React.FC = () => {
     >
       {/* 상단 홈 버튼 */}
       <div className='tw:flex tw:flex-col tw:items-center'>
-        <div className='tw:mb-4 tw:relative tw:z-10'>
-          <Tooltip content={t('racla.raclaHome')}>
-            <motion.div
-              variants={iconAnimation()}
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => {
-                handleNavigation('/home')
-              }}
-              className={`tw:w-12 tw:h-12 tw:flex tw:items-center tw:justify-center tw:rounded-lg tw:cursor-pointer tw:transition-all ${
-                location === '/home'
-                  ? 'tw:dark:bg-slate-700 tw:dark:text-indigo-400 tw:bg-white tw:text-indigo-600 tw:shadow-md'
-                  : 'tw:dark:bg-slate-800 tw:dark:text-indigo-400 tw:dark:hover:bg-slate-700 tw:bg-gray-50 tw:shadow-md tw:hover:bg-white tw:hover:shadow-md'
-              }`}
-            >
-              <LuHouse size={28} />
-            </motion.div>
-          </Tooltip>
-        </div>
-
-        <div className='tw:flex tw:flex-col tw:items-center'>
-          <div className='tw:mb-4 tw:relative tw:z-10'>
-            <Tooltip content={t('racla.raclaCheatsheet')}>
-              <motion.div
-                variants={iconAnimation()}
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => {
-                  handleNavigation('/test/cheatsheet')
-                }}
-                className={`tw:w-12 tw:h-12 tw:flex tw:items-center tw:justify-center tw:rounded-lg tw:cursor-pointer tw:transition-all ${
-                  location === '/test/cheatsheet'
-                    ? 'tw:dark:bg-slate-700 tw:dark:text-indigo-400 tw:bg-white tw:text-indigo-600 tw:shadow-md'
-                    : 'tw:dark:bg-slate-800 tw:dark:text-indigo-400 tw:dark:hover:bg-slate-700 tw:bg-gray-50 tw:shadow-md tw:hover:bg-white tw:hover:shadow-md'
-                }`}
-              >
-                <LuBook size={28} />
-              </motion.div>
-            </Tooltip>
-          </div>
-        </div>
-
-        <div className='tw:flex tw:flex-col tw:items-center'>
-          <div className='tw:mb-4 tw:relative tw:z-10'>
-            <Tooltip content={t('racla.raclaTrackMaker')}>
-              <motion.div
-                variants={iconAnimation()}
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => {
-                  handleNavigation('/track-maker')
-                }}
-                className={`tw:w-12 tw:h-12 tw:flex tw:items-center tw:justify-center tw:rounded-lg tw:cursor-pointer tw:transition-all ${
-                  location === '/track-maker'
-                    ? 'tw:dark:bg-slate-700 tw:dark:text-indigo-400 tw:bg-white tw:text-indigo-600 tw:shadow-md'
-                    : 'tw:dark:bg-slate-800 tw:dark:text-indigo-400 tw:dark:hover:bg-slate-700 tw:bg-gray-50 tw:shadow-md tw:hover:bg-white tw:hover:shadow-md'
-                }`}
-              >
-                <LuGamepad size={28} />
-              </motion.div>
-            </Tooltip>
-          </div>
-        </div>
-
-        <div className='tw:mb-4 tw:relative tw:z-10'>
-          <Tooltip content={t('racla.raclaOverlay')}>
-            <motion.div
-              variants={iconAnimation()}
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => {
-                handleNavigation('/overlay/settings')
-              }}
-              className={`tw:w-12 tw:h-12 tw:flex tw:items-center tw:justify-center tw:rounded-lg tw:cursor-pointer tw:transition-all ${
-                location === '/overlay/settings'
-                  ? 'tw:dark:bg-slate-700 tw:dark:text-indigo-400 tw:bg-white tw:text-indigo-600 tw:shadow-md'
-                  : 'tw:dark:bg-slate-800 tw:dark:text-indigo-400 tw:dark:hover:bg-slate-700 tw:bg-gray-50 tw:shadow-md tw:hover:bg-white tw:hover:shadow-md'
-              }`}
-            >
-              <LuLayers size={28} />
-            </motion.div>
-          </Tooltip>
-        </div>
-
         {/* 게임 선택 아이콘들 (중앙) */}
         <div
-          className={`tw:flex tw:flex-col tw:items-center tw:space-y-4 tw:pt-4 tw:border-t tw:relative tw:z-10 tw:dark:border-slate-700 tw:border-gray-300`}
+          className={`tw:flex tw:flex-col tw:items-center tw:space-y-4 tw:relative tw:z-10 tw:mt-2`}
         >
           {gameIcons.map((game) => (
             <Tooltip key={game.id} content={game.tooltip}>
@@ -259,6 +176,90 @@ const IconSidebar: React.FC = () => {
               </motion.div>
             </Tooltip>
           ))}
+        </div>
+
+        {/* <div className='tw:mb-4 tw:relative tw:z-10'>
+          <Tooltip content={t('racla.raclaHome')}>
+            <motion.div
+              variants={iconAnimation()}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => {
+                handleNavigation('/home')
+              }}
+              className={`tw:w-12 tw:h-12 tw:flex tw:items-center tw:justify-center tw:rounded-lg tw:cursor-pointer tw:transition-all ${
+                location === '/home'
+                  ? 'tw:dark:bg-slate-700 tw:dark:text-indigo-400 tw:bg-white tw:text-indigo-600 tw:shadow-md'
+                  : 'tw:dark:bg-slate-800 tw:dark:text-indigo-400 tw:dark:hover:bg-slate-700 tw:bg-gray-50 tw:shadow-md tw:hover:bg-white tw:hover:shadow-md'
+              }`}
+            >
+              <LuHouse size={28} />
+            </motion.div>
+          </Tooltip>
+        </div> */}
+
+        <div className='tw:mb-4 tw:relative tw:z-10 tw:mt-4 tw:pt-4 tw:border-t tw:dark:border-slate-700 tw:border-gray-300'>
+          <Tooltip content={t('racla.raclaOverlay')}>
+            <motion.div
+              variants={iconAnimation()}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => {
+                handleNavigation('/overlay/settings')
+              }}
+              className={`tw:w-12 tw:h-12 tw:flex tw:items-center tw:justify-center tw:rounded-lg tw:cursor-pointer tw:transition-all ${
+                location === '/overlay/settings'
+                  ? 'tw:dark:bg-slate-700 tw:dark:text-indigo-400 tw:bg-white tw:text-indigo-600 tw:shadow-md'
+                  : 'tw:dark:bg-slate-800 tw:dark:text-indigo-400 tw:dark:hover:bg-slate-700 tw:bg-gray-50 tw:shadow-md tw:hover:bg-white tw:hover:shadow-md'
+              }`}
+            >
+              <LuLayers size={28} />
+            </motion.div>
+          </Tooltip>
+        </div>
+
+        <div className='tw:flex tw:flex-col tw:items-center'>
+          <div className='tw:mb-4 tw:relative tw:z-10'>
+            <Tooltip content={t('racla.raclaTrackMaker')}>
+              <motion.div
+                variants={iconAnimation()}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => {
+                  handleNavigation('/track-maker')
+                }}
+                className={`tw:w-12 tw:h-12 tw:flex tw:items-center tw:justify-center tw:rounded-lg tw:cursor-pointer tw:transition-all ${
+                  location === '/track-maker'
+                    ? 'tw:dark:bg-slate-700 tw:dark:text-indigo-400 tw:bg-white tw:text-indigo-600 tw:shadow-md'
+                    : 'tw:dark:bg-slate-800 tw:dark:text-indigo-400 tw:dark:hover:bg-slate-700 tw:bg-gray-50 tw:shadow-md tw:hover:bg-white tw:hover:shadow-md'
+                }`}
+              >
+                <LuGamepad size={28} />
+              </motion.div>
+            </Tooltip>
+          </div>
+        </div>
+
+        <div className='tw:flex tw:flex-col tw:items-center'>
+          <div className='tw:mb-4 tw:relative tw:z-10'>
+            <Tooltip content={t('racla.raclaCheatsheet')}>
+              <motion.div
+                variants={iconAnimation()}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => {
+                  handleNavigation('/test/cheatsheet')
+                }}
+                className={`tw:w-12 tw:h-12 tw:flex tw:items-center tw:justify-center tw:rounded-lg tw:cursor-pointer tw:transition-all ${
+                  location === '/test/cheatsheet'
+                    ? 'tw:dark:bg-slate-700 tw:dark:text-indigo-400 tw:bg-white tw:text-indigo-600 tw:shadow-md'
+                    : 'tw:dark:bg-slate-800 tw:dark:text-indigo-400 tw:dark:hover:bg-slate-700 tw:bg-gray-50 tw:shadow-md tw:hover:bg-white tw:hover:shadow-md'
+                }`}
+              >
+                <LuBook size={28} />
+              </motion.div>
+            </Tooltip>
+          </div>
         </div>
       </div>
 

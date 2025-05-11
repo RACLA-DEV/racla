@@ -1,3 +1,4 @@
+import { useAlert } from '@render/hooks/useAlert'
 import { createLog } from '@render/libs/logger'
 import { RootState } from '@render/store'
 import React, { useEffect, useRef, useState } from 'react'
@@ -69,6 +70,8 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
   const [initialPattern, setInitialPattern] = useState<Note[]>([])
   const [initialBpm, setInitialBpm] = useState<number>(bpm)
   const [initialKeyMode, setInitialKeyMode] = useState<KeyMode>(keyMode)
+
+  const { showConfirm } = useAlert()
 
   const editorRef = useRef<HTMLDivElement>(null)
   const laneCount = getLaneCount(keyMode)
@@ -645,15 +648,22 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
       (note) => note.time > newLength || (note.isLong && note.endTime && note.endTime > newLength),
     )
 
-    if (
-      notesOutsideRange.length > 0 &&
-      confirm('일부 노트가 새 곡 길이보다 깁니다. 해당 노트를 삭제할까요?')
-    ) {
-      onPatternChange(
-        pattern.filter(
-          (note) =>
-            note.time <= newLength && (!note.isLong || !note.endTime || note.endTime <= newLength),
-        ),
+    if (notesOutsideRange.length > 0) {
+      showConfirm(
+        '경고',
+        '일부 노트가 새 곡 길이보다 깁니다. 해당 노트를 삭제할까요?',
+        () => {
+          onPatternChange(
+            pattern.filter(
+              (note) =>
+                note.time <= newLength &&
+                (!note.isLong || !note.endTime || note.endTime <= newLength),
+            ),
+          )
+        },
+        'warning',
+        '삭제',
+        '취소',
       )
     }
   }
@@ -1051,22 +1061,29 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
 
   // 패턴 초기화
   const resetPattern = () => {
-    if (confirm('정말로 패턴을 초기 상태로 되돌리시겠습니까? 모든 변경사항이 사라집니다.')) {
-      onPatternChange([...initialPattern])
-      onBpmChange(initialBpm)
-      onKeyModeChange(initialKeyMode)
-      setActiveDivision(16)
+    showConfirm(
+      '경고',
+      '정말로 패턴을 초기 상태로 되돌리시겠습니까? 모든 변경사항이 사라집니다.',
+      () => {
+        onPatternChange([...initialPattern])
+        onBpmChange(initialBpm)
+        onKeyModeChange(initialKeyMode)
+        setActiveDivision(16)
 
-      // 파일 입력 필드 초기화
-      if (fileInputRef.current) {
-        fileInputRef.current.value = ''
-      }
+        // 파일 입력 필드 초기화
+        if (fileInputRef.current) {
+          fileInputRef.current.value = ''
+        }
 
-      // 히스토리 초기화
-      const newHistory = [[...initialPattern]]
-      setHistory(newHistory)
-      setCurrentHistoryIndex(0)
-    }
+        // 히스토리 초기화
+        const newHistory = [[...initialPattern]]
+        setHistory(newHistory)
+        setCurrentHistoryIndex(0)
+      },
+      'warning',
+      '초기화',
+      '취소',
+    )
   }
 
   // componentDidMount와 componentWillUnmount에 해당하는 효과 추가

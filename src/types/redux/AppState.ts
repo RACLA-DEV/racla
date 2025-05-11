@@ -27,4 +27,5 @@ export interface AppState {
       platina_lab: number | null
     }
   }
+  refresh: boolean
 }

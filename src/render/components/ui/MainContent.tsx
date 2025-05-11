@@ -35,6 +35,7 @@ const childAnimation = {
 
 const MainContent: React.FC<ChildrenReactNodeProps> = ({ children }) => {
   const { theme, sidebarCollapsed } = useSelector((state: RootState) => state.ui)
+  const { refresh } = useSelector((state: RootState) => state.app)
   const location = useLocation()
 
   return (
@@ -49,7 +50,11 @@ const MainContent: React.FC<ChildrenReactNodeProps> = ({ children }) => {
       } ${!sidebarCollapsed ? 'tw:border-l' : ''}`}
     >
       {/* 컨텐츠 영역 */}
-      <motion.div variants={childAnimation} key={location.pathname} className='tw:p-4 tw:h-full'>
+      <motion.div
+        variants={childAnimation}
+        key={location.pathname + refresh}
+        className='tw:p-4 tw:h-full'
+      >
         {/* 무조건 자식 컴포넌트 렌더링 */}
         {children}
       </motion.div>

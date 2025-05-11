@@ -25,11 +25,11 @@ const appPersistConfig = {
   blacklist: [
     'isSetting',
     'userData',
-    'vArchiveUserData',
     'isLoggedIn',
     'notifications',
     'isLoading',
     'isTrackMaker',
+    'refresh',
   ],
 }
 

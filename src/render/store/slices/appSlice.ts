@@ -48,6 +48,7 @@ const initialState: AppState = {
       platina_lab: null,
     },
   },
+  refresh: false,
 }
 
 // 노래 데이터 유효성 검증 함수
@@ -224,6 +225,9 @@ export const appSlice = createSlice({
       // 모든 알림 삭제
       state.notifications = []
     },
+    setRefresh: (state, action: PayloadAction<boolean>) => {
+      state.refresh = action.payload
+    },
   },
 })
 
@@ -247,6 +251,7 @@ export const {
   deleteNotification,
   clearAllNotifications,
   deleteAllNotifications,
+  setRefresh,
 } = appSlice.actions
 
 export default appSlice.reducer

@@ -30,26 +30,26 @@ export default function AlertModal({
       case 'success':
         return {
           icon: 'lucide:check-circle',
-          color: 'tw-text-green-500',
-          bg: 'tw-bg-green-500/20',
+          color: 'tw:text-green-500',
+          bg: 'tw:bg-green-500/20',
         }
       case 'error':
         return {
           icon: 'lucide:x-circle',
-          color: 'tw-text-red-500',
-          bg: 'tw-bg-red-500/20',
+          color: 'tw:text-red-500',
+          bg: 'tw:bg-red-500/20',
         }
       case 'warning':
         return {
           icon: 'lucide:alert-circle',
-          color: 'tw-text-yellow-500',
-          bg: 'tw-bg-yellow-500/20',
+          color: 'tw:text-yellow-500',
+          bg: 'tw:bg-yellow-500/20',
         }
       default:
         return {
           icon: 'lucide:info',
-          color: 'tw-text-blue-500',
-          bg: 'tw-bg-blue-500/20',
+          color: 'tw:text-blue-500',
+          bg: 'tw:bg-blue-500/20',
         }
     }
   }
@@ -89,7 +89,7 @@ export default function AlertModal({
               left: 0,
               right: 0,
               bottom: 0,
-              backgroundColor: 'rgba(0, 0, 0, 0.9)',
+              backgroundColor: 'rgba(0, 0, 0, 0.6)',
             }}
             onClick={onClose}
           />
@@ -105,27 +105,29 @@ export default function AlertModal({
               margin: '0 auto',
               zIndex: 1000000,
             }}
-            className='tw-rounded-2xl tw-border tw-border-zinc-700 tw-bg-zinc-800 tw-p-8 tw-text-center tw-shadow-2xl'
+            className='tw:rounded-2xl tw:border tw:border-gray-200 tw:bg-white tw:dark:border-slate-700 tw:dark:bg-slate-800 tw:p-8 tw:text-center tw:shadow-2xl'
           >
-            <div className='tw-mb-4 tw-flex tw-justify-center'>
-              <div className={`tw-rounded-full ${iconStyle.bg} tw-p-3`}>
-                <Icon icon={iconStyle.icon} className={`tw-h-8 tw-w-8 ${iconStyle.color}`} />
+            <div className='tw:mb-4 tw:flex tw:justify-center'>
+              <div className={`tw:rounded-full ${iconStyle.bg} tw:p-3`}>
+                <Icon icon={iconStyle.icon} className={`tw:h-8 tw:w-8 ${iconStyle.color}`} />
               </div>
             </div>
-            <h3 className='tw-mb-2 tw-text-xl tw-font-bold tw-text-white'>{title}</h3>
-            <p className='tw-mb-6 tw-text-gray-300'>{message}</p>
-            <div className='tw-flex tw-justify-center tw-gap-4'>
+            <h3 className='tw:mb-2 tw:text-xl tw:font-bold tw:dark:text-gray-200 tw:text-gray-800'>
+              {title}
+            </h3>
+            <p className='tw:mb-6 tw:dark:text-gray-300 tw:text-slate-600'>{message}</p>
+            <div className='tw:flex tw:justify-center tw:gap-4'>
               {confirmMode ? (
                 <>
                   <button
                     onClick={onClose}
-                    className='tw-rounded-full tw-bg-zinc-600 tw-px-6 tw-py-2 tw-text-white tw-transition-colors hover:tw-bg-zinc-700'
+                    className='tw:rounded-full tw:bg-slate-600 tw:px-6 tw:py-2 tw:text-white tw:transition-colors hover:tw:bg-zinc-700'
                   >
                     {cancelText}
                   </button>
                   <button
                     onClick={handleConfirm}
-                    className='tw-rounded-full tw-bg-blue-600 tw-px-6 tw-py-2 tw-text-white tw-transition-colors hover:tw-bg-blue-700'
+                    className='tw:rounded-full tw:bg-indigo-600 tw:px-6 tw:py-2 tw:text-white tw:transition-colors hover:tw:bg-blue-700'
                   >
                     {confirmText}
                   </button>
@@ -133,7 +135,7 @@ export default function AlertModal({
               ) : (
                 <button
                   onClick={onClose}
-                  className='tw-rounded-full tw-bg-blue-600 tw-px-6 tw-py-2 tw-text-white tw-transition-colors hover:tw-bg-blue-700'
+                  className='tw:rounded-full tw:bg-indigo-600 tw:px-6 tw:py-2 tw:text-white tw:transition-colors hover:tw:bg-indigo-700'
                 >
                   {confirmText}
                 </button>
