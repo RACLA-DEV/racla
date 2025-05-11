@@ -42,7 +42,7 @@
   flex-direction: column;
   gap: 0.5rem;
   padding-right: 0.5rem;
-  width: 250px;
+  width: 240px;
   min-width: 200px;
   height: 100%;
   overflow-y: auto;
@@ -67,7 +67,7 @@
   flex-direction: column;
   gap: 0.5rem;
   padding-left: 0.5rem;
-  width: 250px;
+  width: 240px;
   min-width: 200px;
   height: 100%;
   overflow-y: auto;
@@ -111,6 +111,11 @@
   text-shadow: 0 0 10px rgba(255, 204, 0, 0.5);
 }
 
+.lightTheme .scoreValue {
+  color: #00ccff;
+  text-shadow: 0 0 10px rgba(0, 136, 204, 0.5);
+}
+
 .scoreDetails {
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   padding-top: 0.5rem;
@@ -141,6 +146,11 @@
   border-radius: 4px;
   padding: 0.1rem 0.3rem;
   font-size: 0.85rem;
+}
+
+.lightTheme .judgementStat {
+  color: #333;
+  font-weight: medium;
 }
 
 /* 컨트롤 패널 */
@@ -179,11 +189,37 @@
 }
 
 .speedValue {
+  transition: all 0.2s ease;
+  cursor: pointer;
+  padding: 0.2rem;
   color: #00ccff;
   font-weight: bold;
   font-size: 1.8rem;
   text-align: center;
   text-shadow: 0 0 10px rgba(0, 204, 255, 0.5);
+}
+
+.speedValue:hover {
+  border-radius: 4px;
+  background-color: rgba(0, 204, 255, 0.1);
+}
+
+.speedInput {
+  outline: none;
+  border: none;
+  border-bottom: 2px solid #00ccff;
+  background-color: transparent;
+  padding: 0.2rem;
+  width: 80%;
+  color: #00ccff;
+  font-weight: bold;
+  font-size: 1.8rem;
+  text-align: center;
+}
+
+.speedInput:focus {
+  box-shadow: 0 2px 8px rgba(0, 204, 255, 0.3);
+  border-bottom: 2px solid #00eeff;
 }
 
 .speedControl {
@@ -359,10 +395,44 @@
   background-color: rgba(255, 255, 255, 0.3);
 }
 
+.judgementHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
 .judgementGuide h4 {
   opacity: 0.8;
-  margin: 0 0 0.4rem 0;
+  margin: 0;
   font-size: 0.9rem;
+}
+
+.presetSelector {
+  margin-left: auto;
+}
+
+.presetSelect {
+  cursor: pointer;
+  outline: none;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  background-color: oklch(37.2% 0.044 257.287);
+  padding: 2px 4px;
+  width: 140px;
+  color: white;
+  font-size: 0.75rem;
+}
+
+.lightTheme .presetSelect {
+  border: 1px solid rgba(79, 70, 229, 0.3);
+  background-color: rgba(79, 70, 229, 0.1);
+  color: rgb(67, 56, 202);
+}
+
+.lightTheme .presetSelect:focus {
+  box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2);
+  border-color: rgb(79, 70, 229);
 }
 
 .judgementList {
@@ -380,9 +450,78 @@
   font-size: 0.85rem;
 }
 
+.editableValue {
+  transition: all 0.2s ease;
+  cursor: pointer;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.3);
+  padding: 0 2px;
+}
+
+.editableValue:hover {
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.5);
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.lightTheme .editableValue {
+  border-bottom: 1px dashed rgba(0, 0, 0, 0.3);
+}
+
+.lightTheme .editableValue:hover {
+  border-bottom: 1px dashed rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.judgementInput {
+  outline: none;
+  border: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+  background-color: transparent;
+  padding: 2px;
+  width: 50px;
+  color: inherit;
+  font-size: 0.85rem;
+  text-align: right;
+}
+
+.judgementInput:focus {
+  border-bottom: 1px solid #00ccff;
+}
+
+.perfectPlusColor {
+  background-color: rgba(86, 88, 206, 0.35);
+  color: rgb(158, 159, 255);
+}
+
+.perfectPlusJudgement {
+  color: rgb(137, 139, 255);
+  text-shadow: 0 0 15px rgba(99, 102, 241, 0.7);
+}
+
+.lightTheme .perfectPlusColor {
+  background-color: rgba(79, 70, 229, 0.15);
+  color: rgb(67, 56, 202);
+  font-weight: bold;
+}
+
 .perfectColor {
   background-color: rgba(0, 255, 255, 0.2);
   color: #00ffff;
+}
+
+.perfectJudgement {
+  color: #00ffff;
+  text-shadow: 0 0 15px #00ffff;
+}
+
+.lightTheme .perfectColor {
+  background-color: rgba(0, 204, 255, 0.15);
+  color: rgb(0, 153, 204);
+  font-weight: bold;
+}
+
+.lightTheme .perfectJudgement {
+  color: rgb(0, 153, 204);
+  text-shadow: 0 0 15px rgba(0, 153, 204, 0.7);
 }
 
 .greatColor {
@@ -390,9 +529,41 @@
   color: #00ff00;
 }
 
+.greatJudgement {
+  color: #00ff00;
+  text-shadow: 0 0 15px #00ff00;
+}
+
+.lightTheme .greatColor {
+  background-color: rgba(0, 204, 0, 0.15);
+  color: rgb(0, 153, 0);
+  font-weight: bold;
+}
+
+.lightTheme .greatJudgement {
+  color: rgb(0, 153, 0);
+  text-shadow: 0 0 15px rgba(0, 153, 0, 0.7);
+}
+
 .goodColor {
   background-color: rgba(255, 255, 0, 0.2);
   color: #ffff00;
+}
+
+.goodJudgement {
+  color: #ffff00;
+  text-shadow: 0 0 15px #ffff00;
+}
+
+.lightTheme .goodColor {
+  background-color: rgba(204, 204, 0, 0.15);
+  color: rgb(153, 153, 0);
+  font-weight: bold;
+}
+
+.lightTheme .goodJudgement {
+  color: rgb(153, 153, 0);
+  text-shadow: 0 0 15px rgba(153, 153, 0, 0.7);
 }
 
 .badColor {
@@ -400,9 +571,51 @@
   color: #ff9900;
 }
 
+.badJudgement {
+  color: #ff9900;
+  text-shadow: 0 0 15px #ff9900;
+}
+
+.lightTheme .badColor {
+  background-color: rgba(255, 153, 0, 0.15);
+  color: rgb(204, 102, 0);
+  font-weight: bold;
+}
+
+.lightTheme .badJudgement {
+  color: rgb(204, 102, 0);
+  text-shadow: 0 0 15px rgba(204, 102, 0, 0.7);
+}
+
 .missColor {
   background-color: rgba(255, 0, 0, 0.2);
   color: #ff0000;
+}
+
+.missJudgement {
+  color: #ff0000;
+  text-shadow: 0 0 15px #ff0000;
+}
+
+.lightTheme .missColor {
+  background-color: rgba(255, 0, 0, 0.15);
+  color: rgb(204, 0, 0);
+  font-weight: bold;
+}
+
+.lightTheme .missJudgement {
+  color: rgb(204, 0, 0);
+  text-shadow: 0 0 15px rgba(204, 0, 0, 0.7);
+}
+
+.lightTheme .speedValue {
+  color: #00ccff;
+  text-shadow: 0 0 10px rgba(0, 136, 204, 0.5);
+}
+
+.lightTheme .perfectPlusJudgement {
+  color: rgb(79, 70, 229);
+  text-shadow: 0 0 15px rgba(79, 70, 229, 0.7);
 }
 
 /* 게임 영역 */
@@ -589,12 +802,56 @@
   font-size: 14px;
 }
 
+/* 마디선 스타일 */
+.barLine {
+  position: absolute;
+  left: 0;
+  z-index: 30;
+  transition: none;
+  box-shadow: 0 0 10px rgba(79, 70, 229, 0.5);
+  border-top: 2px solid rgba(79, 70, 229, 0.7);
+  height: 1px;
+}
+
+/* 카운트다운 스타일 */
+.countdown {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  z-index: 100;
+  animation: countdownPulse 1s ease-in-out infinite;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: bold;
+  font-size: 64px;
+  text-align: center;
+  text-shadow: 0 0 20px rgba(79, 70, 229, 0.7);
+}
+
+.lightTheme .countdown {
+  color: #444;
+  text-shadow: 0 0 20px rgba(79, 70, 229, 0.7);
+}
+
+@keyframes countdownPulse {
+  0% {
+    transform: translate(-50%, -50%) scale(0.9);
+    opacity: 0.7;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(0.9);
+    opacity: 0.7;
+  }
+}
+
 /* 반응형 디자인을 위한 미디어 쿼리 */
 @media (max-width: 1400px) {
   .leftPanel,
   .rightPanel {
-    width: 220px;
-    min-width: 180px;
+    width: 240px;
+    min-width: 240px;
   }
 
   .scoreValue {
@@ -683,4 +940,22 @@
   100% {
     transform: scale(1);
   }
+}
+
+.infoIconContainer {
+  display: inline-flex;
+  position: relative;
+  z-index: 20;
+  cursor: help;
+  margin-left: 5px;
+}
+
+.infoIcon {
+  transition: color 0.2s ease;
+  color: #6dbef7;
+  font-size: 0.9rem;
+}
+
+.infoIcon:hover {
+  color: #00ccff;
 }

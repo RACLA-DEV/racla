@@ -35,12 +35,7 @@ const ScorePopupComponent = ({
 }: ScorePopupComponentProps) => {
   const { songData, userData, isLoggedIn } = useSelector((state: RootState) => state.app)
   const { font } = useSelector((state: RootState) => state.app.settingData)
-  const [songItem] = useState<SongData>(
-    R.pipe(
-      R.values,
-      R.flatten,
-    )(songData).find((item: SongData) => String(item.title) === String(songTitle)) as SongData,
-  )
+  const [songItem, setSongItem] = useState<SongData | null>(null)
   const [scoreData, setScoreData] = useState<SongData | null>(null)
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [isHovered, setIsHovered] = useState<boolean>(false)
@@ -98,9 +93,19 @@ const ScorePopupComponent = ({
   }, [isHovered, songItem])
 
   useEffect(() => {
+    setSongItem(
+      R.pipe(
+        R.values,
+        R.flatten,
+      )(songData).find((item: SongData) => String(item.title) === String(songTitle)) as SongData,
+    )
+  }, [songTitle])
+
+  useEffect(() => {
     const fetchData = async () => {
-      setIsLoading(true)
       const title = String(songTitle)
+
+      setIsLoading(true)
 
       setGame(
         ((): GameType => {
@@ -119,7 +124,6 @@ const ScorePopupComponent = ({
 
       if (!isLoggedIn || !songTitle) {
         setIsLoading(false)
-        setScoreData(null)
         return
       }
 
@@ -140,9 +144,10 @@ const ScorePopupComponent = ({
             setScoreData(data)
           }
         } else {
-          if (userData.vArchiveUserInfo.isLinked && userData.vArchiveUserInfo.nickname !== '') {
+          createLog('debug', 'fetching varchive song data', { ...userData })
+          if (userData.varchiveUserInfo.isLinked && userData.varchiveUserInfo.nickname !== '') {
             const response = await apiClient.getProxy<SongData>(
-              `https://v-archive.net/api/archive/${userData.vArchiveUserInfo.nickname}/title/${title}`,
+              `https://v-archive.net/api/archive/${userData.varchiveUserInfo.nickname}/title/${title}`,
             )
             if (response.status === 200) {
               const { data } = response.data

@@ -1,5 +1,5 @@
 export interface JudgementDisplay {
-  text: 'PERFECT' | 'GREAT' | 'GOOD' | 'BAD' | 'MISS'
+  text: 'PERFECT_PLUS' | 'PERFECT' | 'GREAT' | 'GOOD' | 'BAD' | 'MISS'
   timestamp: number
   id: string
 }

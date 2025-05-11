@@ -36,7 +36,7 @@ const defaultSession: SessionData = {
   playerNickname: '',
   isSetupPassword: false,
   profileImageUrl: '',
-  vArchiveUserInfo: {
+  varchiveUserInfo: {
     isLinked: false,
     userNo: 0,
     token: '',

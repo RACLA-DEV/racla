@@ -95,10 +95,10 @@
     "description": "모든 프로필을 제외하여 이미지를 저장합니다."
   },
   "saveImageBlurMode": {
-    "name": "이미지 저장 시 블러 효과 적용",
-    "description": "이미지 저장 시 블러 효과를 적용합니다.",
-    "blur": "블러",
-    "mask": "마스크"
+    "name": "프로필 제외 블러 효과",
+    "description": "프로필 제외 이미지에 적용할 블러 효과를 설정합니다.",
+    "blur": "블러 효과",
+    "mask": "검은색 마스킹 (V-ARCHIVE)"
   },
   "resultOverlay": {
     "name": "결과 오버레이 표시",

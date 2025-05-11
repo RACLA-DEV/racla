@@ -278,6 +278,7 @@ export const globalDictionary = {
       isEditable: true,
       requiresRestart: false,
       offList: ['autoStartGameWjmax', 'autoStartGamePlatinaLab'],
+      onList: ['autoStartGame'],
       isVisible: true,
     },
     autoStartGameWjmax: {
@@ -286,6 +287,7 @@ export const globalDictionary = {
       isEditable: true,
       requiresRestart: false,
       offList: ['autoStartGameDjmaxRespectV', 'autoStartGamePlatinaLab'],
+      onList: ['autoStartGame'],
       isVisible: true,
     },
     autoStartGameWjmaxPath: {
@@ -301,6 +303,7 @@ export const globalDictionary = {
       defaultValue: false,
       isEditable: true,
       offList: ['autoStartGameDjmaxRespectV', 'autoStartGameWjmax'],
+      onList: ['autoStartGame'],
       isVisible: true,
     },
     isMiniMode: {

@@ -39,8 +39,8 @@
 .timeIndicator {
   border-bottom: 1px solid #ddd;
   background-color: #f8fafc; /* slate-50 */
-  padding: 8px;
-  height: 42px;
+  padding: 3px 8px;
+  height: 32px;
 }
 
 .timeIndicator.darkTheme {
@@ -170,6 +170,7 @@
   z-index: 9;
   box-sizing: border-box;
   border: 1px dashed #334155; /* slate-700 */
+  border-radius: 4px;
   pointer-events: none;
   user-select: none;
 }
@@ -179,79 +180,59 @@
 }
 
 .normalNote {
-  border: 2px solid #334155; /* slate-700 */
+  border: 1px solid #334155; /* slate-700 */
+  border-radius: 4px;
   background-color: rgba(255, 255, 255, 0.9);
 }
 
 .darkTheme .normalNote {
   border-color: #94a3b8; /* slate-400 */
+  border-radius: 4px;
   background-color: rgba(226, 232, 240, 0.9); /* slate-200 */
 }
 
 .fxNote {
   z-index: 5;
   border-color: #b45309; /* amber-700 */
+  border-radius: 4px;
   background-color: rgba(251, 191, 36, 0.8); /* amber-400 */
 }
 
 .darkTheme .fxNote {
   border-color: #d97706; /* amber-600 */
+  border-radius: 4px;
   background-color: rgba(251, 191, 36, 0.8); /* amber-400 */
 }
 
 .lrNote {
   z-index: 4;
   border-color: #1e40af; /* blue-800 */
+  border-radius: 4px;
   background-color: rgba(59, 130, 246, 0.8); /* blue-500 */
 }
 
 .darkTheme .lrNote {
   border-color: #3b82f6; /* blue-500 */
+  border-radius: 4px;
   background-color: rgba(59, 130, 246, 0.8); /* blue-500 */
 }
 
 .enterNote {
   z-index: 3;
   border-color: #15803d; /* green-700 */
+  border-radius: 4px;
   background-color: rgba(34, 197, 94, 0.8); /* green-500 */
 }
 
 .darkTheme .enterNote {
   border-color: #22c55e; /* green-500 */
+  border-radius: 4px;
   background-color: rgba(34, 197, 94, 0.8); /* green-500 */
 }
 
 .longNote {
   opacity: 0.8;
   border-radius: 4px;
-}
-
-.longNote::after {
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  cursor: ns-resize;
-  border-radius: 0 0 4px 4px;
-  background: repeating-linear-gradient(
-    45deg,
-    rgba(0, 0, 0, 0.1),
-    rgba(0, 0, 0, 0.1) 5px,
-    transparent 5px,
-    transparent 10px
-  );
-  height: 10px;
-  content: '';
-}
-
-.darkTheme .longNote::after {
-  background: repeating-linear-gradient(
-    45deg,
-    rgba(255, 255, 255, 0.1),
-    rgba(255, 255, 255, 0.1) 5px,
-    transparent 5px,
-    transparent 10px
-  );
 }
 
 .resizeHandle {
@@ -270,7 +251,6 @@
     rgba(0, 0, 0, 0.1) 5px,
     rgba(0, 0, 0, 0.1) 10px
   );
-  height: 15px;
 }
 
 .darkTheme .resizeHandle {
@@ -291,7 +271,6 @@
     rgba(79, 70, 229, 0.3) 5px,
     rgba(79, 70, 229, 0.3) 10px
   );
-  height: 18px;
 }
 
 .dragging {

@@ -11,7 +11,6 @@ import apiClient from '../../../libs/apiClient'
 import Tooltip from './Tooltip'
 
 const Footer: React.FC = () => {
-  const { theme } = useSelector((state: RootState) => state.ui)
   const { selectedGame, isTrackMaker } = useSelector((state: RootState) => state.app)
   const [ServerStatusResponse, setServerStatusResponse] = useState<String>('')
   const [isOnline, setIsOnline] = useState<boolean>(false)
@@ -173,7 +172,7 @@ const Footer: React.FC = () => {
       </div>
       <div className='tw:flex tw:text-xs tw:justify-center tw:items-center tw:gap-1 tw:h-8 tw:pr-1'>
         <>
-          {selectedGame === 'djmax_respect_v' && (
+          {selectedGame === 'djmax_respect_v' && !isTrackMaker && (
             <>
               <span>Powered by </span>
               <Tooltip position='top' content='https://v-archive.net'>

@@ -6,6 +6,7 @@ import { toggleTheme } from '@render/store/slices/uiSlice'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useDispatch, useSelector } from 'react-redux'
+import { useLocation } from 'react-router-dom'
 import Tooltip from './Tooltip'
 
 const { closeApp, minimizeApp, maximizeApp } = window.electron
@@ -16,6 +17,7 @@ const TitleBar: React.FC = () => {
   const dispatch = useDispatch()
   const [isMaximized, setIsMaximized] = useState(false)
   const { t } = useTranslation(['common', 'menu'])
+  const location = useLocation()
 
   // 최대화 상태 이벤트 리스너 (실제로는 preload 파일에서 이벤트를 전달해야 함)
   useEffect(() => {
@@ -52,7 +54,7 @@ const TitleBar: React.FC = () => {
 
       {/* 중앙 타이틀 - 선택된 게임 이름 표시 */}
       <div className='tw:flex-1 tw:text-sm tw:text-center tw:font-bold'>
-        {isTrackMaker
+        {isTrackMaker || location.pathname.startsWith('/track-maker')
           ? t('racla.raclaTrackMaker', { ns: 'menu' })
           : selectedGame &&
             globalDictionary.gameDictionary?.[

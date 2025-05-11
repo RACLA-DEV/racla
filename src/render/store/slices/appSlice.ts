@@ -21,7 +21,7 @@ const initialState: AppState = {
     playerNickname: '',
     isSetupPassword: false,
     profileImageUrl: '',
-    vArchiveUserInfo: {
+    varchiveUserInfo: {
       isLinked: false,
       userNo: 0,
       token: '',
@@ -152,7 +152,7 @@ export const appSlice = createSlice({
         playerNickname: '',
         isSetupPassword: false,
         profileImageUrl: '',
-        vArchiveUserInfo: {
+        varchiveUserInfo: {
           isLinked: false,
           userNo: 0,
           token: '',

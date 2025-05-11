@@ -9,4 +9,5 @@ export interface SettingItem {
   isFile?: boolean
   isVisible?: boolean
   offList?: string[]
+  onList?: string[]
 }

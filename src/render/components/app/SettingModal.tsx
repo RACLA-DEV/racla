@@ -105,17 +105,19 @@ const ToggleSwitch = ({
   onChange,
   disabled = false,
   theme,
+  activeCategory,
 }: {
   value: boolean
   onChange: (value: boolean) => void
   disabled?: boolean
   theme: string
+  activeCategory: string
 }) => {
   return (
     <div
       className={`tw:relative tw:w-10 tw:h-5 tw:rounded-full tw:transition-all tw:duration-300 tw:cursor-pointer ${
         disabled ? 'tw:opacity-50 tw:cursor-not-allowed' : ''
-      } ${value ? 'tw:bg-indigo-600' : 'tw:dark:bg-slate-700 tw:bg-gray-300'}`}
+      } ${value ? 'tw:bg-indigo-600' : activeCategory === 'storage' ? 'tw:dark:bg-slate-800 tw:bg-gray-300' : 'tw:dark:bg-slate-700 tw:bg-gray-300'}`}
       onClick={() => {
         !disabled && onChange(!value)
       }}
@@ -238,7 +240,7 @@ const SelectBox = ({
         onChange(e.target.value)
       }}
       disabled={disabled}
-      className={`tw:p-2 tw:min-w-[180px] tw:text-sm tw:rounded-lg tw:transition-colors tw:border tw:dark:bg-slate-700 tw:dark:text-white tw:dark:border-slate-600 tw:bg-white tw:text-gray-800 tw:border-gray-300 ${
+      className={`tw:p-2 tw:min-w-[180px] tw:max-w-[180px] tw:w-[180px] tw:text-sm tw:rounded-lg tw:transition-colors tw:border tw:dark:bg-slate-700 tw:dark:text-white tw:dark:border-slate-600 tw:bg-white tw:text-gray-800 tw:border-gray-300 ${
         disabled ? 'tw:opacity-50 tw:cursor-not-allowed' : ''
       }`}
     >
@@ -295,7 +297,13 @@ const FolderItem = ({
   </div>
 )
 
-const StorageInfo = ({ theme }: { theme: string }) => {
+const StorageInfo = ({
+  theme,
+  onSettingChange,
+}: {
+  theme: string
+  onSettingChange: (id: string, value: string | number | boolean) => void
+}) => {
   const dispatch = useDispatch()
   const { settingData } = useSelector((state: RootState) => state.app)
   const { language } = useSelector((state: RootState) => state.app.settingData)
@@ -449,19 +457,136 @@ const StorageInfo = ({ theme }: { theme: string }) => {
                     {t('autoDeleteCapturedImages.description')}
                   </p>
                 </div>
-                <select
+                <SelectBox
+                  id='autoDeleteCapturedImages'
                   value={autoDeleteDays}
-                  onChange={(e) => {
-                    handleAutoDeleteChange(Number(e.target.value))
+                  options={[
+                    { id: 0, name: t('autoDeleteCapturedImages.0') },
+                    { id: 7, name: t('autoDeleteCapturedImages.7') },
+                    { id: 14, name: t('autoDeleteCapturedImages.14') },
+                    { id: 30, name: t('autoDeleteCapturedImages.30') },
+                    { id: 90, name: t('autoDeleteCapturedImages.90') },
+                  ]}
+                  onChange={(value) => {
+                    handleAutoDeleteChange(Number(value))
                   }}
-                  className={`tw:p-2 tw:min-w-[120px] tw:text-sm tw:rounded-lg tw:transition-colors tw:border tw:dark:bg-slate-700 tw:dark:text-white tw:dark:border-slate-600 tw:bg-white tw:text-gray-800 tw:border-gray-300`}
-                >
-                  <option value={0}>{t('autoDeleteCapturedImages.0')}</option>
-                  <option value={7}>{t('autoDeleteCapturedImages.7')}</option>
-                  <option value={14}>{t('autoDeleteCapturedImages.14')}</option>
-                  <option value={30}>{t('autoDeleteCapturedImages.30')}</option>
-                  <option value={90}>{t('autoDeleteCapturedImages.90')}</option>
-                </select>
+                  theme={theme}
+                />
+              </div>
+
+              {/* 캡처 이미지 저장 옵션 */}
+              <div
+                className={`tw:mt-3 tw:pt-3 tw:border-t tw:dark:border-slate-600 tw:border-gray-200`}
+              >
+                <div className='tw:space-y-4'>
+                  {/* 캡처 이미지 저장 여부 */}
+                  <div className='tw:flex tw:justify-between tw:items-center'>
+                    <div>
+                      <h1 className='tw:text-sm'>{t('saveImageWhenCapture.name')}</h1>
+                      <p className='tw:text-xs tw:mt-1 tw:dark:text-slate-400 tw:text-gray-600'>
+                        {t('saveImageWhenCapture.description')}
+                      </p>
+                    </div>
+                    <ToggleSwitch
+                      value={settingData.saveImageWhenCapture ?? true}
+                      onChange={(value) => {
+                        onSettingChange('saveImageWhenCapture', value)
+                      }}
+                      theme={theme}
+                      activeCategory={'storage'}
+                    />
+                  </div>
+
+                  {/* 모든 프로필 정보 포함 */}
+                  <div className='tw:flex tw:justify-between tw:items-center'>
+                    <div>
+                      <h1 className='tw:text-sm'>{t('saveImageWithAllProfileWhenCapture.name')}</h1>
+                      <p className='tw:text-xs tw:mt-1 tw:dark:text-slate-400 tw:text-gray-600'>
+                        {t('saveImageWithAllProfileWhenCapture.description')}
+                      </p>
+                    </div>
+                    <ToggleSwitch
+                      value={settingData.saveImageWithAllProfileWhenCapture ?? true}
+                      onChange={(value) => {
+                        if (!settingData.saveImageWithAllProfileWhenCapture) {
+                          onSettingChange('saveImageWithAllProfileWhenCapture', value)
+                        }
+                      }}
+                      disabled={!settingData.saveImageWhenCapture}
+                      theme={theme}
+                      activeCategory={'storage'}
+                    />
+                  </div>
+
+                  {/* 다른 프로필 정보 제외 */}
+                  <div className='tw:flex tw:justify-between tw:items-center'>
+                    <div>
+                      <h1 className='tw:text-sm'>
+                        {t('saveImageWithoutOtherProfileWhenCapture.name')}
+                      </h1>
+                      <p className='tw:text-xs tw:mt-1 tw:dark:text-slate-400 tw:text-gray-600'>
+                        {t('saveImageWithoutOtherProfileWhenCapture.description')}
+                      </p>
+                    </div>
+                    <ToggleSwitch
+                      value={settingData.saveImageWithoutOtherProfileWhenCapture ?? false}
+                      onChange={(value) => {
+                        if (!settingData.saveImageWithoutOtherProfileWhenCapture) {
+                          onSettingChange('saveImageWithoutOtherProfileWhenCapture', value)
+                        }
+                      }}
+                      disabled={!settingData.saveImageWhenCapture}
+                      theme={theme}
+                      activeCategory={'storage'}
+                    />
+                  </div>
+
+                  {/* 모든 프로필 정보 제외 */}
+                  <div className='tw:flex tw:justify-between tw:items-center'>
+                    <div>
+                      <h1 className='tw:text-sm'>
+                        {t('saveImageWithoutAllProfileWhenCapture.name')}
+                      </h1>
+                      <p className='tw:text-xs tw:mt-1 tw:dark:text-slate-400 tw:text-gray-600'>
+                        {t('saveImageWithoutAllProfileWhenCapture.description')}
+                      </p>
+                    </div>
+                    <ToggleSwitch
+                      value={settingData.saveImageWithoutAllProfileWhenCapture ?? false}
+                      onChange={(value) => {
+                        if (!settingData.saveImageWithoutAllProfileWhenCapture) {
+                          onSettingChange('saveImageWithoutAllProfileWhenCapture', value)
+                        }
+                      }}
+                      disabled={!settingData.saveImageWhenCapture}
+                      theme={theme}
+                      activeCategory={'storage'}
+                    />
+                  </div>
+
+                  {/* 이미지 블러 모드 */}
+                  <div className='tw:flex tw:justify-between tw:items-center'>
+                    <div>
+                      <h1 className='tw:text-sm'>{t('saveImageBlurMode.name')}</h1>
+                      <p className='tw:text-xs tw:mt-1 tw:dark:text-slate-400 tw:text-gray-600'>
+                        {t('saveImageBlurMode.description')}
+                      </p>
+                    </div>
+                    <SelectBox
+                      id='saveImageBlurMode'
+                      value={settingData.saveImageBlurMode ?? 'blur'}
+                      options={[
+                        { id: 'blur', name: t('saveImageBlurMode.blur') },
+                        { id: 'mask', name: t('saveImageBlurMode.mask') },
+                      ]}
+                      onChange={(value) => {
+                        onSettingChange('saveImageBlurMode', value)
+                      }}
+                      disabled={!settingData.saveImageWhenCapture}
+                      theme={theme}
+                    />
+                  </div>
+                </div>
               </div>
             </FolderItem>
 
@@ -554,6 +679,30 @@ export default function SettingModal() {
         })
       }
 
+      // 설정 항목의 offList 속성 처리
+      if (value === true && globalDictionary.settingDictionary[id]?.offList) {
+        const offList = globalDictionary.settingDictionary[id].offList || []
+
+        // offList에 포함된 모든 항목을 false로 설정
+        offList.forEach((offItem) => {
+          if (offItem && typeof offItem === 'string' && offItem in newSettings) {
+            newSettings[offItem] = false
+          }
+        })
+      }
+
+      // 설정 항목의 onList 속성 처리
+      if (value === true && globalDictionary.settingDictionary[id]?.onList) {
+        const onList = globalDictionary.settingDictionary[id].onList || []
+
+        // onList에 포함된 모든 항목을 true로 설정
+        onList.forEach((onItem) => {
+          if (onItem && typeof onItem === 'string' && onItem in newSettings) {
+            newSettings[onItem] = true
+          }
+        })
+      }
+
       // 안전하게 설정 할당
       if (id && typeof id === 'string' && id in newSettings) {
         newSettings[id] = value
@@ -577,26 +726,9 @@ export default function SettingModal() {
     dispatch(setIsSetting(false))
   }
 
-  // 설정 리셋
-  // const resetSettings = () => {
-  //   if (window.confirm('모든 설정을 기본값으로 되돌리시겠습니까?')) {
-  //     const defaultSettings = Object.entries(globalDictionary.settingDictionary).reduce(
-  //       (acc, [key, value]) => {
-  //         acc[key] = value.defaultValue
-  //         return acc
-  //       },
-  //       {} as Record<string, any>,
-  //     )
-
-  //     setLocalSettings(defaultSettings)
-  //     // 즉시 설정 저장
-  //     applySettings(defaultSettings as SettingsData)
-  //   }
-  // }
-
   return (
     <div
-      className={`tw:fixed ${font != 'default' ? 'tw:font-medium' : ''} tw:inset-0 tw:z-50 tw:flex tw:items-center tw:justify-center tw:transition-all tw:duration-300 ${
+      className={`tw:fixed ${font != 'default' ? 'tw:font-medium' : ''} tw:break-keep tw:inset-0 tw:z-50 tw:flex tw:items-center tw:justify-center tw:transition-all tw:duration-300 ${
         isSetting ? 'tw:opacity-100' : 'tw:opacity-0 tw:pointer-events-none'
       }`}
     >
@@ -654,7 +786,7 @@ export default function SettingModal() {
           {/* 설정 항목 */}
           <div className='tw:flex-1 tw:p-6 tw:overflow-y-auto tw:custom-scrollbar tw:h-[calc(100vh-10rem)]'>
             {activeCategory === 'storage' ? (
-              <StorageInfo theme={theme} />
+              <StorageInfo theme={theme} onSettingChange={handleSettingChange} />
             ) : (
               <>
                 {categorizedSettings[activeCategory as keyof typeof categorizedSettings].map(
@@ -695,7 +827,15 @@ export default function SettingModal() {
                               onChange={(value) => {
                                 handleSettingChange(setting.id, value)
                               }}
-                              disabled={!setting.isEditable}
+                              disabled={
+                                !setting.isEditable ||
+                                (activeCategory === 'capture' &&
+                                  setting.id !== 'autoCaptureMode' &&
+                                  !settingData.autoCaptureMode) ||
+                                (activeCategory === 'autoStart' &&
+                                  setting.id !== 'autoStartGame' &&
+                                  !settingData.autoStartGame)
+                              }
                               theme={theme}
                             />
                           ) : setting.isFile ? (
@@ -704,7 +844,15 @@ export default function SettingModal() {
                               onChange={(value) => {
                                 handleSettingChange(setting.id, value)
                               }}
-                              disabled={!setting.isEditable}
+                              disabled={
+                                !setting.isEditable ||
+                                (activeCategory === 'capture' &&
+                                  setting.id !== 'autoCaptureMode' &&
+                                  !settingData.autoCaptureMode) ||
+                                (activeCategory === 'autoStart' &&
+                                  setting.id !== 'autoStartGame' &&
+                                  !settingData.autoStartGame)
+                              }
                               theme={theme}
                             />
                           ) : (
@@ -713,7 +861,16 @@ export default function SettingModal() {
                               onChange={(value) => {
                                 handleSettingChange(setting.id, value)
                               }}
-                              disabled={!setting.isEditable}
+                              activeCategory={activeCategory}
+                              disabled={
+                                !setting.isEditable ||
+                                (activeCategory === 'capture' &&
+                                  setting.id !== 'autoCaptureMode' &&
+                                  !settingData.autoCaptureMode) ||
+                                (activeCategory === 'autoStart' &&
+                                  setting.id !== 'autoStartGame' &&
+                                  !settingData.autoStartGame)
+                              }
                               theme={theme}
                             />
                           )}
