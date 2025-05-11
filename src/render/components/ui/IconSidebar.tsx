@@ -6,14 +6,14 @@ import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { LuBook, LuGamepad, LuLayers, LuSettings } from 'react-icons/lu'
 import { useDispatch, useSelector } from 'react-redux'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import Tooltip from './Tooltip'
 const IconSidebar: React.FC = () => {
   const { theme } = useSelector((state: RootState) => state.ui)
   const { selectedGame } = useSelector((state: RootState) => state.app)
   const navigate = useNavigate()
   const dispatch = useDispatch()
-  const location = window.location.hash.substring(1) // 현재 경로 가져오기
+  const location = useLocation() // 현재 경로 가져오기
   const { t } = useTranslation(['menu'])
 
   // 로고 인덱스 상태 관리
@@ -67,6 +67,7 @@ const IconSidebar: React.FC = () => {
           // 선택되지 않은 경우 게임 선택
           handleGameSelect('wjmax')
         }
+        navigate('/home')
       },
     },
     {
@@ -75,6 +76,7 @@ const IconSidebar: React.FC = () => {
       iconUrl: `${import.meta.env.VITE_CDN_URL}/platina_lab/new_logo.png`,
       onClick: () => {
         handleGameSelect('platina_lab')
+        navigate('/home')
       },
     },
   ]
@@ -154,9 +156,14 @@ const IconSidebar: React.FC = () => {
                 whileTap={{ scale: 0.95 }}
                 onClick={game.onClick}
                 className={`tw:w-12 tw:h-12 tw:flex tw:items-center tw:justify-center tw:rounded-lg tw:overflow-hidden tw:cursor-pointer tw:transition-all ${
-                  selectedGame === game.id
+                  selectedGame === game.id &&
+                  (location.pathname.includes(game.id) || location.pathname === '/home')
                     ? 'tw:dark:bg-slate-700 tw:bg-white tw:shadow-md'
-                    : 'tw:dark:bg-slate-800 tw:dark:hover:bg-slate-700 tw:bg-gray-50 tw:shadow-md tw:hover:bg-white tw:hover:shadow-md'
+                    : `tw:dark:bg-slate-800 tw:dark:hover:bg-slate-700 tw:bg-gray-50 tw:shadow-md tw:hover:bg-white tw:hover:shadow-md ${
+                        location.pathname.includes(game.id) || location.pathname === '/home'
+                          ? 'tw:grayscale-100'
+                          : ''
+                      }`
                 }`}
               >
                 <AnimatePresence mode='wait'>
@@ -208,7 +215,7 @@ const IconSidebar: React.FC = () => {
                 handleNavigation('/overlay/settings')
               }}
               className={`tw:w-12 tw:h-12 tw:flex tw:items-center tw:justify-center tw:rounded-lg tw:cursor-pointer tw:transition-all ${
-                location === '/overlay/settings'
+                location.pathname === '/overlay/settings'
                   ? 'tw:dark:bg-slate-700 tw:dark:text-indigo-400 tw:bg-white tw:text-indigo-600 tw:shadow-md'
                   : 'tw:dark:bg-slate-800 tw:dark:text-indigo-400 tw:dark:hover:bg-slate-700 tw:bg-gray-50 tw:shadow-md tw:hover:bg-white tw:hover:shadow-md'
               }`}
@@ -229,7 +236,7 @@ const IconSidebar: React.FC = () => {
                   handleNavigation('/track-maker')
                 }}
                 className={`tw:w-12 tw:h-12 tw:flex tw:items-center tw:justify-center tw:rounded-lg tw:cursor-pointer tw:transition-all ${
-                  location === '/track-maker'
+                  location.pathname === '/track-maker'
                     ? 'tw:dark:bg-slate-700 tw:dark:text-indigo-400 tw:bg-white tw:text-indigo-600 tw:shadow-md'
                     : 'tw:dark:bg-slate-800 tw:dark:text-indigo-400 tw:dark:hover:bg-slate-700 tw:bg-gray-50 tw:shadow-md tw:hover:bg-white tw:hover:shadow-md'
                 }`}
@@ -251,7 +258,7 @@ const IconSidebar: React.FC = () => {
                   handleNavigation('/test/cheatsheet')
                 }}
                 className={`tw:w-12 tw:h-12 tw:flex tw:items-center tw:justify-center tw:rounded-lg tw:cursor-pointer tw:transition-all ${
-                  location === '/test/cheatsheet'
+                  location.pathname === '/test/cheatsheet'
                     ? 'tw:dark:bg-slate-700 tw:dark:text-indigo-400 tw:bg-white tw:text-indigo-600 tw:shadow-md'
                     : 'tw:dark:bg-slate-800 tw:dark:text-indigo-400 tw:dark:hover:bg-slate-700 tw:bg-gray-50 tw:shadow-md tw:hover:bg-white tw:hover:shadow-md'
                 }`}

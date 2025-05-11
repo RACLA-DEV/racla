@@ -124,7 +124,7 @@ const Footer: React.FC = () => {
                     handleOpenExternalLink('https://platinalab.net/')
                   }}
                 >
-                  PLATiNA :: LAB(HIGH-END Games)
+                  Resources from PLATiNA :: LAB(HIGH-END Games)
                 </span>
               </Tooltip>
               <span> · </span>
