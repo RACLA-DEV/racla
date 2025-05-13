@@ -2,13 +2,15 @@ import { globalDictionary } from '@render/constants/globalDictionary'
 import { createLog } from '@render/libs/logger'
 import { RootState } from '@render/store'
 import { ApiArchiveNicknameBoard } from '@src/types/dto/v-archive/ApiArchiveNicknameBoard'
-import { ArcElement, Chart as ChartJS, Legend, Tooltip } from 'chart.js'
+import { PatternInfo } from '@src/types/games/SongData'
+import { ArcElement, Chart as ChartJS, Legend, Tooltip, TooltipItem } from 'chart.js'
 import { motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
 import { Doughnut } from 'react-chartjs-2'
 import { useSelector } from 'react-redux'
 import { PuffLoader } from 'react-spinners'
 import apiClient from '../../../libs/apiClient'
+import Image from '../image/Image'
 import ScorePopupComponent from '../score/ScorePopup'
 
 ChartJS.register(ArcElement, Tooltip, Legend)
@@ -133,7 +135,7 @@ export default function DjmaxHomeComponent() {
             const patternButton = patterns[keyMode + 'B']
 
             if (patternButton) {
-              return Object.entries(patternButton).map(([key, pattern]: [string, any]) => ({
+              return Object.entries(patternButton).map(([key, pattern]: [string, PatternInfo]) => ({
                 title,
                 name,
                 composer,
@@ -337,13 +339,13 @@ export default function DjmaxHomeComponent() {
   }
 
   const getLevelDisplay = (pattern: Pattern) => {
-    if (pattern?.level) {
+    if (pattern.level) {
       if (pattern.pattern === 'SC') {
         return (
           <span
             className={`tw:flex tw:gap-2 tw:font-extrabold tw:items-center tw:text-respect-sc-15`}
           >
-            <img
+            <Image
               src={`https://cdn.racla.app/djmax_respect_v/sc_15_star.png`}
               alt='difficulty'
               width={16}
@@ -364,7 +366,7 @@ export default function DjmaxHomeComponent() {
         <span
           className={`tw:flex tw:gap-2 tw:font-extrabold tw:items-center tw:text-respect-${difficultyClass}`}
         >
-          <img
+          <Image
             src={`https://cdn.racla.app/djmax_respect_v/nm_${difficultyClass.split('-')[1]}_star.png`}
             alt='difficulty'
             width={16}
@@ -420,8 +422,8 @@ export default function DjmaxHomeComponent() {
       if (bFloor >= 0) return 1
 
       // 둘 다 일반 패턴인 경우 level로 비교
-      const aLevel = a.level || 0
-      const bLevel = b.level || 0
+      const aLevel = a.level ?? 0
+      const bLevel = b.level ?? 0
       return bLevel - aLevel
     }
 
@@ -532,7 +534,7 @@ export default function DjmaxHomeComponent() {
       // NEW 30 턴 필터링 및 정렬 (VL, TEK DLC와 Insane Drift)
       const newPatterns = allPatterns
         .filter(
-          (pattern: any) =>
+          (pattern: Pattern) =>
             pattern.dlcCode === 'VL2' ||
             pattern.dlcCode === 'BA' ||
             pattern.dlcCode === 'PLI1' ||
@@ -541,12 +543,12 @@ export default function DjmaxHomeComponent() {
             pattern.name === 'Phoenix Virus' ||
             pattern.name === 'alliance',
         )
-        .sort((a: any, b: any) => (b.djpower || 0) - (a.djpower || 0))
+        .sort((a: Pattern, b: Pattern) => (b.djpower || 0) - (a.djpower || 0))
 
       // BASIC 70 패턴 필터링 및 정렬 (VL, TEK DLC와 Insane Drift 제외)
       const basicPatterns = allPatterns
         .filter(
-          (pattern: any) =>
+          (pattern: Pattern) =>
             pattern.dlcCode !== 'VL2' &&
             pattern.dlcCode !== 'BA' &&
             pattern.dlcCode !== 'PLI1' &&
@@ -555,18 +557,18 @@ export default function DjmaxHomeComponent() {
             pattern.name !== 'Phoenix Virus' &&
             pattern.name !== 'alliance',
         )
-        .sort((a: any, b: any) => (b.djpower || 0) - (a.djpower || 0))
+        .sort((a: Pattern, b: Pattern) => (b.djpower || 0) - (a.djpower || 0))
 
       // TOP 50 렬 (rating 기준)
       const top50Patterns = [...allPatterns]
-        .filter((pattern: any) => pattern.rating != null)
-        .sort((a: any, b: any) => (b.rating || 0) - (a.rating || 0))
+        .filter((pattern: Pattern) => pattern.rating != null)
+        .sort((a: Pattern, b: Pattern) => (b.rating || 0) - (a.rating || 0))
         .slice(0, 50)
 
       newCutoffScores[keyMode] = {
-        new30: (newPatterns[29] as any)?.djpower || 0,
-        basic70: (basicPatterns[69] as any)?.djpower || 0,
-        top50: (top50Patterns[49] as any)?.rating || 0,
+        new30: (newPatterns[29] as Pattern)?.djpower || 0,
+        basic70: (basicPatterns[69] as Pattern)?.djpower || 0,
+        top50: (top50Patterns[49] as Pattern)?.rating || 0,
       }
     })
 
@@ -728,7 +730,7 @@ export default function DjmaxHomeComponent() {
                                         family: 'SUITE Variable',
                                       },
                                       callbacks: {
-                                        label: (context: any) => {
+                                        label: (context: TooltipItem<'doughnut'>) => {
                                           const label = context.label || ''
                                           const value = context.raw || 0
                                           return `${label}: ${value}`
@@ -808,7 +810,7 @@ export default function DjmaxHomeComponent() {
                                         family: 'SUITE Variable',
                                       },
                                       callbacks: {
-                                        label: (context: any) => {
+                                        label: (context: TooltipItem<'doughnut'>) => {
                                           const label = context.label || ''
                                           const value = context.raw || 0
                                           return `${label}: ${value}`
@@ -869,7 +871,7 @@ export default function DjmaxHomeComponent() {
                                         family: 'SUITE Variable',
                                       },
                                       callbacks: {
-                                        label: (context: any) => {
+                                        label: (context: TooltipItem<'doughnut'>) => {
                                           const label = context.label || ''
                                           const value = context.raw || 0
                                           return `${label}: ${value}`
@@ -889,19 +891,19 @@ export default function DjmaxHomeComponent() {
                             NEW 30
                           </span>
                           <span className='tw:p-1 tw:px-4 tw:bg-gray-100 tw:dark:bg-slate-700/50 tw:rounded-md tw:text-gray-900 tw:dark:text-white'>
-                            {cutoffScores[selectedKeyMode]?.new30.toFixed(3)} DP
+                            {cutoffScores[selectedKeyMode].new30.toFixed(3)} DP
                           </span>
                           <span className='tw:p-1 tw:px-4 tw:bg-yellow-50 tw:dark:bg-yellow-500/20 tw:rounded-md tw:font-extrabold tw:text-yellow-600 tw:dark:text-yellow-500'>
                             BASIC 70
                           </span>
                           <span className='tw:p-1 tw:px-4 tw:bg-gray-100 tw:dark:bg-slate-700/50 tw:rounded-md tw:text-gray-900 tw:dark:text-white'>
-                            {cutoffScores[selectedKeyMode]?.basic70.toFixed(3)} DP
+                            {cutoffScores[selectedKeyMode].basic70.toFixed(3)} DP
                           </span>
                           <span className='tw:p-1 tw:px-4 tw:bg-red-50 tw:dark:bg-red-500/20 tw:rounded-md tw:font-extrabold tw:text-red-600 tw:dark:text-red-500'>
                             TOP 50
                           </span>
                           <span className='tw:p-1 tw:px-4 tw:bg-gray-100 tw:dark:bg-slate-700/50 tw:rounded-md tw:text-gray-900 tw:dark:text-white'>
-                            {cutoffScores[selectedKeyMode]?.top50.toFixed(3)} TP
+                            {cutoffScores[selectedKeyMode].top50.toFixed(3)} TP
                           </span>
                         </div>
                       </div>
@@ -1030,7 +1032,7 @@ export default function DjmaxHomeComponent() {
                                         family: 'SUITE Variable',
                                       },
                                       callbacks: {
-                                        label: (context: any) => {
+                                        label: (context: TooltipItem<'doughnut'>) => {
                                           const label = context.label || ''
                                           const value = context.raw || 0
                                           return `${label}: ${value}`
@@ -1109,7 +1111,7 @@ export default function DjmaxHomeComponent() {
                                         family: 'SUITE Variable',
                                       },
                                       callbacks: {
-                                        label: (context: any) => {
+                                        label: (context: TooltipItem<'doughnut'>) => {
                                           const label = context.label || ''
                                           const value = context.raw || 0
                                           return `${label}: ${value}`
@@ -1169,7 +1171,7 @@ export default function DjmaxHomeComponent() {
                                         family: 'SUITE Variable',
                                       },
                                       callbacks: {
-                                        label: (context: any) => {
+                                        label: (context: TooltipItem<'doughnut'>) => {
                                           const label = context.label || ''
                                           const value = context.raw || 0
                                           return `${label}: ${value}`

@@ -68,7 +68,9 @@ const TitleBar: React.FC = () => {
               })}
             >
               <button
-                onClick={() => dispatch(setSidebarCollapsed(!sidebarCollapsed))}
+                onClick={() => {
+                  dispatch(setSidebarCollapsed(!sidebarCollapsed))
+                }}
                 className='tw:p-1.5 tw:rounded tw:dark:hover:bg-slate-800 tw:dark:text-slate-300 tw:hover:bg-white tw:text-gray-600 tw:transition-all'
               >
                 <Icon icon='lucide:menu' width='16' height='16' />
@@ -83,7 +85,9 @@ const TitleBar: React.FC = () => {
             })}
           >
             <button
-              onClick={() => navigate(-1)}
+              onClick={() => {
+                navigate(-1)
+              }}
               className='tw:p-1.5 tw:rounded tw:mr-2 tw:dark:hover:bg-slate-800 tw:dark:text-slate-300 tw:hover:bg-white tw:text-gray-600 tw:transition-all'
             >
               <Icon icon='lucide:arrow-left' width='16' height='16' />
@@ -97,7 +101,9 @@ const TitleBar: React.FC = () => {
             })}
           >
             <button
-              onClick={() => dispatch(setRefresh(!refresh))}
+              onClick={() => {
+                dispatch(setRefresh(!refresh))
+              }}
               className='tw:p-1.5 tw:rounded tw:dark:hover:bg-slate-800 tw:dark:text-slate-300 tw:hover:bg-white tw:text-gray-600 tw:transition-all'
             >
               <Icon icon='lucide:refresh-cw' width='16' height='16' />

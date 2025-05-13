@@ -142,7 +142,9 @@ const TrackMakerHub: React.FC = () => {
       <div className={styles.paginationContainer}>
         <button
           className={currentPage === 0 ? styles.disabledPaginationButton : styles.paginationButton}
-          onClick={() => handlePageChange(currentPage - 1)}
+          onClick={() => {
+            handlePageChange(currentPage - 1)
+          }}
           disabled={currentPage === 0}
         >
           {t('common:pagination.prev')}

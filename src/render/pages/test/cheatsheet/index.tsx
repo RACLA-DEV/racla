@@ -2,6 +2,7 @@ import '@render/App.css'
 
 import { useEffect, useState } from 'react'
 
+import Image from '@render/components/image/Image'
 import { createLog } from '@render/libs/logger'
 import type { LogLevel } from '@src/types/dto/log/LogLevel'
 import { Buffer } from 'buffer'
@@ -189,7 +190,7 @@ function CheatsheetPage() {
       <div className='tw:flex tw:gap-4'>
         <div>
           {image && (
-            <img
+            <Image
               src={`data:image/png;base64,${Buffer.from(image).toString('base64')}`}
               alt='게임 윈도우 캡처'
               className='tw:w-full tw:h-auto'
@@ -228,7 +229,7 @@ function CheatsheetPage() {
                   <button
                     type='button'
                     onClick={() => {
-                      void item.usage()
+                      item.usage()
                     }}
                     className='tw:px-4 tw:py-2 tw:bg-green-500 tw:text-white tw:rounded-lg tw:hover:bg-green-600'
                   >

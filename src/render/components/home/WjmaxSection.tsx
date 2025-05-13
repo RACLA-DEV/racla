@@ -1,4 +1,4 @@
-import { ArcElement, Chart as ChartJS, Legend, Tooltip } from 'chart.js'
+import { ArcElement, Chart as ChartJS, Legend, Tooltip, TooltipItem } from 'chart.js'
 import { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 
@@ -10,6 +10,7 @@ import { motion } from 'framer-motion'
 import { Doughnut } from 'react-chartjs-2'
 import { PuffLoader } from 'react-spinners'
 import apiClient from '../../../libs/apiClient'
+import Image from '../image/Image'
 import ScorePopupComponent from '../score/ScorePopup'
 
 ChartJS.register(ArcElement, Tooltip, Legend)
@@ -163,7 +164,7 @@ export default function WjmaxHomeComponent() {
         <span
           className={`tw:flex tw:gap-2 tw:font-extrabold tw:items-center tw:text-wjmax-${String(pattern?.pattern).toLowerCase()}`}
         >
-          <img
+          <Image
             src={`https://cdn.racla.app/wjmax/nm_${Math.ceil((pattern.level || 0) / 5) * 5}_star.png`}
             alt='difficulty'
             width={pattern.level > 20 ? 16 : 20}
@@ -397,7 +398,7 @@ export default function WjmaxHomeComponent() {
                                         family: 'SUITE Variable',
                                       },
                                       callbacks: {
-                                        label: (context: any) => {
+                                        label: (context: TooltipItem<'doughnut'>) => {
                                           const label = context.label || ''
                                           const value = context.raw || 0
                                           return `${label}: ${value}`
@@ -477,7 +478,7 @@ export default function WjmaxHomeComponent() {
                                         family: 'SUITE Variable',
                                       },
                                       callbacks: {
-                                        label: (context: any) => {
+                                        label: (context: TooltipItem<'doughnut'>) => {
                                           const label = context.label || ''
                                           const value = context.raw || 0
                                           return `${label}: ${value}`
@@ -538,7 +539,7 @@ export default function WjmaxHomeComponent() {
                                         family: 'SUITE Variable',
                                       },
                                       callbacks: {
-                                        label: (context: any) => {
+                                        label: (context: TooltipItem<'doughnut'>) => {
                                           const label = context.label || ''
                                           const value = context.raw || 0
                                           return `${label}: ${value}`
@@ -677,7 +678,7 @@ export default function WjmaxHomeComponent() {
                                         family: 'SUITE Variable',
                                       },
                                       callbacks: {
-                                        label: (context: any) => {
+                                        label: (context: TooltipItem<'doughnut'>) => {
                                           const label = context.label || ''
                                           const value = context.raw || 0
                                           return `${label}: ${value}`
@@ -756,7 +757,7 @@ export default function WjmaxHomeComponent() {
                                         family: 'SUITE Variable',
                                       },
                                       callbacks: {
-                                        label: (context: any) => {
+                                        label: (context: TooltipItem<'doughnut'>) => {
                                           const label = context.label || ''
                                           const value = context.raw || 0
                                           return `${label}: ${value}`
@@ -816,7 +817,7 @@ export default function WjmaxHomeComponent() {
                                         family: 'SUITE Variable',
                                       },
                                       callbacks: {
-                                        label: (context: any) => {
+                                        label: (context: TooltipItem<'doughnut'>) => {
                                           const label = context.label || ''
                                           const value = context.raw || 0
                                           return `${label}: ${value}`
@@ -896,6 +897,8 @@ export default function WjmaxHomeComponent() {
                                   .replace('B', '')
                                   .replace('_PLUS', '')}
                                 judgementType={String(selectedKeyMode).includes('_PLUS') ? 1 : 0}
+                                width={120}
+                                height={67}
                               />
                               <div className='tw:flex tw:flex-col tw:gap-1 tw:bg-gray-100 tw:dark:bg-slate-700/50 tw:rounded-md tw:p-3 tw:flex-1 tw:border tw:border-gray-200 tw:dark:border-slate-600'>
                                 <div className='tw:flex tw:justify-between tw:items-center'>

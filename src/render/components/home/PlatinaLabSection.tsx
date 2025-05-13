@@ -1,4 +1,4 @@
-import { ArcElement, Chart as ChartJS, Legend, Tooltip } from 'chart.js'
+import { ArcElement, Chart as ChartJS, Legend, Tooltip, TooltipItem } from 'chart.js'
 import { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 
@@ -10,6 +10,7 @@ import { motion } from 'framer-motion'
 import { Doughnut } from 'react-chartjs-2'
 import { PuffLoader } from 'react-spinners'
 import apiClient from '../../../libs/apiClient'
+import Image from '../image/Image'
 import ScorePopupComponent from '../score/ScorePopup'
 
 ChartJS.register(ArcElement, Tooltip, Legend)
@@ -160,7 +161,7 @@ export default function PlatinaLabHomeComponent() {
           className={`tw:flex tw:gap-2 tw:font-extrabold tw:items-center tw:text-platina-lab-${String(pattern?.pattern).replace('PLUS_1', 'PLUS').replace('PLUS_2', 'PLUS').replace('PLUS_3', 'PLUS').toLowerCase()}`}
         >
           {selectedGame == 'wjmax' ? (
-            <img
+            <Image
               src={`https://cdn.racla.app/wjmax/nm_${Math.ceil((pattern.level || 0) / 5) * 5}_star.png`}
               alt='difficulty'
               width={pattern.level > 20 ? 16 : 20}
@@ -401,7 +402,7 @@ export default function PlatinaLabHomeComponent() {
                                         family: 'SUITE Variable',
                                       },
                                       callbacks: {
-                                        label: (context: any) => {
+                                        label: (context: TooltipItem<'doughnut'>) => {
                                           const label = context.label || ''
                                           const value = context.raw || 0
                                           return `${label}: ${value}`
@@ -481,7 +482,7 @@ export default function PlatinaLabHomeComponent() {
                                         family: 'SUITE Variable',
                                       },
                                       callbacks: {
-                                        label: (context: any) => {
+                                        label: (context: TooltipItem<'doughnut'>) => {
                                           const label = context.label || ''
                                           const value = context.raw || 0
                                           return `${label}: ${value}`
@@ -542,7 +543,7 @@ export default function PlatinaLabHomeComponent() {
                                         family: 'SUITE Variable',
                                       },
                                       callbacks: {
-                                        label: (context: any) => {
+                                        label: (context: TooltipItem<'doughnut'>) => {
                                           const label = context.label || ''
                                           const value = context.raw || 0
                                           return `${label}: ${value}`
@@ -680,7 +681,7 @@ export default function PlatinaLabHomeComponent() {
                                         family: 'SUITE Variable',
                                       },
                                       callbacks: {
-                                        label: (context: any) => {
+                                        label: (context: TooltipItem<'doughnut'>) => {
                                           const label = context.label || ''
                                           const value = context.raw || 0
                                           return `${label}: ${value}`
@@ -759,7 +760,7 @@ export default function PlatinaLabHomeComponent() {
                                         family: 'SUITE Variable',
                                       },
                                       callbacks: {
-                                        label: (context: any) => {
+                                        label: (context: TooltipItem<'doughnut'>) => {
                                           const label = context.label || ''
                                           const value = context.raw || 0
                                           return `${label}: ${value}`
@@ -819,7 +820,7 @@ export default function PlatinaLabHomeComponent() {
                                         family: 'SUITE Variable',
                                       },
                                       callbacks: {
-                                        label: (context: any) => {
+                                        label: (context: TooltipItem<'doughnut'>) => {
                                           const label = context.label || ''
                                           const value = context.raw || 0
                                           return `${label}: ${value}`

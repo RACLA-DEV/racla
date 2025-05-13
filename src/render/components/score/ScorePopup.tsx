@@ -20,12 +20,14 @@ import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { PuffLoader } from 'react-spinners'
 import apiClient from '../../../libs/apiClient'
+import Image from '../image/Image'
 
 interface ScorePopupComponentProps {
   songTitle: number
   keyMode: string
   isVisibleCode?: boolean
-  size?: number
+  width?: number
+  height?: number
   judgementType?: number
 }
 
@@ -34,7 +36,8 @@ const ScorePopupComponent = ({
   keyMode,
   judgementType,
   isVisibleCode = false,
-  size = 80,
+  width = 80,
+  height = 80,
 }: ScorePopupComponentProps) => {
   const { songData, userData, isLoggedIn } = useSelector((state: RootState) => state.app)
   const { font } = useSelector((state: RootState) => state.app.settingData)
@@ -199,17 +202,17 @@ const ScorePopupComponent = ({
         <Link
           to={`/${game}/db/title/${songTitle}`}
           className={`tw:relative tw:rounded-md hover-scale-110 tw:cursor-pointer ${game}_record`}
-          style={{ width: size, height: size }}
+          style={{ width, height }}
         >
-          <img
-            loading='lazy'
+          <Image
             src={`${import.meta.env.VITE_CDN_URL}${
               globalDictionary.gameDictionary[game]?.jacketsUrl || ''
             }/${songTitle}.jpg`}
             className='tw:absolute tw:rounded-md tw:shadow-lg tw:w-full tw:h-full'
-            width={size}
-            height={size}
+            width={width}
+            height={height}
             alt={songItem?.name || ''}
+            fallbackSrc='https://cdn.racla.app/common/no-image.jpg'
             style={{ objectFit: 'cover' }}
           />
           {isVisibleCode ? (
@@ -269,11 +272,10 @@ const ScorePopupComponent = ({
                 <div className='tw:flex tw:flex-col'>
                   <div className='tw:flex tw:flex-col tw:w-80 tw:h-32 tw:relative tw:mb-2 tw:overflow-hidden tw:rounded-md'>
                     <img
-                      loading='lazy'
                       src={`${import.meta.env.VITE_CDN_URL}${
                         globalDictionary.gameDictionary[game]?.jacketsUrl || ''
                       }/${songTitle}.jpg`}
-                      className={`tw:absolute tw:blur-sm tw:w-full tw:h-full`}
+                      className={`tw:absolute tw:w-full tw:h-full tw:blur-sm`}
                       alt=''
                       style={{ objectFit: 'cover' }}
                     />

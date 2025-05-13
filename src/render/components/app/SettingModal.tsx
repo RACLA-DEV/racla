@@ -709,7 +709,7 @@ export default function SettingModal() {
       }
 
       if (id === 'language') {
-        i18n.changeLanguage(value as string)
+        void i18n.changeLanguage(value as string)
       }
 
       return newSettings as SettingsData
