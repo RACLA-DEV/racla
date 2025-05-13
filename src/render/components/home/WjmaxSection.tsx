@@ -1,4 +1,4 @@
-import { ArcElement, Chart as ChartJS, Legend, Tooltip } from 'chart.js'
+import { ArcElement, Chart as ChartJS, Legend, Tooltip, TooltipItem } from 'chart.js'
 import { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 
@@ -8,8 +8,10 @@ import type { PlayBoardFlattenResponse } from '@src/types/dto/playBoard/PlayBoar
 import type { PlayBoardPatternInfo } from '@src/types/dto/playBoard/PlayBoardPatternInfo'
 import { motion } from 'framer-motion'
 import { Doughnut } from 'react-chartjs-2'
+import { useTranslation } from 'react-i18next'
 import { PuffLoader } from 'react-spinners'
 import apiClient from '../../../libs/apiClient'
+import Image from '../image/Image'
 import ScorePopupComponent from '../score/ScorePopup'
 
 ChartJS.register(ArcElement, Tooltip, Legend)
@@ -19,6 +21,7 @@ interface KeyModeData {
 }
 
 export default function WjmaxHomeComponent() {
+  const { t } = useTranslation(['home'])
   const userData = useSelector((state: RootState) => state.app.userData)
   const selectedGame = useSelector((state: RootState) => state.app.selectedGame)
   const [keyModeData, setKeyModeData] = useState<KeyModeData>({
@@ -163,7 +166,7 @@ export default function WjmaxHomeComponent() {
         <span
           className={`tw:flex tw:gap-2 tw:font-extrabold tw:items-center tw:text-wjmax-${String(pattern?.pattern).toLowerCase()}`}
         >
-          <img
+          <Image
             src={`https://cdn.racla.app/wjmax/nm_${Math.ceil((pattern.level || 0) / 5) * 5}_star.png`}
             alt='difficulty'
             width={pattern.level > 20 ? 16 : 20}
@@ -174,7 +177,7 @@ export default function WjmaxHomeComponent() {
         </span>
       )
     }
-    return '난이도 정보 없음'
+    return t('noDifficultyInfo')
   }
 
   const getHighestLevelInfo = (
@@ -272,7 +275,7 @@ export default function WjmaxHomeComponent() {
                 <div className='tw:flex tw:justify-between tw:items-center'>
                   <span className='tw:text-xl tw:font-bold tw:me-auto tw:text-gray-900 tw:dark:text-white'>
                     {String(selectedKeyMode).replace('_PLUS', '')}
-                    {String(selectedKeyMode).includes('_PLUS') ? '+' : ''} 통계
+                    {String(selectedKeyMode).includes('_PLUS') ? '+' : ''} {t('stats')}
                   </span>
                   <KeyModeSelector />
                 </div>
@@ -290,43 +293,43 @@ export default function WjmaxHomeComponent() {
                         {[
                           {
                             key: 'clear',
-                            label: '클리어',
+                            label: t('clear'),
                             color: 'tw:text-blue-600 tw:dark:text-blue-500',
                             bg: 'tw:bg-blue-50 tw:dark:bg-blue-500/20',
                           },
                           {
                             key: 'perfect',
-                            label: '퍼펙트',
+                            label: t('perfect'),
                             color: 'tw:text-red-600 tw:dark:text-red-500',
                             bg: 'tw:bg-red-50 tw:dark:bg-red-500/20',
                           },
                           {
                             key: 'over999',
-                            label: '99.9%+',
+                            label: t('over999.name'),
                             color: 'tw:text-yellow-600 tw:dark:text-yellow-500',
                             bg: 'tw:bg-yellow-50 tw:dark:bg-yellow-500/20',
                           },
                           {
                             key: 'over995',
-                            label: '99.5%+',
+                            label: t('over995.name'),
                             color: 'tw:text-yellow-500 tw:dark:text-yellow-400',
                             bg: 'tw:bg-yellow-50 tw:dark:bg-yellow-400/20',
                           },
                           {
                             key: 'over99',
-                            label: '99.0%+',
+                            label: t('over99.name'),
                             color: 'tw:text-yellow-400 tw:dark:text-yellow-300',
                             bg: 'tw:bg-yellow-50 tw:dark:bg-yellow-300/20',
                           },
                           {
                             key: 'over97',
-                            label: '97.0%+',
+                            label: t('over97.name'),
                             color: 'tw:text-yellow-300 tw:dark:text-yellow-200',
                             bg: 'tw:bg-yellow-50 tw:dark:bg-yellow-200/20',
                           },
                           {
                             key: 'maxCombo',
-                            label: '맥스 콤보',
+                            label: t('maxCombo'),
                             color: 'tw:text-green-600 tw:dark:text-green-500',
                             bg: 'tw:bg-green-50 tw:dark:bg-green-500/20',
                           },
@@ -356,13 +359,13 @@ export default function WjmaxHomeComponent() {
                                 {calculateStats(keyModeData[selectedKeyMode]).total}
                               </div>
                               <div className='tw:text-xs tw:text-gray-500 tw:dark:text-slate-300'>
-                                전체
+                                {t('all')}
                               </div>
                             </div>
                             <div className='tw:relative tw:z-1'>
                               <Doughnut
                                 data={{
-                                  labels: ['클리어', '미클리어(기록 없음)'],
+                                  labels: [t('clear'), t('noRecord')],
                                   datasets: [
                                     {
                                       data: [
@@ -397,7 +400,7 @@ export default function WjmaxHomeComponent() {
                                         family: 'SUITE Variable',
                                       },
                                       callbacks: {
-                                        label: (context: any) => {
+                                        label: (context: TooltipItem<'doughnut'>) => {
                                           const label = context.label || ''
                                           const value = context.raw || 0
                                           return `${label}: ${value}`
@@ -418,19 +421,19 @@ export default function WjmaxHomeComponent() {
                                 {calculateStats(keyModeData[selectedKeyMode]).clear}
                               </div>
                               <div className='tw:text-xs tw:text-gray-500 tw:dark:text-slate-300'>
-                                클리어
+                                {t('clear')}
                               </div>
                             </div>
                             <div className='tw:relative tw:z-1'>
                               <Doughnut
                                 data={{
                                   labels: [
-                                    '퍼펙트',
-                                    '스코어 99.9% 이상',
-                                    '스코어 99.5% 이상',
-                                    '스코어 99.0% 이상',
-                                    '스코어 97.0% 이상',
-                                    '스코어 97.0% 이하',
+                                    t('perfect'),
+                                    t('over999.fullName'),
+                                    t('over995.fullName'),
+                                    t('over99.fullName'),
+                                    t('over97.fullName'),
+                                    t('under97.fullName'),
                                   ],
                                   datasets: [
                                     {
@@ -477,7 +480,7 @@ export default function WjmaxHomeComponent() {
                                         family: 'SUITE Variable',
                                       },
                                       callbacks: {
-                                        label: (context: any) => {
+                                        label: (context: TooltipItem<'doughnut'>) => {
                                           const label = context.label || ''
                                           const value = context.raw || 0
                                           return `${label}: ${value}`
@@ -498,13 +501,13 @@ export default function WjmaxHomeComponent() {
                                 {calculateStats(keyModeData[selectedKeyMode]).maxCombo}
                               </div>
                               <div className='tw:text-xs tw:text-gray-500 tw:dark:text-slate-300'>
-                                맥스 콤보
+                                {t('maxCombo')}
                               </div>
                             </div>
                             <div className='tw:relative tw:z-1'>
                               <Doughnut
                                 data={{
-                                  labels: ['맥스 콤보', '맥스 콤보 외 클리어'],
+                                  labels: [t('maxCombo'), t('withoutMaxCombo')],
                                   datasets: [
                                     {
                                       data: [
@@ -538,7 +541,7 @@ export default function WjmaxHomeComponent() {
                                         family: 'SUITE Variable',
                                       },
                                       callbacks: {
-                                        label: (context: any) => {
+                                        label: (context: TooltipItem<'doughnut'>) => {
                                           const label = context.label || ''
                                           const value = context.raw || 0
                                           return `${label}: ${value}`
@@ -560,7 +563,7 @@ export default function WjmaxHomeComponent() {
                     <div className='tw:bg-white tw:dark:bg-slate-800 tw:bg-opacity-75 tw:dark:bg-opacity-75 tw:flex tw:justify-between tw:items-end tw:rounded-lg tw:p-4 tw:border tw:border-gray-200 tw:dark:border-slate-700'>
                       <div className='tw:flex tw:flex-col'>
                         <span className='tw:text-xl tw:font-bold tw:text-gray-900 tw:dark:text-white'>
-                          전체 통계
+                          {t('total')} {t('stats')}
                         </span>
                       </div>
                     </div>
@@ -571,43 +574,43 @@ export default function WjmaxHomeComponent() {
                         {[
                           {
                             key: 'clear',
-                            label: '클리어',
+                            label: t('clear'),
                             color: 'tw:text-blue-600 tw:dark:text-blue-500',
                             bg: 'tw:bg-blue-50 tw:dark:bg-blue-500/20',
                           },
                           {
                             key: 'perfect',
-                            label: '퍼펙트',
+                            label: t('perfect'),
                             color: 'tw:text-red-600 tw:dark:text-red-500',
                             bg: 'tw:bg-red-50 tw:dark:bg-red-500/20',
                           },
                           {
                             key: 'over999',
-                            label: '99.9%+',
+                            label: t('over999.name'),
                             color: 'tw:text-yellow-600 tw:dark:text-yellow-500',
                             bg: 'tw:bg-yellow-50 tw:dark:bg-yellow-500/20',
                           },
                           {
                             key: 'over995',
-                            label: '99.5%+',
+                            label: t('over995.name'),
                             color: 'tw:text-yellow-500 tw:dark:text-yellow-400',
                             bg: 'tw:bg-yellow-50 tw:dark:bg-yellow-400/20',
                           },
                           {
                             key: 'over99',
-                            label: '99.0%+',
+                            label: t('over99.name'),
                             color: 'tw:text-yellow-400 tw:dark:text-yellow-300',
                             bg: 'tw:bg-yellow-50 tw:dark:bg-yellow-300/20',
                           },
                           {
                             key: 'over97',
-                            label: '97.0%+',
+                            label: t('over97.name'),
                             color: 'tw:text-yellow-300 tw:dark:text-yellow-200',
                             bg: 'tw:bg-yellow-50 tw:dark:bg-yellow-200/20',
                           },
                           {
                             key: 'maxCombo',
-                            label: '맥스 콤보',
+                            label: t('maxCombo'),
                             color: 'tw:text-green-600 tw:dark:text-green-500',
                             bg: 'tw:bg-green-50 tw:dark:bg-green-500/20',
                           },
@@ -637,13 +640,13 @@ export default function WjmaxHomeComponent() {
                                 {totalStats.totalPatterns}
                               </div>
                               <div className='tw:text-xs tw:text-gray-500 tw:dark:text-slate-300'>
-                                전체
+                                {t('all')}
                               </div>
                             </div>
                             <div className='tw:relative tw:z-1'>
                               <Doughnut
                                 data={{
-                                  labels: ['클리어', '미클리어(기록 없음)'],
+                                  labels: [t('clear'), t('noRecord')],
                                   datasets: [
                                     {
                                       data: [
@@ -677,7 +680,7 @@ export default function WjmaxHomeComponent() {
                                         family: 'SUITE Variable',
                                       },
                                       callbacks: {
-                                        label: (context: any) => {
+                                        label: (context: TooltipItem<'doughnut'>) => {
                                           const label = context.label || ''
                                           const value = context.raw || 0
                                           return `${label}: ${value}`
@@ -698,19 +701,19 @@ export default function WjmaxHomeComponent() {
                                 {totalStats.clear}
                               </div>
                               <div className='tw:text-xs tw:text-gray-500 tw:dark:text-slate-300'>
-                                클리어
+                                {t('clear')}
                               </div>
                             </div>
                             <div className='tw:relative tw:z-1'>
                               <Doughnut
                                 data={{
                                   labels: [
-                                    '퍼펙트',
-                                    '스코어 99.9% 이상',
-                                    '스코어 99.5% 이상',
-                                    '스코어 99.0% 이상',
-                                    '스코어 97.0% 이상',
-                                    '스코어 97.0% 이하',
+                                    t('perfect'),
+                                    t('over999.fullName'),
+                                    t('over995.fullName'),
+                                    t('over99.fullName'),
+                                    t('over97.fullName'),
+                                    t('under97.fullName'),
                                   ],
                                   datasets: [
                                     {
@@ -756,7 +759,7 @@ export default function WjmaxHomeComponent() {
                                         family: 'SUITE Variable',
                                       },
                                       callbacks: {
-                                        label: (context: any) => {
+                                        label: (context: TooltipItem<'doughnut'>) => {
                                           const label = context.label || ''
                                           const value = context.raw || 0
                                           return `${label}: ${value}`
@@ -777,13 +780,13 @@ export default function WjmaxHomeComponent() {
                                 {totalStats.maxCombo}
                               </div>
                               <div className='tw:text-xs tw:text-gray-500 tw:dark:text-slate-300'>
-                                맥스 콤보
+                                {t('maxCombo')}
                               </div>
                             </div>
                             <div className='tw:relative tw:z-1'>
                               <Doughnut
                                 data={{
-                                  labels: ['맥스 콤보', '맥스 콤보 외 클리어'],
+                                  labels: [t('maxCombo'), t('withoutMaxCombo')],
                                   datasets: [
                                     {
                                       data: [
@@ -816,7 +819,7 @@ export default function WjmaxHomeComponent() {
                                         family: 'SUITE Variable',
                                       },
                                       callbacks: {
-                                        label: (context: any) => {
+                                        label: (context: TooltipItem<'doughnut'>) => {
                                           const label = context.label || ''
                                           const value = context.raw || 0
                                           return `${label}: ${value}`
@@ -839,7 +842,8 @@ export default function WjmaxHomeComponent() {
                   <div className='tw:flex tw:flex-col tw:gap-4 tw:bg-white tw:dark:bg-slate-800 tw:bg-opacity-75 tw:dark:bg-opacity-75 tw:rounded-lg tw:shadow-lg tw:p-4 tw:border tw:border-gray-200 tw:dark:border-slate-700'>
                     <span className='tw:text-lg tw:font-bold tw:text-gray-900 tw:dark:text-white'>
                       🎯 {String(selectedKeyMode).replace('B', '').replace('_PLUS', '')}B
-                      {String(selectedKeyMode).includes('_PLUS') ? '+' : ''} 최고 성과 기록
+                      {String(selectedKeyMode).includes('_PLUS') ? '+' : ''} {t('best')}{' '}
+                      {t('achievement')}
                     </span>
                     {!isLoading && keyModeData[selectedKeyMode] && (
                       <motion.div
@@ -850,13 +854,13 @@ export default function WjmaxHomeComponent() {
                         className='tw:flex tw:flex-col tw:gap-2'
                       >
                         {Object.entries({
-                          maxCombo: '맥스 콤보',
-                          perfect: '퍼펙트',
-                          over999: '스코어 99.9% 이상',
-                          over995: '스코어 99.5% 이상',
-                          over99: '스코어 99% 이상',
-                          over97: '스코어 97% 이상',
-                          clear: '클리어',
+                          maxCombo: t('maxCombo'),
+                          perfect: t('perfect'),
+                          over999: t('over999.fullName'),
+                          over995: t('over995.fullName'),
+                          over99: t('over99.fullName'),
+                          over97: t('over97.fullName'),
+                          clear: t('clear'),
                         }).map(([key, label]) => {
                           const patterns = keyModeData[selectedKeyMode]
                           const condition = (pattern: PlayBoardPatternInfo) => {
@@ -906,7 +910,7 @@ export default function WjmaxHomeComponent() {
                                     {getLevelDisplay(highestPattern)}
                                   </span>
                                 </div>
-                                <p className='tw:text-sm tw:text-gray-500 tw:dark:text-slate-300 tw:break-all tw:max-w-full'>
+                                <p className='tw:text-sm tw:text-gray-500 tw:dark:text-slate-300 text-one-line tw:max-w-full'>
                                   {highestPattern.name}
                                 </p>
                               </div>

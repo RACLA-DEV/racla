@@ -319,7 +319,7 @@ button {
   position: absolute;
   right: 0px;
   bottom: 0px;
-  padding: 2 5;
+  padding: 2px 5px;
   font-weight: bold;
   font-size: 14px;
 }
@@ -373,7 +373,7 @@ button {
 .pattern > span {
   -webkit-background-clip: text !important;
   background-clip: text !important;
-  padding: 0 5px;
+  padding: 2px 5px;
   color: white !important;
   text-stroke: 0.6px;
   -webkit-text-stroke: 0.6px;
@@ -804,6 +804,21 @@ button {
 
 .djmax_respect_v_dlc_logo_PLI1 {
   color: white;
+}
+
+.djmax_respect_v_dlc_logo_BA {
+  color: #06cefa;
+}
+.djmax_respect_v_dlc_logo_BA span {
+  display: inline-block;
+  background: linear-gradient(90deg, #05ccfc 37%, #fff 37%);
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  color: transparent !important;
+}
+
+.djmax_respect_v_dlc_code_BA {
+  background: linear-gradient(90deg, #09bae1 50%, #fff 50%);
 }
 
 .djmax_respect_v_dlc_logo_BG_TEK {
@@ -1306,11 +1321,11 @@ button {
   font-weight: bold;
 }
 
-.platina_lab_dlc_code_PLATINA_LAB_PLA {
+.platina_lab_dlc_code_PLA {
   background-color: #e64371;
 }
 
-.platina_lab_dlc_code_PLATINA_LAB_ENT {
+.platina_lab_dlc_code_ENT {
   background-color: #78ff91;
 }
 
@@ -1412,7 +1427,7 @@ button {
   color: #9696ff;
 }
 .text-wjmax-MX {
-  color: #78ff91;
+  color: #00dd93;
 }
 .text-wjmax-SC {
   color: #ff4c4c;
@@ -1486,4 +1501,11 @@ button {
 }
 .bg-platina_lab-PLUS_3 {
   background-color: #7581bf;
+}
+
+.text-one-line {
+  display: -webkit-box;
+  -webkit-line-clamp: 1; /* 1줄만 표시 */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }

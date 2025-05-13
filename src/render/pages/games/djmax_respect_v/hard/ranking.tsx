@@ -1,5 +1,5 @@
-const HardRankingPage = () => {
-  return <div>HardRankingPage</div>
+const DmrvHardRankingPage = () => {
+  return <div>DmrvHardRankingPage</div>
 }
 
-export default HardRankingPage
+export default DmrvHardRankingPage

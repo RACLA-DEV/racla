@@ -1,0 +1,34 @@
+{
+  "noDifficultyInfo": "난이도 정보 없음",
+  "stat": "통계",
+  "stats": "통계",
+  "clear": "클리어",
+  "perfect": "퍼펙트",
+  "over999": {
+    "name": "99.9%+",
+    "fullName": "스코어 99.9% 이상"
+  },
+  "over995": {
+    "name": "99.5%+",
+    "fullName": "스코어 99.5% 이상"
+  },
+  "over99": {
+    "name": "99.0%+",
+    "fullName": "스코어 99.0% 이상"
+  },
+  "over97": {
+    "name": "97.0%+",
+    "fullName": "스코어 97.0% 이상"
+  },
+  "under97": {
+    "name": "97.0%-",
+    "fullName": "스코어 97.0% 이하"
+  },
+  "maxCombo": "맥스 콤보",
+  "withoutMaxCombo": "맥스 콤보 외 클리어",
+  "noRecord": "미클리어(기록 없음)",
+  "all": "전체",
+  "total": "전체",
+  "best": "최고",
+  "achievement": "성과 기록"
+}

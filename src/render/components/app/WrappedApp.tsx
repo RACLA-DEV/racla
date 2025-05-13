@@ -18,6 +18,7 @@ import {
   setIsLoading,
   setIsLoggedIn,
   setIsSetting,
+  setSelectedGame,
   setSettingData,
   setSongData,
   setUserData,
@@ -38,9 +39,8 @@ const AlertModal = lazy(() => import('./AlertModal'))
 const VALID_GAMES: GameType[] = globalDictionary.supportGameList as GameType[]
 
 export default function WrappedApp() {
-  const { isLoading, settingData } = useSelector((state: RootState) => state.app)
-  const isOverlayMode = useSelector((state: RootState) => state.ui.isOverlayMode)
-  const alertModal = useSelector((state: RootState) => state.ui.alertModal)
+  const { isLoading, settingData, isTrackMaker } = useSelector((state: RootState) => state.app)
+  const { isOverlayMode, alertModal } = useSelector((state: RootState) => state.ui)
   const location = useLocation()
   const { notifications, removeNotification, showNotification } = useNotificationSystem()
   const { handleConfirm, hideAlert } = useAlert()
@@ -705,6 +705,13 @@ export default function WrappedApp() {
     } else {
       dispatch(setSidebarCollapsed(false))
     }
+    if (location.pathname.includes('djmax_respect_v')) {
+      dispatch(setSelectedGame('djmax_respect_v'))
+    } else if (location.pathname.includes('wjmax')) {
+      dispatch(setSelectedGame('wjmax'))
+    } else if (location.pathname.includes('platina_lab')) {
+      dispatch(setSelectedGame('platina_lab'))
+    }
   }, [location.pathname])
 
   if (isOverlayMode) {
@@ -735,7 +742,7 @@ export default function WrappedApp() {
             <SettingModal />
           </Suspense>
         )}
-        {!isOverlayMode && (
+        {!isOverlayMode && isTrackMaker && (
           <Suspense fallback={<div />}>
             <TrackMakerModal />
           </Suspense>

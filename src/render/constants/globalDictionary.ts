@@ -379,6 +379,7 @@ export const globalDictionary = {
   },
   gameDictionary: {
     djmax_respect_v: {
+      id: 'djmax_respect_v',
       name: 'DJMAX RESPECT V',
       keyModeList: [4, 5, 6, 8],
       levelList: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
@@ -444,6 +445,7 @@ export const globalDictionary = {
       ],
     },
     wjmax: {
+      id: 'wjmax',
       name: 'WJMAX',
       jacketsUrl: '/wjmax/resources/jackets',
       keyModeList: ['4', '4P', '6', '6P'],
@@ -476,6 +478,7 @@ export const globalDictionary = {
       dlcList: [],
     },
     platina_lab: {
+      id: 'platina_lab',
       name: 'PLATiNA :: LAB',
       jacketsUrl: '/platina_lab/jackets/resized',
       keyModeList: [4, 5, 6, 8],

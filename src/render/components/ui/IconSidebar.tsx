@@ -165,7 +165,7 @@ const IconSidebar: React.FC = () => {
                   (location.pathname.includes(game.id) || location.pathname === '/home')
                     ? 'tw:dark:bg-slate-700 tw:bg-white tw:shadow-md'
                     : `tw:dark:bg-slate-800 tw:dark:hover:bg-slate-700 tw:bg-gray-50 tw:shadow-md tw:hover:bg-white tw:hover:shadow-md ${
-                        location.pathname.includes(game.id) || location.pathname === '/home'
+                        !location.pathname.includes(game.id) || location.pathname === '/home'
                           ? 'tw:grayscale-100'
                           : ''
                       }`

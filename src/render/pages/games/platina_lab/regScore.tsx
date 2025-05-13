@@ -1,5 +1,5 @@
-const RegScorePage = () => {
-  return <div>RegScorePage</div>
+const PlatinaLabRegScorePage = () => {
+  return <div>PlatinaLabRegScorePage</div>
 }
 
-export default RegScorePage
+export default PlatinaLabRegScorePage

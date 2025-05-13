@@ -1,7 +1,6 @@
 import { lazy, Suspense } from 'react'
 import { createHashRouter, Navigate, Outlet } from 'react-router-dom'
 import PageLoading from './components/app/PageLoading'
-import CheatsheetPage from './pages/test/cheatsheet'
 
 const WrappedApp = lazy(() => import('./components/app/WrappedApp'))
 const AppLayout = lazy(() => import('./components/ui/AppLayout'))
@@ -9,6 +8,26 @@ const Login = lazy(() => import('./pages/auth/login'))
 const MainPage = lazy(() => import('./pages/home'))
 const Overlay = lazy(() => import('./pages/overlay'))
 const TrackMakerHub = lazy(() => import('./pages/track-maker'))
+const CheatsheetPage = lazy(() => import('./pages/test/cheatsheet'))
+const OverlaySettingsPage = lazy(() => import('./pages/overlay/settings'))
+const DmrvDbPage = lazy(() => import('./pages/games/djmax_respect_v/db'))
+const DmrvDbDetailPage = lazy(() => import('./pages/games/djmax_respect_v/db/detail'))
+const DmrvHardDbPage = lazy(() => import('./pages/games/djmax_respect_v/hard/db'))
+const DmrvHardDbDetailPage = lazy(() => import('./pages/games/djmax_respect_v/hard/db/detail'))
+const DmrvHardGradePage = lazy(() => import('./pages/games/djmax_respect_v/hard/grade'))
+const DmrvHardRankingPage = lazy(() => import('./pages/games/djmax_respect_v/hard/ranking'))
+const DmrvBoardPage = lazy(() => import('./pages/games/djmax_respect_v/board'))
+const DmrvGradePage = lazy(() => import('./pages/games/djmax_respect_v/grade'))
+const DmrvDjpowerPage = lazy(() => import('./pages/games/djmax_respect_v/djpower'))
+const DmrvRegScorePage = lazy(() => import('./pages/games/djmax_respect_v/regScore'))
+const PlatinaLabDbPage = lazy(() => import('./pages/games/platina_lab/db'))
+const PlatinaLabDbDetailPage = lazy(() => import('./pages/games/platina_lab/db/detail'))
+const PlatinaLabBoardPage = lazy(() => import('./pages/games/platina_lab/board'))
+const PlatinaLabRegScorePage = lazy(() => import('./pages/games/platina_lab/regScore'))
+const WjmaxDbPage = lazy(() => import('./pages/games/wjmax/db'))
+const WjmaxDbDetailPage = lazy(() => import('./pages/games/wjmax/db/detail'))
+const WjmaxBoardPage = lazy(() => import('./pages/games/wjmax/board'))
+const WjmaxRegScorePage = lazy(() => import('./pages/games/wjmax/regScore'))
 
 // 기본 레이아웃이 적용된 라우트를 위한 컴포넌트
 const DefaultLayout = () => {
@@ -42,14 +61,6 @@ export const router = createHashRouter([
             ),
           },
           {
-            path: 'track-maker',
-            element: (
-              <Suspense fallback={<PageLoading />}>
-                <TrackMakerHub />
-              </Suspense>
-            ),
-          },
-          {
             path: '/auth/login',
             element: (
               <Suspense fallback={<PageLoading />}>
@@ -58,8 +69,164 @@ export const router = createHashRouter([
             ),
           },
           {
-            path: '*',
-            element: <Navigate to='/home' />,
+            path: '/overlay/settings',
+            element: (
+              <Suspense fallback={<PageLoading />}>
+                <OverlaySettingsPage />
+              </Suspense>
+            ),
+          },
+          {
+            path: 'track-maker',
+            element: (
+              <Suspense fallback={<PageLoading />}>
+                <TrackMakerHub />
+              </Suspense>
+            ),
+          },
+          {
+            path: '/games/djmax_respect_v/db',
+            element: (
+              <Suspense fallback={<PageLoading />}>
+                <DmrvDbPage />
+              </Suspense>
+            ),
+          },
+          {
+            path: '/games/djmax_respect_v/db/:id',
+            element: (
+              <Suspense fallback={<PageLoading />}>
+                <DmrvDbDetailPage />
+              </Suspense>
+            ),
+          },
+          {
+            path: '/games/djmax_respect_v/hard/db',
+            element: (
+              <Suspense fallback={<PageLoading />}>
+                <DmrvHardDbPage />
+              </Suspense>
+            ),
+          },
+          {
+            path: '/games/djmax_respect_v/hard/db/:id',
+            element: (
+              <Suspense fallback={<PageLoading />}>
+                <DmrvHardDbDetailPage />
+              </Suspense>
+            ),
+          },
+          {
+            path: '/games/djmax_respect_v/hard/grade',
+            element: (
+              <Suspense fallback={<PageLoading />}>
+                <DmrvHardGradePage />
+              </Suspense>
+            ),
+          },
+          {
+            path: '/games/djmax_respect_v/hard/ranking',
+            element: (
+              <Suspense fallback={<PageLoading />}>
+                <DmrvHardRankingPage />
+              </Suspense>
+            ),
+          },
+          {
+            path: '/games/djmax_respect_v/board',
+            element: (
+              <Suspense fallback={<PageLoading />}>
+                <DmrvBoardPage />
+              </Suspense>
+            ),
+          },
+          {
+            path: '/games/djmax_respect_v/grade',
+            element: (
+              <Suspense fallback={<PageLoading />}>
+                <DmrvGradePage />
+              </Suspense>
+            ),
+          },
+          {
+            path: '/games/djmax_respect_v/djpower',
+            element: (
+              <Suspense fallback={<PageLoading />}>
+                <DmrvDjpowerPage />
+              </Suspense>
+            ),
+          },
+          {
+            path: '/games/djmax_respect_v/regScore',
+            element: (
+              <Suspense fallback={<PageLoading />}>
+                <DmrvRegScorePage />
+              </Suspense>
+            ),
+          },
+          {
+            path: '/games/platina_lab/db',
+            element: (
+              <Suspense fallback={<PageLoading />}>
+                <PlatinaLabDbPage />
+              </Suspense>
+            ),
+          },
+          {
+            path: '/games/platina_lab/db/:id',
+            element: (
+              <Suspense fallback={<PageLoading />}>
+                <PlatinaLabDbDetailPage />
+              </Suspense>
+            ),
+          },
+          {
+            path: '/games/platina_lab/board',
+            element: (
+              <Suspense fallback={<PageLoading />}>
+                <PlatinaLabBoardPage />
+              </Suspense>
+            ),
+          },
+          {
+            path: '/games/platina_lab/regScore',
+            element: (
+              <Suspense fallback={<PageLoading />}>
+                <PlatinaLabRegScorePage />
+              </Suspense>
+            ),
+          },
+          {
+            path: '/games/wjmax/db',
+            element: (
+              <Suspense fallback={<PageLoading />}>
+                <WjmaxDbPage />
+              </Suspense>
+            ),
+          },
+          {
+            path: '/games/wjmax/db/:id',
+            element: (
+              <Suspense fallback={<PageLoading />}>
+                <WjmaxDbDetailPage />
+              </Suspense>
+            ),
+          },
+          {
+            path: '/games/wjmax/board',
+            element: (
+              <Suspense fallback={<PageLoading />}>
+                <WjmaxBoardPage />
+              </Suspense>
+            ),
+          },
+          {
+            path: '/games/wjmax/regScore',
+            element: (
+              <Suspense fallback={<PageLoading />}>
+                <WjmaxRegScorePage />
+              </Suspense>
+            ),
           },
           process.env.NODE_ENV === 'development' && {
             path: '/test/cheatsheet',
@@ -68,6 +235,10 @@ export const router = createHashRouter([
                 <CheatsheetPage />
               </Suspense>
             ),
+          },
+          {
+            path: '*',
+            element: <Navigate to='/home' />,
           },
         ],
       },

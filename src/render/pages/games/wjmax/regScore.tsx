@@ -1,5 +1,5 @@
-const RegScorePage = () => {
-  return <div>RegScorePage</div>
+const WjmaxRegScorePage = () => {
+  return <div>WjmaxRegScorePage</div>
 }
 
-export default RegScorePage
+export default WjmaxRegScorePage
