@@ -1,5 +1,5 @@
-const BoardPage = () => {
-  return <div>BoardPage</div>
+const WjmaxBoardPage = () => {
+  return <div>WjmaxBoardPage</div>
 }
 
-export default BoardPage
+export default WjmaxBoardPage

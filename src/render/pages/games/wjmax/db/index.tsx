@@ -1,5 +1,5 @@
-const DbPage = () => {
-  return <div>DbPage</div>
+const WjmaxDbPage = () => {
+  return <div>WjmaxDbPage</div>
 }
 
-export default DbPage
+export default WjmaxDbPage

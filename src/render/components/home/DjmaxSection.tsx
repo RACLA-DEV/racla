@@ -7,6 +7,7 @@ import { ArcElement, Chart as ChartJS, Legend, Tooltip, TooltipItem } from 'char
 import { motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
 import { Doughnut } from 'react-chartjs-2'
+import { useTranslation } from 'react-i18next'
 import { useSelector } from 'react-redux'
 import { PuffLoader } from 'react-spinners'
 import apiClient from '../../../libs/apiClient'
@@ -36,6 +37,7 @@ interface KeyModeData {
 }
 
 export default function DjmaxHomeComponent() {
+  const { t } = useTranslation(['home'])
   const userData = useSelector((state: RootState) => state.app.userData)
   const selectedGame = useSelector((state: RootState) => state.app.selectedGame)
   const songData = useSelector((state: RootState) => state.app.songData)
@@ -378,7 +380,7 @@ export default function DjmaxHomeComponent() {
       )
     }
 
-    return '난이도 정보 없음'
+    return t('noDifficultyInfo')
   }
 
   const getHighestLevelInfo = (patterns: Pattern[], condition: (pattern: Pattern) => boolean) => {
@@ -595,7 +597,7 @@ export default function DjmaxHomeComponent() {
                 <div className='tw:flex tw:justify-between tw:items-center'>
                   <span className='tw:flex tw:w-full tw:items-center tw:gap-1'>
                     <span className='tw:text-xl tw:font-bold tw:text-gray-900 tw:dark:text-white'>
-                      {selectedKeyMode}B 통계
+                      {selectedKeyMode}B {t('stats')}
                     </span>
                     (
                     <span
@@ -623,43 +625,43 @@ export default function DjmaxHomeComponent() {
                         {[
                           {
                             key: 'clear',
-                            label: '클리어',
+                            label: t('clear'),
                             color: 'tw:text-blue-600 tw:dark:text-blue-500',
                             bg: 'tw:bg-blue-50 tw:dark:bg-blue-500/20',
                           },
                           {
                             key: 'perfect',
-                            label: '퍼펙트',
+                            label: t('perfect'),
                             color: 'tw:text-red-600 tw:dark:text-red-500',
                             bg: 'tw:bg-red-50 tw:dark:bg-red-500/20',
                           },
                           {
                             key: 'over999',
-                            label: '99.9%+',
+                            label: t('over999.name'),
                             color: 'tw:text-yellow-600 tw:dark:text-yellow-500',
                             bg: 'tw:bg-yellow-50 tw:dark:bg-yellow-500/20',
                           },
                           {
                             key: 'over995',
-                            label: '99.5%+',
+                            label: t('over995.name'),
                             color: 'tw:text-yellow-500 tw:dark:text-yellow-400',
                             bg: 'tw:bg-yellow-50 tw:dark:bg-yellow-400/20',
                           },
                           {
                             key: 'over99',
-                            label: '99.0%+',
+                            label: t('over99.name'),
                             color: 'tw:text-yellow-400 tw:dark:text-yellow-300',
                             bg: 'tw:bg-yellow-50 tw:dark:bg-yellow-300/20',
                           },
                           {
                             key: 'over97',
-                            label: '97.0%+',
+                            label: t('over97.name'),
                             color: 'tw:text-yellow-300 tw:dark:text-yellow-200',
                             bg: 'tw:bg-yellow-50 tw:dark:bg-yellow-200/20',
                           },
                           {
                             key: 'maxCombo',
-                            label: '맥스 콤보',
+                            label: t('maxCombo'),
                             color: 'tw:text-green-600 tw:dark:text-green-500',
                             bg: 'tw:bg-green-50 tw:dark:bg-green-500/20',
                           },
@@ -689,13 +691,13 @@ export default function DjmaxHomeComponent() {
                                 {calculateStats(keyModeData[selectedKeyMode]).total}
                               </div>
                               <div className='tw:text-xs tw:text-gray-500 tw:dark:text-slate-300'>
-                                전체
+                                {t('all')}
                               </div>
                             </div>
                             <div className='tw:relative tw:z-1'>
                               <Doughnut
                                 data={{
-                                  labels: ['클리어', '미클리어(기록 없음)'],
+                                  labels: [t('clear'), t('noRecord')],
                                   datasets: [
                                     {
                                       data: [
@@ -748,22 +750,22 @@ export default function DjmaxHomeComponent() {
                             {/* 도넛 차트 안에 정보 표시 */}
                             <div className='tw:absolute tw:text-center tw:w-[88px] tw:h-[88px] tw:bg-gray-100 tw:dark:bg-slate-700/50 tw:rounded-full tw:flex tw:flex-col tw:justify-center tw:items-center tw:z-0 tw:shadow-inner'>
                               <div className='tw:text-lg tw:font-bold tw:text-gray-900 tw:dark:text-white'>
-                                {calculateStats(keyModeData[selectedKeyMode]).maxCombo}
+                                {calculateStats(keyModeData[selectedKeyMode]).clear}
                               </div>
                               <div className='tw:text-xs tw:text-gray-500 tw:dark:text-slate-300'>
-                                맥스 콤보
+                                {t('clear')}
                               </div>
                             </div>
                             <div className='tw:relative tw:z-1'>
                               <Doughnut
                                 data={{
                                   labels: [
-                                    '퍼펙트',
-                                    '스코어 99.9% 이상',
-                                    '스코어 99.5% 이상',
-                                    '스코어 99.0% 이상',
-                                    '스코어 97.0% 이상',
-                                    '스코어 97.0% 이하',
+                                    t('perfect'),
+                                    t('over999.fullName'),
+                                    t('over995.fullName'),
+                                    t('over99.fullName'),
+                                    t('over97.fullName'),
+                                    t('under97.fullName'),
                                   ],
                                   datasets: [
                                     {
@@ -831,13 +833,13 @@ export default function DjmaxHomeComponent() {
                                 {calculateStats(keyModeData[selectedKeyMode]).maxCombo}
                               </div>
                               <div className='tw:text-xs tw:text-gray-500 tw:dark:text-slate-300'>
-                                맥스 콤보
+                                {t('maxCombo')}
                               </div>
                             </div>
                             <div className='tw:relative tw:z-1'>
                               <Doughnut
                                 data={{
-                                  labels: ['맥스 콤보', '맥스 콤보 외 클리어'],
+                                  labels: [t('maxCombo'), t('withoutMaxCombo')],
                                   datasets: [
                                     {
                                       data: [
@@ -915,7 +917,7 @@ export default function DjmaxHomeComponent() {
                     <div className='tw:bg-white tw:dark:bg-slate-800 tw:bg-opacity-75 tw:flex tw:justify-between tw:items-end tw:rounded-lg tw:p-4 tw:border tw:border-gray-200 tw:dark:border-slate-700'>
                       <div className='tw:flex tw:flex-col'>
                         <span className='tw:text-xl tw:font-bold tw:text-gray-900 tw:dark:text-white'>
-                          전체 통계
+                          {t('all')} {t('stats')}
                         </span>
                       </div>
                     </div>
@@ -926,43 +928,43 @@ export default function DjmaxHomeComponent() {
                         {[
                           {
                             key: 'clear',
-                            label: '클리어',
+                            label: t('clear'),
                             color: 'tw:text-blue-600 tw:dark:text-blue-500',
                             bg: 'tw:bg-blue-50 tw:dark:bg-blue-500/20',
                           },
                           {
                             key: 'perfect',
-                            label: '퍼펙트',
+                            label: t('perfect'),
                             color: 'tw:text-red-600 tw:dark:text-red-500',
                             bg: 'tw:bg-red-50 tw:dark:bg-red-500/20',
                           },
                           {
                             key: 'over999',
-                            label: '99.9%+',
+                            label: t('over999.name'),
                             color: 'tw:text-yellow-600 tw:dark:text-yellow-500',
                             bg: 'tw:bg-yellow-50 tw:dark:bg-yellow-500/20',
                           },
                           {
                             key: 'over995',
-                            label: '99.5%+',
+                            label: t('over995.name'),
                             color: 'tw:text-yellow-500 tw:dark:text-yellow-400',
                             bg: 'tw:bg-yellow-50 tw:dark:bg-yellow-400/20',
                           },
                           {
                             key: 'over99',
-                            label: '99.0%+',
+                            label: t('over99.name'),
                             color: 'tw:text-yellow-400 tw:dark:text-yellow-300',
                             bg: 'tw:bg-yellow-50 tw:dark:bg-yellow-300/20',
                           },
                           {
                             key: 'over97',
-                            label: '97.0%+',
+                            label: t('over97.name'),
                             color: 'tw:text-yellow-300 tw:dark:text-yellow-200',
                             bg: 'tw:bg-yellow-50 tw:dark:bg-yellow-200/20',
                           },
                           {
                             key: 'maxCombo',
-                            label: '맥스 콤보',
+                            label: t('maxCombo'),
                             color: 'tw:text-green-600 tw:dark:text-green-500',
                             bg: 'tw:bg-green-50 tw:dark:bg-green-500/20',
                           },
@@ -989,16 +991,16 @@ export default function DjmaxHomeComponent() {
                             {/* 도넛 차트 안에 정보 표시 */}
                             <div className='tw:absolute tw:text-center tw:w-[88px] tw:h-[88px] tw:bg-gray-100 tw:dark:bg-slate-700/50 tw:rounded-full tw:flex tw:flex-col tw:justify-center tw:items-center tw:z-0 tw:shadow-inner'>
                               <div className='tw:text-lg tw:font-bold tw:text-gray-900 tw:dark:text-white'>
-                                {totalStats.clear}
+                                {totalStats.totalPatterns}
                               </div>
                               <div className='tw:text-xs tw:text-gray-500 tw:dark:text-slate-300'>
-                                클리어
+                                {t('all')}
                               </div>
                             </div>
                             <div className='tw:relative tw:z-1'>
                               <Doughnut
                                 data={{
-                                  labels: ['클리어', '미클리어(기록 없음)'],
+                                  labels: [t('clear'), t('noRecord')],
                                   datasets: [
                                     {
                                       data: [
@@ -1050,22 +1052,22 @@ export default function DjmaxHomeComponent() {
                             {/* 도넛 차트 안에 정보 표시 */}
                             <div className='tw:absolute tw:text-center tw:w-[88px] tw:h-[88px] tw:bg-gray-100 tw:dark:bg-slate-700/50 tw:rounded-full tw:flex tw:flex-col tw:justify-center tw:items-center tw:z-0 tw:shadow-inner'>
                               <div className='tw:text-lg tw:font-bold tw:text-gray-900 tw:dark:text-white'>
-                                {totalStats.maxCombo}
+                                {totalStats.clear}
                               </div>
                               <div className='tw:text-xs tw:text-gray-500 tw:dark:text-slate-300'>
-                                맥스 콤보
+                                {t('clear')}
                               </div>
                             </div>
                             <div className='tw:relative tw:z-1'>
                               <Doughnut
                                 data={{
                                   labels: [
-                                    '퍼펙트',
-                                    '스코어 99.9% 이상',
-                                    '스코어 99.5% 이상',
-                                    '스코어 99.0% 이상',
-                                    '스코어 97.0% 이상',
-                                    '스코어 97.0% 이하',
+                                    t('perfect'),
+                                    t('over999.fullName'),
+                                    t('over995.fullName'),
+                                    t('over99.fullName'),
+                                    t('over97.fullName'),
+                                    t('under97.fullName'),
                                   ],
                                   datasets: [
                                     {
@@ -1132,13 +1134,13 @@ export default function DjmaxHomeComponent() {
                                 {totalStats.maxCombo}
                               </div>
                               <div className='tw:text-xs tw:text-gray-500 tw:dark:text-slate-300'>
-                                맥스 콤보
+                                {t('maxCombo')}
                               </div>
                             </div>
                             <div className='tw:relative tw:z-1'>
                               <Doughnut
                                 data={{
-                                  labels: ['맥스 콤보', '맥스 콤보 외 클리어'],
+                                  labels: [t('maxCombo'), t('withoutMaxCombo')],
                                   datasets: [
                                     {
                                       data: [
@@ -1193,7 +1195,7 @@ export default function DjmaxHomeComponent() {
                 <div className='tw:w-2/5'>
                   <div className='tw:flex tw:flex-col tw:gap-4 tw:bg-white tw:dark:bg-slate-800 tw:bg-opacity-75 tw:dark:bg-opacity-75 tw:rounded-lg tw:shadow-lg tw:p-4 tw:border tw:border-gray-200 tw:dark:border-slate-700'>
                     <span className='tw:text-lg tw:font-bold tw:text-gray-900 tw:dark:text-white'>
-                      🎯 {selectedKeyMode}B 최고 성과 기록
+                      🎯 {selectedKeyMode}B {t('best')} {t('achievement')}
                     </span>
                     {!isLoading && keyModeData[selectedKeyMode] && (
                       <motion.div
@@ -1204,13 +1206,13 @@ export default function DjmaxHomeComponent() {
                         className='tw:flex tw:flex-col tw:gap-2'
                       >
                         {Object.entries({
-                          maxCombo: '맥스 콤보',
-                          perfect: '퍼펙트',
-                          over999: '스코어 99.9% 이상',
-                          over995: '스코어 99.5% 이상',
-                          over99: '스코어 99% 이상',
-                          over97: '스코어 97% 이상',
-                          clear: '클리어',
+                          maxCombo: t('maxCombo'),
+                          perfect: t('perfect'),
+                          over999: t('over999.fullName'),
+                          over995: t('over995.fullName'),
+                          over99: t('over99.fullName'),
+                          over97: t('over97.fullName'),
+                          clear: t('clear'),
                         }).map(([key, label]) => {
                           const patterns = keyModeData[selectedKeyMode]
                           const condition = (pattern: Pattern) => {

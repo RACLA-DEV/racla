@@ -329,7 +329,7 @@ const MenuSidebar: React.FC = () => {
         initial='hidden'
         animate='visible'
         variants={sidebarAnimation}
-        className={`tw:flex tw:flex-col tw:h-full tw:transition-all tw:duration-300 tw:ease-in-out tw:relative tw:overflow-x-hidden tw:bg-transparent tw:dark:text-slate-200 tw:text-gray-800 ${
+        className={`tw:flex tw:flex-col tw:h-full tw:pt-2 tw:transition-all tw:duration-300 tw:ease-in-out tw:relative tw:overflow-x-hidden tw:bg-transparent tw:dark:text-slate-200 tw:text-gray-800 ${
           sidebarCollapsed
             ? 'tw:w-0 tw:transition-[width] tw:duration-300 tw:delay-150'
             : 'tw:w-64 tw:transition-[width] tw:duration-300'
@@ -346,7 +346,7 @@ const MenuSidebar: React.FC = () => {
           }}
         />
         <motion.div
-          className={`tw:flex-1 tw:overflow-x-hidden tw:py-2 tw:text-sm tw:custom-scrollbar tw:pr-2 ${
+          className={`tw:flex-1 tw:overflow-x-hidden tw:text-sm tw:custom-scrollbar tw:pr-2 ${
             isDropdownOpen ? 'tw:overflow-hidden' : 'tw:overflow-y-auto'
           } ${sidebarCollapsed ? 'tw:opacity-0 tw:transition-opacity tw:duration-100' : 'tw:opacity-100 tw:transition-opacity tw:duration-200 tw:delay-150'}`}
         >
@@ -452,7 +452,7 @@ const MenuSidebar: React.FC = () => {
       {/* 축소 모드에서의 사용자 정보 버튼 */}
       <div
         className={`tw:fixed tw:bottom-0 tw:left-0 tw:w-screen tw:h-screen tw:z-50 tw:transition-all tw:duration-300 tw:p-2 tw:bg-white/50 tw:dark:bg-slate-800/50 ${
-          isDropdownOpen
+          isDropdownOpen && sidebarCollapsed
             ? 'tw:opacity-100 tw:backdrop-blur-sm'
             : 'tw:opacity-0 tw:pointer-events-none'
         }`}

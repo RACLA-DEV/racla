@@ -1,5 +1,5 @@
-const RegScorePage = () => {
-  return <div>RegScorePage</div>
+const DmrvRegScorePage = () => {
+  return <div>DmrvRegScorePage</div>
 }
 
-export default RegScorePage
+export default DmrvRegScorePage

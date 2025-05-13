@@ -29,9 +29,9 @@ export const getScoreDisplayText = (
   gameType: GameType = 'djmax_respect_v',
   pattern: PatternInfo,
 ): string => {
-  if (!pattern.score) return '0%(기록 미존재)'
+  if (!pattern.score) return '0% (NO RECORD)'
 
-  if (Number(pattern.score) === 0) return '0%(기록 미존재)'
+  if (Number(pattern.score) === 0) return '0% (NO RECORD)'
 
   if (pattern.score === '100.00') {
     if (gameType === 'platina_lab') {
@@ -42,9 +42,9 @@ export const getScoreDisplayText = (
   }
 
   if (gameType === 'platina_lab') {
-    return `${pattern.score}%${pattern.maxCombo ? '(MAX COMBO)' : ''}${pattern.rating ? ` / ${pattern.rating}` : ''}`
+    return `${pattern.score}%${pattern.maxCombo ? ' (MAX COMBO)' : ''}${pattern.rating ? ` / ${pattern.rating}` : ''}`
   } else {
-    return `${pattern.score}%${pattern.maxCombo ? '(MAX COMBO)' : ''}${
+    return `${pattern.score}%${pattern.maxCombo ? ' (MAX COMBO)' : ''}${
       pattern.rating != null && pattern.rating > 0 ? ` / ${pattern.rating}` : ''
     }`
   }

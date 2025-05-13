@@ -1,5 +1,5 @@
-const BoardPage = () => {
-  return <div>BoardPage</div>
+const PlatinaLabBoardPage = () => {
+  return <div>PlatinaLabBoardPage</div>
 }
 
-export default BoardPage
+export default PlatinaLabBoardPage

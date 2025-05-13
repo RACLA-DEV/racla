@@ -1,5 +1,5 @@
-const BoardPage = () => {
-  return <div>BoardPage</div>
+const DmrvBoardPage = () => {
+  return <div>DmrvBoardPage</div>
 }
 
-export default BoardPage
+export default DmrvBoardPage

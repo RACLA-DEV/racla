@@ -1,5 +1,5 @@
-const DbPage = () => {
-  return <div>DbPage</div>
+const DmrvHardDbPage = () => {
+  return <div>DmrvHardDbPage</div>
 }
 
-export default DbPage
+export default DmrvHardDbPage

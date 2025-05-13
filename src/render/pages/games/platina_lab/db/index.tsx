@@ -1,5 +1,5 @@
-const DbPage = () => {
-  return <div>DbPage</div>
+const PlatinaLabDbPage = () => {
+  return <div>PlatinaLabDbPage</div>
 }
 
-export default DbPage
+export default PlatinaLabDbPage
