@@ -271,12 +271,14 @@ const ScorePopupComponent = ({
               <div className='tw:flex tw:gap-2 tw:p-2'>
                 <div className='tw:flex tw:flex-col'>
                   <div className='tw:flex tw:flex-col tw:w-80 tw:h-32 tw:relative tw:mb-2 tw:overflow-hidden tw:rounded-md'>
-                    <img
+                    <Image
                       src={`${import.meta.env.VITE_CDN_URL}${
                         globalDictionary.gameDictionary[game]?.jacketsUrl || ''
                       }/${songTitle}.jpg`}
                       className={`tw:absolute tw:w-full tw:h-full tw:blur-sm`}
                       alt=''
+                      width={'100%'}
+                      height={'100%'}
                       style={{ objectFit: 'cover' }}
                     />
                     <div className={`tw:absolute tw:inset-0 tw:bg-slate-800/75`} />

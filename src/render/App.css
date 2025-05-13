@@ -1487,3 +1487,10 @@ button {
 .bg-platina_lab-PLUS_3 {
   background-color: #7581bf;
 }
+
+.text-one-line {
+  display: -webkit-box;
+  -webkit-line-clamp: 1; /* 1줄만 표시 */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}

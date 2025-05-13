@@ -1265,7 +1265,7 @@ export default function DjmaxHomeComponent() {
                                     {getLevelDisplay(highestPattern)}
                                   </span>
                                 </div>
-                                <p className='tw:text-sm tw:text-gray-500 tw:dark:text-slate-300 tw:break-all tw:max-w-full'>
+                                <p className='tw:text-sm tw:text-gray-500 tw:dark:text-slate-300 tw:max-w-full text-one-line'>
                                   {highestPattern.name}
                                 </p>
                               </div>

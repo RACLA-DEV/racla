@@ -31,7 +31,6 @@ export default function Image({
 }: ImageProps) {
   const [status, setStatus] = useState<'loading' | 'loaded' | 'error'>('loading')
   const mainImageRef = useRef<HTMLImageElement>(null)
-  const blurImageRef = useRef<HTMLImageElement>(null)
 
   // src가 변경되면 상태 초기화
   useEffect(() => {
@@ -67,24 +66,12 @@ export default function Image({
 
   return (
     <div className='tw:relative tw:overflow-hidden' style={{ width, height }}>
-      {/* 블러 이미지 */}
+      {/* 스켈레톤 로딩 효과 */}
       {status === 'loading' && (
-        <div
-          className='tw:absolute tw:inset-0 tw:transition-opacity tw:duration-300'
-          style={{ opacity: status === 'loading' ? 1 : 0 }}
-        >
-          <img
-            ref={blurImageRef}
-            src={placeholder || src}
-            alt=''
-            className={`${className} ${blurClassName}`}
-            style={{
-              ...style,
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover',
-            }}
-          />
+        <div className='tw:absolute tw:inset-0 tw:bg-gray-200 tw:dark:bg-slate-700 tw:overflow-hidden tw:rounded-md'>
+          <div className='tw:h-full tw:w-full tw:relative'>
+            <div className='tw:absolute tw:inset-0 tw:bg-gradient-to-r tw:from-transparent tw:via-white/20 tw:to-transparent tw:animate-shimmer'></div>
+          </div>
         </div>
       )}
 

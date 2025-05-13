@@ -897,8 +897,6 @@ export default function WjmaxHomeComponent() {
                                   .replace('B', '')
                                   .replace('_PLUS', '')}
                                 judgementType={String(selectedKeyMode).includes('_PLUS') ? 1 : 0}
-                                width={120}
-                                height={67}
                               />
                               <div className='tw:flex tw:flex-col tw:gap-1 tw:bg-gray-100 tw:dark:bg-slate-700/50 tw:rounded-md tw:p-3 tw:flex-1 tw:border tw:border-gray-200 tw:dark:border-slate-600'>
                                 <div className='tw:flex tw:justify-between tw:items-center'>
@@ -909,7 +907,7 @@ export default function WjmaxHomeComponent() {
                                     {getLevelDisplay(highestPattern)}
                                   </span>
                                 </div>
-                                <p className='tw:text-sm tw:text-gray-500 tw:dark:text-slate-300 tw:break-all tw:max-w-full'>
+                                <p className='tw:text-sm tw:text-gray-500 tw:dark:text-slate-300 text-one-line tw:max-w-full'>
                                   {highestPattern.name}
                                 </p>
                               </div>

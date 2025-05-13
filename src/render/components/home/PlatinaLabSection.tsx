@@ -268,8 +268,11 @@ export default function PlatinaLabHomeComponent() {
               {/* 헤더 섹션 */}
               <div className='tw:bg-white tw:dark:bg-slate-800 tw:bg-opacity-75 tw:dark:bg-opacity-75 tw:rounded-lg tw:shadow-lg tw:p-4 tw:mb-4 tw:border tw:border-gray-200 tw:dark:border-slate-700'>
                 <div className='tw:flex tw:justify-between tw:items-center'>
-                  <span className='tw:text-xl tw:font-bold tw:text-gray-900 tw:dark:text-white'>
-                    {userData.playerName !== '' ? `${userData.playerName}` : 'Guest'}님 환영합니다.
+                  <span className='tw:flex tw:w-full tw:items-center tw:gap-1'>
+                    <span className='tw:text-xl tw:font-bold tw:me-auto tw:text-gray-900 tw:dark:text-white'>
+                      {String(selectedKeyMode).replace('_PLUS', '')}
+                      {String(selectedKeyMode).includes('_PLUS') ? '+' : ''} 통계
+                    </span>
                   </span>
                   <KeyModeSelector />
                 </div>
@@ -280,15 +283,6 @@ export default function PlatinaLabHomeComponent() {
                 <div className='tw:flex tw:flex-col tw:gap-4 tw:w-3/5'>
                   {/* Button Mode Panel */}
                   <div className='tw:flex tw:flex-col tw:gap-4'>
-                    <div className='tw:flex tw:justify-between tw:items-end tw:bg-white tw:dark:bg-slate-800 tw:bg-opacity-75 tw:dark:bg-opacity-75 tw:rounded-lg tw:shadow-lg tw:p-4 tw:border tw:border-gray-200 tw:dark:border-slate-700'>
-                      <span className='tw:flex tw:w-full tw:items-center tw:gap-1'>
-                        <span className='tw:text-xl tw:font-bold tw:me-auto tw:text-gray-900 tw:dark:text-white'>
-                          {String(selectedKeyMode).replace('_PLUS', '')}
-                          {String(selectedKeyMode).includes('_PLUS') ? '+' : ''} 통계
-                        </span>
-                      </span>
-                    </div>
-
                     {/* 통계 정보 */}
                     <div className='tw:bg-white tw:dark:bg-slate-800 tw:bg-opacity-75 tw:dark:bg-opacity-75 tw:rounded-lg tw:p-4 tw:border tw:border-gray-200 tw:dark:border-slate-700'>
                       {/* 상단 통계 요약 */}
@@ -909,7 +903,7 @@ export default function PlatinaLabHomeComponent() {
                                     {getLevelDisplay(highestPattern)}
                                   </span>
                                 </div>
-                                <p className='tw:text-sm tw:text-gray-500 tw:dark:text-slate-300 tw:break-all tw:max-w-full'>
+                                <p className='tw:text-sm tw:text-gray-500 tw:dark:text-slate-300 tw:max-w-full text-one-line'>
                                   {highestPattern.name}
                                 </p>
                               </div>
