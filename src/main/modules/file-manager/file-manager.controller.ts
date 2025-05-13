@@ -1,7 +1,7 @@
 import { IpcHandle } from '@doubleshot/nest-electron'
 import { Controller, Logger } from '@nestjs/common'
 import { SongData } from '@src/types/games/SongData'
-import type { SessionData } from '@src/types/sessions/SessionData'
+import type { LocalSessionData } from '@src/types/sessions/LocalSessionData'
 import type { SettingsData } from '@src/types/settings/SettingData'
 import type { StorageInfo } from '@src/types/storage/StroageInfo'
 import { dialog } from 'electron'
@@ -23,12 +23,12 @@ export class FileManagerController {
   }
 
   @IpcHandle('file-manager:save-session')
-  saveSession(session: SessionData): SessionData {
+  saveSession(session: LocalSessionData): LocalSessionData {
     return this.fileManagerService.saveSession(session)
   }
 
   @IpcHandle('file-manager:load-session')
-  loadSession(): SessionData {
+  loadSession(): LocalSessionData {
     return this.fileManagerService.loadSession()
   }
 

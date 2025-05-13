@@ -131,7 +131,7 @@ function CheatsheetPage() {
         title: 'createLog()',
         description: '로그를 생성합니다',
         example: 'createLog("info", "로그 메시지")',
-        usage: async () => {
+        usage: () => {
           electronActions.createLog('info', '로그 메시지')
         },
       },

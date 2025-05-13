@@ -16,7 +16,13 @@ import uiReducer from './slices/uiSlice'
 const uiPersistConfig = {
   key: 'ui',
   storage,
-  blacklist: ['isOpenExternalLink', 'openExternalLink', 'isOverlayMode'],
+  blacklist: [
+    'isOpenExternalLink',
+    'openExternalLink',
+    'isOverlayMode',
+    'sidebarCollapsed',
+    'alertModal',
+  ],
 }
 
 const appPersistConfig = {
@@ -25,11 +31,11 @@ const appPersistConfig = {
   blacklist: [
     'isSetting',
     'userData',
-    'vArchiveUserData',
     'isLoggedIn',
     'notifications',
     'isLoading',
     'isTrackMaker',
+    'refresh',
   ],
 }
 

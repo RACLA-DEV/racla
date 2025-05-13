@@ -38,7 +38,7 @@ const getLaneCount = (keyMode: KeyMode): number => {
 }
 
 // 판정 프리셋 정의
-type JudgementPreset = {
+interface JudgementPreset {
   name: string
   values: {
     PERFECT_PLUS: number
@@ -412,7 +412,7 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
         (note) => note.id === noteId && note.isLong && note.endTime,
       )
       if (longNote) {
-        const noteDuration = longNote.endTime! - longNote.time
+        const noteDuration = longNote.endTime ? longNote.endTime - longNote.time : 0
         if (noteDuration > beatDuration) {
           // 롱노트 틱 정보 초기화 (처음이면)
           if (!longNoteTicksRef.current[noteId]) {
@@ -422,7 +422,8 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
           // 현재 시간이 다음 틱 시간을 지났는지 확인
           while (
             longNoteTicksRef.current[noteId] < elapsedTime &&
-            longNoteTicksRef.current[noteId] < longNote.endTime!
+            longNote.endTime &&
+            longNoteTicksRef.current[noteId] < longNote.endTime
           ) {
             // 콤보 업데이트 (틱당 1콤보)
             setCombo((prev) => prev + 1)
@@ -760,7 +761,7 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
 
     // 롱노트 종료 시간 체크
     const keyTime = performance.now() - startTimeRef.current
-    const shouldEndTime = longNote.endTime || longNote.time
+    const shouldEndTime = longNote.endTime ?? longNote.time
 
     if (keyTime >= shouldEndTime - activeJudgement.BAD) {
       // 정상 종료 (판정 범위 내)
@@ -1186,7 +1187,9 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
               handleCustomJudgementChange(type, newValue)
             }
           }}
-          onBlur={() => setIsEditingJudgement(null)}
+          onBlur={() => {
+            setIsEditingJudgement(null)
+          }}
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
               handleCustomJudgementChange(type, e.currentTarget.value)

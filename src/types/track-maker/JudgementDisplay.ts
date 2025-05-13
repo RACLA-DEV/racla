@@ -4,6 +4,6 @@ export interface JudgementDisplay {
   id: string
 }
 
-export type KeyState = {
+export interface KeyState {
   [key: string]: boolean
 }

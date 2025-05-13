@@ -50,6 +50,10 @@ export const getScoreDisplayText = (
   }
 }
 
-export const getDifficultyColor = (gameType: GameType, difficultyType: string): string => {
+export const getDifficultyBgColor = (gameType: GameType, difficultyType: string): string => {
+  return `bg-${gameType}-${difficultyType}`
+}
+
+export const getDifficultyTextColor = (gameType: GameType, difficultyType: string): string => {
   return `text-${gameType}-${difficultyType}`
 }

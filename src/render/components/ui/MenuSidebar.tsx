@@ -223,7 +223,7 @@ const MenuSidebar: React.FC = () => {
         <ul className='tw:text-xs tw:p-0'>
           <li className={`tw:border-b tw:dark:border-slate-700 tw:border-gray-200`}>
             <div className='tw:flex tw:items-center tw:justify-between tw:py-2 tw:px-4'>
-              <span className='tw:font-bold'>{t('quickMenu.quickMenuNavTitle')}</span>
+              <span className='tw:font-bold font-gg'>{t('quickMenu.quickMenuNavTitle')}</span>
               <span
                 onClick={() => {
                   setIsDropdownOpen(false)
@@ -451,6 +451,17 @@ const MenuSidebar: React.FC = () => {
 
       {/* 축소 모드에서의 사용자 정보 버튼 */}
       <div
+        className={`tw:fixed tw:bottom-0 tw:left-0 tw:w-screen tw:h-screen tw:z-50 tw:transition-all tw:duration-300 tw:p-2 tw:bg-white/50 tw:dark:bg-slate-800/50 ${
+          isDropdownOpen
+            ? 'tw:opacity-100 tw:backdrop-blur-sm'
+            : 'tw:opacity-0 tw:pointer-events-none'
+        }`}
+        onClick={() => {
+          setIsDropdownOpen(false)
+        }}
+      />
+
+      <div
         className={`tw:fixed tw:bottom-0 tw:left-0 tw:w-[256px] tw:z-50 tw:transition-all tw:duration-300 tw:p-2 tw:dark:text-slate-200 tw:text-gray-800 ${!sidebarCollapsed ? 'tw:opacity-0 tw:pointer-events-none' : 'tw:opacity-100'}`}
       >
         <div
@@ -485,7 +496,7 @@ const MenuSidebar: React.FC = () => {
           <ul className='tw:text-xs tw:p-0'>
             <li className={`tw:border-b tw:dark:border-slate-700 tw:border-gray-200`}>
               <div className='tw:flex tw:items-center tw:justify-between tw:py-2 tw:px-4'>
-                <span className='tw:font-bold'>{t('quickMenu.quickMenuNavTitle')}</span>
+                <span className='tw:font-bold font-gg'>{t('quickMenu.quickMenuNavTitle')}</span>
                 <span
                   onClick={() => {
                     setIsDropdownOpen(false)

@@ -1,3 +1,4 @@
+import { useAlert } from '@render/hooks/useAlert'
 import { createLog } from '@render/libs/logger'
 import { RootState } from '@render/store'
 import React, { useEffect, useRef, useState } from 'react'
@@ -69,6 +70,8 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
   const [initialPattern, setInitialPattern] = useState<Note[]>([])
   const [initialBpm, setInitialBpm] = useState<number>(bpm)
   const [initialKeyMode, setInitialKeyMode] = useState<KeyMode>(keyMode)
+
+  const { showConfirm } = useAlert()
 
   const editorRef = useRef<HTMLDivElement>(null)
   const laneCount = getLaneCount(keyMode)
@@ -645,15 +648,22 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
       (note) => note.time > newLength || (note.isLong && note.endTime && note.endTime > newLength),
     )
 
-    if (
-      notesOutsideRange.length > 0 &&
-      confirm('일부 노트가 새 곡 길이보다 깁니다. 해당 노트를 삭제할까요?')
-    ) {
-      onPatternChange(
-        pattern.filter(
-          (note) =>
-            note.time <= newLength && (!note.isLong || !note.endTime || note.endTime <= newLength),
-        ),
+    if (notesOutsideRange.length > 0) {
+      showConfirm(
+        '경고',
+        '일부 노트가 새 곡 길이보다 깁니다. 해당 노트를 삭제할까요?',
+        () => {
+          onPatternChange(
+            pattern.filter(
+              (note) =>
+                note.time <= newLength &&
+                (!note.isLong || !note.endTime || note.endTime <= newLength),
+            ),
+          )
+        },
+        'warning',
+        '삭제',
+        '취소',
       )
     }
   }
@@ -1051,22 +1061,29 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
 
   // 패턴 초기화
   const resetPattern = () => {
-    if (confirm('정말로 패턴을 초기 상태로 되돌리시겠습니까? 모든 변경사항이 사라집니다.')) {
-      onPatternChange([...initialPattern])
-      onBpmChange(initialBpm)
-      onKeyModeChange(initialKeyMode)
-      setActiveDivision(16)
+    showConfirm(
+      '경고',
+      '정말로 패턴을 초기 상태로 되돌리시겠습니까? 모든 변경사항이 사라집니다.',
+      () => {
+        onPatternChange([...initialPattern])
+        onBpmChange(initialBpm)
+        onKeyModeChange(initialKeyMode)
+        setActiveDivision(16)
 
-      // 파일 입력 필드 초기화
-      if (fileInputRef.current) {
-        fileInputRef.current.value = ''
-      }
+        // 파일 입력 필드 초기화
+        if (fileInputRef.current) {
+          fileInputRef.current.value = ''
+        }
 
-      // 히스토리 초기화
-      const newHistory = [[...initialPattern]]
-      setHistory(newHistory)
-      setCurrentHistoryIndex(0)
-    }
+        // 히스토리 초기화
+        const newHistory = [[...initialPattern]]
+        setHistory(newHistory)
+        setCurrentHistoryIndex(0)
+      },
+      'warning',
+      '초기화',
+      '취소',
+    )
   }
 
   // componentDidMount와 componentWillUnmount에 해당하는 효과 추가
@@ -1115,7 +1132,9 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
             type='number'
             className='tw:block tw:w-full tw:rounded-lg tw:border tw:border-gray-300 tw:shadow-sm tw:py-2 tw:px-3 tw:focus:border-indigo-500 tw:focus:ring-indigo-500 tw:dark:bg-slate-700 tw:dark:border-slate-600 tw:dark:text-white'
             value={(songLength / 1000).toString()}
-            onChange={(e) => handleSongLengthChange(Number(e.target.value))}
+            onChange={(e) => {
+              handleSongLengthChange(Number(e.target.value))
+            }}
             min={10}
             max={600}
           />
@@ -1146,7 +1165,9 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
                     ? 'tw:bg-indigo-600 tw:text-white tw:dark:bg-indigo-500'
                     : 'tw:bg-gray-100 tw:text-gray-700 tw:hover:bg-gray-200 tw:dark:bg-slate-700 tw:dark:text-slate-200 dark:tw:hover:bg-slate-600'
                 }`}
-                onClick={() => setActiveDivision(division)}
+                onClick={() => {
+                  setActiveDivision(division)
+                }}
               >
                 {division}
               </button>
@@ -1185,7 +1206,9 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
               type='checkbox'
               className='tw:h-4 tw:w-4 tw:rounded tw:border-gray-300 tw:text-indigo-600 tw:focus:ring-indigo-500 tw:dark:border-slate-600'
               checked={isLongNote}
-              onChange={(e) => setIsLongNote(e.target.checked)}
+              onChange={(e) => {
+                setIsLongNote(e.target.checked)
+              }}
             />
             <label
               htmlFor='longNote'
@@ -1207,7 +1230,9 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
             step='0.1'
             className='tw:w-full tw:h-2 tw:bg-gray-200 tw:rounded-lg tw:appearance-none tw:cursor-pointer tw:dark:bg-slate-700'
             value={zoom}
-            onChange={(e) => setZoom(Number(e.target.value))}
+            onChange={(e) => {
+              setZoom(Number(e.target.value))
+            }}
           />
         </div>
 

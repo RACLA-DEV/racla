@@ -35,6 +35,7 @@ const childAnimation = {
 
 const MainContent: React.FC<ChildrenReactNodeProps> = ({ children }) => {
   const { theme, sidebarCollapsed } = useSelector((state: RootState) => state.ui)
+  const { refresh } = useSelector((state: RootState) => state.app)
   const location = useLocation()
 
   return (
@@ -42,14 +43,20 @@ const MainContent: React.FC<ChildrenReactNodeProps> = ({ children }) => {
       initial='hidden'
       animate='visible'
       variants={contentAnimation}
-      className={`tw:flex-1 tw:overflow-x-hidden tw:overflow-y-auto tw:transition-all tw:duration-300 tw:custom-scrollbar tw:pr-3 ${
+      className={`tw:flex-1 tw:overflow-x-hidden tw:w-full tw:overflow-y-auto tw:transition-all tw:duration-300 tw:custom-scrollbar tw:break-keep ${
         theme === 'dark'
           ? 'tw:dark:text-slate-200 tw:border-slate-700/50'
           : 'light-theme tw:text-gray-800 tw:border-indigo-100/50'
       } ${!sidebarCollapsed ? 'tw:border-l' : ''}`}
     >
       {/* 컨텐츠 영역 */}
-      <motion.div variants={childAnimation} key={location.pathname} className='tw:p-4 tw:h-full'>
+      <motion.div
+        variants={childAnimation}
+        key={location.pathname + refresh}
+        className={`tw:p-4 tw:w-full tw:min-h-[calc(100vh-80px)] ${
+          sidebarCollapsed ? 'tw:pb-20' : ''
+        }`}
+      >
         {/* 무조건 자식 컴포넌트 렌더링 */}
         {children}
       </motion.div>

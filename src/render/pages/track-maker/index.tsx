@@ -9,7 +9,6 @@ import type {
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useDispatch, useSelector } from 'react-redux'
-import { useNavigate } from 'react-router-dom'
 
 // 컴포넌트 스타일
 const styles = {
@@ -64,7 +63,6 @@ const styles = {
 const TrackMakerHub: React.FC = () => {
   const { t } = useTranslation(['common', 'track-maker'])
   const dispatch = useDispatch()
-  const navigate = useNavigate()
   const { settingData } = useSelector((state: RootState) => state.app)
 
   // 상태 관리
@@ -75,7 +73,7 @@ const TrackMakerHub: React.FC = () => {
   const [pageSize] = useState<number>(9)
 
   // 패턴 데이터 조회
-  const fetchPatterns = async (page: number = 0) => {
+  const fetchPatterns = async (page = 0) => {
     try {
       setIsLoading(true)
 
@@ -108,12 +106,12 @@ const TrackMakerHub: React.FC = () => {
 
   // 초기 데이터 로드
   useEffect(() => {
-    fetchPatterns()
+    void fetchPatterns()
   }, [])
 
   // 페이지 변경 핸들러
   const handlePageChange = (page: number) => {
-    fetchPatterns(page)
+    void fetchPatterns(page)
   }
 
   // 난이도 표시 함수
@@ -169,7 +167,9 @@ const TrackMakerHub: React.FC = () => {
               className={
                 currentPage === pageNum ? styles.activePaginationButton : styles.paginationButton
               }
-              onClick={() => handlePageChange(pageNum)}
+              onClick={() => {
+                handlePageChange(pageNum)
+              }}
             >
               {pageNum + 1}
             </button>
@@ -182,7 +182,9 @@ const TrackMakerHub: React.FC = () => {
               ? styles.disabledPaginationButton
               : styles.paginationButton
           }
-          onClick={() => handlePageChange(currentPage + 1)}
+          onClick={() => {
+            handlePageChange(currentPage + 1)
+          }}
           disabled={currentPage === totalPages - 1}
         >
           {t('common:pagination.next')}

@@ -635,7 +635,7 @@ export default function SettingModal() {
   const { font } = useSelector((state: RootState) => state.app.settingData)
   const [activeCategory, setActiveCategory] = useState<string>('general')
   const [localSettings, setLocalSettings] = useState<SettingsData>({} as SettingsData)
-  const { t } = useTranslation(['settings'])
+  const { t, i18n } = useTranslation(['settings'])
   const categorizedSettings = categorizeSettings()
 
   // 모달이 열릴 때 설정 데이터를 로컬 상태로 복사
@@ -706,6 +706,10 @@ export default function SettingModal() {
       // 안전하게 설정 할당
       if (id && typeof id === 'string' && id in newSettings) {
         newSettings[id] = value
+      }
+
+      if (id === 'language') {
+        i18n.changeLanguage(value as string)
       }
 
       return newSettings as SettingsData
@@ -790,12 +794,14 @@ export default function SettingModal() {
             ) : (
               <>
                 {categorizedSettings[activeCategory as keyof typeof categorizedSettings].map(
-                  (setting) => (
+                  (setting, index) => (
                     <div
                       key={setting.id}
                       className={`tw:pb-8 ${
                         categorizedSettings[activeCategory as keyof typeof categorizedSettings]
-                          .length - 1
+                          .length -
+                          1 !==
+                        index
                           ? 'tw:border-b tw:mb-8'
                           : ''
                       } tw:dark:border-slate-700 tw:border-gray-200`}

@@ -2,7 +2,7 @@ import { ApiResponse } from '@src/types/dto/common/ApiResponse'
 import type { ProxyRequest } from '@src/types/dto/proxy/ProxyRequest'
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
 
-class ProxyClient {
+class ApiClient {
   private client: AxiosInstance
 
   constructor(
@@ -96,5 +96,5 @@ class ProxyClient {
 }
 
 // 싱글턴 인스턴스 생성
-const proxyClient = new ProxyClient()
-export default proxyClient
+const apiClient = new ApiClient()
+export default apiClient

@@ -55,10 +55,10 @@
     "announcement_5": "V-ARCHIVE 공식 클라이언트 다운로드 바로가기"
   },
   "ui": {
-    "minimize": "최소화",
-    "restore": "원래 크기로",
-    "maximize": "최대화",
-    "close": "닫기"
+    "minimize": "Minimize",
+    "restore": "Restore",
+    "maximize": "Maximize",
+    "close": "Close"
   },
   "theme": {
     "light": "라이트 모드",

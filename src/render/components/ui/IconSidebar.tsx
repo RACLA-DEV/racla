@@ -1,19 +1,19 @@
 import { RootState } from '@render/store'
-import { setIsSetting, setIsTrackMaker, setSelectedGame } from '@render/store/slices/appSlice'
+import { setIsSetting, setSelectedGame } from '@render/store/slices/appSlice'
+import { setSidebarCollapsed } from '@render/store/slices/uiSlice'
 import type { GameType } from '@src/types/games/GameType'
 import { AnimatePresence, motion } from 'framer-motion'
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { LuBook, LuGamepad, LuHouse, LuLayers, LuSettings } from 'react-icons/lu'
+import { LuBook, LuGamepad, LuLayers, LuSettings } from 'react-icons/lu'
 import { useDispatch, useSelector } from 'react-redux'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import Tooltip from './Tooltip'
 const IconSidebar: React.FC = () => {
-  const { theme } = useSelector((state: RootState) => state.ui)
   const { selectedGame } = useSelector((state: RootState) => state.app)
   const navigate = useNavigate()
   const dispatch = useDispatch()
-  const location = window.location.hash.substring(1) // 현재 경로 가져오기
+  const location = useLocation() // 현재 경로 가져오기
   const { t } = useTranslation(['menu'])
 
   // 로고 인덱스 상태 관리
@@ -48,7 +48,9 @@ const IconSidebar: React.FC = () => {
         } else {
           // 선택되지 않은 경우 게임 선택
           handleGameSelect('djmax_respect_v')
+          dispatch(setSidebarCollapsed(false))
         }
+        navigate('/home')
       },
     },
     {
@@ -65,7 +67,9 @@ const IconSidebar: React.FC = () => {
         } else {
           // 선택되지 않은 경우 게임 선택
           handleGameSelect('wjmax')
+          dispatch(setSidebarCollapsed(false))
         }
+        navigate('/home')
       },
     },
     {
@@ -73,7 +77,15 @@ const IconSidebar: React.FC = () => {
       tooltip: 'PLATiNA :: LAB',
       iconUrl: `${import.meta.env.VITE_CDN_URL}/platina_lab/new_logo.png`,
       onClick: () => {
-        handleGameSelect('platina_lab')
+        if (selectedGame === 'platina_lab') {
+          // 이미 선택된 경우 로고만 변경
+          // setPlatinaLabLogoIndex((prev) => (prev + 1) % platinaLabLogos.length)
+        } else {
+          // 선택되지 않은 경우 게임 선택
+          handleGameSelect('platina_lab')
+          dispatch(setSidebarCollapsed(false))
+        }
+        navigate('/home')
       },
     },
   ]
@@ -91,10 +103,6 @@ const IconSidebar: React.FC = () => {
 
   const handleOpenSettings = () => {
     dispatch(setIsSetting(true))
-  }
-
-  const handleOpenTrackMaker = () => {
-    dispatch(setIsTrackMaker(true))
   }
 
   // 애니메이션 변수
@@ -141,93 +149,9 @@ const IconSidebar: React.FC = () => {
     >
       {/* 상단 홈 버튼 */}
       <div className='tw:flex tw:flex-col tw:items-center'>
-        <div className='tw:mb-4 tw:relative tw:z-10'>
-          <Tooltip content={t('racla.raclaHome')}>
-            <motion.div
-              variants={iconAnimation()}
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => {
-                handleNavigation('/home')
-              }}
-              className={`tw:w-12 tw:h-12 tw:flex tw:items-center tw:justify-center tw:rounded-lg tw:cursor-pointer tw:transition-all ${
-                location === '/home'
-                  ? 'tw:dark:bg-slate-700 tw:dark:text-indigo-400 tw:bg-white tw:text-indigo-600 tw:shadow-md'
-                  : 'tw:dark:bg-slate-800 tw:dark:text-indigo-400 tw:dark:hover:bg-slate-700 tw:bg-gray-50 tw:shadow-md tw:hover:bg-white tw:hover:shadow-md'
-              }`}
-            >
-              <LuHouse size={28} />
-            </motion.div>
-          </Tooltip>
-        </div>
-
-        <div className='tw:flex tw:flex-col tw:items-center'>
-          <div className='tw:mb-4 tw:relative tw:z-10'>
-            <Tooltip content={t('racla.raclaCheatsheet')}>
-              <motion.div
-                variants={iconAnimation()}
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => {
-                  handleNavigation('/test/cheatsheet')
-                }}
-                className={`tw:w-12 tw:h-12 tw:flex tw:items-center tw:justify-center tw:rounded-lg tw:cursor-pointer tw:transition-all ${
-                  location === '/test/cheatsheet'
-                    ? 'tw:dark:bg-slate-700 tw:dark:text-indigo-400 tw:bg-white tw:text-indigo-600 tw:shadow-md'
-                    : 'tw:dark:bg-slate-800 tw:dark:text-indigo-400 tw:dark:hover:bg-slate-700 tw:bg-gray-50 tw:shadow-md tw:hover:bg-white tw:hover:shadow-md'
-                }`}
-              >
-                <LuBook size={28} />
-              </motion.div>
-            </Tooltip>
-          </div>
-        </div>
-
-        <div className='tw:flex tw:flex-col tw:items-center'>
-          <div className='tw:mb-4 tw:relative tw:z-10'>
-            <Tooltip content={t('racla.raclaTrackMaker')}>
-              <motion.div
-                variants={iconAnimation()}
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => {
-                  handleNavigation('/track-maker')
-                }}
-                className={`tw:w-12 tw:h-12 tw:flex tw:items-center tw:justify-center tw:rounded-lg tw:cursor-pointer tw:transition-all ${
-                  location === '/track-maker'
-                    ? 'tw:dark:bg-slate-700 tw:dark:text-indigo-400 tw:bg-white tw:text-indigo-600 tw:shadow-md'
-                    : 'tw:dark:bg-slate-800 tw:dark:text-indigo-400 tw:dark:hover:bg-slate-700 tw:bg-gray-50 tw:shadow-md tw:hover:bg-white tw:hover:shadow-md'
-                }`}
-              >
-                <LuGamepad size={28} />
-              </motion.div>
-            </Tooltip>
-          </div>
-        </div>
-
-        <div className='tw:mb-4 tw:relative tw:z-10'>
-          <Tooltip content={t('racla.raclaOverlay')}>
-            <motion.div
-              variants={iconAnimation()}
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => {
-                handleNavigation('/overlay/settings')
-              }}
-              className={`tw:w-12 tw:h-12 tw:flex tw:items-center tw:justify-center tw:rounded-lg tw:cursor-pointer tw:transition-all ${
-                location === '/overlay/settings'
-                  ? 'tw:dark:bg-slate-700 tw:dark:text-indigo-400 tw:bg-white tw:text-indigo-600 tw:shadow-md'
-                  : 'tw:dark:bg-slate-800 tw:dark:text-indigo-400 tw:dark:hover:bg-slate-700 tw:bg-gray-50 tw:shadow-md tw:hover:bg-white tw:hover:shadow-md'
-              }`}
-            >
-              <LuLayers size={28} />
-            </motion.div>
-          </Tooltip>
-        </div>
-
         {/* 게임 선택 아이콘들 (중앙) */}
         <div
-          className={`tw:flex tw:flex-col tw:items-center tw:space-y-4 tw:pt-4 tw:border-t tw:relative tw:z-10 tw:dark:border-slate-700 tw:border-gray-300`}
+          className={`tw:flex tw:flex-col tw:items-center tw:space-y-4 tw:relative tw:z-10 tw:mt-2`}
         >
           {gameIcons.map((game) => (
             <Tooltip key={game.id} content={game.tooltip}>
@@ -237,9 +161,14 @@ const IconSidebar: React.FC = () => {
                 whileTap={{ scale: 0.95 }}
                 onClick={game.onClick}
                 className={`tw:w-12 tw:h-12 tw:flex tw:items-center tw:justify-center tw:rounded-lg tw:overflow-hidden tw:cursor-pointer tw:transition-all ${
-                  selectedGame === game.id
+                  selectedGame === game.id &&
+                  (location.pathname.includes(game.id) || location.pathname === '/home')
                     ? 'tw:dark:bg-slate-700 tw:bg-white tw:shadow-md'
-                    : 'tw:dark:bg-slate-800 tw:dark:hover:bg-slate-700 tw:bg-gray-50 tw:shadow-md tw:hover:bg-white tw:hover:shadow-md'
+                    : `tw:dark:bg-slate-800 tw:dark:hover:bg-slate-700 tw:bg-gray-50 tw:shadow-md tw:hover:bg-white tw:hover:shadow-md ${
+                        location.pathname.includes(game.id) || location.pathname === '/home'
+                          ? 'tw:grayscale-100'
+                          : ''
+                      }`
                 }`}
               >
                 <AnimatePresence mode='wait'>
@@ -259,6 +188,90 @@ const IconSidebar: React.FC = () => {
               </motion.div>
             </Tooltip>
           ))}
+        </div>
+
+        {/* <div className='tw:mb-4 tw:relative tw:z-10'>
+          <Tooltip content={t('racla.raclaHome')}>
+            <motion.div
+              variants={iconAnimation()}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => {
+                handleNavigation('/home')
+              }}
+              className={`tw:w-12 tw:h-12 tw:flex tw:items-center tw:justify-center tw:rounded-lg tw:cursor-pointer tw:transition-all ${
+                location === '/home'
+                  ? 'tw:dark:bg-slate-700 tw:dark:text-indigo-400 tw:bg-white tw:text-indigo-600 tw:shadow-md'
+                  : 'tw:dark:bg-slate-800 tw:dark:text-indigo-400 tw:dark:hover:bg-slate-700 tw:bg-gray-50 tw:shadow-md tw:hover:bg-white tw:hover:shadow-md'
+              }`}
+            >
+              <LuHouse size={28} />
+            </motion.div>
+          </Tooltip>
+        </div> */}
+
+        <div className='tw:mb-4 tw:relative tw:z-10 tw:mt-4 tw:pt-4 tw:border-t tw:dark:border-slate-700 tw:border-gray-300'>
+          <Tooltip content={t('racla.raclaOverlay')}>
+            <motion.div
+              variants={iconAnimation()}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => {
+                handleNavigation('/overlay/settings')
+              }}
+              className={`tw:w-12 tw:h-12 tw:flex tw:items-center tw:justify-center tw:rounded-lg tw:cursor-pointer tw:transition-all ${
+                location.pathname === '/overlay/settings'
+                  ? 'tw:dark:bg-slate-700 tw:dark:text-indigo-400 tw:bg-white tw:text-indigo-600 tw:shadow-md'
+                  : 'tw:dark:bg-slate-800 tw:dark:text-indigo-400 tw:dark:hover:bg-slate-700 tw:bg-gray-50 tw:shadow-md tw:hover:bg-white tw:hover:shadow-md'
+              }`}
+            >
+              <LuLayers size={28} />
+            </motion.div>
+          </Tooltip>
+        </div>
+
+        <div className='tw:flex tw:flex-col tw:items-center'>
+          <div className='tw:mb-4 tw:relative tw:z-10'>
+            <Tooltip content={t('racla.raclaTrackMaker')}>
+              <motion.div
+                variants={iconAnimation()}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => {
+                  handleNavigation('/track-maker')
+                }}
+                className={`tw:w-12 tw:h-12 tw:flex tw:items-center tw:justify-center tw:rounded-lg tw:cursor-pointer tw:transition-all ${
+                  location.pathname === '/track-maker'
+                    ? 'tw:dark:bg-slate-700 tw:dark:text-indigo-400 tw:bg-white tw:text-indigo-600 tw:shadow-md'
+                    : 'tw:dark:bg-slate-800 tw:dark:text-indigo-400 tw:dark:hover:bg-slate-700 tw:bg-gray-50 tw:shadow-md tw:hover:bg-white tw:hover:shadow-md'
+                }`}
+              >
+                <LuGamepad size={28} />
+              </motion.div>
+            </Tooltip>
+          </div>
+        </div>
+
+        <div className='tw:flex tw:flex-col tw:items-center'>
+          <div className='tw:mb-4 tw:relative tw:z-10'>
+            <Tooltip content={t('racla.raclaCheatsheet')}>
+              <motion.div
+                variants={iconAnimation()}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => {
+                  handleNavigation('/test/cheatsheet')
+                }}
+                className={`tw:w-12 tw:h-12 tw:flex tw:items-center tw:justify-center tw:rounded-lg tw:cursor-pointer tw:transition-all ${
+                  location.pathname === '/test/cheatsheet'
+                    ? 'tw:dark:bg-slate-700 tw:dark:text-indigo-400 tw:bg-white tw:text-indigo-600 tw:shadow-md'
+                    : 'tw:dark:bg-slate-800 tw:dark:text-indigo-400 tw:dark:hover:bg-slate-700 tw:bg-gray-50 tw:shadow-md tw:hover:bg-white tw:hover:shadow-md'
+                }`}
+              >
+                <LuBook size={28} />
+              </motion.div>
+            </Tooltip>
+          </div>
         </div>
       </div>
 

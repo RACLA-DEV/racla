@@ -4,9 +4,10 @@ import { useSelector } from 'react-redux'
 import { Icon } from '@iconify/react/dist/iconify.js'
 import { globalDictionary } from '@render/constants/globalDictionary'
 import {
+  getDifficultyBgColor,
   getDifficultyClassName,
-  getDifficultyColor,
   getDifficultyTextClassName,
+  getDifficultyTextColor,
   getScoreDisplayText,
 } from '@render/libs/gameUtils'
 import { createLog } from '@render/libs/logger'
@@ -25,11 +26,13 @@ interface ScorePopupComponentProps {
   keyMode: string
   isVisibleCode?: boolean
   size?: number
+  judgementType?: number
 }
 
 const ScorePopupComponent = ({
   songTitle,
   keyMode,
+  judgementType,
   isVisibleCode = false,
   size = 80,
 }: ScorePopupComponentProps) => {
@@ -65,25 +68,27 @@ const ScorePopupComponent = ({
       const triggerRect = triggerRef.current.getBoundingClientRect()
       const viewportWidth = window.innerWidth
       const viewportHeight = window.innerHeight
+      const scrollY = window.scrollY || window.pageYOffset
+      const scrollX = window.scrollX || window.pageXOffset
 
       // 고정 크기로 가정하여 툴팁 위치 계산 (툴팁 ref가 없어도 작동)
       const tooltipWidth = 400 // 대략적인 툴팁 너비
-      const tooltipHeight = 300 // 대략적인 툴팁 높이
+      const tooltipHeight = 560 // 대략적인 툴팁 높이
 
       // 기본 위치 (오른쪽)
-      let posX = triggerRect.right
-      let posY = triggerRect.top + triggerRect.height / 2 - tooltipHeight / 2
+      let posX = triggerRect.right + scrollX
+      let posY = triggerRect.top + scrollY + triggerRect.height / 2 - tooltipHeight / 2
 
       // 오른쪽에 공간이 부족한 경우 왼쪽에 표시
-      if (posX + tooltipWidth > viewportWidth) {
-        posX = triggerRect.left - tooltipWidth - 10
+      if (posX + tooltipWidth > viewportWidth + scrollX) {
+        posX = triggerRect.left + scrollX - tooltipWidth - 10
       }
 
       // 상하단에 공간이 부족한 경우 조정
-      if (posY < 10) {
-        posY = 10
-      } else if (posY + tooltipHeight > viewportHeight - 10) {
-        posY = viewportHeight - tooltipHeight - 10
+      if (posY < scrollY + 10) {
+        posY = scrollY + 10
+      } else if (posY + tooltipHeight > viewportHeight + scrollY - 10) {
+        posY = viewportHeight + scrollY - tooltipHeight - 10
       }
 
       setTooltipPosition({ x: posX, y: posY })
@@ -130,6 +135,7 @@ const ScorePopupComponent = ({
       try {
         // 10000000 이상은 RACLA 고유 번호로 사용
         if (game !== 'djmax_respect_v') {
+          createLog('debug', 'fetching racla song data', { ...userData })
           const response = await apiClient.get<SongData>(
             `/v3/racla/songs/${game}/${title}/user/${userData.playerId}`,
             {
@@ -163,7 +169,7 @@ const ScorePopupComponent = ({
     }
 
     if (isHovered) {
-      fetchData()
+      void fetchData()
     } else {
       setScoreData(null)
     }
@@ -207,7 +213,7 @@ const ScorePopupComponent = ({
             style={{ objectFit: 'cover' }}
           />
           {isVisibleCode ? (
-            <span className='tw:absolute tw:top-0 tw:left-0 respect_dlc_code_wrap tw:rounded-tl-md'>
+            <span className='tw:absolute tw:top-0 tw:left-0 djmax_respect_v_dlc_code_wrap tw:rounded-tl-md'>
               <span className={`${game}_dlc_code ${game}_dlc_code_${songItem?.dlcCode ?? ''}`}>
                 {songItem?.dlcCode ?? ''}
               </span>
@@ -328,7 +334,7 @@ const ScorePopupComponent = ({
                                 icon='lucide:star'
                                 height={14}
                                 width={14}
-                                className={getDifficultyColor(game, value)}
+                                className={getDifficultyTextColor(game, value)}
                               />
                               <span className={getDifficultyClassName(game, value)}>
                                 {songItem?.patterns[`${keyMode}B`][value].level}{' '}
@@ -341,21 +347,21 @@ const ScorePopupComponent = ({
                                 </sup>
                               </span>
                             </div>
-                            {scoreData && scoreData.patterns[`${keyMode}B`][value] !== undefined ? (
+                            {scoreData &&
+                            scoreData?.[judgementType == 1 ? 'plusPatterns' : 'patterns'][
+                              `${keyMode}B`
+                            ][value] !== undefined ? (
                               <div
                                 className={`tw:relative tw:w-full tw:h-6 tw:rounded-sm tw:overflow-hidden tw:dark:bg-slate-900 tw:bg-slate-400`}
                               >
                                 <motion.div
-                                  className='tw:h-full'
-                                  style={{
-                                    backgroundColor: getDifficultyColor(game, value),
-                                  }}
+                                  className={`tw:h-full ${getDifficultyBgColor(game, value)}`}
                                   initial={{ width: '0%' }}
                                   animate={{
-                                    width: `${scoreData.patterns[`${keyMode}B`][value]?.score ? Number(scoreData.patterns[`${keyMode}B`][value].score) : 0}%`,
+                                    width: `${scoreData?.[judgementType == 1 ? 'plusPatterns' : 'patterns'][`${keyMode}B`][value]?.score ? Number(scoreData?.[judgementType == 1 ? 'plusPatterns' : 'patterns'][`${keyMode}B`][value].score) : 0}%`,
                                   }}
                                   transition={{
-                                    duration: 0.8,
+                                    duration: 0.3,
                                     delay: 0.2 + index * 0.05,
                                     ease: 'easeOut',
                                   }}
@@ -363,7 +369,9 @@ const ScorePopupComponent = ({
                                 <div className='tw:absolute tw:text-xs tw:inset-0 tw:flex tw:items-center tw:justify-center tw:font-bold tw:text-white'>
                                   {getScoreDisplayText(
                                     game,
-                                    songItem?.patterns[`${keyMode}B`][value],
+                                    scoreData?.[judgementType == 1 ? 'plusPatterns' : 'patterns'][
+                                      `${keyMode}B`
+                                    ][value],
                                   )}
                                 </div>
                               </div>
