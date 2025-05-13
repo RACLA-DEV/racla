@@ -1,16 +1,15 @@
+import { globalDictionary } from '@render/constants/globalDictionary'
+import { createLog } from '@render/libs/logger'
+import { RootState } from '@render/store'
+import { ApiArchiveNicknameBoard } from '@src/types/dto/v-archive/ApiArchiveNicknameBoard'
 import { ArcElement, Chart as ChartJS, Legend, Tooltip } from 'chart.js'
-import React, { useEffect, useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
-
-import ScorePopupComponent from '@/components/score/popup/ScorePopupDjmax'
-import { globalDictionary } from '@constants/globalDictionary'
-import { logRendererError } from '@utils/rendererLoggerUtils'
-import axios from 'axios'
 import { motion } from 'framer-motion'
-import Image from 'next/image'
+import { useEffect, useState } from 'react'
 import { Doughnut } from 'react-chartjs-2'
-import { SyncLoader } from 'react-spinners'
-import { RootState } from 'store'
+import { useDispatch, useSelector } from 'react-redux'
+import { PuffLoader } from 'react-spinners'
+import apiClient from '../../../libs/apiClient'
+import ScorePopupComponent from '../score/ScorePopup'
 
 ChartJS.register(ArcElement, Tooltip, Legend)
 
@@ -41,10 +40,8 @@ interface KeyModeData {
 export default function DjmaxHomeComponent() {
   const dispatch = useDispatch()
   const userData = useSelector((state: RootState) => state.app.userData)
-  const vArchiveUserData = useSelector((state: RootState) => state.app.vArchiveUserData)
   const selectedGame = useSelector((state: RootState) => state.app.selectedGame)
   const songData = useSelector((state: RootState) => state.app.songData)
-  const [showProgress, setShowProgress] = useState(false)
   const [keyModeData, setKeyModeData] = useState<KeyModeData>({
     '4': [],
     '5': [],
@@ -99,23 +96,23 @@ export default function DjmaxHomeComponent() {
 
   const KeyModeSelector = () =>
     selectedGame === 'djmax_respect_v' && (
-      <div className='tw-flex tw-gap-2'>
-        {globalDictionary[selectedGame].keyModeList.map((mode) => (
+      <div className='tw:flex tw:gap-2'>
+        {globalDictionary.gameDictionary[selectedGame].keyModeList.map((mode) => (
           <button
             key={`mode_${mode}`}
             onClick={() => setSelectedKeyMode(String(mode))}
-            className={`tw-flex tw-items-center tw-justify-center tw-relative tw-px-4 tw-py-0.5 tw-border tw-border-opacity-50 tw-transition-all tw-duration-500 tw-rounded-md tw-flex-1 ${
+            className={`tw:flex tw:items-center tw:justify-center tw:relative tw:px-4 tw:py-0.5 tw:border tw:border-opacity-50 tw:transition-all tw:duration-500 tw:rounded-md tw:flex-1 ${
               String(mode) === selectedKeyMode
-                ? 'tw-border-blue-500 tw-bg-blue-900 tw-bg-opacity-20 tw-brightness-150'
-                : 'tw-border-gray-600 tw-opacity-50 hover:tw-border-blue-400 hover:tw-bg-gray-700 hover:tw-bg-opacity-30 hover:tw-opacity-100'
+                ? 'tw:border-indigo-500 tw:bg-indigo-600/20 tw:dark:bg-indigo-600/20 tw:brightness-150'
+                : 'tw:border-gray-400 tw:dark:border-slate-600 tw:opacity-50 hover:tw:border-indigo-400 hover:tw:bg-gray-200 hover:tw:dark:bg-slate-700 hover:tw:bg-opacity-30 hover:tw:dark:bg-opacity-30 hover:tw:opacity-100'
             }`}
           >
             <div
-              className={`tw-absolute tw-w-full tw-h-full tw-opacity-30 ${selectedGame === 'djmax_respect_v' ? 'respect' : 'wjmax'}_bg_b${String(
+              className={`tw:absolute tw:w-full tw:h-full tw:opacity-30 ${selectedGame === 'djmax_respect_v' ? 'respect' : 'wjmax'}_bg_b${String(
                 mode,
               ).replace('P', '')}`}
             />
-            <span className='tw-relative tw-text-base tw-font-bold'>
+            <span className='tw:relative tw:text-base tw:font-bold'>
               {String(mode).replace('P', '')}B{String(mode).includes('P') ? '+' : ''}
             </span>
           </button>
@@ -125,7 +122,7 @@ export default function DjmaxHomeComponent() {
 
   useEffect(() => {
     const fetchAllBoardData = async () => {
-      if (!vArchiveUserData.userName) return
+      if (!userData.varchiveUserInfo.isLinked) return
       setIsLoading(true)
 
       try {
@@ -134,7 +131,7 @@ export default function DjmaxHomeComponent() {
 
         for (const keyMode of keyModes) {
           // 기본 곡 데이터 가져오기 (songData 활용)
-          const baseSongData = songData.flatMap((track) => {
+          const baseSongData = songData[selectedGame].flatMap((track) => {
             const { title, name, composer, dlcCode, dlc, patterns } = track
             const patternButton = patterns[keyMode + 'B']
 
@@ -161,11 +158,11 @@ export default function DjmaxHomeComponent() {
           const allBoardResponses = await Promise.all(
             boards.map(async (boardType) => {
               try {
-                const response = await axios.get(
-                  `${process.env.NEXT_PUBLIC_PROXY_API_URL}?url=https://v-archive.net/api/archive/${vArchiveUserData.userName}/board/${keyMode}/${boardType}`,
+                const response = await apiClient.getProxy<ApiArchiveNicknameBoard>(
+                  `https://v-archive.net/api/archive/${userData.varchiveUserInfo.nickname}/board/${keyMode}/${boardType}`,
                 )
                 return (
-                  response.data.floors?.flatMap((floor) =>
+                  response.data.data.floors?.flatMap((floor) =>
                     floor.patterns.map((pattern) => ({
                       ...pattern,
                       floor: floor.floorNumber,
@@ -173,8 +170,7 @@ export default function DjmaxHomeComponent() {
                   ) || []
                 )
               } catch (error) {
-                logRendererError(error, { message: 'Error fetching board data', ...userData })
-                console.error(`Error fetching ${boardType}:`, error)
+                createLog('error', 'Error fetching board data: ', error)
                 return []
               }
             }),
@@ -210,9 +206,6 @@ export default function DjmaxHomeComponent() {
 
                   // basePattern의 level은 별도로 유지
                   level: basePattern?.level || null,
-
-                  // board 정보 유지
-                  board: apiPattern.board || null,
                 }
 
                 acc[key] = mergedPattern
@@ -224,28 +217,18 @@ export default function DjmaxHomeComponent() {
 
         setKeyModeData(allKeyModeData)
       } catch (error) {
-        logRendererError(error, { message: 'Error fetching all data', ...userData })
-        console.error('Error fetching all data:', error)
+        createLog('error', 'Error fetching all data: ', error)
       } finally {
         setIsLoading(false)
       }
     }
 
     fetchAllBoardData()
-  }, [vArchiveUserData.userName])
+  }, [userData.varchiveUserInfo.nickname])
 
   useEffect(() => {
     console.log('KeyMode Data:', keyModeData)
   }, [keyModeData])
-
-  useEffect(() => {
-    // 컴포넌트 마운트 후 약간의 딜레이를 주고 애니메이션 시작
-    const timer = setTimeout(() => {
-      setShowProgress(true)
-    }, 300)
-
-    return () => clearTimeout(timer)
-  }, [])
 
   useEffect(() => {
     const stats = {
@@ -305,52 +288,52 @@ export default function DjmaxHomeComponent() {
   }
 
   const getTierByScore = (score: number) => {
-    const tierList = {
-      9950: 'Grand Master',
-      9900: 'Master I',
-      9800: 'Master II',
-      9700: 'Master III',
-      9600: 'Diamond I',
-      9400: 'Diamond II',
-      9200: 'Diamond III',
-      9000: 'Diamond IV',
-      8800: 'Platinum I',
-      8600: 'Platinum II',
-      8400: 'Platinum III',
-      8200: 'Platinum IV',
-      8000: 'Gold I',
-      7800: 'Gold II',
-      7600: 'Gold III',
-      7400: 'Gold IV',
-      7200: 'Silver I',
-      7000: 'Silver II',
-      6800: 'Silver III',
-      6600: 'Silver IV',
-      6300: 'Bronze I',
-      6000: 'Bronze II',
-      5650: 'Bronze III',
-      5300: 'Bronze IV',
-      4900: 'Iron I',
-      4600: 'Iron II',
-      4300: 'Iron III',
-      4000: 'Iron IV',
-      3000: 'Amateur I',
-      2000: 'Amateur II',
-      1000: 'Amateur III',
-      500: 'Amateur IV',
-      0: 'Beginner',
+    const tierInfo = {
+      9950: { name: 'Grand Master', color: 'tw:text-indigo-600 tw:dark:text-indigo-400' },
+      9900: { name: 'Master I', color: 'tw:text-indigo-500 tw:dark:text-indigo-300' },
+      9800: { name: 'Master II', color: 'tw:text-indigo-500 tw:dark:text-indigo-300' },
+      9700: { name: 'Master III', color: 'tw:text-indigo-500 tw:dark:text-indigo-300' },
+      9600: { name: 'Diamond I', color: 'tw:text-blue-500 tw:dark:text-blue-300' },
+      9400: { name: 'Diamond II', color: 'tw:text-blue-500 tw:dark:text-blue-300' },
+      9200: { name: 'Diamond III', color: 'tw:text-blue-500 tw:dark:text-blue-300' },
+      9000: { name: 'Diamond IV', color: 'tw:text-blue-500 tw:dark:text-blue-300' },
+      8800: { name: 'Platinum I', color: 'tw:text-cyan-500 tw:dark:text-cyan-300' },
+      8600: { name: 'Platinum II', color: 'tw:text-cyan-500 tw:dark:text-cyan-300' },
+      8400: { name: 'Platinum III', color: 'tw:text-cyan-500 tw:dark:text-cyan-300' },
+      8200: { name: 'Platinum IV', color: 'tw:text-cyan-500 tw:dark:text-cyan-300' },
+      8000: { name: 'Gold I', color: 'tw:text-yellow-600 tw:dark:text-yellow-500' },
+      7800: { name: 'Gold II', color: 'tw:text-yellow-600 tw:dark:text-yellow-500' },
+      7600: { name: 'Gold III', color: 'tw:text-yellow-600 tw:dark:text-yellow-500' },
+      7400: { name: 'Gold IV', color: 'tw:text-yellow-600 tw:dark:text-yellow-500' },
+      7200: { name: 'Silver I', color: 'tw:text-gray-400 tw:dark:text-slate-300' },
+      7000: { name: 'Silver II', color: 'tw:text-gray-400 tw:dark:text-slate-300' },
+      6800: { name: 'Silver III', color: 'tw:text-gray-400 tw:dark:text-slate-300' },
+      6600: { name: 'Silver IV', color: 'tw:text-gray-400 tw:dark:text-slate-300' },
+      6300: { name: 'Bronze I', color: 'tw:text-amber-800 tw:dark:text-amber-600' },
+      6000: { name: 'Bronze II', color: 'tw:text-amber-800 tw:dark:text-amber-600' },
+      5650: { name: 'Bronze III', color: 'tw:text-amber-800 tw:dark:text-amber-600' },
+      5300: { name: 'Bronze IV', color: 'tw:text-amber-800 tw:dark:text-amber-600' },
+      4900: { name: 'Iron I', color: 'tw:text-gray-600 tw:dark:text-slate-400' },
+      4600: { name: 'Iron II', color: 'tw:text-gray-600 tw:dark:text-slate-400' },
+      4300: { name: 'Iron III', color: 'tw:text-gray-600 tw:dark:text-slate-400' },
+      4000: { name: 'Iron IV', color: 'tw:text-gray-600 tw:dark:text-slate-400' },
+      3000: { name: 'Amateur I', color: 'tw:text-gray-500 tw:dark:text-zinc-400' },
+      2000: { name: 'Amateur II', color: 'tw:text-gray-500 tw:dark:text-zinc-400' },
+      1000: { name: 'Amateur III', color: 'tw:text-gray-500 tw:dark:text-zinc-400' },
+      500: { name: 'Amateur IV', color: 'tw:text-gray-500 tw:dark:text-zinc-400' },
+      0: { name: 'Beginner', color: 'tw:text-gray-600 tw:dark:text-zinc-500' },
     }
 
-    if (score < 0) return 'Beginner'
-    if (score >= 9950) return 'Grand Master'
+    if (score < 0) return tierInfo[0]
+    if (score >= 9950) return tierInfo[9950]
 
-    const tierScores = Object.keys(tierList)
+    const tierScores = Object.keys(tierInfo)
       .map(Number)
       .sort((a, b) => b - a)
 
     const nearestTierScore = tierScores.find((tierScore) => score >= tierScore) ?? 0
 
-    return tierList[nearestTierScore]
+    return tierInfo[nearestTierScore]
   }
 
   const calculateKeyModeTier = (patterns: Pattern[], maxScore: number) => {
@@ -376,16 +359,16 @@ export default function DjmaxHomeComponent() {
       if (pattern.pattern === 'SC') {
         return (
           <span
-            className={`tw-flex tw-gap-2 tw-font-extrabold tw-items-center tw-text-respect-sc-15`}
+            className={`tw:flex tw:gap-2 tw:font-extrabold tw:items-center tw:text-respect-sc-15`}
           >
-            <Image
+            <img
               src={`https://cdn.racla.app/djmax_respect_v/sc_15_star.png`}
               alt='difficulty'
               width={16}
               height={16}
-              className='tw-w-4 tw-h-4'
+              className='tw:w-4 tw:h-4'
             />
-            <span className='tw-font-extrabold tw-mb-0.5'>
+            <span className='tw:font-extrabold tw:mb-0.5'>
               {pattern.floor != null && pattern.floor !== 0 ? pattern.floor + 'F' : pattern.level}
             </span>
           </span>
@@ -397,16 +380,16 @@ export default function DjmaxHomeComponent() {
 
       return (
         <span
-          className={`tw-flex tw-gap-2 tw-font-extrabold tw-items-center tw-text-respect-${difficultyClass}`}
+          className={`tw:flex tw:gap-2 tw:font-extrabold tw:items-center tw:text-respect-${difficultyClass}`}
         >
-          <Image
+          <img
             src={`https://cdn.racla.app/djmax_respect_v/nm_${difficultyClass.split('-')[1]}_star.png`}
             alt='difficulty'
             width={16}
             height={16}
-            className='tw-w-4 tw-h-4'
+            className='tw:w-4 tw:h-4'
           />
-          <span className='tw-font-extrabold tw-mb-0.5'>{`${pattern.floor != null && pattern.floor !== 0 ? pattern.floor + 'F' : pattern.level}`}</span>
+          <span className='tw:font-extrabold tw:mb-0.5'>{`${pattern.floor != null && pattern.floor !== 0 ? pattern.floor + 'F' : pattern.level}`}</span>
         </span>
       )
     }
@@ -438,22 +421,21 @@ export default function DjmaxHomeComponent() {
       const isSC = pattern.pattern.startsWith('SC')
 
       return (
-        <div className='tw-flex tw-gap-1 tw-items-end'>
+        <div className='tw:flex tw:gap-1 tw:items-end'>
           {/* 큰 별들을 5개씩 묶어서 다른 이미지 사용 */}
           {[...Array(Math.ceil(fullStars / 5))].map((_, groupIndex) => {
             const starsInGroup = Math.min(5, fullStars - groupIndex * 5)
             const starImage = getStarImage((groupIndex + 1) * 5, isSC)
 
             return [...Array(starsInGroup)].map((_, starIndex) => (
-              <Image
+              <img
                 key={`${pattern.title}_${pattern.pattern}_full_${groupIndex}_${starIndex}`}
                 src={`https://cdn.racla.app/djmax_respect_v/${starImage}`}
                 alt='star'
                 width={16}
                 height={16}
-                className='tw-w-4 tw-h-4'
+                className='tw:w-4 tw:h-4'
                 loading='lazy'
-                blurDataURL={globalDictionary.blurDataURL}
               />
             ))
           })}
@@ -461,15 +443,14 @@ export default function DjmaxHomeComponent() {
           {/* 작은 별 (소수점이 있는 경우) */}
           {decimalPart > 0 &&
             [...Array(decimalPart)].map((_, i) => (
-              <Image
+              <img
                 key={`${pattern.title}_${pattern.pattern}_small_${i}`}
                 src={`https://cdn.racla.app/djmax_respect_v/${getStarImage(Math.ceil(fullStars / 5) * 5, isSC)}`}
                 alt='small-star'
                 width={12}
                 height={12}
-                className='tw-w-3 tw-h-3'
+                className='tw:w-3 tw:h-3'
                 loading='lazy'
-                blurDataURL={globalDictionary.blurDataURL}
               />
             ))}
         </div>
@@ -482,21 +463,20 @@ export default function DjmaxHomeComponent() {
       const isSC = pattern.pattern.startsWith('SC')
 
       return (
-        <div className='tw-flex tw-gap-1'>
+        <div className='tw:flex tw:gap-1'>
           {[...Array(Math.round(boardLevel / 5))].map((_, groupIndex) => {
             const starsInGroup = Math.min(5, boardLevel - groupIndex * 5)
             const starImage = getStarImage((groupIndex + 1) * 5, isSC)
 
             return [...Array(starsInGroup)].map((_, starIndex) => (
-              <Image
+              <img
                 key={`${pattern.title}_${pattern.pattern}_board_${groupIndex}_${starIndex}`}
                 src={`https://cdn.racla.app/djmax_respect_v/${starImage}`}
                 alt='star'
                 width={16}
                 height={16}
-                className='tw-w-4 tw-h-4'
+                className='tw:w-4 tw:h-4'
                 loading='lazy'
-                blurDataURL={globalDictionary.blurDataURL}
               />
             ))
           })}
@@ -514,7 +494,7 @@ export default function DjmaxHomeComponent() {
     // songData에서 올바른 floor 값을 가져와서 패턴 정보 업데이트
     const updatedPatterns = filteredPatterns.map((pattern) => {
       // songData에서 해당 곡 찾기
-      const song = songData.find((s) => s.title === pattern.title)
+      const song = songData[selectedGame].find((s) => s.title === pattern.title)
       if (!song) return { ...pattern, floor: 0 }
 
       // 해당 키모드의 패턴 정보 찾기
@@ -667,7 +647,7 @@ export default function DjmaxHomeComponent() {
 
       newTierScores[keyMode] = {
         tierScore,
-        tier: getTierByScore(tierScore),
+        tier: getTierByScore(tierScore).name,
       }
     })
 
@@ -734,16 +714,13 @@ export default function DjmaxHomeComponent() {
     setCutoffScores(newCutoffScores)
   }, [keyModeData])
 
-  const [isStatsModalOpen, setIsStatsModalOpen] = useState(false)
-
   return (
-    <React.Fragment>
-      <div id='ContentHeader' />
+    <>
       {selectedGame === 'djmax_respect_v' && (
         <>
           {isLoading ? (
-            <div className='tw-flex tw-items-center tw-justify-center tw-h-screen tw-flex-1 tw-bg-gray-800 tw-bg-opacity-75 tw-rounded-lg'>
-              <SyncLoader color='#ffffff' size={8} />
+            <div className='tw:flex tw:items-center tw:w-full tw:h-[calc(100vh-106px)] tw:justify-center tw:flex-1 tw:bg-white tw:dark:bg-slate-800 tw:bg-opacity-75 tw:dark:bg-opacity-75 tw:rounded-lg tw:border tw:border-gray-200 tw:dark:border-slate-700'>
+              <PuffLoader color='#6366f1' size={32} />
             </div>
           ) : (
             <motion.div
@@ -751,76 +728,117 @@ export default function DjmaxHomeComponent() {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5, ease: 'easeOut' }}
             >
+              <div id='ContentHeader' />
               {/* 헤더 섹션 */}
-              <div className='tw-bg-gray-800 tw-bg-opacity-75 tw-rounded-lg tw-shadow-lg tw-p-4 tw-mb-4'>
-                <div className='tw-flex tw-justify-between tw-items-center'>
-                  <span className='tw-text-xl tw-font-bold'>
-                    {userData.userName !== '' && vArchiveUserData.userName !== ''
-                      ? `${vArchiveUserData.userName}`
+              <div className='tw:bg-white tw:dark:bg-slate-800 tw:bg-opacity-75 tw:dark:bg-opacity-75 tw:rounded-lg tw:shadow-lg tw:p-4 tw:mb-4 tw:border tw:border-gray-200 tw:dark:border-slate-700'>
+                <div className='tw:flex tw:justify-between tw:items-center'>
+                  <span className='tw:text-xl tw:font-bold tw:text-gray-900 tw:dark:text-white'>
+                    {userData.playerName !== '' && userData.varchiveUserInfo.nickname !== ''
+                      ? `${userData.varchiveUserInfo.nickname}`
                       : 'Guest'}
                     님 환영합니다.
                   </span>
-                  <span className='tw-text-lg'>
+                  <span className='tw:text-lg'>
                     <KeyModeSelector />
                   </span>
                 </div>
               </div>
 
               {/* 패널들 - 래퍼 제거하고 직접 배치 */}
-              <div className='tw-flex tw-gap-4 stats-section'>
-                <div className='tw-flex tw-flex-col tw-gap-4 tw-w-3/5'>
+              <div className='tw:flex tw:gap-4 stats-section'>
+                <div className='tw:flex tw:flex-col tw:gap-4 tw:w-3/5'>
                   {/* Button Mode Panel */}
-                  <div className='tw-flex tw-flex-col tw-gap-4'>
-                    <div className='tw-flex tw-justify-between tw-items-end tw-bg-gray-800 tw-bg-opacity-75 tw-rounded-lg tw-shadow-lg tw-p-4'>
-                      <span className='tw-flex tw-w-full tw-items-center tw-gap-1'>
-                        <span className='tw-text-xl tw-font-bold tw-me-auto'>
+                  <div className='tw:flex tw:flex-col tw:gap-4'>
+                    <div className='tw:flex tw:justify-between tw:items-end tw:bg-white tw:dark:bg-slate-800 tw:bg-opacity-75 tw:dark:bg-opacity-75 tw:rounded-lg tw:shadow-lg tw:p-4 tw:border tw:border-gray-200 tw:dark:border-slate-700'>
+                      <span className='tw:flex tw:w-full tw:items-center tw:gap-1'>
+                        <span className='tw:text-xl tw:font-bold tw:me-auto tw:text-gray-900 tw:dark:text-white'>
                           {selectedKeyMode}B 통계
                         </span>
-                        <span className='tw-text-lg tw-font-bold'>
+                        <span
+                          className={`tw:text-lg tw:font-bold ${getTierByScore(tierScores[selectedKeyMode].tierScore).color}`}
+                        >
                           {String(tierScores[selectedKeyMode].tier).toUpperCase()}
                         </span>
                       </span>
                     </div>
 
                     {/* 통계 정보 */}
-                    <div className='tw-bg-gray-800 tw-bg-opacity-75 tw-rounded-lg tw-p-4'>
+                    <div className='tw:bg-white tw:dark:bg-slate-800 tw:bg-opacity-75 tw:dark:bg-opacity-75 tw:rounded-lg tw:p-4 tw:border tw:border-gray-200 tw:dark:border-slate-700'>
                       {/* 상단 통계 요약 */}
-                      <div className='tw-grid tw-grid-cols-7 tw-gap-2 tw-mb-8'>
+                      <div className='tw:grid tw:grid-cols-7 tw:gap-2 tw:mb-8'>
                         {[
-                          { key: 'clear', label: '클리어', color: 'tw-text-blue-500' },
-
-                          { key: 'perfect', label: '퍼펙트', color: 'tw-text-red-500' },
-                          { key: 'over999', label: '99.9%+', color: 'tw-text-yellow-500' },
-                          { key: 'over995', label: '99.5%+', color: 'tw-text-yellow-400' },
-                          { key: 'over99', label: '99.0%+', color: 'tw-text-yellow-300' },
-                          { key: 'over97', label: '97.0%+', color: 'tw-text-yellow-200' },
-                          { key: 'maxCombo', label: '맥스 콤보', color: 'tw-text-green-500' },
-                        ].map(({ key, label, color }) => (
+                          {
+                            key: 'clear',
+                            label: '클리어',
+                            color: 'tw:text-blue-600 tw:dark:text-blue-500',
+                            bg: 'tw:bg-blue-50 tw:dark:bg-blue-500/20',
+                          },
+                          {
+                            key: 'perfect',
+                            label: '퍼펙트',
+                            color: 'tw:text-red-600 tw:dark:text-red-500',
+                            bg: 'tw:bg-red-50 tw:dark:bg-red-500/20',
+                          },
+                          {
+                            key: 'over999',
+                            label: '99.9%+',
+                            color: 'tw:text-yellow-600 tw:dark:text-yellow-500',
+                            bg: 'tw:bg-yellow-50 tw:dark:bg-yellow-500/20',
+                          },
+                          {
+                            key: 'over995',
+                            label: '99.5%+',
+                            color: 'tw:text-yellow-500 tw:dark:text-yellow-400',
+                            bg: 'tw:bg-yellow-50 tw:dark:bg-yellow-400/20',
+                          },
+                          {
+                            key: 'over99',
+                            label: '99.0%+',
+                            color: 'tw:text-yellow-400 tw:dark:text-yellow-300',
+                            bg: 'tw:bg-yellow-50 tw:dark:bg-yellow-300/20',
+                          },
+                          {
+                            key: 'over97',
+                            label: '97.0%+',
+                            color: 'tw:text-yellow-300 tw:dark:text-yellow-200',
+                            bg: 'tw:bg-yellow-50 tw:dark:bg-yellow-200/20',
+                          },
+                          {
+                            key: 'maxCombo',
+                            label: '맥스 콤보',
+                            color: 'tw:text-green-600 tw:dark:text-green-500',
+                            bg: 'tw:bg-green-50 tw:dark:bg-green-500/20',
+                          },
+                        ].map(({ key, label, color, bg }) => (
                           <div
                             key={key}
-                            className='tw-text-center tw-p-3 tw-bg-gray-500 tw-bg-opacity-25 tw-rounded-lg'
+                            className={`tw:text-center tw:p-3 ${bg} tw:rounded-lg tw:transition-all tw:duration-300 hover:tw:shadow-md`}
                           >
-                            <div className={`tw-text-lg tw-font-bold ${color}`}>
+                            <div className={`tw:text-lg tw:font-bold ${color}`}>
                               {calculateStats(keyModeData[selectedKeyMode])[key]}
                             </div>
-                            <div className='tw-text-xs tw-text-gray-400'>{label}</div>
+                            <div className='tw:text-xs tw:text-gray-500 tw:dark:text-slate-300'>
+                              {label}
+                            </div>
                           </div>
                         ))}
                       </div>
 
                       {/* 도넛 차트 */}
-                      <div className='tw-relative tw-w-full tw-h-44 tw-flex tw-items-center tw-justify-center'>
-                        <div className='tw-flex tw-justify-between tw-w-full tw-h-full'>
+                      <div className='tw:relative tw:w-full tw:h-44 tw:flex tw:items-center tw:justify-center'>
+                        <div className='tw:flex tw:justify-between tw:w-full tw:h-full'>
                           {/* 차트 1: 클리어 / 미클리어 */}
-                          <div className='tw-relative tw-w-1/3 tw-flex tw-items-center tw-justify-center'>
+                          <div className='tw:relative tw:w-1/3 tw:flex tw:items-center tw:justify-center'>
                             {/* 도넛 차트 안에 정보 표시 */}
-                            <div className='tw-absolute tw-top-1/2 tw-left-1/2 tw-transform -tw-translate-x-1/2 -tw-translate-y-1/2 tw-text-center tw-w-[88px] tw-h-[88px] tw-bg-gray-500 tw-bg-opacity-25 tw-rounded-full tw-flex tw-flex-col tw-justify-center tw-items-center tw-z-0'>
-                              <div className='tw-text-lg tw-font-bold'>
+                            <div className='tw:absolute tw:text-center tw:w-[88px] tw:h-[88px] tw:bg-gray-100 tw:dark:bg-slate-700/50 tw:rounded-full tw:flex tw:flex-col tw:justify-center tw:items-center tw:z-0 tw:shadow-inner'>
+                              <div className='tw:text-lg tw:font-bold tw:text-gray-900 tw:dark:text-white'>
                                 {calculateStats(keyModeData[selectedKeyMode]).total}
                               </div>
-                              <div className='tw-text-xs tw-text-gray-300'>전체</div>
+                              <div className='tw:text-xs tw:text-gray-500 tw:dark:text-slate-300'>
+                                전체
+                              </div>
                             </div>
-                            <div className='tw-relative tw-z-1'>
+                            <div className='tw:relative tw:z-1'>
                               <Doughnut
                                 data={{
                                   labels: ['클리어', '미클리어(기록 없음)'],
@@ -851,6 +869,12 @@ export default function DjmaxHomeComponent() {
                                   plugins: {
                                     legend: { display: false },
                                     tooltip: {
+                                      titleFont: {
+                                        family: 'SUITE Variable',
+                                      },
+                                      bodyFont: {
+                                        family: 'SUITE Variable',
+                                      },
                                       callbacks: {
                                         label: (context: any) => {
                                           const label = context.label || ''
@@ -866,15 +890,17 @@ export default function DjmaxHomeComponent() {
                           </div>
 
                           {/* 차트 3: 퍼펙트 점수 구간 (클리어한 것만) */}
-                          <div className='tw-relative tw-w-1/3 tw-flex tw-items-center tw-justify-center'>
+                          <div className='tw:relative tw:w-1/3 tw:flex tw:items-center tw:justify-center'>
                             {/* 도넛 차트 안에 정보 표시 */}
-                            <div className='tw-absolute tw-top-1/2 tw-left-1/2 tw-transform -tw-translate-x-1/2 -tw-translate-y-1/2 tw-text-center tw-w-[88px] tw-h-[88px] tw-bg-gray-500 tw-bg-opacity-25 tw-rounded-full tw-flex tw-flex-col tw-justify-center tw-items-center tw-z-0'>
-                              <div className='tw-text-lg tw-font-bold'>
-                                {calculateStats(keyModeData[selectedKeyMode]).clear}
+                            <div className='tw:absolute tw:text-center tw:w-[88px] tw:h-[88px] tw:bg-gray-100 tw:dark:bg-slate-700/50 tw:rounded-full tw:flex tw:flex-col tw:justify-center tw:items-center tw:z-0 tw:shadow-inner'>
+                              <div className='tw:text-lg tw:font-bold tw:text-gray-900 tw:dark:text-white'>
+                                {calculateStats(keyModeData[selectedKeyMode]).maxCombo}
                               </div>
-                              <div className='tw-text-xs tw-text-gray-300'>클리어</div>
+                              <div className='tw:text-xs tw:text-gray-500 tw:dark:text-slate-300'>
+                                맥스 콤보
+                              </div>
                             </div>
-                            <div className='tw-relative tw-z-1'>
+                            <div className='tw:relative tw:z-1'>
                               <Doughnut
                                 data={{
                                   labels: [
@@ -923,6 +949,12 @@ export default function DjmaxHomeComponent() {
                                   plugins: {
                                     legend: { display: false },
                                     tooltip: {
+                                      titleFont: {
+                                        family: 'SUITE Variable',
+                                      },
+                                      bodyFont: {
+                                        family: 'SUITE Variable',
+                                      },
                                       callbacks: {
                                         label: (context: any) => {
                                           const label = context.label || ''
@@ -938,15 +970,17 @@ export default function DjmaxHomeComponent() {
                           </div>
 
                           {/* 차트 2: 퍼펙트 or 풀콤보 / 해당되지 않는 것 (클리어한 것만) */}
-                          <div className='tw-relative tw-w-1/3 tw-flex tw-items-center tw-justify-center'>
+                          <div className='tw:relative tw:w-1/3 tw:flex tw:items-center tw:justify-center'>
                             {/* 도넛 차트 안에 정보 표시 */}
-                            <div className='tw-absolute tw-top-1/2 tw-left-1/2 tw-transform -tw-translate-x-1/2 -tw-translate-y-1/2 tw-text-center tw-w-[88px] tw-h-[88px] tw-bg-gray-500 tw-bg-opacity-25 tw-rounded-full tw-flex tw-flex-col tw-justify-center tw-items-center tw-z-0'>
-                              <div className='tw-text-lg tw-font-bold'>
+                            <div className='tw:absolute tw:text-center tw:w-[88px] tw:h-[88px] tw:bg-gray-100 tw:dark:bg-slate-700/50 tw:rounded-full tw:flex tw:flex-col tw:justify-center tw:items-center tw:z-0 tw:shadow-inner'>
+                              <div className='tw:text-lg tw:font-bold tw:text-gray-900 tw:dark:text-white'>
                                 {calculateStats(keyModeData[selectedKeyMode]).maxCombo}
                               </div>
-                              <div className='tw-text-xs tw-text-gray-300'>맥스 콤보</div>
+                              <div className='tw:text-xs tw:text-gray-500 tw:dark:text-slate-300'>
+                                맥스 콤보
+                              </div>
                             </div>
-                            <div className='tw-relative tw-z-1'>
+                            <div className='tw:relative tw:z-1'>
                               <Doughnut
                                 data={{
                                   labels: ['맥스 콤보', '맥스 콤보 외 클리어'],
@@ -976,6 +1010,12 @@ export default function DjmaxHomeComponent() {
                                   plugins: {
                                     legend: { display: false },
                                     tooltip: {
+                                      titleFont: {
+                                        family: 'SUITE Variable',
+                                      },
+                                      bodyFont: {
+                                        family: 'SUITE Variable',
+                                      },
                                       callbacks: {
                                         label: (context: any) => {
                                           const label = context.label || ''
@@ -991,24 +1031,24 @@ export default function DjmaxHomeComponent() {
                           </div>
                         </div>
                       </div>
-                      <div className='tw-flex tw-flex-col tw-justify-center tw-items-center tw-gap-1 tw-text-xs tw-rounded-lg tw-mt-8'>
-                        <div className='tw-flex tw-justify-center tw-gap-1 tw-w-full'>
-                          <span className='tw-p-1 tw-px-4 tw-bg-gray-500 tw-bg-opacity-25 tw-rounded-md tw-font-extrabold tw-text-green-500'>
+                      <div className='tw:flex tw:flex-col tw:justify-center tw:items-center tw:gap-1 tw:text-xs tw:rounded-lg tw:mt-8 tw:text-center'>
+                        <div className='tw:flex tw:justify-center tw:gap-1 tw:w-full'>
+                          <span className='tw:p-1 tw:px-4 tw:bg-green-50 tw:dark:bg-green-500/20 tw:rounded-md tw:font-extrabold tw:text-green-600 tw:dark:text-green-500'>
                             NEW 30
                           </span>
-                          <span className='tw-p-1 tw-px-4 tw-bg-gray-500 tw-bg-opacity-25 tw-rounded-md tw-text-white'>
+                          <span className='tw:p-1 tw:px-4 tw:bg-gray-100 tw:dark:bg-slate-700/50 tw:rounded-md tw:text-gray-900 tw:dark:text-white'>
                             {cutoffScores[selectedKeyMode]?.new30.toFixed(3)} DP
                           </span>
-                          <span className='tw-p-1 tw-px-4 tw-bg-gray-500 tw-bg-opacity-25 tw-rounded-md tw-font-extrabold tw-text-yellow-500'>
+                          <span className='tw:p-1 tw:px-4 tw:bg-yellow-50 tw:dark:bg-yellow-500/20 tw:rounded-md tw:font-extrabold tw:text-yellow-600 tw:dark:text-yellow-500'>
                             BASIC 70
                           </span>
-                          <span className='tw-p-1 tw-px-4 tw-bg-gray-500 tw-bg-opacity-25 tw-rounded-md tw-text-white'>
+                          <span className='tw:p-1 tw:px-4 tw:bg-gray-100 tw:dark:bg-slate-700/50 tw:rounded-md tw:text-gray-900 tw:dark:text-white'>
                             {cutoffScores[selectedKeyMode]?.basic70.toFixed(3)} DP
                           </span>
-                          <span className='tw-p-1 tw-px-4 tw-bg-gray-500 tw-bg-opacity-25 tw-rounded-md tw-font-extrabold tw-text-red-500'>
+                          <span className='tw:p-1 tw:px-4 tw:bg-red-50 tw:dark:bg-red-500/20 tw:rounded-md tw:font-extrabold tw:text-red-600 tw:dark:text-red-500'>
                             TOP 50
                           </span>
-                          <span className='tw-p-1 tw-px-4 tw-bg-gray-500 tw-bg-opacity-25 tw-rounded-md tw-text-white'>
+                          <span className='tw:p-1 tw:px-4 tw:bg-gray-100 tw:dark:bg-slate-700/50 tw:rounded-md tw:text-gray-900 tw:dark:text-white'>
                             {cutoffScores[selectedKeyMode]?.top50.toFixed(3)} TP
                           </span>
                         </div>
@@ -1017,51 +1057,91 @@ export default function DjmaxHomeComponent() {
                   </div>
 
                   {/* Total Overall Panel */}
-                  <div className='tw-flex tw-flex-col tw-gap-4'>
-                    <div className='tw-bg-gray-800 tw-bg-opacity-75 tw-flex tw-justify-between tw-items-end tw-rounded-lg tw-p-4'>
-                      <div className='tw-flex tw-flex-col'>
-                        <span className='tw-text-xl tw-font-bold'>전체 통계</span>
+                  <div className='tw:flex tw:flex-col tw:gap-4'>
+                    <div className='tw:bg-white tw:dark:bg-slate-800 tw:bg-opacity-75 tw:flex tw:justify-between tw:items-end tw:rounded-lg tw:p-4 tw:border tw:border-gray-200 tw:dark:border-slate-700'>
+                      <div className='tw:flex tw:flex-col'>
+                        <span className='tw:text-xl tw:font-bold tw:text-gray-900 tw:dark:text-white'>
+                          전체 통계
+                        </span>
                       </div>
                     </div>
 
-                    <div className='tw-bg-gray-800 tw-bg-opacity-75 tw-rounded-lg tw-p-4 tw-pb-8'>
+                    <div className='tw:bg-white tw:dark:bg-slate-800 tw:bg-opacity-75 tw:dark:bg-opacity-75 tw:rounded-lg tw:p-4 tw:pb-8 tw:border tw:border-gray-200 tw:dark:border-slate-700'>
                       {/* 상단 통계 요약 */}
-                      <div className='tw-grid tw-grid-cols-7 tw-gap-2 tw-mb-8'>
+                      <div className='tw:grid tw:grid-cols-7 tw:gap-2 tw:mb-8'>
                         {[
-                          { key: 'clear', label: '클리어', color: 'tw-text-blue-500' },
-
-                          { key: 'perfect', label: '퍼펙트', color: 'tw-text-red-500' },
-                          { key: 'over999', label: '99.9%+', color: 'tw-text-yellow-500' },
-                          { key: 'over995', label: '99.5%+', color: 'tw-text-yellow-400' },
-                          { key: 'over99', label: '99.0%+', color: 'tw-text-yellow-300' },
-                          { key: 'over97', label: '97.0%+', color: 'tw-text-yellow-200' },
-                          { key: 'maxCombo', label: '맥스 콤보', color: 'tw-text-green-500' },
-                        ].map(({ key, label, color }) => (
+                          {
+                            key: 'clear',
+                            label: '클리어',
+                            color: 'tw:text-blue-600 tw:dark:text-blue-500',
+                            bg: 'tw:bg-blue-50 tw:dark:bg-blue-500/20',
+                          },
+                          {
+                            key: 'perfect',
+                            label: '퍼펙트',
+                            color: 'tw:text-red-600 tw:dark:text-red-500',
+                            bg: 'tw:bg-red-50 tw:dark:bg-red-500/20',
+                          },
+                          {
+                            key: 'over999',
+                            label: '99.9%+',
+                            color: 'tw:text-yellow-600 tw:dark:text-yellow-500',
+                            bg: 'tw:bg-yellow-50 tw:dark:bg-yellow-500/20',
+                          },
+                          {
+                            key: 'over995',
+                            label: '99.5%+',
+                            color: 'tw:text-yellow-500 tw:dark:text-yellow-400',
+                            bg: 'tw:bg-yellow-50 tw:dark:bg-yellow-400/20',
+                          },
+                          {
+                            key: 'over99',
+                            label: '99.0%+',
+                            color: 'tw:text-yellow-400 tw:dark:text-yellow-300',
+                            bg: 'tw:bg-yellow-50 tw:dark:bg-yellow-300/20',
+                          },
+                          {
+                            key: 'over97',
+                            label: '97.0%+',
+                            color: 'tw:text-yellow-300 tw:dark:text-yellow-200',
+                            bg: 'tw:bg-yellow-50 tw:dark:bg-yellow-200/20',
+                          },
+                          {
+                            key: 'maxCombo',
+                            label: '맥스 콤보',
+                            color: 'tw:text-green-600 tw:dark:text-green-500',
+                            bg: 'tw:bg-green-50 tw:dark:bg-green-500/20',
+                          },
+                        ].map(({ key, label, color, bg }) => (
                           <div
                             key={key}
-                            className='tw-text-center tw-p-3 tw-bg-gray-500 tw-bg-opacity-25 tw-rounded-lg'
+                            className={`tw:text-center tw:p-3 ${bg} tw:rounded-lg tw:transition-all tw:duration-300 hover:tw:shadow-md`}
                           >
-                            <div className={`tw-text-lg tw-font-bold ${color}`}>
+                            <div className={`tw:text-lg tw:font-bold ${color}`}>
                               {totalStats[key]}
                             </div>
-                            <div className='tw-text-xs tw-text-gray-400'>{label}</div>
+                            <div className='tw:text-xs tw:text-gray-500 tw:dark:text-slate-300'>
+                              {label}
+                            </div>
                           </div>
                         ))}
                       </div>
 
                       {/* 도넛 차트 */}
-                      <div className='tw-relative tw-w-full tw-h-44 tw-flex tw-items-center tw-justify-center'>
-                        <div className='tw-flex tw-justify-between tw-w-full tw-h-full'>
+                      <div className='tw:relative tw:w-full tw:h-44 tw:flex tw:items-center tw:justify-center'>
+                        <div className='tw:flex tw:justify-between tw:w-full tw:h-full'>
                           {/* 차트 1: 클리어 / 미클리어 */}
-                          <div className='tw-relative tw-w-1/3 tw-flex tw-items-center tw-justify-center'>
+                          <div className='tw:relative tw:w-1/3 tw:flex tw:items-center tw:justify-center'>
                             {/* 도넛 차트 안에 정보 표시 */}
-                            <div className='tw-absolute tw-top-1/2 tw-left-1/2 tw-transform -tw-translate-x-1/2 -tw-translate-y-1/2 tw-text-center tw-w-[88px] tw-h-[88px] tw-bg-gray-500 tw-bg-opacity-25 tw-rounded-full tw-flex tw-flex-col tw-justify-center tw-items-center tw-z-0'>
-                              <div className='tw-text-lg tw-font-bold'>
-                                {totalStats.totalPatterns}
+                            <div className='tw:absolute tw:text-center tw:w-[88px] tw:h-[88px] tw:bg-gray-100 tw:dark:bg-slate-700/50 tw:rounded-full tw:flex tw:flex-col tw:justify-center tw:items-center tw:z-0 tw:shadow-inner'>
+                              <div className='tw:text-lg tw:font-bold tw:text-gray-900 tw:dark:text-white'>
+                                {totalStats.clear}
                               </div>
-                              <div className='tw-text-xs tw-text-gray-300'>전체</div>
+                              <div className='tw:text-xs tw:text-gray-500 tw:dark:text-slate-300'>
+                                클리어
+                              </div>
                             </div>
-                            <div className='tw-relative tw-z-1'>
+                            <div className='tw:relative tw:z-1'>
                               <Doughnut
                                 data={{
                                   labels: ['클리어', '미클리어(기록 없음)'],
@@ -1091,6 +1171,12 @@ export default function DjmaxHomeComponent() {
                                   plugins: {
                                     legend: { display: false },
                                     tooltip: {
+                                      titleFont: {
+                                        family: 'SUITE Variable',
+                                      },
+                                      bodyFont: {
+                                        family: 'SUITE Variable',
+                                      },
                                       callbacks: {
                                         label: (context: any) => {
                                           const label = context.label || ''
@@ -1106,13 +1192,17 @@ export default function DjmaxHomeComponent() {
                           </div>
 
                           {/* 차트 3: 퍼펙트 점수 구간 (클리어한 것만) */}
-                          <div className='tw-relative tw-w-1/3 tw-flex tw-items-center tw-justify-center'>
+                          <div className='tw:relative tw:w-1/3 tw:flex tw:items-center tw:justify-center'>
                             {/* 도넛 차트 안에 정보 표시 */}
-                            <div className='tw-absolute tw-top-1/2 tw-left-1/2 tw-transform -tw-translate-x-1/2 -tw-translate-y-1/2 tw-text-center tw-w-[88px] tw-h-[88px] tw-bg-gray-500 tw-bg-opacity-25 tw-rounded-full tw-flex tw-flex-col tw-justify-center tw-items-center tw-z-0'>
-                              <div className='tw-text-lg tw-font-bold'>{totalStats.clear}</div>
-                              <div className='tw-text-xs tw-text-gray-300'>클리어</div>
+                            <div className='tw:absolute tw:text-center tw:w-[88px] tw:h-[88px] tw:bg-gray-100 tw:dark:bg-slate-700/50 tw:rounded-full tw:flex tw:flex-col tw:justify-center tw:items-center tw:z-0 tw:shadow-inner'>
+                              <div className='tw:text-lg tw:font-bold tw:text-gray-900 tw:dark:text-white'>
+                                {totalStats.maxCombo}
+                              </div>
+                              <div className='tw:text-xs tw:text-gray-500 tw:dark:text-slate-300'>
+                                맥스 콤보
+                              </div>
                             </div>
-                            <div className='tw-relative tw-z-1'>
+                            <div className='tw:relative tw:z-1'>
                               <Doughnut
                                 data={{
                                   labels: [
@@ -1160,6 +1250,12 @@ export default function DjmaxHomeComponent() {
                                   plugins: {
                                     legend: { display: false },
                                     tooltip: {
+                                      titleFont: {
+                                        family: 'SUITE Variable',
+                                      },
+                                      bodyFont: {
+                                        family: 'SUITE Variable',
+                                      },
                                       callbacks: {
                                         label: (context: any) => {
                                           const label = context.label || ''
@@ -1175,13 +1271,17 @@ export default function DjmaxHomeComponent() {
                           </div>
 
                           {/* 차트 2: 퍼펙트 or 풀콤보 / 해당되지 않는 것 (클리어한 것만) */}
-                          <div className='tw-relative tw-w-1/3 tw-flex tw-items-center tw-justify-center'>
+                          <div className='tw:relative tw:w-1/3 tw:flex tw:items-center tw:justify-center'>
                             {/* 도넛 차트 안에 정보 표시 */}
-                            <div className='tw-absolute tw-top-1/2 tw-left-1/2 tw-transform -tw-translate-x-1/2 -tw-translate-y-1/2 tw-text-center tw-w-[88px] tw-h-[88px] tw-bg-gray-500 tw-bg-opacity-25 tw-rounded-full tw-flex tw-flex-col tw-justify-center tw-items-center tw-z-0'>
-                              <div className='tw-text-lg tw-font-bold'>{totalStats.maxCombo}</div>
-                              <div className='tw-text-xs tw-text-gray-300'>맥스 콤보</div>
+                            <div className='tw:absolute tw:text-center tw:w-[88px] tw:h-[88px] tw:bg-gray-100 tw:dark:bg-slate-700/50 tw:rounded-full tw:flex tw:flex-col tw:justify-center tw:items-center tw:z-0 tw:shadow-inner'>
+                              <div className='tw:text-lg tw:font-bold tw:text-gray-900 tw:dark:text-white'>
+                                {totalStats.maxCombo}
+                              </div>
+                              <div className='tw:text-xs tw:text-gray-500 tw:dark:text-slate-300'>
+                                맥스 콤보
+                              </div>
                             </div>
-                            <div className='tw-relative tw-z-1'>
+                            <div className='tw:relative tw:z-1'>
                               <Doughnut
                                 data={{
                                   labels: ['맥스 콤보', '맥스 콤보 외 클리어'],
@@ -1210,6 +1310,12 @@ export default function DjmaxHomeComponent() {
                                   plugins: {
                                     legend: { display: false },
                                     tooltip: {
+                                      titleFont: {
+                                        family: 'SUITE Variable',
+                                      },
+                                      bodyFont: {
+                                        family: 'SUITE Variable',
+                                      },
                                       callbacks: {
                                         label: (context: any) => {
                                           const label = context.label || ''
@@ -1230,9 +1336,9 @@ export default function DjmaxHomeComponent() {
                 </div>
 
                 {/* 최고 성과 패널 */}
-                <div className='tw-w-2/5'>
-                  <div className='tw-flex tw-flex-col tw-gap-4 tw-bg-gray-800 tw-bg-opacity-75 tw-rounded-lg tw-shadow-lg tw-p-4'>
-                    <span className='tw-text-lg tw-font-bold'>
+                <div className='tw:w-2/5'>
+                  <div className='tw:flex tw:flex-col tw:gap-4 tw:bg-white tw:dark:bg-slate-800 tw:bg-opacity-75 tw:dark:bg-opacity-75 tw:rounded-lg tw:shadow-lg tw:p-4 tw:border tw:border-gray-200 tw:dark:border-slate-700'>
+                    <span className='tw:text-lg tw:font-bold tw:text-gray-900 tw:dark:text-white'>
                       🎯 {selectedKeyMode}B 최고 성과 기록
                     </span>
                     {!isLoading && keyModeData[selectedKeyMode] && (
@@ -1241,7 +1347,7 @@ export default function DjmaxHomeComponent() {
                         initial={{ opacity: 0, x: 10 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.2 }}
-                        className='tw-flex tw-flex-col tw-gap-2'
+                        className='tw:flex tw:flex-col tw:gap-2'
                       >
                         {Object.entries({
                           maxCombo: '맥스 콤보',
@@ -1291,19 +1397,21 @@ export default function DjmaxHomeComponent() {
                           if (!highestPattern) return null
 
                           return (
-                            <div key={`${key}_${selectedKeyMode}`} className='tw-flex tw-gap-2'>
+                            <div key={`${key}_${selectedKeyMode}`} className='tw:flex tw:gap-2'>
                               <ScorePopupComponent
-                                songItemTitle={String(highestPattern.title)}
+                                songTitle={highestPattern.title}
                                 keyMode={selectedKeyMode}
                               />
-                              <div className='tw-flex tw-flex-col tw-gap-1 tw-bg-gray-500 tw-bg-opacity-25 tw-rounded-md tw-p-3 tw-flex-1'>
-                                <div className='tw-flex tw-justify-between tw-items-center'>
-                                  <span className='tw-text-sm tw-font-bold'>{label}</span>
-                                  <span className='tw-text-sm tw-font-extrabold'>
+                              <div className='tw:flex tw:flex-col tw:gap-1 tw:bg-gray-100 tw:dark:bg-slate-700/50 tw:rounded-md tw:p-3 tw:flex-1 tw:border tw:border-gray-200 tw:dark:border-slate-600'>
+                                <div className='tw:flex tw:justify-between tw:items-center'>
+                                  <span className='tw:text-sm tw:font-bold tw:text-gray-900 tw:dark:text-white'>
+                                    {label}
+                                  </span>
+                                  <span className='tw:text-sm tw:font-extrabold'>
                                     {getLevelDisplay(highestPattern)}
                                   </span>
                                 </div>
-                                <p className='tw-text-sm tw-text-gray-400 tw-break-all tw-max-w-full'>
+                                <p className='tw:text-sm tw:text-gray-500 tw:dark:text-slate-300 tw:break-all tw:max-w-full'>
                                   {highestPattern.name}
                                 </p>
                               </div>
@@ -1316,13 +1424,11 @@ export default function DjmaxHomeComponent() {
                 </div>
               </div>
 
-              <div className='tw-flex tw-gap-4'></div>
+              <div id='ContentFooter' />
             </motion.div>
           )}
         </>
       )}
-
-      <div id='ContentFooter' />
-    </React.Fragment>
+    </>
   )
 }

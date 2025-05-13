@@ -1,5 +1,6 @@
 import { RootState } from '@render/store'
 import { setIsSetting, setIsTrackMaker, setSelectedGame } from '@render/store/slices/appSlice'
+import { setSidebarCollapsed } from '@render/store/slices/uiSlice'
 import type { GameType } from '@src/types/games/GameType'
 import { AnimatePresence, motion } from 'framer-motion'
 import React, { useState } from 'react'
@@ -48,6 +49,7 @@ const IconSidebar: React.FC = () => {
         } else {
           // 선택되지 않은 경우 게임 선택
           handleGameSelect('djmax_respect_v')
+          dispatch(setSidebarCollapsed(false))
         }
         navigate('/home')
       },
@@ -66,6 +68,7 @@ const IconSidebar: React.FC = () => {
         } else {
           // 선택되지 않은 경우 게임 선택
           handleGameSelect('wjmax')
+          dispatch(setSidebarCollapsed(false))
         }
         navigate('/home')
       },
@@ -75,7 +78,14 @@ const IconSidebar: React.FC = () => {
       tooltip: 'PLATiNA :: LAB',
       iconUrl: `${import.meta.env.VITE_CDN_URL}/platina_lab/new_logo.png`,
       onClick: () => {
-        handleGameSelect('platina_lab')
+        if (selectedGame === 'platina_lab') {
+          // 이미 선택된 경우 로고만 변경
+          // setPlatinaLabLogoIndex((prev) => (prev + 1) % platinaLabLogos.length)
+        } else {
+          // 선택되지 않은 경우 게임 선택
+          handleGameSelect('platina_lab')
+          dispatch(setSidebarCollapsed(false))
+        }
         navigate('/home')
       },
     },

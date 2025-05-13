@@ -311,6 +311,10 @@ main {
   -webkit-app-region: none;
 }
 
+button {
+  cursor: pointer;
+}
+
 .record .pattern {
   position: absolute;
   right: 0px;
@@ -1366,6 +1370,18 @@ main {
 
 .font-platina_lab {
   font-family: 'SUITE Variable', sans-serif;
+}
+
+.font-gg {
+  font-family: 'Gyeonggi', sans-serif !important;
+}
+
+.font-suite {
+  font-family: 'SUITE Variable', sans-serif !important;
+}
+
+.font-omp {
+  font-family: 'ONE-Mobile-POP', sans-serif !important;
 }
 
 .webkit-app-region-drag {

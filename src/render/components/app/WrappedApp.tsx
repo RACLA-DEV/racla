@@ -6,6 +6,7 @@ import { GameType } from '@src/types/games/GameType'
 import { SongData } from '@src/types/games/SongData'
 import { SessionData } from '@src/types/sessions/SessionData'
 import React, { lazy, Suspense, useCallback, useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useDispatch, useSelector } from 'react-redux'
 import { Outlet, useLocation } from 'react-router-dom'
 import { v4 as uuidv4 } from 'uuid'
@@ -47,6 +48,7 @@ export default function WrappedApp() {
   const { logout } = useAuth()
   const [updateNotificationId, setUpdateNotificationId] = useState<string | null>(null)
   const [updateVersion, setUpdateVersion] = useState<string | null>(null)
+  const { i18n } = useTranslation()
   // 앱 초기화 상태를 추적하는 ref 추가
   const appInitialized = React.useRef(false)
 
@@ -506,6 +508,8 @@ export default function WrappedApp() {
                 settings,
               )
 
+              i18n.changeLanguage(settings.language)
+
               // 설정 로드 후 잠시 지연
               await new Promise((resolve) => setTimeout(resolve, 500))
             }
@@ -691,7 +695,7 @@ export default function WrappedApp() {
     if (isLoading && isOverlayPath) {
       dispatch(setIsLoading(false))
     }
-  }, [location.pathname])
+  }, [])
 
   useEffect(() => {
     const isTrackMakerPath =

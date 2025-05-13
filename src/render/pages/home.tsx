@@ -1,9 +1,10 @@
-import ScorePopupComponent from '@render/components/score/ScorePopup'
+import DjmaxHomeComponent from '@render/components/home/DjmaxSection'
 
 const HomePage = () => {
   return (
     <div>
-      <ScorePopupComponent songTitle={1} keyMode='4' />
+      <DjmaxHomeComponent />
+      {/* <ScorePopupComponent songTitle={1} keyMode='4' /> */}
     </div>
   )
 }

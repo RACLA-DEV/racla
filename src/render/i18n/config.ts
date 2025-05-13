@@ -22,24 +22,24 @@ export const defaultNS = 'common'
 i18next
   .use(initReactI18next)
   .init({
-    lng: 'ko', // if you're using a language detector, do not define the lng option
+    lng: 'ko_KR', // if you're using a language detector, do not define the lng option
     debug: true,
     resources: {
-      ko: {
+      ko_KR: {
         common: ko_common,
         games: ko_games,
         menu: ko_menu,
         settings: ko_settings,
         languages: ko_languages,
       },
-      en: {
+      en_US: {
         common: en_common,
         games: en_games,
         menu: en_menu,
         settings: en_settings,
         languages: en_languages,
       },
-      ja: {
+      ja_JP: {
         common: ja_common,
         games: ja_games,
         menu: ja_menu,

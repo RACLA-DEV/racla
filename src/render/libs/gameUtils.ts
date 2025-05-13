@@ -29,6 +29,7 @@ export const getScoreDisplayText = (
   gameType: GameType = 'djmax_respect_v',
   pattern: PatternInfo,
 ): string => {
+  console.log(pattern)
   if (!pattern.score) return '0%(기록 미존재)'
 
   if (Number(pattern.score) === 0) return '0%(기록 미존재)'
@@ -50,6 +51,10 @@ export const getScoreDisplayText = (
   }
 }
 
-export const getDifficultyColor = (gameType: GameType, difficultyType: string): string => {
+export const getDifficultyBgColor = (gameType: GameType, difficultyType: string): string => {
+  return `bg-${gameType}-${difficultyType}`
+}
+
+export const getDifficultyTextColor = (gameType: GameType, difficultyType: string): string => {
   return `text-${gameType}-${difficultyType}`
 }

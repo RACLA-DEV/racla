@@ -1,7 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { BrowserWindow, Menu, Tray, app, nativeImage } from 'electron'
 import * as path from 'path'
-import { FileManagerService } from '../file-manager/file-manager.service'
 
 @Injectable()
 export class MainWindowService {
@@ -9,7 +8,7 @@ export class MainWindowService {
   private tray: Tray | null = null
   private readonly logger = new Logger(MainWindowService.name)
 
-  constructor(private readonly fileManagerService: FileManagerService) {
+  constructor() {
     this.mainWindow = BrowserWindow.getAllWindows()[0]
     this.setupTray()
   }
@@ -36,20 +35,17 @@ export class MainWindowService {
       this.tray = new Tray(trayIcon)
 
       // 툴팁 설정
-      const settings = this.fileManagerService.loadSettings()
-      this.tray.setToolTip(
-        settings.language === 'ko_KR' ? 'RACLA 데스크톱 앱' : 'RACLA for Desktop',
-      )
+      this.tray.setToolTip('RACLA for Desktop')
 
       // 컨텍스트 메뉴 설정
       const contextMenu = Menu.buildFromTemplate([
         {
-          label: settings.language === 'ko_KR' ? 'RACLA 데스크톱 앱' : 'RACLA for Desktop',
+          label: 'RACLA for Desktop',
           enabled: false, // 클릭 불가능한 텍스트로 설정
         },
         { type: 'separator' }, // 구분선 추가
         {
-          label: settings.language === 'ko_KR' ? '앱 열기' : 'Open App',
+          label: 'Open',
           click: () => {
             if (!this.mainWindow.isVisible()) {
               this.mainWindow.show()
@@ -57,7 +53,7 @@ export class MainWindowService {
           },
         },
         {
-          label: settings.language === 'ko_KR' ? '종료' : 'Exit',
+          label: 'Exit',
           click: () => {
             if (this.mainWindow) {
               // 트레이에서 종료 시 hideToTray 설정 무시하고 완전히 종료
