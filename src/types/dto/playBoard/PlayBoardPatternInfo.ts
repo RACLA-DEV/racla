@@ -1,0 +1,35 @@
+export interface PlayBoardPatternInfo {
+  title: number
+  name: string
+  composer?: string
+  pattern: string
+  score: number
+  maxCombo: boolean
+  djpower?: number
+  rating?: number
+  dlcCode: string
+  dlc: string
+  artist?: string
+  arranger?: string
+  lyricist?: string
+  vocal?: string
+  featuring?: string
+  genre?: string
+  visualizer?: string
+  license?: string
+  bpmLow?: number
+  bpm?: number
+  bgaUrl?: string
+  tag?: string
+  search?: string
+  time?: number
+  folderName?: string
+  jacketFileName?: string
+  bgFileName?: string
+  bgaFileName?: string
+  bgaPreviewFileName?: string
+  audioFileName?: string
+  mediaEditor?: string
+  level?: number
+  officialCode?: string
+}

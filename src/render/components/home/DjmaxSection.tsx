@@ -6,7 +6,7 @@ import { ArcElement, Chart as ChartJS, Legend, Tooltip } from 'chart.js'
 import { motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
 import { Doughnut } from 'react-chartjs-2'
-import { useDispatch, useSelector } from 'react-redux'
+import { useSelector } from 'react-redux'
 import { PuffLoader } from 'react-spinners'
 import apiClient from '../../../libs/apiClient'
 import ScorePopupComponent from '../score/ScorePopup'
@@ -29,16 +29,11 @@ interface Pattern {
   board: number
 }
 
-interface BoardData {
-  [key: string]: Pattern[]
-}
-
 interface KeyModeData {
   [keyMode: string]: Pattern[]
 }
 
 export default function DjmaxHomeComponent() {
-  const dispatch = useDispatch()
   const userData = useSelector((state: RootState) => state.app.userData)
   const selectedGame = useSelector((state: RootState) => state.app.selectedGame)
   const songData = useSelector((state: RootState) => state.app.songData)
@@ -60,7 +55,7 @@ export default function DjmaxHomeComponent() {
     over97: 0,
   })
 
-  const [boards, setBoards] = useState<string[]>([
+  const [boards] = useState<string[]>([
     '1',
     '2',
     '3',
@@ -227,7 +222,7 @@ export default function DjmaxHomeComponent() {
   }, [userData.varchiveUserInfo.nickname])
 
   useEffect(() => {
-    console.log('KeyMode Data:', keyModeData)
+    createLog('debug', 'KeyMode Data:', keyModeData)
   }, [keyModeData])
 
   useEffect(() => {
@@ -282,11 +277,6 @@ export default function DjmaxHomeComponent() {
     setTotalStats(stats)
   }, [keyModeData]) // keyModeData가 변경될 때마다 전체 통계 다시 계산
 
-  const calculateProgress = (value: number, total: number) => {
-    if (total === 0) return 0
-    return (value / total) * 100
-  }
-
   const getTierByScore = (score: number) => {
     const tierInfo = {
       9950: { name: 'Grand Master', color: 'tw:text-indigo-600 tw:dark:text-indigo-400' },
@@ -334,16 +324,6 @@ export default function DjmaxHomeComponent() {
     const nearestTierScore = tierScores.find((tierScore) => score >= tierScore) ?? 0
 
     return tierInfo[nearestTierScore]
-  }
-
-  const calculateKeyModeTier = (patterns: Pattern[], maxScore: number) => {
-    const top50Ratings = patterns
-      .sort((a, b) => b.rating - a.rating)
-      .slice(0, 50)
-      .reduce((sum, pattern) => sum + pattern.rating, 0)
-
-    const tierScore = Math.floor((top50Ratings / maxScore) * 10000)
-    return getTierByScore(tierScore)
   }
 
   // 키모드별 만점 점수 설정
@@ -397,96 +377,6 @@ export default function DjmaxHomeComponent() {
     return '난이도 정보 없음'
   }
 
-  // 별 렌더링 함수 수정
-  const renderStars = (pattern: Pattern) => {
-    // 별 이미지 선택 함수
-    const getStarImage = (starCount: number, isSC: boolean) => {
-      const prefix = isSC ? 'sc' : 'nm'
-      // 1-5: 5_star, 6-10: 10_star, 11-15: 15_star
-      if (starCount <= 5) {
-        return `${prefix}_5_star.png`
-      } else if (starCount <= 10) {
-        return `${prefix}_10_star.png`
-      } else {
-        return `${prefix}_15_star.png`
-      }
-    }
-
-    // floor가 있는 경우 (큰별 + 작은별)
-    if (pattern.floor) {
-      const fullStars = Math.floor(pattern.floor)
-      const decimalPart = String(pattern.floor).includes('.')
-        ? parseInt(String(pattern.floor).split('.')[1])
-        : 0
-      const isSC = pattern.pattern.startsWith('SC')
-
-      return (
-        <div className='tw:flex tw:gap-1 tw:items-end'>
-          {/* 큰 별들을 5개씩 묶어서 다른 이미지 사용 */}
-          {[...Array(Math.ceil(fullStars / 5))].map((_, groupIndex) => {
-            const starsInGroup = Math.min(5, fullStars - groupIndex * 5)
-            const starImage = getStarImage((groupIndex + 1) * 5, isSC)
-
-            return [...Array(starsInGroup)].map((_, starIndex) => (
-              <img
-                key={`${pattern.title}_${pattern.pattern}_full_${groupIndex}_${starIndex}`}
-                src={`https://cdn.racla.app/djmax_respect_v/${starImage}`}
-                alt='star'
-                width={16}
-                height={16}
-                className='tw:w-4 tw:h-4'
-                loading='lazy'
-              />
-            ))
-          })}
-
-          {/* 작은 별 (소수점이 있는 경우) */}
-          {decimalPart > 0 &&
-            [...Array(decimalPart)].map((_, i) => (
-              <img
-                key={`${pattern.title}_${pattern.pattern}_small_${i}`}
-                src={`https://cdn.racla.app/djmax_respect_v/${getStarImage(Math.ceil(fullStars / 5) * 5, isSC)}`}
-                alt='small-star'
-                width={12}
-                height={12}
-                className='tw:w-3 tw:h-3'
-                loading='lazy'
-              />
-            ))}
-        </div>
-      )
-    }
-
-    // floor가 없는 경우 board 값으로 큰별만 표시
-    const boardLevel = parseInt(String(pattern.board).replace('SC', ''))
-    if (!isNaN(boardLevel)) {
-      const isSC = pattern.pattern.startsWith('SC')
-
-      return (
-        <div className='tw:flex tw:gap-1'>
-          {[...Array(Math.round(boardLevel / 5))].map((_, groupIndex) => {
-            const starsInGroup = Math.min(5, boardLevel - groupIndex * 5)
-            const starImage = getStarImage((groupIndex + 1) * 5, isSC)
-
-            return [...Array(starsInGroup)].map((_, starIndex) => (
-              <img
-                key={`${pattern.title}_${pattern.pattern}_board_${groupIndex}_${starIndex}`}
-                src={`https://cdn.racla.app/djmax_respect_v/${starImage}`}
-                alt='star'
-                width={16}
-                height={16}
-                className='tw:w-4 tw:h-4'
-                loading='lazy'
-              />
-            ))
-          })}
-        </div>
-      )
-    }
-
-    return null
-  }
-
   const getHighestLevelInfo = (patterns: Pattern[], condition: (pattern: Pattern) => boolean) => {
     // 조건에 맞는 패턴들만 터
     const filteredPatterns = patterns.filter(condition)
@@ -537,27 +427,6 @@ export default function DjmaxHomeComponent() {
     return updatedPatterns.sort(compareDifficulty)[0]
   }
 
-  const keyBoardTitle = {
-    1: 'Lv.1',
-    2: 'Lv.2',
-    3: 'Lv.3',
-    4: 'Lv.4',
-    5: 'Lv.5',
-    6: 'Lv.6',
-    7: 'Lv.7',
-    8: 'Lv.8',
-    9: 'Lv.9',
-    10: 'Lv.10',
-    11: 'Lv.11',
-    MX: 'Lv.12~15',
-    SC: 'SC',
-    SC5: 'SC~5',
-    SC10: 'SC~10',
-    SC15: 'SC~15',
-  }
-
-  const [randomHeaderBg, setRandomHeaderBg] = useState(Math.floor(Math.random() * 17) + 1)
-
   // board 페이지의 통계 계산 함수와 동일한 로직
   const calculateStats = (patterns: Pattern[]) => {
     const stats = {
@@ -604,18 +473,6 @@ export default function DjmaxHomeComponent() {
     })
 
     return stats
-  }
-
-  // 그래프 표시 부분 수정
-  const keyTitle = {
-    maxCombo: 'MAX COMBO',
-    perfect: 'PERFECT',
-    over999: 'OVER 99.9%',
-    over995: 'OVER 99.5%',
-    over99: 'OVER 99%',
-    over97: 'OVER 97%',
-    clear: 'CLEAR',
-    total: '전체',
   }
 
   // 티어 점수를 저장할 state 추가
@@ -732,11 +589,17 @@ export default function DjmaxHomeComponent() {
               {/* 헤더 섹션 */}
               <div className='tw:bg-white tw:dark:bg-slate-800 tw:bg-opacity-75 tw:dark:bg-opacity-75 tw:rounded-lg tw:shadow-lg tw:p-4 tw:mb-4 tw:border tw:border-gray-200 tw:dark:border-slate-700'>
                 <div className='tw:flex tw:justify-between tw:items-center'>
-                  <span className='tw:text-xl tw:font-bold tw:text-gray-900 tw:dark:text-white'>
-                    {userData.playerName !== '' && userData.varchiveUserInfo.nickname !== ''
-                      ? `${userData.varchiveUserInfo.nickname}`
-                      : 'Guest'}
-                    님 환영합니다.
+                  <span className='tw:flex tw:w-full tw:items-center tw:gap-1'>
+                    <span className='tw:text-xl tw:font-bold tw:text-gray-900 tw:dark:text-white'>
+                      {selectedKeyMode}B 통계
+                    </span>
+                    (
+                    <span
+                      className={`tw:text-lg tw:font-bold ${getTierByScore(tierScores[selectedKeyMode].tierScore).color}`}
+                    >
+                      {String(tierScores[selectedKeyMode].tier).toUpperCase()}
+                    </span>
+                    )
                   </span>
                   <span className='tw:text-lg'>
                     <KeyModeSelector />
@@ -749,19 +612,6 @@ export default function DjmaxHomeComponent() {
                 <div className='tw:flex tw:flex-col tw:gap-4 tw:w-3/5'>
                   {/* Button Mode Panel */}
                   <div className='tw:flex tw:flex-col tw:gap-4'>
-                    <div className='tw:flex tw:justify-between tw:items-end tw:bg-white tw:dark:bg-slate-800 tw:bg-opacity-75 tw:dark:bg-opacity-75 tw:rounded-lg tw:shadow-lg tw:p-4 tw:border tw:border-gray-200 tw:dark:border-slate-700'>
-                      <span className='tw:flex tw:w-full tw:items-center tw:gap-1'>
-                        <span className='tw:text-xl tw:font-bold tw:me-auto tw:text-gray-900 tw:dark:text-white'>
-                          {selectedKeyMode}B 통계
-                        </span>
-                        <span
-                          className={`tw:text-lg tw:font-bold ${getTierByScore(tierScores[selectedKeyMode].tierScore).color}`}
-                        >
-                          {String(tierScores[selectedKeyMode].tier).toUpperCase()}
-                        </span>
-                      </span>
-                    </div>
-
                     {/* 통계 정보 */}
                     <div className='tw:bg-white tw:dark:bg-slate-800 tw:bg-opacity-75 tw:dark:bg-opacity-75 tw:rounded-lg tw:p-4 tw:border tw:border-gray-200 tw:dark:border-slate-700'>
                       {/* 상단 통계 요약 */}

@@ -26,11 +26,13 @@ interface ScorePopupComponentProps {
   keyMode: string
   isVisibleCode?: boolean
   size?: number
+  judgementType?: number
 }
 
 const ScorePopupComponent = ({
   songTitle,
   keyMode,
+  judgementType,
   isVisibleCode = false,
   size = 80,
 }: ScorePopupComponentProps) => {
@@ -71,7 +73,7 @@ const ScorePopupComponent = ({
 
       // 고정 크기로 가정하여 툴팁 위치 계산 (툴팁 ref가 없어도 작동)
       const tooltipWidth = 400 // 대략적인 툴팁 너비
-      const tooltipHeight = 512 // 대략적인 툴팁 높이
+      const tooltipHeight = 560 // 대략적인 툴팁 높이
 
       // 기본 위치 (오른쪽)
       let posX = triggerRect.right + scrollX
@@ -133,7 +135,7 @@ const ScorePopupComponent = ({
       try {
         // 10000000 이상은 RACLA 고유 번호로 사용
         if (game !== 'djmax_respect_v') {
-          console.log('fetching racla song data', { ...userData })
+          createLog('debug', 'fetching racla song data', { ...userData })
           const response = await apiClient.get<SongData>(
             `/v3/racla/songs/${game}/${title}/user/${userData.playerId}`,
             {
@@ -345,7 +347,10 @@ const ScorePopupComponent = ({
                                 </sup>
                               </span>
                             </div>
-                            {scoreData && scoreData.patterns[`${keyMode}B`][value] !== undefined ? (
+                            {scoreData &&
+                            scoreData?.[judgementType == 1 ? 'plusPatterns' : 'patterns'][
+                              `${keyMode}B`
+                            ][value] !== undefined ? (
                               <div
                                 className={`tw:relative tw:w-full tw:h-6 tw:rounded-sm tw:overflow-hidden tw:dark:bg-slate-900 tw:bg-slate-400`}
                               >
@@ -353,7 +358,7 @@ const ScorePopupComponent = ({
                                   className={`tw:h-full ${getDifficultyBgColor(game, value)}`}
                                   initial={{ width: '0%' }}
                                   animate={{
-                                    width: `${scoreData.patterns[`${keyMode}B`][value]?.score ? Number(scoreData.patterns[`${keyMode}B`][value].score) : 0}%`,
+                                    width: `${scoreData?.[judgementType == 1 ? 'plusPatterns' : 'patterns'][`${keyMode}B`][value]?.score ? Number(scoreData?.[judgementType == 1 ? 'plusPatterns' : 'patterns'][`${keyMode}B`][value].score) : 0}%`,
                                   }}
                                   transition={{
                                     duration: 0.3,
@@ -364,7 +369,9 @@ const ScorePopupComponent = ({
                                 <div className='tw:absolute tw:text-xs tw:inset-0 tw:flex tw:items-center tw:justify-center tw:font-bold tw:text-white'>
                                   {getScoreDisplayText(
                                     game,
-                                    scoreData?.patterns[`${keyMode}B`][value],
+                                    scoreData?.[judgementType == 1 ? 'plusPatterns' : 'patterns'][
+                                      `${keyMode}B`
+                                    ][value],
                                   )}
                                 </div>
                               </div>

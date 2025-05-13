@@ -29,7 +29,6 @@ export const getScoreDisplayText = (
   gameType: GameType = 'djmax_respect_v',
   pattern: PatternInfo,
 ): string => {
-  console.log(pattern)
   if (!pattern.score) return '0%(기록 미존재)'
 
   if (Number(pattern.score) === 0) return '0%(기록 미존재)'
