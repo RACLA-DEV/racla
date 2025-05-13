@@ -169,7 +169,7 @@ const ScorePopupComponent = ({
     }
 
     if (isHovered) {
-      fetchData()
+      void fetchData()
     } else {
       setScoreData(null)
     }

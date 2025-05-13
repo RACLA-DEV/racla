@@ -1,5 +1,5 @@
 import { RootState } from '@render/store'
-import { setIsSetting, setIsTrackMaker, setSelectedGame } from '@render/store/slices/appSlice'
+import { setIsSetting, setSelectedGame } from '@render/store/slices/appSlice'
 import { setSidebarCollapsed } from '@render/store/slices/uiSlice'
 import type { GameType } from '@src/types/games/GameType'
 import { AnimatePresence, motion } from 'framer-motion'
@@ -10,7 +10,6 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useLocation, useNavigate } from 'react-router-dom'
 import Tooltip from './Tooltip'
 const IconSidebar: React.FC = () => {
-  const { theme } = useSelector((state: RootState) => state.ui)
   const { selectedGame } = useSelector((state: RootState) => state.app)
   const navigate = useNavigate()
   const dispatch = useDispatch()
@@ -104,10 +103,6 @@ const IconSidebar: React.FC = () => {
 
   const handleOpenSettings = () => {
     dispatch(setIsSetting(true))
-  }
-
-  const handleOpenTrackMaker = () => {
-    dispatch(setIsTrackMaker(true))
   }
 
   // 애니메이션 변수

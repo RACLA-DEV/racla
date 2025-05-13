@@ -95,7 +95,9 @@ export default function DjmaxHomeComponent() {
         {globalDictionary.gameDictionary[selectedGame].keyModeList.map((mode) => (
           <button
             key={`mode_${mode}`}
-            onClick={() => setSelectedKeyMode(String(mode))}
+            onClick={() => {
+              setSelectedKeyMode(String(mode))
+            }}
             className={`tw:flex tw:items-center tw:justify-center tw:relative tw:px-4 tw:py-0.5 tw:border tw:border-opacity-50 tw:transition-all tw:duration-500 tw:rounded-md tw:flex-1 ${
               String(mode) === selectedKeyMode
                 ? 'tw:border-indigo-500 tw:bg-indigo-600/20 tw:dark:bg-indigo-600/20 tw:brightness-150'
@@ -218,7 +220,7 @@ export default function DjmaxHomeComponent() {
       }
     }
 
-    fetchAllBoardData()
+    void fetchAllBoardData()
   }, [userData.varchiveUserInfo.nickname])
 
   useEffect(() => {
@@ -245,7 +247,7 @@ export default function DjmaxHomeComponent() {
         // 점수를 숫자로 변환
         const score = typeof pattern.score === 'string' ? parseFloat(pattern.score) : pattern.score
 
-        if (pattern?.maxCombo === 1 || score === 100.0) stats.maxCombo++
+        if (pattern.maxCombo === 1 || score === 100.0) stats.maxCombo++
 
         // 점수 기준을 중첩되게 처리
         if (score === 100.0) {
@@ -444,7 +446,7 @@ export default function DjmaxHomeComponent() {
       // 점수를 숫자로 변환
       const score = typeof pattern.score === 'string' ? parseFloat(pattern.score) : pattern.score
 
-      if (pattern?.maxCombo === 1 || score === 100.0) stats.maxCombo++
+      if (pattern.maxCombo === 1 || score === 100.0) stats.maxCombo++
 
       // 점수 기준을 중첩되게 처리
       if (score === 100.0) {

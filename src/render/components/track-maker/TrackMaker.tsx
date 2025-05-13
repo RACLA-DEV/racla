@@ -1132,7 +1132,9 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
             type='number'
             className='tw:block tw:w-full tw:rounded-lg tw:border tw:border-gray-300 tw:shadow-sm tw:py-2 tw:px-3 tw:focus:border-indigo-500 tw:focus:ring-indigo-500 tw:dark:bg-slate-700 tw:dark:border-slate-600 tw:dark:text-white'
             value={(songLength / 1000).toString()}
-            onChange={(e) => handleSongLengthChange(Number(e.target.value))}
+            onChange={(e) => {
+              handleSongLengthChange(Number(e.target.value))
+            }}
             min={10}
             max={600}
           />
@@ -1163,7 +1165,9 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
                     ? 'tw:bg-indigo-600 tw:text-white tw:dark:bg-indigo-500'
                     : 'tw:bg-gray-100 tw:text-gray-700 tw:hover:bg-gray-200 tw:dark:bg-slate-700 tw:dark:text-slate-200 dark:tw:hover:bg-slate-600'
                 }`}
-                onClick={() => setActiveDivision(division)}
+                onClick={() => {
+                  setActiveDivision(division)
+                }}
               >
                 {division}
               </button>
@@ -1202,7 +1206,9 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
               type='checkbox'
               className='tw:h-4 tw:w-4 tw:rounded tw:border-gray-300 tw:text-indigo-600 tw:focus:ring-indigo-500 tw:dark:border-slate-600'
               checked={isLongNote}
-              onChange={(e) => setIsLongNote(e.target.checked)}
+              onChange={(e) => {
+                setIsLongNote(e.target.checked)
+              }}
             />
             <label
               htmlFor='longNote'
@@ -1224,7 +1230,9 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
             step='0.1'
             className='tw:w-full tw:h-2 tw:bg-gray-200 tw:rounded-lg tw:appearance-none tw:cursor-pointer tw:dark:bg-slate-700'
             value={zoom}
-            onChange={(e) => setZoom(Number(e.target.value))}
+            onChange={(e) => {
+              setZoom(Number(e.target.value))
+            }}
           />
         </div>
 

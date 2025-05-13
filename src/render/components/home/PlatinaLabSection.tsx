@@ -44,7 +44,9 @@ export default function PlatinaLabHomeComponent() {
       {['4B', '6B'].map((mode) => (
         <button
           key={`mode_${mode}`}
-          onClick={() => setSelectedKeyMode(String(mode))}
+          onClick={() => {
+            setSelectedKeyMode(String(mode))
+          }}
           className={`tw:flex tw:items-center tw:justify-center tw:min-w-16 tw:relative tw:px-4 tw:py-0.5 tw:border tw:border-opacity-50 tw:transition-all tw:duration-500 tw:rounded-md tw:flex-1 ${
             String(mode) === selectedKeyMode
               ? 'tw:border-indigo-500 tw:bg-indigo-600/20 tw:dark:bg-indigo-600/20 tw:brightness-150'
@@ -92,7 +94,7 @@ export default function PlatinaLabHomeComponent() {
       }
     }
 
-    fetchAllBoardData()
+    void fetchAllBoardData()
   }, [userData.playerName])
 
   useEffect(() => {
@@ -119,7 +121,7 @@ export default function PlatinaLabHomeComponent() {
         // 점수를 숫자로 변환
         const score = typeof pattern.score === 'string' ? parseFloat(pattern.score) : pattern.score
 
-        if (pattern?.maxCombo || score === 100.0) stats.maxCombo++
+        if (pattern.maxCombo ?? score === 100.0) stats.maxCombo++
 
         // 점수 기준을 중첩되게 처리
         if (score === 100.0) {
@@ -182,13 +184,13 @@ export default function PlatinaLabHomeComponent() {
 
     // 패턴의 난이도를 비교하는 함수
     const compareDifficulty = (a: PlayBoardPatternInfo, b: PlayBoardPatternInfo) => {
-      const aLevel = Number(a.level || 0).toFixed(1)
-      const bLevel = Number(b.level || 0).toFixed(1)
+      const aLevel = Number(a.level ?? 0).toFixed(1)
+      const bLevel = Number(b.level ?? 0).toFixed(1)
 
       // level이 같은 경우 score로 비교
       if (aLevel === bLevel) {
-        const aScore = Number(a.score || 0)
-        const bScore = Number(b.score || 0)
+        const aScore = Number(a.score ?? 0)
+        const bScore = Number(b.score ?? 0)
         return bScore - aScore
       }
 
@@ -216,7 +218,7 @@ export default function PlatinaLabHomeComponent() {
       // 점수를 숫자로 변환
       const score = typeof pattern.score === 'string' ? parseFloat(pattern.score) : pattern.score
 
-      if (pattern?.maxCombo) stats.maxCombo++
+      if (pattern.maxCombo) stats.maxCombo++
 
       // 점수 기준을 중첩되게 처리
       if (score === 100.0) {

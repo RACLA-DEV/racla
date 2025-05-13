@@ -109,11 +109,11 @@ export class OcrManagerService {
   /**
    * 텍스트 분석을 통해 결과 화면인지 판단하는 메서드
    */
-  async determineResultScreen(
+  determineResultScreen(
     gameCode: string,
     texts: Record<string, string>,
     settings: SettingsData,
-  ): Promise<OCRResultInfo> {
+  ): OCRResultInfo {
     const resultInfo: OCRResultInfo = {
       isResult: [],
       text: '',

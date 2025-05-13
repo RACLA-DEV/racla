@@ -12,7 +12,7 @@ import Tooltip from './Tooltip'
 
 const Footer: React.FC = () => {
   const { selectedGame, isTrackMaker } = useSelector((state: RootState) => state.app)
-  const [ServerStatusResponse, setServerStatusResponse] = useState<String>('')
+  const [ServerStatusResponse, setServerStatusResponse] = useState<string>('')
   const [isOnline, setIsOnline] = useState<boolean>(false)
   const dispatch = useDispatch()
   const { t } = useTranslation(['menu'])
@@ -22,7 +22,7 @@ const Footer: React.FC = () => {
     const checkServerStatusResponse = async () => {
       try {
         createLog('info', 'Checking server status...', `/v3/racla/ping`) // 디버깅용 로그
-        const response = await apiClient.get<String>(`/v3/racla/ping`, {
+        const response = await apiClient.get<string>(`/v3/racla/ping`, {
           timeout: 5000, // 5초 타임아웃 설정
         })
 
