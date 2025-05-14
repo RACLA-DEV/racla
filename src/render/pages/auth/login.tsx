@@ -1,10 +1,9 @@
 import { Icon } from '@iconify/react/dist/iconify.js'
 import { createLog } from '@render/libs/logger'
-import { setOpenExternalLink } from '@render/store/slices/uiSlice'
+import { setIsOpenExternalLink, setOpenExternalLink } from '@render/store/slices/uiSlice'
 import { SessionData } from '@src/types/sessions/SessionData'
 import { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
-import { FaDiscord, FaV } from 'react-icons/fa6'
 import { useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import apiClient from '../../../libs/apiClient'
@@ -157,20 +156,22 @@ export default function LoginPage() {
   }
 
   return (
-    <div className='tw:flex tw:h-[calc(100vh-7rem)] tw:items-center tw:justify-center tw:px-4 tw:py-12'>
+    <div className='tw:flex tw:h-[calc(100vh-106px)] tw:items-center tw:justify-center'>
       <div className='tw:w-full tw:max-w-md'>
-        <div className='tw:flex tw:flex-col tw:gap-1 tw:overflow-hidden tw:rounded-lg tw:bg-slate-800 tw:p-8 tw:shadow-lg tw:dark:bg-slate-800'>
+        <div className='tw:flex tw:flex-col tw:gap-6 tw:overflow-hidden tw:rounded-lg tw:bg-white tw:dark:bg-slate-800 tw:p-6 tw:shadow-lg tw:border tw:border-slate-200 tw:dark:border-slate-700'>
           {/* 상단 */}
-          <div className='tw:mb-6 tw:flex tw:w-full'>
-            <span className='tw:me-auto tw:text-2xl tw:font-bold'>{t('auth.login')}</span>
+          <div className='tw:flex tw:w-full tw:items-center tw:border-b tw:border-slate-200 tw:dark:border-slate-700 tw:pb-4'>
+            <h1 className='tw:me-auto tw:text-xl tw:font-bold tw:text-slate-900 tw:dark:text-white'>
+              {t('auth.login')}
+            </h1>
           </div>
 
           {/* 컨텐츠 */}
-          <div className='tw:relative' style={{ minHeight: 'auto' }}>
+          <div className='tw:relative'>
             <div className='tw:w-full'>
               {/* 로그인 섹션 내용 */}
               <div className='tw:space-y-4'>
-                <div className='tw:flex tw:flex-col tw:gap-4'>
+                <div className='tw:flex tw:flex-col tw:gap-3'>
                   <input
                     ref={vArchiveFileInputRef}
                     type='file'
@@ -186,36 +187,40 @@ export default function LoginPage() {
                     onClick={() => {
                       void handleDiscordLogin()
                     }}
-                    className='tw:flex tw:w-full tw:items-center tw:justify-center tw:gap-2 tw:rounded-md tw:bg-[#5865F2] tw:px-4 tw:py-3 tw:text-white tw:transition-colors tw:hover:bg-[#4752C4]'
+                    className='tw:flex tw:items-center tw:justify-center tw:gap-2 tw:rounded-md tw:bg-[#5865F2] tw:px-3 tw:py-2 tw:text-sm tw:text-white tw:transition-colors tw:hover:bg-[#4752C4]'
                   >
-                    <FaDiscord className='tw:text-lg' />
+                    <Icon icon='fa-brands:discord' className='tw:h-4 tw:w-4' />
                     {t('auth.loginWithDiscord')}
                   </button>
 
                   <button
                     onClick={handleVArchiveFileSelect}
-                    className='tw:flex tw:w-full tw:items-center tw:justify-center tw:gap-2 tw:rounded-md tw:bg-amber-600 tw:px-4 tw:py-3 tw:text-white tw:transition-colors tw:hover:bg-amber-700'
+                    className='tw:flex tw:items-center tw:justify-center tw:gap-2 tw:rounded-md tw:bg-amber-600 tw:px-3 tw:py-2 tw:text-sm tw:text-white tw:transition-colors tw:hover:bg-amber-700'
                   >
-                    <FaV className='tw:text-base' />
                     {t('auth.loginWithVArchive')}
                   </button>
                 </div>
 
-                <div className='tw:mt-6 tw:flex tw:items-start tw:justify-center tw:gap-3 tw:border-t tw:border-slate-700 tw:pt-8 tw:text-sm tw:text-slate-300'>
-                  <Icon icon='lucide:info' className='tw:mt-1 tw:min-w-3 tw:text-blue-400' />
+                <div className='tw:flex tw:items-start tw:justify-center tw:gap-2 tw:rounded-md tw:border tw:border-slate-200 tw:dark:border-slate-700 tw:bg-slate-50 tw:dark:bg-slate-700/30 tw:p-4 tw:text-xs tw:text-slate-600 tw:dark:text-slate-300'>
+                  <Icon
+                    icon='lucide:info'
+                    className='tw:mt-0.5 tw:min-w-4 tw:h-4 tw:text-indigo-500 tw:dark:text-indigo-400'
+                  />
                   <div className='tw:flex tw:flex-col tw:gap-1 tw:break-keep'>
-                    <span>{t('auth.announcement_1')}</span>
-                    <span>{t('auth.announcement_2')}</span>
-                    <span>{t('auth.announcement_3')}</span>
-                    <span>{t('auth.announcement_4')}</span>
-                    <span
-                      className='tw:flex tw:cursor-pointer tw:items-center tw:gap-1 tw:text-blue-400 tw:transition-colors tw:hover:text-blue-300'
-                      onClick={() =>
+                    <p>{t('auth.announcement_1')}</p>
+                    <p>{t('auth.announcement_2')}</p>
+                    <p>{t('auth.announcement_3')}</p>
+                    <p>{t('auth.announcement_4')}</p>
+                    <button
+                      className='tw:flex tw:items-center tw:gap-1 tw:text-indigo-600 tw:dark:text-indigo-400 tw:transition-colors tw:hover:text-indigo-500 tw:dark:hover:text-indigo-300 tw:mt-1 tw:text-left'
+                      onClick={() => {
                         dispatch(setOpenExternalLink('https://v-archive.net/downloads'))
-                      }
+                        dispatch(setIsOpenExternalLink(true))
+                      }}
                     >
-                      {t('auth.announcement_5')} <Icon icon='lucide:external-link' />
-                    </span>
+                      {t('auth.announcement_5')}{' '}
+                      <Icon icon='lucide:external-link' className='tw:h-3 tw:w-3' />
+                    </button>
                   </div>
                 </div>
               </div>

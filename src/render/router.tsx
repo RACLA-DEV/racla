@@ -14,6 +14,7 @@ const DmrvDbPage = lazy(() => import('./pages/games/djmax_respect_v/db'))
 const DmrvDbDetailPage = lazy(() => import('./pages/games/djmax_respect_v/db/detail'))
 const DmrvHardDbPage = lazy(() => import('./pages/games/djmax_respect_v/hard/db'))
 const DmrvHardDbDetailPage = lazy(() => import('./pages/games/djmax_respect_v/hard/db/detail'))
+const DmrvHardDbPatternPage = lazy(() => import('./pages/games/djmax_respect_v/hard/db/pattern'))
 const DmrvHardGradePage = lazy(() => import('./pages/games/djmax_respect_v/hard/grade'))
 const DmrvHardRankingPage = lazy(() => import('./pages/games/djmax_respect_v/hard/ranking'))
 const DmrvBoardPage = lazy(() => import('./pages/games/djmax_respect_v/board'))
@@ -28,6 +29,7 @@ const WjmaxDbPage = lazy(() => import('./pages/games/wjmax/db'))
 const WjmaxDbDetailPage = lazy(() => import('./pages/games/wjmax/db/detail'))
 const WjmaxBoardPage = lazy(() => import('./pages/games/wjmax/board'))
 const WjmaxRegScorePage = lazy(() => import('./pages/games/wjmax/regScore'))
+const LicensePage = lazy(() => import('./pages/license'))
 
 // 기본 레이아웃이 적용된 라우트를 위한 컴포넌트
 const DefaultLayout = () => {
@@ -117,6 +119,14 @@ export const router = createHashRouter([
             ),
           },
           {
+            path: '/games/djmax_respect_v/hard/db/:id/:patternName',
+            element: (
+              <Suspense fallback={<PageLoading />}>
+                <DmrvHardDbPatternPage />
+              </Suspense>
+            ),
+          },
+          {
             path: '/games/djmax_respect_v/hard/grade',
             element: (
               <Suspense fallback={<PageLoading />}>
@@ -131,6 +141,10 @@ export const router = createHashRouter([
                 <DmrvHardRankingPage />
               </Suspense>
             ),
+          },
+          {
+            path: '/games/djmax_respect_v/board',
+            element: <Navigate to='/games/djmax_respect_v/board/4/1' />,
           },
           {
             path: '/games/djmax_respect_v/board/:keyMode/:board',
@@ -181,6 +195,10 @@ export const router = createHashRouter([
             ),
           },
           {
+            path: '/games/platina_lab/board',
+            element: <Navigate to='/games/platina_lab/board/4/1' />,
+          },
+          {
             path: '/games/platina_lab/board/:keyMode/:board',
             element: (
               <Suspense fallback={<PageLoading />}>
@@ -213,6 +231,10 @@ export const router = createHashRouter([
             ),
           },
           {
+            path: '/games/wjmax/board',
+            element: <Navigate to='/games/wjmax/board/4/1' />,
+          },
+          {
             path: '/games/wjmax/board/:keyMode/:board',
             element: (
               <Suspense fallback={<PageLoading />}>
@@ -233,6 +255,14 @@ export const router = createHashRouter([
             element: (
               <Suspense fallback={<PageLoading />}>
                 <CheatsheetPage />
+              </Suspense>
+            ),
+          },
+          {
+            path: '/license',
+            element: (
+              <Suspense fallback={<PageLoading />}>
+                <LicensePage />
               </Suspense>
             ),
           },

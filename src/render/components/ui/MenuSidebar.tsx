@@ -3,6 +3,7 @@ import { globalDictionary } from '@render/constants/globalDictionary'
 import { useAuth } from '@render/hooks/useAuth'
 import { useNotificationSystem } from '@render/hooks/useNotifications'
 import { RootState } from '@render/store'
+import { setRefresh } from '@render/store/slices/appSlice'
 import { setIsOpenExternalLink, setOpenExternalLink } from '@render/store/slices/uiSlice'
 import type { MenuItem } from '@src/types/menu/MenuItem'
 import { motion } from 'framer-motion'
@@ -15,7 +16,7 @@ import Tooltip from './Tooltip'
 
 const MenuSidebar: React.FC = () => {
   const { sidebarCollapsed } = useSelector((state: RootState) => state.ui)
-  const { selectedGame } = useSelector((state: RootState) => state.app)
+  const { selectedGame, refresh } = useSelector((state: RootState) => state.app)
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const { isLoggedIn, userData, logout } = useAuth()
@@ -23,11 +24,6 @@ const MenuSidebar: React.FC = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const location = useLocation()
   const { t } = useTranslation(['menu'])
-
-  // 사이드바 토글 핸들러
-  // const handleToggleSidebar = () => {
-  //   dispatch(toggleSidebar())
-  // }
 
   // 드롭다운 토글 핸들러
   const toggleDropdown = () => {
@@ -52,6 +48,7 @@ const MenuSidebar: React.FC = () => {
       navigate('/home')
     }
     setIsDropdownOpen(false)
+    dispatch(setRefresh(!refresh))
   }
 
   // 현재 선택된 게임에 따른 메뉴 구성 가져오기
