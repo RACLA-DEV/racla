@@ -269,9 +269,9 @@ const DmrvDbPage = () => {
           {/* 상단 영역 */}
           <div className='tw:flex tw:flex-col tw:gap-4 tw:transition-all tw:w-full duration-300'>
             <div className='tw:flex tw:w-full tw:gap-4'>
-              <div className='tw:flex tw:w-full tw:flex-col tw:gap-4 tw:bg-opacity-75 tw:dark:bg-opacity-75 tw:rounded-lg tw:p-4 tw:border tw:border-slate-200 tw:dark:border-slate-700'>
+              <div className='tw:flex tw:w-full tw:flex-col tw:gap-4 tw:bg-opacity-75 tw:dark:bg-opacity-75 tw:rounded-lg tw:border tw:border-slate-200 tw:dark:border-slate-700'>
                 {/* 헤더 */}
-                <div className='tw:flex tw:w-full tw:bg-slate-100 tw:dark:bg-slate-700/50 tw:rounded tw:overflow-x-auto tw:scroll-smooth'>
+                <div className='tw:flex tw:w-full tw:rounded tw:overflow-x-auto tw:scroll-smooth'>
                   <div className='tw:flex tw:flex-col tw:gap-4 tw:p-4 tw:w-full'>
                     <div className='tw:flex tw:w-full tw:items-center tw:gap-2'>
                       {/* 왼쪽 스크롤 버튼 */}
@@ -404,7 +404,7 @@ const DmrvDbPage = () => {
 
                           <input
                             ref={searchInputRef}
-                            className='tw:w-full tw:text-sm tw:bg-white tw:dark:bg-slate-700 tw:bg-opacity-25 tw:text-light tw:pl-10 tw:pr-4 tw:py-1.5 tw:rounded-lg tw:border tw:border-slate-300 tw:dark:border-slate-600 tw:border-opacity-50 focus:tw:border-blue-400 focus:tw:ring-2 focus:tw:ring-blue-400 focus:tw:ring-opacity-20 tw:transition-all'
+                            className='tw:w-full tw:text-sm tw:placeholder:text-slate-400 tw:bg-white tw:dark:bg-slate-700 tw:bg-opacity-25 tw:text-light tw:pl-10 tw:pr-4 tw:py-1.5 tw:rounded-lg tw:border tw:border-slate-300 tw:dark:border-slate-600 tw:border-opacity-50 focus:tw:border-blue-400 focus:tw:ring-2 focus:tw:ring-blue-400 focus:tw:ring-opacity-20 tw:transition-all'
                             onChange={(e) => setSearchName(e.currentTarget.value)}
                             type='text'
                             placeholder='제목, 제작자명 또는 DLC명으로 검색'
