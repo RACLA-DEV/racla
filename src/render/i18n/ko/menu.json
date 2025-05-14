@@ -121,10 +121,18 @@
     "utilityBest30": {
       "name": {
         "startWithSup": "",
-        "base": "BEST 30 디스코드 봇",
+        "base": "BEST 30 봇 (Discord)",
         "lastWithSup": ""
       },
-      "description": "BEST 30 디스코드 봇"
+      "description": "BEST 30 봇 (Discord)"
+    },
+    "utilityHangyee": {
+      "name": {
+        "startWithSup": "",
+        "base": "행이봇 (Discord)",
+        "lastWithSup": ""
+      },
+      "description": "행이봇 (Discord)"
     }
   },
   "wjmax": {
