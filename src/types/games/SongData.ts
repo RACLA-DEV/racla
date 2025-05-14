@@ -22,6 +22,7 @@ export type KeyPatterns = Record<string, PatternSet>
 
 export interface SongData {
   title: number
+  uuid?: string | null
   hardArchiveTitle?: string | null
   isVarchive?: boolean | null
   name: string

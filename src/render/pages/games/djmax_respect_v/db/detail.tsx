@@ -242,7 +242,7 @@ const DmrvDbDetailPage = () => {
                     objectPosition: 'center',
                   }}
                 />
-                <div className='tw:absolute tw:inset-0 tw:bg-white/75 tw:dark:bg-slate-800/75' />
+                <div className='tw:absolute tw:inset-0 tw:bg-white/90 tw:dark:bg-slate-800/90' />
               </div>
 
               <div className='tw:flex tw:relative tw:p-2 tw:gap-2 tw:backdrop-blur-sm tw:rounded-md'>
@@ -259,30 +259,28 @@ const DmrvDbDetailPage = () => {
                 </div>
                 <div className='tw:flex tw:flex-col tw:w-full tw:flex-1 tw:justify-end tw:leading-none tw:p-1'>
                   {/* 제목 */}
+                  <span className='tw:text-xs tw:font-light tw:text-slate-500 tw:dark:text-slate-400'>
+                    V-ARCHIVE : {baseSongData[0].title} / RACLA : {baseSongData[0].title}
+                  </span>
                   <span className='tw:flex tw:text-sm tw:font-light tw:text-slate-600 tw:dark:text-slate-300'>
                     {baseSongData[0].composer}
                   </span>
-                  <div className='tw:text-lg tw:font-extrabold tw:tracking-tight'>
-                    <span className='tw:me-1'>{baseSongData[0].name}</span>
-                    <sup className='tw:text-xs tw:font-light tw:text-slate-500 tw:dark:text-slate-400'>
-                      (V-ARCHIVE :{' '}
-                      {userData.varchiveUserInfo.isLinked ? baseSongData[0].title : '미등록'} /
-                      RACLA : {baseSongData[0].title})
-                    </sup>
-                  </div>
+                  <span className='tw:text-lg tw:font-extrabold tw:tracking-tight'>
+                    {baseSongData[0].name}
+                  </span>
                 </div>
                 <div className='tw:absolute tw:flex tw:gap-1 tw:text-xs tw:top-2 tw:right-2'>
                   {baseSongData[0]?.uuid && (
                     <Link
                       to={`/games/djmax_respect_v/hard/db/${baseSongData[0].title}`}
-                      className='tw:ms-auto tw:inline-flex tw:items-center tw:gap-2 tw:bg-black/90 tw:rounded-md hover:tw:bg-indigo-100 tw:dark:hover:tw:bg-indigo-800/50 tw:transition-colors tw:py-1 tw:px-2'
+                      className='tw:inline-flex tw:items-center tw:gap-2 tw:bg-slate-100 tw:border tw:dark:border-0 tw:border-slate-200 tw:dark:bg-slate-700 tw:text-slate-800 tw:dark:text-slate-300 tw:rounded-md hover:tw:bg-indigo-600 tw:transition-colors tw:text-xs tw:py-1 tw:px-2'
                     >
                       <Icon icon='lucide:database' />
                       <span>전일 기록(전일 아카이브)</span>
                     </Link>
                   )}
                   <div
-                    className={`tw:rounded-md tw:bg-black/90 tw:p-1 ${!baseSongData[0]?.hardArchiveTitle ? 'tw:ms-auto' : ''}`}
+                    className={`tw:rounded-md tw:bg-slate-100 tw:border tw:dark:border-0 tw:border-slate-200 tw:dark:bg-slate-700 tw:text-slate-800 tw:dark:text-slate-300 tw:p-1 ${!baseSongData[0]?.hardArchiveTitle ? 'tw:ms-auto' : ''}`}
                   >
                     <span className='djmax_respect_v_dlc_code_wrap'>
                       <span

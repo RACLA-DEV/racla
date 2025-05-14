@@ -3,6 +3,8 @@
     "syncError": "해당 수록곡 데이터가 데이터베이스에 등록되지 않았거나 데이터를 가져오는데 실패하였습니다.",
     "syncSuccess": "성과 기록을 정상적으로 저장하였습니다.",
     "syncMaxScoreError": "데이터베이스에 기록할 수 있는 최대 점수는 100점입니다. 입력한 값을 다시 한번 확인해주세요.",
-    "noHardArchiveData": "전일 아카이브 수록곡 고유 ID(UUID) 정보가 없습니다. 피드백 센터로 해당 수록곡의 데이터 갱신 요청을 문의해주세요."
+    "noHardArchiveData": "전일 아카이브 수록곡 고유 ID(UUID) 정보가 없습니다. 피드백 센터로 해당 수록곡의 데이터 갱신 요청을 문의해주세요.",
+    "failedToFetchRecords": "기록을 불러오는데 실패했습니다.",
+    "failedToFetchRanking": "랭킹을 불러오는데 실패했습니다."
   }
 }
