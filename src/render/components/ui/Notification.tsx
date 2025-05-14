@@ -12,7 +12,16 @@ export function Notification({ notification, onRemove, index }: NotificationProp
   const { id, message, type, isRemoving, updateInfo } = notification
   const [progress, setProgress] = useState(100)
   const { theme } = useSelector((state: RootState) => state.ui)
-  const { t } = useTranslation(['common', 'settings', 'languages', 'games', 'menu'])
+  const { t } = useTranslation([
+    'common',
+    'settings',
+    'languages',
+    'games',
+    'menu',
+    'home',
+    'db',
+    'board',
+  ])
 
   // 타입에 따른 스타일 및 아이콘 설정
   const getTypeStyles = () => {

@@ -593,7 +593,7 @@ export default function DjmaxHomeComponent() {
             >
               <div id='ContentHeader' />
               {/* 헤더 섹션 */}
-              <div className='tw:bg-white tw:dark:bg-slate-800 tw:bg-opacity-75 tw:dark:bg-opacity-75 tw:rounded-lg tw:shadow-lg tw:p-4 tw:mb-4 tw:border tw:border-gray-200 tw:dark:border-slate-700'>
+              <div className='tw:bg-white tw:dark:bg-slate-800 tw:bg-opacity-75 tw:dark:bg-opacity-75 tw:rounded-lg tw:p-4 tw:mb-4 tw:border tw:border-gray-200 tw:dark:border-slate-700'>
                 <div className='tw:flex tw:justify-between tw:items-center'>
                   <span className='tw:flex tw:w-full tw:items-center tw:gap-1'>
                     <span className='tw:text-xl tw:font-bold tw:text-gray-900 tw:dark:text-white'>
@@ -1193,9 +1193,9 @@ export default function DjmaxHomeComponent() {
 
                 {/* 최고 성과 패널 */}
                 <div className='tw:w-2/5'>
-                  <div className='tw:flex tw:flex-col tw:gap-4 tw:bg-white tw:dark:bg-slate-800 tw:bg-opacity-75 tw:dark:bg-opacity-75 tw:rounded-lg tw:shadow-lg tw:p-4 tw:border tw:border-gray-200 tw:dark:border-slate-700'>
+                  <div className='tw:flex tw:flex-col tw:gap-4 tw:bg-white tw:dark:bg-slate-800 tw:bg-opacity-75 tw:dark:bg-opacity-75 tw:rounded-lg tw:p-4 tw:border tw:border-gray-200 tw:dark:border-slate-700'>
                     <span className='tw:text-lg tw:font-bold tw:text-gray-900 tw:dark:text-white'>
-                      🎯 {selectedKeyMode}B {t('best')} {t('achievement')}
+                      {selectedKeyMode}B {t('best')} {t('achievement')}
                     </span>
                     {!isLoading && keyModeData[selectedKeyMode] && (
                       <motion.div

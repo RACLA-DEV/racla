@@ -75,9 +75,9 @@ const LazyListItem = React.memo(
       <div
         ref={ref}
         data-song-title={songItem.title}
-        className={`tw:flex tw:items-center tw:gap-4 tw:p-2 tw:border-b tw:border-gray-200 tw:dark:border-slate-700 tw:relative tw:overflow-hidden tw:cursor-pointer ${
-          hoveredTitle === songItem.title ? 'tw:bg-gray-100 tw:dark:bg-slate-700/50' : ''
-        } hover:tw:bg-gray-100 hover:tw:dark:bg-slate-700/50`}
+        className={`tw:flex tw:items-center tw:gap-4 tw:p-2 tw:border-b tw:border-slate-200 tw:dark:border-slate-700 tw:relative tw:overflow-hidden tw:cursor-pointer ${
+          hoveredTitle === songItem.title ? 'tw:bg-slate-100 tw:dark:bg-slate-700/50' : ''
+        } hover:tw:bg-slate-100 hover:tw:dark:bg-slate-700/50`}
         onMouseEnter={() => setHoveredTitle(songItem.title)}
         onMouseLeave={() => setHoveredTitle(null)}
         onClick={handleClick}
@@ -96,14 +96,15 @@ const LazyListItem = React.memo(
               isVisibleCode={true}
               songTitle={songItem.title}
               keyMode={String(keyMode)}
+              isLink={false}
             />
           </div>
           <div className='tw:flex tw:flex-1'>
             <div className='tw:flex tw:flex-col tw:flex-1'>
-              <span className='tw:text-sm tw:text-gray-500 tw:dark:text-slate-400'>
+              <span className='tw:text-sm tw:text-slate-500 tw:dark:text-slate-400'>
                 {songItem.composer}
               </span>
-              <span className='tw:font-bold tw:text-gray-900 tw:dark:text-white'>
+              <span className='tw:font-bold tw:text-slate-900 tw:dark:text-white'>
                 {songItem.name}
               </span>
             </div>
@@ -268,33 +269,33 @@ const DmrvDbPage = () => {
           {/* 상단 영역 */}
           <div className='tw:flex tw:flex-col tw:gap-4 tw:transition-all tw:w-full duration-300'>
             <div className='tw:flex tw:w-full tw:gap-4'>
-              <div className='tw:flex tw:w-full tw:flex-col tw:gap-4 tw:bg-white tw:dark:bg-slate-800 tw:bg-opacity-75 tw:dark:bg-opacity-75 tw:rounded-lg tw:shadow-lg tw:p-4 tw:border tw:border-gray-200 tw:dark:border-slate-700'>
+              <div className='tw:flex tw:w-full tw:flex-col tw:gap-4 tw:bg-opacity-75 tw:dark:bg-opacity-75 tw:rounded-lg tw:p-4 tw:border tw:border-slate-200 tw:dark:border-slate-700'>
                 {/* 헤더 */}
-                <div className='tw:flex tw:w-full tw:bg-gray-100 tw:dark:bg-slate-700/50 tw:rounded tw:overflow-x-auto tw:scroll-smooth'>
+                <div className='tw:flex tw:w-full tw:bg-slate-100 tw:dark:bg-slate-700/50 tw:rounded tw:overflow-x-auto tw:scroll-smooth'>
                   <div className='tw:flex tw:flex-col tw:gap-4 tw:p-4 tw:w-full'>
                     <div className='tw:flex tw:w-full tw:items-center tw:gap-2'>
                       {/* 왼쪽 스크롤 버튼 */}
                       <button
                         onClick={() => handleCategoryScroll('left')}
-                        className='tw:flex-none tw:p-2 tw:rounded-md tw:bg-gray-200 tw:dark:bg-slate-600 hover:tw:bg-gray-300 hover:tw:dark:bg-slate-500'
+                        className='tw:flex-none tw:p-2 tw:rounded-md tw:bg-slate-200 tw:dark:bg-slate-600 hover:tw:bg-slate-300 hover:tw:dark:bg-slate-500'
                       >
                         <Icon
                           icon='lucide:chevron-left'
-                          className='tw:text-gray-700 tw:dark:text-gray-300'
+                          className='tw:text-slate-700 tw:dark:text-slate-300'
                         />
                       </button>
 
                       {/* 스크롤 가능한 중앙 영역 */}
                       <div
                         ref={categoryScrollRef}
-                        className='tw:flex-1 tw:flex tw:gap-2 tw:overflow-x-hidden tw:scroll-smooth tw:scrollbar-thin tw:scrollbar-thumb-gray-400 tw:dark:scrollbar-thumb-slate-500 tw:scrollbar-track-transparent'
+                        className='tw:flex-1 tw:flex tw:gap-2 tw:overflow-x-hidden tw:scroll-smooth tw:scrollbar-thin tw:scrollbar-thumb-slate-400 tw:dark:scrollbar-thumb-slate-500 tw:scrollbar-track-transparent'
                       >
                         <button
                           onClick={() => setSelectedDlcCode('all')}
                           className={`tw:flex-none tw:px-2 tw:py-2 tw:text-sm tw:rounded-md tw:transition-all tw:min-w-20 ${
                             selectedDlcCode === 'all'
                               ? 'tw:bg-indigo-500 tw:text-white'
-                              : 'tw:bg-gray-200 tw:dark:bg-slate-600 tw:text-gray-700 tw:dark:text-gray-300 hover:tw:bg-gray-300 hover:tw:dark:bg-slate-500'
+                              : 'tw:bg-slate-200 tw:dark:bg-slate-600 tw:text-slate-700 tw:dark:text-slate-300 hover:tw:bg-slate-300 hover:tw:dark:bg-slate-500'
                           }`}
                         >
                           전체 보기
@@ -306,7 +307,7 @@ const DmrvDbPage = () => {
                             className={`tw:flex-none tw:px-2 tw:py-2 tw:text-sm tw:rounded-md tw:transition-all tw:min-w-12 ${
                               selectedDlcCode === item
                                 ? 'tw:bg-indigo-500 tw:text-white'
-                                : 'tw:bg-gray-200 tw:dark:bg-slate-600 tw:text-gray-700 tw:dark:text-gray-300 hover:tw:bg-gray-300 hover:tw:dark:bg-slate-500'
+                                : 'tw:bg-slate-200 tw:dark:bg-slate-600 tw:text-slate-700 tw:dark:text-slate-300 hover:tw:bg-slate-300 hover:tw:dark:bg-slate-500'
                             }`}
                           >
                             {item}
@@ -317,11 +318,11 @@ const DmrvDbPage = () => {
                       {/* 오른쪽 스크롤 버튼 */}
                       <button
                         onClick={() => handleCategoryScroll('right')}
-                        className='tw:flex-none tw:p-2 tw:rounded-md tw:bg-gray-200 tw:dark:bg-slate-600 hover:tw:bg-gray-300 hover:tw:dark:bg-slate-500'
+                        className='tw:flex-none tw:p-2 tw:rounded-md tw:bg-slate-200 tw:dark:bg-slate-600 hover:tw:bg-slate-300 hover:tw:dark:bg-slate-500'
                       >
                         <Icon
                           icon='lucide:chevron-right'
-                          className='tw:text-gray-700 tw:dark:text-gray-300'
+                          className='tw:text-slate-700 tw:dark:text-slate-300'
                         />
                       </button>
                     </div>
@@ -332,7 +333,7 @@ const DmrvDbPage = () => {
                           className={`tw:p-2 tw:rounded-md tw:transition-all ${
                             viewMode === 'list'
                               ? 'tw:bg-indigo-500 tw:text-white'
-                              : 'tw:bg-gray-200 tw:dark:bg-slate-600 tw:text-gray-700 tw:dark:text-gray-300 hover:tw:bg-gray-300 hover:tw:dark:bg-slate-500'
+                              : 'tw:bg-slate-200 tw:dark:bg-slate-600 tw:text-slate-700 tw:dark:text-slate-300 hover:tw:bg-slate-300 hover:tw:dark:bg-slate-500'
                           }`}
                         >
                           <Icon icon='lucide:list' className='tw:w-5 tw:h-5' />
@@ -342,7 +343,7 @@ const DmrvDbPage = () => {
                           className={`tw:p-2 tw:rounded-md tw:transition-all ${
                             viewMode === 'grid'
                               ? 'tw:bg-indigo-500 tw:text-white'
-                              : 'tw:bg-gray-200 tw:dark:bg-slate-600 tw:text-gray-700 tw:dark:text-gray-300 hover:tw:bg-gray-300 hover:tw:dark:bg-slate-500'
+                              : 'tw:bg-slate-200 tw:dark:bg-slate-600 tw:text-slate-700 tw:dark:text-slate-300 hover:tw:bg-slate-300 hover:tw:dark:bg-slate-500'
                           }`}
                         >
                           <Icon icon='lucide:grid' className='tw:w-5 tw:h-5' />
@@ -359,10 +360,10 @@ const DmrvDbPage = () => {
                               difficulty === 'all' ? 'sc' : 'all',
                             )
                           }}
-                          className={`tw:px-4 tw:text-sm tw:py-1.5 tw:rounded-lg tw:border tw:border-gray-300 tw:dark:border-slate-600 tw:transition-all ${
+                          className={`tw:px-4 tw:text-sm tw:py-1.5 tw:rounded-lg tw:border tw:border-slate-300 tw:dark:border-slate-600 tw:transition-all ${
                             difficulty === 'sc'
                               ? 'tw:bg-indigo-500 tw:text-white hover:tw:bg-indigo-600'
-                              : 'tw:bg-gray-200 tw:dark:bg-slate-700/50 tw:text-gray-700 tw:dark:text-white hover:tw:bg-gray-300 hover:tw:dark:bg-slate-600'
+                              : 'tw:bg-slate-200 tw:dark:bg-slate-700/50 tw:text-slate-700 tw:dark:text-white hover:tw:bg-slate-300 hover:tw:dark:bg-slate-600'
                           }`}
                         >
                           SC
@@ -370,7 +371,7 @@ const DmrvDbPage = () => {
                         <select
                           value={selectedLevel}
                           onChange={(e) => setSelectedLevel(e.target.value)}
-                          className='tw:p-1.5 tw:min-w-[120px] tw:max-w-[120px] tw:w-36 tw:text-sm tw:rounded-lg tw:border tw:dark:bg-slate-700 tw:dark:text-white tw:dark:border-slate-600 tw:bg-white tw:text-gray-700 tw:border-gray-300 focus:tw:border-indigo-400 focus:tw:ring-2 focus:tw:ring-indigo-400 focus:tw:ring-opacity-20 tw:transition-all'
+                          className='tw:p-1.5 tw:min-w-[120px] tw:max-w-[120px] tw:w-36 tw:text-sm tw:rounded-lg tw:border tw:dark:bg-slate-700 tw:dark:text-white tw:dark:border-slate-600 tw:bg-white tw:text-slate-700 tw:border-slate-300 focus:tw:border-indigo-400 focus:tw:ring-2 focus:tw:ring-indigo-400 focus:tw:ring-opacity-20 tw:transition-all'
                         >
                           <option value='all'>모든 난이도</option>
                           {Array.from({ length: 15 }, (_, i) => i + 1).map((level) => (
@@ -381,14 +382,14 @@ const DmrvDbPage = () => {
                         </select>
                         <button
                           onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
-                          className='tw:text-sm tw:bg-gray-200 tw:dark:bg-slate-700/50 tw:text-gray-700 tw:dark:text-white tw:px-4 tw:py-1.5 tw:rounded-lg tw:border tw:border-gray-300 tw:dark:border-slate-600 hover:tw:bg-gray-300 hover:tw:dark:bg-slate-600 tw:transition-all'
+                          className='tw:text-sm tw:bg-slate-200 tw:dark:bg-slate-700/50 tw:text-slate-700 tw:dark:text-white tw:px-4 tw:py-1.5 tw:rounded-lg tw:border tw:border-slate-300 tw:dark:border-slate-600 hover:tw:bg-slate-300 hover:tw:dark:bg-slate-600 tw:transition-all'
                         >
                           {sortOrder === 'asc' ? '이름 ↑' : '이름 ↓'}
                         </button>
                         <div className='tw:relative tw:flex-1'>
                           <div className='tw:absolute tw:inset-y-0 tw:left-0 tw:pl-3 tw:flex tw:items-center tw:pointer-events-none'>
                             <svg
-                              className='tw:h-5 tw:w-5 tw:text-gray-400'
+                              className='tw:h-5 tw:w-5 tw:text-slate-400'
                               xmlns='http://www.w3.org/2000/svg'
                               viewBox='0 0 20 20'
                               fill='currentColor'
@@ -403,7 +404,7 @@ const DmrvDbPage = () => {
 
                           <input
                             ref={searchInputRef}
-                            className='tw:w-full tw:text-sm tw:bg-white tw:dark:bg-slate-700 tw:bg-opacity-25 tw:text-light tw:pl-10 tw:pr-4 tw:py-1.5 tw:rounded-lg tw:border tw:border-gray-300 tw:dark:border-slate-600 tw:border-opacity-50 focus:tw:border-blue-400 focus:tw:ring-2 focus:tw:ring-blue-400 focus:tw:ring-opacity-20 tw:transition-all'
+                            className='tw:w-full tw:text-sm tw:bg-white tw:dark:bg-slate-700 tw:bg-opacity-25 tw:text-light tw:pl-10 tw:pr-4 tw:py-1.5 tw:rounded-lg tw:border tw:border-slate-300 tw:dark:border-slate-600 tw:border-opacity-50 focus:tw:border-blue-400 focus:tw:ring-2 focus:tw:ring-blue-400 focus:tw:ring-opacity-20 tw:transition-all'
                             onChange={(e) => setSearchName(e.currentTarget.value)}
                             type='text'
                             placeholder='제목, 제작자명 또는 DLC명으로 검색'
@@ -419,7 +420,7 @@ const DmrvDbPage = () => {
                               className={`tw:flex tw:items-center tw:justify-center tw:relative tw:px-4 tw:py-0.5 tw:border tw:border-opacity-50 tw:transition-all tw:duration-500 tw:rounded-md tw:flex-1 ${
                                 String(mode) === keyMode
                                   ? 'tw:border-indigo-500 tw:bg-indigo-600/20 tw:dark:bg-indigo-600/20 tw:brightness-150'
-                                  : 'tw:border-gray-400 tw:dark:border-slate-600 tw:opacity-50 hover:tw:border-indigo-400 hover:tw:bg-gray-200 hover:tw:dark:bg-slate-700 hover:tw:bg-opacity-30 hover:tw:dark:bg-opacity-30 hover:tw:opacity-100'
+                                  : 'tw:border-slate-400 tw:dark:border-slate-600 tw:opacity-50 hover:tw:border-indigo-400 hover:tw:bg-slate-200 hover:tw:dark:bg-slate-700 hover:tw:bg-opacity-30 hover:tw:dark:bg-opacity-30 hover:tw:opacity-100'
                               }`}
                             >
                               <div
@@ -445,12 +446,12 @@ const DmrvDbPage = () => {
           {/* 메인 콘텐츠 영역 */}
           <div className='tw:flex-1 tw:overflow-hidden tw:transition-all tw:w-full duration-300'>
             <div className='tw:h-full tw:overflow-y-auto tw:scroll-smooth tw:custom-scrollbar custom-scrollbar-always'>
-              <div className='tw:flex tw:mr-2 tw:flex-col tw:gap-1 tw:bg-white tw:dark:bg-slate-800 tw:bg-opacity-75 tw:dark:bg-opacity-75 tw:rounded-md tw:p-4 tw:border tw:border-gray-200 tw:dark:border-slate-700'>
+              <div className='tw:flex tw:mr-2 tw:flex-col tw:gap-1 tw:bg-white tw:dark:bg-slate-800 tw:bg-opacity-75 tw:dark:bg-opacity-75 tw:rounded-md tw:p-4 tw:border tw:border-slate-200 tw:dark:border-slate-700'>
                 <div
                   className={`tw:w-full ${viewMode === 'grid' ? 'tw:grid tw:grid-cols-[repeat(auto-fill,80px)] tw:gap-3 tw:justify-center tw:content-center' : 'tw:flex tw:flex-col'}`}
                 >
                   {viewMode === 'list' && (
-                    <div className='tw:flex tw:items-center tw:gap-4 tw:p-2 tw:border-b tw:border-gray-300 tw:dark:border-slate-600 tw:text-gray-500 tw:dark:text-slate-300 tw:font-bold tw:text-sm'>
+                    <div className='tw:flex tw:items-center tw:gap-4 tw:p-2 tw:border-b tw:border-slate-300 tw:dark:border-slate-600 tw:text-slate-500 tw:dark:text-slate-300 tw:font-bold tw:text-sm'>
                       <div className='tw:w-[80px] tw:text-center'>곡 이미지</div>
                       <div className='tw:flex tw:flex-1'>
                         <div className='tw:flex-1'>곡 정보</div>
@@ -490,7 +491,7 @@ const DmrvDbPage = () => {
                       ref={loadMoreRef}
                       className={`tw:h-20 tw:w-full tw:flex tw:justify-center tw:items-center ${viewMode === 'grid' ? 'tw:col-span-full' : ''}`}
                     >
-                      <div className='tw:text-sm tw:text-gray-500'>더 불러오는 중...</div>
+                      <div className='tw:text-sm tw:text-slate-500'>더 불러오는 중...</div>
                     </div>
                   )}
                 </div>

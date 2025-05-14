@@ -223,7 +223,7 @@ const MenuSidebar: React.FC = () => {
         <ul className='tw:text-xs tw:p-0'>
           <li className={`tw:border-b tw:dark:border-slate-700 tw:border-gray-200`}>
             <div className='tw:flex tw:items-center tw:justify-between tw:py-2 tw:px-4'>
-              <span className='tw:font-bold font-gg'>{t('quickMenu.quickMenuNavTitle')}</span>
+              <span className='tw:font-bold'>{t('quickMenu.quickMenuNavTitle')}</span>
               <span
                 onClick={() => {
                   setIsDropdownOpen(false)
@@ -496,7 +496,7 @@ const MenuSidebar: React.FC = () => {
           <ul className='tw:text-xs tw:p-0'>
             <li className={`tw:border-b tw:dark:border-slate-700 tw:border-gray-200`}>
               <div className='tw:flex tw:items-center tw:justify-between tw:py-2 tw:px-4'>
-                <span className='tw:font-bold font-gg'>{t('quickMenu.quickMenuNavTitle')}</span>
+                <span className='tw:font-bold'>{t('quickMenu.quickMenuNavTitle')}</span>
                 <span
                   onClick={() => {
                     setIsDropdownOpen(false)

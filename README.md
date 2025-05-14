@@ -146,14 +146,14 @@ racla/
 
 ## 📜 개발 일지
 
-> RACLA 0.8.0 Developer Note #2 - Track Maker / Pattern Editor Demo - 2025. 4. 29.
+<!-- > RACLA 0.8.0 Developer Note #2 - Track Maker / Pattern Editor Demo - 2025. 4. 29.
 
 <div align="center">
   <a href="https://youtu.be/xX_rC5ixWaI?t=0s" target="_blank">
     <img src="https://img.youtube.com/vi/xX_rC5ixWaI/0.jpg" alt="Developer Note" width="600">
     <p>👆 이미지를 클릭하면 최근에 업로드된 개발 일지 영상으로 이동합니다</p>
   </a>
-</div>
+</div> -->
 
 ### To-Do (Main Process)
 
@@ -175,15 +175,15 @@ racla/
 - [x] 앱 초기화 로직 (Discord Manager, Overlway Window, Update Manager 호출, 수록곡 DB 업데이트, 자동 로그인 등등)
 - [x] 앱 레이아웃 (Header, Navigation Bar, Footer, Common Component, Etc...)
 - [x] 치트시트
-- [ ] 홈
+- [x] 홈
 - [x] 로그인 및 제3자 서비스 연동 회원가입
 - [ ] 오버레이
 - [x] 트랙 메이커 (패턴 제작 및 공유, 연습 모드)
 - [ ] DMRV - V-ARCHIVE - 기록 등록
-- [ ] DMRV - V-ARCHIVE - 성과표
-- [ ] DMRV - V-ARCHIVE - MAX DJ POWER
-- [ ] DMRV - V-ARCHIVE - 데이터베이스
-- [ ] DMRV - V-ARCHIVE - 서열표
+- [x] DMRV - V-ARCHIVE - 성과표
+- [x] DMRV - V-ARCHIVE - MAX DJ POWER
+- [x] DMRV - V-ARCHIVE - 데이터베이스
+- [x] DMRV - V-ARCHIVE - 서열표
 - [ ] DMRV - 전일 아카이브 - 종합 랭킹
 - [ ] DMRV - 전일 아카이브 - 랭킹 데이터베이스
 - [ ] DMRV - 전일 아카이브 - 하드 판정 서열표
