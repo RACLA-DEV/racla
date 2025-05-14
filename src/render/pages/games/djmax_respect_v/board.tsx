@@ -7,7 +7,7 @@ import { RootState } from '@render/store'
 import { ApiArchiveNicknameBoard } from '@src/types/dto/v-archive/ApiArchiveNicknameBoard'
 import { useSelector } from 'react-redux'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { SyncLoader } from 'react-spinners'
+import { PuffLoader } from 'react-spinners'
 import apiClient from '../../../../libs/apiClient'
 
 interface Pattern {
@@ -711,7 +711,7 @@ const DmrvBoardPage = () => {
             >
               {isLoading ? (
                 <div className='tw:flex tw:justify-center'>
-                  <SyncLoader color='#6366f1' size={8} />
+                  <PuffLoader color='#6366f1' size={32} />
                 </div>
               ) : (
                 floorData.map((floor) => {

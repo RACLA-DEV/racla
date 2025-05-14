@@ -184,9 +184,9 @@ racla/
 - [x] DMRV - V-ARCHIVE - MAX DJ POWER
 - [x] DMRV - V-ARCHIVE - 데이터베이스
 - [x] DMRV - V-ARCHIVE - 서열표
-- [ ] DMRV - 전일 아카이브 - 종합 랭킹
+- [x] DMRV - 전일 아카이브 - 종합 랭킹
 - [ ] DMRV - 전일 아카이브 - 랭킹 데이터베이스
-- [ ] DMRV - 전일 아카이브 - 하드 판정 서열표
+- [x] DMRV - 전일 아카이브 - 하드 판정 서열표
 - [ ] WJMAX - 기록 등록
 - [ ] WJMAX - 성과표
 - [ ] WJMAX - 데이터베이스
