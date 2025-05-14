@@ -180,9 +180,9 @@ racla/
 - [ ] 오버레이
 - [x] 트랙 메이커 (패턴 제작 및 공유, 연습 모드)
 - [ ] DMRV - V-ARCHIVE - 기록 등록
-- [ ] DMRV - V-ARCHIVE - 성과표
+- [x] DMRV - V-ARCHIVE - 성과표
 - [x] DMRV - V-ARCHIVE - MAX DJ POWER
-- [ ] DMRV - V-ARCHIVE - 데이터베이스
+- [x] DMRV - V-ARCHIVE - 데이터베이스
 - [x] DMRV - V-ARCHIVE - 서열표
 - [ ] DMRV - 전일 아카이브 - 종합 랭킹
 - [ ] DMRV - 전일 아카이브 - 랭킹 데이터베이스
