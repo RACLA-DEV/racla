@@ -3,9 +3,9 @@ import 'dayjs/locale/ko'
 import * as R from 'ramda'
 
 import React, { useEffect, useState } from 'react'
-import { FaDatabase } from 'react-icons/fa6'
 import { useSelector } from 'react-redux'
 
+import { Icon } from '@iconify/react/dist/iconify.js'
 import Image from '@render/components/image/Image'
 import ScoreEditComponent from '@render/components/score/ScoreEditModal'
 import { globalDictionary } from '@render/constants/globalDictionary'
@@ -228,7 +228,7 @@ const DmrvDbDetailPage = () => {
           <div className={`tw:flex tw:flex-col tw:transition-all tw:w-full duration-300`}>
             <div
               className={
-                'tw:flex tw:flex-col tw:gap-1 tw:relative tw:bg-opacity-10 tw:rounded-md tw:mb-4 tw:h-auto p-0'
+                'tw:flex tw:flex-col tw:gap-1 tw:relative tw:bg-opacity-10 tw:rounded-md tw:mb-4 tw:h-auto tw:border tw:border-slate-200 tw:dark:border-slate-700'
               }
             >
               <div className='tw:absolute tw:inset-0 tw:overflow-hidden tw:rounded-md'>
@@ -245,7 +245,7 @@ const DmrvDbDetailPage = () => {
                 <div className='tw:absolute tw:inset-0 tw:bg-white/75 tw:dark:bg-slate-800/75' />
               </div>
 
-              <div className='tw:flex tw:relative tw:p-2 tw:gap-2 tw:bg-white/40 tw:dark:bg-slate-800/40 tw:backdrop-blur-sm tw:rounded-md tw:shadow-md'>
+              <div className='tw:flex tw:relative tw:p-2 tw:gap-2 tw:backdrop-blur-sm tw:rounded-md'>
                 {/* 하단 */}
                 <div className='tw:flex tw:mt-auto tw:items-end'>
                   <Image
@@ -262,7 +262,7 @@ const DmrvDbDetailPage = () => {
                   <span className='tw:flex tw:text-sm tw:font-light tw:text-slate-600 tw:dark:text-slate-300'>
                     {baseSongData[0].composer}
                   </span>
-                  <div className='tw:text-xl tw:font-extrabold tw:tracking-tight'>
+                  <div className='tw:text-lg tw:font-extrabold tw:tracking-tight'>
                     <span className='tw:me-1'>{baseSongData[0].name}</span>
                     <sup className='tw:text-xs tw:font-light tw:text-slate-500 tw:dark:text-slate-400'>
                       (V-ARCHIVE :{' '}
@@ -271,13 +271,13 @@ const DmrvDbDetailPage = () => {
                     </sup>
                   </div>
                 </div>
-                <div className='tw:absolute tw:w-96 tw:flex tw:gap-2 tw:text-xs tw:top-2 tw:right-2'>
-                  {baseSongData[0]?.hardArchiveTitle && (
+                <div className='tw:absolute tw:flex tw:gap-1 tw:text-xs tw:top-2 tw:right-2'>
+                  {baseSongData[0]?.uuid && (
                     <Link
                       to={`/games/djmax_respect_v/hard/db/${baseSongData[0].title}`}
-                      className='tw:ms-auto tw:inline-flex tw:items-center tw:gap-2 tw:bg-black/90 tw:rounded-md hover:tw:bg-indigo-100 tw:dark:hover:tw:bg-indigo-800/50 tw:transition-colors tw:text-sm tw:p-1'
+                      className='tw:ms-auto tw:inline-flex tw:items-center tw:gap-2 tw:bg-black/90 tw:rounded-md hover:tw:bg-indigo-100 tw:dark:hover:tw:bg-indigo-800/50 tw:transition-colors tw:py-1 tw:px-2'
                     >
-                      <FaDatabase className='tw:mt-0.5' />
+                      <Icon icon='lucide:database' />
                       <span>전일 기록(전일 아카이브)</span>
                     </Link>
                   )}

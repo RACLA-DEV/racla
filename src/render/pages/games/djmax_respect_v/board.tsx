@@ -6,8 +6,8 @@ import { createLog } from '@render/libs/logger'
 import { RootState } from '@render/store'
 import { ApiArchiveNicknameBoard } from '@src/types/dto/v-archive/ApiArchiveNicknameBoard'
 import { useSelector } from 'react-redux'
-import { Link, useParams } from 'react-router-dom'
-import { SyncLoader } from 'react-spinners'
+import { Link, useNavigate, useParams } from 'react-router-dom'
+import { PuffLoader } from 'react-spinners'
 import apiClient from '../../../../libs/apiClient'
 
 interface Pattern {
@@ -95,7 +95,6 @@ const DmrvBoardPage = () => {
   const { keyMode, board } = useParams()
   const { showNotification } = useNotificationSystem()
   const { userData, songData, selectedGame } = useSelector((state: RootState) => state.app)
-  const [randomHeaderBg] = useState(Math.floor(Math.random() * 17) + 1)
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [floorData, setFloorData] = useState<Floor[]>([])
   const [isMounted, setIsMounted] = useState<boolean>(true)
@@ -106,6 +105,7 @@ const DmrvBoardPage = () => {
     basic70: 0,
     top50: 0,
   })
+  const navigate = useNavigate()
 
   // 현재 레벨에 따른 난이도 그룹 결정 함수
   const getDifficultyByLevel = (level: string) => {
@@ -473,10 +473,11 @@ const DmrvBoardPage = () => {
         {
           mode: 'i18n',
           ns: 'board',
-          value: 'needLogin',
+          value: 'board.needLogin',
         },
         'error',
       )
+      navigate(-2)
     }
   }, [])
 
@@ -710,7 +711,7 @@ const DmrvBoardPage = () => {
             >
               {isLoading ? (
                 <div className='tw:flex tw:justify-center'>
-                  <SyncLoader color='#6366f1' size={8} />
+                  <PuffLoader color='#6366f1' size={32} />
                 </div>
               ) : (
                 floorData.map((floor) => {

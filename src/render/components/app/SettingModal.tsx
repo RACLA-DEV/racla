@@ -9,7 +9,7 @@ import type { SettingItem } from '@src/types/settings/SettingItem'
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useDispatch, useSelector } from 'react-redux'
-import { SyncLoader } from 'react-spinners'
+import { PuffLoader } from 'react-spinners'
 
 // 카테고리 정의
 const settingCategories = {
@@ -424,7 +424,7 @@ const StorageInfo = ({
     <div className='tw:space-y-6'>
       {isLoading ? (
         <div className='tw:flex tw:justify-center tw:py-8'>
-          <SyncLoader color={theme === 'dark' ? '#fff' : '#000'} size={10} />
+          <PuffLoader color={theme === 'dark' ? '#fff' : '#000'} size={32} />
         </div>
       ) : (
         <>

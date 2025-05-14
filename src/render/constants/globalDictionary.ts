@@ -533,7 +533,7 @@ export const globalDictionary = {
             icon: 'lucide:list',
             isDisplay: true,
             isOpenBrowser: false,
-            link: '/board/4/1',
+            link: '/board',
             status: 'stable',
             platform: ['win32'],
           },
