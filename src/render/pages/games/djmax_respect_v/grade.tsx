@@ -7,7 +7,7 @@ import * as R from 'ramda'
 import React, { useCallback, useEffect, useState } from 'react'
 import { useInView } from 'react-intersection-observer'
 import { useSelector } from 'react-redux'
-import { SyncLoader } from 'react-spinners'
+import { PuffLoader } from 'react-spinners'
 
 // 지연 로딩되는 FloorItem 컴포넌트
 const LazyFloorItem = ({ floorItem, keyMode, levelData }) => {
@@ -23,7 +23,7 @@ const LazyFloorItem = ({ floorItem, keyMode, levelData }) => {
       key={`FloorItemsPack${levelData.level}_${String(floorItem.floor).replace('.', '_')}`}
       className='tw:flex tw:gap-3 tw:mb-6'
     >
-      <span className='tw:font-bold tw:text-base tw:min-w-12 tw:text-right tw:text-gray-700 tw:dark:text-slate-300'>
+      <span className='tw:font-bold tw:text-base tw:min-w-12 tw:text-right tw:text-slate-700 tw:dark:text-slate-300'>
         {floorItem.floor}
       </span>
       <div className='tw:flex tw:flex-wrap tw:gap-3'>
@@ -220,11 +220,11 @@ const DmrvGradePage = () => {
           {/* 상단 설명 섹션 */}
           <div className='tw:flex tw:gap-4'>
             {/* 필터 섹션 */}
-            <div className='tw:flex tw:flex-col tw:w-full tw:gap-4 tw:bg-white tw:dark:bg-slate-800 tw:bg-opacity-75 tw:dark:bg-opacity-75 tw:rounded-lg tw:shadow-lg tw:p-6 tw:mb-4 tw:border tw:border-gray-200 tw:dark:border-slate-700'>
+            <div className='tw:flex tw:flex-col tw:w-full tw:gap-4 tw:bg-opacity-75 tw:dark:bg-opacity-75 tw:rounded-lg tw:p-6 tw:mb-4 tw:border tw:border-slate-200 tw:dark:border-slate-700'>
               {/* 헤더 */}
               <div className='tw:flex tw:w-full tw:items-end tw:justify-between'>
-                <span className='tw:text-xl tw:font-bold tw:text-gray-900 tw:dark:text-white'>
-                  🙋‍♂️ 서열표
+                <span className='tw:text-xl tw:font-bold tw:text-slate-900 tw:dark:text-white'>
+                  서열표
                 </span>
               </div>
               <div className='tw:flex tw:gap-4'>
@@ -242,7 +242,7 @@ const DmrvGradePage = () => {
                       'tw:flex tw:items-center tw:justify-center tw:relative tw:h-12 tw:border tw:border-opacity-50 tw:transition-all tw:duration-500 tw:rounded-sm ' +
                       (keyDjPower
                         ? 'tw:brightness-150 tw:border-indigo-500 tw:bg-indigo-600/20 tw:dark:bg-indigo-600/20'
-                        : 'tw:border-gray-400 tw:dark:border-slate-600 tw:opacity-50 hover:tw:border-indigo-400 hover:tw:bg-gray-200 hover:tw:dark:bg-slate-700 hover:tw:bg-opacity-30 hover:tw:dark:bg-opacity-30 hover:tw:opacity-100')
+                        : 'tw:border-slate-400 tw:dark:border-slate-600 tw:opacity-50 hover:tw:border-indigo-400 hover:tw:bg-slate-200 hover:tw:dark:bg-slate-700 hover:tw:bg-opacity-30 hover:tw:dark:bg-opacity-30 hover:tw:opacity-100')
                     }
                     disabled={isLoading}
                   >
@@ -253,12 +253,12 @@ const DmrvGradePage = () => {
                       }
                     />
                     <div className='tw:relative tw:flex tw:flex-col tw:items-center tw:gap-0.5 tw:leading-none'>
-                      <span className='tw:text-xs tw:font-extrabold tw:text-gray-900 tw:dark:text-white'>
+                      <span className='tw:text-xs tw:font-extrabold tw:text-slate-900 tw:dark:text-white'>
                         DJ POWER
                       </span>
-                      <span className='tw:text-sm tw:text-gray-500 tw:dark:text-slate-300'>
+                      {/* <span className='tw:text-sm tw:text-slate-500 tw:dark:text-slate-300'>
                         {keyDjPower ? 'ON' : 'OFF'}
-                      </span>
+                      </span> */}
                     </div>
                   </button>
                   {globalDictionary.gameDictionary[selectedGame].keyModeList.map((value) => (
@@ -274,7 +274,7 @@ const DmrvGradePage = () => {
                         'tw:flex tw:items-center tw:justify-center tw:relative tw:h-12 tw:border tw:border-opacity-50 tw:transition-all tw:duration-500 tw:rounded-sm ' +
                         (keyMode === String(value)
                           ? 'tw:border-indigo-500 tw:bg-indigo-600/20 tw:dark:bg-indigo-600/20 tw:brightness-150'
-                          : 'tw:border-gray-400 tw:dark:border-slate-600 tw:opacity-50 hover:tw:border-indigo-400 hover:tw:bg-gray-200 hover:tw:dark:bg-slate-700 hover:tw:bg-opacity-30 hover:tw:dark:bg-opacity-30 hover:tw:opacity-100')
+                          : 'tw:border-slate-400 tw:dark:border-slate-600 tw:opacity-50 hover:tw:border-indigo-400 hover:tw:bg-slate-200 hover:tw:dark:bg-slate-700 hover:tw:bg-opacity-30 hover:tw:dark:bg-opacity-30 hover:tw:opacity-100')
                       }
                       disabled={isLoading || keyMode === String(value)}
                     >
@@ -285,7 +285,7 @@ const DmrvGradePage = () => {
                         }
                       />
                       <div className='tw:relative tw:flex tw:flex-col tw:items-center tw:gap-1'>
-                        <span className='tw:text-lg tw:font-bold tw:text-gray-900 tw:dark:text-white'>
+                        <span className='tw:text-lg tw:font-bold tw:text-slate-900 tw:dark:text-white'>
                           {String(value)}B
                         </span>
                       </div>
@@ -293,7 +293,7 @@ const DmrvGradePage = () => {
                   ))}
                 </div>
 
-                <div className='tw:h-full tw:w-[1px] tw:bg-gray-300 tw:dark:bg-slate-700' />
+                <div className='tw:h-full tw:w-[1px] tw:bg-slate-300 tw:dark:bg-slate-700' />
 
                 {/* 패턴/레벨 선택 */}
                 <div className='tw:flex tw:gap-2 tw:flex-1'>
@@ -307,7 +307,7 @@ const DmrvGradePage = () => {
                         'tw:flex tw:flex-1 tw:items-center tw:justify-center tw:relative tw:h-12 tw:border tw:border-opacity-50 tw:transition-all tw:duration-500 tw:rounded-sm ' +
                         (keyPattern === String(value)
                           ? 'tw:border-indigo-500 tw:bg-indigo-600/20 tw:dark:bg-indigo-600/20 tw:brightness-150'
-                          : 'tw:border-gray-400 tw:dark:border-slate-600 tw:opacity-50 hover:tw:border-indigo-400 hover:tw:bg-gray-200 hover:tw:dark:bg-slate-700 hover:tw:bg-opacity-30 hover:tw:dark:bg-opacity-30 hover:tw:opacity-100') +
+                          : 'tw:border-slate-400 tw:dark:border-slate-600 tw:opacity-50 hover:tw:border-indigo-400 hover:tw:bg-slate-200 hover:tw:dark:bg-slate-700 hover:tw:bg-opacity-30 hover:tw:dark:bg-opacity-30 hover:tw:opacity-100') +
                         (keyDjPower && !isNaN(Number(String(value)))
                           ? ' tw:opacity-0 tw:hidden'
                           : '')
@@ -324,7 +324,7 @@ const DmrvGradePage = () => {
                           String(value)
                         }
                       />
-                      <span className='tw:text-sm tw:font-bold tw:text-gray-900 tw:dark:text-white'>
+                      <span className='tw:text-sm tw:font-bold tw:text-slate-900 tw:dark:text-white'>
                         {isNaN(Number(String(value))) ? String(value) : `Lv.${String(value)}`}
                       </span>
                     </button>
@@ -334,14 +334,14 @@ const DmrvGradePage = () => {
             </div>
           </div>
 
-          <div className='tw:flex tw:flex-col tw:gap-1 tw:bg-white tw:dark:bg-slate-800 tw:bg-opacity-75 tw:dark:bg-opacity-75 tw:rounded-md tw:p-4 tw:border tw:border-gray-200 tw:dark:border-slate-700'>
+          <div className='tw:flex tw:flex-col tw:gap-1 tw:bg-white tw:dark:bg-slate-800 tw:bg-opacity-75 tw:dark:bg-opacity-75 tw:rounded-md tw:p-4 tw:border tw:border-slate-200 tw:dark:border-slate-700'>
             {baseSongData.length > 0 && !isLoading ? (
               baseSongData.map((levelData) => (
                 <div
                   key={'DifficultyBody' + levelData.level}
                   className='tw:flex tw:flex-col tw:animate-fadeInLeft'
                 >
-                  <span className='tw:text-2xl tw:py-2 tw:mb-3 tw:w-full tw:font-bold tw:text-gray-900 tw:dark:text-white tw:border-b tw:border-gray-300 tw:dark:border-slate-600 tw:border-opacity-50 me-auto'>
+                  <span className='tw:text-2xl tw:py-2 tw:mb-3 tw:w-full tw:font-bold tw:text-slate-900 tw:dark:text-white tw:border-b tw:border-slate-300 tw:dark:border-slate-600 tw:border-opacity-50 me-auto'>
                     {baseSongData.length === 1
                       ? (String(keyMode) !== 'DJPOWER' ? String(keyMode) + 'B' : 'DJ POWER') +
                         ' ' +
@@ -372,7 +372,7 @@ const DmrvGradePage = () => {
               ))
             ) : (
               <div className='tw:flex tw:justify-center tw:h-[calc(100vh-400px)] tw:items-center'>
-                <SyncLoader color='#6366f1' size={8} />
+                <PuffLoader color='#6366f1' size={32} />
               </div>
             )}
           </div>

@@ -133,7 +133,7 @@ export const router = createHashRouter([
             ),
           },
           {
-            path: '/games/djmax_respect_v/board',
+            path: '/games/djmax_respect_v/board/:keyMode/:board',
             element: (
               <Suspense fallback={<PageLoading />}>
                 <DmrvBoardPage />
@@ -181,7 +181,7 @@ export const router = createHashRouter([
             ),
           },
           {
-            path: '/games/platina_lab/board',
+            path: '/games/platina_lab/board/:keyMode/:board',
             element: (
               <Suspense fallback={<PageLoading />}>
                 <PlatinaLabBoardPage />
@@ -213,7 +213,7 @@ export const router = createHashRouter([
             ),
           },
           {
-            path: '/games/wjmax/board',
+            path: '/games/wjmax/board/:keyMode/:board',
             element: (
               <Suspense fallback={<PageLoading />}>
                 <WjmaxBoardPage />

@@ -30,6 +30,7 @@ interface ScorePopupComponentProps {
   height?: number
   judgementType?: number
   floor?: number
+  isLink?: boolean
 }
 
 // 이미지 미리 가져오는 함수
@@ -51,6 +52,7 @@ const ScorePopupComponent = memo(
     width = 80,
     height = 80,
     floor,
+    isLink = true,
   }: ScorePopupComponentProps) => {
     const { songData, userData, isLoggedIn } = useSelector((state: RootState) => state.app)
     const { font } = useSelector((state: RootState) => state.app.settingData)
@@ -273,38 +275,56 @@ const ScorePopupComponent = memo(
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
         >
-          <Link
-            to={`/games/${game}/db/${songTitle}`}
-            className={`tw:relative tw:rounded-md hover-scale-110 tw:cursor-pointer ${game}_record`}
-            style={{ width, height }}
-          >
-            <Image
-              src={imageUrl}
-              className='tw:absolute tw:rounded-md tw:shadow-lg tw:w-full tw:h-full'
-              width={width}
-              height={height}
-              alt={songItem?.name || ''}
-              fallbackSrc='https://cdn.racla.app/common/no-image.jpg'
-              style={{ objectFit: 'cover' }}
-              onLoad={() => setImageLoaded(true)}
-            />
-            {isVisibleCode && imageLoaded && (
-              <span className='tw:absolute tw:top-0 tw:left-0 djmax_respect_v_dlc_code_wrap tw:rounded-tl-md'>
-                <span className={`${game}_dlc_code ${game}_dlc_code_${songItem?.dlcCode ?? ''}`}>
-                  {songItem?.dlcCode ?? ''}
+          {isLink ? (
+            <Link
+              to={`/games/${game}/db/${songTitle}`}
+              className={`tw:relative tw:rounded-md hover-scale-110 tw:cursor-pointer ${game}_record`}
+              style={{ width, height }}
+            >
+              <Image
+                src={imageUrl}
+                className='tw:absolute tw:rounded-md tw:shadow-lg tw:w-full tw:h-full'
+                width={width}
+                height={height}
+                alt={songItem?.name || ''}
+                fallbackSrc='https://cdn.racla.app/common/no-image.jpg'
+                style={{ objectFit: 'cover' }}
+                onLoad={() => setImageLoaded(true)}
+              />
+              {isVisibleCode && imageLoaded && (
+                <span className='tw:absolute tw:top-0 tw:left-0 djmax_respect_v_dlc_code_wrap tw:rounded-tl-md'>
+                  <span className={`${game}_dlc_code ${game}_dlc_code_${songItem?.dlcCode ?? ''}`}>
+                    {songItem?.dlcCode ?? ''}
+                  </span>
                 </span>
-              </span>
-            )}
-            {floor && imageLoaded && (
-              <span
-                className={`tw:absolute tw:flex tw:items-center tw:right-0 tw:bottom-0 pattern tw:rounded-br-md ${pattern}`}
-              >
-                <span className={`tw:text-white`}>
-                  {String(pattern)} {String(level)}
+              )}
+              {floor && imageLoaded && (
+                <span
+                  className={`tw:absolute tw:flex tw:items-center tw:right-0 tw:bottom-0 pattern tw:rounded-br-md ${pattern}`}
+                >
+                  <span className={`tw:text-white`}>
+                    {String(pattern)} {String(level)}
+                  </span>
                 </span>
-              </span>
-            )}
-          </Link>
+              )}
+            </Link>
+          ) : (
+            <div
+              className='tw:relative tw:rounded-md hover-scale-110 tw:cursor-pointer'
+              style={{ width, height }}
+            >
+              <Image
+                src={imageUrl}
+                className='tw:absolute tw:rounded-md tw:shadow-lg tw:w-full tw:h-full'
+                width={width}
+                height={height}
+                alt={songItem?.name || ''}
+                fallbackSrc='https://cdn.racla.app/common/no-image.jpg'
+                style={{ objectFit: 'cover' }}
+                onLoad={() => setImageLoaded(true)}
+              />
+            </div>
+          )}
           {/* {((game === 'djmax_respect_v' && userData.vArchiveUserInfo.nickname !== '') ||
           game != 'djmax_respect_v') &&
         scoreData ? (

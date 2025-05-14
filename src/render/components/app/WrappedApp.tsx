@@ -247,7 +247,9 @@ export default function WrappedApp() {
           return null
       }
 
-      const response = await apiClient.get<SongData[]>(endpoint)
+      const response = await apiClient.get<SongData[]>(endpoint, {
+        timeout: 10000,
+      })
       if (response.status !== 200) {
         throw new Error(
           settingData.language === 'ko_KR'
@@ -541,10 +543,16 @@ export default function WrappedApp() {
                     session,
                   )
 
-                  const response = await apiClient.post<SessionData>(`/v3/racla/player/login`, {
-                    playerId: session.playerId,
-                    playerToken: session.playerToken,
-                  })
+                  const response = await apiClient.post<SessionData>(
+                    `/v3/racla/player/login`,
+                    {
+                      playerId: session.playerId,
+                      playerToken: session.playerToken,
+                    },
+                    {
+                      timeout: 10000,
+                    },
+                  )
 
                   if (response.status === 200) {
                     const sessionData = response.data.data
@@ -703,7 +711,9 @@ export default function WrappedApp() {
     if (isTrackMakerPath) {
       dispatch(setSidebarCollapsed(true))
     } else {
-      dispatch(setSidebarCollapsed(false))
+      if (!location.pathname.includes('games')) {
+        dispatch(setSidebarCollapsed(false))
+      }
     }
     if (location.pathname.includes('djmax_respect_v')) {
       dispatch(setSelectedGame('djmax_respect_v'))

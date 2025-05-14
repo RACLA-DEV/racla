@@ -11,7 +11,9 @@ import { initReactI18next } from 'react-i18next'
 // import ja_languages from './ja/languages.json'
 // import ja_menu from './ja/menu.json'
 // import ja_settings from './ja/settings.json'
+import ko_board from './ko/board.json'
 import ko_common from './ko/common.json'
+import ko_db from './ko/db.json'
 import ko_games from './ko/games.json'
 import ko_home from './ko/home.json'
 import ko_languages from './ko/languages.json'
@@ -33,6 +35,8 @@ i18next
         settings: ko_settings,
         home: ko_home,
         languages: ko_languages,
+        db: ko_db,
+        board: ko_board,
       },
       // en_US: {
       //   common: en_common,

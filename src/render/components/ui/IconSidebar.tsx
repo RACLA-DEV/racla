@@ -230,49 +230,53 @@ const IconSidebar: React.FC = () => {
           </Tooltip>
         </div>
 
-        <div className='tw:flex tw:flex-col tw:items-center'>
-          <div className='tw:mb-4 tw:relative tw:z-10'>
-            <Tooltip content={t('racla.raclaTrackMaker')}>
-              <motion.div
-                variants={iconAnimation()}
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => {
-                  handleNavigation('/track-maker')
-                }}
-                className={`tw:w-12 tw:h-12 tw:flex tw:items-center tw:justify-center tw:rounded-lg tw:cursor-pointer tw:transition-all ${
-                  location.pathname === '/track-maker'
-                    ? 'tw:dark:bg-slate-700 tw:dark:text-indigo-400 tw:bg-white tw:text-indigo-600 tw:shadow-md'
-                    : 'tw:dark:bg-slate-800 tw:dark:text-indigo-400 tw:dark:hover:bg-slate-700 tw:bg-gray-50 tw:shadow-md tw:hover:bg-white tw:hover:shadow-md'
-                }`}
-              >
-                <LuGamepad size={28} />
-              </motion.div>
-            </Tooltip>
-          </div>
-        </div>
+        {process.env.NODE_ENV === 'development' && (
+          <>
+            <div className='tw:flex tw:flex-col tw:items-center'>
+              <div className='tw:mb-4 tw:relative tw:z-10'>
+                <Tooltip content={t('racla.raclaTrackMaker')}>
+                  <motion.div
+                    variants={iconAnimation()}
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => {
+                      handleNavigation('/track-maker')
+                    }}
+                    className={`tw:w-12 tw:h-12 tw:flex tw:items-center tw:justify-center tw:rounded-lg tw:cursor-pointer tw:transition-all ${
+                      location.pathname === '/track-maker'
+                        ? 'tw:dark:bg-slate-700 tw:dark:text-indigo-400 tw:bg-white tw:text-indigo-600 tw:shadow-md'
+                        : 'tw:dark:bg-slate-800 tw:dark:text-indigo-400 tw:dark:hover:bg-slate-700 tw:bg-gray-50 tw:shadow-md tw:hover:bg-white tw:hover:shadow-md'
+                    }`}
+                  >
+                    <LuGamepad size={28} />
+                  </motion.div>
+                </Tooltip>
+              </div>
+            </div>
 
-        <div className='tw:flex tw:flex-col tw:items-center'>
-          <div className='tw:mb-4 tw:relative tw:z-10'>
-            <Tooltip content={t('racla.raclaCheatsheet')}>
-              <motion.div
-                variants={iconAnimation()}
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => {
-                  handleNavigation('/test/cheatsheet')
-                }}
-                className={`tw:w-12 tw:h-12 tw:flex tw:items-center tw:justify-center tw:rounded-lg tw:cursor-pointer tw:transition-all ${
-                  location.pathname === '/test/cheatsheet'
-                    ? 'tw:dark:bg-slate-700 tw:dark:text-indigo-400 tw:bg-white tw:text-indigo-600 tw:shadow-md'
-                    : 'tw:dark:bg-slate-800 tw:dark:text-indigo-400 tw:dark:hover:bg-slate-700 tw:bg-gray-50 tw:shadow-md tw:hover:bg-white tw:hover:shadow-md'
-                }`}
-              >
-                <LuBook size={28} />
-              </motion.div>
-            </Tooltip>
-          </div>
-        </div>
+            <div className='tw:flex tw:flex-col tw:items-center'>
+              <div className='tw:mb-4 tw:relative tw:z-10'>
+                <Tooltip content={t('racla.raclaCheatsheet')}>
+                  <motion.div
+                    variants={iconAnimation()}
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => {
+                      handleNavigation('/test/cheatsheet')
+                    }}
+                    className={`tw:w-12 tw:h-12 tw:flex tw:items-center tw:justify-center tw:rounded-lg tw:cursor-pointer tw:transition-all ${
+                      location.pathname === '/test/cheatsheet'
+                        ? 'tw:dark:bg-slate-700 tw:dark:text-indigo-400 tw:bg-white tw:text-indigo-600 tw:shadow-md'
+                        : 'tw:dark:bg-slate-800 tw:dark:text-indigo-400 tw:dark:hover:bg-slate-700 tw:bg-gray-50 tw:shadow-md tw:hover:bg-white tw:hover:shadow-md'
+                    }`}
+                  >
+                    <LuBook size={28} />
+                  </motion.div>
+                </Tooltip>
+              </div>
+            </div>
+          </>
+        )}
       </div>
 
       {/* 설정 버튼 (하단) */}

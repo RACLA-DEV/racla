@@ -401,10 +401,10 @@ export const globalDictionary = {
           name: 'djmax_respect_v.difficulty.SC.name',
           fullName: 'djmax_respect_v.difficulty.SC.fullName',
         },
-        DPC: {
-          name: 'djmax_respect_v.difficulty.DPC.name',
-          fullName: 'djmax_respect_v.difficulty.DPC.fullName',
-        },
+        // DPC: {
+        //   name: 'djmax_respect_v.difficulty.DPC.name',
+        //   fullName: 'djmax_respect_v.difficulty.DPC.fullName',
+        // },
       },
       dlcList: [
         'R',
@@ -533,7 +533,7 @@ export const globalDictionary = {
             icon: 'lucide:list',
             isDisplay: true,
             isOpenBrowser: false,
-            link: '/board',
+            link: '/board/4/1',
             status: 'stable',
             platform: ['win32'],
           },

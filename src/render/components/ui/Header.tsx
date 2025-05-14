@@ -56,7 +56,9 @@ const TitleBar: React.FC = () => {
         <div className='tw:w-32 tw:flex tw:items-center webkit-app-region-no-drag'>
           <div
             className={`tw:transition-all tw:duration-300 tw:ease-in-out tw:overflow-hidden tw:flex ${
-              !location.pathname.startsWith('/track-maker') && !isTrackMaker
+              !location.pathname.startsWith('/track-maker') &&
+              !isTrackMaker &&
+              !location.pathname.startsWith('/overlay')
                 ? 'tw:max-w-[40px] tw:opacity-100 tw:visible tw:translate-x-0 tw:mr-2'
                 : 'tw:max-w-0 tw:opacity-0 tw:invisible tw:-translate-x-8 tw:m-0 tw:p-0'
             }`}

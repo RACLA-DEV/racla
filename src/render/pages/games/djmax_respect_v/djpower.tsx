@@ -280,11 +280,11 @@ const DmrvDjpowerPage = () => {
       {/* 상단 설명 섹션 */}
       <div className='tw:flex tw:gap-4'>
         {/* 메인 설명 섹션 */}
-        <div className='tw:flex tw:flex-col tw:gap-4 tw:bg-white tw:dark:bg-slate-800 tw:bg-opacity-75 tw:dark:bg-opacity-75 tw:rounded-lg tw:shadow-lg tw:p-6 tw:mb-4 tw:flex-1 tw:border tw:border-gray-200 tw:dark:border-slate-700'>
+        <div className='tw:flex tw:flex-col tw:gap-4 tw:bg-opacity-75 tw:dark:bg-opacity-75 tw:rounded-lg tw:p-6 tw:mb-4 tw:flex-1 tw:border tw:border-slate-200 tw:dark:border-slate-700'>
           {/* 헤더 */}
           <div className='tw:flex tw:w-full tw:items-end tw:justify-between'>
-            <span className='tw:text-xl tw:font-bold tw:text-gray-900 tw:dark:text-white'>
-              🙋‍♂️ MAX DJ POWER
+            <span className='tw:text-xl tw:font-bold tw:text-slate-900 tw:dark:text-white'>
+              MAX DJ POWER
             </span>
             <div className='tw:flex tw:items-center tw:gap-2'>
               {globalDictionary.gameDictionary[selectedGame].keyModeList.map((mode) => (
@@ -294,7 +294,7 @@ const DmrvDjpowerPage = () => {
                   className={`tw:flex tw:items-center tw:justify-center tw:relative tw:px-4 tw:py-0.5 tw:border tw:border-opacity-50 tw:transition-all tw:duration-500 tw:rounded-md tw:flex-1 ${
                     String(mode) === keyMode
                       ? 'tw:border-indigo-500 tw:bg-indigo-600/20 tw:dark:bg-indigo-600/20 tw:brightness-150'
-                      : 'tw:border-gray-400 tw:dark:border-slate-600 tw:opacity-50 hover:tw:border-indigo-400 hover:tw:bg-gray-200 hover:tw:dark:bg-slate-700 hover:tw:bg-opacity-30 hover:tw:dark:bg-opacity-30 hover:tw:opacity-100'
+                      : 'tw:border-slate-400 tw:dark:border-slate-600 tw:opacity-50 hover:tw:border-indigo-400 hover:tw:bg-slate-200 hover:tw:dark:bg-slate-700 hover:tw:bg-opacity-30 hover:tw:dark:bg-opacity-30 hover:tw:opacity-100'
                   }`}
                 >
                   <div
@@ -307,18 +307,18 @@ const DmrvDjpowerPage = () => {
           </div>
 
           {/* 설명 내용 */}
-          <div className='tw:bg-gray-100 tw:dark:bg-slate-700/50 tw:p-4 tw:rounded tw:space-y-2 tw:text-sm tw:mb-auto'>
-            <p className='tw:leading-relaxed tw:text-gray-700 tw:dark:text-slate-300'>
+          <div className='tw:bg-slate-100 tw:dark:bg-slate-700/50 tw:p-4 tw:rounded tw:space-y-2 tw:text-sm tw:mb-auto'>
+            <p className='tw:leading-relaxed tw:text-slate-700 tw:dark:text-slate-300'>
               전 패턴을 퍼펙트 플레이를 하면 DJ CLASS 만점(이론치)을 달성할 수 있는 리스트입니다.
             </p>
-            <p className='tw:leading-relaxed tw:text-gray-700 tw:dark:text-slate-300'>
+            <p className='tw:leading-relaxed tw:text-slate-700 tw:dark:text-slate-300'>
               DJ CLASS 최상위 랭커를 노린다면 최소 BASIC 70패턴, NEW 30패턴을 플레이 해야합니다.
             </p>
           </div>
         </div>
       </div>
 
-      <div className='tw:flex tw:flex-col tw:gap-1 tw:bg-white tw:dark:bg-slate-800 tw:bg-opacity-75 tw:dark:bg-opacity-75 tw:rounded-md tw:p-4 tw:border tw:border-gray-200 tw:dark:border-slate-700'>
+      <div className='tw:flex tw:flex-col tw:gap-1 tw:bg-white tw:dark:bg-slate-800 tw:bg-opacity-75 tw:dark:bg-opacity-75 tw:rounded-md tw:p-4 tw:border tw:border-slate-200 tw:dark:border-slate-700'>
         {songData[selectedGame].length > 0 &&
         !isLoading &&
         isScoredBaseSongData &&
@@ -343,7 +343,7 @@ const DmrvDjpowerPage = () => {
               key={'DifficultyBody' + levelValue}
               className='tw:flex tw:flex-col tw:animate-fadeInLeft'
             >
-              <span className='tw:text-2xl tw:py-2 tw:mb-3 tw:w-full tw:font-bold tw:text-gray-900 tw:dark:text-white tw:border-b tw:border-gray-300 tw:dark:border-slate-600 tw:border-opacity-50 me-auto'>
+              <span className='tw:text-2xl tw:py-2 tw:mb-3 tw:w-full tw:font-bold tw:text-slate-900 tw:dark:text-white tw:border-b tw:border-slate-300 tw:dark:border-slate-600 tw:border-opacity-50 me-auto'>
                 SC{' '}
                 {Number(levelValue) == 8
                   ? String(levelValue) + ' + MX 15'
@@ -374,7 +374,7 @@ const DmrvDjpowerPage = () => {
                         .map((songItem) => (
                           <div
                             key={`pattern_${songItem.title}_${songItem.patterns[`${keyMode}B`].SC.level}`}
-                            className='tw:transition-opacity tw:duration-300 tw:w-60 tw:max-w-60 tw:flex tw:flex-col tw:flex-grow-0 tw:shrink-0 tw:bg-gray-100 tw:dark:bg-slate-700/50 tw:rounded-md tw:bg-opacity-50 tw:gap-2 tw:p-2'
+                            className='tw:transition-opacity tw:duration-300 tw:w-60 tw:max-w-60 tw:flex tw:flex-col tw:flex-grow-0 tw:shrink-0 tw:bg-slate-100 tw:dark:bg-slate-700/50 tw:rounded-md tw:bg-opacity-50 tw:gap-2 tw:p-2'
                           >
                             <div className='tw:flex tw:gap-2'>
                               <ScorePopupComponent
@@ -382,11 +382,11 @@ const DmrvDjpowerPage = () => {
                                 keyMode={keyMode}
                                 isVisibleCode={true}
                               />
-                              <div className='tw:flex tw:flex-1 tw:flex-col tw:gap-2 tw:items-end tw:justify-center tw:bg-gray-200 tw:dark:bg-slate-700 tw:bg-opacity-25 tw:rounded-md tw:py-2 tw:px-3'>
+                              <div className='tw:flex tw:flex-1 tw:flex-col tw:gap-2 tw:items-end tw:justify-center tw:bg-slate-200 tw:dark:bg-slate-700 tw:bg-opacity-25 tw:rounded-md tw:py-2 tw:px-3'>
                                 {songItem.patterns[`${keyMode}B`].SC?.score ||
                                 songItem.patterns[`${keyMode}B`].MX?.score ? (
                                   <>
-                                    <span className='tw:text-xs tw:text-gray-500 tw:dark:text-slate-400'>
+                                    <span className='tw:text-xs tw:text-slate-500 tw:dark:text-slate-400'>
                                       SCORE :{' '}
                                       {String(songItem.patterns[`${keyMode}B`].SC.level).includes(
                                         '.5',
@@ -395,7 +395,7 @@ const DmrvDjpowerPage = () => {
                                         : songItem.patterns[`${keyMode}B`].SC.score || '0'}
                                       %
                                     </span>
-                                    <span className='tw:text-xs tw:text-gray-500 tw:dark:text-slate-400'>
+                                    <span className='tw:text-xs tw:text-slate-500 tw:dark:text-slate-400'>
                                       TP :{' '}
                                       {String(songItem.patterns[`${keyMode}B`].SC.level).includes(
                                         '.5',
@@ -405,13 +405,13 @@ const DmrvDjpowerPage = () => {
                                     </span>
                                   </>
                                 ) : (
-                                  <span className='tw:text-xs tw:text-gray-500 tw:dark:text-slate-400'>
+                                  <span className='tw:text-xs tw:text-slate-500 tw:dark:text-slate-400'>
                                     기록 미존재
                                   </span>
                                 )}
                               </div>
                             </div>
-                            <span className='tw:flex tw:bg-gray-200 tw:dark:bg-slate-700 tw:bg-opacity-25 tw:px-2 tw:py-1 tw:rounded-md tw:break-keep tw:justify-center tw:items-center tw:text-center tw:text-xs tw:text-gray-700 tw:dark:text-slate-300'>
+                            <span className='tw:flex tw:bg-slate-200 tw:dark:bg-slate-700 tw:bg-opacity-25 tw:px-2 tw:py-1 tw:rounded-md tw:break-keep tw:justify-center tw:items-center tw:text-center tw:text-xs tw:text-slate-700 tw:dark:text-slate-300'>
                               {songItem.name}
                             </span>
                           </div>
