@@ -362,29 +362,34 @@ const MenuSidebar: React.FC = () => {
                     <motion.ul className='tw:pl-3 tw:space-y-1'>
                       {item.subItems.map((subItem) => (
                         <motion.li key={subItem.id} variants={itemAnimation} whileHover={{ x: 4 }}>
-                          <motion.div
-                            onClick={() => {
-                              handleItemClick(item, subItem)
-                            }}
-                            className={`tw:flex tw:items-center tw:p-2 tw:rounded-md tw:cursor-pointer tw:transition-colors ${
-                              !location.pathname.includes(item.path + subItem.path)
-                                ? 'tw:dark:hover:bg-slate-700 tw:hover:bg-indigo-50'
-                                : ''
-                            } ${
-                              location.pathname.includes(item.path + subItem.path)
-                                ? 'tw:bg-indigo-500 tw:hover:bg-indigo-600 tw:text-white'
-                                : ''
-                            }`}
+                          <Tooltip
+                            content={t(`${selectedGame}.${subItem.id}.description`)}
+                            className='tw:w-full'
                           >
-                            <Icon icon={subItem.icon} className='tw:w-4 tw:h-4 tw:mr-2' />
-                            <span>{t(`${selectedGame}.${subItem.id}.name.base`)}</span>
-                            {subItem.isExternal && (
-                              <Icon
-                                icon='lucide:external-link'
-                                className='tw:w-3.5 tw:h-3.5 tw:ml-auto tw:opacity-70'
-                              />
-                            )}
-                          </motion.div>
+                            <motion.div
+                              onClick={() => {
+                                handleItemClick(item, subItem)
+                              }}
+                              className={`tw:flex tw:items-center tw:p-2 tw:rounded-md tw:cursor-pointer tw:transition-colors ${
+                                !location.pathname.includes(item.path + subItem.path)
+                                  ? 'tw:dark:hover:bg-slate-700 tw:hover:bg-indigo-50'
+                                  : ''
+                              } ${
+                                location.pathname.includes(item.path + subItem.path)
+                                  ? 'tw:bg-indigo-500 tw:hover:bg-indigo-600 tw:text-white'
+                                  : ''
+                              }`}
+                            >
+                              <Icon icon={subItem.icon} className='tw:w-4 tw:h-4 tw:mr-2' />
+                              <span>{t(`${selectedGame}.${subItem.id}.name.base`)}</span>
+                              {subItem.isExternal && (
+                                <Icon
+                                  icon='lucide:external-link'
+                                  className='tw:w-3.5 tw:h-3.5 tw:ml-auto tw:opacity-70'
+                                />
+                              )}
+                            </motion.div>
+                          </Tooltip>
                         </motion.li>
                       ))}
                     </motion.ul>

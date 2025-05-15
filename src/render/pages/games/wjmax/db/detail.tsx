@@ -3,70 +3,61 @@ import 'dayjs/locale/ko'
 import * as R from 'ramda'
 
 import React, { useEffect, useState } from 'react'
-import { FaTable, FaYoutube } from 'react-icons/fa6'
 import { useDispatch, useSelector } from 'react-redux'
 
-import WjmaxChartComponent from '@/components/common/PatternViewer'
-import ScoreEditComponent from '@/components/score/ScoreEditModal'
-import { globalDictionary } from '@constants/globalDictionary'
-import { useNotificationSystem } from '@hooks/useNotifications'
-import { logRendererError } from '@utils/rendererLoggerUtils'
-import axios from 'axios'
+import { Icon } from '@iconify/react/dist/iconify.js'
+import Image from '@render/components/image/Image'
+import ScoreEditComponent from '@render/components/score/ScoreEditModal'
+import WjmaxChartViewer from '@render/components/track-maker/WjmaxChartViewer'
+import Tooltip from '@render/components/ui/Tooltip'
+import { useNotificationSystem } from '@render/hooks/useNotifications'
+import { createLog } from '@render/libs/logger'
+import { RootState } from '@render/store'
+import { setIsOpenExternalLink, setOpenExternalLink } from '@render/store/slices/uiSlice'
+import { SongData } from '@src/types/games/SongData'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
-import Head from 'next/head'
-import Image from 'next/image'
-import { useParams } from 'next/navigation'
-import { useRouter } from 'next/router'
-import { SyncLoader } from 'react-spinners'
-import { RootState } from 'store'
-import { setBackgroundBgaName } from 'store/slices/uiSlice'
+import { useNavigate, useParams } from 'react-router-dom'
+import { PuffLoader } from 'react-spinners'
+import apiClient from '../../../../../libs/apiClient'
 
 dayjs.locale('ko')
 dayjs.extend(utc)
 const WjmaxDbDetailPage = () => {
   const { showNotification } = useNotificationSystem()
-  const fontFamily = useSelector((state: RootState) => state.ui.fontFamily)
-  const backgroundBgaName = useSelector((state: RootState) => state.ui.backgroundBgaName)
-  const selectedGame = useSelector((state: RootState) => state.app.selectedGame)
 
   const params = useParams()
-  const router = useRouter()
+  const navigate = useNavigate()
   const dispatch = useDispatch()
-  const { wjmaxSongData, userData } = useSelector((state: RootState) => state.app)
-
+  const { songData, userData, selectedGame } = useSelector((state: RootState) => state.app)
   const [baseSongData, setBaseSongData] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(true)
-
   const [isScoredBaseSongData, setIsScoredBaseSongData] = useState<boolean>(true)
-
-  const [hoveredTitle, setHoveredTitle] = useState<string>(null)
-  const [songItemData, setSongItemData] = useState<any>(null)
-
-  const [commentData, setCommentData] = useState<any[]>([])
 
   useEffect(() => {
     const initializeData = async () => {
-      const filteredData = wjmaxSongData.filter((value) => String(value.title) == params?.titleNo)
+      const filteredData = songData[selectedGame].filter(
+        (value) => String(value.title) == params?.id,
+      )
 
       if (filteredData.length === 0) {
-        router.push(`/projectRa/${selectedGame}/db`)
+        navigate(`/games/${selectedGame}/db`)
         return
       }
 
       // 로그인한 사용자의 경우 rating 정보를 포함한 데이터 가져오기
-      if (userData.userName) {
+      if (userData.playerName) {
         try {
-          const response = await axios.get(
-            `${process.env.NEXT_PUBLIC_API_URL}/v2/racla/songs/${selectedGame}/${params?.titleNo}/user/${userData.userNo}`,
+          const response = await apiClient.get<SongData>(
+            `/v3/racla/songs/${selectedGame}/${params?.id}/user/${userData.playerId}`,
             {
               headers: {
-                Authorization: `${userData.userNo}|${userData.userToken}`,
+                Authorization: `${userData.playerId}|${userData.playerToken}`,
               },
               withCredentials: true,
             },
           )
-          const { data } = response
+          const { data } = response.data
           const { patterns, plusPatterns } = data
           const newPatterns = Object.fromEntries(
             Object.entries({
@@ -92,8 +83,7 @@ const WjmaxDbDetailPage = () => {
             patterns: newPatterns,
           })
         } catch (error) {
-          logRendererError(error, { message: 'Error in fetchUserSongData', ...userData })
-          console.error('Error fetching user song data:', error)
+          createLog('error', 'Error in fetchUserSongData', { ...userData })
           setBaseSongData(filteredData)
         }
       } else {
@@ -106,27 +96,6 @@ const WjmaxDbDetailPage = () => {
     initializeData()
   }, [userData])
 
-  useEffect(() => {
-    if (baseSongData.length > 0) {
-      dispatch(
-        setBackgroundBgaName(
-          'resources/music' + String(baseSongData[0].bgaPreviewFileName).replace('.mp4', ''),
-        ),
-      )
-    }
-  }, [baseSongData])
-
-  useEffect(() => {
-    if (backgroundBgaName !== '' && baseSongData.length > 0) {
-      dispatch(
-        setBackgroundBgaName(
-          'resources/music' + String(baseSongData[0].bgaPreviewFileName).replace('.mp4', ''),
-        ),
-      )
-    }
-  }, [backgroundBgaName])
-
-  const [patternCode, setPatternCode] = useState<string>('')
   const [patternButton, setPatternButton] = useState<string>('')
   const [isPlusPattern, setIsPlusPattern] = useState<boolean>(false)
   const [patternDificulty, setPatternDificulty] = useState<string>('')
@@ -137,21 +106,21 @@ const WjmaxDbDetailPage = () => {
   const fetchUpdateScore = async () => {
     if (updateScore <= 100) {
       try {
-        const response = await axios
+        await apiClient
           .post(
-            `${process.env.NEXT_PUBLIC_API_URL}/v2/racla/play/${selectedGame}/update`,
+            `/v3/racla/play/${selectedGame}/update`,
             {
               button: Number(String(patternButton).replace('B', '').replace('_PLUS', '')),
               pattern: patternDificulty,
               force: true,
-              maxCombo: patternMaxCombo ? Number(1) : Number(0),
+              maxCombo: patternMaxCombo || updateScore == 100,
               score: updateScore,
               title: Number(baseSongData[0].title),
               judgementType: isPlusPattern ? 1 : 0,
             },
             {
               headers: {
-                Authorization: `${userData.userNo}|${userData.userToken}`,
+                Authorization: `${userData.playerId}|${userData.playerToken}`,
                 'Content-Type': 'application/json',
               },
               withCredentials: true,
@@ -160,16 +129,16 @@ const WjmaxDbDetailPage = () => {
           .then(async (data) => {
             if (data.data.success) {
               // 곡 데이터를 다시 불러옴
-              const response = await axios.get(
-                `${process.env.NEXT_PUBLIC_API_URL}/v2/racla/songs/${selectedGame}/${baseSongData[0].title}/user/${userData.userNo}`,
+              const response = await apiClient.get<SongData>(
+                `/v3/racla/songs/${selectedGame}/${baseSongData[0].title}/user/${userData.playerId}`,
                 {
                   headers: {
-                    Authorization: `${userData.userNo}|${userData.userToken}`,
+                    Authorization: `${userData.playerId}|${userData.playerToken}`,
                   },
                   withCredentials: true,
                 },
               )
-              const { data } = response
+              const { data } = response.data
               const { patterns, plusPatterns } = data
               const newPatterns = Object.fromEntries(
                 Object.entries({
@@ -191,26 +160,39 @@ const WjmaxDbDetailPage = () => {
                 },
               ])
               setFetchingUpdateScore(false)
-              setPatternCode('')
-              showNotification('성과 기록을 정상적으로 저장하였습니다.', 'tw-bg-lime-600')
+              showNotification(
+                {
+                  mode: 'i18n',
+                  ns: 'db',
+                  value: 'database.syncSuccess',
+                },
+                'success',
+              )
             }
           })
           .catch((error) => {
-            logRendererError(error, { message: 'Error in fetchUpdateScore', ...userData })
+            createLog('error', 'Error in fetchUpdateScore', { ...userData, error })
             showNotification(
-              '성과 기록 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
-              'tw-bg-red-600',
+              {
+                mode: 'i18n',
+                ns: 'db',
+                value: 'database.syncFailed',
+              },
+              'error',
             )
           })
       } catch (error) {
-        logRendererError(error, { message: 'Error in fetchUpdateScore', ...userData })
-        console.error('Error fetching data:', error)
+        createLog('error', 'Error in fetchUpdateScore', { ...userData })
       }
     } else {
       setFetchingUpdateScore(false)
       showNotification(
-        'WJMAX 데이터베이스에 기록할 수 있는 최대 점수는 100점입니다. 입력한 값을 다시 한번 확인해주세요.',
-        'tw-bg-red-600',
+        {
+          mode: 'i18n',
+          ns: 'db',
+          value: 'database.syncMaxScoreError',
+        },
+        'error',
       )
     }
   }
@@ -221,60 +203,14 @@ const WjmaxDbDetailPage = () => {
     }
   }, [fetchingUpdateScore])
 
-  useEffect(() => {
-    dispatch(setBackgroundBgaName(''))
-  }, [])
-
-  const fetchSongItemData = async (title) => {
-    try {
-      if (userData.userName !== '') {
-        const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}/v2/racla/songs/${selectedGame}/${title}/user/${userData.userNo}`,
-          {
-            headers: {
-              Authorization: `${userData.userNo}|${userData.userToken}`,
-            },
-            withCredentials: true,
-          },
-        )
-        const { data } = response
-        setSongItemData(data)
-      } else {
-        const response = baseSongData.filter(
-          (baseSongData) => String(baseSongData.title) == String(title),
-        )
-        const result = response.length > 0 ? response[0] : []
-        setSongItemData(result)
-      }
-    } catch (error) {
-      logRendererError(error, { message: 'Error in fetchSongItemData', ...userData })
-      console.error('Error fetching data:', error)
-    }
-  }
-
-  useEffect(() => {
-    let timer
-    if (hoveredTitle) {
-      timer = setTimeout(() => {
-        fetchSongItemData(hoveredTitle)
-      }, 500)
-    }
-
-    return () => {
-      if (timer) {
-        clearTimeout(timer)
-      }
-    }
-  }, [hoveredTitle])
-
   const loadDataWithScore = async (title) => {
-    if (userData.userName !== '') {
+    if (userData.playerName !== '') {
       try {
-        const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}/v2/racla/songs/${selectedGame}/${title}/user/${userData.userNo}`,
+        const response = await apiClient.get<SongData>(
+          `/v3/racla/songs/${selectedGame}/${title}/user/${userData.playerId}`,
           {
             headers: {
-              Authorization: `${userData.userNo}|${userData.userToken}`,
+              Authorization: `${userData.playerId}|${userData.playerToken}`,
             },
             withCredentials: true,
           },
@@ -285,8 +221,7 @@ const WjmaxDbDetailPage = () => {
         const { data } = response
         return data
       } catch (error) {
-        logRendererError(error, { message: 'Error in loadDataWithScore', ...userData })
-        console.error('There has been a problem with your fetch operation:', error)
+        createLog('error', 'Error in loadDataWithScore', { ...userData, error })
         return null
       }
     }
@@ -297,7 +232,7 @@ const WjmaxDbDetailPage = () => {
     if (baseSongData.length > 0 && !isScoredBaseSongData) {
       const updateArrayWithAPIData = async () => {
         // 배열의 각 항목에 대해 API 호출 및 데이터 업데이트
-        const updatedArray = await Promise.all(
+        await Promise.all(
           baseSongData.map(async (item) => {
             const data = await loadDataWithScore(item.title)
             const keysToRemove1 = ['4B', '5B', '6B', '8B']
@@ -321,7 +256,7 @@ const WjmaxDbDetailPage = () => {
           })
       }
 
-      if (userData.userName !== '') {
+      if (userData.playerName !== '') {
         updateArrayWithAPIData()
       } else {
         setIsScoredBaseSongData(true)
@@ -332,9 +267,6 @@ const WjmaxDbDetailPage = () => {
 
   // 모달 상태 추가
   const [showScoreModal, setShowScoreModal] = useState(false)
-
-  const isDjCommentOpen = useSelector((state: RootState) => state.ui.isDjCommentOpen)
-
   const [patternViewerData, setPatternViewerData] = useState<any>(null)
   const [showPatternViewer, setShowPatternViewer] = useState<boolean>(false)
 
@@ -353,156 +285,143 @@ const WjmaxDbDetailPage = () => {
       setPatternViewerData(textData)
       setShowPatternViewer(true)
     } catch (error) {
-      logRendererError(error, { message: 'Error in fetchPatternData', ...userData })
-      console.error('Error fetching pattern data:', error)
+      createLog('error', 'Error in fetchPatternData', { ...userData, error })
       showNotification(
-        '해당 수록곡은 패턴 데이터가 존재하지 않습니다. 피드백 센터를 통해 패턴 데이터 추가 요청을 해주세요.',
-        'tw-bg-red-600',
+        {
+          mode: 'i18n',
+          ns: 'db',
+          value: 'database.failedToFetchPatternData',
+        },
+        'error',
       )
     }
   }
 
-  if (baseSongData.length > 0 && params?.titleNo) {
+  if (baseSongData.length > 0 && params?.id) {
     return (
       <React.Fragment>
-        <Head>
-          <title>
-            {baseSongData.length !== 0 ? baseSongData[0].name : '로딩중'} - 데이터베이스 - RACLA
-          </title>
-        </Head>
-        <div className='tw-flex tw-gap-4 vh-screen'>
+        <div className='tw:flex tw:gap-4 tw:h-[calc(100vh-106px)]'>
           {/* 곡 데이터 */}
-          <div
-            className={`tw-flex tw-flex-col tw-transition-all duration-300 ${isDjCommentOpen ? 'tw-w-8/12' : 'tw-w-full'}`}
-          >
+          <div className={`tw:flex tw:flex-col tw:transition-all tw:w-full duration-300`}>
             <div
               className={
-                'tw-flex tw-flex-col tw-gap-4 tw-bg-opacity-10 tw-rounded-md tw-mb-4 tw-h-auto tw-relative p-0'
+                'tw:flex tw:flex-col tw:gap-1 tw:relative tw:bg-opacity-10 tw:rounded-md tw:mb-4 tw:h-auto tw:border tw:border-slate-200 tw:dark:border-slate-700'
               }
-              onClick={() => {
-                setPatternCode('')
-              }}
             >
-              {/* 배경 이미지 추가 */}
-              <div className='tw-absolute tw-inset-0 tw-overflow-hidden tw-rounded-md'>
+              <div className='tw:absolute tw:inset-0 tw:overflow-hidden tw:rounded-md'>
                 <Image
-                  src={`https://cdn.racla.app/${selectedGame}/resources/jackets/${String(baseSongData[0].title)}.jpg`}
-                  layout='fill'
-                  objectFit='cover'
+                  src={`${import.meta.env.VITE_CDN_URL}/${selectedGame}/resources/jackets/${String(baseSongData[0].title)}.jpg`}
                   alt=''
-                  className='tw-opacity-50 tw-blur-xl'
+                  className='tw:opacity-50 tw:blur-xl'
+                  style={{
+                    width: '100%',
+                    objectFit: 'cover',
+                    objectPosition: 'center',
+                  }}
                 />
-                <div className='tw-absolute tw-inset-0 tw-bg-gray-800 tw-bg-opacity-75' />
+                <div className='tw:absolute tw:inset-0 tw:bg-white/90 tw:dark:bg-slate-800/90' />
               </div>
 
-              <div className='tw-flex tw-justify-between tw-gap-4 tw-animate-fadeInLeft flex-equal tw-bg-gray-900 tw-bg-opacity-30 tw-rounded-md p-4'>
+              <div className='tw:flex tw:relative tw:p-2 tw:gap-2 tw:backdrop-blur-sm tw:rounded-md'>
                 {/* 하단 */}
-                <div className='tw-flex tw-gap-3 tw-mt-auto tw-items-end'>
+                <div className='tw:flex tw:mt-auto tw:items-end'>
                   <Image
                     loading='lazy' // "lazy" | "eager"
-                    blurDataURL={globalDictionary.blurDataURL}
-                    src={`https://cdn.racla.app/${selectedGame}/resources/jackets/${String(baseSongData[0].title)}.jpg`}
-                    height={74}
+                    src={`${import.meta.env.VITE_CDN_URL}/${selectedGame}/resources/jackets/${String(baseSongData[0].title)}.jpg`}
+                    height={87}
                     width={130}
                     alt=''
-                    className='tw-animate-fadeInLeft tw-rounded-md tw-shadow-sm'
+                    className='tw:animate-fadeInLeft tw:rounded-md tw:shadow-md'
                   />
-                  <div className='tw-flex tw-flex-col tw-w-full'>
-                    {/* 제목 */}
-                    <span className='tw-flex tw-font-light tw-text-gray-300'>
-                      {baseSongData[0].artist +
-                        (baseSongData[0].composer !== '' ? ` / ${baseSongData[0].composer}` : '') +
-                        ' / ' +
-                        baseSongData[0].bpm +
-                        ' BPM' +
-                        ' / ' +
-                        dayjs
-                          .utc(baseSongData[0].time * 1000)
-                          .locale('ko')
-                          .format('m분 s초')}
-                    </span>
-                    <span className='tw-text-lg tw-font-bold me-auto'>
-                      {baseSongData[0].name}
-
-                      <sup className='tw-text-xs tw-font-light tw-text-gray-300'>
-                        {' '}
-                        (RACLA : {baseSongData[0].title})
-                      </sup>
-                    </span>
-                  </div>
                 </div>
-                <div>
-                  <div className='tw-flex tw-gap-2'>
-                    {String(baseSongData[0].bgaUrl).trim() !== '' && (
-                      <button
-                        className='tw-inline-flex tw-items-center tw-gap-2 tw-animate-fadeInLeft tw-bg-gray-950 tw-bg-opacity-75 tw-rounded-md hover:tw-bg-gray-700 tw-transition-colors tw-text-sm p-1 px-2'
-                        onClick={() => window.ipc.openBrowser(baseSongData[0].bgaUrl)}
-                      >
-                        <FaYoutube className='tw-text-red-500 tw-mt-0.5' />
-                        <span className='tw-text-gray-300'>BGA 영상</span>
-                      </button>
-                    )}
-                    <div className='tw-animate-fadeInLeft tw-rounded-md tw-bg-gray-950 tw-bg-opacity-75 p-1'>
-                      <span className='wjmax_dlc_code_wrap'>
-                        <span
-                          className={`wjmax_dlc_code wjmax_dlc_code_${baseSongData[0].dlcCode}`}
-                        >
-                          {baseSongData[0].dlc}
-                        </span>
+                <div className='tw:flex tw:flex-col tw:w-full tw:flex-1 tw:justify-end tw:leading-none tw:p-1'>
+                  {/* 제목 */}
+                  <span className='tw:text-xs tw:font-light tw:text-slate-500 tw:dark:text-slate-400'>
+                    RACLA : {baseSongData[0].title} / {baseSongData[0].bpm} BPM /{' '}
+                    {dayjs
+                      .utc(baseSongData[0].time * 1000)
+                      .locale('ko')
+                      .format('m분 s초')}
+                  </span>
+                  <span className='tw:flex tw:text-sm tw:font-light tw:text-slate-600 tw:dark:text-slate-300'>
+                    {baseSongData[0].artist}
+                    {baseSongData[0].composer !== '' ? ` / ${baseSongData[0].composer}` : ''}
+                  </span>
+                  <span className='tw:text-lg tw:font-extrabold tw:tracking-tight'>
+                    {baseSongData[0].name}
+                  </span>
+                </div>
+                <div className='tw:absolute tw:flex tw:gap-1 tw:text-xs tw:top-2 tw:right-2'>
+                  {String(baseSongData[0].bgaUrl).trim() !== '' && (
+                    <span
+                      className='tw:inline-flex tw:items-center tw:gap-1 tw:cursor-pointer tw:bg-slate-100 tw:border tw:dark:border-0 tw:border-slate-200 tw:dark:bg-slate-700 tw:text-slate-800 tw:dark:text-slate-300 tw:rounded-md hover:tw:bg-indigo-600 hover:tw:text-white hover:tw:dark:text-white tw:transition-colors tw:text-xs tw:py-1 tw:px-2'
+                      onClick={() => {
+                        dispatch(setOpenExternalLink(baseSongData[0].bgaUrl))
+                        dispatch(setIsOpenExternalLink(true))
+                      }}
+                    >
+                      <Icon icon='lucide:youtube' />
+                      <span>BGA 영상</span>
+                    </span>
+                  )}
+                  <div
+                    className={`tw:rounded-md tw:bg-slate-100 tw:border tw:dark:border-0 tw:border-slate-200 tw:dark:bg-slate-700 tw:text-slate-800 tw:dark:text-slate-300 tw:p-1 ${!String(baseSongData[0].bgaUrl).trim() ? 'tw:ms-auto' : ''}`}
+                  >
+                    <span className='wjmax_dlc_code_wrap'>
+                      <span className={`wjmax_dlc_code wjmax_dlc_code_${baseSongData[0].dlcCode}`}>
+                        {baseSongData[0].dlc}
                       </span>
-                    </div>
+                    </span>
                   </div>
                 </div>
               </div>
-
-              {/* <span>전 패턴을 퍼펙트플레이를 하면 DJ CLASS 만점(이론치)을 달성할 수 있는 리스트입니다.</span>
-            <span>DJ CLASS 최상위 랭커를 노린다면 최소 BASIC 70패턴, NEW 30패턴을 플레이 해야합니다.</span> */}
             </div>
 
             {!isLoading && (
-              <div className='tw-w-full tw-h-full tw-overflow-y-auto tw-p-4 tw-rounded-md tw-text-center tw-shadow-lg tw-bg-gray-800 tw-bg-opacity-75'>
-                <div className='tw-flex tw-flex-col tw-gap-4 tw-h-full'>
-                  {baseSongData.length !== 0 && !isLoading ? (
-                    Object.keys(baseSongData[0].patterns)
-                      .sort((a, b) => {
-                        const numA = parseInt(a)
-                        const numB = parseInt(b)
-                        if (numA !== numB) return numA - numB
-                        return a.includes('_PLUS') ? 1 : -1
-                      })
-                      .map((patternName) => (
-                        <React.Fragment key={String(patternName)}>
-                          {/* Button Column */}
-                          <div className='tw-flex tw-flex-1 tw-gap-4'>
-                            <div className='tw-min-w-20 tw-border-gray-600 tw-border-opacity-25 tw-flex tw-flex-col tw-justify-center tw-items-center tw-overflow-hidden tw-bg-gray-900 tw-bg-opacity-20 tw-rounded-lg'>
-                              <div className='tw-relative tw-h-full tw-w-full tw-flex-1'>
-                                <div
-                                  className={`tw-absolute tw-inset-0 wjmax_db_button wjmax_bg_b${String(
-                                    patternName,
-                                  )
-                                    .replace('B', '')
-                                    .toLowerCase()} tw-rounded-lg`}
-                                />
-                                <span className='tw-aboslute tw-h-full tw-w-full tw-bg-gray-500 tw-bg-opacity-25 tw-rounded-lg tw-font-extrabold tw-text-4xl tw-flex tw-items-center tw-justify-center'>
-                                  <span className='tw-text-lg tw-font-bold tw-relative'>
-                                    <span className='tw-text-2xl tw-font-bold'>
-                                      {String(patternName).replace('B', '').replace('_PLUS', '')}B
-                                      {String(patternName).includes('_PLUS') ? '+' : ''}
-                                    </span>
-                                  </span>
-                                </span>
-                              </div>
-                            </div>
-
-                            <div className='tw-flex-1 tw-grid tw-grid-cols-5 tw-gap-2'>
-                              {/* Difficulty Columns */}
-                              {['NM', 'HD', 'MX', 'SC', 'DPC'].map((difficultyCode: string) =>
+              <div className='tw:w-full tw:h-full tw:text-center tw:flex tw:flex-col tw:flex-1 tw:gap-4'>
+                {baseSongData.length !== 0 && !isLoading ? (
+                  Object.keys(baseSongData[0].patterns)
+                    .sort((a, b) => {
+                      const numA = parseInt(a)
+                      const numB = parseInt(b)
+                      if (numA !== numB) return numA - numB
+                      return a.includes('_PLUS') ? 1 : -1
+                    })
+                    .map((patternName) => (
+                      <div key={String(patternName)} className='tw:flex tw:flex-col tw:flex-1'>
+                        {/* 버튼 라벨 */}
+                        <div className='tw:flex tw:items-center tw:gap-2 tw:mb-2'>
+                          <div className='tw:inline-flex tw:items-center tw:gap-1 tw:text-sm tw:font-semibold tw:bg-indigo-100 tw:dark:bg-indigo-900/50 tw:text-indigo-700 tw:dark:text-indigo-200 tw:py-1 tw:px-3 tw:rounded-md'>
+                            <span className='tw:font-bold'>
+                              {String(patternName).replace('B', '').replace('_PLUS', '')}B
+                              {String(patternName).includes('_PLUS') ? '+' : ''}
+                            </span>
+                          </div>
+                          <div className='tw:h-px tw:flex-grow tw:bg-indigo-200 tw:dark:bg-indigo-800/50'></div>
+                          {/* 패턴 뷰어 버튼 (4B와 6B 키모드에만 표시) */}
+                          {!String(patternName).includes('_PLUS') && (
+                            <div className='tw:flex tw:gap-2 tw:items-center'>
+                              {['NM', 'HD', 'MX', 'SC', 'DPC'].map((difficultyCode) =>
                                 baseSongData[0].patterns[patternName][difficultyCode] !==
                                   undefined &&
                                 baseSongData[0].patterns[patternName][difficultyCode] !== null ? (
-                                  <div className='tw-relative tw-h-full'>
+                                  <Tooltip
+                                    content={`${patternName} ${baseSongData[0].patterns[patternName][difficultyCode].patternName.ko} 패턴 뷰어`}
+                                    position='left'
+                                  >
                                     <button
-                                      className='tw-absolute tw-right-2 tw-z-[100] tw-top-2 tw-flex-1 tw-px-2 tw-py-2 tw-bg-blue-600 tw-text-white tw-rounded-md hover:tw-bg-blue-500 tw-transition-all tw-text-sm'
+                                      key={`btn_${patternName}_${difficultyCode}`}
+                                      className={`tw:relative tw:flex tw:items-center tw:gap-1 tw:text-xs tw:font-medium tw:py-1 tw:px-3 tw:rounded-md tw:transition-all tw:bg-opacity-20 tw:dark:bg-opacity-20 hover:tw:bg-opacity-30 hover:tw:dark:bg-opacity-30 tw:border tw:border-opacity-30 tw:text-white ${
+                                        difficultyCode === 'NM'
+                                          ? 'tw:bg-wjmax-NM tw:border-wjmax-NM'
+                                          : difficultyCode === 'HD'
+                                            ? 'tw:bg-wjmax-HD tw:border-wjmax-HD'
+                                            : difficultyCode === 'MX'
+                                              ? 'tw:bg-wjmax-MX tw:border-wjmax-MX'
+                                              : difficultyCode === 'SC'
+                                                ? 'tw:bg-wjmax-SC tw:border-wjmax-SC'
+                                                : 'tw:bg-wjmax-DPC tw:border-wjmax-DPC'
+                                      }`}
                                       onClick={() =>
                                         fetchPatternData(
                                           baseSongData[0].patterns[patternName][difficultyCode]
@@ -510,206 +429,199 @@ const WjmaxDbDetailPage = () => {
                                         )
                                       }
                                     >
-                                      <FaTable />
+                                      <Icon icon='lucide:table-2' width={16} height={16} />
                                     </button>
-                                    <div
-                                      key={`${String(patternName)}_${difficultyCode}`}
-                                      className={`tw-border-gray-600 tw-border-opacity-25 tw-flex tw-h-full tw-flex-col tw-justify-center tw-items-center tw-p-2 tw-bg-gray-700 tw-bg-opacity-20 tw-rounded-lg ${
-                                        userData.userName !== ''
-                                          ? 'tw-cursor-pointer hover:tw-bg-gray-600 hover:tw-bg-opacity-30'
-                                          : ''
-                                      } ${
-                                        baseSongData[0].patterns[patternName][difficultyCode]
-                                          .score !== undefined &&
-                                        Number(
-                                          baseSongData[0].patterns[patternName][difficultyCode]
-                                            .score,
-                                        ) <= 0
-                                          ? 'tw-opacity-70 tw-bg-gray-950'
-                                          : ''
-                                      }`}
-                                      onClick={() => {
-                                        if (userData.userName !== '') {
-                                          setPatternCode(
-                                            `patterns${String(patternName)}${difficultyCode}`,
-                                          )
-                                          setPatternMaxCombo(
-                                            baseSongData[0].patterns[patternName][difficultyCode]
-                                              .maxCombo,
-                                          )
-                                          setPatternButton(String(patternName))
-                                          setPatternDificulty(difficultyCode)
-                                          setUpdateScore(
-                                            Number(
-                                              baseSongData[0].patterns[patternName][difficultyCode]
-                                                .score !== undefined &&
-                                                baseSongData[0].patterns[patternName][
-                                                  difficultyCode
-                                                ].score !== null
-                                                ? Number(
-                                                    baseSongData[0].patterns[patternName][
-                                                      difficultyCode
-                                                    ].score,
-                                                  )
-                                                : 0,
-                                            ),
-                                          )
-                                          setIsPlusPattern(String(patternName).includes('_PLUS'))
-                                          setShowScoreModal(true)
-                                        }
-                                      }}
-                                    >
-                                      <div className='tw-flex tw-w-full tw-justify-center tw-items-center tw-rounded-lg tw-gap-4 tw-p-2'>
-                                        {/* 난이도 표시 */}
-                                        <div className='tw-w-flex tw-flex-col tw-justify-center tw-items-center'>
-                                          <span
-                                            className={
-                                              difficultyCode === 'NM'
-                                                ? 'tw-flex tw-justify-center tw-items-center tw-gap-2 tw-text-base tw-font-extrabold text-stroke-100 tw-text-wjmax-nm'
-                                                : difficultyCode === 'HD'
-                                                  ? 'tw-flex tw-justify-center tw-items-center tw-gap-2 tw-text-base tw-font-extrabold text-stroke-100 tw-text-wjmax-hd'
-                                                  : difficultyCode === 'MX'
-                                                    ? 'tw-flex tw-justify-center tw-items-center tw-gap-2 tw-text-base tw-font-extrabold text-stroke-100 tw-text-wjmax-mx'
-                                                    : difficultyCode === 'SC'
-                                                      ? 'tw-flex tw-justify-center tw-items-center tw-gap-2 tw-text-base tw-font-extrabold text-stroke-100 tw-text-wjmax-sc'
-                                                      : 'tw-flex tw-justify-center tw-items-center tw-gap-2 tw-text-base tw-font-extrabold text-stroke-100 tw-text-wjmax-dpc'
-                                            }
-                                          >
-                                            <Image
-                                              loading='lazy'
-                                              blurDataURL={globalDictionary.blurDataURL}
-                                              src={
-                                                difficultyCode === 'NM'
-                                                  ? `https://cdn.racla.app/wjmax/nm_5_star.png`
-                                                  : difficultyCode === 'HD'
-                                                    ? `https://cdn.racla.app/wjmax/nm_10_star.png`
-                                                    : difficultyCode === 'MX'
-                                                      ? `https://cdn.racla.app/wjmax/nm_15_star.png`
-                                                      : difficultyCode === 'SC'
-                                                        ? `https://cdn.racla.app/wjmax/nm_20_star.png`
-                                                        : `https://cdn.racla.app/wjmax/nm_25_star.png`
-                                              }
-                                              height={24}
-                                              width={24}
-                                              alt=''
-                                              className='tw-drop-shadow-lg'
-                                            />
-                                            {baseSongData[0].patterns[patternName][
-                                              difficultyCode
-                                            ].level.toFixed(1)}
-                                          </span>
-                                          {baseSongData[0].patterns[patternName][difficultyCode]
-                                            .floor &&
-                                            Number(
-                                              baseSongData[0].patterns[patternName][difficultyCode]
-                                                .floor,
-                                            ) > 0 && (
-                                              <span
-                                                className={
-                                                  difficultyCode === 'NM'
-                                                    ? 'tw-font-light tw-text-sm tw-text-wjmax-nm'
-                                                    : difficultyCode === 'HD'
-                                                      ? 'tw-font-light tw-text-sm tw-text-wjmax-hd'
-                                                      : difficultyCode === 'MX'
-                                                        ? 'tw-font-light tw-text-sm tw-text-wjmax-mx'
-                                                        : difficultyCode === 'SC'
-                                                          ? 'tw-font-light tw-text-sm tw-text-wjmax-sc'
-                                                          : 'tw-font-light tw-text-sm tw-text-wjmax-dpc'
-                                                }
-                                              >
-                                                (
-                                                {
-                                                  baseSongData[0].patterns[patternName][
-                                                    difficultyCode
-                                                  ].floor
-                                                }
-                                                F)
-                                              </span>
-                                            )}
-                                        </div>
-
-                                        {/* 점수 표시 (로그인한 경우에만) */}
-                                        {userData.userName !== '' && (
-                                          <div className='tw-flex tw-flex-col tw-items-start tw-justify-center tw-gap-1 tw-min-w-20'>
-                                            {baseSongData[0].patterns[patternName][difficultyCode]
-                                              .score &&
-                                            Number(
-                                              baseSongData[0].patterns[patternName][difficultyCode]
-                                                .score,
-                                            ) > 0 ? (
-                                              baseSongData[0].patterns[patternName][difficultyCode]
-                                                .score === '100.00' ? (
-                                                <>
-                                                  {/* <span className="tw-font-bold tw-text-sm tw-text-yellow-400 tw-drop-shadow-lg">PERFECT</span> */}
-                                                  <span className='tw-font-light tw-text-sm tw-text-gray-300'>
-                                                    {
-                                                      baseSongData[0].patterns[patternName][
-                                                        difficultyCode
-                                                      ].score
-                                                    }
-                                                    %{' '}
-                                                    {/* <sup>{baseSongData[0].patterns[patternName][difficultyCode].rating}TP</sup> */}
-                                                  </span>
-                                                </>
-                                              ) : (
-                                                <>
-                                                  {/* <span className="tw-font-bold tw-text-3xl tw-drop-shadow-lg">
-                                            {getGrade(baseSongData[0].patterns[patternName][difficultyCode].score)}
-                                          </span> */}
-                                                  <span className='tw-font-light tw-text-sm tw-text-gray-300'>
-                                                    {
-                                                      baseSongData[0].patterns[patternName][
-                                                        difficultyCode
-                                                      ].score
-                                                    }
-                                                    %{' '}
-                                                    {/* <sup>{baseSongData[0].patterns[patternName][difficultyCode].rating}TP</sup> */}
-                                                  </span>
-                                                </>
-                                              )
-                                            ) : (
-                                              <>
-                                                <span className='tw-font-light tw-text-sm tw-text-gray-500'>
-                                                  -
-                                                </span>
-                                                <span className='tw-font-light tw-text-xs tw-text-gray-400 tw-break-keep'>
-                                                  (기록 미존재)
-                                                </span>
-                                              </>
-                                            )}
-                                            {baseSongData[0].patterns[patternName][difficultyCode]
-                                              .score !== undefined &&
-                                            baseSongData[0].patterns[patternName][difficultyCode]
-                                              .score === '100.00' ? (
-                                              <span className='tw-text-xs tw-font-light tw-text-yellow-400'>
-                                                MAX COMBO
-                                              </span>
-                                            ) : baseSongData[0].patterns[patternName][
-                                                difficultyCode
-                                              ].maxCombo ? (
-                                              <span className='tw-text-xs tw-font-light tw-text-yellow-400'>
-                                                MAX COMBO
-                                              </span>
-                                            ) : null}
-                                          </div>
-                                        )}
-                                      </div>
-                                    </div>
-                                  </div>
-                                ) : (
-                                  <div key={`${String(patternName)}_${difficultyCode}`}></div>
-                                ),
+                                  </Tooltip>
+                                ) : null,
                               )}
                             </div>
-                          </div>
-                        </React.Fragment>
-                      ))
-                  ) : (
-                    <div className='tw-col-span-5'>
-                      <SyncLoader color='#ffffff' size={8} />
-                    </div>
-                  )}
-                </div>
+                          )}
+                        </div>
+
+                        {/* 난이도 그리드 */}
+                        <div className={`tw:grid tw:grid-cols-5 tw:gap-4 tw:flex-1`}>
+                          {['NM', 'HD', 'MX', 'SC', 'DPC'].map((difficultyCode: string) =>
+                            baseSongData[0].patterns[patternName][difficultyCode] !== undefined &&
+                            baseSongData[0].patterns[patternName][difficultyCode] !== null ? (
+                              <div
+                                key={`${String(patternName)}_${difficultyCode}`}
+                                className={`tw:relative tw:border tw:h-full tw:border-slate-200 tw:dark:border-slate-700 tw:flex tw:flex-col tw:justify-center tw:items-center tw:p-2 tw:bg-white tw:dark:bg-slate-800 tw:rounded-lg tw:shadow-sm ${
+                                  userData.playerName !== ''
+                                    ? 'tw:cursor-pointer hover:tw:bg-indigo-50 hover:tw:dark:bg-indigo-900/20 tw:transition-colors'
+                                    : ''
+                                } ${
+                                  baseSongData[0].patterns[patternName][difficultyCode].score !==
+                                    undefined &&
+                                  Number(
+                                    baseSongData[0].patterns[patternName][difficultyCode].score,
+                                  ) <= 0
+                                    ? 'tw:opacity-70'
+                                    : ''
+                                }`}
+                                onClick={() => {
+                                  if (userData.playerName !== '') {
+                                    setPatternMaxCombo(
+                                      baseSongData[0].patterns[patternName][difficultyCode]
+                                        .maxCombo,
+                                    )
+                                    setPatternButton(String(patternName))
+                                    setPatternDificulty(difficultyCode)
+                                    setUpdateScore(
+                                      Number(
+                                        baseSongData[0].patterns[patternName][difficultyCode]
+                                          .score !== undefined &&
+                                          baseSongData[0].patterns[patternName][difficultyCode]
+                                            .score !== null
+                                          ? Number(
+                                              baseSongData[0].patterns[patternName][difficultyCode]
+                                                .score,
+                                            )
+                                          : 0,
+                                      ),
+                                    )
+                                    setIsPlusPattern(String(patternName).includes('_PLUS'))
+                                    setShowScoreModal(true)
+                                  }
+                                }}
+                              >
+                                <div className='tw:flex tw:w-full tw:justify-center tw:items-center tw:rounded-lg tw:gap-3'>
+                                  {/* 난이도 표시 */}
+                                  <div className='tw:w-flex tw:flex-col tw:justify-center tw:items-center'>
+                                    <span
+                                      className={
+                                        'tw:flex tw:justify-center tw:items-center tw:gap-2 tw:text-base tw:font-extrabold ' +
+                                        (difficultyCode === 'DPC'
+                                          ? 'tw:text-wjmax-DPC'
+                                          : difficultyCode === 'SC'
+                                            ? 'tw:text-wjmax-SC'
+                                            : difficultyCode === 'MX'
+                                              ? 'tw:text-wjmax-MX'
+                                              : difficultyCode === 'HD'
+                                                ? 'tw:text-wjmax-HD'
+                                                : 'tw:text-wjmax-NM')
+                                      }
+                                    >
+                                      <Image
+                                        loading='lazy'
+                                        src={
+                                          difficultyCode === 'DPC'
+                                            ? `${import.meta.env.VITE_CDN_URL}/wjmax/nm_25_star.png`
+                                            : difficultyCode === 'SC'
+                                              ? `${import.meta.env.VITE_CDN_URL}/wjmax/nm_20_star.png`
+                                              : difficultyCode === 'MX'
+                                                ? `${import.meta.env.VITE_CDN_URL}/wjmax/nm_15_star.png`
+                                                : difficultyCode === 'HD'
+                                                  ? `${import.meta.env.VITE_CDN_URL}/wjmax/nm_10_star.png`
+                                                  : `${import.meta.env.VITE_CDN_URL}/wjmax/nm_5_star.png`
+                                        }
+                                        height={16}
+                                        width={16}
+                                        alt=''
+                                        className='tw:drop-shadow-lg'
+                                      />
+                                      {baseSongData[0].patterns[patternName][
+                                        difficultyCode
+                                      ].level.toFixed(1)}
+                                    </span>
+                                    {baseSongData[0].patterns[patternName][difficultyCode].floor &&
+                                      Number(
+                                        baseSongData[0].patterns[patternName][difficultyCode].floor,
+                                      ) > 0 && (
+                                        <span
+                                          className={
+                                            'tw:font-light tw:text-sm ' +
+                                            (difficultyCode === 'DPC'
+                                              ? 'tw:text-wjmax-DPC'
+                                              : difficultyCode === 'SC'
+                                                ? 'tw:text-wjmax-SC'
+                                                : difficultyCode === 'MX'
+                                                  ? 'tw:text-wjmax-MX'
+                                                  : difficultyCode === 'HD'
+                                                    ? 'tw:text-wjmax-HD'
+                                                    : 'tw:text-wjmax-NM')
+                                          }
+                                        >
+                                          (
+                                          {
+                                            baseSongData[0].patterns[patternName][difficultyCode]
+                                              .floor
+                                          }
+                                          F)
+                                        </span>
+                                      )}
+                                  </div>
+
+                                  {/* 점수 표시 (로그인한 경우에만) */}
+                                  {userData.playerName !== '' && (
+                                    <div className='tw:flex tw:flex-col tw:items-start tw:justify-center tw:gap-1 tw:min-w-20'>
+                                      {baseSongData[0].patterns[patternName][difficultyCode]
+                                        .score &&
+                                      Number(
+                                        baseSongData[0].patterns[patternName][difficultyCode].score,
+                                      ) > 0 ? (
+                                        baseSongData[0].patterns[patternName][difficultyCode]
+                                          .score === '100.00' ? (
+                                          <>
+                                            <span className='tw:font-light tw:text-sm tw:text-slate-600 tw:dark:text-slate-300'>
+                                              {
+                                                baseSongData[0].patterns[patternName][
+                                                  difficultyCode
+                                                ].score
+                                              }
+                                              %
+                                            </span>
+                                          </>
+                                        ) : (
+                                          <>
+                                            <span className='tw:font-light tw:text-sm tw:text-slate-600 tw:dark:text-slate-300'>
+                                              {
+                                                baseSongData[0].patterns[patternName][
+                                                  difficultyCode
+                                                ].score
+                                              }
+                                              %
+                                            </span>
+                                          </>
+                                        )
+                                      ) : (
+                                        <>
+                                          <span className='tw:font-light tw:text-sm tw:text-slate-500 tw:dark:text-slate-400'>
+                                            -
+                                          </span>
+                                          <span className='tw:font-light tw:text-xs tw:text-slate-400 tw:dark:text-slate-500 tw:break-keep'>
+                                            (기록 미존재)
+                                          </span>
+                                        </>
+                                      )}
+                                      {baseSongData[0].patterns[patternName][difficultyCode]
+                                        .score !== undefined &&
+                                      baseSongData[0].patterns[patternName][difficultyCode]
+                                        .score === '100.00' ? (
+                                        <span className='tw:text-xs tw:font-light tw:text-yellow-500 tw:dark:text-yellow-400'>
+                                          MAX COMBO
+                                        </span>
+                                      ) : baseSongData[0].patterns[patternName][difficultyCode]
+                                          .maxCombo ? (
+                                        <span className='tw:text-xs tw:font-light tw:text-yellow-500 tw:dark:text-yellow-400'>
+                                          MAX COMBO
+                                        </span>
+                                      ) : null}
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            ) : (
+                              <div key={`${String(patternName)}_${difficultyCode}`}></div>
+                            ),
+                          )}
+                        </div>
+                      </div>
+                    ))
+                ) : (
+                  <div className='tw:flex tw:justify-center tw:items-center tw:h-[calc(100vh-338px)]'>
+                    <PuffLoader color='#6366f1' size={32} />
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -718,7 +630,6 @@ const WjmaxDbDetailPage = () => {
             show={showScoreModal}
             onHide={() => {
               setShowScoreModal(false)
-              setPatternCode('')
             }}
             patternMaxCombo={patternMaxCombo}
             setPatternMaxCombo={setPatternMaxCombo}
@@ -731,7 +642,7 @@ const WjmaxDbDetailPage = () => {
           />
         </div>
         {showPatternViewer && patternViewerData && (
-          <WjmaxChartComponent
+          <WjmaxChartViewer
             chartData={patternViewerData}
             bpm={baseSongData[0].bpm}
             onClose={() => setShowPatternViewer(false)}

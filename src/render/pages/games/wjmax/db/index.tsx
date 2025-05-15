@@ -75,7 +75,7 @@ const LazyListItem = React.memo(
         />
 
         {/* 기존 콘텐츠 */}
-        <div className='tw:relative tw:z-10 tw:w-full tw:flex tw:items-center tw:gap-4'>
+        <div className='tw:relative tw:w-full tw:flex tw:items-center tw:gap-4'>
           <div className='tw:w-auto'>
             <ScorePopupComponent
               songTitle={songItem.title}

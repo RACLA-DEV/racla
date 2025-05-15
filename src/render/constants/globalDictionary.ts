@@ -760,6 +760,31 @@ export const globalDictionary = {
           },
         ],
       },
+      official: {
+        id: 'officialNavTitle',
+        isDisplay: true,
+        link: '',
+        pages: [
+          {
+            id: 'officialMusic',
+            icon: 'lucide:music',
+            isDisplay: true,
+            isOpenBrowser: true,
+            link: 'https://platinalab.net/music',
+            status: 'stable',
+            platform: ['win32'],
+          },
+          {
+            id: 'officialRanking',
+            icon: 'lucide:trophy',
+            isDisplay: true,
+            isOpenBrowser: true,
+            link: 'https://platinalab.net/ranking',
+            status: 'stable',
+            platform: ['win32'],
+          },
+        ],
+      },
     },
   },
 }
