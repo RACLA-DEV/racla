@@ -1,16 +1,14 @@
 import React, { useEffect, useState } from 'react'
 
-import RaScorePopupComponent from '@components/score/popup/ScorePopupRacla'
-import { useNotificationSystem } from '@hooks/useNotifications'
-import { logRendererError } from '@utils/rendererLoggerUtils'
-import axios from 'axios'
-import Head from 'next/head'
-import Image from 'next/image'
-import Link from 'next/link'
-import { useRouter } from 'next/router'
+import ScorePopupComponent from '@render/components/score/ScorePopup'
+import { useNotificationSystem } from '@render/hooks/useNotifications'
+import { createLog } from '@render/libs/logger'
+import { RootState } from '@render/store'
+import { PlayBoardResponse } from '@src/types/dto/playBoard/PlayBoardResponse'
 import { useSelector } from 'react-redux'
-import { SyncLoader } from 'react-spinners'
-import { RootState } from 'store'
+import { Link, useNavigate, useParams } from 'react-router-dom'
+import { PuffLoader } from 'react-spinners'
+import apiClient from '../../../../libs/apiClient'
 
 interface Pattern {
   title: number
@@ -31,9 +29,9 @@ interface Floor {
 }
 
 const PlatinaLabBoardPage = () => {
-  const router = useRouter()
-  const { keyMode, board } = router.query
-  const { userData, platinaLabSongData } = useSelector((state: RootState) => state.app)
+  const navigate = useNavigate()
+  const { keyMode, board } = useParams()
+  const { userData, songData, selectedGame } = useSelector((state: RootState) => state.app)
 
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [floorData, setFloorData] = useState<Floor[]>([])
@@ -63,10 +61,10 @@ const PlatinaLabBoardPage = () => {
 
   // songData에서 현재 keyMode와 board에 해당하는 패턴 데이터 추출
   const processBaseSongData = () => {
-    if (!platinaLabSongData || !keyMode) return []
+    if (!songData[selectedGame] || !keyMode) return []
 
     let processedData = []
-    platinaLabSongData.forEach((track) => {
+    songData[selectedGame].forEach((track) => {
       const { title, name, composer, dlcCode, dlc, patterns } = track
       const patternButton = patterns[String(String(keyMode).replace('_PLUS', ''))]
 
@@ -94,30 +92,11 @@ const PlatinaLabBoardPage = () => {
     return processedData
   }
 
-  const [boards, setBoards] = useState<string[]>([
-    '1',
-    '2',
-    '3',
-    '4',
-    '5',
-    '6',
-    '7',
-    '8',
-    '9',
-    '10',
-    '11',
-    'MX',
-    'SC',
-    'SC5',
-    'SC10',
-    'SC15',
-  ])
-
   useEffect(() => {
     setIsMounted(true)
 
     const fetchBoardData = async () => {
-      if (!userData.userName || !keyMode || !board) return
+      if (!userData.playerName || !keyMode || !board) return
 
       setIsLoading(true)
       try {
@@ -127,10 +106,10 @@ const PlatinaLabBoardPage = () => {
         console.log(baseSongData)
 
         // V-ARCHIVE API에서 점수 데이터 가져오기
-        const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}/v2/racla/board/platina_lab/${keyMode}/${board}/user/${userData.userNo}`,
+        const response = await apiClient.get<PlayBoardResponse>(
+          `/v3/racla/board/platina_lab/${keyMode}/${board}/player/${userData.playerId}`,
           {
-            headers: { Authorization: `${userData.userNo}|${userData.userToken}` },
+            headers: { Authorization: `${userData.playerId}|${userData.playerToken}` },
             withCredentials: true,
           },
         )
@@ -138,7 +117,7 @@ const PlatinaLabBoardPage = () => {
         if (isMounted) {
           // API 응답 데이터와 기본 곡 데이터 결합
           const combinedFloors =
-            response.data.floors?.map((floor) => ({
+            response.data.data.floors?.map((floor) => ({
               floorNumber: floor.floorNumber,
               patterns: floor.patterns
                 .map((apiPattern) => {
@@ -161,8 +140,7 @@ const PlatinaLabBoardPage = () => {
           setFloorData(combinedFloors)
         }
       } catch (error) {
-        logRendererError(error, { message: 'Error in fetchBoardData', ...userData })
-        console.error('Error fetching board data:', error)
+        createLog('error', 'Error in fetchBoardData', { ...userData, error })
       } finally {
         if (isMounted) {
           setIsLoading(false)
@@ -176,7 +154,7 @@ const PlatinaLabBoardPage = () => {
       setIsMounted(false)
       setFloorData([])
     }
-  }, [userData.userName, keyMode, board, platinaLabSongData])
+  }, [userData.playerName, keyMode, board, songData])
 
   if (!isMounted) return null
 
@@ -346,17 +324,18 @@ const PlatinaLabBoardPage = () => {
     30: 'Lv.30',
   }
 
-  const [randomHeaderBg, setRandomHeaderBg] = useState(
-    Math.floor(Math.random() * platinaLabSongData.length) + 1,
-  )
   const { showNotification } = useNotificationSystem()
 
   useEffect(() => {
-    if (userData.userName === '') {
-      router.push('/')
+    if (userData.playerName === '') {
+      navigate('/')
       showNotification(
-        '성과표 조회 기능은 로그인 또는 V-ARCHIVE 계정 연동이 필요합니다.',
-        'tw-bg-red-600',
+        {
+          mode: 'i18n',
+          ns: 'board',
+          value: 'board.needLogin',
+        },
+        'error',
       )
     }
   }, [])
@@ -380,46 +359,33 @@ const PlatinaLabBoardPage = () => {
 
   return (
     <React.Fragment>
-      <Head>
-        <title>
-          {String(keyMode).replace('PLUS', '').replace('P', '').replace('B', '').replace('_', '')}B
-          {String(keyMode).includes('P') ? '+' : ''} {board} 성과표 - RACLA
-        </title>
-      </Head>
-
-      <div className='tw-flex tw-gap-4'>
+      <div className='tw:flex tw:gap-4'>
         {/* 메인 콘텐츠 영역 (왼쪽) */}
-        <div className='tw-flex tw-flex-col tw-gap-4 tw-w-full'>
+        <div className='tw:flex tw:flex-col tw:gap-4 tw:w-full'>
           {/* 통계 섹션 */}
           {!isLoading ? (
-            <div className='tw-flex tw-gap-4'>
-              <div className='tw-relative tw-w-2/3 tw-h-[20rem] tw-rounded-lg tw-overflow-hidden [text-shadow:_2px_2px_2px_rgb(0_0_0_/_90%),_4px_4px_4px_rgb(0_0_0_/_60%)]'>
-                <Image
-                  src={`https://cdn.racla.app/platina_lab/jackets/cropped/${String(platinaLabSongData[randomHeaderBg]?.title)}.jpg`}
-                  alt='Background'
-                  fill
-                  className='tw-object-cover tw-blur-md tw-opacity-50 tw-brightness-50'
-                />
+            <div className='tw:flex tw:gap-4'>
+              <div className='tw:relative tw:w-2/3 tw:h-[20rem] tw:border tw:border-slate-200 tw:dark:border-slate-700 tw:rounded-lg tw:overflow-hidden [text-shadow:_2px_2px_2px_rgb(0_0_0_/_90%),_4px_4px_4px_rgb(0_0_0_/_60%)]'>
                 {keyMode && (
-                  <div className='tw-absolute tw-inset-0 tw-p-4 tw-flex tw-flex-col tw-justify-between'>
-                    <div className='tw-flex tw-justify-between tw-items-start'>
-                      <span className='tw-flex tw-w-full tw-items-end tw-gap-1 tw-text-lg tw-font-bold [text-shadow:_2px_2px_2px_rgb(0_0_0_/_90%),_4px_4px_4px_rgb(0_0_0_/_60%)]'>
-                        <span className='tw-text-4xl tw-font-bold tw-relative'>
+                  <div className='tw:absolute tw:inset-0 tw:p-4 tw:flex tw:flex-col tw:justify-between'>
+                    <div className='tw:flex tw:justify-between tw:items-start'>
+                      <span className='tw:flex tw:w-full tw:items-end tw:gap-1 tw:text-lg tw:font-bold [text-shadow:_2px_2px_2px_rgb(0_0_0_/_90%),_4px_4px_4px_rgb(0_0_0_/_60%)]'>
+                        <span className='tw:text-4xl tw:font-bold tw:relative'>
                           {String(keyMode).replace('B', '').replace('_PLUS', '')}
                         </span>{' '}
-                        <span className='tw-me-auto tw-flex tw-relative'>
+                        <span className='tw:me-auto tw:flex tw:relative'>
                           Button{' '}
-                          <span className='tw-absolute tw-2xl tw-top-[-12px] tw-right-[-12px]'>
+                          <span className='tw:absolute tw:2xl tw:top-[-12px] tw:right-[-12px]'>
                             {String(keyMode).includes('B_PLUS') ? '+' : ''}
                           </span>
                         </span>{' '}
-                        <span className='tw-text-2xl tw-font-bold'>
+                        <span className='tw:text-2xl tw:font-bold'>
                           {String(keyBoardTitle[board as string])}
                         </span>
                       </span>
                     </div>
 
-                    <div className='tw-space-y-2'>
+                    <div className='tw:space-y-2'>
                       {Object.entries(calculateStats(floorData.flatMap((f) => f.patterns))).map(
                         ([key, value], _, entries) => {
                           if (key === 'total') return null
@@ -427,15 +393,15 @@ const PlatinaLabBoardPage = () => {
                           const percentage = (value / totalPatterns) * 100
 
                           return (
-                            <div key={key} className='tw-flex tw-items-center tw-gap-2'>
-                              <span className='tw-w-32 tw-text-sm'>
+                            <div key={key} className='tw:flex tw:items-center tw:gap-2'>
+                              <span className='tw:w-32 tw:text-sm'>
                                 {keyTitle[key] || key.charAt(0).toUpperCase() + key.slice(1)}
                               </span>
                               <div
-                                className={`tw-relative tw-flex-1 tw-h-6 tw-rounded-sm tw-overflow-hidden tw-cursor-pointer ${
+                                className={`tw:relative tw:flex-1 tw:h-6 tw:rounded-sm tw:overflow-hidden tw:cursor-pointer ${
                                   highlightCondition === key && highlightInverse
-                                    ? 'tw-bg-gray-800'
-                                    : 'tw-bg-gray-950'
+                                    ? 'tw:bg-slate-200 tw:dark:bg-slate-600'
+                                    : 'tw:bg-slate-300 tw:dark:bg-slate-700'
                                 }`}
                                 onClick={(e) => {
                                   const rect = e.currentTarget.getBoundingClientRect()
@@ -456,27 +422,27 @@ const PlatinaLabBoardPage = () => {
                                 }}
                               >
                                 <div
-                                  className={`tw-absolute tw-h-full tw-transition-all tw-duration-300 ${
+                                  className={`tw:absolute tw:h-full tw:transition-all tw:duration-300 ${
                                     key === 'maxCombo'
-                                      ? `tw-bg-green-500 hover:tw-bg-green-700 ${
+                                      ? `tw:bg-green-500 hover:tw:bg-green-700 ${
                                           highlightCondition === 'maxCombo' && !highlightInverse
-                                            ? 'tw-brightness-200'
+                                            ? 'tw:brightness-200'
                                             : ''
                                         }`
                                       : key === 'perfect'
-                                        ? `tw-bg-red-500 hover:tw-bg-red-700 ${highlightCondition === 'perfect' && !highlightInverse ? 'tw-brightness-200' : ''}`
+                                        ? `tw:bg-red-500 hover:tw:bg-red-700 ${highlightCondition === 'perfect' && !highlightInverse ? 'tw:brightness-200' : ''}`
                                         : key === 'clear'
-                                          ? `tw-bg-blue-500 hover:tw-bg-blue-700 ${highlightCondition === 'clear' && !highlightInverse ? 'tw-brightness-200' : ''}`
-                                          : `tw-bg-yellow-500 hover:tw-bg-yellow-700 ${
+                                          ? `tw:bg-indigo-500 hover:tw:bg-indigo-700 ${highlightCondition === 'clear' && !highlightInverse ? 'tw:brightness-200' : ''}`
+                                          : `tw:bg-yellow-500 hover:tw:bg-yellow-700 ${
                                               String(highlightCondition) === key &&
                                               !highlightInverse
-                                                ? 'tw-brightness-200'
+                                                ? 'tw:brightness-200'
                                                 : ''
                                             }`
                                   }`}
                                   style={{ width: `${percentage}%` }}
                                 />
-                                <div className='tw-absolute tw-inset-0 tw-flex tw-items-center tw-justify-end tw-px-2 tw-text-xs tw-font-bold'>
+                                <div className='tw:absolute tw:inset-0 tw:flex tw:items-center tw:justify-end tw:px-2 tw:text-xs tw:font-bold tw:text-slate-700 tw:dark:text-white'>
                                   {value} / {totalPatterns}
                                 </div>
                               </div>
@@ -490,29 +456,27 @@ const PlatinaLabBoardPage = () => {
               </div>
 
               {/* 키모드 & 레벨 선택 패널 */}
-              <div className='tw-flex tw-flex-col tw-gap-4 tw-bg-gray-800 tw-bg-opacity-75 tw-rounded-lg tw-shadow-lg tw-p-6 tw-w-1/3'>
-                <div className='tw-flex tw-items-center tw-justify-between'>
-                  <span className='tw-text-lg tw-font-bold'>🎮 성과표 필터</span>
-                </div>
-
+              <div className='tw:flex tw:flex-col tw:gap-4 tw:rounded-lg tw:p-6 tw:w-1/3 tw:border tw:border-slate-200 tw:dark:border-slate-700'>
                 {/* 키모드 설명 */}
-                <div className='tw-text-sm tw-text-gray-400 tw-font-medium'>키(버튼) 선택</div>
+                <div className='tw:text-sm tw:text-slate-600 tw:dark:text-slate-400 tw:font-medium'>
+                  키(버튼)
+                </div>
                 {/* 키모드 선택 버튼 */}
-                <div className='tw-flex tw-gap-2'>
+                <div className='tw:flex tw:gap-2'>
                   {['4B', '6B'].map((mode) => (
                     <Link
                       key={`mode_${mode}`}
-                      href={`/projectRa/platina_lab/board/${mode}/${board}`}
-                      className={`tw-flex tw-items-center tw-justify-center tw-relative tw-px-4 tw-py-1 tw-border tw-border-opacity-50 tw-transition-all tw-duration-500 tw-rounded-md tw-flex-1 ${
+                      to={`/games/platina_lab/board/${mode}/${board}`}
+                      className={`tw:flex tw:items-center tw:justify-center tw:relative tw:px-4 tw:py-1 tw:border tw:border-opacity-50 tw:transition-all tw:duration-500 tw:rounded-md tw:flex-1 ${
                         mode === keyMode
-                          ? 'tw-border-blue-500 tw-bg-blue-900 tw-bg-opacity-20 tw-brightness-150'
-                          : 'tw-border-gray-600 tw-opacity-50 hover:tw-border-blue-400 hover:tw-bg-gray-700 hover:tw-bg-opacity-30 hover:tw-opacity-100'
+                          ? 'tw:border-indigo-500 tw:bg-indigo-600/20 tw:dark:bg-indigo-600/20 tw:brightness-150'
+                          : 'tw:border-slate-400 tw:dark:border-slate-600 tw:opacity-50 hover:tw:border-indigo-400 hover:tw:bg-slate-200 hover:tw:dark:bg-slate-700 hover:tw:bg-opacity-30 hover:tw:dark:bg-opacity-30 hover:tw:opacity-100'
                       }`}
                     >
                       <div
-                        className={`tw-absolute tw-w-full tw-h-full tw-opacity-30 platina_lab_bg_b${mode.replace('B', '').replace('_PLUS', '')}`}
+                        className={`tw:absolute tw:w-full tw:h-full tw:opacity-30 platina_lab_bg_b${mode.replace('B', '').replace('_PLUS', '')}`}
                       />
-                      <span className='tw-relative tw-text-base tw-font-bold'>
+                      <span className='tw:relative tw:text-base tw:font-bold tw:text-slate-900 tw:dark:text-white'>
                         {mode.replace('_PLUS', '+')}
                       </span>
                     </Link>
@@ -520,21 +484,23 @@ const PlatinaLabBoardPage = () => {
                 </div>
 
                 {/* 레벨 선택 그리드 */}
-                <div className='tw-flex tw-flex-col tw-gap-2'>
+                <div className='tw:flex tw:flex-col tw:gap-2'>
                   {/* 난이도 범위 설명 */}
-                  <div className='tw-text-sm tw-text-gray-400 tw-font-medium'>레벨</div>
+                  <div className='tw:text-sm tw:text-slate-600 tw:dark:text-slate-400 tw:font-medium'>
+                    레벨
+                  </div>
                   {/* 난이도 선택 탭 */}
-                  <div className='tw-flex tw-gap-2 tw-mb-1'>
+                  <div className='tw:flex tw:gap-2 tw:mb-1'>
                     {levelGroups.map((group) => (
                       <button
                         key={group.name}
                         onClick={() =>
                           setSelectedDifficulty(group.name as '1~10' | '11~20' | '21~30')
                         }
-                        className={`tw-flex-1 tw-px-4 tw-py-1.5 tw-rounded-md tw-text-sm tw-font-medium tw-transition-all ${
+                        className={`tw:flex-1 tw:px-3 tw:py-1.5 tw:rounded-md tw:text-sm tw:font-medium tw:transition-all ${
                           selectedDifficulty === group.name
-                            ? 'tw-bg-blue-900/50 tw-text-blue-200 tw-border tw-border-blue-500'
-                            : 'tw-bg-gray-800/30 hover:tw-bg-gray-700/50 tw-text-gray-400'
+                            ? 'tw:bg-indigo-600/20 tw:text-indigo-700 tw:dark:text-indigo-200 tw:border tw:border-indigo-500'
+                            : 'tw:bg-slate-100/50 tw:dark:bg-slate-700/30 hover:tw:bg-slate-200/50 hover:tw:dark:bg-slate-700/50 tw:text-slate-600 tw:dark:text-slate-400'
                         }`}
                       >
                         Lv.{group.name}
@@ -545,17 +511,17 @@ const PlatinaLabBoardPage = () => {
                   {levelGroups.map((group) => (
                     <div
                       key={group.name}
-                      className={`tw-grid tw-grid-cols-5 tw-gap-1 tw-transition-all tw-duration-300 ${selectedDifficulty === group.name ? 'tw-block' : 'tw-hidden'}`}
+                      className={`tw:grid tw:grid-cols-5 tw:gap-1 tw:transition-all tw:duration-300 ${selectedDifficulty === group.name ? 'tw:block' : 'tw:hidden'}`}
                     >
                       {group.levels.map((level) => (
                         <Link
                           key={`level_${level}`}
-                          href={`/projectRa/platina_lab/board/${keyMode}/${level}`}
-                          className={`tw-flex tw-items-center tw-justify-center tw-relative tw-h-8 tw-transition-all tw-duration-300 tw-rounded-md ${
+                          to={`/games/platina_lab/board/${keyMode}/${level}`}
+                          className={`tw:flex tw:items-center tw:justify-center tw:relative tw:h-8 tw:transition-all tw:duration-300 tw:rounded-md ${
                             level === board
-                              ? 'tw-bg-blue-900/50 tw-text-blue-200 tw-border tw-border-blue-500'
-                              : 'tw-bg-gray-800/30 hover:tw-bg-gray-700/50 tw-text-gray-400'
-                          } tw-text-sm tw-font-medium`}
+                              ? 'tw:bg-indigo-600/20 tw:text-indigo-700 tw:dark:text-indigo-200 tw:border tw:border-indigo-500'
+                              : 'tw:bg-slate-100/50 tw:dark:bg-slate-700/30 hover:tw:bg-slate-200/50 hover:tw:dark:bg-slate-700/50 tw:text-slate-600 tw:dark:text-slate-400'
+                          } tw:text-sm tw:font-medium`}
                         >
                           Lv.{level}
                         </Link>
@@ -570,13 +536,13 @@ const PlatinaLabBoardPage = () => {
           {/* 패턴 목록 */}
           <div
             className={
-              'tw-flex tw-flex-col tw-gap-1 tw-bg-gray-800 tw-bg-opacity-75 tw-rounded-md tw-p-4 tw-w-full ' +
-              (isLoading ? 'tw-items-center tw-justify-center tw-min-h-[calc(100vh-118px)]' : '')
+              'tw:flex tw:flex-col tw:gap-1 tw:bg-white tw:dark:bg-slate-800 tw:bg-opacity-75 tw:dark:bg-opacity-75 tw:rounded-md tw:p-4 tw:w-full tw:border tw:border-slate-200 tw:dark:border-slate-700 ' +
+              (isLoading ? 'tw:items-center tw:justify-center tw:min-h-[calc(100vh-118px)]' : '')
             }
           >
             {isLoading ? (
-              <div className='tw-flex tw-justify-center'>
-                <SyncLoader color='#ffffff' size={8} />
+              <div className='tw:flex tw:justify-center'>
+                <PuffLoader color='#6366f1' size={32} />
               </div>
             ) : (
               floorData.map((floor) => {
@@ -586,19 +552,19 @@ const PlatinaLabBoardPage = () => {
                 return (
                   <div
                     key={`floor_${floor.floorNumber}`}
-                    className={`tw-flex tw-gap-3 tw-my-3 ${floor !== floorData[floorData.length - 1] ? 'tw-border-b tw-border-gray-700 tw-pb-6' : ''}`}
+                    className={`tw:flex tw:gap-3 tw:my-3 ${floor !== floorData[floorData.length - 1] ? 'tw:border-b tw:border-slate-200 tw:dark:border-slate-700 tw:pb-6' : ''}`}
                   >
-                    <span className='tw-font-bold tw-text-base tw-min-w-24 tw-text-right'>
+                    <span className='tw:font-bold tw:text-base tw:min-w-24 tw:text-right tw:text-slate-700 tw:dark:text-slate-300'>
                       {floor.floorNumber !== 0 ? (
-                        <div className='tw-flex tw-flex-col tw-items-end tw-gap-1'>
+                        <div className='tw:flex tw:flex-col tw:items-end tw:gap-1'>
                           <div>Lv.{Number(floor.floorNumber).toFixed(0)}</div>
-                          <div className='tw-flex tw-flex-col tw-items-end tw-gap-1'>
+                          <div className='tw:flex tw:flex-col tw:items-end tw:gap-1'>
                             {calculateScoreStats(floor.patterns) && (
-                              <div className='tw-flex tw-flex-col tw-items-end'>
-                                <span className='tw-text-sm tw-text-gray-400 tw-font-light'>
+                              <div className='tw:flex tw:flex-col tw:items-end'>
+                                <span className='tw:text-sm tw:text-slate-500 tw:dark:text-slate-400 tw:font-light'>
                                   점수 평균
                                 </span>
-                                <div className='tw-text-sm tw-text-gray-200'>
+                                <div className='tw:text-sm tw:text-slate-700 tw:dark:text-slate-200'>
                                   {calculateScoreStats(floor.patterns)}%
                                 </div>
                               </div>
@@ -606,14 +572,14 @@ const PlatinaLabBoardPage = () => {
                           </div>
                         </div>
                       ) : (
-                        <div className='tw-flex tw-flex-col tw-items-end tw-gap-1'>
+                        <div className='tw:flex tw:flex-col tw:items-end tw:gap-1'>
                           <div>미분류</div>
                           {calculateScoreStats(floor.patterns) && (
-                            <div className='tw-flex tw-flex-col tw-items-end'>
-                              <span className='tw-text-sm tw-text-gray-400 tw-font-light'>
+                            <div className='tw:flex tw:flex-col tw:items-end'>
+                              <span className='tw:text-sm tw:text-slate-500 tw:dark:text-slate-400 tw:font-light'>
                                 점수 평균
                               </span>
-                              <div className='tw-text-sm tw-text-gray-200'>
+                              <div className='tw:text-sm tw:text-slate-700 tw:dark:text-slate-200'>
                                 {calculateScoreStats(floor.patterns)}%
                               </div>
                             </div>
@@ -621,44 +587,42 @@ const PlatinaLabBoardPage = () => {
                         </div>
                       )}
                     </span>
-                    <div className='tw-flex tw-flex-wrap tw-gap-3'>
+                    <div className='tw:flex tw:flex-wrap tw:gap-3'>
                       {sortedPatterns.map((pattern) => (
                         <div
                           key={`pattern_${pattern.title}_${pattern.pattern}`}
-                          className={`tw-transition-opacity tw-duration-300 tw-w-72 tw-max-w-72 tw-flex tw-flex-col tw-bg-gray-700 tw-rounded-md tw-bg-opacity-50 tw-gap-2 tw-p-2 ${
+                          className={`tw:transition-opacity tw:duration-300 tw:w-60 tw:max-w-60 tw:flex tw:flex-col tw:bg-slate-100 tw:dark:bg-slate-700/50 tw:rounded-md tw:bg-opacity-50 tw:gap-2 tw:p-2 ${
                             highlightCondition
                               ? shouldHighlight(pattern)
-                                ? 'tw-opacity-100'
-                                : 'tw-opacity-30'
-                              : 'tw-opacity-100'
+                                ? 'tw:opacity-100'
+                                : 'tw:opacity-30'
+                              : 'tw:opacity-100'
                           }`}
                         >
-                          <div className='tw-flex tw-gap-2'>
-                            <RaScorePopupComponent
-                              gameCode='platina_lab'
-                              songItem={pattern}
+                          <div className='tw:flex tw:gap-2'>
+                            <ScorePopupComponent
+                              songTitle={pattern.title}
                               keyMode={String(keyMode).replace('B', '').replace('_PLUS', '')}
-                              judgementType={String(keyMode).includes('_PLUS') ? 'HARD' : 'NORMAL'}
-                              isScored={false}
                               isVisibleCode={true}
-                              isFlatten={true}
                             />
-                            <div className='tw-flex tw-flex-1 tw-flex-col tw-gap-2 tw-items-end tw-justify-center tw-bg-gray-500 tw-bg-opacity-25 tw-rounded-md tw-py-2 tw-px-3'>
+                            <div className='tw:flex tw:flex-1 tw:flex-col tw:gap-2 tw:items-end tw:justify-center tw:bg-slate-200 tw:dark:bg-slate-700 tw:bg-opacity-25 tw:rounded-md tw:py-2 tw:px-3'>
                               {pattern.score ? (
                                 <>
-                                  <span className='tw-text-xs tw-text-gray-400'>
+                                  <span className='tw:text-xs tw:text-slate-500 tw:dark:text-slate-400'>
                                     SCORE : {pattern.score ? pattern.score : 0}%
                                   </span>
                                   {pattern?.maxCombo && (
-                                    <span className='tw-text-xs tw-text-yellow-400'>MAX COMBO</span>
+                                    <span className='tw:text-xs tw:text-yellow-400'>MAX COMBO</span>
                                   )}
                                 </>
                               ) : (
-                                <span className='tw-text-xs tw-text-gray-400'>기록 미존재</span>
+                                <span className='tw:text-xs tw:text-slate-500 tw:dark:text-slate-400'>
+                                  기록 미존재
+                                </span>
                               )}
                             </div>
                           </div>
-                          <span className='tw-flex tw-flex-1 tw-bg-gray-500 tw-bg-opacity-25 tw-px-2 tw-py-1 tw-rounded-md tw-break-keep tw-justify-center tw-items-center tw-text-center tw-text-xs'>
+                          <span className='tw:flex tw:flex-1 tw:bg-slate-200 tw:dark:bg-slate-700 tw:bg-opacity-25 tw:px-2 tw:py-1 tw:rounded-md tw:break-keep tw:justify-center tw:items-center tw:text-center tw:text-xs tw:text-slate-700 tw:dark:text-slate-300'>
                             {pattern.name}
                           </span>
                         </div>

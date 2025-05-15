@@ -65,7 +65,10 @@ export default function Image({
   }, [src, fallbackSrc, onLoad, onError])
 
   return (
-    <div className='tw:relative tw:overflow-hidden' style={{ width, height }}>
+    <div
+      className='tw:relative tw:overflow-hidden tw:flex tw:items-center tw:justify-center'
+      style={{ width, height }}
+    >
       {/* 스켈레톤 로딩 효과 */}
       {status === 'loading' && (
         <div className='tw:absolute tw:inset-0 tw:bg-gray-200 tw:dark:bg-slate-700 tw:overflow-hidden tw:rounded-md'>

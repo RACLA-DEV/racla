@@ -481,7 +481,7 @@ export const globalDictionary = {
       id: 'platina_lab',
       name: 'PLATiNA :: LAB',
       jacketsUrl: '/platina_lab/jackets/resized',
-      keyModeList: [4, 5, 6, 8],
+      keyModeList: [4, 6],
       levelList: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
       difficulty: {
         EASY: {
@@ -756,6 +756,31 @@ export const globalDictionary = {
             isOpenBrowser: false,
             link: '/course',
             status: 'dev',
+            platform: ['win32'],
+          },
+        ],
+      },
+      official: {
+        id: 'officialNavTitle',
+        isDisplay: true,
+        link: '',
+        pages: [
+          {
+            id: 'officialMusic',
+            icon: 'lucide:music',
+            isDisplay: true,
+            isOpenBrowser: true,
+            link: 'https://platinalab.net/music',
+            status: 'stable',
+            platform: ['win32'],
+          },
+          {
+            id: 'officialRanking',
+            icon: 'lucide:trophy',
+            isDisplay: true,
+            isOpenBrowser: true,
+            link: 'https://platinalab.net/ranking',
+            status: 'stable',
             platform: ['win32'],
           },
         ],

@@ -219,6 +219,23 @@
         "lastWithSup": ""
       },
       "description": "PLATiNA :: LAB 코스 메이커"
+    },
+    "officialNavTitle": "공식 바로가기",
+    "officialMusic": {
+      "name": {
+        "startWithSup": "",
+        "base": "MUSIC",
+        "lastWithSup": ""
+      },
+      "description": "PLATiNA :: LAB - MUSIC (Official)"
+    },
+    "officialRanking": {
+      "name": {
+        "startWithSup": "",
+        "base": "RANKING",
+        "lastWithSup": ""
+      },
+      "description": "PLATiNA :: LAB - RANKING (Official)"
     }
   }
 }

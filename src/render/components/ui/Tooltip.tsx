@@ -2,7 +2,7 @@ import type { TooltipProps } from '@src/types/tooltip/TooltipProps'
 import React, { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 
-const Tooltip: React.FC<TooltipProps> = ({ children, content, position = 'right' }) => {
+const Tooltip: React.FC<TooltipProps> = ({ children, content, position = 'right', className }) => {
   const [isVisible, setIsVisible] = useState(false)
   const [tooltipPosition, setTooltipPosition] = useState({ top: 0, left: 0 })
   const triggerRef = useRef<HTMLDivElement>(null)
@@ -82,7 +82,7 @@ const Tooltip: React.FC<TooltipProps> = ({ children, content, position = 'right'
   return (
     <div
       ref={triggerRef}
-      className='tw:relative tw:inline-block'
+      className={`tw:relative tw:inline-block ${className}`}
       onMouseEnter={() => {
         setIsVisible(true)
       }}
@@ -94,7 +94,7 @@ const Tooltip: React.FC<TooltipProps> = ({ children, content, position = 'right'
       {isVisible &&
         createPortal(
           <div
-            className={`tw:fixed tw:z-[9999] tw:px-2 tw:py-1 tw:text-xs tw:rounded tw:whitespace-nowrap tw:pointer-events-none tw:opacity-90 tw:dark:bg-slate-900 tw:dark:text-slate-200 tw:dark:shadow-lg tw:bg-gray-700 tw:text-white tw:shadow-md ${getPositionClass()}`}
+            className={`tw:fixed tw:z-[999999] tw:px-2 tw:py-1 tw:text-xs tw:rounded tw:whitespace-nowrap tw:pointer-events-none tw:opacity-90 tw:dark:bg-slate-900 tw:dark:text-slate-200 tw:dark:shadow-lg tw:bg-gray-700 tw:text-white tw:shadow-md ${getPositionClass()}`}
             style={{
               top: `${tooltipPosition.top}px`,
               left: `${tooltipPosition.left}px`,

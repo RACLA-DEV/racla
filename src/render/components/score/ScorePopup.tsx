@@ -278,7 +278,7 @@ const ScorePopupComponent = memo(
           {isLink ? (
             <Link
               to={`/games/${game}/db/${songTitle}`}
-              className={`tw:relative tw:rounded-md hover-scale-110 tw:cursor-pointer ${game}_record`}
+              className={`tw:relative tw:rounded-md hover-scale-110 tw:cursor-pointer djmax_respect_v_record`}
               style={{ width, height }}
             >
               <Image
@@ -293,8 +293,10 @@ const ScorePopupComponent = memo(
               />
               {isVisibleCode && imageLoaded && (
                 <span className='tw:absolute tw:top-0 tw:left-0 djmax_respect_v_dlc_code_wrap tw:rounded-tl-md'>
-                  <span className={`${game}_dlc_code ${game}_dlc_code_${songItem?.dlcCode ?? ''}`}>
-                    {songItem?.dlcCode ?? ''}
+                  <span
+                    className={`djmax_respect_v_dlc_code ${game}_dlc_code_${songItem?.dlcCode ?? ''}`}
+                  >
+                    {game == 'wjmax' ? (songItem?.dlc ?? '') : (songItem?.dlcCode ?? '')}
                   </span>
                 </span>
               )}

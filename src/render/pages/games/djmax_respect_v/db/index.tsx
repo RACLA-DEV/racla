@@ -265,7 +265,7 @@ const DmrvDbPage = () => {
   return (
     selectedGame === 'djmax_respect_v' && (
       <React.Fragment>
-        <div className='tw:flex tw:flex-col tw:gap-4 vh-screen tw:relative'>
+        <div className='tw:flex tw:flex-col tw:gap-4 tw:h-[calc(100vh-106px)] tw:relative'>
           {/* 상단 영역 */}
           <div className='tw:flex tw:flex-col tw:gap-4 tw:transition-all tw:w-full duration-300'>
             <div className='tw:flex tw:w-full tw:gap-4'>

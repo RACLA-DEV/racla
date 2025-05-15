@@ -18,6 +18,7 @@ import {
   setIsLoading,
   setIsLoggedIn,
   setIsSetting,
+  setRefresh,
   setSelectedGame,
   setSettingData,
   setSongData,
@@ -39,7 +40,9 @@ const AlertModal = lazy(() => import('./AlertModal'))
 const VALID_GAMES: GameType[] = globalDictionary.supportGameList as GameType[]
 
 export default function WrappedApp() {
-  const { isLoading, settingData, isTrackMaker } = useSelector((state: RootState) => state.app)
+  const { isLoading, settingData, isTrackMaker, refresh } = useSelector(
+    (state: RootState) => state.app,
+  )
   const { isOverlayMode, alertModal } = useSelector((state: RootState) => state.ui)
   const location = useLocation()
   const { notifications, removeNotification, showNotification } = useNotificationSystem()
@@ -717,10 +720,13 @@ export default function WrappedApp() {
     }
     if (location.pathname.includes('djmax_respect_v')) {
       dispatch(setSelectedGame('djmax_respect_v'))
+      dispatch(setRefresh(!refresh))
     } else if (location.pathname.includes('wjmax')) {
       dispatch(setSelectedGame('wjmax'))
+      dispatch(setRefresh(!refresh))
     } else if (location.pathname.includes('platina_lab')) {
       dispatch(setSelectedGame('platina_lab'))
+      dispatch(setRefresh(!refresh))
     }
   }, [location.pathname])
 

@@ -1,14 +1,15 @@
 import { Icon } from '@iconify/react'
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useInView } from 'react-intersection-observer'
 import { useSelector } from 'react-redux'
-import { useNavigate } from 'react-router-dom'
+import { NavigateFunction, useNavigate } from 'react-router-dom'
 
 import Image from '@render/components/image/Image'
 import ScorePopupComponent from '@render/components/score/ScorePopup'
 import { globalDictionary } from '@render/constants/globalDictionary'
 import { useNotificationSystem } from '@render/hooks/useNotifications'
 import { RootState } from '@render/store'
+import { SongData } from '@src/types/games/SongData'
 
 // DLC 카테고리 매핑 추가
 const DLC_CATEGORY_MAPPING = {
@@ -19,6 +20,165 @@ const DLC_CATEGORY_MAPPING = {
   COLLABORATION: ['COLLABORATION'],
   PLI: ['PLI1'],
 }
+
+// LazyListItem 인터페이스 정의
+interface LazyListItemProps {
+  songItem: SongData
+  keyMode: string
+  hoveredTitle: number
+  handleMouseEnter: (songItem: SongData) => void
+  handleMouseLeave: () => void
+  selectedLevel: string
+  navigate: NavigateFunction
+  showNotification: (message: any, type: string) => void
+}
+
+// LazyGridItem 인터페이스 정의
+interface LazyGridItemProps {
+  songItem: SongData
+  keyMode: string
+}
+
+// LazyListItem 컴포넌트 추가
+const LazyListItem = React.memo(
+  ({
+    songItem,
+    keyMode,
+    hoveredTitle,
+    handleMouseEnter,
+    handleMouseLeave,
+    selectedLevel,
+    navigate,
+    showNotification,
+  }: LazyListItemProps) => {
+    const { ref, inView } = useInView({
+      triggerOnce: false,
+      threshold: 0.1,
+      rootMargin: '200px',
+    })
+
+    const handleClick = useCallback(() => {
+      if (songItem.uuid) {
+        navigate(`/games/djmax_respect_v/hard/db/${songItem.title}`)
+      } else {
+        showNotification(
+          {
+            ns: 'db',
+            value: 'database.noHardArchiveData',
+            mode: 'i18n',
+          },
+          'error',
+        )
+      }
+    }, [songItem, navigate, showNotification])
+
+    if (!inView) {
+      return <div ref={ref} className='tw:h-[84px]' /> // 플레이스홀더
+    }
+
+    return (
+      <div
+        ref={ref}
+        data-song-title={songItem.title}
+        onClick={handleClick}
+        className={`tw:flex tw:items-center tw:gap-4 tw:p-2 tw:border-b tw:border-slate-200 tw:dark:border-slate-700 tw:relative tw:overflow-hidden tw:cursor-pointer ${hoveredTitle === songItem.title ? 'tw:bg-slate-100 tw:dark:bg-slate-700/50' : ''} hover:tw:bg-slate-100 hover:tw:dark:bg-slate-700/50`}
+        onMouseEnter={() => handleMouseEnter(songItem)}
+        onMouseLeave={handleMouseLeave}
+      >
+        {/* 애니메이션 배경 레이어 */}
+        <div
+          className={`tw:absolute tw:inset-0 tw:opacity-0 tw:transition-opacity tw:duration-300 before:tw:content-[''] before:tw:absolute before:tw:inset-[-150%] before:tw:bg-[length:200%_200%] before:tw:animate-gradientSlide before:tw:bg-gradient-to-r before:tw:from-[#1d8975] before:tw:via-[#5276b4] before:tw:via-[#8432bd] before:tw:via-[#5276b4] before:tw:to-[#1d8975] ${hoveredTitle === songItem.title ? 'tw:opacity-10' : ''} `}
+        />
+
+        {/* 곡 정보 */}
+        <div className='tw:relative tw:w-full tw:flex tw:items-center tw:gap-4'>
+          <div className='tw:w-[80px] tw:h-[80px]'>
+            <ScorePopupComponent
+              isVisibleCode={true}
+              songTitle={songItem.title}
+              keyMode={String(keyMode)}
+              isLink={false}
+            />
+          </div>
+          <div className='tw:flex tw:flex-1'>
+            <div className='tw:flex tw:flex-col tw:flex-1'>
+              <span className='tw:text-sm tw:text-slate-500 tw:dark:text-slate-400'>
+                {songItem.composer}
+              </span>
+              <span className='tw:font-bold tw:text-slate-900 tw:dark:text-white'>
+                {songItem.name}
+              </span>
+            </div>
+            {/* 난이도별 고정 칸 */}
+            <div className='tw:flex tw:gap-4 tw:items-center justify-center'>
+              {['MX', 'SC'].map((diff) => {
+                const pattern = songItem.patterns[`${keyMode.replace('P', '')}B`]?.[diff]
+                const level = pattern?.level
+
+                // 기본 표시 조건
+                const baseShowCondition =
+                  (diff === 'MX' && level >= 15) || (diff === 'SC' && level >= 8)
+
+                // 하이라이트 조건 수정
+                const shouldHighlight =
+                  (diff === 'SC' &&
+                    (selectedLevel === 'all' || Math.floor(level) === parseInt(selectedLevel))) || // SC 하이라이트 조건
+                  (diff === 'MX' &&
+                    level >= 15 &&
+                    (selectedLevel === 'all' || selectedLevel === '8')) // MX 하이라이트 조건
+
+                const opacity = !shouldHighlight ? 'tw:opacity-30' : ''
+
+                return baseShowCondition ? (
+                  <div key={diff} className='tw:w-20 tw:text-center'>
+                    <div
+                      className={`tw:flex tw:justify-center tw:items-center tw:gap-1 tw:font-extrabold ${diff === 'MX' && 'tw:text-respect-nm-15'} ${diff === 'SC' && 'tw:text-respect-sc-15'} ${opacity}`}
+                    >
+                      <Image
+                        src={`${import.meta.env.VITE_CDN_URL}/djmax_respect_v/nm_${diff}_star.png`}
+                        width={16}
+                        height={16}
+                        alt={diff}
+                      />
+                      <div className='tw:text-base'>{level}</div>
+                    </div>
+                  </div>
+                ) : (
+                  <div key={diff} className='tw:opacity-30 tw:w-20 tw:text-center'>
+                    <div className='tw:text-base tw:font-extrabold tw:text-slate-700 tw:dark:text-slate-300'>
+                      -
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  },
+)
+
+// LazyGridItem 컴포넌트 추가
+const LazyGridItem = React.memo(({ songItem, keyMode }: LazyGridItemProps) => {
+  const { ref, inView } = useInView({
+    triggerOnce: false,
+    threshold: 0.1,
+    rootMargin: '200px',
+  })
+
+  return (
+    <div ref={ref} className='tw:w-[80px] tw:h-[80px]'>
+      {inView && (
+        <ScorePopupComponent
+          isVisibleCode={true}
+          songTitle={songItem.title}
+          keyMode={String(keyMode)}
+        />
+      )}
+    </div>
+  )
+})
 
 const DmrvHardDbPage = () => {
   const { showNotification } = useNotificationSystem()
@@ -62,7 +222,7 @@ const DmrvHardDbPage = () => {
   }
 
   const [visibleItems, setVisibleItems] = useState<number>(20) // 초기에 보여줄 아이템 수
-  const { inView } = useInView({
+  const { inView, ref: loadMoreRef } = useInView({
     threshold: 0.1,
     rootMargin: '400px 0px',
   })
@@ -151,19 +311,24 @@ const DmrvHardDbPage = () => {
   }, [])
 
   // 호버 핸들러 수정
-  const handleMouseEnter = (songItem) => {
+  const handleMouseEnter = useCallback((songItem) => {
     setHoveredTitle(songItem.title)
-  }
+  }, [])
 
-  const handleMouseLeave = () => {
+  const handleMouseLeave = useCallback(() => {
     setHoveredTitle(null)
-  }
+  }, [])
+
+  // 현재 화면에 보여줄 곡 목록
+  const visibleSongData = useMemo(() => {
+    return filteredSongData.slice(0, visibleItems)
+  }, [filteredSongData, visibleItems])
 
   return (
     selectedGame === 'djmax_respect_v' && (
       <React.Fragment>
         <div id='ContentHeader' />
-        <div className='tw:flex tw:flex-col tw:gap-4 vh-screen tw:relative'>
+        <div className='tw:flex tw:flex-col tw:gap-4 tw:h-[calc(100vh-106px)] tw:relative'>
           {/* 상단 영역 */}
           <div className='tw:flex tw:flex-col tw:gap-4 tw:transition-all tw:w-full duration-300'>
             <div className='tw:flex tw:w-full tw:gap-4'>
@@ -326,119 +491,41 @@ const DmrvHardDbPage = () => {
                     </div>
                   )}
 
-                  {filteredSongData.map((songItem, songItemIndex) =>
+                  {visibleSongData.map((songItem) =>
                     viewMode === 'grid' ? (
-                      <div
+                      <LazyGridItem
                         key={songItem.title}
-                        className='tw:flex tw:items-center tw:justify-center tw:h-[80px] tw:w-[80px]'
-                      >
-                        <ScorePopupComponent
-                          isVisibleCode={true}
-                          songTitle={songItem.title}
-                          keyMode={String(keyMode)}
-                          isLink={false}
-                        />
-                      </div>
+                        songItem={songItem}
+                        keyMode={String(keyMode)}
+                      />
                     ) : (
-                      <div
+                      <LazyListItem
                         key={songItem.title}
-                        data-song-title={songItem.title}
-                        className={`tw:flex tw:items-center tw:gap-4 tw:p-2 tw:border-b tw:border-slate-200 tw:dark:border-slate-700 tw:relative tw:overflow-hidden tw:cursor-pointer ${hoveredTitle === songItem.title ? 'tw:bg-slate-100 tw:dark:bg-slate-700/50' : ''} hover:tw:bg-slate-100 hover:tw:dark:bg-slate-700/50`}
-                        onMouseEnter={() => handleMouseEnter(songItem)}
-                        onMouseLeave={handleMouseLeave}
-                        onClick={() => {
-                          if (songItem.uuid) {
-                            navigate(`/games/djmax_respect_v/hard/db/${songItem.title}`)
-                          } else {
-                            showNotification(
-                              {
-                                ns: 'db',
-                                value: 'database.noHardArchiveData',
-                                mode: 'i18n',
-                              },
-                              'error',
-                            )
-                          }
-                        }}
-                      >
-                        {/* 애니메이션 배경 레이어 */}
-                        <div
-                          className={`tw:absolute tw:inset-0 tw:opacity-0 tw:transition-opacity tw:duration-300 before:tw:content-[''] before:tw:absolute before:tw:inset-[-150%] before:tw:bg-[length:200%_200%] before:tw:animate-gradientSlide before:tw:bg-gradient-to-r before:tw:from-[#1d8975] before:tw:via-[#5276b4] before:tw:via-[#8432bd] before:tw:via-[#5276b4] before:tw:to-[#1d8975] ${(viewMode === 'list' && hoveredTitle === songItemIndex) || hoveredTitle === songItem.title ? 'tw:opacity-10' : ''} `}
-                        />
-
-                        {/* 곡 정보 */}
-                        <div className='tw:relative tw:w-full tw:flex tw:items-center tw:gap-4'>
-                          <div className='tw:w-[80px] tw:h-[80px]'>
-                            <ScorePopupComponent
-                              isVisibleCode={true}
-                              songTitle={songItem.title}
-                              keyMode={String(keyMode)}
-                              isLink={false}
-                            />
-                          </div>
-                          <div className='tw:flex tw:flex-1'>
-                            <div className='tw:flex tw:flex-col tw:flex-1'>
-                              <span className='tw:text-sm tw:text-slate-500 tw:dark:text-slate-400'>
-                                {songItem.composer}
-                              </span>
-                              <span className='tw:font-bold tw:text-slate-900 tw:dark:text-white'>
-                                {songItem.name}
-                              </span>
-                            </div>
-                            {/* 난이도별 고정 칸 */}
-                            <div className='tw:flex tw:gap-4 tw:items-center justify-center'>
-                              {['MX', 'SC'].map((diff) => {
-                                const pattern =
-                                  songItem.patterns[`${keyMode.replace('P', '')}B`]?.[diff]
-                                const level = pattern?.level
-
-                                // 기본 표시 조건
-                                const baseShowCondition =
-                                  (diff === 'MX' && level >= 15) || (diff === 'SC' && level >= 8)
-
-                                // 하이라이트 조건 수정
-                                const shouldHighlight =
-                                  (diff === 'SC' &&
-                                    (selectedLevel === 'all' ||
-                                      Math.floor(level) === parseInt(selectedLevel))) || // SC 하이라이트 조건
-                                  (diff === 'MX' &&
-                                    level >= 15 &&
-                                    (selectedLevel === 'all' || selectedLevel === '8')) // MX 하이라이트 조건
-
-                                const opacity = !shouldHighlight ? 'tw:opacity-30' : ''
-
-                                return baseShowCondition ? (
-                                  <div key={diff} className='tw:w-20 tw:text-center'>
-                                    <div
-                                      className={`tw:flex tw:justify-center tw:items-center tw:gap-1 tw:font-extrabold ${diff === 'MX' && 'tw:text-respect-nm-15'} ${diff === 'SC' && 'tw:text-respect-sc-15'} ${opacity}`}
-                                    >
-                                      <Image
-                                        src={`${import.meta.env.VITE_CDN_URL}/djmax_respect_v/nm_${diff}_star.png`}
-                                        width={16}
-                                        height={16}
-                                        alt={diff}
-                                      />
-                                      <div className='tw:text-base'>{level}</div>
-                                    </div>
-                                  </div>
-                                ) : (
-                                  <div key={diff} className='tw:opacity-30 tw:w-20 tw:text-center'>
-                                    <div className='tw:text-base tw:font-extrabold tw:text-slate-700 tw:dark:text-slate-300'>
-                                      -
-                                    </div>
-                                  </div>
-                                )
-                              })}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
+                        songItem={songItem}
+                        keyMode={String(keyMode)}
+                        hoveredTitle={hoveredTitle}
+                        handleMouseEnter={handleMouseEnter}
+                        handleMouseLeave={handleMouseLeave}
+                        selectedLevel={selectedLevel}
+                        navigate={navigate}
+                        showNotification={showNotification}
+                      />
                     ),
                   )}
                   {viewMode === 'grid' &&
                     Array.from(Array(20)).map((_, index) => (
                       <div key={index} className='tw:w-[80px] tw:h-[80px]' />
                     ))}
+
+                  {/* 더 불러오기를 위한 관찰 요소 */}
+                  {visibleItems < filteredSongData.length && (
+                    <div
+                      ref={loadMoreRef}
+                      className={`tw:h-20 tw:w-full tw:flex tw:justify-center tw:items-center ${viewMode === 'grid' ? 'tw:col-span-full' : ''}`}
+                    >
+                      <div className='tw:text-sm tw:text-slate-500'>더 불러오는 중...</div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

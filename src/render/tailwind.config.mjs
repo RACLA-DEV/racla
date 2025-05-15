@@ -46,7 +46,7 @@ export default {
       'djmax_respect_v-SC': '#6a9eff',
       'wjmax-NM': '#c79b61',
       'wjmax-HD': '#9696ff',
-      'wjmax-MX': '#78ff91',
+      'wjmax-MX': '#38bf51',
       'wjmax-SC': '#ff4c4c',
       'wjmax-DPC': '#ffb401',
       'platina_lab-EASY': '#ffb31a',
