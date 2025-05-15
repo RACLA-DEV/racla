@@ -196,7 +196,7 @@ export const router = createHashRouter([
           },
           {
             path: '/games/platina_lab/board',
-            element: <Navigate to='/games/platina_lab/board/4/1' />,
+            element: <Navigate to='/games/platina_lab/board/4B/1' />,
           },
           {
             path: '/games/platina_lab/board/:keyMode/:board',
@@ -232,7 +232,7 @@ export const router = createHashRouter([
           },
           {
             path: '/games/wjmax/board',
-            element: <Navigate to='/games/wjmax/board/4/1' />,
+            element: <Navigate to='/games/wjmax/board/4B/1' />,
           },
           {
             path: '/games/wjmax/board/:keyMode/:board',

@@ -631,7 +631,7 @@ const DmrvBoardPage = () => {
                   <div className='tw:flex tw:flex-col tw:gap-2'>
                     {/* 난이도 범위 설명 */}
                     <div className='tw:text-sm tw:text-slate-600 tw:dark:text-slate-400 tw:font-medium'>
-                      성과표 구분
+                      성과표
                     </div>
                     {/* 난이도 선택 탭 */}
                     <div className='tw:flex tw:gap-2 tw:mb-1'>

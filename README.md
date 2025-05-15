@@ -188,10 +188,10 @@ racla/
 - [ ] DMRV - 전일 아카이브 - 랭킹 데이터베이스
 - [x] DMRV - 전일 아카이브 - 하드 판정 서열표
 - [ ] WJMAX - 기록 등록
-- [ ] WJMAX - 성과표
+- [x] WJMAX - 성과표
 - [ ] WJMAX - 데이터베이스
 - [ ] PLATiNA :: LAB - 기록 등록
-- [ ] PLATiNA :: LAB - 성과표
+- [x] PLATiNA :: LAB - 성과표
 - [ ] PLATiNA :: LAB - 데이터베이스
 - [ ] 설정 - 계정 (내 계정 정보, V-ARCHIVE, Discord 연동 상태 관리 등)
 - [x] 설정 - 일반 (기본적인 앱 설정)
