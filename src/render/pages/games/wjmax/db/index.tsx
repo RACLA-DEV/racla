@@ -1,19 +1,174 @@
 import 'dayjs/locale/ko'
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useInView } from 'react-intersection-observer'
 import { useSelector } from 'react-redux'
+import { NavigateFunction } from 'react-router-dom'
 
 import { Icon } from '@iconify/react'
 import Image from '@render/components/image/Image'
 import ScorePopupComponent from '@render/components/score/ScorePopup'
 import { globalDictionary } from '@render/constants/globalDictionary'
 import { RootState } from '@render/store'
+import { SongData } from '@src/types/games/SongData'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
 import { useNavigate } from 'react-router-dom'
 
 dayjs.locale('ko')
 dayjs.extend(utc)
+
+// LazyListItem 인터페이스 정의
+interface LazyListItemProps {
+  songItem: SongData
+  keyMode: string
+  hoveredTitle: string | null
+  handleMouseEnter: (songItem: SongData) => void
+  handleMouseLeave: () => void
+  selectedLevel: string
+  navigate: NavigateFunction
+}
+
+// LazyGridItem 인터페이스 정의
+interface LazyGridItemProps {
+  songItem: SongData
+  keyMode: string
+}
+
+// LazyListItem 컴포넌트 추가
+const LazyListItem = React.memo(
+  ({
+    songItem,
+    keyMode,
+    hoveredTitle,
+    handleMouseEnter,
+    handleMouseLeave,
+    selectedLevel,
+    navigate,
+  }: LazyListItemProps) => {
+    const { ref, inView } = useInView({
+      triggerOnce: false,
+      threshold: 0.1,
+      rootMargin: '200px',
+    })
+
+    const handleClick = useCallback(() => {
+      navigate(`/games/wjmax/db/${songItem.title}`)
+    }, [songItem.title, navigate])
+
+    if (!inView) {
+      return <div ref={ref} className='tw:h-[84px]' /> // 플레이스홀더
+    }
+
+    return (
+      <div
+        ref={ref}
+        data-song-title={songItem.title}
+        onClick={handleClick}
+        className={`tw:flex tw:items-center tw:gap-4 tw:p-2 tw:border-b tw:border-slate-200 tw:dark:border-slate-700 tw:relative tw:overflow-hidden tw:cursor-pointer ${hoveredTitle === String(songItem.title) ? 'tw:bg-slate-100 tw:dark:bg-slate-700/50' : ''} hover:tw:bg-slate-100 hover:tw:dark:bg-slate-700/50`}
+        onMouseEnter={() => handleMouseEnter(songItem)}
+        onMouseLeave={handleMouseLeave}
+      >
+        {/* 애니메이션 배경 레이어 */}
+        <div
+          className={`tw:absolute tw:inset-0 tw:opacity-0 tw:transition-opacity tw:duration-300 before:tw:content-[''] before:tw:absolute before:tw:inset-[-150%] before:tw:bg-[length:200%_200%] before:tw:animate-gradientSlide before:tw:bg-gradient-to-r before:tw:from-[#1d8975] before:tw:via-[#5276b4] before:tw:via-[#8432bd] before:tw:via-[#5276b4] before:tw:to-[#1d8975] ${hoveredTitle === String(songItem.title) ? 'tw:opacity-10' : ''} `}
+        />
+
+        {/* 기존 콘텐츠 */}
+        <div className='tw:relative tw:z-10 tw:w-full tw:flex tw:items-center tw:gap-4'>
+          <div className='tw:w-auto'>
+            <ScorePopupComponent
+              songTitle={songItem.title}
+              keyMode={keyMode.replace('P', '')}
+              isVisibleCode={true}
+              judgementType={keyMode.includes('P') ? 1 : 0}
+              isLink={false}
+              width={130}
+              height={74}
+            />
+          </div>
+          <div className='tw:flex tw:flex-1'>
+            <div className='tw:flex-1'>
+              <div className='tw:font-bold tw:text-slate-900 tw:dark:text-white'>
+                {songItem.name}
+              </div>
+              <div className='tw:flex tw:gap-2 tw:mt-1'>
+                <div className='tw:text-slate-500 tw:dark:text-slate-400'>
+                  {songItem.artist +
+                    (songItem.composer !== '' ? ` / ${songItem.composer}` : '') +
+                    ' / ' +
+                    songItem.bpm +
+                    ' BPM / ' +
+                    dayjs
+                      .utc(songItem.time * 1000)
+                      .locale('ko')
+                      .format('m분 s초')}
+                </div>
+              </div>
+            </div>
+
+            {/* 난이도별 고정 칸 */}
+            <div className='tw:flex tw:gap-4 tw:flex-1 tw:items-center tw:justify-center'>
+              {['NM', 'HD', 'MX', 'SC', 'DPC'].map((diff) => (
+                <div key={diff} className='tw:w-20 tw:text-center'>
+                  {songItem.patterns[`${keyMode.replace('P', '')}B`]?.[diff] ? (
+                    <div
+                      className={`tw:flex tw:h-full tw:items-center tw:gap-1 tw:font-extrabold tw:justify-center ${
+                        selectedLevel === 'all' ||
+                        Math.floor(songItem.patterns[`${keyMode.replace('P', '')}B`][diff].level) ==
+                          Number(selectedLevel)
+                          ? ''
+                          : 'tw:opacity-30'
+                      } ${diff === 'NM' && 'tw:text-wjmax-NM'} ${diff === 'HD' && 'tw:text-wjmax-HD'} ${diff === 'MX' && 'tw:text-wjmax-MX'} ${diff === 'SC' && 'tw:text-wjmax-SC'} ${diff === 'DPC' && 'tw:text-wjmax-DPC'} `}
+                    >
+                      <Image
+                        src={`${import.meta.env.VITE_CDN_URL}/wjmax/nm_${diff.toLowerCase()}.png`}
+                        width={24}
+                        height={30}
+                        alt={diff}
+                      />
+                      <div className='tw:text-sm'>
+                        {songItem.patterns[`${keyMode.replace('P', '')}B`][diff].level.toFixed(1)}
+                      </div>
+                    </div>
+                  ) : (
+                    <div key={diff} className='tw:opacity-30'>
+                      <div className='tw:text-base tw:font-extrabold'>-</div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  },
+)
+
+// LazyGridItem 컴포넌트 추가
+const LazyGridItem = React.memo(({ songItem, keyMode }: LazyGridItemProps) => {
+  const { ref, inView } = useInView({
+    triggerOnce: false,
+    threshold: 0.1,
+    rootMargin: '200px',
+  })
+
+  return (
+    <div ref={ref} className='tw:w-[130px] tw:h-[74px]'>
+      {inView && (
+        <ScorePopupComponent
+          songTitle={songItem.title}
+          keyMode={keyMode.replace('P', '')}
+          isVisibleCode={true}
+          judgementType={keyMode.includes('P') ? 1 : 0}
+          width={130}
+          height={74}
+        />
+      )}
+    </div>
+  )
+})
 
 const WjmaxDbPage = () => {
   const { songData, selectedGame } = useSelector((state: RootState) => state.app)
@@ -36,6 +191,13 @@ const WjmaxDbPage = () => {
 
   // 마지막 마우스 위치를 저장할 ref
   const lastMousePositionRef = useRef({ x: 0, y: 0 })
+
+  // 무한 스크롤을 위한 상태와 훅 추가
+  const [visibleItems, setVisibleItems] = useState<number>(20) // 초기에 보여줄 아이템 수
+  const { inView, ref: loadMoreRef } = useInView({
+    threshold: 0.1,
+    rootMargin: '400px 0px',
+  })
 
   // 스크롤 핸들러 수정
   const handleScroll = useCallback(() => {
@@ -198,9 +360,6 @@ const WjmaxDbPage = () => {
     searchSong,
   ])
 
-  // 선택된 곡의 ref를 저장하기 위한 ref 추가
-  const selectedSongRef = useRef<HTMLDivElement>(null)
-
   // 검색 input ref 추가
   const searchInputRef = useRef<HTMLInputElement>(null)
 
@@ -330,132 +489,69 @@ const WjmaxDbPage = () => {
 
   // 메모이징된 목록 항목 렌더링
   const renderSongItem = useCallback(
-    (songItem, songItemIndex) => {
+    (songItem) => {
       if (viewMode === 'grid') {
-        return (
-          <ScorePopupComponent
-            key={songItem.title}
-            songTitle={songItem.title}
-            keyMode={keyMode.replace('P', '')}
-            isVisibleCode={true}
-            judgementType={keyMode.includes('P') ? 1 : 0}
-            width={130}
-            height={74}
-          />
-        )
+        return <LazyGridItem key={songItem.title} songItem={songItem} keyMode={keyMode} />
       }
 
       return (
-        <div
+        <LazyListItem
           key={songItem.title}
-          data-song-title={songItem.title}
-          ref={songItemIndex === selectedSongIndex ? selectedSongRef : null}
-          onClick={() => navigate(`/games/wjmax/db/${songItem.title}`)}
-          className={`tw:flex tw:items-center tw:gap-4 tw:p-2 tw:border-b tw:border-slate-200 tw:dark:border-slate-700 tw:relative tw:overflow-hidden tw:cursor-pointer ${hoveredTitle === String(songItem.title) ? 'tw:bg-slate-100 tw:dark:bg-slate-700/50' : ''} hover:tw:bg-slate-100 hover:tw:dark:bg-slate-700/50`}
-          onMouseEnter={() => handleMouseEnter(songItem)}
-          onMouseLeave={handleMouseLeave}
-        >
-          {/* 애니메이션 배경 레이어 */}
-          <div
-            className={`tw:absolute tw:inset-0 tw:opacity-0 tw:transition-opacity tw:duration-300 before:tw:content-[''] before:tw:absolute before:tw:inset-[-150%] before:tw:bg-[length:200%_200%] before:tw:animate-gradientSlide before:tw:bg-gradient-to-r before:tw:from-[#1d8975] before:tw:via-[#5276b4] before:tw:via-[#8432bd] before:tw:via-[#5276b4] before:tw:to-[#1d8975] ${hoveredTitle === String(songItem.title) ? 'tw:opacity-10' : ''} `}
-          />
-
-          {/* 기존 콘텐츠 */}
-          <div className='tw:relative tw:z-10 tw:w-full tw:flex tw:items-center tw:gap-4'>
-            <div className='tw:w-auto'>
-              <ScorePopupComponent
-                songTitle={songItem.title}
-                keyMode={keyMode.replace('P', '')}
-                isVisibleCode={true}
-                judgementType={keyMode.includes('P') ? 1 : 0}
-                isLink={false}
-                width={130}
-                height={74}
-              />
-            </div>
-            <div className='tw:flex tw:flex-1'>
-              <div className='tw:flex-1'>
-                <div className='tw:font-bold tw:text-slate-900 tw:dark:text-white'>
-                  {songItem.name}
-                </div>
-                <div className='tw:flex tw:gap-2 tw:mt-1'>
-                  <div className='tw:text-slate-500 tw:dark:text-slate-400'>
-                    {songItem.artist +
-                      (songItem.composer !== '' ? ` / ${songItem.composer}` : '') +
-                      ' / ' +
-                      songItem.bpm +
-                      ' BPM / ' +
-                      dayjs
-                        .utc(songItem.time * 1000)
-                        .locale('ko')
-                        .format('m분 s초')}
-                  </div>
-                </div>
-              </div>
-
-              {/* 난이도별 고정 칸 */}
-              <div className='tw:flex tw:gap-4 tw:flex-1 tw:items-center tw:justify-center'>
-                {['NM', 'HD', 'MX', 'SC', 'DPC'].map((diff) => (
-                  <div key={diff} className='tw:w-20 tw:text-center'>
-                    {songItem.patterns[`${keyMode.replace('P', '')}B`]?.[diff] ? (
-                      <div
-                        className={`tw:flex tw:h-full tw:items-center tw:gap-1 tw:font-extrabold tw:justify-center ${
-                          selectedLevel === 'all' ||
-                          Math.floor(
-                            songItem.patterns[`${keyMode.replace('P', '')}B`][diff].level,
-                          ) == Number(selectedLevel)
-                            ? ''
-                            : 'tw:opacity-30'
-                        } ${diff === 'NM' && 'tw:text-wjmax-NM'} ${diff === 'HD' && 'tw:text-wjmax-HD'} ${diff === 'MX' && 'tw:text-wjmax-MX'} ${diff === 'SC' && 'tw:text-wjmax-SC'} ${diff === 'DPC' && 'tw:text-wjmax-DPC'} `}
-                      >
-                        <Image
-                          src={`${import.meta.env.VITE_CDN_URL}/wjmax/nm_${diff.toLowerCase()}.png`}
-                          width={24}
-                          height={30}
-                          alt={diff}
-                        />
-                        <div className='tw:text-sm'>
-                          {songItem.patterns[`${keyMode.replace('P', '')}B`][diff].level.toFixed(1)}
-                        </div>
-                      </div>
-                    ) : (
-                      <div key={diff} className='tw:opacity-30'>
-                        <div className='tw:text-base tw:font-extrabold'>-</div>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
+          songItem={songItem}
+          keyMode={keyMode}
+          hoveredTitle={hoveredTitle}
+          handleMouseEnter={handleMouseEnter}
+          handleMouseLeave={handleMouseLeave}
+          selectedLevel={selectedLevel}
+          navigate={navigate}
+        />
       )
     },
-    [
-      viewMode,
-      keyMode,
-      selectedSongIndex,
-      selectedLevel,
-      hoveredTitle,
-      handleMouseEnter,
-      handleMouseLeave,
-      navigate,
-    ],
+    [viewMode, keyMode, hoveredTitle, handleMouseEnter, handleMouseLeave, selectedLevel, navigate],
   )
+
+  // 스크롤 시 더 많은 아이템 로드
+  useEffect(() => {
+    if (inView && visibleItems < filteredSongData.length) {
+      setVisibleItems((prev) => Math.min(prev + 20, filteredSongData.length))
+    }
+  }, [inView, filteredSongData.length, visibleItems])
+
+  // 현재 화면에 보여줄 곡 목록
+  const visibleSongData = useMemo(() => {
+    return filteredSongData.slice(0, visibleItems)
+  }, [filteredSongData, visibleItems])
 
   // 메모이징된 곡 목록 렌더링
   const songListContent = useMemo(() => {
     return (
       <>
-        {filteredSongData.map((songItem, songItemIndex) => renderSongItem(songItem, songItemIndex))}
+        {visibleSongData.map((songItem) => renderSongItem(songItem))}
 
         {viewMode === 'grid' &&
           Array.from(Array(20)).map((_, index) => (
             <div key={index} className='tw:w-[130px] tw:h-[74px]' />
           ))}
+
+        {/* 더 불러오기를 위한 관찰 요소 */}
+        {visibleItems < filteredSongData.length && (
+          <div
+            ref={loadMoreRef}
+            className={`tw:h-20 tw:w-full tw:flex tw:justify-center tw:items-center ${viewMode === 'grid' ? 'tw:col-span-full' : ''}`}
+          >
+            <div className='tw:text-sm tw:text-slate-500'>더 불러오는 중...</div>
+          </div>
+        )}
       </>
     )
-  }, [filteredSongData, renderSongItem, viewMode])
+  }, [
+    visibleSongData,
+    renderSongItem,
+    viewMode,
+    visibleItems,
+    filteredSongData.length,
+    loadMoreRef,
+  ])
 
   return (
     selectedGame === 'wjmax' && (
@@ -531,7 +627,7 @@ const WjmaxDbPage = () => {
                 className='tw:flex tw:flex-col tw:mr-2 tw:gap-1 tw:bg-white tw:dark:bg-slate-800 tw:rounded-md tw:p-4 tw:border tw:border-slate-200 tw:dark:border-slate-700'
               >
                 <div
-                  className={`tw:w-full ${viewMode === 'grid' ? 'tw:flex tw:gap-3 tw:flex-wrap tw:justify-between' : 'tw:flex tw:flex-col'}`}
+                  className={`tw:w-full ${viewMode === 'grid' ? 'tw:grid tw:grid-cols-[repeat(auto-fill,130px)] tw:gap-3 tw:justify-center tw:content-center' : 'tw:flex tw:flex-col'}`}
                 >
                   {viewMode === 'list' && (
                     <div className='tw:flex tw:items-center tw:gap-4 tw:p-2 tw:border-b tw:border-slate-200 tw:dark:border-slate-700 tw:text-slate-500 tw:dark:text-slate-400 tw:font-bold tw:text-sm'>
