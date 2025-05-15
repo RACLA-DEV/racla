@@ -1,7 +1,7 @@
 # 🎮 RACLA Desktop App (Vite)
 
 <div align="center">
-  <img src="https://cdn.gongroin.com/gongroin/og-image-racla.png" alt="RACLA" width="600">
+  <img src="https://github.com/user-attachments/assets/480fd820-6100-4018-ad61-08360e5778f0" alt="RACLA">
   
   <p><strong>종합리듬 게임 성과 관리 도구</strong></p>
   
@@ -25,7 +25,7 @@ RACLA는 **GGDRN0 STUDIO**에서 개발한 종합리듬 게임 성과 관리 도
 ### 필수 요구사항
 
 - Node.js 22.14.0 이상
-- pnpm 10.10.0 이상 (`npm install -g pnpm@10.10.0`)
+- pnpm 10.11.0 이상 (`npm install -g pnpm@10.11.0`)
 - 윈도우 개발 환경 (윈도우 10/11)
 
 ### API URL 설정
@@ -121,6 +121,16 @@ racla/
   </tr>
 </table>
 
+## 🌐 다국어 지원 (i18n)
+
+RACLA는 다국어 지원을 위한 국제화(i18n) 시스템을 구축하고 있습니다. 현재 번역 기여를 받고 있으며, 다음 언어들을 지원하거나 지원할 예정입니다:
+
+- 한국어 (기본)
+- 영어
+- 일본어
+
+번역에 기여하고 싶으신 분들은 GitHub Issue나 Pull Request를 통해 참여해주시면 감사하겠습니다.
+
 ## 💬 TMI
 
 > ⚠️ Nextron 기반의 RACLA 데스크톱 앱은 0.7.16 업데이트를 기점으로 더 이상 유지 보수되지 않습니다. ~(다시는 만나지 말자...)~
@@ -146,15 +156,6 @@ racla/
 
 ## 📜 개발 일지
 
-<!-- > RACLA 0.8.0 Developer Note #2 - Track Maker / Pattern Editor Demo - 2025. 4. 29.
-
-<div align="center">
-  <a href="https://youtu.be/xX_rC5ixWaI?t=0s" target="_blank">
-    <img src="https://img.youtube.com/vi/xX_rC5ixWaI/0.jpg" alt="Developer Note" width="600">
-    <p>👆 이미지를 클릭하면 최근에 업로드된 개발 일지 영상으로 이동합니다</p>
-  </a>
-</div> -->
-
 ### To-Do (Main Process)
 
 - [x] Auth Manager (V-ARCHIVE, Discord 로그인 및 연동 모듈)
@@ -172,8 +173,8 @@ racla/
 
 ### To-Do (Renderer Process)
 
-- [x] 앱 초기화 로직 (Discord Manager, Overlway Window, Update Manager 호출, 수록곡 DB 업데이트, 자동 로그인 등등)
-- [x] 앱 레이아웃 (Header, Navigation Bar, Footer, Common Component, Etc...)
+- [x] 앱 초기화 로직 (Discord Manager, Overlway Window, Update Manager 호출, 수록곡 DB 업데이트, 자동 로그인...)
+- [x] 앱 레이아웃 (Header, Navigation Bar, Footer, Common Component...)
 - [x] 치트시트
 - [x] 홈
 - [x] 로그인 및 제3자 서비스 연동 회원가입
