@@ -228,7 +228,7 @@ export function NotificationContainer({ notifications, onRemove }: NotificationC
 
   return (
     <div
-      className={`tw:fixed tw:right-2 tw:bottom-10 tw:z-50 tw:space-y-2 tw:transition-opacity tw:duration-300 ${isLoading ? 'tw:opacity-0 tw:pointer-events-none' : 'tw:opacity-100'}`}
+      className={`tw:fixed tw:right-2 tw:bottom-10 tw:z-[99999999] tw:space-y-2 tw:transition-opacity tw:duration-300 ${isLoading ? 'tw:opacity-0 tw:pointer-events-none' : 'tw:opacity-100'}`}
     >
       <AnimatePresence>
         {visibleRegularNotifications.map((notification, index) => (

@@ -299,7 +299,7 @@ export default function WrappedApp() {
         showNotification(
           {
             mode: 'i18n',
-            value: 'syncSuccess',
+            value: 'database.syncSuccess',
             props: {
               gameName: gameCode
                 ? globalDictionary.gameDictionary[

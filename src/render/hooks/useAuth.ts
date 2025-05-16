@@ -42,6 +42,7 @@ export function useAuth() {
       if (success) {
         // 리덕스 스토어에서 사용자 데이터 제거
         dispatch(logoutAction())
+        dispatch(setIsLoggedIn(false))
         return true
       }
       return false

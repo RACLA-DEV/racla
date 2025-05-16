@@ -1,9 +1,9 @@
-export interface UserNameRequest {
+export interface ApiArchiveUserNameRequest {
   userNo: string
   token: string
 }
 
-export interface UserNameResponse {
+export interface ApiArchiveUserNameResponse {
   success: boolean
   nickname?: string
   error?: string

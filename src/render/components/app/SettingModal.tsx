@@ -3,20 +3,29 @@ import { globalDictionary } from '@render/constants/globalDictionary'
 import { useNotificationSystem } from '@render/hooks/useNotifications'
 import { createLog } from '@render/libs/logger'
 import { RootState } from '@render/store'
-import { setIsSetting, setSettingData } from '@render/store/slices/appSlice'
+import { setIsSetting, setSettingData, setUserData } from '@render/store/slices/appSlice'
+import { PlayerLinkExternalServiceResponse } from '@src/types/dto/player/PlayerLinkExternalService'
+import {
+  ApiArchiveUserNameRequest,
+  ApiArchiveUserNameResponse,
+} from '@src/types/dto/v-archive/ApiArchiveUserName'
+import { SessionData } from '@src/types/sessions/SessionData'
 import type { SettingsData } from '@src/types/settings/SettingData'
 import type { SettingItem } from '@src/types/settings/SettingItem'
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { FaDiscord } from 'react-icons/fa6'
 import { useDispatch, useSelector } from 'react-redux'
 import { PuffLoader } from 'react-spinners'
+import apiClient from '../../../libs/apiClient'
 
 // 카테고리 정의
 const settingCategories = {
-  general: { id: 'general', name: '일반', icon: 'lucide:settings' },
-  storage: { id: 'storage', name: '저장공간', icon: 'lucide:database' },
-  autoStart: { id: 'autoStart', name: '게임 자동 실행', icon: 'lucide:play' },
-  capture: { id: 'capture', name: '자동 캡처 모드', icon: 'lucide:camera' },
+  account: { id: 'account', name: '계정 정보', icon: 'lucide:user', needLogin: true },
+  general: { id: 'general', name: '일반', icon: 'lucide:settings', needLogin: false },
+  storage: { id: 'storage', name: '저장공간', icon: 'lucide:database', needLogin: false },
+  autoStart: { id: 'autoStart', name: '게임 자동 실행', icon: 'lucide:play', needLogin: false },
+  capture: { id: 'capture', name: '자동 캡처 모드', icon: 'lucide:camera', needLogin: false },
 }
 
 // 설정 항목이 특정 카테고리에 속하는지 확인하는 함수들
@@ -296,6 +305,459 @@ const FolderItem = ({
     {children}
   </div>
 )
+
+const AccountInfo = () => {
+  const dispatch = useDispatch()
+  const { userData } = useSelector((state: RootState) => state.app)
+  const { showNotification } = useNotificationSystem()
+  const [copySuccess, setCopySuccess] = useState<string | null>(null)
+
+  const getUserName = async <T = ApiArchiveUserNameResponse, R = ApiArchiveUserNameRequest>(
+    body: R,
+  ): Promise<T> => {
+    const { data } = await apiClient.postProxy<T>(`https://v-archive.net/client/login`, body)
+    return data.data
+  }
+  const vArchiveFileInputRef = useRef<HTMLInputElement>(null)
+
+  const handleVArchiveFileSelect = () => {
+    vArchiveFileInputRef.current?.click()
+  }
+
+  const onVArchiveFileChange = async (e) => {
+    const file = e.target.files[0]
+    const fileReader = new FileReader()
+    fileReader.onload = () => {
+      const text = fileReader.result.toString().trim()
+      try {
+        if (
+          // account.txt 유효성 검증
+          // 구분자(공백)이 존재하는지
+          text.includes(' ') &&
+          // 구분자(공백)으로 나눈 후 배열의 길이가 2 인지(userNo, token)
+          text.split(' ').length === 2 &&
+          // userNo로 추정되는 부분 인덱스(0)이 숫자로만 구성되어 있는지
+          !Number.isNaN(Number(text.split(' ')[0])) &&
+          // token(uuidv4)으로 추정되는 부분 인덱스(1)에 - 문자가 포함되는지
+          text.split(' ')[1].includes('-') &&
+          // uuid 구조상 첫 번째(time-low) 필드의 문자열 길이가 8인지
+          text.split(' ')[1].split('-')[0].length === 8 &&
+          // uuid 구조상 두 번째(time-mid) 필드의 문자열 길이가 4인지
+          text.split(' ')[1].split('-')[1].length === 4 &&
+          // uuid 구조상 세 번째(time-hight-and-version) 필드의 문자열 길이가 4인지
+          text.split(' ')[1].split('-')[2].length === 4 &&
+          // uuid 구조상 네 번째(clock-seq-hi-and-reserved & clock-seq-low) 필드의 문자열 길이가 4인지
+          text.split(' ')[1].split('-')[3].length === 4 &&
+          // uuid 구조상 다섯 번째(node) 필드의 문자열 길이가 12인지
+          text.split(' ')[1].split('-')[4].length === 12
+        ) {
+          const data = getUserName({ userNo: text.split(' ')[0], token: text.split(' ')[1] })
+          data.then(async (result) => {
+            if (result.success) {
+              await apiClient
+                .post<PlayerLinkExternalServiceResponse>(`/v3/racla/player/link/oauth/vArchive`, {
+                  playerId: userData.playerId,
+                  playerToken: userData.playerToken,
+                  externalServiceUserNo: Number(text.split(' ')[0]),
+                  externalServiceUserToken: text.split(' ')[1],
+                  externalServiceType: 'V_ARCHIVE',
+                })
+                .then((data) => {
+                  if (data.data.success && data.data.data.result == 'Success') {
+                    showNotification({
+                      mode: 'i18n',
+                      ns: 'settings',
+                      value: 'accountInfo.vArchive.Success',
+                    })
+                    const newUserData: SessionData = {
+                      ...userData,
+                      varchiveUserInfo: {
+                        ...data.data.data.varchiveUserInfo,
+                        isLinked: true,
+                      },
+                    }
+                    dispatch(setUserData(newUserData))
+                  } else if (!data.data.success && data.data.data.result === 'NotFound') {
+                    showNotification(
+                      {
+                        mode: 'i18n',
+                        ns: 'settings',
+                        value: 'accountInfo.vArchive.NotFound',
+                      },
+                      'success',
+                    )
+                  } else if (!data.data.success && data.data.data.result === 'Already') {
+                    showNotification(
+                      {
+                        mode: 'i18n',
+                        ns: 'settings',
+                        value: 'accountInfo.vArchive.Already',
+                      },
+                      'error',
+                    )
+                  } else {
+                    showNotification(
+                      {
+                        mode: 'i18n',
+                        ns: 'settings',
+                        value: 'accountInfo.vArchive.Unknown',
+                      },
+                      'error',
+                    )
+                  }
+                })
+                .catch((error) => {
+                  createLog('error', 'Error linking V-ARCHIVE account', String(error))
+                  showNotification(
+                    {
+                      mode: 'i18n',
+                      ns: 'settings',
+                      value: 'accountInfo.vArchive.Unknown',
+                    },
+                    'error',
+                  )
+                })
+            } else {
+              showNotification(
+                {
+                  mode: 'i18n',
+                  ns: 'settings',
+                  value: 'accountInfo.vArchive.NotFound',
+                },
+                'error',
+              )
+            }
+          })
+        } else {
+          showNotification(
+            {
+              mode: 'i18n',
+              ns: 'settings',
+              value: 'accountInfo.vArchive.Invalid',
+            },
+            'error',
+          )
+        }
+      } catch (error) {
+        createLog('error', 'Error linking V-ARCHIVE account', String(error))
+        showNotification(
+          {
+            mode: 'i18n',
+            ns: 'settings',
+            value: 'accountInfo.vArchive.Unknown',
+          },
+          'error',
+        )
+      }
+    }
+    try {
+      fileReader.readAsText(file)
+    } catch (error) {
+      createLog('error', 'Error reading V-ARCHIVE account file', String(error))
+      showNotification(
+        {
+          mode: 'i18n',
+          ns: 'settings',
+          value: 'accountInfo.vArchive.Unknown',
+        },
+        'error',
+      )
+    } finally {
+      vArchiveFileInputRef.current.value = ''
+    }
+  }
+
+  const handleDiscordLink = async () => {
+    try {
+      const code = await window.electron.openDiscordLogin()
+      createLog('debug', 'Received Discord OAuth Code:', code)
+
+      await apiClient
+        .post<PlayerLinkExternalServiceResponse>(`/v3/racla/player/link/oauth/discord`, {
+          playerId: userData.playerId,
+          playerToken: userData.playerToken,
+          externalServiceCode: code,
+          externalServiceType: 'DISCORD',
+        })
+        .then((data) => {
+          if (data.data.success && data.data.data.result === 'Success') {
+            console.log(data.data.data)
+            showNotification(
+              {
+                mode: 'i18n',
+                ns: 'settings',
+                value: 'accountInfo.discord.Success',
+              },
+              'success',
+            )
+            const newUserData: SessionData = {
+              ...userData,
+              discordUserInfo: {
+                ...data.data.data.discordUserInfo,
+                isLinked: true,
+              },
+            }
+            dispatch(setUserData(newUserData))
+          } else if (!data.data.success && data.data.data.result === 'NotFound') {
+            showNotification(
+              {
+                mode: 'i18n',
+                ns: 'settings',
+                value: 'accountInfo.discord.NotFound',
+              },
+              'error',
+            )
+          } else if (!data.data.success && data.data.data.result === 'Already') {
+            showNotification(
+              {
+                mode: 'i18n',
+                ns: 'settings',
+                value: 'accountInfo.discord.Already',
+              },
+              'error',
+            )
+          } else {
+            showNotification(
+              {
+                mode: 'i18n',
+                ns: 'settings',
+                value: 'accountInfo.discord.Unknown',
+              },
+              'error',
+            )
+          }
+        })
+        .catch((error) => {
+          createLog('error', 'Error linking Discord account', String(error))
+          showNotification(
+            {
+              mode: 'i18n',
+              ns: 'settings',
+              value: 'accountInfo.discord.Unknown',
+            },
+            'error',
+          )
+        })
+    } catch (error) {
+      createLog('error', 'Error linking Discord account', String(error))
+      showNotification(
+        {
+          mode: 'i18n',
+          ns: 'settings',
+          value: 'accountInfo.discord.Unknown',
+        },
+        'error',
+      )
+    }
+  }
+
+  const copyToClipboard = (text: string, field: string) => {
+    navigator.clipboard.writeText(text).then(
+      () => {
+        setCopySuccess(field)
+        setTimeout(() => setCopySuccess(null), 2000)
+      },
+      () => {
+        setCopySuccess('error')
+        setTimeout(() => setCopySuccess(null), 2000)
+      },
+    )
+  }
+
+  // 계정 정보 표시 컴포넌트
+  const AccountField = ({
+    label,
+    value,
+    fieldId,
+  }: {
+    label: string
+    value: string | number
+    fieldId: string
+  }) => (
+    <div className='tw:flex tw:items-center tw:justify-between tw:mb-2'>
+      <span className='tw:text-sm tw:font-medium'>{label}</span>
+      <div className='tw:flex tw:items-center tw:gap-2'>
+        <div className='tw:px-3 tw:py-1.5 tw:bg-gray-100 tw:dark:bg-slate-700 tw:blur-sm tw:hover:blur-none tw:transition-all tw:duration-300 tw:rounded-md tw:relative'>
+          <span className='tw:text-sm tw:font-mono'>{value}</span>
+        </div>
+        <button
+          onClick={() => copyToClipboard(String(value), fieldId)}
+          className='tw:p-1.5 tw:rounded-full tw:bg-gray-100 tw:dark:bg-slate-700 tw:text-gray-600 tw:dark:text-gray-300 hover:tw:bg-indigo-100 hover:tw:dark:bg-indigo-900 tw:transition-colors'
+          title='복사하기'
+        >
+          {copySuccess === fieldId ? (
+            <Icon icon='lucide:check' className='tw:w-4 tw:h-4 tw:text-green-500' />
+          ) : (
+            <Icon icon='lucide:copy' className='tw:w-4 tw:h-4' />
+          )}
+        </button>
+      </div>
+    </div>
+  )
+
+  return (
+    <div className='tw:flex tw:flex-col tw:gap-6'>
+      {/* RACLA 계정 정보 */}
+      <div className='tw:bg-white tw:dark:bg-slate-750 tw:rounded-xl tw:p-5 tw:border tw:border-gray-200 tw:dark:border-slate-700 tw:shadow-sm'>
+        <div className='tw:flex tw:items-center tw:gap-3 tw:mb-4'>
+          <div className='tw:p-2 tw:bg-indigo-100 tw:dark:bg-indigo-900/50 tw:rounded-lg'>
+            <Icon
+              icon='lucide:user'
+              className='tw:w-5 tw:h-5 tw:text-indigo-600 tw:dark:text-indigo-400'
+            />
+          </div>
+          <h3 className='tw:text-base tw:font-medium'>RACLA 계정 정보</h3>
+        </div>
+
+        <div className='tw:space-y-4'>
+          <div className='tw:space-y-2'>
+            <AccountField label='계정 번호' value={userData.playerId} fieldId='playerId' />
+            <AccountField label='계정 토큰' value={userData.playerToken} fieldId='playerToken' />
+          </div>
+
+          <div className='tw:mt-3 tw:p-3 tw:bg-red-50 tw:dark:bg-red-900/20 tw:rounded-lg tw:border tw:border-red-100 tw:dark:border-red-900/30'>
+            <span className='tw:text-sm tw:font-light tw:text-red-600 tw:dark:text-red-400 tw:break-keep tw:flex tw:items-start tw:gap-2'>
+              <Icon icon='lucide:alert-triangle' className='tw:w-4 tw:h-4 tw:shrink-0 tw:mt-0.5' />
+              <span>
+                노출되는 정보는 RACLA에서 로그인 데이터로 사용되는 계정 번호(userNo)와 계정
+                토큰(userToken)입니다. 계정 번호와 계정 토큰은 외부에 노출되지 않도록 주의해주세요.
+              </span>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* V-ARCHIVE 계정 정보 */}
+      <div className='tw:bg-white tw:dark:bg-slate-750 tw:rounded-xl tw:p-5 tw:border tw:border-gray-200 tw:dark:border-slate-700 tw:shadow-sm'>
+        <div className='tw:flex tw:items-center tw:gap-3 tw:mb-4'>
+          <div className='tw:p-2 tw:bg-blue-100 tw:dark:bg-blue-900/50 tw:rounded-lg'>
+            <Icon
+              icon='lucide:link'
+              className='tw:w-5 tw:h-5 tw:text-blue-600 tw:dark:text-blue-400'
+            />
+          </div>
+          <h3 className='tw:text-base tw:font-medium'>V-ARCHIVE 계정 정보</h3>
+        </div>
+
+        <input
+          ref={vArchiveFileInputRef}
+          type='file'
+          accept='.txt'
+          onChange={onVArchiveFileChange}
+          className='tw:hidden'
+        />
+
+        {userData.varchiveUserInfo.isLinked ? (
+          <div className='tw:space-y-4'>
+            <div className='tw:space-y-2'>
+              <AccountField
+                label='계정 번호'
+                value={userData.varchiveUserInfo.userNo || ''}
+                fieldId='vArchiveUserNo'
+              />
+              <AccountField
+                label='계정 토큰'
+                value={userData.varchiveUserInfo.token}
+                fieldId='vArchiveToken'
+              />
+            </div>
+
+            <div className='tw:mt-3 tw:p-3 tw:bg-red-50 tw:dark:bg-red-900/20 tw:rounded-lg tw:border tw:border-red-100 tw:dark:border-red-900/30'>
+              <span className='tw:text-sm tw:font-light tw:text-red-600 tw:dark:text-red-400 tw:break-keep tw:flex tw:items-start tw:gap-2'>
+                <Icon
+                  icon='lucide:alert-triangle'
+                  className='tw:w-4 tw:h-4 tw:shrink-0 tw:mt-0.5'
+                />
+                <span>
+                  노출되는 정보는 V-ARCHIVE에서 로그인 데이터로 사용되는 계정 번호(userNo)와 계정
+                  토큰(token)입니다. 계정 번호와 계정 토큰은 외부에 노출되지 않도록 주의해주세요.
+                </span>
+              </span>
+            </div>
+          </div>
+        ) : (
+          <div className='tw:space-y-4'>
+            <button
+              onClick={handleVArchiveFileSelect}
+              className='tw:flex tw:items-center tw:justify-center tw:gap-2 tw:px-4 tw:py-2.5 tw:bg-blue-600 hover:tw:bg-blue-700 tw:text-white tw:text-sm tw:font-medium tw:shadow-sm tw:rounded-lg tw:w-full tw:transition-colors'
+            >
+              <Icon icon='lucide:file-plus' className='tw:w-4 tw:h-4' />
+              V-ARCHIVE 연동하기
+            </button>
+
+            <div className='tw:flex tw:items-start tw:gap-3 tw:p-4 tw:bg-gray-50 tw:dark:bg-slate-800 tw:rounded-lg'>
+              <Icon
+                icon='lucide:info'
+                className='tw:w-5 tw:h-5 tw:text-gray-400 tw:shrink-0 tw:mt-0.5'
+              />
+              <span className='tw:text-sm tw:font-light tw:text-gray-600 tw:dark:text-gray-400 tw:break-keep'>
+                V-ARCHIVE 로그인 연동이 되어 있지 않습니다. DJMAX RESPECT V 서비스를 이용하시려면
+                연동하기 버튼을 눌러 V-ARCHIVE 공식 클라이언트에서 생성한 로그인
+                데이터(account.txt)를 첨부하여 연동을 진행해주세요.
+              </span>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Discord 연동 정보 */}
+      <div className='tw:bg-white tw:dark:bg-slate-750 tw:rounded-xl tw:p-5 tw:border tw:border-gray-200 tw:dark:border-slate-700 tw:shadow-sm'>
+        <div className='tw:flex tw:items-center tw:gap-3 tw:mb-4'>
+          <div className='tw:p-2 tw:bg-[#5865F2]/10 tw:dark:bg-[#5865F2]/20 tw:rounded-lg'>
+            <FaDiscord className='tw:w-5 tw:h-5 tw:text-[#5865F2]' />
+          </div>
+          <h3 className='tw:text-base tw:font-medium'>Discord 연동 정보</h3>
+        </div>
+
+        {userData.discordUserInfo.isLinked ? (
+          <div className='tw:space-y-4'>
+            <div className='tw:space-y-2'>
+              <AccountField
+                label='사용자 고유 번호'
+                value={userData.discordUserInfo.uid}
+                fieldId='discordUid'
+              />
+            </div>
+
+            <div className='tw:mt-3 tw:p-3 tw:bg-red-50 tw:dark:bg-red-900/20 tw:rounded-lg tw:border tw:border-red-100 tw:dark:border-red-900/30'>
+              <span className='tw:text-sm tw:font-light tw:text-red-600 tw:dark:text-red-400 tw:break-keep tw:flex tw:items-start tw:gap-2'>
+                <Icon
+                  icon='lucide:alert-triangle'
+                  className='tw:w-4 tw:h-4 tw:shrink-0 tw:mt-0.5'
+                />
+                <span>
+                  노출되는 정보는 연동된 Discord 계정의 사용자 고유 번호(UID)입니다. 사용자 고유
+                  번호가 외부에 노출되지 않도록 주의해주세요.
+                </span>
+              </span>
+            </div>
+          </div>
+        ) : (
+          <div className='tw:space-y-4'>
+            <button
+              onClick={handleDiscordLink}
+              className='tw:flex tw:items-center tw:justify-center tw:gap-2 tw:px-4 tw:py-2.5 tw:bg-[#5865F2] hover:tw:bg-[#4752C4] tw:text-white tw:text-sm tw:font-medium tw:shadow-sm tw:rounded-lg tw:w-full tw:transition-colors'
+            >
+              <FaDiscord className='tw:text-base' />
+              Discord 로그인 연동하기
+            </button>
+
+            <div className='tw:flex tw:items-start tw:gap-3 tw:p-4 tw:bg-gray-50 tw:dark:bg-slate-800 tw:rounded-lg'>
+              <Icon
+                icon='lucide:info'
+                className='tw:w-5 tw:h-5 tw:text-gray-400 tw:shrink-0 tw:mt-0.5'
+              />
+              <span className='tw:text-sm tw:font-light tw:text-gray-600 tw:dark:text-gray-400 tw:break-keep'>
+                Discord 로그인 연동이 되어 있지 않습니다. 연동 후 Discord를 통한 로그인과 추가로
+                업데이트될 전일 아카이브 기능을 이용할 수 있습니다.
+              </span>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
 
 const StorageInfo = ({
   theme,
@@ -631,6 +1093,7 @@ const StorageInfo = ({
 export default function SettingModal() {
   const dispatch = useDispatch()
   const { theme } = useSelector((state: RootState) => state.ui)
+  const { isLoggedIn } = useSelector((state: RootState) => state.app)
   const { isSetting, settingData } = useSelector((state: RootState) => state.app)
   const { font } = useSelector((state: RootState) => state.app.settingData)
   const [activeCategory, setActiveCategory] = useState<string>('general')
@@ -770,27 +1233,32 @@ export default function SettingModal() {
           <div
             className={`tw:w-48 tw:p-5 tw:border-r tw:flex tw:flex-col tw:gap-3 tw:dark:border-slate-700 tw:border-gray-200`}
           >
-            {Object.entries(settingCategories).map(([key, category]) => (
-              <span
-                key={key}
-                onClick={() => {
-                  setActiveCategory(key)
-                }}
-                className={`tw:flex tw:items-center tw:cursor-pointer tw:gap-3 tw:px-4 tw:py-3 tw:rounded-lg tw:transition-colors tw:text-left ${
-                  activeCategory === key
-                    ? 'tw:dark:bg-slate-700 tw:dark:text-white tw:bg-indigo-100 tw:text-indigo-800'
-                    : 'tw:dark:hover:bg-slate-700 tw:dark:text-slate-300 tw:hover:bg-gray-100 tw:text-gray-700'
-                }`}
-              >
-                <span className='tw:text-sm'>{t(category.id)}</span>
-              </span>
-            ))}
+            {Object.entries(settingCategories).map(
+              ([key, category]) =>
+                (!category.needLogin || isLoggedIn) && (
+                  <span
+                    key={key}
+                    onClick={() => {
+                      setActiveCategory(key)
+                    }}
+                    className={`tw:flex tw:items-center tw:cursor-pointer tw:gap-3 tw:px-4 tw:py-3 tw:rounded-lg tw:transition-colors tw:text-left ${
+                      activeCategory === key
+                        ? 'tw:dark:bg-slate-700 tw:dark:text-white tw:bg-indigo-100 tw:text-indigo-800'
+                        : 'tw:dark:hover:bg-slate-700 tw:dark:text-slate-300 tw:hover:bg-gray-100 tw:text-gray-700'
+                    }`}
+                  >
+                    <span className='tw:text-sm'>{t(category.id)}</span>
+                  </span>
+                ),
+            )}
           </div>
 
           {/* 설정 항목 */}
           <div className='tw:flex-1 tw:p-6 tw:overflow-y-auto tw:custom-scrollbar tw:h-[calc(100vh-10rem)]'>
             {activeCategory === 'storage' ? (
               <StorageInfo theme={theme} onSettingChange={handleSettingChange} />
+            ) : activeCategory === 'account' && isLoggedIn ? (
+              <AccountInfo />
             ) : (
               <>
                 {categorizedSettings[activeCategory as keyof typeof categorizedSettings].map(

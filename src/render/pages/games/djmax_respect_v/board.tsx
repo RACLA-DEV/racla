@@ -468,7 +468,7 @@ const DmrvBoardPage = () => {
   }
 
   useEffect(() => {
-    if (userData.varchiveUserInfo.nickname === '') {
+    if (!userData.varchiveUserInfo.isLinked) {
       showNotification(
         {
           mode: 'i18n',
@@ -477,7 +477,7 @@ const DmrvBoardPage = () => {
         },
         'error',
       )
-      navigate(-2)
+      navigate('/home')
     }
   }, [])
 

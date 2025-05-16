@@ -1,4 +1,5 @@
 {
+  "account": "계정 정보",
   "settings": "설정",
   "general": "일반",
   "storage": "저장공간",
@@ -184,5 +185,22 @@
   "log": {
     "clearAllLogsSuccess": "모든 로그 파일이 삭제되었습니다.",
     "clearAllLogsError": "로그 파일 삭제 중 오류가 발생했습니다."
+  },
+  "accountInfo": {
+    "name": "계정 정보",
+    "description": "계정 정보를 확인합니다.",
+    "vArchive": {
+      "Success": "V-ARCHIVE 계정 연동이 완료되었습니다.",
+      "NotFound": "V-ARCHIVE 계정 연동에 실패했습니다. V-ARCHIVE에 존재하지 않는 계정 정보입니다.",
+      "Already": "V-ARCHIVE 계정 연동에 실패했습니다. 이미 연동된 계정입니다.",
+      "Unknown": "V-ARCHIVE 계정 연동에 실패했습니다. 알 수 없는 오류가 발생했습니다.",
+      "Invalid": "유효하지 않은 사용자 정보입니다. V-ARCHIVE 공식 클라이언트로 생성한 로그인 데이터(account.txt) 파일을 선택해주세요."
+    },
+    "discord": {
+      "Success": "Discord 계정 연동이 완료되었습니다.",
+      "NotFound": "Discord 계정 연동에 실패했습니다. Discord에 존재하지 않는 계정 정보입니다.",
+      "Already": "Discord 계정 연동에 실패했습니다. 이미 연동된 계정입니다.",
+      "Unknown": "Discord 계정 연동에 실패했습니다. 알 수 없는 오류가 발생했습니다."
+    }
   }
 }
