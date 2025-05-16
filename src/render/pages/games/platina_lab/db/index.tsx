@@ -47,7 +47,7 @@ const LazyListItem = React.memo(
     })
 
     const handleClick = useCallback(() => {
-      navigate(`/games/platina_lab/db/title/${songItem.title}`)
+      navigate(`/games/platina_lab/db/${songItem.title}`)
     }, [songItem.title, navigate])
 
     if (!inView) {

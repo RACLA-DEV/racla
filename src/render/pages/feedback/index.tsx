@@ -81,10 +81,18 @@ const richTextStyles = `
   }
   
   .dark .ck-editor__editable {
-    color: #e5e7eb;
-    background-color: #1e293b;
+    color: #e5e7eb !important;
+    background-color: #1e293b !important;
   }
-  
+
+  .ck-toolbar__items, .ck.ck-sticky-panel__content {
+    border-color: #d1d5db !important;
+  }
+
+  .dark .ck-toolbar__items, .dark .ck.ck-sticky-panel__content {
+    border-color: #475569 !important;
+  }
+
   .ck.ck-editor__main>.ck-editor__editable {
     border-color: #d1d5db;
   }
