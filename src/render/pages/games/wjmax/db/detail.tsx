@@ -164,7 +164,7 @@ const WjmaxDbDetailPage = () => {
                 {
                   mode: 'i18n',
                   ns: 'db',
-                  value: 'database.syncSuccess',
+                  value: 'syncSuccess',
                 },
                 'success',
               )
@@ -176,7 +176,7 @@ const WjmaxDbDetailPage = () => {
               {
                 mode: 'i18n',
                 ns: 'db',
-                value: 'database.syncFailed',
+                value: 'syncFailed',
               },
               'error',
             )
@@ -190,7 +190,7 @@ const WjmaxDbDetailPage = () => {
         {
           mode: 'i18n',
           ns: 'db',
-          value: 'database.syncMaxScoreError',
+          value: 'syncMaxScoreError',
         },
         'error',
       )
@@ -290,7 +290,7 @@ const WjmaxDbDetailPage = () => {
         {
           mode: 'i18n',
           ns: 'db',
-          value: 'database.failedToFetchPatternData',
+          value: 'failedToFetchPatternData',
         },
         'error',
       )

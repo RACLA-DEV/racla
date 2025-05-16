@@ -67,7 +67,7 @@ const DmrvDbDetailPage = () => {
                 {
                   mode: 'i18n',
                   ns: 'db',
-                  value: 'database.syncError',
+                  value: 'syncError',
                 },
                 'error',
               )
@@ -80,7 +80,7 @@ const DmrvDbDetailPage = () => {
             {
               mode: 'i18n',
               ns: 'db',
-              value: 'database.syncError',
+              value: 'syncError',
             },
             'error',
           )
@@ -132,7 +132,7 @@ const DmrvDbDetailPage = () => {
                 {
                   mode: 'i18n',
                   ns: 'db',
-                  value: 'database.syncSuccess',
+                  value: 'syncSuccess',
                 },
                 'success',
               )
@@ -150,7 +150,7 @@ const DmrvDbDetailPage = () => {
         {
           mode: 'i18n',
           ns: 'db',
-          value: 'database.syncMaxScoreError',
+          value: 'syncMaxScoreError',
         },
         'error',
       )

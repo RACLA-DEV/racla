@@ -5,7 +5,7 @@ import type { GameType } from '@src/types/games/GameType'
 import { AnimatePresence, motion } from 'framer-motion'
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { LuBook, LuGamepad, LuLayers, LuSettings } from 'react-icons/lu'
+import { LuBook, LuBug, LuGamepad, LuLayers, LuSettings } from 'react-icons/lu'
 import { useDispatch, useSelector } from 'react-redux'
 import { useLocation, useNavigate } from 'react-router-dom'
 import Tooltip from './Tooltip'
@@ -280,7 +280,24 @@ const IconSidebar: React.FC = () => {
       </div>
 
       {/* 설정 버튼 (하단) */}
-      <div className='tw:mb-10 tw:relative tw:z-10'>
+      <div className='tw:mb-10 tw:relative tw:flex tw:gap-2 tw:flex-col tw:z-10'>
+        <Tooltip content={t('racla.raclaFeedback')}>
+          <motion.div
+            variants={iconAnimation()}
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => {
+              handleNavigation('/feedback')
+            }}
+            className={`tw:w-12 tw:h-12 tw:flex tw:items-center tw:justify-center tw:rounded-lg tw:cursor-pointer tw:transition-all ${
+              location.pathname === '/feedback'
+                ? 'tw:dark:bg-slate-700 tw:dark:text-indigo-400 tw:bg-white tw:text-indigo-600 tw:shadow-md'
+                : 'tw:dark:bg-slate-800 tw:dark:text-indigo-400 tw:dark:hover:bg-slate-700 tw:bg-gray-50 tw:shadow-md tw:hover:bg-white tw:hover:shadow-md'
+            }`}
+          >
+            <LuBug size={28} />
+          </motion.div>
+        </Tooltip>
         <Tooltip content={t('racla.raclaSettings')}>
           <motion.div
             variants={iconAnimation()}

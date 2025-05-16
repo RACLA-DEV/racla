@@ -317,7 +317,7 @@ export default function WrappedApp() {
         showNotification(
           {
             mode: 'i18n',
-            value: 'database.syncError',
+            value: 'syncError',
             props: {
               gameName: gameCode
                 ? globalDictionary.gameDictionary[
@@ -340,7 +340,7 @@ export default function WrappedApp() {
               showNotification(
                 {
                   mode: 'i18n',
-                  value: 'database.syncLocalSuccess',
+                  value: 'syncLocalSuccess',
                   props: {
                     gameName: gameCode
                       ? globalDictionary.gameDictionary[
@@ -360,7 +360,7 @@ export default function WrappedApp() {
           showNotification(
             {
               mode: 'i18n',
-              value: 'database.syncLocalError',
+              value: 'syncLocalError',
               props: {
                 gameName: gameCode
                   ? globalDictionary.gameDictionary[
@@ -710,7 +710,9 @@ export default function WrappedApp() {
 
   useEffect(() => {
     const isTrackMakerPath =
-      location.pathname.startsWith('/track-maker') || location.pathname.startsWith('/overlay')
+      location.pathname.startsWith('/track-maker') ||
+      location.pathname.startsWith('/overlay') ||
+      location.pathname.startsWith('/feedback')
     if (isTrackMakerPath) {
       dispatch(setSidebarCollapsed(true))
     } else {

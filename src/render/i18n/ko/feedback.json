@@ -1,0 +1,4 @@
+{
+  "fecthFeedbackPageFailed": "피드백 리스트를 가져오는 중에 오류가 발생했습니다.",
+  "createBugFailed": "피드백 생성 중 오류가 발생했습니다."
+}

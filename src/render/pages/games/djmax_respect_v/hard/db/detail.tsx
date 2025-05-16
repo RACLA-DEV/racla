@@ -143,7 +143,7 @@ const DmrvHardDbDetailPage = () => {
       showNotification(
         {
           ns: 'db',
-          value: 'database.failedToFetchRecords',
+          value: 'failedToFetchRecords',
           mode: 'i18n',
         },
         'error',

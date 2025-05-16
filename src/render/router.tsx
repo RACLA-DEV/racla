@@ -30,6 +30,8 @@ const WjmaxDbDetailPage = lazy(() => import('./pages/games/wjmax/db/detail'))
 const WjmaxBoardPage = lazy(() => import('./pages/games/wjmax/board'))
 const WjmaxRegScorePage = lazy(() => import('./pages/games/wjmax/regScore'))
 const LicensePage = lazy(() => import('./pages/license'))
+const FeedbackListPage = lazy(() => import('./pages/feedback'))
+const FeedbackDetailPage = lazy(() => import('./pages/feedback/detail'))
 
 // 기본 레이아웃이 적용된 라우트를 위한 컴포넌트
 const DefaultLayout = () => {
@@ -255,6 +257,22 @@ export const router = createHashRouter([
             element: (
               <Suspense fallback={<PageLoading />}>
                 <CheatsheetPage />
+              </Suspense>
+            ),
+          },
+          {
+            path: '/feedback',
+            element: (
+              <Suspense fallback={<PageLoading />}>
+                <FeedbackListPage />
+              </Suspense>
+            ),
+          },
+          {
+            path: '/feedback/:feedbackId',
+            element: (
+              <Suspense fallback={<PageLoading />}>
+                <FeedbackDetailPage />
               </Suspense>
             ),
           },

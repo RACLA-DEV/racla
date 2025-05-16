@@ -64,7 +64,7 @@ const LazyListItem = React.memo(
         showNotification(
           {
             ns: 'db',
-            value: 'database.noHardArchiveData',
+            value: 'noHardArchiveData',
             mode: 'i18n',
           },
           'error',
