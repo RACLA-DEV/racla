@@ -473,7 +473,7 @@ const DmrvBoardPage = () => {
         {
           mode: 'i18n',
           ns: 'board',
-          value: 'board.needLogin',
+          value: 'needLogin',
         },
         'error',
       )

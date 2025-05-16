@@ -4,10 +4,10 @@
     "raclaHome": "홈",
     "raclaOverlay": "오버레이",
     "raclaSettings": "설정",
-    "raclaFeedback": "피드백 센터",
     "raclaLicense": "라이선스 및 이용약관",
     "raclaCheatsheet": "치트시트",
-    "raclaTrackMaker": "트랙 메이커"
+    "raclaTrackMaker": "트랙 메이커",
+    "raclaFeedback": "피드백 센터"
   },
   "quickMenu": {
     "quickMenuNavTitle": "바로가기 메뉴",

@@ -16,6 +16,8 @@
     "generate-build-date": "node scripts/generate-build-date.js"
   },
   "dependencies": {
+    "@ckeditor/ckeditor5-build-classic": "^44.3.0",
+    "@ckeditor/ckeditor5-react": "^9.5.0",
     "@doubleshot/nest-electron": "^0.2.8",
     "@electron/rebuild": "4.0.1",
     "@iconify/react": "^6.0.0",

@@ -67,7 +67,7 @@ const DmrvHardDbPatternPage = () => {
       showNotification(
         {
           ns: 'db',
-          value: 'database.failedToFetchRanking',
+          value: 'failedToFetchRanking',
           mode: 'i18n',
         },
         'error',

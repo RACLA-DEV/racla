@@ -329,7 +329,7 @@ const WjmaxBoardPage = () => {
       showNotification(
         {
           ns: 'board',
-          value: 'board.needLogin',
+          value: 'needLogin',
           mode: 'i18n',
         },
         'error',

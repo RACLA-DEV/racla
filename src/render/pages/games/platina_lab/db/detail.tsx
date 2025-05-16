@@ -141,7 +141,7 @@ const PlatinaLabDbDetailPage = () => {
                 {
                   mode: 'i18n',
                   ns: 'db',
-                  value: 'database.syncSuccess',
+                  value: 'syncSuccess',
                 },
                 'success',
               )
@@ -153,7 +153,7 @@ const PlatinaLabDbDetailPage = () => {
               {
                 mode: 'i18n',
                 ns: 'db',
-                value: 'database.syncError',
+                value: 'syncError',
               },
               'error',
             )
@@ -167,7 +167,7 @@ const PlatinaLabDbDetailPage = () => {
         {
           mode: 'i18n',
           ns: 'db',
-          value: 'database.syncMaxScoreError',
+          value: 'syncMaxScoreError',
         },
         'error',
       )
