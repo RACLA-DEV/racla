@@ -52,7 +52,7 @@ export class OcrManagerService {
     const regions: Record<string, Buffer> = {}
     const texts: Record<string, string> = {}
 
-    if (gameCode === 'djmax_respect_v') {
+    if (gameCode.toLowerCase().includes('djmax')) {
       if (settings.autoCaptureDjmaxRespectVOcrResultRegion) {
         regions.result = await this.imageProcessor.extractRegion(
           imageBuffer,
@@ -85,7 +85,7 @@ export class OcrManagerService {
         )
         texts.open2 = await this.recognizeText(regions.open2)
       }
-    } else if (gameCode === 'wjmax') {
+    } else if (gameCode.toLowerCase().includes('wjmax')) {
       if (settings.autoCaptureWjmaxOcrResultRegion) {
         regions.result = await this.imageProcessor.extractRegion(
           imageBuffer,
@@ -93,7 +93,7 @@ export class OcrManagerService {
         )
         texts.result = await this.recognizeText(regions.result)
       }
-    } else if (gameCode === 'platina_lab') {
+    } else if (gameCode.toLowerCase().includes('platina')) {
       if (settings.autoCapturePlatinaLabOcrResultRegion) {
         regions.result = await this.imageProcessor.extractRegion(
           imageBuffer,
@@ -118,9 +118,10 @@ export class OcrManagerService {
       isResult: [],
       text: '',
       where: '',
+      gameCode: '',
     }
 
-    if (gameCode === 'djmax_respect_v') {
+    if (gameCode.toLowerCase().includes('djmax')) {
       if (settings.autoCaptureDjmaxRespectVOcrResultRegion && texts.result) {
         resultInfo.isResult = this.checkResultKeywords(
           texts.result,
@@ -129,6 +130,7 @@ export class OcrManagerService {
         if (resultInfo.isResult.length > 0) {
           resultInfo.where = 'result'
           resultInfo.text = texts.result
+          resultInfo.gameCode = 'djmax_respect_v'
         }
       }
 
@@ -148,6 +150,7 @@ export class OcrManagerService {
           resultInfo.where = 'open3'
           resultInfo.isResult = ['open3']
           resultInfo.text = texts.open3
+          resultInfo.gameCode = 'djmax_respect_v'
         }
       }
 
@@ -159,9 +162,10 @@ export class OcrManagerService {
           resultInfo.where = 'open2'
           resultInfo.isResult = ['open2']
           resultInfo.text = texts.open2
+          resultInfo.gameCode = 'djmax_respect_v'
         }
       }
-    } else if (gameCode === 'wjmax') {
+    } else if (gameCode.toLowerCase().includes('wjmax')) {
       if (settings.autoCaptureWjmaxOcrResultRegion && texts.result) {
         resultInfo.isResult = this.checkResultKeywords(
           texts.result,
@@ -170,9 +174,10 @@ export class OcrManagerService {
         if (resultInfo.isResult.length > 0) {
           resultInfo.where = 'result'
           resultInfo.text = texts.result
+          resultInfo.gameCode = 'wjmax'
         }
       }
-    } else if (gameCode === 'platina_lab') {
+    } else if (gameCode.toLowerCase().includes('platina')) {
       if (settings.autoCapturePlatinaLabOcrResultRegion && texts.result) {
         resultInfo.isResult = this.checkResultKeywords(
           texts.result,
@@ -181,6 +186,7 @@ export class OcrManagerService {
         if (resultInfo.isResult.length > 0) {
           resultInfo.where = 'result'
           resultInfo.text = texts.result
+          resultInfo.gameCode = 'platina_lab'
         }
       }
     }

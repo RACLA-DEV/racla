@@ -1,10 +1,14 @@
 import { GLOBAL_DICTONARY } from '@main/constants/GLOBAL_DICTONARY'
 import { Injectable, Logger } from '@nestjs/common'
+import { OCRResultInfo } from '@src/types/ocr/OcrResultInfo'
 import type { OverlayBounds } from '@src/types/overlay/OverlayBounds'
 import { BrowserWindow, screen } from 'electron'
 import type { Result } from 'get-windows'
 import type { ProcessDescriptor } from 'ps-list'
+import { FileManagerService } from '../file-manager/file-manager.service'
+import { ImageProcessorService } from '../image-processor/image-processor.service'
 import { MainWindowService } from '../main-window/main-window.service'
+import { OcrManagerService } from '../ocr-manager/ocr-manager.service'
 import { OverlayWindowService } from '../overlay-window/overlay-window.service'
 
 @Injectable()
@@ -15,9 +19,11 @@ export class GameMonitorService {
   private gameWindow: Result | undefined = undefined
   private cachedWindow: Result | undefined = undefined
   private lastCheckTime = 0
+  private isGameWindowFocused = false
   private readonly CACHE_DURATION = 300 // 100ms에서 300ms로 증가
 
   // 모니터링 관련 변수
+  private autoCaptureInterval: NodeJS.Timeout | undefined = undefined
   private updateInterval: NodeJS.Timeout | undefined = undefined
   private isProcessingUpdate = false
   private lastGameWindowBounds:
@@ -33,10 +39,16 @@ export class GameMonitorService {
   private lastOverlayUpdateTime = 0
   private readonly MIN_UPDATE_INTERVAL = 150 // 오버레이 위치 업데이트 최소 간격 (ms)
   private isInitialized = false // 초기화 상태를 추적하는 변수 추가
+  private lastResultInfo: OCRResultInfo | undefined = undefined
+  private activeWindow: Result | undefined = undefined
+  private isProcessingResult = false
 
   constructor(
     private readonly mainWindowService: MainWindowService,
     private readonly overlayWindowService: OverlayWindowService,
+    private readonly fileService: FileManagerService,
+    private readonly imageProcessorService: ImageProcessorService,
+    private readonly ocrManagerService: OcrManagerService,
   ) {
     this.mainWindowService.onClosed(() => {
       this.overlayWindowService.destroyOverlay()
@@ -90,6 +102,8 @@ export class GameMonitorService {
       return
     }
 
+    const settingData = this.fileService.loadSettings()
+
     this.updateInterval = setInterval(() => {
       if (!this.isProcessingUpdate) {
         Promise.resolve()
@@ -104,6 +118,100 @@ export class GameMonitorService {
           })
       }
     }, this.UPDATE_INTERVAL)
+
+    if (settingData.autoCaptureMode) {
+      this.logger.debug('Auto capture mode is enabled')
+      if (!this.autoCaptureInterval) {
+        this.autoCaptureInterval = setInterval(() => {
+          Promise.resolve()
+            .then(async () => {
+              if (this.activeWindow && this.isGameWindowFocused && !this.isProcessingResult) {
+                this.isProcessingResult = true
+                let image = await this.imageProcessorService.captureGameWindow(
+                  this.activeWindow?.title,
+                )
+                let extractedRegions = await this.ocrManagerService.extractRegions(
+                  this.activeWindow?.title,
+                  image,
+                  settingData,
+                )
+                let resultInfo = this.ocrManagerService.determineResultScreen(
+                  this.activeWindow?.title,
+                  extractedRegions.texts,
+                  settingData,
+                )
+                this.logger.debug(
+                  `OCR Result: ${resultInfo.isResult.length > 0 ? 'true' : 'false'}, ${resultInfo.where}, ${resultInfo.text}`,
+                )
+                if (resultInfo.gameCode === 'platina_lab') {
+                  this.logger.debug('Platina lab detected, delaying 3 seconds and re-capturing')
+                  await this.delay(3000)
+
+                  image = await this.imageProcessorService.captureGameWindow(
+                    this.activeWindow?.title,
+                  )
+                  extractedRegions = await this.ocrManagerService.extractRegions(
+                    this.activeWindow?.title,
+                    image,
+                    settingData,
+                  )
+                  resultInfo = this.ocrManagerService.determineResultScreen(
+                    this.activeWindow?.title,
+                    extractedRegions.texts,
+                    settingData,
+                  )
+                }
+
+                if (
+                  resultInfo.isResult.length > 0 &&
+                  this.lastResultInfo?.text !== resultInfo.text
+                ) {
+                  this.logger.debug('Result screen detected')
+
+                  if (settingData.saveImageWhenCapture) {
+                    const maskingRegions = this.imageProcessorService.getMaskingRegions(
+                      resultInfo.gameCode,
+                      resultInfo.where,
+                    )
+                    this.logger.debug(`Masking regions: ${maskingRegions}`)
+                    const maskedImage = await this.imageProcessorService.applyProfileMask(
+                      image,
+                      maskingRegions,
+                      settingData.saveImageBlurMode,
+                    )
+                    this.fileService.saveImage(
+                      maskedImage,
+                      `${String(`${resultInfo.gameCode}_${resultInfo.where}_${resultInfo.text}`).replaceAll(' ', '_').replaceAll(':', '_').replaceAll('\n', '').replaceAll('\\', '_').replaceAll('/', '_').replaceAll('?', '_').replaceAll('*', '_').replaceAll('"', '_').replaceAll('<', '_').replaceAll('>', '_').replaceAll('|', '_')}.png`,
+                    )
+                  }
+
+                  this.lastResultInfo = resultInfo
+                } else if (
+                  this.isGameWindowFocused &&
+                  resultInfo.isResult.length === 0 &&
+                  this.lastResultInfo
+                ) {
+                  this.logger.debug('Result screen not not detected')
+                  this.lastResultInfo = undefined
+                }
+                this.isProcessingResult = false
+              }
+            })
+            .catch((error: unknown) => {
+              if (error instanceof Error) {
+                this.logger.error('Error in auto capture:', error.message)
+              } else {
+                this.logger.error('Error in auto capture:', String(error))
+              }
+              this.isProcessingResult = false
+            })
+        }, settingData.autoCaptureIntervalTime)
+      }
+    }
+  }
+
+  private delay(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms))
   }
 
   private stopMonitoring(): void {
@@ -111,8 +219,14 @@ export class GameMonitorService {
       clearInterval(this.updateInterval)
       this.updateInterval = undefined
     }
+    if (this.autoCaptureInterval) {
+      clearInterval(this.autoCaptureInterval)
+      this.autoCaptureInterval = undefined
+    }
     this.isProcessingUpdate = false
     this.lastGameWindowBounds = undefined
+    this.isGameWindowFocused = false
+    this.activeWindow = undefined
   }
 
   private async handleGameWindowChange(): Promise<void> {
@@ -148,7 +262,10 @@ export class GameMonitorService {
       this.lastOverlayUpdateTime = now
       await this.updateOverlayPosition(overlayWindow)
       if (!overlayWindow.isVisible()) {
+        this.isGameWindowFocused = true
         overlayWindow.show()
+      } else {
+        this.isGameWindowFocused = false
       }
     }
   }
@@ -156,6 +273,7 @@ export class GameMonitorService {
   private async sendActiveWindowInfo(): Promise<void> {
     try {
       const activeWindow = await this.getActiveWindows()
+      this.activeWindow = activeWindow
       const overlayWindow = await this.overlayWindowService.getOverlayWindow()
 
       if (activeWindow && overlayWindow) {
@@ -232,6 +350,12 @@ export class GameMonitorService {
       }
 
       const activeWindow = await this.getActiveWindows()
+      if (this.isGameWindow(activeWindow)) {
+        this.isGameWindowFocused = true
+      } else {
+        this.isGameWindowFocused = false
+      }
+
       if (activeWindow && this.isGameWindow(activeWindow)) {
         this.cachedWindow = activeWindow
         this.lastCheckTime = now
@@ -293,7 +417,10 @@ export class GameMonitorService {
       overlayWindow.setBounds(newBounds)
 
       if (!overlayWindow.isVisible()) {
+        this.isGameWindowFocused = true
         overlayWindow.show()
+      } else {
+        this.isGameWindowFocused = false
       }
     } catch (error) {
       this.logger.error('Failed to update overlay position:', error.message)

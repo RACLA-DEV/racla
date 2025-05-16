@@ -27,7 +27,7 @@ export class ImageProcessorService {
 
     // 창모드 여부 확인
     const isWindowedMode = !this.isStandardResolution(metadata.width, metadata.height)
-    this.logger.log(`Windowed mode: ${isWindowedMode}`)
+    this.logger.debug(`Windowed mode: ${isWindowedMode}`)
 
     if (isWindowedMode) {
       return this.processWindowedModeImage(pngImage)
