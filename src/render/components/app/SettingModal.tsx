@@ -19,6 +19,11 @@ import { useDispatch, useSelector } from 'react-redux'
 import { PuffLoader } from 'react-spinners'
 import apiClient from '../../../libs/apiClient'
 
+// Electron에서 사용되는 File 인터페이스 확장
+interface ElectronFile extends File {
+  path?: string
+}
+
 // 카테고리 정의
 const settingCategories = {
   account: { id: 'account', name: '계정 정보', icon: 'lucide:user', needLogin: true },
@@ -113,7 +118,6 @@ const ToggleSwitch = ({
   value,
   onChange,
   disabled = false,
-  theme,
   activeCategory,
 }: {
   value: boolean
@@ -145,7 +149,6 @@ const FileSelector = ({
   value,
   onChange,
   disabled = false,
-  theme,
 }: {
   value: string
   onChange: (value: string) => void
@@ -197,7 +200,7 @@ const FileSelector = ({
   }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
+    const file = e.target.files?.[0] as ElectronFile
     if (file) {
       onChange(file.path || file.name)
     }
@@ -232,7 +235,6 @@ const SelectBox = ({
   options,
   onChange,
   disabled = false,
-  theme,
 }: {
   id: string
   value: string | number
@@ -270,7 +272,6 @@ const FolderItem = ({
   path,
   size,
   folderType,
-  theme,
   formatBytes,
   openFolder,
   children,
@@ -574,10 +575,10 @@ const AccountInfo = () => {
     value: string | number
     fieldId: string
   }) => (
-    <div className='tw:flex tw:items-center tw:justify-between tw:mb-2'>
+    <div className={`tw:flex tw:items-center tw:justify-between tw:mb-2`}>
       <span className='tw:text-sm tw:font-medium'>{label}</span>
       <div className='tw:flex tw:items-center tw:gap-2'>
-        <div className='tw:px-3 tw:py-1.5 tw:bg-gray-100 tw:dark:bg-slate-700 tw:blur-sm tw:hover:blur-none tw:transition-all tw:duration-300 tw:rounded-md tw:relative'>
+        <div className='tw:px-3 tw:py-1.5 tw:bg-gray-100 tw:dark:bg-slate-800 tw:blur-sm tw:hover:blur-none tw:transition-all tw:duration-300 tw:rounded-md tw:relative'>
           <span className='tw:text-sm tw:font-mono'>{value}</span>
         </div>
         <button
@@ -598,7 +599,7 @@ const AccountInfo = () => {
   return (
     <div className='tw:flex tw:flex-col tw:gap-6'>
       {/* RACLA 계정 정보 */}
-      <div className='tw:bg-white tw:dark:bg-slate-750 tw:rounded-xl tw:p-5 tw:border tw:border-gray-200 tw:dark:border-slate-700 tw:shadow-sm'>
+      <div className='tw:bg-white tw:dark:bg-slate-700 tw:rounded-xl tw:p-5 tw:border tw:border-gray-200 tw:dark:border-slate-600'>
         <div className='tw:flex tw:items-center tw:gap-3 tw:mb-4'>
           <div className='tw:p-2 tw:bg-indigo-100 tw:dark:bg-indigo-900/50 tw:rounded-lg'>
             <Icon
@@ -619,8 +620,9 @@ const AccountInfo = () => {
             <span className='tw:text-sm tw:font-light tw:text-red-600 tw:dark:text-red-400 tw:break-keep tw:flex tw:items-start tw:gap-2'>
               <Icon icon='lucide:alert-triangle' className='tw:w-4 tw:h-4 tw:shrink-0 tw:mt-0.5' />
               <span>
-                노출되는 정보는 RACLA에서 로그인 데이터로 사용되는 계정 번호(userNo)와 계정
-                토큰(userToken)입니다. 계정 번호와 계정 토큰은 외부에 노출되지 않도록 주의해주세요.
+                노출되는 정보는 RACLA에서 로그인 데이터로 사용되는 계정 번호(playerNo)와 계정
+                토큰(playerToken)입니다. 계정 번호와 계정 토큰은 외부에 노출되지 않도록
+                주의해주세요.
               </span>
             </span>
           </div>
@@ -628,7 +630,7 @@ const AccountInfo = () => {
       </div>
 
       {/* V-ARCHIVE 계정 정보 */}
-      <div className='tw:bg-white tw:dark:bg-slate-750 tw:rounded-xl tw:p-5 tw:border tw:border-gray-200 tw:dark:border-slate-700 tw:shadow-sm'>
+      <div className='tw:bg-white tw:dark:bg-slate-700 tw:rounded-xl tw:p-5 tw:border tw:border-gray-200 tw:dark:border-slate-600'>
         <div className='tw:flex tw:items-center tw:gap-3 tw:mb-4'>
           <div className='tw:p-2 tw:bg-blue-100 tw:dark:bg-blue-900/50 tw:rounded-lg'>
             <Icon
@@ -679,7 +681,7 @@ const AccountInfo = () => {
           <div className='tw:space-y-4'>
             <button
               onClick={handleVArchiveFileSelect}
-              className='tw:flex tw:items-center tw:justify-center tw:gap-2 tw:px-4 tw:py-2.5 tw:bg-blue-600 hover:tw:bg-blue-700 tw:text-white tw:text-sm tw:font-medium tw:shadow-sm tw:rounded-lg tw:w-full tw:transition-colors'
+              className='tw:flex tw:items-center tw:justify-center tw:gap-2 tw:px-4 tw:py-2.5 tw:bg-blue-600 hover:tw:bg-blue-700 tw:text-white tw:text-sm tw:font-medium tw:rounded-lg tw:w-full tw:transition-colors'
             >
               <Icon icon='lucide:file-plus' className='tw:w-4 tw:h-4' />
               V-ARCHIVE 연동하기
@@ -701,7 +703,7 @@ const AccountInfo = () => {
       </div>
 
       {/* Discord 연동 정보 */}
-      <div className='tw:bg-white tw:dark:bg-slate-750 tw:rounded-xl tw:p-5 tw:border tw:border-gray-200 tw:dark:border-slate-700 tw:shadow-sm'>
+      <div className='tw:bg-white tw:dark:bg-slate-700 tw:rounded-xl tw:p-5 tw:border tw:border-gray-200 tw:dark:border-slate-600'>
         <div className='tw:flex tw:items-center tw:gap-3 tw:mb-4'>
           <div className='tw:p-2 tw:bg-[#5865F2]/10 tw:dark:bg-[#5865F2]/20 tw:rounded-lg'>
             <FaDiscord className='tw:w-5 tw:h-5 tw:text-[#5865F2]' />
@@ -736,7 +738,7 @@ const AccountInfo = () => {
           <div className='tw:space-y-4'>
             <button
               onClick={handleDiscordLink}
-              className='tw:flex tw:items-center tw:justify-center tw:gap-2 tw:px-4 tw:py-2.5 tw:bg-[#5865F2] hover:tw:bg-[#4752C4] tw:text-white tw:text-sm tw:font-medium tw:shadow-sm tw:rounded-lg tw:w-full tw:transition-colors'
+              className='tw:flex tw:items-center tw:justify-center tw:gap-2 tw:px-4 tw:py-2.5 tw:bg-[#5865F2] hover:tw:bg-[#4752C4] tw:text-white tw:text-sm tw:font-medium tw:rounded-lg tw:w-full tw:transition-colors'
             >
               <FaDiscord className='tw:text-base' />
               Discord 로그인 연동하기
