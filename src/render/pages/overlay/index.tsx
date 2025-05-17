@@ -531,7 +531,7 @@ function OverlayPage() {
                 exit={{ opacity: 0, x: 300 }}
                 style={{ zIndex: 1000 - index }}
               >
-                <div className='tw:flex-grow tw:bg-white tw:dark:bg-slate-900'>
+                <div className='tw:flex-grow tw:bg-white tw:dark:bg-slate-900 tw:py-2 tw:px-1'>
                   <div className='tw:flex tw:items-center tw:py-2 tw:px-3'>
                     <div className='tw:flex-shrink-0 tw:mr-2'>
                       <div

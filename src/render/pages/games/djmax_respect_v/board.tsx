@@ -201,13 +201,15 @@ const DmrvBoardPage = () => {
               floorNumber: floor.floorNumber,
               patterns: floor.patterns
                 .map((apiPattern) => {
-                  // 먼저 find 메서드를 실행하고 결과를 변수에 저장
-                  const matchingPattern = baseSongData.find(
-                    (bp) => bp.title === apiPattern.title && bp.pattern === apiPattern.pattern,
-                  )
-
-                  // 그 다음 변수를 확인
-                  if (!matchingPattern) return null
+                  // for 루프로 baseSongData를 순회하여 매칭되는 패턴 찾기
+                  let matchingPattern = null
+                  for (let i = 0; i < baseSongData.length; i++) {
+                    const bp = baseSongData[i]
+                    if (bp.title === apiPattern.title && bp.pattern === apiPattern.pattern) {
+                      matchingPattern = bp
+                      break
+                    }
+                  }
 
                   return {
                     ...matchingPattern,
@@ -306,9 +308,9 @@ const DmrvBoardPage = () => {
 
         // 컷오프 점수 설정
         setCutoffScores({
-          new30: (newPatterns[29] as Pattern).djpower || 0,
-          basic70: (basicPatterns[69] as Pattern).djpower || 0,
-          top50: (top50Patterns[49] as Pattern).rating || 0,
+          new30: (newPatterns[29] as Pattern)?.djpower || 0,
+          basic70: (basicPatterns[69] as Pattern)?.djpower || 0,
+          top50: (top50Patterns[49] as Pattern)?.rating || 0,
         })
       } catch (error) {
         createLog('error', 'Error in fetchAllBoardData', error)
