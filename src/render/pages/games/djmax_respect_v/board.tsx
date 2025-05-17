@@ -201,17 +201,19 @@ const DmrvBoardPage = () => {
               floorNumber: floor.floorNumber,
               patterns: floor.patterns
                 .map((apiPattern) => {
-                  const foundPattern = baseSongData.find(
+                  // 먼저 find 메서드를 실행하고 결과를 변수에 저장
+                  const matchingPattern = baseSongData.find(
                     (bp) => bp.title === apiPattern.title && bp.pattern === apiPattern.pattern,
                   )
 
-                  if (!foundPattern) return null
+                  // 그 다음 변수를 확인
+                  if (!matchingPattern) return null
 
                   return {
-                    ...foundPattern,
+                    ...matchingPattern,
                     ...apiPattern,
                     floor: floor.floorNumber,
-                    patterns: foundPattern.patterns,
+                    patterns: matchingPattern.patterns,
                   }
                 })
                 .filter(Boolean),

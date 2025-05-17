@@ -120,11 +120,13 @@ const WjmaxBoardPage = () => {
               patterns: floor.patterns
                 .map((apiPattern) => {
                   let basePattern = null
-                  const foundPattern = baseSongData.find(
+                  // 먼저 find 메서드를 실행하고 결과를 변수에 저장
+                  const matchingPattern = baseSongData.find(
                     (bp) => bp.title === apiPattern.title && bp.pattern === apiPattern.pattern,
                   )
 
-                  basePattern = foundPattern
+                  // 결과를 basePattern에 할당
+                  basePattern = matchingPattern
 
                   return {
                     ...basePattern,
