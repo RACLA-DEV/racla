@@ -1187,83 +1187,81 @@ export default function DjmaxHomeComponent() {
                     <span className='tw:text-lg tw:font-bold tw:text-gray-900 tw:dark:text-white'>
                       {selectedKeyMode}B {t('best')} {t('achievement')}
                     </span>
-                    {keyModeData[selectedKeyMode] && (
-                      <motion.div
-                        key={`achievements_${selectedKeyMode}`}
-                        initial={{ opacity: 0, x: 10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.2 }}
-                        className='tw:flex tw:flex-col tw:gap-2'
-                      >
-                        {Object.entries({
-                          maxCombo: t('maxCombo'),
-                          perfect: t('perfect'),
-                          over999: t('over999.fullName'),
-                          over995: t('over995.fullName'),
-                          over99: t('over99.fullName'),
-                          over97: t('over97.fullName'),
-                          clear: t('clear'),
-                        }).map(([key, label]) => {
-                          const patterns = keyModeData[selectedKeyMode]
-                          const condition = (pattern: Pattern) => {
-                            const score =
-                              typeof pattern.score === 'string'
-                                ? parseFloat(pattern.score)
-                                : pattern.score
-                            if (score === null) return false
+                    <motion.div
+                      key={`achievements_${selectedKeyMode}`}
+                      initial={{ opacity: 0, x: 10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className='tw:flex tw:flex-col tw:gap-2'
+                    >
+                      {Object.entries({
+                        maxCombo: t('maxCombo'),
+                        perfect: t('perfect'),
+                        over999: t('over999.fullName'),
+                        over995: t('over995.fullName'),
+                        over99: t('over99.fullName'),
+                        over97: t('over97.fullName'),
+                        clear: t('clear'),
+                      }).map(([key, label]) => {
+                        const patterns = keyModeData[selectedKeyMode]
+                        const condition = (pattern: Pattern) => {
+                          const score =
+                            typeof pattern.score === 'string'
+                              ? parseFloat(pattern.score)
+                              : pattern.score
+                          if (score === null) return false
 
-                            // perfect, maxCombo, clear는 독립적으로 체크
-                            if (key === 'perfect') {
-                              return Math.abs(score - 100.0) < 0.001
-                            }
-                            if (key === 'maxCombo') {
-                              return pattern.maxCombo === 1
-                            }
-                            if (key === 'clear') {
-                              return score > 0
-                            }
-
-                            // over 카테고리들은 서로 겹치지 않도록 체크
-                            switch (key) {
-                              case 'over999':
-                                return score >= 99.9 && score < 100
-                              case 'over995':
-                                return score >= 99.5 && score < 99.9
-                              case 'over99':
-                                return score >= 99.0 && score < 99.5
-                              case 'over97':
-                                return score >= 97.0 && score < 99.0
-                              default:
-                                return false
-                            }
+                          // perfect, maxCombo, clear는 독립적으로 체크
+                          if (key === 'perfect') {
+                            return Math.abs(score - 100.0) < 0.001
+                          }
+                          if (key === 'maxCombo') {
+                            return pattern.maxCombo === 1
+                          }
+                          if (key === 'clear') {
+                            return score > 0
                           }
 
-                          const highestPattern = getHighestLevelInfo(patterns, condition)
+                          // over 카테고리들은 서로 겹치지 않도록 체크
+                          switch (key) {
+                            case 'over999':
+                              return score >= 99.9 && score < 100
+                            case 'over995':
+                              return score >= 99.5 && score < 99.9
+                            case 'over99':
+                              return score >= 99.0 && score < 99.5
+                            case 'over97':
+                              return score >= 97.0 && score < 99.0
+                            default:
+                              return false
+                          }
+                        }
 
-                          return (
-                            <div key={`${key}_${selectedKeyMode}`} className='tw:flex tw:gap-2'>
-                              <ScorePopupComponent
-                                songTitle={highestPattern.title}
-                                keyMode={selectedKeyMode}
-                              />
-                              <div className='tw:flex tw:flex-col tw:gap-1 tw:bg-gray-100 tw:dark:bg-slate-700/50 tw:rounded-md tw:p-3 tw:flex-1 tw:border tw:border-gray-200 tw:dark:border-slate-600'>
-                                <div className='tw:flex tw:justify-between tw:items-center'>
-                                  <span className='tw:text-sm tw:font-bold tw:text-gray-900 tw:dark:text-white'>
-                                    {label}
-                                  </span>
-                                  <span className='tw:text-sm tw:font-extrabold'>
-                                    {getLevelDisplay(highestPattern)}
-                                  </span>
-                                </div>
-                                <p className='tw:text-sm tw:text-gray-500 tw:dark:text-slate-300 tw:max-w-full text-one-line'>
-                                  {highestPattern.name}
-                                </p>
+                        const highestPattern = getHighestLevelInfo(patterns, condition)
+
+                        return (
+                          <div key={`${key}_${selectedKeyMode}`} className='tw:flex tw:gap-2'>
+                            <ScorePopupComponent
+                              songTitle={highestPattern.title}
+                              keyMode={selectedKeyMode}
+                            />
+                            <div className='tw:flex tw:flex-col tw:gap-1 tw:bg-gray-100 tw:dark:bg-slate-700/50 tw:rounded-md tw:p-3 tw:flex-1 tw:border tw:border-gray-200 tw:dark:border-slate-600'>
+                              <div className='tw:flex tw:justify-between tw:items-center'>
+                                <span className='tw:text-sm tw:font-bold tw:text-gray-900 tw:dark:text-white'>
+                                  {label}
+                                </span>
+                                <span className='tw:text-sm tw:font-extrabold'>
+                                  {getLevelDisplay(highestPattern)}
+                                </span>
                               </div>
+                              <p className='tw:text-sm tw:text-gray-500 tw:dark:text-slate-300 tw:max-w-full text-one-line'>
+                                {highestPattern.name}
+                              </p>
                             </div>
-                          )
-                        })}
-                      </motion.div>
-                    )}
+                          </div>
+                        )
+                      })}
+                    </motion.div>
                   </div>
                 </div>
               </div>

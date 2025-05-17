@@ -201,20 +201,18 @@ const DmrvBoardPage = () => {
               floorNumber: floor.floorNumber,
               patterns: floor.patterns
                 .map((apiPattern) => {
-                  let basePattern = null
                   const foundPattern = baseSongData.find(
                     (bp) => bp.title === apiPattern.title && bp.pattern === apiPattern.pattern,
                   )
 
-                  basePattern = foundPattern
-                  return basePattern
-                    ? {
-                        ...basePattern,
-                        ...apiPattern,
-                        floor: floor.floorNumber,
-                        patterns: basePattern.patterns,
-                      }
-                    : null
+                  if (!foundPattern) return null
+
+                  return {
+                    ...foundPattern,
+                    ...apiPattern,
+                    floor: floor.floorNumber,
+                    patterns: foundPattern.patterns,
+                  }
                 })
                 .filter(Boolean),
             })) || []

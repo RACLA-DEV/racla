@@ -242,9 +242,7 @@ const PlatinaLabDbPage = () => {
       return () => {
         scrollContainer.removeEventListener('scroll', handleScroll)
         document.removeEventListener('mousemove', handleMouseMove)
-        if (scrollTimer.current) {
-          clearTimeout(scrollTimer.current)
-        }
+        clearTimeout(scrollTimer.current)
       }
     }
   }, [handleScroll, handleMouseMove])
