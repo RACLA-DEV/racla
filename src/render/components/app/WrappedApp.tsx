@@ -513,7 +513,7 @@ export default function WrappedApp() {
                 settings,
               )
 
-              i18n.changeLanguage(settings.language)
+              void i18n.changeLanguage(settings.language)
 
               // 설정 로드 후 잠시 지연
               await new Promise((resolve) => setTimeout(resolve, 500))

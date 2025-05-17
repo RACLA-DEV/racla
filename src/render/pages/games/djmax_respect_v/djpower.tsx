@@ -12,8 +12,8 @@ import { PuffLoader } from 'react-spinners'
 
 const DmrvDjpowerPage = () => {
   const [keyMode, setKeyMode] = useState<string>('4')
-  const [baseSongData, setBaseSongData] = useState<any[]>([])
-  const [newSongData, setNewSongData] = useState<any[]>([])
+  const [baseSongData, setBaseSongData] = useState<SongData[]>([])
+  const [newSongData, setNewSongData] = useState<SongData[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
   const [isScoredBaseSongData, setIsScoredBaseSongData] = useState<boolean>(true)
@@ -26,7 +26,7 @@ const DmrvDjpowerPage = () => {
     setNewSongData([])
     if (songData[selectedGame].length > 0) {
       // SC 레벨과 MX 레벨을 동일하게 취급하는 함수
-      const adjustLevels = (item: any) => {
+      const adjustLevels = (item: SongData) => {
         const scLevel = R.path(['patterns', `${keyMode}B`, 'SC', 'level'], item)
         const mxLevel = R.path(['patterns', `${keyMode}B`, 'MX', 'level'], item)
 
@@ -81,7 +81,7 @@ const DmrvDjpowerPage = () => {
       ])
 
       // dlcCode가 FAL, VL, CP인 경우와 name이 Kamui, BlueWhite인 경우를 별도로 처리
-      const getSpecialItems = (data: any[], maxItems: number) => {
+      const getSpecialItems = (data: SongData[], maxItems: number) => {
         const specialItems = R.filter(
           R.pipe((item: SongData) => {
             const dlcCode = R.path(['dlcCode'], item)
@@ -129,7 +129,7 @@ const DmrvDjpowerPage = () => {
       }
 
       // SC 레벨이 특정 값까지의 항목을 포함하는 함수
-      const getFilteredData = (data: any[], maxItems: number) => {
+      const getFilteredData = (data: SongData[], maxItems: number) => {
         // 필터링 및 정렬
         const sortedData = R.pipe(
           filterExcludedItems, // dlcCode와 name에 따라 필터링
@@ -233,7 +233,7 @@ const DmrvDjpowerPage = () => {
           })
       }
 
-      updateArrayWithAPIData()
+      void updateArrayWithAPIData()
     }
   }, [baseSongData, isScoredBaseSongData])
 
@@ -272,7 +272,7 @@ const DmrvDjpowerPage = () => {
           })
       }
 
-      updateArrayWithAPIData()
+      void updateArrayWithAPIData()
     }
   }, [newSongData, isScoredNewSongData])
 

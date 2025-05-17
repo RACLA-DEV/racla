@@ -162,7 +162,7 @@ export default function FeedbackDetailPage() {
 
   useEffect(() => {
     if (feedbackId) {
-      fetchBugDetail()
+      void fetchBugDetail()
     }
   }, [feedbackId])
 
@@ -182,7 +182,7 @@ export default function FeedbackDetailPage() {
 
       if (response.status === 201) {
         setNewComment('')
-        fetchBugDetail()
+        void fetchBugDetail()
       }
     } catch (error) {
       createLog('error', 'Error in handleAddComment', error)
@@ -256,7 +256,7 @@ export default function FeedbackDetailPage() {
                     />
                     <button
                       onClick={() => {
-                        handleAddComment()
+                        void handleAddComment()
                       }}
                       disabled={loading || !newComment.trim()}
                       className='tw:px-4 tw:py-2 tw:bg-indigo-600 tw:text-white tw:rounded hover:tw:bg-indigo-700 tw:transition-colors disabled:tw:opacity-50'

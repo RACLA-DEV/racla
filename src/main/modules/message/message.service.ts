@@ -7,7 +7,7 @@ export class MessageService {
     return new Date().getTime()
   }
 
-  public sendToRenderer(window: BrowserWindow, channel: string, message: any): void {
+  public sendToRenderer(window: BrowserWindow, channel: string, message: unknown): void {
     window.webContents.send(channel, message)
   }
 

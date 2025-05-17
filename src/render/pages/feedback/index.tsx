@@ -330,8 +330,8 @@ export default function FeedbackListPage() {
   }
 
   useEffect(() => {
-    fetchBugs()
-    fetchNotices()
+    void fetchBugs()
+    void fetchNotices()
   }, [])
 
   useEffect(() => {
@@ -637,7 +637,7 @@ export default function FeedbackListPage() {
                 <button
                   key={i}
                   onClick={() => {
-                    fetchBugs(i)
+                    void fetchBugs(i)
                   }}
                   className={`tw:px-3 tw:py-1 tw:rounded ${
                     pagination.current === i + 1

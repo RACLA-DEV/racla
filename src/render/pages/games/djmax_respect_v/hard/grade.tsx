@@ -16,8 +16,18 @@ const gradeTableMap = {
 }
 
 // songs를 name 기준으로 정렬하는 함수 추가
-const sortByName = (songs: any[]) => {
+const sortByName = (songs: SongData[]) => {
   return [...songs].sort((a, b) => a.name.localeCompare(b.name))
+}
+
+type FloorItem = {
+  floor: number
+  songItems: SongData[]
+}
+
+type BaseSongData = {
+  level: number
+  floorItems: FloorItem[]
 }
 
 // LazyFloorItem 컴포넌트 타입 정의
@@ -63,7 +73,7 @@ const DmrvHardGradePage = () => {
   const { songData, selectedGame } = useSelector((state: RootState) => state.app)
 
   const [keyMode, setKeyMode] = useState<string>('4')
-  const [baseSongData, setBaseSongData] = useState<any[]>([])
+  const [baseSongData, setBaseSongData] = useState<BaseSongData[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(true)
 
   const processGradeData = useCallback(() => {

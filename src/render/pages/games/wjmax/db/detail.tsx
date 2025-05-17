@@ -29,7 +29,7 @@ const WjmaxDbDetailPage = () => {
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const { songData, userData, selectedGame } = useSelector((state: RootState) => state.app)
-  const [baseSongData, setBaseSongData] = useState<any[]>([])
+  const [baseSongData, setBaseSongData] = useState<SongData[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [isScoredBaseSongData, setIsScoredBaseSongData] = useState<boolean>(true)
 
@@ -92,7 +92,7 @@ const WjmaxDbDetailPage = () => {
       setIsScoredBaseSongData(false)
     }
 
-    initializeData()
+    void initializeData()
   }, [userData])
 
   const [patternButton, setPatternButton] = useState<string>('')
@@ -198,7 +198,7 @@ const WjmaxDbDetailPage = () => {
 
   useEffect(() => {
     if (fetchingUpdateScore) {
-      fetchUpdateScore()
+      void fetchUpdateScore()
     }
   }, [fetchingUpdateScore])
 
@@ -249,7 +249,7 @@ const WjmaxDbDetailPage = () => {
           }),
         )
           .then((value) => {
-            setBaseSongData(value)
+            setBaseSongData(value as SongData[])
           })
           .finally(() => {
             setIsScoredBaseSongData(true)
@@ -258,7 +258,7 @@ const WjmaxDbDetailPage = () => {
       }
 
       if (userData.playerName !== '') {
-        updateArrayWithAPIData()
+        void updateArrayWithAPIData()
       } else {
         setIsScoredBaseSongData(true)
         setIsLoading(false)
@@ -268,7 +268,7 @@ const WjmaxDbDetailPage = () => {
 
   // 모달 상태 추가
   const [showScoreModal, setShowScoreModal] = useState(false)
-  const [patternViewerData, setPatternViewerData] = useState<any>(null)
+  const [patternViewerData, setPatternViewerData] = useState<string | null>(null)
   const [showPatternViewer, setShowPatternViewer] = useState<boolean>(false)
 
   // 패턴 데이터를 불러오는 함수
@@ -427,7 +427,12 @@ const WjmaxDbDetailPage = () => {
                                         fetchPatternData(
                                           baseSongData[0].patterns[patternName][difficultyCode]
                                             .patternFileName,
-                                        )
+                                        ).catch((error: unknown) => {
+                                          createLog('error', 'Error in fetchPatternData', {
+                                            ...userData,
+                                            error,
+                                          })
+                                        })
                                       }}
                                     >
                                       <Icon icon='lucide:table-2' width={16} height={16} />

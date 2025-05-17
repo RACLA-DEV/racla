@@ -30,7 +30,16 @@ interface LazyListItemProps {
   handleMouseLeave: () => void
   selectedLevel: string
   navigate: NavigateFunction
-  showNotification: (message: any, type: string) => void
+  showNotification: (
+    message: {
+      mode: 'string' | 'i18n'
+      ns?: string
+      value: string
+      props?: Record<string, string>
+    },
+    type?: 'success' | 'error' | 'info' | 'warning',
+    duration?: number,
+  ) => void
 }
 
 // LazyGridItem 인터페이스 정의

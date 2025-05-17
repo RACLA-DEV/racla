@@ -2,6 +2,7 @@ import ScorePopupComponent from '@render/components/score/ScorePopup'
 import { globalDictionary } from '@render/constants/globalDictionary'
 import { RootState } from '@render/store'
 import type { PlayBoardPatternInfo } from '@src/types/dto/playBoard/PlayBoardPatternInfo'
+import { SongData } from '@src/types/games/SongData'
 import * as R from 'ramda'
 
 import React, { useCallback, useEffect, useState } from 'react'
@@ -42,12 +43,22 @@ const LazyFloorItem = ({ floorItem, keyMode, levelData }) => {
   )
 }
 
+type FloorItem = {
+  floor: number
+  songItems: SongData[]
+}
+
+type BaseSongData = {
+  level: number
+  floorItems: FloorItem[]
+}
+
 const DmrvGradePage = () => {
   const { songData, selectedGame } = useSelector((state: RootState) => state.app)
   const [keyMode, setKeyMode] = useState<string>('4')
   const [keyPattern, setKeyPattern] = useState<string>('SC')
   const [keyDjPower, setKeyDjPower] = useState<boolean>(false)
-  const [baseSongData, setBaseSongData] = useState<any[]>([])
+  const [baseSongData, setBaseSongData] = useState<BaseSongData[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(true)
 
   const descendWithNull = R.descend((SongItem: PlayBoardPatternInfo) =>
@@ -76,7 +87,10 @@ const DmrvGradePage = () => {
     level8: 15,
   }
 
-  const sortedDjPowerData = (originalData: PlayBoardPatternInfo[], pattern) => {
+  const sortedDjPowerData = (
+    originalData: PlayBoardPatternInfo[],
+    pattern: string,
+  ): BaseSongData[] => {
     if (originalData.length > 0) {
       const sortedData = originalData.filter(
         (songItem) =>
@@ -105,13 +119,14 @@ const DmrvGradePage = () => {
                 floor,
                 songItems: sortByName(
                   sortedDataWithLevel.filter((songItem) => songItem.floor === floor),
-                ),
+                ) as unknown as SongData[],
               }
             },
           ),
         }
       })
     }
+    return []
   }
 
   const sortData = useCallback(() => {
@@ -170,7 +185,7 @@ const DmrvGradePage = () => {
                               : songItem.level === Number(keyPattern) && songItem.pattern !== 'SC',
                           )
                           .filter((songItem) => songItem.floor === floor),
-                      ),
+                      ) as unknown as SongData[],
                     }
                   }),
                 },
@@ -191,7 +206,7 @@ const DmrvGradePage = () => {
                         processedData
                           .filter((songItem) => songItem.pattern === 'SC')
                           .filter((songItem) => songItem.floor === floor),
-                      ),
+                      ) as unknown as SongData[],
                     }
                   }),
                 },

@@ -7,6 +7,7 @@ import { useNotificationSystem } from '@render/hooks/useNotifications'
 import { createLog } from '@render/libs/logger'
 import { RootState } from '@render/store'
 import { setIsOpenExternalLink, setOpenExternalLink } from '@render/store/slices/uiSlice'
+import { SongData } from '@src/types/games/SongData'
 import { Link, useParams } from 'react-router-dom'
 import { PuffLoader } from 'react-spinners'
 import { v4 as uuidv4 } from 'uuid'
@@ -30,7 +31,7 @@ const DmrvHardDbPatternPage = () => {
   const dispatch = useDispatch()
   const { songData, selectedGame } = useSelector((state: RootState) => state.app)
 
-  const [baseSongData, setBaseSongData] = useState<any[]>([])
+  const [baseSongData, setBaseSongData] = useState<SongData[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [rankingData, setRankingData] = useState<RankingEntry[]>([])
   const [isLoadingRanking, setIsLoadingRanking] = useState<boolean>(false)
@@ -46,7 +47,7 @@ const DmrvHardDbPatternPage = () => {
   useEffect(() => {
     if (baseSongData.length > 0) {
       setIsLoading(false)
-      fetchRankingData()
+      void fetchRankingData()
     }
   }, [baseSongData])
 
@@ -103,8 +104,8 @@ const DmrvHardDbPatternPage = () => {
     }
   }
 
-  if (!isLoading && baseSongData.length > 0 && params?.patternName) {
-    const [button, level, judge] = String(params?.patternName).split('-')
+  if (!isLoading && baseSongData.length > 0 && params.patternName) {
+    const [button, level, judge] = String(params.patternName).split('-')
 
     return (
       <React.Fragment>

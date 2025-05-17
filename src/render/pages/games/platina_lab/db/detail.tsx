@@ -29,7 +29,7 @@ const PlatinaLabDbDetailPage = () => {
   const dispatch = useDispatch()
   const { songData, userData, selectedGame } = useSelector((state: RootState) => state.app)
 
-  const [baseSongData, setBaseSongData] = useState<any[]>([])
+  const [baseSongData, setBaseSongData] = useState<SongData[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(true)
 
   const [isScoredBaseSongData, setIsScoredBaseSongData] = useState<boolean>(true)
@@ -80,7 +80,7 @@ const PlatinaLabDbDetailPage = () => {
       setIsScoredBaseSongData(false)
     }
 
-    initializeData()
+    void initializeData()
   }, [userData])
 
   const [patternButton, setPatternButton] = useState<string>('')
@@ -175,7 +175,7 @@ const PlatinaLabDbDetailPage = () => {
 
   useEffect(() => {
     if (fetchingUpdateScore) {
-      fetchUpdateScore()
+      void fetchUpdateScore()
     }
   }, [fetchingUpdateScore])
 
@@ -226,7 +226,7 @@ const PlatinaLabDbDetailPage = () => {
           }),
         )
           .then((value) => {
-            setBaseSongData(value)
+            setBaseSongData(value as SongData[])
           })
           .finally(() => {
             setIsScoredBaseSongData(true)
@@ -235,7 +235,7 @@ const PlatinaLabDbDetailPage = () => {
       }
 
       if (userData.playerName !== '') {
-        updateArrayWithAPIData()
+        void updateArrayWithAPIData()
       } else {
         setIsScoredBaseSongData(true)
         setIsLoading(false)

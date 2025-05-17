@@ -3,6 +3,7 @@ import Image from '@render/components/image/Image'
 import { useNotificationSystem } from '@render/hooks/useNotifications'
 import { createLog } from '@render/libs/logger'
 import { RootState } from '@render/store'
+import { SongData } from '@src/types/games/SongData'
 import React, { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { Link, useNavigate, useParams } from 'react-router-dom'
@@ -39,7 +40,7 @@ const DmrvHardDbDetailPage = () => {
   const params = useParams()
   const { songData, selectedGame } = useSelector((state: RootState) => state.app)
 
-  const [baseSongData, setBaseSongData] = useState<any[]>([])
+  const [baseSongData, setBaseSongData] = useState<SongData[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(true)
 
   const [records, setRecords] = useState<Record<string, PatternRecord>>({})
@@ -60,7 +61,7 @@ const DmrvHardDbDetailPage = () => {
   }, [baseSongData])
 
   // 패턴 필터링 함수
-  const getValidPatterns = (songData: any) => {
+  const getValidPatterns = (songData: SongData) => {
     const validPatterns: Pattern[] = []
     const buttons = ['4B', '5B', '6B', '8B']
 
@@ -240,7 +241,7 @@ const DmrvHardDbDetailPage = () => {
                     return (
                       <button
                         key={buttonType}
-                        onClick={() => setActiveTab(buttonType as any)}
+                        onClick={() => setActiveTab(buttonType as '4B' | '5B' | '6B' | '8B')}
                         className={`tw:flex-1 tw:py-3 tw:px-4 tw:relative tw:transition-all ${
                           activeTab === buttonType
                             ? 'tw:text-indigo-600 tw:dark:text-indigo-300 tw:font-medium'
@@ -284,12 +285,12 @@ const DmrvHardDbDetailPage = () => {
                               {/* HARD 판정 */}
                               <div
                                 className={`tw:p-3 tw:pb-24 tw:transition-colors tw:flex tw:flex-col tw:items-center tw:justify-center ${
-                                  record?.hard
+                                  record.hard
                                     ? 'hover:tw:bg-indigo-50 hover:tw:dark:bg-indigo-900/20 tw:cursor-pointer'
                                     : ''
                                 }`}
                                 onClick={() => {
-                                  if (record?.hard) {
+                                  if (record.hard) {
                                     navigate(
                                       `/games/djmax_respect_v/hard/db/${params.id}/${activeTab}-${level}-HARD`,
                                     )
@@ -301,7 +302,7 @@ const DmrvHardDbDetailPage = () => {
                                     HARD
                                   </div>
 
-                                  {record?.hard ? (
+                                  {record.hard ? (
                                     <div className='tw:flex tw:flex-col tw:gap-1'>
                                       <div className='tw:font-bold tw:text-indigo-600 tw:dark:text-indigo-300'>
                                         {record.hard.nickname}
@@ -330,12 +331,12 @@ const DmrvHardDbDetailPage = () => {
                               {/* MAX 판정 */}
                               <div
                                 className={`tw:p-3 tw:pb-24 tw:transition-colors tw:flex tw:flex-col tw:items-center tw:justify-center ${
-                                  record?.max
+                                  record.max
                                     ? 'hover:tw:bg-indigo-50 hover:tw:dark:bg-indigo-900/20 tw:cursor-pointer'
                                     : ''
                                 }`}
                                 onClick={() => {
-                                  if (record?.max) {
+                                  if (record.max) {
                                     navigate(
                                       `/games/djmax_respect_v/hard/db/${params.id}/${activeTab}-${level}-MAX`,
                                     )
@@ -347,7 +348,7 @@ const DmrvHardDbDetailPage = () => {
                                     MAX
                                   </div>
 
-                                  {record?.max ? (
+                                  {record.max ? (
                                     <div className='tw:flex tw:flex-col tw:gap-1'>
                                       <div className='tw:font-bold tw:text-indigo-600 tw:dark:text-indigo-300'>
                                         {record.max.nickname}

@@ -10,6 +10,7 @@ import apiClient from '../../../libs/apiClient'
 import { setSettingData } from '@render/store/slices/appSlice'
 import { setTheme } from '@render/store/slices/uiSlice'
 import { SongData } from '@src/types/games/SongData'
+import { SettingsData } from '@src/types/settings/SettingData'
 import dayjs from 'dayjs'
 import timezone from 'dayjs/plugin/timezone'
 import utc from 'dayjs/plugin/utc'
@@ -185,7 +186,6 @@ function OverlayPage() {
   // 패턴 레벨 가져오기 함수
   const getCurrentPatternLevel = (songData: SongData, buttonType: string, patternType: string) => {
     if (
-      songData.patterns[buttonType] &&
       songData.patterns[buttonType][patternType] &&
       songData.patterns[buttonType][patternType].level
     ) {
@@ -244,7 +244,7 @@ function OverlayPage() {
   }
 
   // 곡 기록 데이터 로드
-  const loadRecordsData = async (resultData: OcrPlayDataResponse, settings: any) => {
+  const loadRecordsData = async (resultData: OcrPlayDataResponse, settings: SettingsData) => {
     setIsDataLoading(true)
     let hasRecords = false
 
@@ -410,7 +410,7 @@ function OverlayPage() {
             settings.recentOverlay ||
             (settings.hjaOverlay && data.gameCode === 'djmax_respect_v')
           ) {
-            loadRecordsData(data, settings)
+            void loadRecordsData(data, settings)
           }
         })
       })
@@ -591,7 +591,7 @@ function OverlayPage() {
           >
             <div className='tw:flex tw:flex-col tw:gap-2'>
               {/* 최근 기록 */}
-              {recentHistory && recentHistory.length > 0 && (
+              {recentHistory.length > 0 && (
                 <div className='tw:bg-white tw:dark:bg-slate-900 tw:rounded-lg tw:overflow-hidden tw:shadow-lg tw:border tw:border-slate-200 tw:dark:border-white/10 tw:w-[280px]'>
                   <div className='tw:p-3'>
                     <div className='tw:flex tw:items-center tw:gap-2 tw:mb-2'>

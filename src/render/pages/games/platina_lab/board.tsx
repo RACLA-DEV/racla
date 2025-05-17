@@ -5,6 +5,7 @@ import { useNotificationSystem } from '@render/hooks/useNotifications'
 import { createLog } from '@render/libs/logger'
 import { RootState } from '@render/store'
 import { PlayBoardResponse } from '@src/types/dto/playBoard/PlayBoardResponse'
+import { PatternInfo } from '@src/types/games/SongData'
 import { useSelector } from 'react-redux'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { PuffLoader } from 'react-spinners'
@@ -49,7 +50,7 @@ const PlatinaLabBoardPage = () => {
 
   // state 초기값 설정
   const [selectedDifficulty, setSelectedDifficulty] = useState<'1~10' | '11~20' | '21~30'>(() => {
-    return getDifficultyByLevel(board!)
+    return board ? getDifficultyByLevel(board) : '1~10'
   })
 
   // useEffect로 board 변경 시 난이도 자동 업데이트
@@ -70,7 +71,7 @@ const PlatinaLabBoardPage = () => {
 
       if (patternButton) {
         // 모든 패턴 타입(NM, HD, MX, SC)에 대해 처리
-        Object.entries(patternButton).forEach(([key, pattern]: any) => {
+        Object.entries(patternButton).forEach(([key, pattern]: [string, PatternInfo]) => {
           processedData.push({
             title,
             name,
@@ -148,7 +149,7 @@ const PlatinaLabBoardPage = () => {
       }
     }
 
-    fetchBoardData()
+    void fetchBoardData()
 
     return () => {
       setIsMounted(false)
@@ -380,7 +381,7 @@ const PlatinaLabBoardPage = () => {
                           </span>
                         </span>{' '}
                         <span className='tw:text-2xl tw:font-bold'>
-                          {String(keyBoardTitle[board!])}
+                          {board && String(keyBoardTitle[board])}
                         </span>
                       </span>
                     </div>

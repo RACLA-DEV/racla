@@ -85,7 +85,7 @@ const DmrvHardRankingPage = () => {
 
   useEffect(() => {
     if (!dailyRankingData || !totalRankingData) {
-      fetchRankingData()
+      void fetchRankingData()
     }
   }, [])
 
@@ -94,7 +94,7 @@ const DmrvHardRankingPage = () => {
   }
 
   const handleRefresh = () => {
-    fetchRankingData()
+    void fetchRankingData()
   }
 
   const getRankColor = (rank: number) => {
@@ -136,7 +136,23 @@ const DmrvHardRankingPage = () => {
     }
   }
 
-  const getMergedRankingData = () => {
+  interface SubScore {
+    count?: number
+    c?: number
+    b?: number
+    a?: number
+  }
+
+  interface MergedRankingEntry {
+    nickname: string
+    rank: number
+    score?: Score
+    count?: number
+    subRank?: number
+    subScore?: SubScore
+  }
+
+  const getMergedRankingData = (): MergedRankingEntry[] => {
     if (selectedRanking === 'daily') {
       return (
         dailyRankingData?.chart.map((entry) => {
@@ -262,7 +278,7 @@ const DmrvHardRankingPage = () => {
     )
   }
 
-  const renderRankingEntry = (entry: any, index: number) => {
+  const renderRankingEntry = (entry: MergedRankingEntry, index: number) => {
     // 상위 3등은 별도로 표시하므로 건너뜀
     if (index < 3) return null
 

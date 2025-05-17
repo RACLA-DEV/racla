@@ -5,6 +5,7 @@ import { useNotificationSystem } from '@render/hooks/useNotifications'
 import { createLog } from '@render/libs/logger'
 import { RootState } from '@render/store'
 import { ApiArchiveNicknameBoard } from '@src/types/dto/v-archive/ApiArchiveNicknameBoard'
+import { PatternInfo } from '@src/types/games/SongData'
 import { useSelector } from 'react-redux'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { PuffLoader } from 'react-spinners'
@@ -115,7 +116,7 @@ const DmrvBoardPage = () => {
 
   // state 추가
   const [selectedDifficulty, setSelectedDifficulty] = useState<'NORMAL' | 'SC'>(() => {
-    return getDifficultyByLevel(board!)
+    return board ? getDifficultyByLevel(board) : 'NORMAL'
   })
 
   // useEffect로 board 변경 시 난이도 자동 업데이트
@@ -136,7 +137,7 @@ const DmrvBoardPage = () => {
 
       if (patternButton) {
         // 모든 패턴 타입(NM, HD, MX, SC)에 대해 처리
-        Object.entries(patternButton).forEach(([key, pattern]: any) => {
+        Object.entries(patternButton).forEach(([key, pattern]: [string, PatternInfo]) => {
           processedData.push({
             title,
             name,
@@ -227,7 +228,7 @@ const DmrvBoardPage = () => {
       }
     }
 
-    fetchBoardData()
+    void fetchBoardData()
 
     return () => {
       setIsMounted(false)
@@ -269,7 +270,7 @@ const DmrvBoardPage = () => {
         // NEW 30 패턴 필터링 및 정렬
         const newPatterns = allPatterns
           .filter(
-            (pattern: any) =>
+            (pattern: Pattern) =>
               pattern.dlcCode === 'VL2' ||
               pattern.dlcCode === 'BA' ||
               pattern.dlcCode === 'PLI1' ||
@@ -283,7 +284,7 @@ const DmrvBoardPage = () => {
         // BASIC 70 패턴 필터링 및 정렬
         const basicPatterns = allPatterns
           .filter(
-            (pattern: any) =>
+            (pattern: Pattern) =>
               pattern.dlcCode !== 'VL2' &&
               pattern.dlcCode !== 'BA' &&
               pattern.dlcCode !== 'PLI1' &&
@@ -310,7 +311,7 @@ const DmrvBoardPage = () => {
       }
     }
 
-    fetchAllBoardData()
+    void fetchAllBoardData()
   }, [userData.varchiveUserInfo.nickname, keyMode])
 
   if (!isMounted) return null
@@ -524,7 +525,7 @@ const DmrvBoardPage = () => {
                           <span className='tw:text-4xl tw:font-bold'>{keyMode}</span>{' '}
                           <span className='tw:me-auto'>Button</span>{' '}
                           <span className='tw:text-2xl tw:font-bold'>
-                            {String(keyBoardTitle[board!])}
+                            {board && String(keyBoardTitle[board])}
                           </span>
                         </span>
                       </div>
@@ -790,7 +791,7 @@ const DmrvBoardPage = () => {
                             <div className='tw:flex tw:gap-2'>
                               <ScorePopupComponent
                                 songTitle={pattern.title}
-                                keyMode={keyMode!}
+                                keyMode={keyMode || '4'}
                                 isVisibleCode={true}
                               />
                               <div className='tw:flex tw:flex-1 tw:flex-col tw:gap-2 tw:items-end tw:justify-center tw:bg-slate-200 tw:dark:bg-slate-700 tw:bg-opacity-25 tw:rounded-md tw:py-2 tw:px-3'>

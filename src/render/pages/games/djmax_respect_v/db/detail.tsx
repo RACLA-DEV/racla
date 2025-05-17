@@ -21,7 +21,7 @@ const DmrvDbDetailPage = () => {
   const { showNotification } = useNotificationSystem()
 
   const { songData, userData, selectedGame } = useSelector((state: RootState) => state.app)
-  const [baseSongData, setBaseSongData] = useState<any[]>([])
+  const [baseSongData, setBaseSongData] = useState<SongData[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [isScoredBaseSongData, setIsScoredBaseSongData] = useState<boolean>(true)
   const [showScoreModal, setShowScoreModal] = useState(false)
@@ -94,7 +94,7 @@ const DmrvDbDetailPage = () => {
       setIsScoredBaseSongData(false)
     }
 
-    initializeData()
+    void initializeData()
   }, [])
 
   const fetchUpdateScore = async () => {
@@ -161,7 +161,7 @@ const DmrvDbDetailPage = () => {
 
   useEffect(() => {
     if (fetchingUpdateScore) {
-      fetchUpdateScore()
+      void fetchUpdateScore()
     }
   }, [fetchingUpdateScore])
 
@@ -207,7 +207,7 @@ const DmrvDbDetailPage = () => {
           }),
         )
           .then((value) => {
-            setBaseSongData(value)
+            setBaseSongData(value as SongData[])
           })
           .finally(() => {
             setIsScoredBaseSongData(true)
@@ -216,7 +216,7 @@ const DmrvDbDetailPage = () => {
       }
 
       if (userData.varchiveUserInfo.isLinked) {
-        updateArrayWithAPIData()
+        void updateArrayWithAPIData()
       } else {
         setIsScoredBaseSongData(true)
         setIsLoading(false)
@@ -332,7 +332,7 @@ const DmrvDbDetailPage = () => {
                                   ) {
                                     setPatternMaxCombo(
                                       baseSongData[0].patterns[patternName][difficultyCode]
-                                        .maxCombo === 1,
+                                        .maxCombo,
                                     )
                                     setPatternButton(String(patternName))
                                     setPatternDificulty(difficultyCode)
@@ -475,7 +475,7 @@ const DmrvDbDetailPage = () => {
                                           MAX COMBO
                                         </span>
                                       ) : baseSongData[0].patterns[patternName][difficultyCode]
-                                          .maxCombo === 1 ? (
+                                          .maxCombo ? (
                                         <span className='tw:text-xs tw:font-light tw:text-yellow-500 tw:dark:text-yellow-400'>
                                           MAX COMBO
                                         </span>

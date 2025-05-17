@@ -32,9 +32,7 @@ interface Pattern {
   board: number
 }
 
-interface KeyModeData {
-  [keyMode: string]: Pattern[]
-}
+type KeyModeData = Record<string, Pattern[]>
 
 export default function DjmaxHomeComponent() {
   const { t } = useTranslation(['home'])

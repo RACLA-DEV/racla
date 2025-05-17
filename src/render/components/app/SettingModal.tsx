@@ -359,50 +359,63 @@ const AccountInfo = () => {
           text.split(' ')[1].split('-')[4].length === 12
         ) {
           const data = getUserName({ userNo: text.split(' ')[0], token: text.split(' ')[1] })
-          data.then(async (result) => {
-            if (result.success) {
-              await apiClient
-                .post<PlayerLinkExternalServiceResponse>(`/v3/racla/player/link/oauth/vArchive`, {
-                  playerId: userData.playerId,
-                  playerToken: userData.playerToken,
-                  externalServiceUserNo: Number(text.split(' ')[0]),
-                  externalServiceUserToken: text.split(' ')[1],
-                  externalServiceType: 'V_ARCHIVE',
-                })
-                .then((data) => {
-                  if (data.data.success && data.data.data.result == 'Success') {
-                    showNotification({
-                      mode: 'i18n',
-                      ns: 'settings',
-                      value: 'accountInfo.vArchive.Success',
-                    })
-                    const newUserData: SessionData = {
-                      ...userData,
-                      varchiveUserInfo: {
-                        ...data.data.data.varchiveUserInfo,
-                        isLinked: true,
-                      },
+          data
+            .then(async (result) => {
+              if (result.success) {
+                await apiClient
+                  .post<PlayerLinkExternalServiceResponse>(`/v3/racla/player/link/oauth/vArchive`, {
+                    playerId: userData.playerId,
+                    playerToken: userData.playerToken,
+                    externalServiceUserNo: Number(text.split(' ')[0]),
+                    externalServiceUserToken: text.split(' ')[1],
+                    externalServiceType: 'V_ARCHIVE',
+                  })
+                  .then((data) => {
+                    if (data.data.success && data.data.data.result == 'Success') {
+                      showNotification({
+                        mode: 'i18n',
+                        ns: 'settings',
+                        value: 'accountInfo.vArchive.Success',
+                      })
+                      const newUserData: SessionData = {
+                        ...userData,
+                        varchiveUserInfo: {
+                          ...data.data.data.varchiveUserInfo,
+                          isLinked: true,
+                        },
+                      }
+                      dispatch(setUserData(newUserData))
+                    } else if (!data.data.success && data.data.data.result === 'NotFound') {
+                      showNotification(
+                        {
+                          mode: 'i18n',
+                          ns: 'settings',
+                          value: 'accountInfo.vArchive.NotFound',
+                        },
+                        'success',
+                      )
+                    } else if (!data.data.success && data.data.data.result === 'Already') {
+                      showNotification(
+                        {
+                          mode: 'i18n',
+                          ns: 'settings',
+                          value: 'accountInfo.vArchive.Already',
+                        },
+                        'error',
+                      )
+                    } else {
+                      showNotification(
+                        {
+                          mode: 'i18n',
+                          ns: 'settings',
+                          value: 'accountInfo.vArchive.Unknown',
+                        },
+                        'error',
+                      )
                     }
-                    dispatch(setUserData(newUserData))
-                  } else if (!data.data.success && data.data.data.result === 'NotFound') {
-                    showNotification(
-                      {
-                        mode: 'i18n',
-                        ns: 'settings',
-                        value: 'accountInfo.vArchive.NotFound',
-                      },
-                      'success',
-                    )
-                  } else if (!data.data.success && data.data.data.result === 'Already') {
-                    showNotification(
-                      {
-                        mode: 'i18n',
-                        ns: 'settings',
-                        value: 'accountInfo.vArchive.Already',
-                      },
-                      'error',
-                    )
-                  } else {
+                  })
+                  .catch((error: unknown) => {
+                    createLog('error', 'Error linking V-ARCHIVE account', String(error))
                     showNotification(
                       {
                         mode: 'i18n',
@@ -411,30 +424,29 @@ const AccountInfo = () => {
                       },
                       'error',
                     )
-                  }
-                })
-                .catch((error: unknown) => {
-                  createLog('error', 'Error linking V-ARCHIVE account', String(error))
-                  showNotification(
-                    {
-                      mode: 'i18n',
-                      ns: 'settings',
-                      value: 'accountInfo.vArchive.Unknown',
-                    },
-                    'error',
-                  )
-                })
-            } else {
+                  })
+              } else {
+                showNotification(
+                  {
+                    mode: 'i18n',
+                    ns: 'settings',
+                    value: 'accountInfo.vArchive.NotFound',
+                  },
+                  'error',
+                )
+              }
+            })
+            .catch((error: unknown) => {
+              createLog('error', 'Error linking V-ARCHIVE account', String(error))
               showNotification(
                 {
                   mode: 'i18n',
                   ns: 'settings',
-                  value: 'accountInfo.vArchive.NotFound',
+                  value: 'accountInfo.vArchive.Unknown',
                 },
                 'error',
               )
-            }
-          })
+            })
         } else {
           showNotification(
             {
@@ -746,7 +758,7 @@ const AccountInfo = () => {
           <div className='tw:space-y-4'>
             <button
               onClick={() => {
-                handleDiscordLink()
+                void handleDiscordLink()
               }}
               className='tw:flex tw:items-center tw:justify-center tw:gap-2 tw:px-4 tw:py-2.5 tw:bg-[#5865F2] hover:tw:bg-[#4752C4] tw:text-white tw:text-sm tw:font-medium tw:rounded-lg tw:w-full tw:transition-colors'
             >
