@@ -127,68 +127,50 @@ export class GameMonitorService {
             .then(async () => {
               if (this.activeWindow && this.isGameWindowFocused && !this.isProcessingResult) {
                 this.isProcessingResult = true
-                let image = await this.imageProcessorService.captureGameWindow(
+                let ocrResult = await this.ocrManagerService.getOcrResult(
                   this.activeWindow?.title,
-                )
-                let extractedRegions = await this.ocrManagerService.extractRegions(
-                  this.activeWindow?.title,
-                  image,
-                  settingData,
-                )
-                let resultInfo = this.ocrManagerService.determineResultScreen(
-                  this.activeWindow?.title,
-                  extractedRegions.texts,
                   settingData,
                 )
                 this.logger.debug(
-                  `OCR Result: ${resultInfo.isResult.length > 0 ? 'true' : 'false'}, ${resultInfo.where}, ${resultInfo.text}`,
+                  `OCR Result: ${ocrResult.resultInfo.isResult.length > 0 ? 'true' : 'false'}, ${ocrResult.resultInfo.where}, ${ocrResult.resultInfo.text}`,
                 )
-                if (resultInfo.gameCode === 'platina_lab') {
+                if (ocrResult.resultInfo.gameCode === 'platina_lab') {
                   this.logger.debug('Platina lab detected, delaying 3 seconds and re-capturing')
                   await this.delay(3000)
 
-                  image = await this.imageProcessorService.captureGameWindow(
+                  ocrResult = await this.ocrManagerService.getOcrResult(
                     this.activeWindow?.title,
-                  )
-                  extractedRegions = await this.ocrManagerService.extractRegions(
-                    this.activeWindow?.title,
-                    image,
-                    settingData,
-                  )
-                  resultInfo = this.ocrManagerService.determineResultScreen(
-                    this.activeWindow?.title,
-                    extractedRegions.texts,
                     settingData,
                   )
                 }
 
                 if (
-                  resultInfo.isResult.length > 0 &&
-                  this.lastResultInfo?.text !== resultInfo.text
+                  ocrResult.resultInfo.isResult.length > 0 &&
+                  this.lastResultInfo?.text !== ocrResult.resultInfo.text
                 ) {
                   this.logger.debug('Result screen detected')
 
                   if (settingData.saveImageWhenCapture) {
                     const maskingRegions = this.imageProcessorService.getMaskingRegions(
-                      resultInfo.gameCode,
-                      resultInfo.where,
+                      ocrResult.resultInfo.gameCode,
+                      ocrResult.resultInfo.where,
                     )
                     this.logger.debug(`Masking regions: ${maskingRegions}`)
                     const maskedImage = await this.imageProcessorService.applyProfileMask(
-                      image,
+                      ocrResult.image,
                       maskingRegions,
                       settingData.saveImageBlurMode,
                     )
                     this.fileService.saveImage(
                       maskedImage,
-                      `${String(`${resultInfo.gameCode}_${resultInfo.where}_${resultInfo.text}`).replaceAll(' ', '_').replaceAll(':', '_').replaceAll('\n', '').replaceAll('\\', '_').replaceAll('/', '_').replaceAll('?', '_').replaceAll('*', '_').replaceAll('"', '_').replaceAll('<', '_').replaceAll('>', '_').replaceAll('|', '_')}.png`,
+                      `${String(`${ocrResult.resultInfo.gameCode}_${ocrResult.resultInfo.where}_${ocrResult.resultInfo.text}`).replaceAll(' ', '_').replaceAll(':', '_').replaceAll('\n', '').replaceAll('\\', '_').replaceAll('/', '_').replaceAll('?', '_').replaceAll('*', '_').replaceAll('"', '_').replaceAll('<', '_').replaceAll('>', '_').replaceAll('|', '_')}.png`,
                     )
                   }
 
-                  this.lastResultInfo = resultInfo
+                  this.lastResultInfo = ocrResult.resultInfo
                 } else if (
                   this.isGameWindowFocused &&
-                  resultInfo.isResult.length === 0 &&
+                  ocrResult.resultInfo.isResult.length === 0 &&
                   this.lastResultInfo
                 ) {
                   this.logger.debug('Result screen not not detected')

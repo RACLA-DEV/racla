@@ -317,7 +317,7 @@ export default function WrappedApp() {
         showNotification(
           {
             mode: 'i18n',
-            value: 'syncError',
+            value: 'database.syncError',
             props: {
               gameName: gameCode
                 ? globalDictionary.gameDictionary[
@@ -340,7 +340,7 @@ export default function WrappedApp() {
               showNotification(
                 {
                   mode: 'i18n',
-                  value: 'syncLocalSuccess',
+                  value: 'database.syncLocalSuccess',
                   props: {
                     gameName: gameCode
                       ? globalDictionary.gameDictionary[
@@ -360,7 +360,7 @@ export default function WrappedApp() {
           showNotification(
             {
               mode: 'i18n',
-              value: 'syncLocalError',
+              value: 'database.syncLocalError',
               props: {
                 gameName: gameCode
                   ? globalDictionary.gameDictionary[

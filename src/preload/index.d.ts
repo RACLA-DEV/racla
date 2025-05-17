@@ -89,6 +89,9 @@ declare global {
 
       // 디스코드 관련
       initializeDiscord: () => void
+
+      // OCR 관련
+      getOcrResultServer: (image: Buffer, gameCode: string) => Promise<OcrPlayerDataResponse>
     }
   }
 }

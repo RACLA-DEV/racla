@@ -256,7 +256,13 @@ const SelectBox = ({
       }`}
     >
       {options
-        .filter((option) => option.id)
+        .filter((option) => {
+          if (typeof option.id === 'number') {
+            return true
+          } else {
+            return option.id
+          }
+        })
         .map((option) => (
           <option key={option.id} value={option.id}>
             {t(`${id}.${option.id}`)}

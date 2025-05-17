@@ -92,4 +92,8 @@ contextBridge.exposeInMainWorld('electron', {
 
   // 디스코드 관련
   initializeDiscord: () => ipcRenderer.invoke('discord-manager:initialize'),
+
+  // OCR 관련
+  getOcrResultServer: (data: { image: Buffer; gameCode: string }) =>
+    ipcRenderer.invoke('ocr-manager:get-ocr-result-server', data),
 })

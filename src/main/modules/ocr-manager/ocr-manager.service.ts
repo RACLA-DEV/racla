@@ -1,16 +1,23 @@
 import { GLOBAL_DICTONARY } from '@main/constants/GLOBAL_DICTONARY'
 import { Injectable, Logger } from '@nestjs/common'
+import { OcrPlayerDataResponse } from '@src/types/dto/ocr/OcrPlayDataResponse'
 import { ExtractedRegionsResult } from '@src/types/ocr/ExtractedRegionsResult'
 import { OCRResultInfo } from '@src/types/ocr/OcrResultInfo'
 import { SettingsData } from '@src/types/settings/SettingData'
 import * as Tesseract from 'tesseract.js'
+import { v4 as uuidv4 } from 'uuid'
+import apiClient from '../../../libs/apiClient'
+import { FileManagerService } from '../file-manager/file-manager.service'
 import { ImageProcessorService } from '../image-processor/image-processor.service'
 
 @Injectable()
 export class OcrManagerService {
   private readonly logger = new Logger(OcrManagerService.name)
 
-  constructor(private readonly imageProcessor: ImageProcessorService) {}
+  constructor(
+    private readonly imageProcessor: ImageProcessorService,
+    private readonly fileManagerService: FileManagerService,
+  ) {}
 
   /**
    * 추출된 이미지에서 텍스트를 인식하는 메서드
@@ -201,5 +208,61 @@ export class OcrManagerService {
     return keywords.filter(
       (value) => text.toUpperCase().trim().includes(value) && text.length !== 0,
     )
+  }
+
+  public async getOcrResult(
+    gameTitle: string,
+    settingData: SettingsData,
+  ): Promise<{
+    resultInfo: OCRResultInfo
+    extractedRegions: ExtractedRegionsResult
+    image: Buffer
+  }> {
+    const image = await this.imageProcessor.captureGameWindow(gameTitle)
+    const extractedRegions = await this.extractRegions(gameTitle, image, settingData)
+    const resultInfo = this.determineResultScreen(gameTitle, extractedRegions.texts, settingData)
+
+    return { resultInfo, extractedRegions, image }
+  }
+
+  public async getOcrResultServer(image: Buffer, gameCode: string): Promise<any> {
+    const resizedImage = await this.imageProcessor.postProcessImage(image)
+    const formData = new FormData()
+    const blob = new Blob([resizedImage], { type: 'image/png' })
+    formData.append('file', blob, uuidv4() + '.png')
+    formData.append('where', 'server')
+
+    return this.uploadForOCR(formData, gameCode)
+  }
+
+  public async uploadForOCR(formData: FormData, gameCode: string): Promise<any> {
+    const session = await this.fileManagerService.loadSession()
+
+    try {
+      if (!session.playerId && !session.playerToken) {
+        throw new Error('Player ID or Player Token is not set')
+      }
+
+      const response = await apiClient.post<OcrPlayerDataResponse>(
+        `/v3/racla/ocr/upload/${gameCode}`,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            Authorization:
+              !session.playerId && session.playerToken !== ''
+                ? `${session.playerId}|${session.playerToken}`
+                : '',
+          },
+          withCredentials: true,
+        },
+      )
+
+      this.logger.debug('Server Side OCR Upload Result:', response.data)
+      return response.data.data
+    } catch (error) {
+      this.logger.error('Server Side OCR Upload Error:', error)
+      throw error
+    }
   }
 }

@@ -36,6 +36,19 @@ export class ImageProcessorService {
     }
   }
 
+  async postProcessImage(image: Buffer): Promise<Buffer> {
+    const metadata = await sharp(image).metadata()
+
+    const isWindowedMode = !this.isStandardResolution(metadata.width, metadata.height)
+    this.logger.debug(`Windowed mode: ${isWindowedMode}`)
+
+    if (isWindowedMode) {
+      return this.processWindowedModeImage(image)
+    } else {
+      return this.processFullscreenImage(image)
+    }
+  }
+
   private async processWindowedModeImage(pngImage: Buffer): Promise<Buffer> {
     try {
       const metadata = await sharp(pngImage).metadata()
