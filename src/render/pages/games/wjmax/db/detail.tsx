@@ -21,7 +21,6 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { PuffLoader } from 'react-spinners'
 import apiClient from '../../../../../libs/apiClient'
 
-dayjs.locale('ko')
 dayjs.extend(utc)
 const WjmaxDbDetailPage = () => {
   const { showNotification } = useNotificationSystem()

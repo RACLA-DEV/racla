@@ -19,7 +19,6 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { PuffLoader } from 'react-spinners'
 import apiClient from '../../../../../libs/apiClient'
 
-dayjs.locale('ko')
 dayjs.extend(utc)
 
 const PlatinaLabDbDetailPage = () => {
@@ -120,7 +119,7 @@ const PlatinaLabDbDetailPage = () => {
             if (data.data.success) {
               // 곡 데이터를 다시 불러옴
               const response = await apiClient.get<SongData>(
-                `/v3/racla/songs/${selectedGame}/${baseSongData[0].title}/user/${userData.playerId}`,
+                `/v3/racla/songs/${selectedGame}/${params?.id}/user/${userData.playerId}`,
                 {
                   headers: {
                     Authorization: `${userData.playerId}|${userData.playerToken}`,

@@ -1,6 +1,6 @@
 import { IpcHandle } from '@doubleshot/nest-electron'
 import { Controller, Logger } from '@nestjs/common'
-import { OcrPlayerDataResponse } from '@src/types/dto/ocr/OcrPlayDataResponse'
+import { OcrPlayDataResponse } from '@src/types/dto/ocr/OcrPlayDataResponse'
 import { OcrManagerService } from './ocr-manager.service'
 
 @Controller()
@@ -12,7 +12,7 @@ export class OcrManagerController {
   async getOcrResultServer(data: {
     image: Buffer
     gameCode: string
-  }): Promise<OcrPlayerDataResponse> {
+  }): Promise<OcrPlayDataResponse> {
     try {
       return await this.ocrManagerService.getOcrResultServer(data.image, data.gameCode)
     } catch (error) {

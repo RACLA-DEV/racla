@@ -2,6 +2,7 @@ import { GLOBAL_DICTONARY } from '@main/constants/GLOBAL_DICTONARY'
 import { Injectable, Logger } from '@nestjs/common'
 import { OCRResultInfo } from '@src/types/ocr/OcrResultInfo'
 import type { OverlayBounds } from '@src/types/overlay/OverlayBounds'
+import dayjs from 'dayjs'
 import { BrowserWindow, screen } from 'electron'
 import type { Result } from 'get-windows'
 import type { ProcessDescriptor } from 'ps-list'
@@ -42,6 +43,7 @@ export class GameMonitorService {
   private lastResultInfo: OCRResultInfo | undefined = undefined
   private activeWindow: Result | undefined = undefined
   private isProcessingResult = false
+  private retryCount = 0
 
   constructor(
     private readonly mainWindowService: MainWindowService,
@@ -57,7 +59,38 @@ export class GameMonitorService {
 
   public initialize(): void {
     this.startWindowMonitoring()
-    // 오버레이 초기화는 최초 블러 이벤트에서 수행하도록 변경
+    // 앱 시작 시 초기 상태 확인 추가
+    this.checkInitialFocusState()
+  }
+
+  // 앱 시작 시 포커스 상태 확인하여 처리하는 함수
+  private async checkInitialFocusState(): Promise<void> {
+    const mainWindow = this.mainWindowService.getWindow()
+    if (!mainWindow) {
+      this.logger.warn('Main window not found for initial focus check')
+      return
+    }
+
+    // 약간의 지연을 두고 초기 포커스 상태 확인 (윈도우 생성 및 표시 후)
+    setTimeout(async () => {
+      try {
+        // 현재 앱에 포커스가 없는지 확인
+        const isFocused = mainWindow.isFocused()
+
+        if (!isFocused && !this.isInitialized) {
+          this.logger.debug('App started without focus - initializing overlay')
+          this.isInitialized = true
+          await this.overlayWindowService.createOverlayInit()
+
+          // 약간의 지연 후 모니터링 시작
+          setTimeout(() => {
+            this.startMonitoring()
+          }, 100)
+        }
+      } catch (error) {
+        this.logger.error('Error checking initial focus state:', error.message)
+      }
+    }, 500)
   }
 
   private startWindowMonitoring(): void {
@@ -94,7 +127,11 @@ export class GameMonitorService {
       }, 100)
     })
 
-    // 초기 상태 설정 로직 제거 (최초 블러 이벤트에서 처리)
+    // 앱 준비 완료 이벤트 추가
+    mainWindow.on('ready-to-show', () => {
+      this.logger.debug('Main window ready to show, checking initial focus state')
+      this.checkInitialFocusState()
+    })
   }
 
   private startMonitoring(): void {
@@ -134,9 +171,12 @@ export class GameMonitorService {
                 this.logger.debug(
                   `OCR Result: ${ocrResult.resultInfo.isResult.length > 0 ? 'true' : 'false'}, ${ocrResult.resultInfo.where}, ${ocrResult.resultInfo.text}`,
                 )
-                if (ocrResult.resultInfo.gameCode === 'platina_lab') {
-                  this.logger.debug('Platina lab detected, delaying 3 seconds and re-capturing')
-                  await this.delay(3000)
+
+                if (settingData.autoCaptureDelayTime) {
+                  this.logger.debug(
+                    `autoDeleteCapturedImages is enabled, delaying ${settingData.autoCaptureDelayTime / 1000} seconds and re-capturing`,
+                  )
+                  await this.delay(settingData.autoCaptureDelayTime)
 
                   ocrResult = await this.ocrManagerService.getOcrResult(
                     this.activeWindow?.title,
@@ -146,28 +186,97 @@ export class GameMonitorService {
 
                 if (
                   ocrResult.resultInfo.isResult.length > 0 &&
-                  this.lastResultInfo?.text !== ocrResult.resultInfo.text
+                  this.lastResultInfo?.text !== ocrResult.resultInfo.text &&
+                  this.retryCount < 3
                 ) {
                   this.logger.debug('Result screen detected')
-
-                  if (settingData.saveImageWhenCapture) {
-                    const maskingRegions = this.imageProcessorService.getMaskingRegions(
-                      ocrResult.resultInfo.gameCode,
-                      ocrResult.resultInfo.where,
+                  if (this.retryCount == 0) {
+                    this.overlayWindowService.sendMessage(
+                      JSON.stringify({
+                        type: 'notification',
+                        notificationType: 'info',
+                        message: 'detectResultScreen',
+                        mode: 'i18n',
+                      }),
                     )
-                    this.logger.debug(`Masking regions: ${maskingRegions}`)
-                    const maskedImage = await this.imageProcessorService.applyProfileMask(
-                      ocrResult.image,
-                      maskingRegions,
-                      settingData.saveImageBlurMode,
-                    )
-                    this.fileService.saveImage(
-                      maskedImage,
-                      `${String(`${ocrResult.resultInfo.gameCode}_${ocrResult.resultInfo.where}_${ocrResult.resultInfo.text}`).replaceAll(' ', '_').replaceAll(':', '_').replaceAll('\n', '').replaceAll('\\', '_').replaceAll('/', '_').replaceAll('?', '_').replaceAll('*', '_').replaceAll('"', '_').replaceAll('<', '_').replaceAll('>', '_').replaceAll('|', '_')}.png`,
+                  } else if (this.retryCount == 1) {
+                    this.overlayWindowService.sendMessage(
+                      JSON.stringify({
+                        type: 'notification',
+                        notificationType: 'info',
+                        message: 'retryParsePlayResult',
+                        mode: 'i18n',
+                      }),
                     )
                   }
 
-                  this.lastResultInfo = ocrResult.resultInfo
+                  try {
+                    const response = await this.ocrManagerService.getOcrResultServer(
+                      ocrResult.image,
+                      ocrResult.resultInfo.gameCode,
+                    )
+
+                    if (response.isVerified) {
+                      this.logger.debug('Result screen successfully sent to server')
+                      this.logger.debug(response)
+
+                      this.overlayWindowService
+                        .getOverlayWindow()
+                        .webContents.send('overlay-ocr-result', response)
+
+                      if (settingData.saveImageWhenCapture) {
+                        const maskingRegions = this.imageProcessorService.getMaskingRegions(
+                          ocrResult.resultInfo.gameCode,
+                          ocrResult.resultInfo.where,
+                        )
+                        this.logger.debug(`Masking regions: ${maskingRegions}`)
+                        const maskedImage = await this.imageProcessorService.applyProfileMask(
+                          ocrResult.image,
+                          maskingRegions,
+                          settingData.saveImageBlurMode,
+                        )
+                        const filePath = this.fileService.saveImage(
+                          maskedImage,
+                          `${String(
+                            `${String(response.gameCode).toUpperCase()} - ${response.songData.name} - ${response.button}B - ${response.pattern} - ${response.score} - ${dayjs().format('YYYY-MM-DD-HH-mm-ss')}`,
+                          )
+                            .replaceAll(':', '_')
+                            .replaceAll('\n', '')
+                            .replaceAll('\\', '_')
+                            .replaceAll('/', '_')
+                            .replaceAll('?', '_')
+                            .replaceAll('*', '_')
+                            .replaceAll('"', '_')
+                            .replaceAll('<', '_')
+                            .replaceAll('>', '_')
+                            .replaceAll('|', '_')}.png`,
+                        )
+
+                        this.overlayWindowService.sendMessage(
+                          JSON.stringify({
+                            type: 'notification',
+                            notificationType: 'success',
+                            message: 'successSavedImage',
+                            mode: 'i18n',
+                            props: {
+                              filePath,
+                            },
+                          }),
+                        )
+                      }
+
+                      this.lastResultInfo = ocrResult.resultInfo
+                    } else {
+                      this.logger.debug('Result screen not verified')
+                      this.logger.debug(response)
+                    }
+                    this.isProcessingResult = false
+                    this.retryCount = 0
+                  } catch (error) {
+                    this.logger.error('Error in getOcrResultServer:', error.message)
+                    this.isProcessingResult = false
+                    this.retryCount++
+                  }
                 } else if (
                   this.isGameWindowFocused &&
                   ocrResult.resultInfo.isResult.length === 0 &&
@@ -175,6 +284,7 @@ export class GameMonitorService {
                 ) {
                   this.logger.debug('Result screen not not detected')
                   this.lastResultInfo = undefined
+                  this.retryCount = 0
                 }
                 this.isProcessingResult = false
               }
@@ -185,6 +295,14 @@ export class GameMonitorService {
               } else {
                 this.logger.error('Error in auto capture:', String(error))
               }
+              this.overlayWindowService.sendMessage(
+                JSON.stringify({
+                  type: 'notification',
+                  notificationType: 'error',
+                  message: 'failedParsePlayResult',
+                  mode: 'i18n',
+                }),
+              )
               this.isProcessingResult = false
             })
         }, settingData.autoCaptureIntervalTime)
@@ -246,6 +364,14 @@ export class GameMonitorService {
       if (!overlayWindow.isVisible()) {
         this.isGameWindowFocused = true
         overlayWindow.show()
+        this.overlayWindowService.sendMessage(
+          JSON.stringify({
+            type: 'notification',
+            notificationType: 'success',
+            message: 'successInitialize',
+            mode: 'i18n',
+          }),
+        )
       } else {
         this.isGameWindowFocused = false
       }
@@ -347,7 +473,7 @@ export class GameMonitorService {
       this.cachedWindow = undefined
       return undefined
     } catch (error) {
-      this.logger.error('getGameWindowInfo Error:', error.message)
+      this.logger.debug('getGameWindowInfo Error:', error.message)
       return undefined
     }
   }
@@ -401,6 +527,14 @@ export class GameMonitorService {
       if (!overlayWindow.isVisible()) {
         this.isGameWindowFocused = true
         overlayWindow.show()
+        this.overlayWindowService.sendMessage(
+          JSON.stringify({
+            type: 'notification',
+            notificationType: 'success',
+            message: 'successInitialize',
+            mode: 'i18n',
+          }),
+        )
       } else {
         this.isGameWindowFocused = false
       }

@@ -19,8 +19,8 @@ import ko_games from './ko/games.json'
 import ko_home from './ko/home.json'
 import ko_languages from './ko/languages.json'
 import ko_menu from './ko/menu.json'
+import ko_overlay from './ko/overlay.json'
 import ko_settings from './ko/settings.json'
-
 export const defaultNS = 'common'
 
 i18next
@@ -39,6 +39,7 @@ i18next
         db: ko_db,
         board: ko_board,
         feedback: ko_feedback,
+        overlay: ko_overlay,
       },
       // en_US: {
       //   common: en_common,

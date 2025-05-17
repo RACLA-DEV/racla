@@ -1,6 +1,6 @@
 import { GLOBAL_DICTONARY } from '@main/constants/GLOBAL_DICTONARY'
 import { Injectable, Logger } from '@nestjs/common'
-import { OcrPlayerDataResponse } from '@src/types/dto/ocr/OcrPlayDataResponse'
+import { OcrPlayDataResponse } from '@src/types/dto/ocr/OcrPlayDataResponse'
 import { ExtractedRegionsResult } from '@src/types/ocr/ExtractedRegionsResult'
 import { OCRResultInfo } from '@src/types/ocr/OcrResultInfo'
 import { SettingsData } from '@src/types/settings/SettingData'
@@ -9,6 +9,7 @@ import { v4 as uuidv4 } from 'uuid'
 import apiClient from '../../../libs/apiClient'
 import { FileManagerService } from '../file-manager/file-manager.service'
 import { ImageProcessorService } from '../image-processor/image-processor.service'
+import { OverlayWindowService } from '../overlay-window/overlay-window.service'
 
 @Injectable()
 export class OcrManagerService {
@@ -17,6 +18,7 @@ export class OcrManagerService {
   constructor(
     private readonly imageProcessor: ImageProcessorService,
     private readonly fileManagerService: FileManagerService,
+    private readonly overlayWindowService: OverlayWindowService,
   ) {}
 
   /**
@@ -225,43 +227,63 @@ export class OcrManagerService {
     return { resultInfo, extractedRegions, image }
   }
 
-  public async getOcrResultServer(image: Buffer, gameCode: string): Promise<any> {
+  public async getOcrResultServerWithoutGameWindow(): Promise<{
+    image: Buffer
+    result: OcrPlayDataResponse
+  }> {
+    const result = await this.imageProcessor.captureGameWindowWithoutGameWindow()
+    if (result) {
+      return {
+        image: result.image,
+        result: await this.getOcrResultServer(result.image, result.gameCode),
+      }
+    } else {
+      this.logger.error('Menu Window Capture Error: Not Found Game Window or Not Focused')
+    }
+  }
+
+  public async getOcrResultServer(image: Buffer, gameCode: string): Promise<OcrPlayDataResponse> {
     const resizedImage = await this.imageProcessor.postProcessImage(image)
     const formData = new FormData()
     const blob = new Blob([resizedImage], { type: 'image/png' })
     formData.append('file', blob, uuidv4() + '.png')
-    formData.append('where', 'server')
+    formData.append('where', formData.get('where') ?? 'server')
 
     return this.uploadForOCR(formData, gameCode)
   }
 
-  public async uploadForOCR(formData: FormData, gameCode: string): Promise<any> {
-    const session = await this.fileManagerService.loadSession()
+  public async uploadForOCR(formData: FormData, gameCode: string): Promise<OcrPlayDataResponse> {
+    const session = this.fileManagerService.loadSession()
 
     try {
       if (!session.playerId && !session.playerToken) {
         throw new Error('Player ID or Player Token is not set')
       }
 
-      const response = await apiClient.post<OcrPlayerDataResponse>(
-        `/v3/racla/ocr/upload/${gameCode}`,
+      const response = await apiClient.post<OcrPlayDataResponse>(
+        `/v3/racla/ocr/${gameCode}`,
         formData,
         {
           headers: {
             'Content-Type': 'multipart/form-data',
-            Authorization:
-              !session.playerId && session.playerToken !== ''
-                ? `${session.playerId}|${session.playerToken}`
-                : '',
+            Authorization: `${session.playerId}|${session.playerToken}`,
           },
           withCredentials: true,
         },
       )
 
-      this.logger.debug('Server Side OCR Upload Result:', response.data)
+      this.logger.debug(`Server Side OCR Upload Result: ${response.data.data}`)
       return response.data.data
     } catch (error) {
-      this.logger.error('Server Side OCR Upload Error:', error)
+      this.overlayWindowService.sendMessage(
+        JSON.stringify({
+          type: 'notification',
+          notificationType: 'error',
+          message: 'failedParsePlayResult',
+          mode: 'i18n',
+        }),
+      )
+      this.logger.error(`Server Side OCR Upload Error: ${error}`)
       throw error
     }
   }

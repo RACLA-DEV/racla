@@ -16,6 +16,7 @@ import { ImageProcessorModule } from './modules/image-processor/image-processor.
 import { LoggerModule } from './modules/logger/logger.module'
 import { MainWindowModule } from './modules/main-window/main-window.module'
 import { MessageModule } from './modules/message/message.module'
+import { OcrManagerModule } from './modules/ocr-manager/ocr-manager.module'
 import { OverlayWindowModule } from './modules/overlay-window/overlay-window.module'
 import { ProcessManagerModule } from './modules/process-manager/process-manager.module'
 import { UpdateManagerModule } from './modules/update-manager/update-manager.module'
@@ -60,6 +61,7 @@ export const winstonConfig = {
     AuthManagerModule,
     UpdateManagerModule,
     DiscordManagerModule,
+    OcrManagerModule,
   ],
   controllers: [AppController],
   providers: [AppService],

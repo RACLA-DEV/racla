@@ -15,7 +15,6 @@ import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
 import { useNavigate } from 'react-router-dom'
 
-dayjs.locale('ko')
 dayjs.extend(utc)
 
 // LazyListItem 인터페이스 정의

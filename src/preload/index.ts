@@ -1,4 +1,5 @@
 import type { LogLevel } from '@src/types/dto/log/LogLevel'
+import { OcrPlayDataResponse } from '@src/types/dto/ocr/OcrPlayDataResponse'
 import { SongData } from '@src/types/games/SongData'
 import type { SessionData } from '@src/types/sessions/SessionData'
 import type { SettingsData } from '@src/types/settings/SettingData'
@@ -19,6 +20,10 @@ contextBridge.exposeInMainWorld('electron', {
   sendToOverlay: (message: string): Promise<boolean> => ipcRenderer.invoke('overlay:send', message),
   onOverlayMessage: (callback: (data: any) => void) =>
     ipcRenderer.on('overlay-msg', (_event, message) => callback(message)),
+  onOverlayResult: (callback: (data: OcrPlayDataResponse) => void) =>
+    ipcRenderer.on('overlay-ocr-result', (_event, data) => callback(data)),
+  onOverlayPressedAltInsert: (callback: (data: boolean) => void) =>
+    ipcRenderer.on('overlay-pressed-alt-insert', (_event, data) => callback(data)),
   closeOverlay: (): Promise<boolean> => ipcRenderer.invoke('overlay:close'),
 
   // 게임 모니터링 관련

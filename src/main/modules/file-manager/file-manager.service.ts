@@ -416,8 +416,9 @@ export class FileManagerService {
     }
   }
 
-  public saveImage(image: Buffer, fileName: string): void {
+  public saveImage(image: Buffer, fileName: string): string {
     const filePath = path.join(this.picturesPath, fileName)
     fs.writeFileSync(filePath, image)
+    return filePath
   }
 }

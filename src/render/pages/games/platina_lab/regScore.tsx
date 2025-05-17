@@ -25,7 +25,6 @@ import { SyncLoader } from 'react-spinners'
 import { RootState } from 'store'
 import { setBackgroundBgaName } from 'store/slices/uiSlice'
 
-dayjs.locale('ko')
 dayjs.extend(utc)
 
 const PlatinaLabRegScorePage = () => {

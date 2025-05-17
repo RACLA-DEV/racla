@@ -17,7 +17,7 @@ export interface OcrPlayDataBase {
   songData: SongData
 }
 
-export interface OcrPlayerDataResponse extends OcrPlayDataBase {
+export interface OcrPlayDataResponse extends OcrPlayDataBase {
   versusData: OcrPlayDataBase[]
   collectionData: OcrPlayDataBase[]
 }

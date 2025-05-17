@@ -10,7 +10,7 @@ import { useDispatch } from 'react-redux'
 import { PuffLoader } from 'react-spinners'
 import { v4 as uuidv4 } from 'uuid'
 import apiClient from '../../../../..//libs/apiClient'
-dayjs.locale('ko')
+
 dayjs.extend(LocalizedFormat)
 
 interface Score {
