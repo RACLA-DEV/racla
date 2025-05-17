@@ -120,9 +120,11 @@ const WjmaxBoardPage = () => {
               patterns: floor.patterns
                 .map((apiPattern) => {
                   let basePattern = null
-                  basePattern = baseSongData.find(
+                  const foundPattern = baseSongData.find(
                     (bp) => bp.title === apiPattern.title && bp.pattern === apiPattern.pattern,
                   )
+
+                  basePattern = foundPattern
 
                   return {
                     ...basePattern,
