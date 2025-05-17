@@ -308,9 +308,9 @@ const DmrvBoardPage = () => {
 
         // 컷오프 점수 설정
         setCutoffScores({
-          new30: (newPatterns[29] as Pattern).djpower || 0,
-          basic70: (basicPatterns[69] as Pattern).djpower || 0,
-          top50: (top50Patterns[49] as Pattern).rating || 0,
+          new30: (newPatterns[29] as Pattern)?.djpower || 0,
+          basic70: (basicPatterns[69] as Pattern)?.djpower || 0,
+          top50: (top50Patterns[49] as Pattern)?.rating || 0,
         })
       } catch (error) {
         createLog('error', 'Error in fetchAllBoardData', error)

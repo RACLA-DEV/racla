@@ -23,8 +23,8 @@ interface Pattern {
   pattern: string
   score: number | null
   maxCombo: number | null
-  djpower: number
-  rating: number
+  djpower?: number
+  rating?: number
   dlc: string
   dlcCode: string
   floor: number
@@ -558,9 +558,9 @@ export default function DjmaxHomeComponent() {
         .slice(0, 50)
 
       newCutoffScores[keyMode] = {
-        new30: (newPatterns[29] as Pattern).djpower || 0,
-        basic70: (basicPatterns[69] as Pattern).djpower || 0,
-        top50: (top50Patterns[49] as Pattern).rating || 0,
+        new30: (newPatterns[29] as Pattern)?.djpower || 0,
+        basic70: (basicPatterns[69] as Pattern)?.djpower || 0,
+        top50: (top50Patterns[49] as Pattern)?.rating || 0,
       }
     })
 
@@ -1238,6 +1238,8 @@ export default function DjmaxHomeComponent() {
                         }
 
                         const highestPattern = getHighestLevelInfo(patterns, condition)
+
+                        if (!highestPattern) return null
 
                         return (
                           <div key={`${key}_${selectedKeyMode}`} className='tw:flex tw:gap-2'>
