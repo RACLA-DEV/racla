@@ -46,6 +46,33 @@ export const globalDictionary = {
         },
       ],
     },
+    autoCaptureDelayTime: {
+      id: 'autoCaptureDelayTime',
+      defaultValue: 0,
+      isEditable: true,
+      requiresRestart: false,
+      isVisible: true,
+      selectList: [
+        {
+          id: 0,
+        },
+        {
+          id: 1000,
+        },
+        {
+          id: 2000,
+        },
+        {
+          id: 3000,
+        },
+        {
+          id: 5000,
+        },
+        {
+          id: 10000,
+        },
+      ],
+    },
     language: {
       id: 'language',
       defaultValue: 'ko_KR',

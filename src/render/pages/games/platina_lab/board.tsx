@@ -5,6 +5,7 @@ import { useNotificationSystem } from '@render/hooks/useNotifications'
 import { createLog } from '@render/libs/logger'
 import { RootState } from '@render/store'
 import { PlayBoardResponse } from '@src/types/dto/playBoard/PlayBoardResponse'
+import { PatternInfo } from '@src/types/games/SongData'
 import { useSelector } from 'react-redux'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { PuffLoader } from 'react-spinners'
@@ -49,13 +50,13 @@ const PlatinaLabBoardPage = () => {
 
   // state 초기값 설정
   const [selectedDifficulty, setSelectedDifficulty] = useState<'1~10' | '11~20' | '21~30'>(() => {
-    return getDifficultyByLevel(board as string)
+    return board ? getDifficultyByLevel(board) : '1~10'
   })
 
   // useEffect로 board 변경 시 난이도 자동 업데이트
   useEffect(() => {
     if (board) {
-      setSelectedDifficulty(getDifficultyByLevel(board as string))
+      setSelectedDifficulty(getDifficultyByLevel(board))
     }
   }, [board])
 
@@ -70,7 +71,7 @@ const PlatinaLabBoardPage = () => {
 
       if (patternButton) {
         // 모든 패턴 타입(NM, HD, MX, SC)에 대해 처리
-        Object.entries(patternButton).forEach(([key, pattern]: any) => {
+        Object.entries(patternButton).forEach(([key, pattern]: [string, PatternInfo]) => {
           processedData.push({
             title,
             name,
@@ -103,7 +104,7 @@ const PlatinaLabBoardPage = () => {
         // 기본 곡 데이터 가져오기
         const baseSongData = processBaseSongData()
 
-        console.log(baseSongData)
+        createLog('info', 'baseSongData', { baseSongData })
 
         // V-ARCHIVE API에서 점수 데이터 가져오기
         const response = await apiClient.get<PlayBoardResponse>(
@@ -121,10 +122,15 @@ const PlatinaLabBoardPage = () => {
               floorNumber: floor.floorNumber,
               patterns: floor.patterns
                 .map((apiPattern) => {
-                  const basePattern = baseSongData.find(
+                  let basePattern = null
+                  // 먼저 find 메서드를 실행하고 결과를 변수에 저장
+                  const matchingPattern = baseSongData.find(
                     (bp) => bp.title === apiPattern.title && bp.pattern === apiPattern.pattern,
                   )
-                  if (!basePattern) return null
+
+                  // 결과를 basePattern에 할당
+                  basePattern = matchingPattern
+
                   return {
                     ...basePattern,
                     ...apiPattern,
@@ -135,7 +141,7 @@ const PlatinaLabBoardPage = () => {
                 .filter(Boolean),
             })) || []
 
-          console.log(combinedFloors)
+          createLog('info', 'combinedFloors', { combinedFloors })
 
           setFloorData(combinedFloors)
         }
@@ -148,7 +154,7 @@ const PlatinaLabBoardPage = () => {
       }
     }
 
-    fetchBoardData()
+    void fetchBoardData()
 
     return () => {
       setIsMounted(false)
@@ -175,7 +181,7 @@ const PlatinaLabBoardPage = () => {
       // 점수를 숫자로 변환
       const score = typeof pattern.score === 'string' ? parseFloat(pattern.score) : pattern.score
 
-      if (pattern?.maxCombo) stats.maxCombo++
+      if (pattern.maxCombo) stats.maxCombo++
 
       // 점수 기준을 중첩되게 처리
       if (score === 100.0) {
@@ -218,7 +224,7 @@ const PlatinaLabBoardPage = () => {
     if (score === null) {
       // clear 조건일 때만 특별 처리
       if (highlightCondition === 'clear') {
-        matches = false
+        matches = Boolean(pattern.score)
       }
     } else {
       switch (highlightCondition) {
@@ -238,7 +244,7 @@ const PlatinaLabBoardPage = () => {
           matches = score >= 97.0
           break
         case 'maxCombo':
-          matches = pattern?.maxCombo === 1
+          matches = pattern.maxCombo === 1
           break
         case 'clear':
           matches = score > 0
@@ -380,7 +386,7 @@ const PlatinaLabBoardPage = () => {
                           </span>
                         </span>{' '}
                         <span className='tw:text-2xl tw:font-bold'>
-                          {String(keyBoardTitle[board as string])}
+                          {board && String(keyBoardTitle[board])}
                         </span>
                       </span>
                     </div>
@@ -389,7 +395,7 @@ const PlatinaLabBoardPage = () => {
                       {Object.entries(calculateStats(floorData.flatMap((f) => f.patterns))).map(
                         ([key, value], _, entries) => {
                           if (key === 'total') return null
-                          const totalPatterns = entries.find(([k]) => k === 'total')?.[1] || 0
+                          const totalPatterns = entries.find(([k]) => k === 'total')?.[1] ?? 0
                           const percentage = (value / totalPatterns) * 100
 
                           return (
@@ -494,9 +500,9 @@ const PlatinaLabBoardPage = () => {
                     {levelGroups.map((group) => (
                       <button
                         key={group.name}
-                        onClick={() =>
+                        onClick={() => {
                           setSelectedDifficulty(group.name as '1~10' | '11~20' | '21~30')
-                        }
+                        }}
                         className={`tw:flex-1 tw:px-3 tw:py-1.5 tw:rounded-md tw:text-sm tw:font-medium tw:transition-all ${
                           selectedDifficulty === group.name
                             ? 'tw:bg-indigo-600/20 tw:text-indigo-700 tw:dark:text-indigo-200 tw:border tw:border-indigo-500'
@@ -611,7 +617,7 @@ const PlatinaLabBoardPage = () => {
                                   <span className='tw:text-xs tw:text-slate-500 tw:dark:text-slate-400'>
                                     SCORE : {pattern.score ? pattern.score : 0}%
                                   </span>
-                                  {pattern?.maxCombo && (
+                                  {pattern.maxCombo && (
                                     <span className='tw:text-xs tw:text-yellow-400'>MAX COMBO</span>
                                   )}
                                 </>

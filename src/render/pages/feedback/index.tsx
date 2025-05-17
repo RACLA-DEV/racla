@@ -81,10 +81,18 @@ const richTextStyles = `
   }
   
   .dark .ck-editor__editable {
-    color: #e5e7eb;
-    background-color: #1e293b;
+    color: #e5e7eb !important;
+    background-color: #1e293b !important;
   }
-  
+
+  .ck-toolbar__items, .ck.ck-sticky-panel__content {
+    border-color: #d1d5db !important;
+  }
+
+  .dark .ck-toolbar__items, .dark .ck.ck-sticky-panel__content {
+    border-color: #475569 !important;
+  }
+
   .ck.ck-editor__main>.ck-editor__editable {
     border-color: #d1d5db;
   }
@@ -288,7 +296,7 @@ export default function FeedbackListPage() {
         },
       )
       const data: FeedbackPageResponse = await response.data.data
-      console.log(data)
+      createLog('info', 'fetchBugs', { data })
       setBugs(data.content)
       setPagination({
         ...pagination,
@@ -322,8 +330,8 @@ export default function FeedbackListPage() {
   }
 
   useEffect(() => {
-    fetchBugs()
-    fetchNotices()
+    void fetchBugs()
+    void fetchNotices()
   }, [])
 
   useEffect(() => {
@@ -387,9 +395,8 @@ export default function FeedbackListPage() {
                   default: response.data.data.url,
                 })
               })
-              .catch((error) => {
+              .catch((error: unknown) => {
                 createLog('error', 'Error in customUploadAdapter', error)
-                reject(error)
               })
           })
         })
@@ -469,7 +476,9 @@ export default function FeedbackListPage() {
             {userData.playerName !== '' ? (
               <button
                 type='button'
-                onClick={() => setIsModalVisible(true)}
+                onClick={() => {
+                  setIsModalVisible(true)
+                }}
                 className='tw:px-4 tw:py-1.5 tw:text-sm tw:bg-indigo-600 tw:rounded hover:tw:bg-indigo-700 tw:text-white'
               >
                 피드백 생성
@@ -520,7 +529,9 @@ export default function FeedbackListPage() {
                       'tw:flex tw:items-center tw:gap-4 tw:px-2 tw:py-4 tw:text-sm tw:cursor-pointer tw:border-gray-200 tw:dark:border-slate-700 tw:border-opacity-50 hover:tw:bg-gray-100 hover:tw:dark:bg-slate-700/50 tw:transition-all ' +
                       (notices.length - 1 != index ? 'tw:border-b' : '')
                     }
-                    onClick={() => navigate(`/feedback/${notice.id}`)}
+                    onClick={() => {
+                      navigate(`/feedback/${notice.id}`)
+                    }}
                   >
                     <div className='tw:w-20 tw:text-gray-500 tw:dark:text-gray-400'>
                       {categoryCodeToName(notice.category)}
@@ -589,7 +600,9 @@ export default function FeedbackListPage() {
                       'tw:flex tw:items-center tw:gap-4 tw:px-2 tw:py-4 tw:text-sm hover:tw:bg-gray-100 hover:tw:dark:bg-slate-700/50 tw:cursor-pointer tw:transition-all tw:border-opacity-50 tw:border-gray-200 tw:dark:border-slate-700 ' +
                       (bugs.length - 1 != index ? 'tw:border-b' : '')
                     }
-                    onClick={() => navigate(`/feedback/${bug.id}`)}
+                    onClick={() => {
+                      navigate(`/feedback/${bug.id}`)
+                    }}
                   >
                     <div className='tw:w-20 tw:text-gray-500 tw:dark:text-gray-400'>
                       {categoryCodeToName(bug.category)}
@@ -629,7 +642,9 @@ export default function FeedbackListPage() {
               }).map((_, i) => (
                 <button
                   key={i}
-                  onClick={() => fetchBugs(i)}
+                  onClick={() => {
+                    void fetchBugs(i)
+                  }}
                   className={`tw:px-3 tw:py-1 tw:rounded ${
                     pagination.current === i + 1
                       ? 'tw:bg-indigo-600 tw:text-white'
@@ -644,7 +659,9 @@ export default function FeedbackListPage() {
 
           <FeedbackCreateModal
             isOpen={isModalVisible}
-            onClose={() => setIsModalVisible(false)}
+            onClose={() => {
+              setIsModalVisible(false)
+            }}
             title='피드백 작성하기'
           >
             <div className='tw:flex tw:flex-col tw:h-full'>
@@ -656,7 +673,9 @@ export default function FeedbackListPage() {
                   <input
                     type='text'
                     value={newBug.title}
-                    onChange={(e) => setNewBug({ ...newBug, title: e.target.value })}
+                    onChange={(e) => {
+                      setNewBug({ ...newBug, title: e.target.value })
+                    }}
                     className='tw:w-full tw:bg-white tw:dark:bg-slate-700 tw:border tw:border-gray-300 tw:dark:border-slate-600 tw:rounded-sm tw:px-3 tw:py-2 tw:text-gray-700 tw:dark:text-white focus:tw:outline-none focus:tw:ring-2 focus:tw:ring-indigo-500'
                     placeholder='제목을 입력하세요'
                   />
@@ -667,7 +686,9 @@ export default function FeedbackListPage() {
                   </label>
                   <select
                     value={newBug.category}
-                    onChange={(e) => setNewBug({ ...newBug, category: e.target.value })}
+                    onChange={(e) => {
+                      setNewBug({ ...newBug, category: e.target.value })
+                    }}
                     className='tw:w-full tw:bg-white tw:dark:bg-slate-700 tw:border tw:border-gray-300 tw:dark:border-slate-600 tw:text-gray-700 tw:dark:text-white tw:rounded-sm tw:h-9 tw:px-3 tw:py-2 focus:tw:outline-none focus:tw:ring-2 focus:tw:ring-indigo-500'
                   >
                     <option value='BUG'>버그 제보</option>
@@ -688,7 +709,7 @@ export default function FeedbackListPage() {
                       editor={ClassicEditor}
                       data={newBug.description}
                       config={editorConfiguration}
-                      onChange={(event: any, editor: any) => {
+                      onChange={(event: unknown, editor: ClassicEditor) => {
                         const data = editor.getData()
                         setNewBug({ ...newBug, description: data })
                       }}
@@ -701,13 +722,17 @@ export default function FeedbackListPage() {
 
               <div className='tw:shrink-0 tw:mt-4 tw:flex tw:justify-end tw:gap-2'>
                 <button
-                  onClick={() => setIsModalVisible(false)}
+                  onClick={() => {
+                    setIsModalVisible(false)
+                  }}
                   className='tw:px-4 tw:py-2 tw:bg-white tw:dark:bg-slate-700 tw:text-gray-700 tw:dark:text-gray-200 tw:border tw:border-gray-300 tw:dark:border-slate-600 tw:rounded hover:tw:bg-gray-100 hover:tw:dark:bg-slate-600 tw:transition-colors'
                 >
                   취소
                 </button>
                 <button
-                  onClick={handleCreateBug}
+                  onClick={() => {
+                    void handleCreateBug()
+                  }}
                   disabled={loading}
                   className='tw:px-4 tw:py-2 tw:bg-indigo-600 tw:text-white tw:rounded hover:tw:bg-indigo-700 tw:transition-colors disabled:tw:opacity-50'
                 >

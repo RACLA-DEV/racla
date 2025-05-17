@@ -1,16 +1,25 @@
 import { GLOBAL_DICTONARY } from '@main/constants/GLOBAL_DICTONARY'
 import { Injectable, Logger } from '@nestjs/common'
+import { OcrPlayDataResponse } from '@src/types/dto/ocr/OcrPlayDataResponse'
 import { ExtractedRegionsResult } from '@src/types/ocr/ExtractedRegionsResult'
 import { OCRResultInfo } from '@src/types/ocr/OcrResultInfo'
 import { SettingsData } from '@src/types/settings/SettingData'
 import * as Tesseract from 'tesseract.js'
+import { v4 as uuidv4 } from 'uuid'
+import apiClient from '../../../libs/apiClient'
+import { FileManagerService } from '../file-manager/file-manager.service'
 import { ImageProcessorService } from '../image-processor/image-processor.service'
+import { OverlayWindowService } from '../overlay-window/overlay-window.service'
 
 @Injectable()
 export class OcrManagerService {
   private readonly logger = new Logger(OcrManagerService.name)
 
-  constructor(private readonly imageProcessor: ImageProcessorService) {}
+  constructor(
+    private readonly imageProcessor: ImageProcessorService,
+    private readonly fileManagerService: FileManagerService,
+    private readonly overlayWindowService: OverlayWindowService,
+  ) {}
 
   /**
    * 추출된 이미지에서 텍스트를 인식하는 메서드
@@ -52,7 +61,7 @@ export class OcrManagerService {
     const regions: Record<string, Buffer> = {}
     const texts: Record<string, string> = {}
 
-    if (gameCode === 'djmax_respect_v') {
+    if (gameCode.toLowerCase().includes('djmax')) {
       if (settings.autoCaptureDjmaxRespectVOcrResultRegion) {
         regions.result = await this.imageProcessor.extractRegion(
           imageBuffer,
@@ -85,7 +94,7 @@ export class OcrManagerService {
         )
         texts.open2 = await this.recognizeText(regions.open2)
       }
-    } else if (gameCode === 'wjmax') {
+    } else if (gameCode.toLowerCase().includes('wjmax')) {
       if (settings.autoCaptureWjmaxOcrResultRegion) {
         regions.result = await this.imageProcessor.extractRegion(
           imageBuffer,
@@ -93,7 +102,7 @@ export class OcrManagerService {
         )
         texts.result = await this.recognizeText(regions.result)
       }
-    } else if (gameCode === 'platina_lab') {
+    } else if (gameCode.toLowerCase().includes('platina')) {
       if (settings.autoCapturePlatinaLabOcrResultRegion) {
         regions.result = await this.imageProcessor.extractRegion(
           imageBuffer,
@@ -118,9 +127,10 @@ export class OcrManagerService {
       isResult: [],
       text: '',
       where: '',
+      gameCode: '',
     }
 
-    if (gameCode === 'djmax_respect_v') {
+    if (gameCode.toLowerCase().includes('djmax')) {
       if (settings.autoCaptureDjmaxRespectVOcrResultRegion && texts.result) {
         resultInfo.isResult = this.checkResultKeywords(
           texts.result,
@@ -129,6 +139,7 @@ export class OcrManagerService {
         if (resultInfo.isResult.length > 0) {
           resultInfo.where = 'result'
           resultInfo.text = texts.result
+          resultInfo.gameCode = 'djmax_respect_v'
         }
       }
 
@@ -148,6 +159,7 @@ export class OcrManagerService {
           resultInfo.where = 'open3'
           resultInfo.isResult = ['open3']
           resultInfo.text = texts.open3
+          resultInfo.gameCode = 'djmax_respect_v'
         }
       }
 
@@ -159,9 +171,10 @@ export class OcrManagerService {
           resultInfo.where = 'open2'
           resultInfo.isResult = ['open2']
           resultInfo.text = texts.open2
+          resultInfo.gameCode = 'djmax_respect_v'
         }
       }
-    } else if (gameCode === 'wjmax') {
+    } else if (gameCode.toLowerCase().includes('wjmax')) {
       if (settings.autoCaptureWjmaxOcrResultRegion && texts.result) {
         resultInfo.isResult = this.checkResultKeywords(
           texts.result,
@@ -170,9 +183,10 @@ export class OcrManagerService {
         if (resultInfo.isResult.length > 0) {
           resultInfo.where = 'result'
           resultInfo.text = texts.result
+          resultInfo.gameCode = 'wjmax'
         }
       }
-    } else if (gameCode === 'platina_lab') {
+    } else if (gameCode.toLowerCase().includes('platina')) {
       if (settings.autoCapturePlatinaLabOcrResultRegion && texts.result) {
         resultInfo.isResult = this.checkResultKeywords(
           texts.result,
@@ -181,6 +195,7 @@ export class OcrManagerService {
         if (resultInfo.isResult.length > 0) {
           resultInfo.where = 'result'
           resultInfo.text = texts.result
+          resultInfo.gameCode = 'platina_lab'
         }
       }
     }
@@ -195,5 +210,81 @@ export class OcrManagerService {
     return keywords.filter(
       (value) => text.toUpperCase().trim().includes(value) && text.length !== 0,
     )
+  }
+
+  public async getOcrResult(
+    gameTitle: string,
+    settingData: SettingsData,
+  ): Promise<{
+    resultInfo: OCRResultInfo
+    extractedRegions: ExtractedRegionsResult
+    image: Buffer
+  }> {
+    const image = await this.imageProcessor.captureGameWindow(gameTitle)
+    const extractedRegions = await this.extractRegions(gameTitle, image, settingData)
+    const resultInfo = this.determineResultScreen(gameTitle, extractedRegions.texts, settingData)
+
+    return { resultInfo, extractedRegions, image }
+  }
+
+  public async getOcrResultServerWithoutGameWindow(): Promise<{
+    image: Buffer
+    result: OcrPlayDataResponse
+  }> {
+    const result = await this.imageProcessor.captureGameWindowWithoutGameWindow()
+    if (result) {
+      return {
+        image: result.image,
+        result: await this.getOcrResultServer(result.image, result.gameCode),
+      }
+    } else {
+      this.logger.error('Menu Window Capture Error: Not Found Game Window or Not Focused')
+    }
+  }
+
+  public async getOcrResultServer(image: Buffer, gameCode: string): Promise<OcrPlayDataResponse> {
+    const resizedImage = await this.imageProcessor.postProcessImage(image)
+    const formData = new FormData()
+    const blob = new Blob([resizedImage], { type: 'image/png' })
+    formData.append('file', blob, uuidv4() + '.png')
+    formData.append('where', formData.get('where') ?? 'server')
+
+    return this.uploadForOCR(formData, gameCode)
+  }
+
+  public async uploadForOCR(formData: FormData, gameCode: string): Promise<OcrPlayDataResponse> {
+    const session = this.fileManagerService.loadSession()
+
+    try {
+      if (!session.playerId && !session.playerToken) {
+        throw new Error('Player ID or Player Token is not set')
+      }
+
+      const response = await apiClient.post<OcrPlayDataResponse>(
+        `/v3/racla/ocr/${gameCode}`,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            Authorization: `${session.playerId}|${session.playerToken}`,
+          },
+          withCredentials: true,
+        },
+      )
+
+      this.logger.debug(`Server Side OCR Upload Result: ${response.data.data}`)
+      return response.data.data
+    } catch (error) {
+      this.overlayWindowService.sendMessage(
+        JSON.stringify({
+          type: 'notification',
+          notificationType: 'error',
+          message: 'failedParsePlayResult',
+          mode: 'i18n',
+        }),
+      )
+      this.logger.error(`Server Side OCR Upload Error: ${error}`)
+      throw error
+    }
   }
 }

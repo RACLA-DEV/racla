@@ -3,4 +3,5 @@ export interface OCRResultInfo {
   isResult: string[]
   text: string
   where: string
+  gameCode: string
 }

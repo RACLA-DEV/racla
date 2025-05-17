@@ -4,6 +4,4 @@ export interface JudgementDisplay {
   id: string
 }
 
-export interface KeyState {
-  [key: string]: boolean
-}
+export type KeyState = Record<string, boolean>

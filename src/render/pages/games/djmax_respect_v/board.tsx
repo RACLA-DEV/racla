@@ -5,6 +5,7 @@ import { useNotificationSystem } from '@render/hooks/useNotifications'
 import { createLog } from '@render/libs/logger'
 import { RootState } from '@render/store'
 import { ApiArchiveNicknameBoard } from '@src/types/dto/v-archive/ApiArchiveNicknameBoard'
+import { PatternInfo } from '@src/types/games/SongData'
 import { useSelector } from 'react-redux'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { PuffLoader } from 'react-spinners'
@@ -115,13 +116,13 @@ const DmrvBoardPage = () => {
 
   // state 추가
   const [selectedDifficulty, setSelectedDifficulty] = useState<'NORMAL' | 'SC'>(() => {
-    return getDifficultyByLevel(board as string)
+    return board ? getDifficultyByLevel(board) : 'NORMAL'
   })
 
   // useEffect로 board 변경 시 난이도 자동 업데이트
   useEffect(() => {
     if (board) {
-      setSelectedDifficulty(getDifficultyByLevel(board as string))
+      setSelectedDifficulty(getDifficultyByLevel(board))
     }
   }, [board])
 
@@ -136,7 +137,7 @@ const DmrvBoardPage = () => {
 
       if (patternButton) {
         // 모든 패턴 타입(NM, HD, MX, SC)에 대해 처리
-        Object.entries(patternButton).forEach(([key, pattern]: any) => {
+        Object.entries(patternButton).forEach(([key, pattern]: [string, PatternInfo]) => {
           processedData.push({
             title,
             name,
@@ -200,21 +201,25 @@ const DmrvBoardPage = () => {
               floorNumber: floor.floorNumber,
               patterns: floor.patterns
                 .map((apiPattern) => {
-                  const basePattern = baseSongData.find(
+                  // 먼저 find 메서드를 실행하고 결과를 변수에 저장
+                  const matchingPattern = baseSongData.find(
                     (bp) => bp.title === apiPattern.title && bp.pattern === apiPattern.pattern,
                   )
-                  if (!basePattern) return null
+
+                  // 그 다음 변수를 확인
+                  if (!matchingPattern) return null
+
                   return {
-                    ...basePattern,
+                    ...matchingPattern,
                     ...apiPattern,
                     floor: floor.floorNumber,
-                    patterns: basePattern.patterns,
+                    patterns: matchingPattern.patterns,
                   }
                 })
                 .filter(Boolean),
             })) || []
 
-          console.log(combinedFloors)
+          createLog('info', 'combinedFloors', { combinedFloors })
 
           setFloorData(combinedFloors)
         }
@@ -227,7 +232,7 @@ const DmrvBoardPage = () => {
       }
     }
 
-    fetchBoardData()
+    void fetchBoardData()
 
     return () => {
       setIsMounted(false)
@@ -269,7 +274,7 @@ const DmrvBoardPage = () => {
         // NEW 30 패턴 필터링 및 정렬
         const newPatterns = allPatterns
           .filter(
-            (pattern: any) =>
+            (pattern: Pattern) =>
               pattern.dlcCode === 'VL2' ||
               pattern.dlcCode === 'BA' ||
               pattern.dlcCode === 'PLI1' ||
@@ -278,12 +283,12 @@ const DmrvBoardPage = () => {
               pattern.name === 'Phoenix Virus' ||
               pattern.name === 'alliance',
           )
-          .sort((a: any, b: any) => b.djpower - a.djpower)
+          .sort((a: Pattern, b: Pattern) => b.djpower - a.djpower)
 
         // BASIC 70 패턴 필터링 및 정렬
         const basicPatterns = allPatterns
           .filter(
-            (pattern: any) =>
+            (pattern: Pattern) =>
               pattern.dlcCode !== 'VL2' &&
               pattern.dlcCode !== 'BA' &&
               pattern.dlcCode !== 'PLI1' &&
@@ -292,25 +297,25 @@ const DmrvBoardPage = () => {
               pattern.name !== 'Phoenix Virus' &&
               pattern.name !== 'alliance',
           )
-          .sort((a: any, b: any) => b.djpower - a.djpower)
+          .sort((a: Pattern, b: Pattern) => b.djpower - a.djpower)
 
         // TOP 50 정렬 (이건 여전히 rating 기준)
         const top50Patterns = [...allPatterns]
-          .sort((a: any, b: any) => b.rating - a.rating)
+          .sort((a: Pattern, b: Pattern) => b.rating - a.rating)
           .slice(0, 50)
 
         // 컷오프 점수 설정
         setCutoffScores({
-          new30: (newPatterns[29] as any)?.djpower || 0,
-          basic70: (basicPatterns[69] as any)?.djpower || 0,
-          top50: (top50Patterns[49] as any)?.rating || 0,
+          new30: (newPatterns[29] as Pattern).djpower || 0,
+          basic70: (basicPatterns[69] as Pattern).djpower || 0,
+          top50: (top50Patterns[49] as Pattern).rating || 0,
         })
       } catch (error) {
         createLog('error', 'Error in fetchAllBoardData', error)
       }
     }
 
-    fetchAllBoardData()
+    void fetchAllBoardData()
   }, [userData.varchiveUserInfo.nickname, keyMode])
 
   if (!isMounted) return null
@@ -375,7 +380,7 @@ const DmrvBoardPage = () => {
     if (score === null) {
       // clear 조건일 때만 특별 처리
       if (highlightCondition === 'clear') {
-        matches = score > 0
+        matches = Boolean(pattern.score)
       }
     } else {
       switch (highlightCondition) {
@@ -483,7 +488,7 @@ const DmrvBoardPage = () => {
 
   // 층별 평균 레이팅 계산 함수 수정
   const calculateFloorStats = (patterns: Pattern[], floorNumber: number) => {
-    const validPatterns = patterns.filter((p) => p.rating != null && p.rating > 0)
+    const validPatterns = patterns.filter((p) => p.rating > 0)
     if (validPatterns.length === 0) return null
 
     const avgRating = validPatterns.reduce((sum, p) => sum + p.rating, 0) / validPatterns.length
@@ -524,7 +529,7 @@ const DmrvBoardPage = () => {
                           <span className='tw:text-4xl tw:font-bold'>{keyMode}</span>{' '}
                           <span className='tw:me-auto'>Button</span>{' '}
                           <span className='tw:text-2xl tw:font-bold'>
-                            {String(keyBoardTitle[board as string])}
+                            {board && String(keyBoardTitle[board])}
                           </span>
                         </span>
                       </div>
@@ -533,7 +538,7 @@ const DmrvBoardPage = () => {
                         {Object.entries(calculateStats(floorData.flatMap((f) => f.patterns))).map(
                           ([key, value], _, entries) => {
                             if (key === 'total') return null
-                            const totalPatterns = entries.find(([k]) => k === 'total')?.[1] || 0
+                            const totalPatterns = entries.find(([k]) => k === 'total')?.[1] ?? 0
                             const percentage = (value / totalPatterns) * 100
 
                             return (
@@ -638,7 +643,9 @@ const DmrvBoardPage = () => {
                       {['NORMAL', 'SC'].map((group) => (
                         <button
                           key={group}
-                          onClick={() => setSelectedDifficulty(group as 'NORMAL' | 'SC')}
+                          onClick={() => {
+                            setSelectedDifficulty(group as 'NORMAL' | 'SC')
+                          }}
                           className={`tw:flex-1 tw:px-4 tw:py-1.5 tw:rounded-md tw:text-sm tw:font-medium tw:transition-all ${
                             selectedDifficulty === group
                               ? 'tw:bg-indigo-600/20 tw:text-indigo-700 tw:dark:text-indigo-200 tw:border tw:border-indigo-500'
@@ -788,7 +795,7 @@ const DmrvBoardPage = () => {
                             <div className='tw:flex tw:gap-2'>
                               <ScorePopupComponent
                                 songTitle={pattern.title}
-                                keyMode={keyMode as string}
+                                keyMode={keyMode ?? '4'}
                                 isVisibleCode={true}
                               />
                               <div className='tw:flex tw:flex-1 tw:flex-col tw:gap-2 tw:items-end tw:justify-center tw:bg-slate-200 tw:dark:bg-slate-700 tw:bg-opacity-25 tw:rounded-md tw:py-2 tw:px-3'>

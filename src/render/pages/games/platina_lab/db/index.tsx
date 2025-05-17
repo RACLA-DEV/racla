@@ -47,7 +47,7 @@ const LazyListItem = React.memo(
     })
 
     const handleClick = useCallback(() => {
-      navigate(`/games/platina_lab/db/title/${songItem.title}`)
+      navigate(`/games/platina_lab/db/${songItem.title}`)
     }, [songItem.title, navigate])
 
     if (!inView) {
@@ -58,10 +58,16 @@ const LazyListItem = React.memo(
       <div
         ref={ref}
         data-song-title={songItem.title}
-        onClick={handleClick}
+        onClick={() => {
+          handleClick()
+        }}
         className={`tw:flex tw:items-center tw:gap-4 tw:p-2 tw:border-b tw:border-slate-200 tw:dark:border-slate-700 tw:relative tw:overflow-hidden tw:cursor-pointer ${hoveredTitle === String(songItem.title) ? 'tw:bg-slate-100 tw:dark:bg-slate-700/50' : ''} hover:tw:bg-slate-100 hover:tw:dark:bg-slate-700/50`}
-        onMouseEnter={() => handleMouseEnter(songItem)}
-        onMouseLeave={handleMouseLeave}
+        onMouseEnter={() => {
+          handleMouseEnter(songItem)
+        }}
+        onMouseLeave={() => {
+          handleMouseLeave()
+        }}
       >
         {/* 애니메이션 배경 레이어 */}
         <div
@@ -187,9 +193,7 @@ const PlatinaLabDbPage = () => {
     setHoveredTitle(null)
     setIsScrolling(true)
 
-    if (scrollTimer.current) {
-      clearTimeout(scrollTimer.current)
-    }
+    clearTimeout(scrollTimer.current)
 
     scrollTimer.current = setTimeout(() => {
       setIsScrolling(false)
@@ -238,9 +242,7 @@ const PlatinaLabDbPage = () => {
       return () => {
         scrollContainer.removeEventListener('scroll', handleScroll)
         document.removeEventListener('mousemove', handleMouseMove)
-        if (scrollTimer.current) {
-          clearTimeout(scrollTimer.current)
-        }
+        clearTimeout(scrollTimer.current)
       }
     }
   }, [handleScroll, handleMouseMove])
@@ -348,41 +350,6 @@ const PlatinaLabDbPage = () => {
   // 검색 input ref 추가
   const searchInputRef = useRef<HTMLInputElement>(null)
 
-  // 키보드 접근성
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // 검색창에 포커스가 있을 때
-      if (document.activeElement === searchInputRef.current) {
-        if (e.key === 'Escape' || e.key === 'Enter') {
-          e.preventDefault()
-          searchInputRef.current.blur()
-        }
-        return // 다른 모든 키보드 단축키 무시
-      }
-
-      // 일반 입력 필드에서는 키보드 단축키를 무시
-      if (
-        (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) &&
-        e.target !== searchInputRef.current
-      ) {
-        return
-      }
-
-      // 메타키가 눌려있으면 무시
-      if (e.metaKey || e.ctrlKey || e.altKey) {
-        return
-      }
-
-      if (e.key.toLowerCase() === 'f') {
-        e.preventDefault()
-        searchInputRef.current?.focus()
-      }
-    }
-
-    document.addEventListener('keydown', handleKeyDown)
-    return () => document.removeEventListener('keydown', handleKeyDown)
-  }, [])
-
   // 초기 선택 인덱스 설정
   useEffect(() => {
     if (viewMode === 'list' && filteredSongData.length > 0 && selectedSongIndex === -1) {
@@ -426,7 +393,9 @@ const PlatinaLabDbPage = () => {
                         ref={(el: HTMLButtonElement | null) => {
                           buttonRefs.current[index] = el
                         }}
-                        onClick={() => setSelectedDlcCode(dlcCode)}
+                        onClick={() => {
+                          setSelectedDlcCode(dlcCode)
+                        }}
                         className={`tw:py-2 tw:flex-1 tw:min-w-0 tw:text-sm tw:font-medium tw:whitespace-nowrap tw:relative tw:transition-all tw:duration-300 ${
                           selectedDlcCode === dlcCode
                             ? 'tw:text-white tw:bg-indigo-500'
@@ -443,7 +412,9 @@ const PlatinaLabDbPage = () => {
                   <div className='tw:flex tw:justify-between tw:items-center tw:gap-2'>
                     <div className='tw:flex tw:gap-2 tw:items-center'>
                       <button
-                        onClick={() => setViewMode('list')}
+                        onClick={() => {
+                          setViewMode('list')
+                        }}
                         className={`tw:p-2 tw:rounded-md tw:transition-all ${
                           viewMode === 'list'
                             ? 'tw:bg-indigo-500 tw:text-white'
@@ -453,7 +424,9 @@ const PlatinaLabDbPage = () => {
                         <Icon icon='lucide:list' className='tw:w-5 tw:h-5' />
                       </button>
                       <button
-                        onClick={() => setViewMode('grid')}
+                        onClick={() => {
+                          setViewMode('grid')
+                        }}
                         className={`tw:p-2 tw:rounded-md tw:transition-all ${
                           viewMode === 'grid'
                             ? 'tw:bg-indigo-500 tw:text-white'
@@ -466,7 +439,9 @@ const PlatinaLabDbPage = () => {
 
                     <div className='tw:flex tw:flex-1 tw:items-center tw:gap-2'>
                       <button
-                        onClick={() => setShowPlusOnly(!showPlusOnly)}
+                        onClick={() => {
+                          setShowPlusOnly(!showPlusOnly)
+                        }}
                         className={`tw:px-4 tw:py-1.5 tw:rounded-lg tw:border tw:border-slate-300 tw:dark:border-slate-600 tw:transition-all ${
                           showPlusOnly
                             ? 'tw:bg-indigo-500 tw:text-white hover:tw:bg-indigo-600'
@@ -477,7 +452,9 @@ const PlatinaLabDbPage = () => {
                       </button>
                       <select
                         value={selectedLevel}
-                        onChange={(e) => setSelectedLevel(e.target.value)}
+                        onChange={(e) => {
+                          setSelectedLevel(e.target.value)
+                        }}
                         className='tw:p-1.5 tw:min-w-[120px] tw:max-w-[120px] tw:w-36 tw:text-sm tw:rounded-lg tw:border tw:dark:bg-slate-700 tw:dark:text-white tw:dark:border-slate-600 tw:bg-white tw:text-slate-700 tw:border-slate-300 focus:tw:border-indigo-400 focus:tw:ring-2 focus:tw:ring-indigo-400 focus:tw:ring-opacity-20 tw:transition-all'
                       >
                         <option value='all'>모든 난이도</option>
@@ -489,7 +466,9 @@ const PlatinaLabDbPage = () => {
                       </select>
 
                       <button
-                        onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
+                        onClick={() => {
+                          setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
+                        }}
                         className='tw:bg-slate-200 tw:dark:bg-slate-700 tw:text-slate-700 tw:dark:text-slate-200 tw:px-4 tw:py-1.5 tw:rounded-lg tw:border tw:border-slate-300 tw:dark:border-slate-600 hover:tw:bg-slate-300 hover:tw:dark:bg-slate-600 tw:transition-all'
                       >
                         {sortOrder === 'asc' ? '이름 ↑' : '이름 ↓'}
@@ -514,7 +493,9 @@ const PlatinaLabDbPage = () => {
                         <input
                           ref={searchInputRef}
                           className='tw:w-full tw:text-sm tw:placeholder:text-slate-400 tw:bg-white tw:dark:bg-slate-700 tw:bg-opacity-25 tw:text-light tw:pl-10 tw:pr-4 tw:py-1.5 tw:rounded-lg tw:border tw:border-slate-300 tw:dark:border-slate-600 tw:border-opacity-50 focus:tw:border-blue-400 focus:tw:ring-2 focus:tw:ring-blue-400 focus:tw:ring-opacity-20 tw:transition-all'
-                          onChange={(e) => setSearchName(e.currentTarget.value)}
+                          onChange={(e) => {
+                            setSearchName(e.currentTarget.value)
+                          }}
                           type='text'
                           placeholder='제목, 제작자명 또는 DLC명으로 검색'
                         />
@@ -523,7 +504,9 @@ const PlatinaLabDbPage = () => {
                         {globalDictionary.gameDictionary[selectedGame].keyModeList.map((value) => (
                           <button
                             key={`keyModeSelector_${value}`}
-                            onClick={() => setKeyMode(String(value))}
+                            onClick={() => {
+                              setKeyMode(String(value))
+                            }}
                             className={`tw:p-1.5 tw:rounded-md tw:transition-all tw:w-12 ${
                               keyMode === String(value)
                                 ? `platina_lab_bg_b${String(value).replace('P', '')} tw:opacity-100`

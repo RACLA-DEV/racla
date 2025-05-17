@@ -7,6 +7,7 @@ import { useNotificationSystem } from '@render/hooks/useNotifications'
 import { createLog } from '@render/libs/logger'
 import { RootState } from '@render/store'
 import { setIsOpenExternalLink, setOpenExternalLink } from '@render/store/slices/uiSlice'
+import { SongData } from '@src/types/games/SongData'
 import { Link, useParams } from 'react-router-dom'
 import { PuffLoader } from 'react-spinners'
 import { v4 as uuidv4 } from 'uuid'
@@ -30,32 +31,32 @@ const DmrvHardDbPatternPage = () => {
   const dispatch = useDispatch()
   const { songData, selectedGame } = useSelector((state: RootState) => state.app)
 
-  const [baseSongData, setBaseSongData] = useState<any[]>([])
+  const [baseSongData, setBaseSongData] = useState<SongData[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [rankingData, setRankingData] = useState<RankingEntry[]>([])
   const [isLoadingRanking, setIsLoadingRanking] = useState<boolean>(false)
 
   useEffect(() => {
-    if (params?.id && params?.patternName) {
+    if (params.id && params.patternName) {
       setBaseSongData(
-        songData[selectedGame].filter((songItem) => String(songItem.title) == String(params?.id)),
+        songData[selectedGame].filter((songItem) => String(songItem.title) == String(params.id)),
       )
     }
-  }, [params?.id, params?.patternName])
+  }, [params.id, params.patternName])
 
   useEffect(() => {
     if (baseSongData.length > 0) {
       setIsLoading(false)
-      fetchRankingData()
+      void fetchRankingData()
     }
   }, [baseSongData])
 
   const fetchRankingData = async () => {
-    if (!params?.patternName) return
+    if (!params.patternName) return
 
     setIsLoadingRanking(true)
     try {
-      const [button, level, judge] = String(params?.patternName).split('-')
+      const [button, level, judge] = String(params.patternName).split('-')
 
       const response = await apiClient.getProxy<RankingData>(
         `https://hard-archive.com/api/v2/record?button=${button}&lv=${level}&song=${baseSongData[0].uuid}&judge=${judge.toLowerCase()}&limit=30`,
@@ -103,8 +104,8 @@ const DmrvHardDbPatternPage = () => {
     }
   }
 
-  if (!isLoading && baseSongData.length > 0 && params?.patternName) {
-    const [button, level, judge] = String(params?.patternName).split('-')
+  if (!isLoading && baseSongData.length > 0 && params.patternName) {
+    const [button, level, judge] = String(params.patternName).split('-')
 
     return (
       <React.Fragment>
@@ -114,7 +115,7 @@ const DmrvHardDbPatternPage = () => {
             <div className='tw:flex tw:flex-col tw:gap-1 tw:relative tw:bg-opacity-10 tw:rounded-md tw:mb-4 tw:h-auto tw:border tw:border-slate-200 tw:dark:border-slate-700'>
               <div className='tw:absolute tw:inset-0 tw:overflow-hidden'>
                 <Image
-                  src={`${import.meta.env.VITE_CDN_URL}/djmax_respect_v/jackets/${params?.id}.jpg`}
+                  src={`${import.meta.env.VITE_CDN_URL}/djmax_respect_v/jackets/${params.id}.jpg`}
                   alt=''
                   className='tw:opacity-50 tw:blur-xl'
                   style={{
@@ -130,7 +131,7 @@ const DmrvHardDbPatternPage = () => {
                 <div className='tw:flex tw:relative tw:p-2 tw:gap-2 tw:backdrop-blur-sm tw:rounded-md'>
                   <Image
                     loading='lazy'
-                    src={`${import.meta.env.VITE_CDN_URL}/djmax_respect_v/jackets/${params?.id}.jpg`}
+                    src={`${import.meta.env.VITE_CDN_URL}/djmax_respect_v/jackets/${params.id}.jpg`}
                     height={80}
                     width={80}
                     alt=''
@@ -179,7 +180,7 @@ const DmrvHardDbPatternPage = () => {
                   </span>
                 </div>
                 <Link
-                  to={`/games/djmax_respect_v/hard/db/${params?.id}`}
+                  to={`/games/djmax_respect_v/hard/db/${params.id}`}
                   className='tw:bg-indigo-600 hover:tw:bg-indigo-700 tw:text-white tw:px-4 tw:py-1.5 tw:text-sm tw:rounded-md tw:transition-all tw:flex tw:items-center tw:gap-1'
                 >
                   <Icon icon='lucide:arrow-left' className='tw:w-4 tw:h-4' />

@@ -2,7 +2,7 @@ import { Icon } from '@iconify/react'
 import { globalDictionary } from '@render/constants/globalDictionary'
 import { createLog } from '@render/libs/logger'
 import { RootState } from '@render/store'
-import { setRefresh } from '@render/store/slices/appSlice'
+import { setRefresh, setSettingData } from '@render/store/slices/appSlice'
 import { setSidebarCollapsed, toggleTheme } from '@render/store/slices/uiSlice'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -41,6 +41,16 @@ const TitleBar: React.FC = () => {
   const handleToggleTheme = () => {
     dispatch(toggleTheme())
   }
+
+  useEffect(() => {
+    window.electron?.loadSettings().then((settings) => {
+      dispatch(setSettingData({ ...settings, theme }))
+      window.electron?.saveSettings({
+        ...settings,
+        theme,
+      })
+    })
+  }, [theme])
 
   const handleMaximizeToggle = () => {
     maximizeApp()

@@ -21,7 +21,7 @@ const DmrvDbDetailPage = () => {
   const { showNotification } = useNotificationSystem()
 
   const { songData, userData, selectedGame } = useSelector((state: RootState) => state.app)
-  const [baseSongData, setBaseSongData] = useState<any[]>([])
+  const [baseSongData, setBaseSongData] = useState<SongData[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [isScoredBaseSongData, setIsScoredBaseSongData] = useState<boolean>(true)
   const [showScoreModal, setShowScoreModal] = useState(false)
@@ -37,7 +37,7 @@ const DmrvDbDetailPage = () => {
   useEffect(() => {
     const initializeData = async () => {
       const filteredData = songData[selectedGame].filter(
-        (value) => String(value.title) == params?.id,
+        (value) => String(value.title) == params.id,
       )
 
       if (filteredData.length === 0) {
@@ -50,18 +50,18 @@ const DmrvDbDetailPage = () => {
         try {
           await apiClient
             .getProxy<SongData>(
-              `https://v-archive.net/api/archive/${userData.varchiveUserInfo.nickname}/title/${params?.id}`,
+              `https://v-archive.net/api/archive/${userData.varchiveUserInfo.nickname}/title/${params.id}`,
             )
             .then((response) => {
               const data = response.data.data
               setBaseSongData([
                 {
-                  ...songData[selectedGame].filter((value) => value.title == Number(params?.id))[0],
+                  ...songData[selectedGame].filter((value) => value.title == Number(params.id))[0],
                   ...data,
                 },
               ])
             })
-            .catch((error) => {
+            .catch((error: unknown) => {
               createLog('error', 'Error in fetchUserSongData', { ...userData })
               showNotification(
                 {
@@ -71,7 +71,7 @@ const DmrvDbDetailPage = () => {
                 },
                 'error',
               )
-              console.error('Error fetching user song data:', error)
+              createLog('error', 'Error fetching user song data:', { ...userData })
               setBaseSongData(filteredData)
             })
         } catch (error) {
@@ -94,15 +94,16 @@ const DmrvDbDetailPage = () => {
       setIsScoredBaseSongData(false)
     }
 
-    initializeData()
+    void initializeData()
   }, [])
 
   const fetchUpdateScore = async () => {
     if (updateScore <= 100) {
       try {
-        console.log(userData.varchiveUserInfo.userNo, userData.varchiveUserInfo.token)
         await apiClient
-          .postProxy<any>(
+          .postProxy<{
+            success: boolean
+          }>(
             `https://v-archive.net/api/archive/userRecord`,
             {
               button: Number(String(patternButton).replace('B', '')),
@@ -122,7 +123,7 @@ const DmrvDbDetailPage = () => {
             if (data.data.data.success) {
               // 곡 데이터를 다시 불러옴
               const response = await apiClient.getProxy<SongData>(
-                `https://v-archive.net/api/archive/${userData.varchiveUserInfo.nickname}/title/${params?.id}`,
+                `https://v-archive.net/api/archive/${userData.varchiveUserInfo.nickname}/title/${params.id}`,
               )
               const result = response.data.data
 
@@ -138,7 +139,7 @@ const DmrvDbDetailPage = () => {
               )
             }
           })
-          .catch((error) => {
+          .catch((error: unknown) => {
             createLog('error', 'Error in fetchUpdateScore', { ...userData }, error)
           })
       } catch (error) {
@@ -159,7 +160,7 @@ const DmrvDbDetailPage = () => {
 
   useEffect(() => {
     if (fetchingUpdateScore) {
-      fetchUpdateScore()
+      void fetchUpdateScore()
     }
   }, [fetchingUpdateScore])
 
@@ -169,14 +170,10 @@ const DmrvDbDetailPage = () => {
         const response = await apiClient.getProxy<SongData>(
           `https://v-archive.net/api/archive/${userData.varchiveUserInfo.nickname}/title/${title}`,
         )
-        if (!response) {
-          throw new Error('Network response was not ok')
-        }
         const data = response.data.data
         return data
       } catch (error) {
         createLog('error', 'Error in loadDataWithScore', { ...userData }, error)
-        console.error('There has been a problem with your fetch operation:', error)
         return null
       }
     }
@@ -204,7 +201,9 @@ const DmrvDbDetailPage = () => {
             return R.mergeDeepRight(newItem, item)
           }),
         )
-          .then((value) => setBaseSongData(value))
+          .then((value) => {
+            setBaseSongData(value as SongData[])
+          })
           .finally(() => {
             setIsScoredBaseSongData(true)
             setIsLoading(false)
@@ -212,7 +211,7 @@ const DmrvDbDetailPage = () => {
       }
 
       if (userData.varchiveUserInfo.isLinked) {
-        updateArrayWithAPIData()
+        void updateArrayWithAPIData()
       } else {
         setIsScoredBaseSongData(true)
         setIsLoading(false)
@@ -220,7 +219,7 @@ const DmrvDbDetailPage = () => {
     }
   }, [isScoredBaseSongData])
 
-  if (baseSongData.length > 0 && params?.id) {
+  if (baseSongData.length > 0 && params.id) {
     return (
       <React.Fragment>
         <div className='tw:flex tw:gap-4 vh-screen'>
@@ -296,7 +295,7 @@ const DmrvDbDetailPage = () => {
 
             {!isLoading && (
               <div className='tw:w-full tw:h-full tw:text-center tw:flex tw:flex-col tw:flex-1 tw:gap-4'>
-                {baseSongData.length !== 0 && !isLoading ? (
+                {baseSongData.length !== 0 ? (
                   R.keys(baseSongData[0].patterns).map((patternName) => (
                     <div key={String(patternName)} className='tw:flex tw:flex-col tw:flex-1'>
                       {/* 버튼 라벨 */}
@@ -328,7 +327,7 @@ const DmrvDbDetailPage = () => {
                                   ) {
                                     setPatternMaxCombo(
                                       baseSongData[0].patterns[patternName][difficultyCode]
-                                        .maxCombo === 1,
+                                        .maxCombo,
                                     )
                                     setPatternButton(String(patternName))
                                     setPatternDificulty(difficultyCode)
@@ -471,7 +470,7 @@ const DmrvDbDetailPage = () => {
                                           MAX COMBO
                                         </span>
                                       ) : baseSongData[0].patterns[patternName][difficultyCode]
-                                          .maxCombo === 1 ? (
+                                          .maxCombo ? (
                                         <span className='tw:text-xs tw:font-light tw:text-yellow-500 tw:dark:text-yellow-400'>
                                           MAX COMBO
                                         </span>

@@ -415,4 +415,10 @@ export class FileManagerService {
       this.logger.error(`이미지 정리 스케줄러 초기화 중 오류 발생: ${error.message}`)
     }
   }
+
+  public saveImage(image: Buffer, fileName: string): string {
+    const filePath = path.join(this.picturesPath, fileName)
+    fs.writeFileSync(filePath, image)
+    return filePath
+  }
 }

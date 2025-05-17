@@ -16,9 +16,7 @@ import ScorePopupComponent from '../score/ScorePopup'
 
 ChartJS.register(ArcElement, Tooltip, Legend)
 
-interface KeyModeData {
-  [keyMode: string]: PlayBoardPatternInfo[]
-}
+type KeyModeData = Record<string, PlayBoardPatternInfo[]>
 
 export default function PlatinaLabHomeComponent() {
   const { t } = useTranslation(['home'])
@@ -87,11 +85,9 @@ export default function PlatinaLabHomeComponent() {
           })
         } catch (error) {
           createLog('error', { message: 'Error fetching board data', userData })
-          console.error(`Error fetching: `, error)
         }
       } catch (error) {
         createLog('error', { message: 'Error fetching all data', userData })
-        console.error('Error fetching all data:', error)
       } finally {
         setIsLoading(false)
       }
@@ -171,7 +167,11 @@ export default function PlatinaLabHomeComponent() {
               className={pattern.level > 20 ? 'tw:w-4 tw:h-4' : 'tw:w-5 tw:h-5'}
             />
           ) : null}
-          <span className='tw:font-extrabold'>{`${selectedGame == 'wjmax' ? Number(pattern.level).toFixed(1) : 'Lv.' + Number(pattern.level).toFixed(0)}`}</span>
+          <span className='tw:font-extrabold'>
+            {selectedGame == 'wjmax'
+              ? Number(pattern.level).toFixed(1)
+              : 'Lv.' + Number(pattern.level).toFixed(0)}
+          </span>
         </span>
       )
     }
@@ -842,79 +842,76 @@ export default function PlatinaLabHomeComponent() {
                       {String(selectedKeyMode).includes('_PLUS') ? '+' : ''} {t('best')}{' '}
                       {t('achievement')}
                     </span>
-                    {!isLoading && keyModeData[selectedKeyMode] && (
-                      <motion.div
-                        key={`achievements_${selectedKeyMode}`}
-                        initial={{ opacity: 0, x: 10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.2 }}
-                        className='tw:flex tw:flex-col tw:gap-2'
-                      >
-                        {Object.entries({
-                          maxCombo: t('maxCombo'),
-                          perfect: t('perfect'),
-                          over999: t('over999.fullName'),
-                          over995: t('over995.fullName'),
-                          over99: t('over99.fullName'),
-                          over97: t('over97.fullName'),
-                          clear: t('clear'),
-                        }).map(([key, label]) => {
-                          const patterns = keyModeData[selectedKeyMode]
-                          const condition = (pattern: PlayBoardPatternInfo) => {
-                            const score =
-                              typeof pattern.score === 'string'
-                                ? parseFloat(pattern.score)
-                                : pattern.score
-                            if (score === null) return false
+                    <motion.div
+                      initial={{ opacity: 0, x: 10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className='tw:flex tw:flex-col tw:gap-2'
+                    >
+                      {Object.entries({
+                        maxCombo: t('maxCombo'),
+                        perfect: t('perfect'),
+                        over999: t('over999.fullName'),
+                        over995: t('over995.fullName'),
+                        over99: t('over99.fullName'),
+                        over97: t('over97.fullName'),
+                        clear: t('clear'),
+                      }).map(([key, label]) => {
+                        const patterns = keyModeData[selectedKeyMode]
+                        const condition = (pattern: PlayBoardPatternInfo) => {
+                          const score =
+                            typeof pattern.score === 'string'
+                              ? parseFloat(pattern.score)
+                              : pattern.score
+                          if (score === null) return false
 
-                            if (key === 'perfect') return Math.abs(score - 100.0) < 0.001
-                            if (key === 'maxCombo') return pattern.maxCombo
-                            if (key === 'clear') return score > 0
+                          if (key === 'perfect') return Math.abs(score - 100.0) < 0.001
+                          if (key === 'maxCombo') return pattern.maxCombo
+                          if (key === 'clear') return score > 0
 
-                            switch (key) {
-                              case 'over999':
-                                return score >= 99.9 && score < 100
-                              case 'over995':
-                                return score >= 99.5 && score < 99.9
-                              case 'over99':
-                                return score >= 99.0 && score < 99.5
-                              case 'over97':
-                                return score >= 97.0 && score < 99.0
-                              default:
-                                return false
-                            }
+                          switch (key) {
+                            case 'over999':
+                              return score >= 99.9 && score < 100
+                            case 'over995':
+                              return score >= 99.5 && score < 99.9
+                            case 'over99':
+                              return score >= 99.0 && score < 99.5
+                            case 'over97':
+                              return score >= 97.0 && score < 99.0
+                            default:
+                              return false
                           }
+                        }
 
-                          const highestPattern = getHighestLevelInfo(patterns, condition)
+                        const highestPattern = getHighestLevelInfo(patterns, condition)
 
-                          if (!highestPattern) return null
+                        if (!highestPattern) return null
 
-                          return (
-                            <div key={`${key}_${selectedKeyMode}`} className='tw:flex tw:gap-2'>
-                              <ScorePopupComponent
-                                songTitle={highestPattern.title}
-                                keyMode={String(selectedKeyMode)
-                                  .replace('B', '')
-                                  .replace('_PLUS', '')}
-                              />
-                              <div className='tw:flex tw:flex-col tw:gap-1 tw:bg-gray-100 tw:dark:bg-slate-700/50 tw:rounded-md tw:p-3 tw:flex-1 tw:border tw:border-gray-200 tw:dark:border-slate-600'>
-                                <div className='tw:flex tw:justify-between tw:items-center'>
-                                  <span className='tw:text-sm tw:font-bold tw:text-gray-900 tw:dark:text-white'>
-                                    {label}
-                                  </span>
-                                  <span className='tw:text-sm tw:font-extrabold'>
-                                    {getLevelDisplay(highestPattern)}
-                                  </span>
-                                </div>
-                                <p className='tw:text-sm tw:text-gray-500 tw:dark:text-slate-300 tw:max-w-full text-one-line'>
-                                  {highestPattern.name}
-                                </p>
+                        return (
+                          <div key={`${key}_${selectedKeyMode}`} className='tw:flex tw:gap-2'>
+                            <ScorePopupComponent
+                              songTitle={highestPattern.title}
+                              keyMode={String(selectedKeyMode)
+                                .replace('B', '')
+                                .replace('_PLUS', '')}
+                            />
+                            <div className='tw:flex tw:flex-col tw:gap-1 tw:bg-gray-100 tw:dark:bg-slate-700/50 tw:rounded-md tw:p-3 tw:flex-1 tw:border tw:border-gray-200 tw:dark:border-slate-600'>
+                              <div className='tw:flex tw:justify-between tw:items-center'>
+                                <span className='tw:text-sm tw:font-bold tw:text-gray-900 tw:dark:text-white'>
+                                  {label}
+                                </span>
+                                <span className='tw:text-sm tw:font-extrabold'>
+                                  {getLevelDisplay(highestPattern)}
+                                </span>
                               </div>
+                              <p className='tw:text-sm tw:text-gray-500 tw:dark:text-slate-300 tw:max-w-full text-one-line'>
+                                {highestPattern.name}
+                              </p>
                             </div>
-                          )
-                        })}
-                      </motion.div>
-                    )}
+                          </div>
+                        )
+                      })}
+                    </motion.div>
                   </div>
                 </div>
               </div>

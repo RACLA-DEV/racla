@@ -1,10 +1,15 @@
 import { GLOBAL_DICTONARY } from '@main/constants/GLOBAL_DICTONARY'
 import { Injectable, Logger } from '@nestjs/common'
+import { OCRResultInfo } from '@src/types/ocr/OcrResultInfo'
 import type { OverlayBounds } from '@src/types/overlay/OverlayBounds'
+import dayjs from 'dayjs'
 import { BrowserWindow, screen } from 'electron'
 import type { Result } from 'get-windows'
 import type { ProcessDescriptor } from 'ps-list'
+import { FileManagerService } from '../file-manager/file-manager.service'
+import { ImageProcessorService } from '../image-processor/image-processor.service'
 import { MainWindowService } from '../main-window/main-window.service'
+import { OcrManagerService } from '../ocr-manager/ocr-manager.service'
 import { OverlayWindowService } from '../overlay-window/overlay-window.service'
 
 @Injectable()
@@ -15,9 +20,11 @@ export class GameMonitorService {
   private gameWindow: Result | undefined = undefined
   private cachedWindow: Result | undefined = undefined
   private lastCheckTime = 0
+  private isGameWindowFocused = false
   private readonly CACHE_DURATION = 300 // 100ms에서 300ms로 증가
 
   // 모니터링 관련 변수
+  private autoCaptureInterval: NodeJS.Timeout | undefined = undefined
   private updateInterval: NodeJS.Timeout | undefined = undefined
   private isProcessingUpdate = false
   private lastGameWindowBounds:
@@ -33,10 +40,17 @@ export class GameMonitorService {
   private lastOverlayUpdateTime = 0
   private readonly MIN_UPDATE_INTERVAL = 150 // 오버레이 위치 업데이트 최소 간격 (ms)
   private isInitialized = false // 초기화 상태를 추적하는 변수 추가
+  private lastResultInfo: OCRResultInfo | undefined = undefined
+  private activeWindow: Result | undefined = undefined
+  private isProcessingResult = false
+  private retryCount = 0
 
   constructor(
     private readonly mainWindowService: MainWindowService,
     private readonly overlayWindowService: OverlayWindowService,
+    private readonly fileService: FileManagerService,
+    private readonly imageProcessorService: ImageProcessorService,
+    private readonly ocrManagerService: OcrManagerService,
   ) {
     this.mainWindowService.onClosed(() => {
       this.overlayWindowService.destroyOverlay()
@@ -45,7 +59,40 @@ export class GameMonitorService {
 
   public initialize(): void {
     this.startWindowMonitoring()
-    // 오버레이 초기화는 최초 블러 이벤트에서 수행하도록 변경
+    // 앱 시작 시 초기 상태 확인 추가
+    this.checkInitialFocusState()
+  }
+
+  // 앱 시작 시 포커스 상태 확인하여 처리하는 함수
+  private checkInitialFocusState(): void {
+    const mainWindow = this.mainWindowService.getWindow()
+    if (!mainWindow) {
+      this.logger.warn('Main window not found for initial focus check')
+      return
+    }
+
+    // 약간의 지연을 두고 초기 포커스 상태 확인 (윈도우 생성 및 표시 후)
+    setTimeout(() => {
+      try {
+        // 현재 앱에 포커스가 없는지 확인
+        const isFocused = mainWindow.isFocused()
+
+        if (!isFocused && !this.isInitialized) {
+          this.logger.debug('App started without focus - initializing overlay')
+          this.isInitialized = true
+
+          // 비동기 함수 내부에서 await 대신 then/catch 사용
+          void this.overlayWindowService.createOverlayInit()
+
+          // 약간의 지연 후 모니터링 시작
+          setTimeout(() => {
+            this.startMonitoring()
+          }, 100)
+        }
+      } catch (error) {
+        this.logger.error('Error checking initial focus state:', error.message)
+      }
+    }, 500)
   }
 
   private startWindowMonitoring(): void {
@@ -82,13 +129,19 @@ export class GameMonitorService {
       }, 100)
     })
 
-    // 초기 상태 설정 로직 제거 (최초 블러 이벤트에서 처리)
+    // 앱 준비 완료 이벤트 추가
+    mainWindow.on('ready-to-show', () => {
+      this.logger.debug('Main window ready to show, checking initial focus state')
+      this.checkInitialFocusState()
+    })
   }
 
   private startMonitoring(): void {
     if (this.updateInterval) {
       return
     }
+
+    const settingData = this.fileService.loadSettings()
 
     this.updateInterval = setInterval(() => {
       if (!this.isProcessingUpdate) {
@@ -104,6 +157,158 @@ export class GameMonitorService {
           })
       }
     }, this.UPDATE_INTERVAL)
+
+    if (settingData.autoCaptureMode) {
+      this.logger.debug('Auto capture mode is enabled')
+      if (!this.autoCaptureInterval) {
+        this.autoCaptureInterval = setInterval(() => {
+          Promise.resolve()
+            .then(async () => {
+              if (this.activeWindow && this.isGameWindowFocused && !this.isProcessingResult) {
+                this.isProcessingResult = true
+                let ocrResult = await this.ocrManagerService.getOcrResult(
+                  this.activeWindow?.title,
+                  settingData,
+                )
+                this.logger.debug(
+                  `OCR Result: ${ocrResult.resultInfo.isResult.length > 0 ? 'true' : 'false'}, ${ocrResult.resultInfo.where}, ${ocrResult.resultInfo.text}`,
+                )
+
+                if (settingData.autoCaptureDelayTime) {
+                  this.logger.debug(
+                    `autoDeleteCapturedImages is enabled, delaying ${settingData.autoCaptureDelayTime / 1000} seconds and re-capturing`,
+                  )
+                  await this.delay(settingData.autoCaptureDelayTime)
+
+                  ocrResult = await this.ocrManagerService.getOcrResult(
+                    this.activeWindow?.title,
+                    settingData,
+                  )
+                }
+
+                if (
+                  ocrResult.resultInfo.isResult.length > 0 &&
+                  this.lastResultInfo?.text !== ocrResult.resultInfo.text &&
+                  this.retryCount < 3
+                ) {
+                  this.logger.debug('Result screen detected')
+                  if (this.retryCount == 0) {
+                    this.overlayWindowService.sendMessage(
+                      JSON.stringify({
+                        type: 'notification',
+                        notificationType: 'info',
+                        message: 'detectResultScreen',
+                        mode: 'i18n',
+                      }),
+                    )
+                  } else if (this.retryCount == 1) {
+                    this.overlayWindowService.sendMessage(
+                      JSON.stringify({
+                        type: 'notification',
+                        notificationType: 'info',
+                        message: 'retryParsePlayResult',
+                        mode: 'i18n',
+                      }),
+                    )
+                  }
+
+                  try {
+                    const response = await this.ocrManagerService.getOcrResultServer(
+                      ocrResult.image,
+                      ocrResult.resultInfo.gameCode,
+                    )
+
+                    if (response.isVerified) {
+                      this.logger.debug('Result screen successfully sent to server')
+                      this.logger.debug(response)
+
+                      this.overlayWindowService
+                        .getOverlayWindow()
+                        .webContents.send('overlay-ocr-result', response)
+
+                      if (settingData.saveImageWhenCapture) {
+                        const maskingRegions = this.imageProcessorService.getMaskingRegions(
+                          ocrResult.resultInfo.gameCode,
+                          ocrResult.resultInfo.where,
+                        )
+                        const maskedImage = await this.imageProcessorService.applyProfileMask(
+                          ocrResult.image,
+                          maskingRegions,
+                          settingData.saveImageBlurMode,
+                        )
+                        const filePath = this.fileService.saveImage(
+                          maskedImage,
+                          `${String(
+                            `${String(response.gameCode).toUpperCase()} - ${response.songData.name} - ${response.button}B - ${response.pattern} - ${response.score} - ${dayjs().format('YYYY-MM-DD-HH-mm-ss')}`,
+                          )
+                            .replaceAll(':', '_')
+                            .replaceAll('\n', '')
+                            .replaceAll('\\', '_')
+                            .replaceAll('/', '_')
+                            .replaceAll('?', '_')
+                            .replaceAll('*', '_')
+                            .replaceAll('"', '_')
+                            .replaceAll('<', '_')
+                            .replaceAll('>', '_')
+                            .replaceAll('|', '_')}.png`,
+                        )
+
+                        this.overlayWindowService.sendMessage(
+                          JSON.stringify({
+                            type: 'notification',
+                            notificationType: 'success',
+                            message: 'successSavedImage',
+                            mode: 'i18n',
+                            props: {
+                              filePath,
+                            },
+                          }),
+                        )
+                      }
+
+                      this.lastResultInfo = ocrResult.resultInfo
+                    } else {
+                      this.logger.debug('Result screen not verified')
+                      this.logger.debug(response)
+                    }
+                    this.isProcessingResult = false
+                    this.retryCount = 0
+                  } catch (error) {
+                    this.logger.error('Error in getOcrResultServer:', error.message)
+                    this.isProcessingResult = false
+                    this.retryCount++
+                  }
+                } else if (ocrResult.resultInfo.isResult.length === 0 && this.lastResultInfo) {
+                  this.logger.debug('Result screen not not detected')
+                  this.lastResultInfo = undefined
+                  this.retryCount = 0
+                }
+                this.isProcessingResult = false
+              }
+            })
+            .catch((error: unknown) => {
+              if (error instanceof Error) {
+                this.logger.error('Error in auto capture:', error.message)
+              } else {
+                this.logger.error('Error in auto capture:', String(error))
+              }
+              this.overlayWindowService.sendMessage(
+                JSON.stringify({
+                  type: 'notification',
+                  notificationType: 'error',
+                  message: 'failedParsePlayResult',
+                  mode: 'i18n',
+                }),
+              )
+              this.isProcessingResult = false
+            })
+        }, settingData.autoCaptureIntervalTime)
+      }
+    }
+  }
+
+  private delay(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms))
   }
 
   private stopMonitoring(): void {
@@ -111,8 +316,14 @@ export class GameMonitorService {
       clearInterval(this.updateInterval)
       this.updateInterval = undefined
     }
+    if (this.autoCaptureInterval) {
+      clearInterval(this.autoCaptureInterval)
+      this.autoCaptureInterval = undefined
+    }
     this.isProcessingUpdate = false
     this.lastGameWindowBounds = undefined
+    this.isGameWindowFocused = false
+    this.activeWindow = undefined
   }
 
   private async handleGameWindowChange(): Promise<void> {
@@ -148,7 +359,18 @@ export class GameMonitorService {
       this.lastOverlayUpdateTime = now
       await this.updateOverlayPosition(overlayWindow)
       if (!overlayWindow.isVisible()) {
+        this.isGameWindowFocused = true
         overlayWindow.show()
+        this.overlayWindowService.sendMessage(
+          JSON.stringify({
+            type: 'notification',
+            notificationType: 'success',
+            message: 'successInitialize',
+            mode: 'i18n',
+          }),
+        )
+      } else {
+        this.isGameWindowFocused = false
       }
     }
   }
@@ -156,6 +378,7 @@ export class GameMonitorService {
   private async sendActiveWindowInfo(): Promise<void> {
     try {
       const activeWindow = await this.getActiveWindows()
+      this.activeWindow = activeWindow
       const overlayWindow = await this.overlayWindowService.getOverlayWindow()
 
       if (activeWindow && overlayWindow) {
@@ -232,6 +455,12 @@ export class GameMonitorService {
       }
 
       const activeWindow = await this.getActiveWindows()
+      if (this.isGameWindow(activeWindow)) {
+        this.isGameWindowFocused = true
+      } else {
+        this.isGameWindowFocused = false
+      }
+
       if (activeWindow && this.isGameWindow(activeWindow)) {
         this.cachedWindow = activeWindow
         this.lastCheckTime = now
@@ -241,7 +470,7 @@ export class GameMonitorService {
       this.cachedWindow = undefined
       return undefined
     } catch (error) {
-      this.logger.error('getGameWindowInfo Error:', error.message)
+      this.logger.debug('getGameWindowInfo Error:', error.message)
       return undefined
     }
   }
@@ -293,7 +522,18 @@ export class GameMonitorService {
       overlayWindow.setBounds(newBounds)
 
       if (!overlayWindow.isVisible()) {
+        this.isGameWindowFocused = true
         overlayWindow.show()
+        this.overlayWindowService.sendMessage(
+          JSON.stringify({
+            type: 'notification',
+            notificationType: 'success',
+            message: 'successInitialize',
+            mode: 'i18n',
+          }),
+        )
+      } else {
+        this.isGameWindowFocused = false
       }
     } catch (error) {
       this.logger.error('Failed to update overlay position:', error.message)

@@ -6,6 +6,7 @@ export interface SettingsData {
   visibleBga?: boolean
   autoCaptureMode?: boolean
   autoCaptureIntervalTime?: number
+  autoCaptureDelayTime?: number
   language?: string
   font?: string
   autoCaptureApi?: string

@@ -4,6 +4,7 @@ import { GLOBAL_DICTONARY } from '@src/main/constants/GLOBAL_DICTONARY'
 import { OCRRegion } from '@src/types/ocr/OcrRegion'
 import { ProfileRegion } from '@src/types/ocr/ProfileRegion'
 import { SettingsData } from '@src/types/settings/SettingData'
+import { Result } from 'get-windows'
 import { Window } from 'node-screenshots'
 import { Buffer } from 'node:buffer'
 import sharp from 'sharp'
@@ -27,12 +28,25 @@ export class ImageProcessorService {
 
     // 창모드 여부 확인
     const isWindowedMode = !this.isStandardResolution(metadata.width, metadata.height)
-    this.logger.log(`Windowed mode: ${isWindowedMode}`)
+    this.logger.debug(`Windowed mode: ${isWindowedMode}`)
 
     if (isWindowedMode) {
       return this.processWindowedModeImage(pngImage)
     } else {
       return this.processFullscreenImage(pngImage)
+    }
+  }
+
+  async postProcessImage(image: Buffer): Promise<Buffer> {
+    const metadata = await sharp(image).metadata()
+
+    const isWindowedMode = !this.isStandardResolution(metadata.width, metadata.height)
+    this.logger.debug(`Windowed mode: ${isWindowedMode}`)
+
+    if (isWindowedMode) {
+      return this.processWindowedModeImage(image)
+    } else {
+      return this.processFullscreenImage(image)
     }
   }
 
@@ -120,6 +134,42 @@ export class ImageProcessorService {
       idx + 2 < data.length &&
       (data[idx] !== 0 || data[idx + 1] !== 0 || data[idx + 2] !== 0)
     )
+  }
+
+  private isGameWindow(window: Result): boolean {
+    if (
+      GLOBAL_DICTONARY.SUPPORTED_GAME_PROCESS_NAME_LIST.map((game) =>
+        game.replace('.exe', ''),
+      ).includes(window.title)
+    ) {
+      return true
+    }
+    return false
+  }
+
+  public async getActiveWindows(): Promise<Result> {
+    const { activeWindow } = await import('get-windows')
+    return await activeWindow()
+  }
+
+  async captureGameWindowWithoutGameWindow(): Promise<{ image: Buffer; gameCode: string } | null> {
+    try {
+      const activeWindow = await this.getActiveWindows()
+      if (this.isGameWindow(activeWindow)) {
+        return {
+          image: await this.captureGameWindow(activeWindow.title),
+          gameCode: activeWindow.title.toLowerCase().includes('djmax')
+            ? 'djmax_respect_v'
+            : activeWindow.title.toLowerCase().includes('wjmax')
+              ? 'wjmax'
+              : 'platina_lab',
+        }
+      }
+      return null
+    } catch (error) {
+      this.logger.error('Error capturing game window:', error.message)
+      throw error
+    }
   }
 
   async captureGameWindow(gameTitle: string): Promise<Buffer | null> {

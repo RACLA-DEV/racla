@@ -16,10 +16,8 @@ import { SongData } from '@src/types/games/SongData'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
 import { useNavigate, useParams } from 'react-router-dom'
-import { PuffLoader } from 'react-spinners'
 import apiClient from '../../../../../libs/apiClient'
 
-dayjs.locale('ko')
 dayjs.extend(utc)
 
 const PlatinaLabDbDetailPage = () => {
@@ -30,7 +28,7 @@ const PlatinaLabDbDetailPage = () => {
   const dispatch = useDispatch()
   const { songData, userData, selectedGame } = useSelector((state: RootState) => state.app)
 
-  const [baseSongData, setBaseSongData] = useState<any[]>([])
+  const [baseSongData, setBaseSongData] = useState<SongData[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(true)
 
   const [isScoredBaseSongData, setIsScoredBaseSongData] = useState<boolean>(true)
@@ -38,7 +36,7 @@ const PlatinaLabDbDetailPage = () => {
   useEffect(() => {
     const initializeData = async () => {
       const filteredData = songData[selectedGame].filter(
-        (value) => String(value.title) == params?.id,
+        (value) => String(value.title) == params.id,
       )
 
       if (filteredData.length === 0) {
@@ -50,7 +48,7 @@ const PlatinaLabDbDetailPage = () => {
       if (userData.playerName) {
         try {
           const response = await apiClient.get<SongData>(
-            `/v3/racla/songs/${selectedGame}/${params?.id}/user/${userData.playerId}`,
+            `/v3/racla/songs/${selectedGame}/${params.id}/user/${userData.playerId}`,
             {
               headers: {
                 Authorization: `${userData.playerId}|${userData.playerToken}`,
@@ -66,7 +64,7 @@ const PlatinaLabDbDetailPage = () => {
               patterns,
             },
           ])
-          console.log({
+          createLog('info', 'fetchUserSongData', {
             ...data,
             patterns,
           })
@@ -81,7 +79,7 @@ const PlatinaLabDbDetailPage = () => {
       setIsScoredBaseSongData(false)
     }
 
-    initializeData()
+    void initializeData()
   }, [userData])
 
   const [patternButton, setPatternButton] = useState<string>('')
@@ -120,7 +118,7 @@ const PlatinaLabDbDetailPage = () => {
             if (data.data.success) {
               // 곡 데이터를 다시 불러옴
               const response = await apiClient.get<SongData>(
-                `/v3/racla/songs/${selectedGame}/${baseSongData[0].title}/user/${userData.playerId}`,
+                `/v3/racla/songs/${selectedGame}/${params.id}/user/${userData.playerId}`,
                 {
                   headers: {
                     Authorization: `${userData.playerId}|${userData.playerToken}`,
@@ -147,7 +145,7 @@ const PlatinaLabDbDetailPage = () => {
               )
             }
           })
-          .catch((error) => {
+          .catch((error: unknown) => {
             createLog('error', 'Error in fetchUpdateScore', error)
             showNotification(
               {
@@ -176,7 +174,7 @@ const PlatinaLabDbDetailPage = () => {
 
   useEffect(() => {
     if (fetchingUpdateScore) {
-      fetchUpdateScore()
+      void fetchUpdateScore()
     }
   }, [fetchingUpdateScore])
 
@@ -192,9 +190,6 @@ const PlatinaLabDbDetailPage = () => {
             withCredentials: true,
           },
         )
-        if (!response) {
-          throw new Error('Network response was not ok')
-        }
         const { data } = response
         return data
       } catch (error) {
@@ -226,7 +221,9 @@ const PlatinaLabDbDetailPage = () => {
             return R.mergeDeepRight(newItem, item)
           }),
         )
-          .then((value) => setBaseSongData(value))
+          .then((value) => {
+            setBaseSongData(value as SongData[])
+          })
           .finally(() => {
             setIsScoredBaseSongData(true)
             setIsLoading(false)
@@ -234,7 +231,7 @@ const PlatinaLabDbDetailPage = () => {
       }
 
       if (userData.playerName !== '') {
-        updateArrayWithAPIData()
+        void updateArrayWithAPIData()
       } else {
         setIsScoredBaseSongData(true)
         setIsLoading(false)
@@ -245,7 +242,7 @@ const PlatinaLabDbDetailPage = () => {
   // 모달 상태 추가
   const [showScoreModal, setShowScoreModal] = useState(false)
 
-  if (baseSongData.length > 0 && params?.id) {
+  if (baseSongData.length > 0 && params.id) {
     return (
       <React.Fragment>
         <div className='tw:flex tw:gap-4 tw:h-[calc(100vh-106px)]'>
@@ -335,395 +332,379 @@ const PlatinaLabDbDetailPage = () => {
             {!isLoading && (
               <div className='tw:w-full tw:h-full tw:text-center tw:flex tw:flex-col tw:flex-1 tw:gap-4'>
                 <div className='tw:flex tw:flex-col tw:gap-4 tw:h-full'>
-                  {baseSongData.length !== 0 && !isLoading ? (
-                    Object.keys(baseSongData[0].patterns)
-                      .sort((a, b) => {
-                        const numA = parseInt(a)
-                        const numB = parseInt(b)
-                        if (numA !== numB) return numA - numB
-                        return a.includes('_PLUS') ? 1 : -1
-                      })
-                      .map((patternName) => (
-                        <div key={String(patternName)} className='tw:flex tw:flex-col tw:flex-1'>
-                          {/* 버튼 라벨 */}
-                          <div className='tw:flex tw:items-center tw:gap-2 tw:mb-2'>
-                            <div className='tw:inline-flex tw:items-center tw:gap-1 tw:text-sm tw:font-semibold tw:bg-indigo-100 tw:dark:bg-indigo-900/50 tw:text-indigo-700 tw:dark:text-indigo-200 tw:py-1 tw:px-3 tw:rounded-md'>
-                              <span className='tw:font-bold'>
-                                {String(patternName).replace('B', '').replace('_PLUS', '')}B
-                                {String(patternName).includes('_PLUS') ? '+' : ''}
-                              </span>
-                            </div>
-                            <div className='tw:h-px tw:flex-grow tw:bg-indigo-200 tw:dark:bg-indigo-800/50'></div>
+                  {Object.keys(baseSongData[0].patterns)
+                    .sort((a, b) => {
+                      const numA = parseInt(a)
+                      const numB = parseInt(b)
+                      if (numA !== numB) return numA - numB
+                      return a.includes('_PLUS') ? 1 : -1
+                    })
+                    .map((patternName) => (
+                      <div key={String(patternName)} className='tw:flex tw:flex-col tw:flex-1'>
+                        {/* 버튼 라벨 */}
+                        <div className='tw:flex tw:items-center tw:gap-2 tw:mb-2'>
+                          <div className='tw:inline-flex tw:items-center tw:gap-1 tw:text-sm tw:font-semibold tw:bg-indigo-100 tw:dark:bg-indigo-900/50 tw:text-indigo-700 tw:dark:text-indigo-200 tw:py-1 tw:px-3 tw:rounded-md'>
+                            <span className='tw:font-bold'>
+                              {String(patternName).replace('B', '').replace('_PLUS', '')}B
+                              {String(patternName).includes('_PLUS') ? '+' : ''}
+                            </span>
                           </div>
-
-                          {/* 첫 번째 행: EASY, HD, OVER */}
-                          <div className={`tw:grid tw:grid-cols-3 tw:gap-4 tw:flex-1 tw:mb-4`}>
-                            {['EASY', 'HD', 'OVER'].map((difficultyCode: string) =>
-                              baseSongData[0].patterns[patternName][difficultyCode] !== undefined &&
-                              baseSongData[0].patterns[patternName][difficultyCode] !== null ? (
-                                <div
-                                  key={`${String(patternName)}_${difficultyCode}`}
-                                  className={`tw:relative tw:border tw:h-full tw:border-slate-200 tw:dark:border-slate-700 tw:flex tw:flex-col tw:justify-center tw:items-center tw:p-2 tw:bg-white tw:dark:bg-slate-800 tw:rounded-lg tw:shadow-sm ${
-                                    userData.playerName !== ''
-                                      ? 'tw:cursor-pointer hover:tw:bg-indigo-50 hover:tw:dark:bg-indigo-900/20 tw:transition-colors'
-                                      : ''
-                                  } ${
-                                    baseSongData[0].patterns[patternName][difficultyCode].score !==
-                                      undefined &&
-                                    Number(
-                                      baseSongData[0].patterns[patternName][difficultyCode].score,
-                                    ) <= 0
-                                      ? 'tw:opacity-70'
-                                      : ''
-                                  }`}
-                                  onClick={() => {
-                                    if (userData.playerName !== '') {
-                                      setPatternMaxCombo(
-                                        baseSongData[0].patterns[patternName][difficultyCode]
-                                          .maxCombo,
-                                      )
-                                      setPatternButton(String(patternName))
-                                      setPatternDificulty(difficultyCode)
-                                      setUpdateScore(
-                                        Number(
-                                          baseSongData[0].patterns[patternName][difficultyCode]
-                                            .score !== undefined &&
-                                            baseSongData[0].patterns[patternName][difficultyCode]
-                                              .score !== null
-                                            ? Number(
-                                                baseSongData[0].patterns[patternName][
-                                                  difficultyCode
-                                                ].score,
-                                              )
-                                            : 0,
-                                        ),
-                                      )
-                                      setUpdateMax(
-                                        Number(
-                                          baseSongData[0].patterns[patternName][difficultyCode]
-                                            .max !== undefined &&
-                                            baseSongData[0].patterns[patternName][difficultyCode]
-                                              .max !== null
-                                            ? Number(
-                                                baseSongData[0].patterns[patternName][
-                                                  difficultyCode
-                                                ].max,
-                                              )
-                                            : 0,
-                                        ),
-                                      )
-                                      setIsPlusPattern(String(patternName).includes('_PLUS'))
-                                      setShowScoreModal(true)
-                                    }
-                                  }}
-                                >
-                                  <div className='tw:flex tw:w-full tw:justify-center tw:items-center tw:rounded-lg tw:gap-3'>
-                                    {/* 난이도 표시 */}
-                                    <div className='tw:w-flex tw:flex-col tw:justify-center tw:items-center'>
-                                      <span
-                                        className={
-                                          'tw:flex tw:justify-center tw:items-center tw:gap-2 tw:text-base tw:font-extrabold ' +
-                                          (difficultyCode === 'EASY'
-                                            ? 'tw:text-platina_lab-EASY'
-                                            : difficultyCode === 'HD'
-                                              ? 'tw:text-platina_lab-HD'
-                                              : 'tw:text-platina_lab-OVER')
-                                        }
-                                      >
-                                        Lv.
-                                        {baseSongData[0].patterns[patternName][
-                                          difficultyCode
-                                        ].level.toFixed(0)}
-                                      </span>
-                                      {baseSongData[0].patterns[patternName][difficultyCode]
-                                        .floor &&
-                                        Number(
-                                          baseSongData[0].patterns[patternName][difficultyCode]
-                                            .floor,
-                                        ) > 0 && (
-                                          <span
-                                            className={
-                                              'tw:font-light tw:text-sm ' +
-                                              (difficultyCode === 'EASY'
-                                                ? 'tw:text-platina_lab-EASY'
-                                                : difficultyCode === 'HD'
-                                                  ? 'tw:text-platina_lab-HD'
-                                                  : 'tw:text-platina_lab-OVER')
-                                            }
-                                          >
-                                            (
-                                            {
-                                              baseSongData[0].patterns[patternName][difficultyCode]
-                                                .floor
-                                            }
-                                            F)
-                                          </span>
-                                        )}
-                                    </div>
-
-                                    {/* 점수 표시 (로그인한 경우에만) */}
-                                    {userData.playerName !== '' && (
-                                      <div className='tw:flex tw:flex-col tw:items-start tw:justify-center tw:gap-1 tw:min-w-20'>
-                                        {baseSongData[0].patterns[patternName][difficultyCode]
-                                          .score &&
-                                        Number(
-                                          baseSongData[0].patterns[patternName][difficultyCode]
-                                            .score,
-                                        ) > 0 ? (
-                                          baseSongData[0].patterns[patternName][difficultyCode]
-                                            .score === '100.00' ? (
-                                            <>
-                                              <span className='tw:font-light tw:text-sm tw:text-slate-600 tw:dark:text-slate-300'>
-                                                {
-                                                  baseSongData[0].patterns[patternName][
-                                                    difficultyCode
-                                                  ].score
-                                                }
-                                                %{' '}
-                                                {Number(
-                                                  baseSongData[0].patterns[patternName][
-                                                    difficultyCode
-                                                  ]?.score,
-                                                ) == 100 ? (
-                                                  <sup>
-                                                    MAX
-                                                    {baseSongData[0].patterns[patternName][
-                                                      difficultyCode
-                                                    ]?.max != 0
-                                                      ? ' - ' +
-                                                        baseSongData[0].patterns[patternName][
-                                                          difficultyCode
-                                                        ]?.max
-                                                      : null}
-                                                  </sup>
-                                                ) : null}
-                                              </span>
-                                            </>
-                                          ) : (
-                                            <>
-                                              <span className='tw:font-light tw:text-sm tw:text-slate-600 tw:dark:text-slate-300'>
-                                                {
-                                                  baseSongData[0].patterns[patternName][
-                                                    difficultyCode
-                                                  ].score
-                                                }
-                                                %
-                                              </span>
-                                            </>
-                                          )
-                                        ) : (
-                                          <>
-                                            <span className='tw:font-light tw:text-sm tw:text-slate-500 tw:dark:text-slate-400'>
-                                              -
-                                            </span>
-                                            <span className='tw:font-light tw:text-xs tw:text-slate-400 tw:dark:text-slate-500 tw:break-keep'>
-                                              (기록 미존재)
-                                            </span>
-                                          </>
-                                        )}
-                                        {baseSongData[0].patterns[patternName][difficultyCode]
-                                          .score !== undefined &&
-                                        baseSongData[0].patterns[patternName][difficultyCode]
-                                          .score === '100.00' ? (
-                                          <span className='tw:text-xs tw:font-light tw:text-yellow-500 tw:dark:text-yellow-400'>
-                                            MAX COMBO
-                                          </span>
-                                        ) : baseSongData[0].patterns[patternName][difficultyCode]
-                                            .maxCombo ? (
-                                          <span className='tw:text-xs tw:font-light tw:text-yellow-500 tw:dark:text-yellow-400'>
-                                            MAX COMBO
-                                          </span>
-                                        ) : null}
-                                      </div>
-                                    )}
-                                  </div>
-                                </div>
-                              ) : (
-                                <div key={`${String(patternName)}_${difficultyCode}`}></div>
-                              ),
-                            )}
-                          </div>
-
-                          {/* 두 번째 행: PLUS_1, PLUS_2, PLUS_3 */}
-                          <div className={`tw:grid tw:grid-cols-3 tw:gap-4 tw:flex-1`}>
-                            {['PLUS_1', 'PLUS_2', 'PLUS_3'].map((difficultyCode: string) =>
-                              baseSongData[0].patterns[patternName][difficultyCode] !== undefined &&
-                              baseSongData[0].patterns[patternName][difficultyCode] !== null ? (
-                                <div
-                                  key={`${String(patternName)}_${difficultyCode}`}
-                                  className={`tw:relative tw:border tw:h-full tw:border-slate-200 tw:dark:border-slate-700 tw:flex tw:flex-col tw:justify-center tw:items-center tw:p-2 tw:bg-white tw:dark:bg-slate-800 tw:rounded-lg tw:shadow-sm ${
-                                    userData.playerName !== ''
-                                      ? 'tw:cursor-pointer hover:tw:bg-indigo-50 hover:tw:dark:bg-indigo-900/20 tw:transition-colors'
-                                      : ''
-                                  } ${
-                                    baseSongData[0].patterns[patternName][difficultyCode].score !==
-                                      undefined &&
-                                    Number(
-                                      baseSongData[0].patterns[patternName][difficultyCode].score,
-                                    ) <= 0
-                                      ? 'tw:opacity-70'
-                                      : ''
-                                  }`}
-                                  onClick={() => {
-                                    if (userData.playerName !== '') {
-                                      setPatternMaxCombo(
-                                        baseSongData[0].patterns[patternName][difficultyCode]
-                                          .maxCombo,
-                                      )
-                                      setPatternButton(String(patternName))
-                                      setPatternDificulty(difficultyCode)
-                                      setUpdateScore(
-                                        Number(
-                                          baseSongData[0].patterns[patternName][difficultyCode]
-                                            .score !== undefined &&
-                                            baseSongData[0].patterns[patternName][difficultyCode]
-                                              .score !== null
-                                            ? Number(
-                                                baseSongData[0].patterns[patternName][
-                                                  difficultyCode
-                                                ].score,
-                                              )
-                                            : 0,
-                                        ),
-                                      )
-                                      setUpdateMax(
-                                        Number(
-                                          baseSongData[0].patterns[patternName][difficultyCode]
-                                            .max !== undefined &&
-                                            baseSongData[0].patterns[patternName][difficultyCode]
-                                              .max !== null
-                                            ? Number(
-                                                baseSongData[0].patterns[patternName][
-                                                  difficultyCode
-                                                ].max,
-                                              )
-                                            : 0,
-                                        ),
-                                      )
-                                      setIsPlusPattern(String(patternName).includes('_PLUS'))
-                                      setShowScoreModal(true)
-                                    }
-                                  }}
-                                >
-                                  <div className='tw:flex tw:w-full tw:justify-center tw:items-center tw:rounded-lg tw:gap-3'>
-                                    {/* 난이도 표시 */}
-                                    <div className='tw:w-flex tw:flex-col tw:justify-center tw:items-center'>
-                                      <span
-                                        className={
-                                          'tw:flex tw:justify-center tw:items-center tw:gap-2 tw:text-base tw:font-extrabold tw:text-platina_lab-PLUS-1'
-                                        }
-                                      >
-                                        Lv.
-                                        {baseSongData[0].patterns[patternName][
-                                          difficultyCode
-                                        ].level.toFixed(0)}
-                                      </span>
-                                      {baseSongData[0].patterns[patternName][difficultyCode]
-                                        .floor &&
-                                        Number(
-                                          baseSongData[0].patterns[patternName][difficultyCode]
-                                            .floor,
-                                        ) > 0 && (
-                                          <span className='tw:font-light tw:text-sm tw:text-platina_lab-PLUS-1'>
-                                            (
-                                            {
-                                              baseSongData[0].patterns[patternName][difficultyCode]
-                                                .floor
-                                            }
-                                            F)
-                                          </span>
-                                        )}
-                                    </div>
-
-                                    {/* 점수 표시 (로그인한 경우에만) */}
-                                    {userData.playerName !== '' && (
-                                      <div className='tw:flex tw:flex-col tw:items-start tw:justify-center tw:gap-1 tw:min-w-20'>
-                                        {baseSongData[0].patterns[patternName][difficultyCode]
-                                          .score &&
-                                        Number(
-                                          baseSongData[0].patterns[patternName][difficultyCode]
-                                            .score,
-                                        ) > 0 ? (
-                                          baseSongData[0].patterns[patternName][difficultyCode]
-                                            .score === '100.00' ? (
-                                            <>
-                                              <span className='tw:font-light tw:text-sm tw:text-slate-600 tw:dark:text-slate-300'>
-                                                {
-                                                  baseSongData[0].patterns[patternName][
-                                                    difficultyCode
-                                                  ].score
-                                                }
-                                                %{' '}
-                                                {Number(
-                                                  baseSongData[0].patterns[patternName][
-                                                    difficultyCode
-                                                  ]?.score,
-                                                ) == 100 ? (
-                                                  <sup>
-                                                    MAX
-                                                    {baseSongData[0].patterns[patternName][
-                                                      difficultyCode
-                                                    ]?.max != 0
-                                                      ? ' - ' +
-                                                        baseSongData[0].patterns[patternName][
-                                                          difficultyCode
-                                                        ]?.max
-                                                      : null}
-                                                  </sup>
-                                                ) : null}
-                                              </span>
-                                            </>
-                                          ) : (
-                                            <>
-                                              <span className='tw:font-light tw:text-sm tw:text-slate-600 tw:dark:text-slate-300'>
-                                                {
-                                                  baseSongData[0].patterns[patternName][
-                                                    difficultyCode
-                                                  ].score
-                                                }
-                                                %
-                                              </span>
-                                            </>
-                                          )
-                                        ) : (
-                                          <>
-                                            <span className='tw:font-light tw:text-sm tw:text-slate-500 tw:dark:text-slate-400'>
-                                              -
-                                            </span>
-                                            <span className='tw:font-light tw:text-xs tw:text-slate-400 tw:dark:text-slate-500 tw:break-keep'>
-                                              (기록 미존재)
-                                            </span>
-                                          </>
-                                        )}
-                                        {baseSongData[0].patterns[patternName][difficultyCode]
-                                          .score !== undefined &&
-                                        baseSongData[0].patterns[patternName][difficultyCode]
-                                          .score === '100.00' ? (
-                                          <span className='tw:text-xs tw:font-light tw:text-yellow-500 tw:dark:text-yellow-400'>
-                                            MAX COMBO
-                                          </span>
-                                        ) : baseSongData[0].patterns[patternName][difficultyCode]
-                                            .maxCombo ? (
-                                          <span className='tw:text-xs tw:font-light tw:text-yellow-500 tw:dark:text-yellow-400'>
-                                            MAX COMBO
-                                          </span>
-                                        ) : null}
-                                      </div>
-                                    )}
-                                  </div>
-                                </div>
-                              ) : (
-                                <div key={`${String(patternName)}_${difficultyCode}`}></div>
-                              ),
-                            )}
-                          </div>
+                          <div className='tw:h-px tw:flex-grow tw:bg-indigo-200 tw:dark:bg-indigo-800/50'></div>
                         </div>
-                      ))
-                  ) : (
-                    <div className='tw:flex tw:justify-center tw:items-center tw:h-[calc(100vh-338px)]'>
-                      <PuffLoader color='#6366f1' size={32} />
-                    </div>
-                  )}
+
+                        {/* 첫 번째 행: EASY, HD, OVER */}
+                        <div className={`tw:grid tw:grid-cols-3 tw:gap-4 tw:flex-1 tw:mb-4`}>
+                          {['EASY', 'HD', 'OVER'].map((difficultyCode: string) =>
+                            baseSongData[0].patterns[patternName][difficultyCode] !== undefined &&
+                            baseSongData[0].patterns[patternName][difficultyCode] !== null ? (
+                              <div
+                                key={`${String(patternName)}_${difficultyCode}`}
+                                className={`tw:relative tw:border tw:h-full tw:border-slate-200 tw:dark:border-slate-700 tw:flex tw:flex-col tw:justify-center tw:items-center tw:p-2 tw:bg-white tw:dark:bg-slate-800 tw:rounded-lg tw:shadow-sm ${
+                                  userData.playerName !== ''
+                                    ? 'tw:cursor-pointer hover:tw:bg-indigo-50 hover:tw:dark:bg-indigo-900/20 tw:transition-colors'
+                                    : ''
+                                } ${
+                                  baseSongData[0].patterns[patternName][difficultyCode].score !==
+                                    undefined &&
+                                  Number(
+                                    baseSongData[0].patterns[patternName][difficultyCode].score,
+                                  ) <= 0
+                                    ? 'tw:opacity-70'
+                                    : ''
+                                }`}
+                                onClick={() => {
+                                  if (userData.playerName !== '') {
+                                    setPatternMaxCombo(
+                                      baseSongData[0].patterns[patternName][difficultyCode]
+                                        .maxCombo,
+                                    )
+                                    setPatternButton(String(patternName))
+                                    setPatternDificulty(difficultyCode)
+                                    setUpdateScore(
+                                      Number(
+                                        baseSongData[0].patterns[patternName][difficultyCode]
+                                          .score !== undefined &&
+                                          baseSongData[0].patterns[patternName][difficultyCode]
+                                            .score !== null
+                                          ? Number(
+                                              baseSongData[0].patterns[patternName][difficultyCode]
+                                                .score,
+                                            )
+                                          : 0,
+                                      ),
+                                    )
+                                    setUpdateMax(
+                                      Number(
+                                        baseSongData[0].patterns[patternName][difficultyCode]
+                                          .max !== undefined &&
+                                          baseSongData[0].patterns[patternName][difficultyCode]
+                                            .max !== null
+                                          ? Number(
+                                              baseSongData[0].patterns[patternName][difficultyCode]
+                                                .max,
+                                            )
+                                          : 0,
+                                      ),
+                                    )
+                                    setIsPlusPattern(String(patternName).includes('_PLUS'))
+                                    setShowScoreModal(true)
+                                  }
+                                }}
+                              >
+                                <div className='tw:flex tw:w-full tw:justify-center tw:items-center tw:rounded-lg tw:gap-3'>
+                                  {/* 난이도 표시 */}
+                                  <div className='tw:w-flex tw:flex-col tw:justify-center tw:items-center'>
+                                    <span
+                                      className={
+                                        'tw:flex tw:justify-center tw:items-center tw:gap-2 tw:text-base tw:font-extrabold ' +
+                                        (difficultyCode === 'EASY'
+                                          ? 'tw:text-platina_lab-EASY'
+                                          : difficultyCode === 'HD'
+                                            ? 'tw:text-platina_lab-HD'
+                                            : 'tw:text-platina_lab-OVER')
+                                      }
+                                    >
+                                      Lv.
+                                      {baseSongData[0].patterns[patternName][
+                                        difficultyCode
+                                      ].level.toFixed(0)}
+                                    </span>
+                                    {baseSongData[0].patterns[patternName][difficultyCode].floor &&
+                                      Number(
+                                        baseSongData[0].patterns[patternName][difficultyCode].floor,
+                                      ) > 0 && (
+                                        <span
+                                          className={
+                                            'tw:font-light tw:text-sm ' +
+                                            (difficultyCode === 'EASY'
+                                              ? 'tw:text-platina_lab-EASY'
+                                              : difficultyCode === 'HD'
+                                                ? 'tw:text-platina_lab-HD'
+                                                : 'tw:text-platina_lab-OVER')
+                                          }
+                                        >
+                                          (
+                                          {
+                                            baseSongData[0].patterns[patternName][difficultyCode]
+                                              .floor
+                                          }
+                                          F)
+                                        </span>
+                                      )}
+                                  </div>
+
+                                  {/* 점수 표시 (로그인한 경우에만) */}
+                                  {userData.playerName !== '' && (
+                                    <div className='tw:flex tw:flex-col tw:items-start tw:justify-center tw:gap-1 tw:min-w-20'>
+                                      {baseSongData[0].patterns[patternName][difficultyCode]
+                                        .score &&
+                                      Number(
+                                        baseSongData[0].patterns[patternName][difficultyCode].score,
+                                      ) > 0 ? (
+                                        baseSongData[0].patterns[patternName][difficultyCode]
+                                          .score === '100.00' ? (
+                                          <>
+                                            <span className='tw:font-light tw:text-sm tw:text-slate-600 tw:dark:text-slate-300'>
+                                              {
+                                                baseSongData[0].patterns[patternName][
+                                                  difficultyCode
+                                                ].score
+                                              }
+                                              %{' '}
+                                              {Number(
+                                                baseSongData[0].patterns[patternName][
+                                                  difficultyCode
+                                                ]?.score,
+                                              ) == 100 ? (
+                                                <sup>
+                                                  MAX
+                                                  {baseSongData[0].patterns[patternName][
+                                                    difficultyCode
+                                                  ]?.max != 0
+                                                    ? ' - ' +
+                                                      baseSongData[0].patterns[patternName][
+                                                        difficultyCode
+                                                      ]?.max
+                                                    : null}
+                                                </sup>
+                                              ) : null}
+                                            </span>
+                                          </>
+                                        ) : (
+                                          <>
+                                            <span className='tw:font-light tw:text-sm tw:text-slate-600 tw:dark:text-slate-300'>
+                                              {
+                                                baseSongData[0].patterns[patternName][
+                                                  difficultyCode
+                                                ].score
+                                              }
+                                              %
+                                            </span>
+                                          </>
+                                        )
+                                      ) : (
+                                        <>
+                                          <span className='tw:font-light tw:text-sm tw:text-slate-500 tw:dark:text-slate-400'>
+                                            -
+                                          </span>
+                                          <span className='tw:font-light tw:text-xs tw:text-slate-400 tw:dark:text-slate-500 tw:break-keep'>
+                                            (기록 미존재)
+                                          </span>
+                                        </>
+                                      )}
+                                      {baseSongData[0].patterns[patternName][difficultyCode]
+                                        .score !== undefined &&
+                                      baseSongData[0].patterns[patternName][difficultyCode]
+                                        .score === '100.00' ? (
+                                        <span className='tw:text-xs tw:font-light tw:text-yellow-500 tw:dark:text-yellow-400'>
+                                          MAX COMBO
+                                        </span>
+                                      ) : baseSongData[0].patterns[patternName][difficultyCode]
+                                          .maxCombo ? (
+                                        <span className='tw:text-xs tw:font-light tw:text-yellow-500 tw:dark:text-yellow-400'>
+                                          MAX COMBO
+                                        </span>
+                                      ) : null}
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            ) : (
+                              <div key={`${String(patternName)}_${difficultyCode}`}></div>
+                            ),
+                          )}
+                        </div>
+
+                        {/* 두 번째 행: PLUS_1, PLUS_2, PLUS_3 */}
+                        <div className={`tw:grid tw:grid-cols-3 tw:gap-4 tw:flex-1`}>
+                          {['PLUS_1', 'PLUS_2', 'PLUS_3'].map((difficultyCode: string) =>
+                            baseSongData[0].patterns[patternName][difficultyCode] !== undefined &&
+                            baseSongData[0].patterns[patternName][difficultyCode] !== null ? (
+                              <div
+                                key={`${String(patternName)}_${difficultyCode}`}
+                                className={`tw:relative tw:border tw:h-full tw:border-slate-200 tw:dark:border-slate-700 tw:flex tw:flex-col tw:justify-center tw:items-center tw:p-2 tw:bg-white tw:dark:bg-slate-800 tw:rounded-lg tw:shadow-sm ${
+                                  userData.playerName !== ''
+                                    ? 'tw:cursor-pointer hover:tw:bg-indigo-50 hover:tw:dark:bg-indigo-900/20 tw:transition-colors'
+                                    : ''
+                                } ${
+                                  baseSongData[0].patterns[patternName][difficultyCode].score !==
+                                    undefined &&
+                                  Number(
+                                    baseSongData[0].patterns[patternName][difficultyCode].score,
+                                  ) <= 0
+                                    ? 'tw:opacity-70'
+                                    : ''
+                                }`}
+                                onClick={() => {
+                                  if (userData.playerName !== '') {
+                                    setPatternMaxCombo(
+                                      baseSongData[0].patterns[patternName][difficultyCode]
+                                        .maxCombo,
+                                    )
+                                    setPatternButton(String(patternName))
+                                    setPatternDificulty(difficultyCode)
+                                    setUpdateScore(
+                                      Number(
+                                        baseSongData[0].patterns[patternName][difficultyCode]
+                                          .score !== undefined &&
+                                          baseSongData[0].patterns[patternName][difficultyCode]
+                                            .score !== null
+                                          ? Number(
+                                              baseSongData[0].patterns[patternName][difficultyCode]
+                                                .score,
+                                            )
+                                          : 0,
+                                      ),
+                                    )
+                                    setUpdateMax(
+                                      Number(
+                                        baseSongData[0].patterns[patternName][difficultyCode]
+                                          .max !== undefined &&
+                                          baseSongData[0].patterns[patternName][difficultyCode]
+                                            .max !== null
+                                          ? Number(
+                                              baseSongData[0].patterns[patternName][difficultyCode]
+                                                .max,
+                                            )
+                                          : 0,
+                                      ),
+                                    )
+                                    setIsPlusPattern(String(patternName).includes('_PLUS'))
+                                    setShowScoreModal(true)
+                                  }
+                                }}
+                              >
+                                <div className='tw:flex tw:w-full tw:justify-center tw:items-center tw:rounded-lg tw:gap-3'>
+                                  {/* 난이도 표시 */}
+                                  <div className='tw:w-flex tw:flex-col tw:justify-center tw:items-center'>
+                                    <span
+                                      className={
+                                        'tw:flex tw:justify-center tw:items-center tw:gap-2 tw:text-base tw:font-extrabold tw:text-platina_lab-PLUS-1'
+                                      }
+                                    >
+                                      Lv.
+                                      {baseSongData[0].patterns[patternName][
+                                        difficultyCode
+                                      ].level.toFixed(0)}
+                                    </span>
+                                    {baseSongData[0].patterns[patternName][difficultyCode].floor &&
+                                      Number(
+                                        baseSongData[0].patterns[patternName][difficultyCode].floor,
+                                      ) > 0 && (
+                                        <span className='tw:font-light tw:text-sm tw:text-platina_lab-PLUS-1'>
+                                          (
+                                          {
+                                            baseSongData[0].patterns[patternName][difficultyCode]
+                                              .floor
+                                          }
+                                          F)
+                                        </span>
+                                      )}
+                                  </div>
+
+                                  {/* 점수 표시 (로그인한 경우에만) */}
+                                  {userData.playerName !== '' && (
+                                    <div className='tw:flex tw:flex-col tw:items-start tw:justify-center tw:gap-1 tw:min-w-20'>
+                                      {baseSongData[0].patterns[patternName][difficultyCode]
+                                        .score &&
+                                      Number(
+                                        baseSongData[0].patterns[patternName][difficultyCode].score,
+                                      ) > 0 ? (
+                                        baseSongData[0].patterns[patternName][difficultyCode]
+                                          .score === '100.00' ? (
+                                          <>
+                                            <span className='tw:font-light tw:text-sm tw:text-slate-600 tw:dark:text-slate-300'>
+                                              {
+                                                baseSongData[0].patterns[patternName][
+                                                  difficultyCode
+                                                ].score
+                                              }
+                                              %{' '}
+                                              {Number(
+                                                baseSongData[0].patterns[patternName][
+                                                  difficultyCode
+                                                ]?.score,
+                                              ) == 100 ? (
+                                                <sup>
+                                                  MAX
+                                                  {baseSongData[0].patterns[patternName][
+                                                    difficultyCode
+                                                  ]?.max != 0
+                                                    ? ' - ' +
+                                                      baseSongData[0].patterns[patternName][
+                                                        difficultyCode
+                                                      ]?.max
+                                                    : null}
+                                                </sup>
+                                              ) : null}
+                                            </span>
+                                          </>
+                                        ) : (
+                                          <>
+                                            <span className='tw:font-light tw:text-sm tw:text-slate-600 tw:dark:text-slate-300'>
+                                              {
+                                                baseSongData[0].patterns[patternName][
+                                                  difficultyCode
+                                                ].score
+                                              }
+                                              %
+                                            </span>
+                                          </>
+                                        )
+                                      ) : (
+                                        <>
+                                          <span className='tw:font-light tw:text-sm tw:text-slate-500 tw:dark:text-slate-400'>
+                                            -
+                                          </span>
+                                          <span className='tw:font-light tw:text-xs tw:text-slate-400 tw:dark:text-slate-500 tw:break-keep'>
+                                            (기록 미존재)
+                                          </span>
+                                        </>
+                                      )}
+                                      {baseSongData[0].patterns[patternName][difficultyCode]
+                                        .score !== undefined &&
+                                      baseSongData[0].patterns[patternName][difficultyCode]
+                                        .score === '100.00' ? (
+                                        <span className='tw:text-xs tw:font-light tw:text-yellow-500 tw:dark:text-yellow-400'>
+                                          MAX COMBO
+                                        </span>
+                                      ) : baseSongData[0].patterns[patternName][difficultyCode]
+                                          .maxCombo ? (
+                                        <span className='tw:text-xs tw:font-light tw:text-yellow-500 tw:dark:text-yellow-400'>
+                                          MAX COMBO
+                                        </span>
+                                      ) : null}
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            ) : (
+                              <div key={`${String(patternName)}_${difficultyCode}`}></div>
+                            ),
+                          )}
+                        </div>
+                      </div>
+                    ))}
                 </div>
               </div>
             )}

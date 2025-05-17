@@ -4,6 +4,7 @@ import { createLog } from '@render/libs/logger'
 import { RootState } from '@render/store'
 import { FeedbackCommentResponse, FeedbackResponse } from '@src/types/dto/feedback/FeedbackResponse'
 import dayjs from 'dayjs'
+import DOMPurify from 'dompurify'
 import { motion } from 'framer-motion'
 import { useSelector } from 'react-redux'
 import { useNavigate, useParams } from 'react-router-dom'
@@ -161,7 +162,7 @@ export default function FeedbackDetailPage() {
 
   useEffect(() => {
     if (feedbackId) {
-      fetchBugDetail()
+      void fetchBugDetail()
     }
   }, [feedbackId])
 
@@ -181,7 +182,7 @@ export default function FeedbackDetailPage() {
 
       if (response.status === 201) {
         setNewComment('')
-        fetchBugDetail()
+        void fetchBugDetail()
       }
     } catch (error) {
       createLog('error', 'Error in handleAddComment', error)
@@ -214,7 +215,9 @@ export default function FeedbackDetailPage() {
             <button
               type='button'
               className='tw:px-4 tw:py-1.5 tw:text-sm tw:bg-indigo-600 tw:text-white tw:rounded hover:tw:bg-indigo-700 tw:transition-colors'
-              onClick={() => navigate('/feedback')}
+              onClick={() => {
+                navigate('/feedback')
+              }}
             >
               피드백 센터로 돌아가기
             </button>
@@ -233,7 +236,7 @@ export default function FeedbackDetailPage() {
             </p>
             <div
               className='rich-text-content tw:bg-white tw:dark:bg-slate-700/50 tw:border tw:border-gray-200 tw:dark:border-slate-600 tw:p-6 tw:rounded-lg tw:space-y-4 tw:text-gray-700 tw:dark:text-gray-200'
-              dangerouslySetInnerHTML={{ __html: bug.description }}
+              dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(bug.description) }}
             />
           </div>
 
@@ -248,13 +251,17 @@ export default function FeedbackDetailPage() {
                   <div className='tw:flex tw:gap-2'>
                     <textarea
                       value={newComment}
-                      onChange={(e) => setNewComment(e.target.value)}
+                      onChange={(e) => {
+                        setNewComment(e.target.value)
+                      }}
                       className='tw:flex-1 tw:bg-white tw:dark:bg-slate-700 tw:border tw:border-gray-300 tw:dark:border-slate-600 tw:rounded tw:px-3 tw:py-2 tw:text-gray-700 tw:dark:text-white focus:tw:outline-none focus:tw:ring-2 focus:tw:ring-indigo-500'
                       placeholder='추가 의견을 작성해주세요. 부적절한 언어 사용과 문제 발생 시 피드백 센터의 이용 제한 조치가 이루어질 수 있습니다.'
                       rows={3}
                     />
                     <button
-                      onClick={handleAddComment}
+                      onClick={() => {
+                        void handleAddComment()
+                      }}
                       disabled={loading || !newComment.trim()}
                       className='tw:px-4 tw:py-2 tw:bg-indigo-600 tw:text-white tw:rounded hover:tw:bg-indigo-700 tw:transition-colors disabled:tw:opacity-50'
                     >

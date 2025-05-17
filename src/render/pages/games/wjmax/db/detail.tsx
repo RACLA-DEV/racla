@@ -21,7 +21,6 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { PuffLoader } from 'react-spinners'
 import apiClient from '../../../../../libs/apiClient'
 
-dayjs.locale('ko')
 dayjs.extend(utc)
 const WjmaxDbDetailPage = () => {
   const { showNotification } = useNotificationSystem()
@@ -30,7 +29,7 @@ const WjmaxDbDetailPage = () => {
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const { songData, userData, selectedGame } = useSelector((state: RootState) => state.app)
-  const [baseSongData, setBaseSongData] = useState<any[]>([])
+  const [baseSongData, setBaseSongData] = useState<SongData[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [isScoredBaseSongData, setIsScoredBaseSongData] = useState<boolean>(true)
 
@@ -49,7 +48,7 @@ const WjmaxDbDetailPage = () => {
       if (userData.playerName) {
         try {
           const response = await apiClient.get<SongData>(
-            `/v3/racla/songs/${selectedGame}/${params?.id}/user/${userData.playerId}`,
+            `/v3/racla/songs/${selectedGame}/${params.id}/user/${userData.playerId}`,
             {
               headers: {
                 Authorization: `${userData.playerId}|${userData.playerToken}`,
@@ -78,7 +77,7 @@ const WjmaxDbDetailPage = () => {
               patterns: newPatterns,
             },
           ])
-          console.log({
+          createLog('info', 'fetchUserSongData', {
             ...data,
             patterns: newPatterns,
           })
@@ -93,7 +92,7 @@ const WjmaxDbDetailPage = () => {
       setIsScoredBaseSongData(false)
     }
 
-    initializeData()
+    void initializeData()
   }, [userData])
 
   const [patternButton, setPatternButton] = useState<string>('')
@@ -170,7 +169,7 @@ const WjmaxDbDetailPage = () => {
               )
             }
           })
-          .catch((error) => {
+          .catch((error: unknown) => {
             createLog('error', 'Error in fetchUpdateScore', { ...userData, error })
             showNotification(
               {
@@ -199,7 +198,7 @@ const WjmaxDbDetailPage = () => {
 
   useEffect(() => {
     if (fetchingUpdateScore) {
-      fetchUpdateScore()
+      void fetchUpdateScore()
     }
   }, [fetchingUpdateScore])
 
@@ -249,7 +248,9 @@ const WjmaxDbDetailPage = () => {
             return R.mergeDeepRight(newItem, item)
           }),
         )
-          .then((value) => setBaseSongData(value))
+          .then((value) => {
+            setBaseSongData(value as SongData[])
+          })
           .finally(() => {
             setIsScoredBaseSongData(true)
             setIsLoading(false)
@@ -257,7 +258,7 @@ const WjmaxDbDetailPage = () => {
       }
 
       if (userData.playerName !== '') {
-        updateArrayWithAPIData()
+        void updateArrayWithAPIData()
       } else {
         setIsScoredBaseSongData(true)
         setIsLoading(false)
@@ -267,7 +268,7 @@ const WjmaxDbDetailPage = () => {
 
   // 모달 상태 추가
   const [showScoreModal, setShowScoreModal] = useState(false)
-  const [patternViewerData, setPatternViewerData] = useState<any>(null)
+  const [patternViewerData, setPatternViewerData] = useState<string | null>(null)
   const [showPatternViewer, setShowPatternViewer] = useState<boolean>(false)
 
   // 패턴 데이터를 불러오는 함수
@@ -422,12 +423,17 @@ const WjmaxDbDetailPage = () => {
                                                 ? 'tw:bg-wjmax-SC tw:border-wjmax-SC'
                                                 : 'tw:bg-wjmax-DPC tw:border-wjmax-DPC'
                                       }`}
-                                      onClick={() =>
+                                      onClick={() => {
                                         fetchPatternData(
                                           baseSongData[0].patterns[patternName][difficultyCode]
                                             .patternFileName,
-                                        )
-                                      }
+                                        ).catch((error: unknown) => {
+                                          createLog('error', 'Error in fetchPatternData', {
+                                            ...userData,
+                                            error,
+                                          })
+                                        })
+                                      }}
                                     >
                                       <Icon icon='lucide:table-2' width={16} height={16} />
                                     </button>

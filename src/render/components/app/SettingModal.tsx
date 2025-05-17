@@ -19,6 +19,11 @@ import { useDispatch, useSelector } from 'react-redux'
 import { PuffLoader } from 'react-spinners'
 import apiClient from '../../../libs/apiClient'
 
+// Electron에서 사용되는 File 인터페이스 확장
+interface ElectronFile extends File {
+  path?: string
+}
+
 // 카테고리 정의
 const settingCategories = {
   account: { id: 'account', name: '계정 정보', icon: 'lucide:user', needLogin: true },
@@ -113,7 +118,6 @@ const ToggleSwitch = ({
   value,
   onChange,
   disabled = false,
-  theme,
   activeCategory,
 }: {
   value: boolean
@@ -145,7 +149,6 @@ const FileSelector = ({
   value,
   onChange,
   disabled = false,
-  theme,
 }: {
   value: string
   onChange: (value: string) => void
@@ -197,10 +200,8 @@ const FileSelector = ({
   }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (file) {
-      onChange(file.path || file.name)
-    }
+    const file = e.target.files?.[0] as ElectronFile
+    onChange(file.path ?? file.name)
   }
 
   return (
@@ -232,7 +233,6 @@ const SelectBox = ({
   options,
   onChange,
   disabled = false,
-  theme,
 }: {
   id: string
   value: string | number
@@ -254,7 +254,13 @@ const SelectBox = ({
       }`}
     >
       {options
-        .filter((option) => option.id)
+        .filter((option) => {
+          if (typeof option.id === 'number') {
+            return true
+          } else {
+            return option.id
+          }
+        })
         .map((option) => (
           <option key={option.id} value={option.id}>
             {t(`${id}.${option.id}`)}
@@ -270,7 +276,6 @@ const FolderItem = ({
   path,
   size,
   folderType,
-  theme,
   formatBytes,
   openFolder,
   children,
@@ -324,7 +329,7 @@ const AccountInfo = () => {
     vArchiveFileInputRef.current?.click()
   }
 
-  const onVArchiveFileChange = async (e) => {
+  const onVArchiveFileChange = (e) => {
     const file = e.target.files[0]
     const fileReader = new FileReader()
     fileReader.onload = () => {
@@ -352,50 +357,63 @@ const AccountInfo = () => {
           text.split(' ')[1].split('-')[4].length === 12
         ) {
           const data = getUserName({ userNo: text.split(' ')[0], token: text.split(' ')[1] })
-          data.then(async (result) => {
-            if (result.success) {
-              await apiClient
-                .post<PlayerLinkExternalServiceResponse>(`/v3/racla/player/link/oauth/vArchive`, {
-                  playerId: userData.playerId,
-                  playerToken: userData.playerToken,
-                  externalServiceUserNo: Number(text.split(' ')[0]),
-                  externalServiceUserToken: text.split(' ')[1],
-                  externalServiceType: 'V_ARCHIVE',
-                })
-                .then((data) => {
-                  if (data.data.success && data.data.data.result == 'Success') {
-                    showNotification({
-                      mode: 'i18n',
-                      ns: 'settings',
-                      value: 'accountInfo.vArchive.Success',
-                    })
-                    const newUserData: SessionData = {
-                      ...userData,
-                      varchiveUserInfo: {
-                        ...data.data.data.varchiveUserInfo,
-                        isLinked: true,
-                      },
+          data
+            .then(async (result) => {
+              if (result.success) {
+                await apiClient
+                  .post<PlayerLinkExternalServiceResponse>(`/v3/racla/player/link/oauth/vArchive`, {
+                    playerId: userData.playerId,
+                    playerToken: userData.playerToken,
+                    externalServiceUserNo: Number(text.split(' ')[0]),
+                    externalServiceUserToken: text.split(' ')[1],
+                    externalServiceType: 'V_ARCHIVE',
+                  })
+                  .then((data) => {
+                    if (data.data.success && data.data.data.result == 'Success') {
+                      showNotification({
+                        mode: 'i18n',
+                        ns: 'settings',
+                        value: 'accountInfo.vArchive.Success',
+                      })
+                      const newUserData: SessionData = {
+                        ...userData,
+                        varchiveUserInfo: {
+                          ...data.data.data.varchiveUserInfo,
+                          isLinked: true,
+                        },
+                      }
+                      dispatch(setUserData(newUserData))
+                    } else if (!data.data.success && data.data.data.result === 'NotFound') {
+                      showNotification(
+                        {
+                          mode: 'i18n',
+                          ns: 'settings',
+                          value: 'accountInfo.vArchive.NotFound',
+                        },
+                        'success',
+                      )
+                    } else if (!data.data.success && data.data.data.result === 'Already') {
+                      showNotification(
+                        {
+                          mode: 'i18n',
+                          ns: 'settings',
+                          value: 'accountInfo.vArchive.Already',
+                        },
+                        'error',
+                      )
+                    } else {
+                      showNotification(
+                        {
+                          mode: 'i18n',
+                          ns: 'settings',
+                          value: 'accountInfo.vArchive.Unknown',
+                        },
+                        'error',
+                      )
                     }
-                    dispatch(setUserData(newUserData))
-                  } else if (!data.data.success && data.data.data.result === 'NotFound') {
-                    showNotification(
-                      {
-                        mode: 'i18n',
-                        ns: 'settings',
-                        value: 'accountInfo.vArchive.NotFound',
-                      },
-                      'success',
-                    )
-                  } else if (!data.data.success && data.data.data.result === 'Already') {
-                    showNotification(
-                      {
-                        mode: 'i18n',
-                        ns: 'settings',
-                        value: 'accountInfo.vArchive.Already',
-                      },
-                      'error',
-                    )
-                  } else {
+                  })
+                  .catch((error: unknown) => {
+                    createLog('error', 'Error linking V-ARCHIVE account', String(error))
                     showNotification(
                       {
                         mode: 'i18n',
@@ -404,30 +422,29 @@ const AccountInfo = () => {
                       },
                       'error',
                     )
-                  }
-                })
-                .catch((error) => {
-                  createLog('error', 'Error linking V-ARCHIVE account', String(error))
-                  showNotification(
-                    {
-                      mode: 'i18n',
-                      ns: 'settings',
-                      value: 'accountInfo.vArchive.Unknown',
-                    },
-                    'error',
-                  )
-                })
-            } else {
+                  })
+              } else {
+                showNotification(
+                  {
+                    mode: 'i18n',
+                    ns: 'settings',
+                    value: 'accountInfo.vArchive.NotFound',
+                  },
+                  'error',
+                )
+              }
+            })
+            .catch((error: unknown) => {
+              createLog('error', 'Error linking V-ARCHIVE account', String(error))
               showNotification(
                 {
                   mode: 'i18n',
                   ns: 'settings',
-                  value: 'accountInfo.vArchive.NotFound',
+                  value: 'accountInfo.vArchive.Unknown',
                 },
                 'error',
               )
-            }
-          })
+            })
         } else {
           showNotification(
             {
@@ -481,7 +498,7 @@ const AccountInfo = () => {
         })
         .then((data) => {
           if (data.data.success && data.data.data.result === 'Success') {
-            console.log(data.data.data)
+            createLog('info', 'handleDiscordLink', { data: data.data.data })
             showNotification(
               {
                 mode: 'i18n',
@@ -527,7 +544,7 @@ const AccountInfo = () => {
             )
           }
         })
-        .catch((error) => {
+        .catch((error: unknown) => {
           createLog('error', 'Error linking Discord account', String(error))
           showNotification(
             {
@@ -555,11 +572,15 @@ const AccountInfo = () => {
     navigator.clipboard.writeText(text).then(
       () => {
         setCopySuccess(field)
-        setTimeout(() => setCopySuccess(null), 2000)
+        setTimeout(() => {
+          setCopySuccess(null), 2000
+        })
       },
       () => {
         setCopySuccess('error')
-        setTimeout(() => setCopySuccess(null), 2000)
+        setTimeout(() => {
+          setCopySuccess(null)
+        }, 2000)
       },
     )
   }
@@ -574,14 +595,16 @@ const AccountInfo = () => {
     value: string | number
     fieldId: string
   }) => (
-    <div className='tw:flex tw:items-center tw:justify-between tw:mb-2'>
+    <div className={`tw:flex tw:items-center tw:justify-between tw:mb-2`}>
       <span className='tw:text-sm tw:font-medium'>{label}</span>
       <div className='tw:flex tw:items-center tw:gap-2'>
-        <div className='tw:px-3 tw:py-1.5 tw:bg-gray-100 tw:dark:bg-slate-700 tw:blur-sm tw:hover:blur-none tw:transition-all tw:duration-300 tw:rounded-md tw:relative'>
+        <div className='tw:px-3 tw:py-1.5 tw:bg-gray-100 tw:dark:bg-slate-800 tw:blur-sm tw:hover:blur-none tw:transition-all tw:duration-300 tw:rounded-md tw:relative'>
           <span className='tw:text-sm tw:font-mono'>{value}</span>
         </div>
         <button
-          onClick={() => copyToClipboard(String(value), fieldId)}
+          onClick={() => {
+            copyToClipboard(String(value), fieldId)
+          }}
           className='tw:p-1.5 tw:rounded-full tw:bg-gray-100 tw:dark:bg-slate-700 tw:text-gray-600 tw:dark:text-gray-300 hover:tw:bg-indigo-100 hover:tw:dark:bg-indigo-900 tw:transition-colors'
           title='복사하기'
         >
@@ -598,7 +621,7 @@ const AccountInfo = () => {
   return (
     <div className='tw:flex tw:flex-col tw:gap-6'>
       {/* RACLA 계정 정보 */}
-      <div className='tw:bg-white tw:dark:bg-slate-750 tw:rounded-xl tw:p-5 tw:border tw:border-gray-200 tw:dark:border-slate-700 tw:shadow-sm'>
+      <div className='tw:bg-white tw:dark:bg-slate-700 tw:rounded-xl tw:p-5 tw:border tw:border-gray-200 tw:dark:border-slate-600'>
         <div className='tw:flex tw:items-center tw:gap-3 tw:mb-4'>
           <div className='tw:p-2 tw:bg-indigo-100 tw:dark:bg-indigo-900/50 tw:rounded-lg'>
             <Icon
@@ -619,8 +642,9 @@ const AccountInfo = () => {
             <span className='tw:text-sm tw:font-light tw:text-red-600 tw:dark:text-red-400 tw:break-keep tw:flex tw:items-start tw:gap-2'>
               <Icon icon='lucide:alert-triangle' className='tw:w-4 tw:h-4 tw:shrink-0 tw:mt-0.5' />
               <span>
-                노출되는 정보는 RACLA에서 로그인 데이터로 사용되는 계정 번호(userNo)와 계정
-                토큰(userToken)입니다. 계정 번호와 계정 토큰은 외부에 노출되지 않도록 주의해주세요.
+                노출되는 정보는 RACLA에서 로그인 데이터로 사용되는 계정 번호(playerNo)와 계정
+                토큰(playerToken)입니다. 계정 번호와 계정 토큰은 외부에 노출되지 않도록
+                주의해주세요.
               </span>
             </span>
           </div>
@@ -628,7 +652,7 @@ const AccountInfo = () => {
       </div>
 
       {/* V-ARCHIVE 계정 정보 */}
-      <div className='tw:bg-white tw:dark:bg-slate-750 tw:rounded-xl tw:p-5 tw:border tw:border-gray-200 tw:dark:border-slate-700 tw:shadow-sm'>
+      <div className='tw:bg-white tw:dark:bg-slate-700 tw:rounded-xl tw:p-5 tw:border tw:border-gray-200 tw:dark:border-slate-600'>
         <div className='tw:flex tw:items-center tw:gap-3 tw:mb-4'>
           <div className='tw:p-2 tw:bg-blue-100 tw:dark:bg-blue-900/50 tw:rounded-lg'>
             <Icon
@@ -643,7 +667,9 @@ const AccountInfo = () => {
           ref={vArchiveFileInputRef}
           type='file'
           accept='.txt'
-          onChange={onVArchiveFileChange}
+          onChange={(e) => {
+            onVArchiveFileChange(e)
+          }}
           className='tw:hidden'
         />
 
@@ -679,7 +705,7 @@ const AccountInfo = () => {
           <div className='tw:space-y-4'>
             <button
               onClick={handleVArchiveFileSelect}
-              className='tw:flex tw:items-center tw:justify-center tw:gap-2 tw:px-4 tw:py-2.5 tw:bg-blue-600 hover:tw:bg-blue-700 tw:text-white tw:text-sm tw:font-medium tw:shadow-sm tw:rounded-lg tw:w-full tw:transition-colors'
+              className='tw:flex tw:items-center tw:justify-center tw:gap-2 tw:px-4 tw:py-2.5 tw:bg-blue-600 hover:tw:bg-blue-700 tw:text-white tw:text-sm tw:font-medium tw:rounded-lg tw:w-full tw:transition-colors'
             >
               <Icon icon='lucide:file-plus' className='tw:w-4 tw:h-4' />
               V-ARCHIVE 연동하기
@@ -701,7 +727,7 @@ const AccountInfo = () => {
       </div>
 
       {/* Discord 연동 정보 */}
-      <div className='tw:bg-white tw:dark:bg-slate-750 tw:rounded-xl tw:p-5 tw:border tw:border-gray-200 tw:dark:border-slate-700 tw:shadow-sm'>
+      <div className='tw:bg-white tw:dark:bg-slate-700 tw:rounded-xl tw:p-5 tw:border tw:border-gray-200 tw:dark:border-slate-600'>
         <div className='tw:flex tw:items-center tw:gap-3 tw:mb-4'>
           <div className='tw:p-2 tw:bg-[#5865F2]/10 tw:dark:bg-[#5865F2]/20 tw:rounded-lg'>
             <FaDiscord className='tw:w-5 tw:h-5 tw:text-[#5865F2]' />
@@ -735,8 +761,10 @@ const AccountInfo = () => {
         ) : (
           <div className='tw:space-y-4'>
             <button
-              onClick={handleDiscordLink}
-              className='tw:flex tw:items-center tw:justify-center tw:gap-2 tw:px-4 tw:py-2.5 tw:bg-[#5865F2] hover:tw:bg-[#4752C4] tw:text-white tw:text-sm tw:font-medium tw:shadow-sm tw:rounded-lg tw:w-full tw:transition-colors'
+              onClick={() => {
+                void handleDiscordLink()
+              }}
+              className='tw:flex tw:items-center tw:justify-center tw:gap-2 tw:px-4 tw:py-2.5 tw:bg-[#5865F2] hover:tw:bg-[#4752C4] tw:text-white tw:text-sm tw:font-medium tw:rounded-lg tw:w-full tw:transition-colors'
             >
               <FaDiscord className='tw:text-base' />
               Discord 로그인 연동하기

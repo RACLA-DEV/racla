@@ -480,8 +480,8 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
           // 롱노트가 끝까지 눌려있는 경우 노트 제거만 처리
           visibleNotesRef.current = visibleNotesRef.current.filter((n) => n.id !== noteId)
           pressedNotesRef.current.delete(noteId)
-          delete longNoteTicksRef.current[noteId]
-          delete longNoteJudgementsRef.current[noteId]
+          longNoteTicksRef.current[noteId] = undefined
+          longNoteJudgementsRef.current[noteId] = undefined
           return
         }
 
@@ -490,14 +490,14 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
         pressedNotesRef.current.delete(noteId)
 
         // 롱노트 틱 정보 삭제
-        delete longNoteTicksRef.current[noteId]
+        longNoteTicksRef.current[noteId] = undefined
 
         // 롱노트 땔 때 판정 항상 적용
         const initialJudgementValue = longNoteJudgementsRef.current[noteId] || 'PERFECT'
         updateScore(initialJudgementValue as 'PERFECT' | 'GREAT' | 'GOOD' | 'BAD' | 'MISS')
 
         // 롱노트 판정 정보 삭제
-        delete longNoteJudgementsRef.current[noteId]
+        longNoteJudgementsRef.current[noteId] = undefined
       })
     }
 
@@ -620,11 +620,9 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
         return note.lane === laneIndex
       } else if (noteType === 'fx' || noteType === 'lr') {
         return note.lane === laneIndex
-      } else if (noteType === 'enter') {
+      } else {
         return true
       }
-
-      return false
     })
 
     // 노트가 없으면 미스 처리하지 않고 그냥 리턴
@@ -749,13 +747,13 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
     pressedNotesRef.current.delete(noteId)
 
     // 롱노트 틱 정보 삭제
-    delete longNoteTicksRef.current[noteId]
+    longNoteTicksRef.current[noteId] = undefined
 
     // 최초 판정이 MISS인 경우, 판정하지 않음 (이미 미스 처리된 롱노트)
     const initialJudgement = longNoteJudgementsRef.current[noteId]
     if (initialJudgement === 'MISS') {
       // 미스 판정된 롱노트는 더이상 판정하지 않음
-      delete longNoteJudgementsRef.current[noteId]
+      longNoteJudgementsRef.current[noteId] = undefined
       return
     }
 
@@ -788,7 +786,7 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
     }
 
     // 롱노트 판정 정보 삭제 (기존 판정 정보 제거하여 중복 방지)
-    delete longNoteJudgementsRef.current[noteId]
+    longNoteJudgementsRef.current[noteId] = undefined
   }
 
   useEffect(() => {
@@ -882,7 +880,7 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
       } else if (note.type === 'fx' || note.type === 'lr') {
         noteX = note.lane === 0 ? 0 : gameWidth / 2
         noteWidth = gameWidth / 2
-      } else if (note.type === 'enter') {
+      } else {
         noteX = 0
         noteWidth = gameWidth
       }
@@ -1526,7 +1524,6 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
                       onChange={handlePresetChange}
                       className={styles.presetSelect}
                       tabIndex={-1}
-                      disabled={isPlaying || isCountingDown}
                     >
                       {JUDGEMENT_PRESETS.map((preset) => (
                         <option key={preset.name} value={preset.name}>

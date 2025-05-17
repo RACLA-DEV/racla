@@ -32,9 +32,7 @@ interface Pattern {
   board: number
 }
 
-interface KeyModeData {
-  [keyMode: string]: Pattern[]
-}
+type KeyModeData = Record<string, Pattern[]>
 
 export default function DjmaxHomeComponent() {
   const { t } = useTranslation(['home'])
@@ -78,13 +76,9 @@ export default function DjmaxHomeComponent() {
     'SC15',
   ])
 
-  const [cutoffScores, setCutoffScores] = useState<{
-    [keyMode: string]: {
-      new30: number
-      basic70: number
-      top50: number
-    }
-  }>({
+  const [cutoffScores, setCutoffScores] = useState<
+    Record<string, { new30: number; basic70: number; top50: number }>
+  >({
     '4': { new30: 0, basic70: 0, top50: 0 },
     '5': { new30: 0, basic70: 0, top50: 0 },
     '6': { new30: 0, basic70: 0, top50: 0 },
@@ -355,7 +349,7 @@ export default function DjmaxHomeComponent() {
               className='tw:w-4 tw:h-4'
             />
             <span className='tw:font-extrabold tw:mb-0.5'>
-              {pattern.floor != null && pattern.floor !== 0 ? pattern.floor + 'F' : pattern.level}
+              {pattern.floor !== 0 ? pattern.floor + 'F' : pattern.level}
             </span>
           </span>
         )
@@ -375,7 +369,7 @@ export default function DjmaxHomeComponent() {
             height={16}
             className='tw:w-4 tw:h-4'
           />
-          <span className='tw:font-extrabold tw:mb-0.5'>{`${pattern.floor != null && pattern.floor !== 0 ? pattern.floor + 'F' : pattern.level}`}</span>
+          <span className='tw:font-extrabold tw:mb-0.5'>{`${pattern.floor !== 0 ? pattern.floor + 'F' : pattern.level}`}</span>
         </span>
       )
     }
@@ -411,8 +405,8 @@ export default function DjmaxHomeComponent() {
     // 패턴의 난이도를 비교하는 함수
     const compareDifficulty = (a: Pattern, b: Pattern) => {
       // SC 패턴 (floor가 있는 경우)
-      const aFloor = a.floor !== null && a.floor !== undefined ? Number(a.floor) : -1
-      const bFloor = b.floor !== null && b.floor !== undefined ? Number(b.floor) : -1
+      const aFloor = Number(a.floor) || -1
+      const bFloor = Number(b.floor) || -1
 
       // 둘 다 SC 패턴인 경우 floor로 비교
       if (aFloor >= 0 && bFloor >= 0) {
@@ -482,17 +476,14 @@ export default function DjmaxHomeComponent() {
   }
 
   // 티어 점수를 저장할 state 추가
-  const [tierScores, setTierScores] = useState<{
-    [keyMode: string]: {
-      tierScore: number
-      tier: string
-    }
-  }>({
-    '4': { tierScore: 0, tier: 'Beginner' },
-    '5': { tierScore: 0, tier: 'Beginner' },
-    '6': { tierScore: 0, tier: 'Beginner' },
-    '8': { tierScore: 0, tier: 'Beginner' },
-  })
+  const [tierScores, setTierScores] = useState<Record<string, { tierScore: number; tier: string }>>(
+    {
+      '4': { tierScore: 0, tier: 'Beginner' },
+      '5': { tierScore: 0, tier: 'Beginner' },
+      '6': { tierScore: 0, tier: 'Beginner' },
+      '8': { tierScore: 0, tier: 'Beginner' },
+    },
+  )
 
   // keyModeData가 업데이트될 때마다 티어 점수 계산
   useEffect(() => {
@@ -563,14 +554,13 @@ export default function DjmaxHomeComponent() {
 
       // TOP 50 렬 (rating 기준)
       const top50Patterns = [...allPatterns]
-        .filter((pattern: Pattern) => pattern.rating != null)
         .sort((a: Pattern, b: Pattern) => (b.rating || 0) - (a.rating || 0))
         .slice(0, 50)
 
       newCutoffScores[keyMode] = {
-        new30: (newPatterns[29] as Pattern)?.djpower || 0,
-        basic70: (basicPatterns[69] as Pattern)?.djpower || 0,
-        top50: (top50Patterns[49] as Pattern)?.rating || 0,
+        new30: (newPatterns[29] as Pattern).djpower || 0,
+        basic70: (basicPatterns[69] as Pattern).djpower || 0,
+        top50: (top50Patterns[49] as Pattern).rating || 0,
       }
     })
 
@@ -1197,85 +1187,81 @@ export default function DjmaxHomeComponent() {
                     <span className='tw:text-lg tw:font-bold tw:text-gray-900 tw:dark:text-white'>
                       {selectedKeyMode}B {t('best')} {t('achievement')}
                     </span>
-                    {!isLoading && keyModeData[selectedKeyMode] && (
-                      <motion.div
-                        key={`achievements_${selectedKeyMode}`}
-                        initial={{ opacity: 0, x: 10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.2 }}
-                        className='tw:flex tw:flex-col tw:gap-2'
-                      >
-                        {Object.entries({
-                          maxCombo: t('maxCombo'),
-                          perfect: t('perfect'),
-                          over999: t('over999.fullName'),
-                          over995: t('over995.fullName'),
-                          over99: t('over99.fullName'),
-                          over97: t('over97.fullName'),
-                          clear: t('clear'),
-                        }).map(([key, label]) => {
-                          const patterns = keyModeData[selectedKeyMode]
-                          const condition = (pattern: Pattern) => {
-                            const score =
-                              typeof pattern.score === 'string'
-                                ? parseFloat(pattern.score)
-                                : pattern.score
-                            if (score === null) return false
+                    <motion.div
+                      key={`achievements_${selectedKeyMode}`}
+                      initial={{ opacity: 0, x: 10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className='tw:flex tw:flex-col tw:gap-2'
+                    >
+                      {Object.entries({
+                        maxCombo: t('maxCombo'),
+                        perfect: t('perfect'),
+                        over999: t('over999.fullName'),
+                        over995: t('over995.fullName'),
+                        over99: t('over99.fullName'),
+                        over97: t('over97.fullName'),
+                        clear: t('clear'),
+                      }).map(([key, label]) => {
+                        const patterns = keyModeData[selectedKeyMode]
+                        const condition = (pattern: Pattern) => {
+                          const score =
+                            typeof pattern.score === 'string'
+                              ? parseFloat(pattern.score)
+                              : pattern.score
+                          if (score === null) return false
 
-                            // perfect, maxCombo, clear는 독립적으로 체크
-                            if (key === 'perfect') {
-                              return Math.abs(score - 100.0) < 0.001
-                            }
-                            if (key === 'maxCombo') {
-                              return pattern.maxCombo === 1
-                            }
-                            if (key === 'clear') {
-                              return score > 0
-                            }
-
-                            // over 카테고리들은 서로 겹치지 않도록 체크
-                            switch (key) {
-                              case 'over999':
-                                return score >= 99.9 && score < 100
-                              case 'over995':
-                                return score >= 99.5 && score < 99.9
-                              case 'over99':
-                                return score >= 99.0 && score < 99.5
-                              case 'over97':
-                                return score >= 97.0 && score < 99.0
-                              default:
-                                return false
-                            }
+                          // perfect, maxCombo, clear는 독립적으로 체크
+                          if (key === 'perfect') {
+                            return Math.abs(score - 100.0) < 0.001
+                          }
+                          if (key === 'maxCombo') {
+                            return pattern.maxCombo === 1
+                          }
+                          if (key === 'clear') {
+                            return score > 0
                           }
 
-                          const highestPattern = getHighestLevelInfo(patterns, condition)
+                          // over 카테고리들은 서로 겹치지 않도록 체크
+                          switch (key) {
+                            case 'over999':
+                              return score >= 99.9 && score < 100
+                            case 'over995':
+                              return score >= 99.5 && score < 99.9
+                            case 'over99':
+                              return score >= 99.0 && score < 99.5
+                            case 'over97':
+                              return score >= 97.0 && score < 99.0
+                            default:
+                              return false
+                          }
+                        }
 
-                          if (!highestPattern) return null
+                        const highestPattern = getHighestLevelInfo(patterns, condition)
 
-                          return (
-                            <div key={`${key}_${selectedKeyMode}`} className='tw:flex tw:gap-2'>
-                              <ScorePopupComponent
-                                songTitle={highestPattern.title}
-                                keyMode={selectedKeyMode}
-                              />
-                              <div className='tw:flex tw:flex-col tw:gap-1 tw:bg-gray-100 tw:dark:bg-slate-700/50 tw:rounded-md tw:p-3 tw:flex-1 tw:border tw:border-gray-200 tw:dark:border-slate-600'>
-                                <div className='tw:flex tw:justify-between tw:items-center'>
-                                  <span className='tw:text-sm tw:font-bold tw:text-gray-900 tw:dark:text-white'>
-                                    {label}
-                                  </span>
-                                  <span className='tw:text-sm tw:font-extrabold'>
-                                    {getLevelDisplay(highestPattern)}
-                                  </span>
-                                </div>
-                                <p className='tw:text-sm tw:text-gray-500 tw:dark:text-slate-300 tw:max-w-full text-one-line'>
-                                  {highestPattern.name}
-                                </p>
+                        return (
+                          <div key={`${key}_${selectedKeyMode}`} className='tw:flex tw:gap-2'>
+                            <ScorePopupComponent
+                              songTitle={highestPattern.title}
+                              keyMode={selectedKeyMode}
+                            />
+                            <div className='tw:flex tw:flex-col tw:gap-1 tw:bg-gray-100 tw:dark:bg-slate-700/50 tw:rounded-md tw:p-3 tw:flex-1 tw:border tw:border-gray-200 tw:dark:border-slate-600'>
+                              <div className='tw:flex tw:justify-between tw:items-center'>
+                                <span className='tw:text-sm tw:font-bold tw:text-gray-900 tw:dark:text-white'>
+                                  {label}
+                                </span>
+                                <span className='tw:text-sm tw:font-extrabold'>
+                                  {getLevelDisplay(highestPattern)}
+                                </span>
                               </div>
+                              <p className='tw:text-sm tw:text-gray-500 tw:dark:text-slate-300 tw:max-w-full text-one-line'>
+                                {highestPattern.name}
+                              </p>
                             </div>
-                          )
-                        })}
-                      </motion.div>
-                    )}
+                          </div>
+                        )
+                      })}
+                    </motion.div>
                   </div>
                 </div>
               </div>

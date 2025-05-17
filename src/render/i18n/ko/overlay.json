@@ -1,0 +1,9 @@
+{
+  "successInitialize": "RACLA 오버레이가 활성화 되었습니다.",
+  "pressedAltInsert": "수동 캡처 모드 - 결과 창 화면 분석을 시작합니다. 잠시만 기다려주세요.",
+  "detectResultScreen": "자동 캡처 모드 - 결과 창 화면이 감지되어 분석을 시작합니다. 잠시만 기다려주세요.",
+  "retryParsePlayResult": "자동 캡처 모드 - 첫 번째 시도에서 결과 창 화면 분석에 실패하여 다시 시도합니다. 잠시만 기다려주세요. (최대 3회 시도)",
+  "successParsePlayResult": "결과 창 화면 분석 및 기록 등록이 정상적으로 처리되었습니다.",
+  "failedParsePlayResult": "결과 창 화면이 아니거나 분석할 수 없는 화면입니다. 잠시 후에 다시 시도해주세요.",
+  "successSavedImage": "{{filePath}} 경로에 이미지가 정상적으로 저장되었습니다."
+}

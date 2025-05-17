@@ -29,6 +29,8 @@ declare global {
       sendToOverlay: (message: string) => Promise<boolean>
       getProcessList: () => Promise<ProcessDescriptor[]>
       onOverlayMessage: (callback: (data: any) => void) => void
+      onOverlayResult: (callback: (data: OcrPlayDataResponse) => void) => void
+      onOverlayPressedAltInsert: (callback: (data: boolean) => void) => void
       initializeMonitor: () => Promise<void>
 
       // 로깅 관련
@@ -89,6 +91,9 @@ declare global {
 
       // 디스코드 관련
       initializeDiscord: () => void
+
+      // OCR 관련
+      getOcrResultServer: (image: Buffer, gameCode: string) => Promise<OcrPlayDataResponse>
     }
   }
 }

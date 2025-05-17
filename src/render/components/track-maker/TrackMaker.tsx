@@ -477,7 +477,8 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
     let finalLane = lane
     if (selectedNoteType === 'fx' || selectedNoteType === 'lr') {
       // 에디터를 정확히 절반으로 나누어 왼쪽/오른쪽 판정
-      finalLane = x < rect.width / 2 ? 0 : 1
+      const isRight = lane >= laneCount / 2
+      finalLane = isRight ? 1 : 0
     } else if (selectedNoteType === 'enter') {
       finalLane = 0
     }
@@ -805,7 +806,7 @@ const TrackMaker: React.FC<TrackMakerProps> = ({
       const isRight = lane >= laneCount / 2
       left = isRight ? editorWidth / 2 : 0
       width = editorWidth / 2
-    } else if (selectedNoteType === 'enter') {
+    } else {
       left = 0
       width = editorWidth
     }

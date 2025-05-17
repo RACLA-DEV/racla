@@ -12,8 +12,8 @@ import { PuffLoader } from 'react-spinners'
 
 const DmrvDjpowerPage = () => {
   const [keyMode, setKeyMode] = useState<string>('4')
-  const [baseSongData, setBaseSongData] = useState<any[]>([])
-  const [newSongData, setNewSongData] = useState<any[]>([])
+  const [baseSongData, setBaseSongData] = useState<SongData[]>([])
+  const [newSongData, setNewSongData] = useState<SongData[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
   const [isScoredBaseSongData, setIsScoredBaseSongData] = useState<boolean>(true)
@@ -26,7 +26,7 @@ const DmrvDjpowerPage = () => {
     setNewSongData([])
     if (songData[selectedGame].length > 0) {
       // SC 레벨과 MX 레벨을 동일하게 취급하는 함수
-      const adjustLevels = (item: any) => {
+      const adjustLevels = (item: SongData) => {
         const scLevel = R.path(['patterns', `${keyMode}B`, 'SC', 'level'], item)
         const mxLevel = R.path(['patterns', `${keyMode}B`, 'MX', 'level'], item)
 
@@ -47,12 +47,12 @@ const DmrvDjpowerPage = () => {
 
       // SC 레벨을 추출하는 함수
       const getSCLevel = R.path(['patterns', `${keyMode}B`, 'SC', 'level']) as (
-        obj: any,
+        obj: SongData,
       ) => number | undefined
 
       // dlcCode가 FAL, VL, CP인 항목과 name이 Kamui, BlueWhite인 항목을 필터링
       const filterExcludedItems = R.filter(
-        R.pipe((item: any) => {
+        R.pipe((item: SongData) => {
           const dlcCode = R.path(['dlcCode'], item)
           const name = R.path(['name'], item)
           return (
@@ -81,9 +81,9 @@ const DmrvDjpowerPage = () => {
       ])
 
       // dlcCode가 FAL, VL, CP인 경우와 name이 Kamui, BlueWhite인 경우를 별도로 처리
-      const getSpecialItems = (data: any[], maxItems: number) => {
+      const getSpecialItems = (data: SongData[], maxItems: number) => {
         const specialItems = R.filter(
-          R.pipe((item: any) => {
+          R.pipe((item: SongData) => {
             const dlcCode = R.path(['dlcCode'], item)
             const name = R.path(['name'], item)
             // return (['FAL', 'VL', 'CP', 'TEK'].includes(dlcCode) || ['Kamui', 'BlueWhite'].includes(name)) && !['From Hell to Breakfast', 'SURVIVOR'].includes(name)
@@ -129,7 +129,7 @@ const DmrvDjpowerPage = () => {
       }
 
       // SC 레벨이 특정 값까지의 항목을 포함하는 함수
-      const getFilteredData = (data: any[], maxItems: number) => {
+      const getFilteredData = (data: SongData[], maxItems: number) => {
         // 필터링 및 정렬
         const sortedData = R.pipe(
           filterExcludedItems, // dlcCode와 name에 따라 필터링
@@ -185,9 +185,6 @@ const DmrvDjpowerPage = () => {
       const response = await apiClient.getProxy<SongData>(
         `https://v-archive.net/api/archive/${userData.varchiveUserInfo.nickname}/title/${title}`,
       )
-      if (!response) {
-        throw new Error('Network response was not ok')
-      }
       return response.data.data
     } catch (error) {
       createLog('error', 'Error in loadDataWithScore', { ...userData })
@@ -225,13 +222,15 @@ const DmrvDjpowerPage = () => {
             }
           }),
         )
-          .then((value) => setBaseSongData(value))
+          .then((value) => {
+            setBaseSongData(value)
+          })
           .finally(() => {
             setIsScoredBaseSongData(true)
           })
       }
 
-      updateArrayWithAPIData()
+      void updateArrayWithAPIData()
     }
   }, [baseSongData, isScoredBaseSongData])
 
@@ -264,13 +263,15 @@ const DmrvDjpowerPage = () => {
             }
           }),
         )
-          .then((value) => setNewSongData(value))
+          .then((value) => {
+            setNewSongData(value)
+          })
           .finally(() => {
             setIsScoredNewSongData(true)
           })
       }
 
-      updateArrayWithAPIData()
+      void updateArrayWithAPIData()
     }
   }, [newSongData, isScoredNewSongData])
 
@@ -290,7 +291,9 @@ const DmrvDjpowerPage = () => {
               {globalDictionary.gameDictionary[selectedGame].keyModeList.map((mode) => (
                 <button
                   key={`mode_${mode}`}
-                  onClick={() => setKeyMode(String(mode))}
+                  onClick={() => {
+                    setKeyMode(String(mode))
+                  }}
                   className={`tw:flex tw:items-center tw:justify-center tw:relative tw:px-4 tw:py-0.5 tw:border tw:border-opacity-50 tw:transition-all tw:duration-500 tw:rounded-md tw:flex-1 ${
                     String(mode) === keyMode
                       ? 'tw:border-indigo-500 tw:bg-indigo-600/20 tw:dark:bg-indigo-600/20 tw:brightness-150'
@@ -365,7 +368,6 @@ const DmrvDjpowerPage = () => {
                       {songDataPack
                         .filter(
                           (songItem) =>
-                            !isLoading &&
                             songItem.patterns[`${keyMode}B`].SC !== undefined &&
                             String(songItem.patterns[`${keyMode}B`].SC.level).startsWith(
                               String(levelValue),

@@ -2,6 +2,7 @@ import { MouseEvent, WheelEvent, useEffect, useRef, useState } from 'react'
 import { FaArrowRightArrowLeft, FaArrowsRotate, FaDice, FaPalette, FaXmark } from 'react-icons/fa6'
 import { TransformComponent, TransformWrapper } from 'react-zoom-pan-pinch'
 
+import { createLog } from '@render/libs/logger'
 import { createPortal } from 'react-dom'
 import Tooltip from '../ui/Tooltip'
 
@@ -25,9 +26,7 @@ interface ChartData {
   notes: Note[]
 }
 
-interface ChartSection {
-  [key: number]: Note[]
-}
+type ChartSection = Record<number, Note[]>
 
 // components/Note.jsx
 const Note = ({ position, length, isLongNote }) => {
@@ -129,9 +128,7 @@ export default function WjmaxChartViewer({
         const endSectionIndex = Math.floor(note.tailMilliSec / sectionDuration)
 
         for (let i = sectionIndex; i <= endSectionIndex; i++) {
-          if (!groupedNotes[i]) {
-            groupedNotes[i] = []
-          }
+          groupedNotes[i] = []
 
           const clonedNote = { ...note }
 
@@ -144,9 +141,7 @@ export default function WjmaxChartViewer({
           groupedNotes[i].push(clonedNote)
         }
       } else {
-        if (!groupedNotes[sectionIndex]) {
-          groupedNotes[sectionIndex] = []
-        }
+        groupedNotes[sectionIndex] = []
         groupedNotes[sectionIndex].push(note)
       }
     })
@@ -281,7 +276,9 @@ export default function WjmaxChartViewer({
     }
 
     window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown)
+    }
   }, [])
 
   const calculateNotePosition = (timeMs: number, sectionDuration: number) => {
@@ -379,7 +376,7 @@ export default function WjmaxChartViewer({
       <div className='chart-column tw:z-[99999]'>
         {Array.from({ length: SECTIONS_PER_COLUMN }).map((_, i) => {
           const sectionIndex = startSectionIndex + (SECTIONS_PER_COLUMN - 1 - i)
-          const sectionNotes = sections[sectionIndex] || []
+          const sectionNotes = sections[sectionIndex]
           const sectionTime = formatTime(sectionIndex * calculateSectionDuration(bpm))
 
           return (
@@ -564,7 +561,9 @@ export default function WjmaxChartViewer({
           <div ref={themeDropdownRef} className='tw:relative'>
             <Tooltip content='테마 변경' position='top'>
               <button
-                onClick={() => setIsThemeDropdownOpen(!isThemeDropdownOpen)}
+                onClick={() => {
+                  setIsThemeDropdownOpen(!isThemeDropdownOpen)
+                }}
                 className='tw:p-2 tw:rounded-md tw:bg-slate-100 tw:dark:bg-slate-700 hover:tw:bg-slate-200 hover:tw:dark:bg-slate-600 tw:text-slate-700 tw:dark:text-white'
               >
                 <FaPalette className='tw:w-4 tw:h-4' />
@@ -573,15 +572,21 @@ export default function WjmaxChartViewer({
             {isThemeDropdownOpen && (
               <div className='tw:absolute tw:w-auto tw:p-1 tw:left-[-46px] tw:bottom-10 tw:text-sm tw:flex tw:gap-2 tw:mb-2 tw:bg-white tw:dark:bg-slate-800 tw:rounded-md tw:shadow-lg tw:border tw:border-slate-200 tw:dark:border-slate-700'>
                 <button
-                  onClick={() => handleThemeChange('blue')}
+                  onClick={() => {
+                    handleThemeChange('blue')
+                  }}
                   className='tw:block tw:w-full tw:text-left tw:h-8 tw:px-4 tw:py-2 tw:rounded-md tw:bg-blue-500 hover:tw:bg-blue-600 tw:text-white'
                 ></button>
                 <button
-                  onClick={() => handleThemeChange('orange')}
+                  onClick={() => {
+                    handleThemeChange('orange')
+                  }}
                   className='tw:block tw:w-full tw:text-left tw:h-8 tw:px-4 tw:py-2 tw:rounded-md tw:bg-orange-500 hover:tw:bg-orange-600 tw:text-white'
                 ></button>
                 <button
-                  onClick={() => handleThemeChange('red')}
+                  onClick={() => {
+                    handleThemeChange('red')
+                  }}
                   className='tw:block tw:w-full tw:text-left tw:h-8 tw:px-4 tw:py-2 tw:rounded-md tw:bg-red-500 hover:tw:bg-red-600 tw:text-white'
                 ></button>
               </div>
@@ -705,8 +710,12 @@ export default function WjmaxChartViewer({
             initialScale={0.2}
             minScale={0.2}
             maxScale={2}
-            onPanning={(position) => console.log('Position:', position)}
-            onInit={(init) => console.log(init)}
+            onPanning={(position) => {
+              createLog('info', 'onPanning', { position })
+            }}
+            onInit={(init) => {
+              createLog('info', 'onInit', { init })
+            }}
             initialPositionX={0}
           >
             <TransformComponent

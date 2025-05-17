@@ -78,8 +78,12 @@ const LazyListItem = React.memo(
         className={`tw:flex tw:items-center tw:gap-4 tw:p-2 tw:border-b tw:border-slate-200 tw:dark:border-slate-700 tw:relative tw:overflow-hidden tw:cursor-pointer ${
           hoveredTitle === songItem.title ? 'tw:bg-slate-100 tw:dark:bg-slate-700/50' : ''
         } hover:tw:bg-slate-100 hover:tw:dark:bg-slate-700/50`}
-        onMouseEnter={() => setHoveredTitle(songItem.title)}
-        onMouseLeave={() => setHoveredTitle(null)}
+        onMouseEnter={() => {
+          setHoveredTitle(songItem.title)
+        }}
+        onMouseLeave={() => {
+          setHoveredTitle(null)
+        }}
         onClick={handleClick}
       >
         {/* 애니메이션 배경 레이어 */}
@@ -220,10 +224,9 @@ const DmrvDbPage = () => {
                 Math.floor(songItem.patterns[keyMode + 'B']?.[diff]?.level ?? 0) ===
                 parseInt(selectedLevel),
             )
-          : songItem.patterns[keyMode + 'B']?.['SC']?.level && // SC 난이도 존재 확인
+          : songItem.patterns[keyMode + 'B']?.SC?.level && // SC 난이도 존재 확인
             (selectedLevel === 'all' ||
-              Math.floor(songItem.patterns[keyMode + 'B']?.['SC']?.level) ===
-                parseInt(selectedLevel))
+              Math.floor(songItem.patterns[keyMode + 'B']?.SC?.level) === parseInt(selectedLevel))
 
       // DLC 필터 추가
       const dlcFilter = selectedDlcCode === 'all' || songItem.dlcCode === selectedDlcCode
@@ -276,7 +279,9 @@ const DmrvDbPage = () => {
                     <div className='tw:flex tw:w-full tw:items-center tw:gap-2'>
                       {/* 왼쪽 스크롤 버튼 */}
                       <button
-                        onClick={() => handleCategoryScroll('left')}
+                        onClick={() => {
+                          handleCategoryScroll('left')
+                        }}
                         className='tw:flex-none tw:p-2 tw:rounded-md tw:bg-slate-200 tw:dark:bg-slate-600 hover:tw:bg-slate-300 hover:tw:dark:bg-slate-500'
                       >
                         <Icon
@@ -291,7 +296,9 @@ const DmrvDbPage = () => {
                         className='tw:flex-1 tw:flex tw:gap-2 tw:overflow-x-hidden tw:scroll-smooth tw:scrollbar-thin tw:scrollbar-thumb-slate-400 tw:dark:scrollbar-thumb-slate-500 tw:scrollbar-track-transparent'
                       >
                         <button
-                          onClick={() => setSelectedDlcCode('all')}
+                          onClick={() => {
+                            setSelectedDlcCode('all')
+                          }}
                           className={`tw:flex-none tw:px-2 tw:py-2 tw:text-sm tw:rounded-md tw:transition-all tw:min-w-20 ${
                             selectedDlcCode === 'all'
                               ? 'tw:bg-indigo-500 tw:text-white'
@@ -303,7 +310,9 @@ const DmrvDbPage = () => {
                         {globalDictionary.gameDictionary[selectedGame].dlcList.map((item) => (
                           <button
                             key={item}
-                            onClick={() => setSelectedDlcCode(item)}
+                            onClick={() => {
+                              setSelectedDlcCode(item)
+                            }}
                             className={`tw:flex-none tw:px-2 tw:py-2 tw:text-sm tw:rounded-md tw:transition-all tw:min-w-12 ${
                               selectedDlcCode === item
                                 ? 'tw:bg-indigo-500 tw:text-white'
@@ -317,7 +326,9 @@ const DmrvDbPage = () => {
 
                       {/* 오른쪽 스크롤 버튼 */}
                       <button
-                        onClick={() => handleCategoryScroll('right')}
+                        onClick={() => {
+                          handleCategoryScroll('right')
+                        }}
                         className='tw:flex-none tw:p-2 tw:rounded-md tw:bg-slate-200 tw:dark:bg-slate-600 hover:tw:bg-slate-300 hover:tw:dark:bg-slate-500'
                       >
                         <Icon
@@ -329,7 +340,9 @@ const DmrvDbPage = () => {
                     <div className='tw:flex tw:items-center tw:justify-between tw:gap-2'>
                       <div className='tw:flex tw:gap-2 tw:items-center'>
                         <button
-                          onClick={() => setViewMode('list')}
+                          onClick={() => {
+                            setViewMode('list')
+                          }}
                           className={`tw:p-2 tw:rounded-md tw:transition-all ${
                             viewMode === 'list'
                               ? 'tw:bg-indigo-500 tw:text-white'
@@ -339,7 +352,9 @@ const DmrvDbPage = () => {
                           <Icon icon='lucide:list' className='tw:w-5 tw:h-5' />
                         </button>
                         <button
-                          onClick={() => setViewMode('grid')}
+                          onClick={() => {
+                            setViewMode('grid')
+                          }}
                           className={`tw:p-2 tw:rounded-md tw:transition-all ${
                             viewMode === 'grid'
                               ? 'tw:bg-indigo-500 tw:text-white'
@@ -370,7 +385,9 @@ const DmrvDbPage = () => {
                         </button>
                         <select
                           value={selectedLevel}
-                          onChange={(e) => setSelectedLevel(e.target.value)}
+                          onChange={(e) => {
+                            setSelectedLevel(e.target.value)
+                          }}
                           className='tw:p-1.5 tw:min-w-[120px] tw:max-w-[120px] tw:w-36 tw:text-sm tw:rounded-lg tw:border tw:dark:bg-slate-700 tw:dark:text-white tw:dark:border-slate-600 tw:bg-white tw:text-slate-700 tw:border-slate-300 focus:tw:border-indigo-400 focus:tw:ring-2 focus:tw:ring-indigo-400 focus:tw:ring-opacity-20 tw:transition-all'
                         >
                           <option value='all'>모든 난이도</option>
@@ -381,7 +398,9 @@ const DmrvDbPage = () => {
                           ))}
                         </select>
                         <button
-                          onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
+                          onClick={() => {
+                            setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
+                          }}
                           className='tw:text-sm tw:bg-slate-200 tw:dark:bg-slate-700/50 tw:text-slate-700 tw:dark:text-white tw:px-4 tw:py-1.5 tw:rounded-lg tw:border tw:border-slate-300 tw:dark:border-slate-600 hover:tw:bg-slate-300 hover:tw:dark:bg-slate-600 tw:transition-all'
                         >
                           {sortOrder === 'asc' ? '이름 ↑' : '이름 ↓'}
@@ -405,7 +424,9 @@ const DmrvDbPage = () => {
                           <input
                             ref={searchInputRef}
                             className='tw:w-full tw:text-sm tw:placeholder:text-slate-400 tw:bg-white tw:dark:bg-slate-700 tw:bg-opacity-25 tw:text-light tw:pl-10 tw:pr-4 tw:py-1.5 tw:rounded-lg tw:border tw:border-slate-300 tw:dark:border-slate-600 tw:border-opacity-50 focus:tw:border-blue-400 focus:tw:ring-2 focus:tw:ring-blue-400 focus:tw:ring-opacity-20 tw:transition-all'
-                            onChange={(e) => setSearchName(e.currentTarget.value)}
+                            onChange={(e) => {
+                              setSearchName(e.currentTarget.value)
+                            }}
                             type='text'
                             placeholder='제목, 제작자명 또는 DLC명으로 검색'
                           />
@@ -416,7 +437,9 @@ const DmrvDbPage = () => {
                           {globalDictionary.gameDictionary[selectedGame].keyModeList.map((mode) => (
                             <button
                               key={`mode_${mode}`}
-                              onClick={() => setKeyMode(String(mode))}
+                              onClick={() => {
+                                setKeyMode(String(mode))
+                              }}
                               className={`tw:flex tw:items-center tw:justify-center tw:relative tw:px-4 tw:py-0.5 tw:border tw:border-opacity-50 tw:transition-all tw:duration-500 tw:rounded-md tw:flex-1 ${
                                 String(mode) === keyMode
                                   ? 'tw:border-indigo-500 tw:bg-indigo-600/20 tw:dark:bg-indigo-600/20 tw:brightness-150'

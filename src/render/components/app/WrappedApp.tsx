@@ -317,7 +317,7 @@ export default function WrappedApp() {
         showNotification(
           {
             mode: 'i18n',
-            value: 'syncError',
+            value: 'database.syncError',
             props: {
               gameName: gameCode
                 ? globalDictionary.gameDictionary[
@@ -340,7 +340,7 @@ export default function WrappedApp() {
               showNotification(
                 {
                   mode: 'i18n',
-                  value: 'syncLocalSuccess',
+                  value: 'database.syncLocalSuccess',
                   props: {
                     gameName: gameCode
                       ? globalDictionary.gameDictionary[
@@ -360,7 +360,7 @@ export default function WrappedApp() {
           showNotification(
             {
               mode: 'i18n',
-              value: 'syncLocalError',
+              value: 'database.syncLocalError',
               props: {
                 gameName: gameCode
                   ? globalDictionary.gameDictionary[
@@ -513,7 +513,7 @@ export default function WrappedApp() {
                 settings,
               )
 
-              i18n.changeLanguage(settings.language)
+              void i18n.changeLanguage(settings.language)
 
               // 설정 로드 후 잠시 지연
               await new Promise((resolve) => setTimeout(resolve, 500))

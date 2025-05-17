@@ -46,7 +46,7 @@ const OverlaySettingsPage = () => {
       setPreloadedImages(newPreloadedImages)
     }
 
-    preloadImages()
+    void preloadImages()
 
     // 컴포넌트 언마운트 시 타임아웃 정리
     return () => {
@@ -159,8 +159,12 @@ const OverlaySettingsPage = () => {
   }) => (
     <div
       className='tw:flex-1 tw:flex tw:flex-col tw:gap-3 tw:bg-white tw:dark:bg-slate-800 tw:border tw:border-slate-200 tw:dark:border-slate-700 tw:rounded-lg tw:p-4 tw:shadow-sm hover:tw:shadow-md tw:transition-all'
-      onMouseEnter={() => handleImageChange(imageKey)}
-      onMouseLeave={() => handleImageChange(IMAGE_KEYS.DEFAULT)}
+      onMouseEnter={() => {
+        handleImageChange(imageKey)
+      }}
+      onMouseLeave={() => {
+        handleImageChange(IMAGE_KEYS.DEFAULT)
+      }}
     >
       <div className='tw:flex tw:flex-col tw:gap-2'>
         <div className='tw:flex tw:items-center tw:justify-between'>
@@ -282,25 +286,33 @@ const OverlaySettingsPage = () => {
             <div className='tw:mt-3 tw:flex tw:justify-center tw:gap-2'>
               <button
                 className={`tw:p-2 tw:rounded-md tw:transition-all ${activeImage === IMAGE_KEYS.DEFAULT ? 'tw:bg-indigo-600 tw:text-white' : 'tw:bg-slate-100 tw:dark:bg-slate-700 tw:text-slate-600 tw:dark:text-slate-300'}`}
-                onClick={() => handleImageChange(IMAGE_KEYS.DEFAULT)}
+                onClick={() => {
+                  handleImageChange(IMAGE_KEYS.DEFAULT)
+                }}
               >
                 <Icon icon='lucide:layout-dashboard' className='tw:w-5 tw:h-5' />
               </button>
               <button
                 className={`tw:p-2 tw:rounded-md tw:transition-all ${activeImage === IMAGE_KEYS.UPLOAD ? 'tw:bg-indigo-600 tw:text-white' : 'tw:bg-slate-100 tw:dark:bg-slate-700 tw:text-slate-600 tw:dark:text-slate-300'}`}
-                onClick={() => handleImageChange(IMAGE_KEYS.UPLOAD)}
+                onClick={() => {
+                  handleImageChange(IMAGE_KEYS.UPLOAD)
+                }}
               >
                 <Icon icon='lucide:upload' className='tw:w-5 tw:h-5' />
               </button>
               <button
                 className={`tw:p-2 tw:rounded-md tw:transition-all ${activeImage === IMAGE_KEYS.HJA ? 'tw:bg-indigo-600 tw:text-white' : 'tw:bg-slate-100 tw:dark:bg-slate-700 tw:text-slate-600 tw:dark:text-slate-300'}`}
-                onClick={() => handleImageChange(IMAGE_KEYS.HJA)}
+                onClick={() => {
+                  handleImageChange(IMAGE_KEYS.HJA)
+                }}
               >
                 <Icon icon='lucide:history' className='tw:w-5 tw:h-5' />
               </button>
               <button
                 className={`tw:p-2 tw:rounded-md tw:transition-all ${activeImage === IMAGE_KEYS.RECENT ? 'tw:bg-indigo-600 tw:text-white' : 'tw:bg-slate-100 tw:dark:bg-slate-700 tw:text-slate-600 tw:dark:text-slate-300'}`}
-                onClick={() => handleImageChange(IMAGE_KEYS.RECENT)}
+                onClick={() => {
+                  handleImageChange(IMAGE_KEYS.RECENT)
+                }}
               >
                 <Icon icon='lucide:clock' className='tw:w-5 tw:h-5' />
               </button>
