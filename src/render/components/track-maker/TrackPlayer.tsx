@@ -1524,7 +1524,6 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
                       onChange={handlePresetChange}
                       className={styles.presetSelect}
                       tabIndex={-1}
-                      disabled={isPlaying || isCountingDown}
                     >
                       {JUDGEMENT_PRESETS.map((preset) => (
                         <option key={preset.name} value={preset.name}>

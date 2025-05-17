@@ -207,13 +207,14 @@ const DmrvBoardPage = () => {
                   )
 
                   basePattern = foundPattern
-                  if (basePattern === null) return null
-                  return {
-                    ...basePattern,
-                    ...apiPattern,
-                    floor: floor.floorNumber,
-                    patterns: basePattern.patterns,
-                  }
+                  return basePattern
+                    ? {
+                        ...basePattern,
+                        ...apiPattern,
+                        floor: floor.floorNumber,
+                        patterns: basePattern.patterns,
+                      }
+                    : null
                 })
                 .filter(Boolean),
             })) || []
@@ -379,7 +380,7 @@ const DmrvBoardPage = () => {
     if (score === null) {
       // clear 조건일 때만 특별 처리
       if (highlightCondition === 'clear') {
-        matches = score > 0
+        matches = Boolean(pattern.score)
       }
     } else {
       switch (highlightCondition) {
@@ -487,7 +488,7 @@ const DmrvBoardPage = () => {
 
   // 층별 평균 레이팅 계산 함수 수정
   const calculateFloorStats = (patterns: Pattern[], floorNumber: number) => {
-    const validPatterns = patterns.filter((p) => p.rating != null && p.rating > 0)
+    const validPatterns = patterns.filter((p) => p.rating > 0)
     if (validPatterns.length === 0) return null
 
     const avgRating = validPatterns.reduce((sum, p) => sum + p.rating, 0) / validPatterns.length

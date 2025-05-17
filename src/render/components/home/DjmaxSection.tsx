@@ -1187,7 +1187,7 @@ export default function DjmaxHomeComponent() {
                     <span className='tw:text-lg tw:font-bold tw:text-gray-900 tw:dark:text-white'>
                       {selectedKeyMode}B {t('best')} {t('achievement')}
                     </span>
-                    {!isLoading && keyModeData[selectedKeyMode] && (
+                    {keyModeData[selectedKeyMode] && (
                       <motion.div
                         key={`achievements_${selectedKeyMode}`}
                         initial={{ opacity: 0, x: 10 }}

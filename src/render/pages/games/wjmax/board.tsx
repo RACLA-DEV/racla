@@ -176,7 +176,7 @@ const WjmaxBoardPage = () => {
       // 점수를 숫자로 변환
       const score = typeof pattern.score === 'string' ? parseFloat(pattern.score) : pattern.score
 
-      if (pattern?.maxCombo) stats.maxCombo++
+      if (pattern.maxCombo) stats.maxCombo++
 
       // 점수 기준을 중첩되게 처리
       if (score === 100.0) {
@@ -219,7 +219,7 @@ const WjmaxBoardPage = () => {
     if (score === null) {
       // clear 조건일 때만 특별 처리
       if (highlightCondition === 'clear') {
-        matches = false
+        matches = Boolean(pattern.score)
       }
     } else {
       switch (highlightCondition) {

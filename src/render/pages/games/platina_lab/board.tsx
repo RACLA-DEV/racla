@@ -222,7 +222,7 @@ const PlatinaLabBoardPage = () => {
     if (score === null) {
       // clear 조건일 때만 특별 처리
       if (highlightCondition === 'clear') {
-        matches = false
+        matches = Boolean(pattern.score)
       }
     } else {
       switch (highlightCondition) {

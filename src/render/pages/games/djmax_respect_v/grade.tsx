@@ -370,7 +370,7 @@ const DmrvGradePage = () => {
                           : '')}
                   </span>
                   <div className='tw:flex tw:flex-col tw:gap-6'>
-                    {levelData.floorItems && levelData.floorItems.length > 0
+                    {levelData.floorItems.length > 0
                       ? levelData.floorItems
                           .filter((item) => item.floor)
                           .map((floorItem) => (

@@ -185,9 +185,6 @@ const DmrvDjpowerPage = () => {
       const response = await apiClient.getProxy<SongData>(
         `https://v-archive.net/api/archive/${userData.varchiveUserInfo.nickname}/title/${title}`,
       )
-      if (!response) {
-        throw new Error('Network response was not ok')
-      }
       return response.data.data
     } catch (error) {
       createLog('error', 'Error in loadDataWithScore', { ...userData })

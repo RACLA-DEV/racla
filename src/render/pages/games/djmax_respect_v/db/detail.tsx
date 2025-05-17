@@ -295,7 +295,7 @@ const DmrvDbDetailPage = () => {
 
             {!isLoading && (
               <div className='tw:w-full tw:h-full tw:text-center tw:flex tw:flex-col tw:flex-1 tw:gap-4'>
-                {baseSongData.length !== 0 && !isLoading ? (
+                {baseSongData.length !== 0 ? (
                   R.keys(baseSongData[0].patterns).map((patternName) => (
                     <div key={String(patternName)} className='tw:flex tw:flex-col tw:flex-1'>
                       {/* 버튼 라벨 */}

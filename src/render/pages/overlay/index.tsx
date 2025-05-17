@@ -545,7 +545,7 @@ function OverlayPage() {
                       <p className='tw:text-xs tw:leading-tight tw:text-slate-800 tw:dark:text-slate-200 tw:break-keep tw:whitespace-pre-wrap'>
                         {notification.mode === 'i18n'
                           ? t(notification.message, {
-                              ...(notification?.props ? notification.props : {}),
+                              ...(notification.props ? notification.props : {}),
                             })
                           : notification.message}
                       </p>
