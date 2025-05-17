@@ -491,9 +491,9 @@ const WjmaxBoardPage = () => {
                     {levelGroups.map((group) => (
                       <button
                         key={group.name}
-                        onClick={() =>
+                        onClick={() => {
                           setSelectedDifficulty(group.name as '1~10' | '11~20' | '21~30')
-                        }
+                        }}
                         className={`tw:flex-1 tw:px-3 tw:py-1.5 tw:rounded-md tw:text-sm tw:font-medium tw:transition-all ${
                           selectedDifficulty === group.name
                             ? 'tw:bg-indigo-600/20 tw:text-indigo-700 tw:dark:text-indigo-200 tw:border tw:border-indigo-500'

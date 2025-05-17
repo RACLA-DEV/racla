@@ -345,7 +345,9 @@ const DmrvHardDbPage = () => {
                       >
                         <div className='tw:flex tw:items-center tw:w-full tw:gap-2'>
                           <button
-                            onClick={() => setSelectedCategory('all')}
+                            onClick={() => {
+                              setSelectedCategory('all')
+                            }}
                             className={`tw:py-2 tw:px-4 tw:flex-1 tw:min-w-0 tw:text-sm tw:font-medium tw:whitespace-nowrap tw:relative tw:transition-all tw:duration-300 tw:rounded-md ${
                               selectedCategory === 'all'
                                 ? 'tw:text-white tw:bg-indigo-500'
@@ -383,7 +385,9 @@ const DmrvHardDbPage = () => {
                     <div className='tw:flex tw:items-center tw:justify-between tw:flex-wrap tw:gap-2'>
                       <div className='tw:flex tw:gap-2 tw:items-center'>
                         <button
-                          onClick={() => setViewMode('list')}
+                          onClick={() => {
+                            setViewMode('list')
+                          }}
                           className={`tw:p-2 tw:rounded-md tw:transition-all ${
                             viewMode === 'list'
                               ? 'tw:bg-indigo-500 tw:text-white'
@@ -393,7 +397,9 @@ const DmrvHardDbPage = () => {
                           <Icon icon='lucide:list' className='tw:w-5 tw:h-5' />
                         </button>
                         <button
-                          onClick={() => setViewMode('grid')}
+                          onClick={() => {
+                            setViewMode('grid')
+                          }}
                           className={`tw:p-2 tw:rounded-md tw:transition-all ${
                             viewMode === 'grid'
                               ? 'tw:bg-indigo-500 tw:text-white'
@@ -406,7 +412,9 @@ const DmrvHardDbPage = () => {
                       <div className='tw:flex tw:flex-1 tw:gap-2'>
                         <select
                           value={selectedLevel}
-                          onChange={(e) => setSelectedLevel(e.target.value)}
+                          onChange={(e) => {
+                            setSelectedLevel(e.target.value)
+                          }}
                           className='tw:p-1.5 tw:min-w-[140px] tw:max-w-[140px] tw:text-sm tw:rounded-md tw:border tw:dark:bg-slate-700 tw:dark:text-white tw:dark:border-slate-600 tw:bg-white tw:text-slate-700 tw:border-slate-300 focus:tw:border-indigo-400 focus:tw:ring-2 focus:tw:ring-indigo-400 focus:tw:ring-opacity-20 tw:transition-all'
                         >
                           <option value='all'>모든 난이도</option>
@@ -419,7 +427,9 @@ const DmrvHardDbPage = () => {
                         </select>
 
                         <button
-                          onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
+                          onClick={() => {
+                            setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
+                          }}
                           className='tw:bg-slate-200 tw:dark:bg-slate-700/50 tw:text-slate-700 tw:dark:text-white tw:px-4 tw:py-1.5 tw:text-sm tw:rounded-md tw:border tw:border-slate-300 tw:dark:border-slate-600 hover:tw:bg-slate-300 hover:tw:dark:bg-slate-600 tw:transition-all tw:flex tw:items-center tw:gap-1'
                         >
                           <span>이름 {sortOrder === 'asc' ? '↑' : '↓'}</span>
@@ -435,7 +445,9 @@ const DmrvHardDbPage = () => {
                           <input
                             ref={searchInputRef}
                             className='tw:w-full tw:text-sm tw:bg-white tw:dark:bg-slate-700 tw:text-slate-900 tw:dark:text-white tw:pl-10 tw:pr-4 tw:py-1.5 tw:rounded-md tw:border tw:border-slate-300 tw:dark:border-slate-600 tw:border-opacity-50 focus:tw:border-indigo-400 focus:tw:ring-2 focus:tw:ring-indigo-400 focus:tw:ring-opacity-20 tw:transition-all'
-                            onChange={(e) => setSearchName(e.currentTarget.value)}
+                            onChange={(e) => {
+                              setSearchName(e.currentTarget.value)
+                            }}
                             type='text'
                             placeholder='제목, 제작자명 또는 DLC명으로 검색'
                           />
@@ -447,7 +459,9 @@ const DmrvHardDbPage = () => {
                           {globalDictionary.gameDictionary[selectedGame].keyModeList.map((mode) => (
                             <button
                               key={`mode_${mode}`}
-                              onClick={() => setKeyMode(String(mode))}
+                              onClick={() => {
+                                setKeyMode(String(mode))
+                              }}
                               className={`tw:flex tw:items-center tw:justify-center tw:relative tw:px-4 tw:py-0.5 tw:border tw:border-opacity-50 tw:transition-all tw:duration-500 tw:rounded-md tw:flex-1 ${
                                 String(mode) === keyMode
                                   ? 'tw:border-indigo-500 tw:bg-indigo-600/20 tw:dark:bg-indigo-600/20 tw:brightness-150'

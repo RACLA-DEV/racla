@@ -5,6 +5,7 @@ import { useSelector } from 'react-redux'
 import ScorePopupComponent from '@render/components/score/ScorePopup'
 import { getGradeTableData } from '@render/libs/hjaGradeParserUtils'
 import { RootState } from '@render/store'
+import { SongData } from '@src/types/games/SongData'
 import { PuffLoader } from 'react-spinners'
 
 const gradeTableMap = {
@@ -23,7 +24,7 @@ const sortByName = (songs: any[]) => {
 interface LazyFloorItemProps {
   floorItem: {
     floor: number
-    songItems: any[]
+    songItems: SongData[]
   }
   keyMode: string
 }
@@ -113,7 +114,7 @@ const DmrvHardGradePage = () => {
           .sort(([a], [b]) => Number(b) - Number(a))
           .map(([floor, songs]) => ({
             floor: Number(floor),
-            songItems: sortByName(songs as any[]),
+            songItems: sortByName(songs as SongData[]),
           })),
       },
     ])

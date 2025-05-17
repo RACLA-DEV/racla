@@ -564,7 +564,9 @@ export default function WjmaxChartViewer({
           <div ref={themeDropdownRef} className='tw:relative'>
             <Tooltip content='테마 변경' position='top'>
               <button
-                onClick={() => setIsThemeDropdownOpen(!isThemeDropdownOpen)}
+                onClick={() => {
+                  setIsThemeDropdownOpen(!isThemeDropdownOpen)
+                }}
                 className='tw:p-2 tw:rounded-md tw:bg-slate-100 tw:dark:bg-slate-700 hover:tw:bg-slate-200 hover:tw:dark:bg-slate-600 tw:text-slate-700 tw:dark:text-white'
               >
                 <FaPalette className='tw:w-4 tw:h-4' />

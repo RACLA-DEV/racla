@@ -48,7 +48,7 @@ const DmrvHardDbDetailPage = () => {
   useEffect(() => {
     if (params?.id) {
       setBaseSongData(
-        songData[selectedGame].filter((songItem) => String(songItem.title) == String(params?.id)),
+        songData[selectedGame].filter((songItem) => String(songItem.title) == String(params.id)),
       )
     }
   }, [params?.id])
@@ -291,7 +291,7 @@ const DmrvHardDbDetailPage = () => {
                                 onClick={() => {
                                   if (record?.hard) {
                                     navigate(
-                                      `/games/djmax_respect_v/hard/db/${params?.id}/${activeTab}-${level}-HARD`,
+                                      `/games/djmax_respect_v/hard/db/${params.id}/${activeTab}-${level}-HARD`,
                                     )
                                   }
                                 }}
@@ -337,7 +337,7 @@ const DmrvHardDbDetailPage = () => {
                                 onClick={() => {
                                   if (record?.max) {
                                     navigate(
-                                      `/games/djmax_respect_v/hard/db/${params?.id}/${activeTab}-${level}-MAX`,
+                                      `/games/djmax_respect_v/hard/db/${params.id}/${activeTab}-${level}-MAX`,
                                     )
                                   }
                                 }}

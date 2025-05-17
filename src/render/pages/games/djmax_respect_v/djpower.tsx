@@ -47,12 +47,12 @@ const DmrvDjpowerPage = () => {
 
       // SC 레벨을 추출하는 함수
       const getSCLevel = R.path(['patterns', `${keyMode}B`, 'SC', 'level']) as (
-        obj: any,
+        obj: SongData,
       ) => number | undefined
 
       // dlcCode가 FAL, VL, CP인 항목과 name이 Kamui, BlueWhite인 항목을 필터링
       const filterExcludedItems = R.filter(
-        R.pipe((item: any) => {
+        R.pipe((item: SongData) => {
           const dlcCode = R.path(['dlcCode'], item)
           const name = R.path(['name'], item)
           return (
@@ -83,7 +83,7 @@ const DmrvDjpowerPage = () => {
       // dlcCode가 FAL, VL, CP인 경우와 name이 Kamui, BlueWhite인 경우를 별도로 처리
       const getSpecialItems = (data: any[], maxItems: number) => {
         const specialItems = R.filter(
-          R.pipe((item: any) => {
+          R.pipe((item: SongData) => {
             const dlcCode = R.path(['dlcCode'], item)
             const name = R.path(['name'], item)
             // return (['FAL', 'VL', 'CP', 'TEK'].includes(dlcCode) || ['Kamui', 'BlueWhite'].includes(name)) && !['From Hell to Breakfast', 'SURVIVOR'].includes(name)
@@ -225,7 +225,9 @@ const DmrvDjpowerPage = () => {
             }
           }),
         )
-          .then((value) => setBaseSongData(value))
+          .then((value) => {
+            setBaseSongData(value)
+          })
           .finally(() => {
             setIsScoredBaseSongData(true)
           })
@@ -365,7 +367,6 @@ const DmrvDjpowerPage = () => {
                       {songDataPack
                         .filter(
                           (songItem) =>
-                            !isLoading &&
                             songItem.patterns[`${keyMode}B`].SC !== undefined &&
                             String(songItem.patterns[`${keyMode}B`].SC.level).startsWith(
                               String(levelValue),

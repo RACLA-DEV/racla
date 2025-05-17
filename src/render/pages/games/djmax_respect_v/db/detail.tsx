@@ -102,7 +102,9 @@ const DmrvDbDetailPage = () => {
       try {
         console.log(userData.varchiveUserInfo.userNo, userData.varchiveUserInfo.token)
         await apiClient
-          .postProxy<any>(
+          .postProxy<{
+            success: boolean
+          }>(
             `https://v-archive.net/api/archive/userRecord`,
             {
               button: Number(String(patternButton).replace('B', '')),
@@ -204,7 +206,9 @@ const DmrvDbDetailPage = () => {
             return R.mergeDeepRight(newItem, item)
           }),
         )
-          .then((value) => setBaseSongData(value))
+          .then((value) => {
+            setBaseSongData(value)
+          })
           .finally(() => {
             setIsScoredBaseSongData(true)
             setIsLoading(false)

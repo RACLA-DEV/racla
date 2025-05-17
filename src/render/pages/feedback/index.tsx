@@ -637,7 +637,9 @@ export default function FeedbackListPage() {
               }).map((_, i) => (
                 <button
                   key={i}
-                  onClick={() => fetchBugs(i)}
+                  onClick={() => {
+                    fetchBugs(i)
+                  }}
                   className={`tw:px-3 tw:py-1 tw:rounded ${
                     pagination.current === i + 1
                       ? 'tw:bg-indigo-600 tw:text-white'
@@ -652,7 +654,9 @@ export default function FeedbackListPage() {
 
           <FeedbackCreateModal
             isOpen={isModalVisible}
-            onClose={() => setIsModalVisible(false)}
+            onClose={() => {
+              setIsModalVisible(false)
+            }}
             title='피드백 작성하기'
           >
             <div className='tw:flex tw:flex-col tw:h-full'>
@@ -664,7 +668,9 @@ export default function FeedbackListPage() {
                   <input
                     type='text'
                     value={newBug.title}
-                    onChange={(e) => setNewBug({ ...newBug, title: e.target.value })}
+                    onChange={(e) => {
+                      setNewBug({ ...newBug, title: e.target.value })
+                    }}
                     className='tw:w-full tw:bg-white tw:dark:bg-slate-700 tw:border tw:border-gray-300 tw:dark:border-slate-600 tw:rounded-sm tw:px-3 tw:py-2 tw:text-gray-700 tw:dark:text-white focus:tw:outline-none focus:tw:ring-2 focus:tw:ring-indigo-500'
                     placeholder='제목을 입력하세요'
                   />
@@ -675,7 +681,9 @@ export default function FeedbackListPage() {
                   </label>
                   <select
                     value={newBug.category}
-                    onChange={(e) => setNewBug({ ...newBug, category: e.target.value })}
+                    onChange={(e) => {
+                      setNewBug({ ...newBug, category: e.target.value })
+                    }}
                     className='tw:w-full tw:bg-white tw:dark:bg-slate-700 tw:border tw:border-gray-300 tw:dark:border-slate-600 tw:text-gray-700 tw:dark:text-white tw:rounded-sm tw:h-9 tw:px-3 tw:py-2 focus:tw:outline-none focus:tw:ring-2 focus:tw:ring-indigo-500'
                   >
                     <option value='BUG'>버그 제보</option>
@@ -696,7 +704,7 @@ export default function FeedbackListPage() {
                       editor={ClassicEditor}
                       data={newBug.description}
                       config={editorConfiguration}
-                      onChange={(event: any, editor: any) => {
+                      onChange={(event: unknown, editor: ClassicEditor) => {
                         const data = editor.getData()
                         setNewBug({ ...newBug, description: data })
                       }}

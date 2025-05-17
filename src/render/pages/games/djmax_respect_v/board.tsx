@@ -278,7 +278,7 @@ const DmrvBoardPage = () => {
               pattern.name === 'Phoenix Virus' ||
               pattern.name === 'alliance',
           )
-          .sort((a: any, b: any) => b.djpower - a.djpower)
+          .sort((a: Pattern, b: Pattern) => b.djpower - a.djpower)
 
         // BASIC 70 패턴 필터링 및 정렬
         const basicPatterns = allPatterns
@@ -292,18 +292,18 @@ const DmrvBoardPage = () => {
               pattern.name !== 'Phoenix Virus' &&
               pattern.name !== 'alliance',
           )
-          .sort((a: any, b: any) => b.djpower - a.djpower)
+          .sort((a: Pattern, b: Pattern) => b.djpower - a.djpower)
 
         // TOP 50 정렬 (이건 여전히 rating 기준)
         const top50Patterns = [...allPatterns]
-          .sort((a: any, b: any) => b.rating - a.rating)
+          .sort((a: Pattern, b: Pattern) => b.rating - a.rating)
           .slice(0, 50)
 
         // 컷오프 점수 설정
         setCutoffScores({
-          new30: (newPatterns[29] as any)?.djpower || 0,
-          basic70: (basicPatterns[69] as any)?.djpower || 0,
-          top50: (top50Patterns[49] as any)?.rating || 0,
+          new30: (newPatterns[29] as Pattern)?.djpower || 0,
+          basic70: (basicPatterns[69] as Pattern)?.djpower || 0,
+          top50: (top50Patterns[49] as Pattern)?.rating || 0,
         })
       } catch (error) {
         createLog('error', 'Error in fetchAllBoardData', error)
@@ -638,7 +638,9 @@ const DmrvBoardPage = () => {
                       {['NORMAL', 'SC'].map((group) => (
                         <button
                           key={group}
-                          onClick={() => setSelectedDifficulty(group as 'NORMAL' | 'SC')}
+                          onClick={() => {
+                            setSelectedDifficulty(group as 'NORMAL' | 'SC')
+                          }}
                           className={`tw:flex-1 tw:px-4 tw:py-1.5 tw:rounded-md tw:text-sm tw:font-medium tw:transition-all ${
                             selectedDifficulty === group
                               ? 'tw:bg-indigo-600/20 tw:text-indigo-700 tw:dark:text-indigo-200 tw:border tw:border-indigo-500'

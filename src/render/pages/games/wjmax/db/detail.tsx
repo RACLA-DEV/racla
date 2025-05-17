@@ -48,7 +48,7 @@ const WjmaxDbDetailPage = () => {
       if (userData.playerName) {
         try {
           const response = await apiClient.get<SongData>(
-            `/v3/racla/songs/${selectedGame}/${params?.id}/user/${userData.playerId}`,
+            `/v3/racla/songs/${selectedGame}/${params.id}/user/${userData.playerId}`,
             {
               headers: {
                 Authorization: `${userData.playerId}|${userData.playerToken}`,
@@ -248,7 +248,9 @@ const WjmaxDbDetailPage = () => {
             return R.mergeDeepRight(newItem, item)
           }),
         )
-          .then((value) => setBaseSongData(value))
+          .then((value) => {
+            setBaseSongData(value)
+          })
           .finally(() => {
             setIsScoredBaseSongData(true)
             setIsLoading(false)

@@ -63,7 +63,9 @@ export default function ScoreEditComponent({
                   className={`tw:relative tw:inline-flex tw:items-center tw:h-4 tw:w-8 tw:rounded-full tw:transition-colors tw:duration-300 ${
                     patternMaxCombo ? 'tw:bg-indigo-600' : 'tw:bg-gray-300 tw:dark:bg-gray-600'
                   }`}
-                  onClick={() => setPatternMaxCombo(!patternMaxCombo)}
+                  onClick={() => {
+                    setPatternMaxCombo(!patternMaxCombo)
+                  }}
                 >
                   <span
                     className={`tw:inline-block tw:h-3 tw:w-3 tw:bg-white tw:rounded-full tw:absolute tw:shadow tw:transform tw:transition-all tw:duration-300 ${

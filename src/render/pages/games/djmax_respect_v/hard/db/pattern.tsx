@@ -38,7 +38,7 @@ const DmrvHardDbPatternPage = () => {
   useEffect(() => {
     if (params?.id && params?.patternName) {
       setBaseSongData(
-        songData[selectedGame].filter((songItem) => String(songItem.title) == String(params?.id)),
+        songData[selectedGame].filter((songItem) => String(songItem.title) == String(params.id)),
       )
     }
   }, [params?.id, params?.patternName])
@@ -55,7 +55,7 @@ const DmrvHardDbPatternPage = () => {
 
     setIsLoadingRanking(true)
     try {
-      const [button, level, judge] = String(params?.patternName).split('-')
+      const [button, level, judge] = String(params.patternName).split('-')
 
       const response = await apiClient.getProxy<RankingData>(
         `https://hard-archive.com/api/v2/record?button=${button}&lv=${level}&song=${baseSongData[0].uuid}&judge=${judge.toLowerCase()}&limit=30`,
@@ -179,7 +179,7 @@ const DmrvHardDbPatternPage = () => {
                   </span>
                 </div>
                 <Link
-                  to={`/games/djmax_respect_v/hard/db/${params?.id}`}
+                  to={`/games/djmax_respect_v/hard/db/${params.id}`}
                   className='tw:bg-indigo-600 hover:tw:bg-indigo-700 tw:text-white tw:px-4 tw:py-1.5 tw:text-sm tw:rounded-md tw:transition-all tw:flex tw:items-center tw:gap-1'
                 >
                   <Icon icon='lucide:arrow-left' className='tw:w-4 tw:h-4' />

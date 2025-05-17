@@ -394,7 +394,9 @@ const WjmaxDbPage = () => {
     }
 
     document.addEventListener('keydown', handleKeyDown)
-    return () => document.removeEventListener('keydown', handleKeyDown)
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown)
+    }
   }, [])
 
   // 초기 선택 인덱스 설정

@@ -49,7 +49,7 @@ const PlatinaLabDbDetailPage = () => {
       if (userData.playerName) {
         try {
           const response = await apiClient.get<SongData>(
-            `/v3/racla/songs/${selectedGame}/${params?.id}/user/${userData.playerId}`,
+            `/v3/racla/songs/${selectedGame}/${params.id}/user/${userData.playerId}`,
             {
               headers: {
                 Authorization: `${userData.playerId}|${userData.playerToken}`,
@@ -119,7 +119,7 @@ const PlatinaLabDbDetailPage = () => {
             if (data.data.success) {
               // 곡 데이터를 다시 불러옴
               const response = await apiClient.get<SongData>(
-                `/v3/racla/songs/${selectedGame}/${params?.id}/user/${userData.playerId}`,
+                `/v3/racla/songs/${selectedGame}/${params.id}/user/${userData.playerId}`,
                 {
                   headers: {
                     Authorization: `${userData.playerId}|${userData.playerToken}`,
@@ -225,7 +225,9 @@ const PlatinaLabDbDetailPage = () => {
             return R.mergeDeepRight(newItem, item)
           }),
         )
-          .then((value) => setBaseSongData(value))
+          .then((value) => {
+            setBaseSongData(value)
+          })
           .finally(() => {
             setIsScoredBaseSongData(true)
             setIsLoading(false)
