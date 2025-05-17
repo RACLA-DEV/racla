@@ -263,7 +263,7 @@ const DmrvHardRankingPage = () => {
                         className='tw:w-4 tw:h-4 tw:text-indigo-600 tw:dark:text-indigo-400'
                       />
                       <span className='tw:text-sm tw:font-medium tw:text-slate-900 tw:dark:text-white'>
-                        {entry.score.c.toFixed(1) ?? '-'}점
+                        {entry.score.c.toFixed(1) || '-'}점
                       </span>
                     </div>
                     {entry.subScore && (
@@ -347,7 +347,7 @@ const DmrvHardRankingPage = () => {
                   icon='lucide:bar-chart-2'
                   className='tw:w-4 tw:h-4 tw:text-indigo-600 tw:dark:text-indigo-400'
                 />
-                <span>{entry.score.c.toFixed(1) ?? '-'}점</span>
+                <span>{entry.score.c.toFixed(1) || '-'}점</span>
               </div>
               {entry.subScore && (
                 <div className='tw:flex tw:items-center tw:gap-2 tw:text-xs tw:text-slate-500 tw:dark:text-slate-400'>

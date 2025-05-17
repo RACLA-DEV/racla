@@ -37,7 +37,7 @@ const DmrvDbDetailPage = () => {
   useEffect(() => {
     const initializeData = async () => {
       const filteredData = songData[selectedGame].filter(
-        (value) => String(value.title) == params?.id,
+        (value) => String(value.title) == params.id,
       )
 
       if (filteredData.length === 0) {
@@ -50,13 +50,13 @@ const DmrvDbDetailPage = () => {
         try {
           await apiClient
             .getProxy<SongData>(
-              `https://v-archive.net/api/archive/${userData.varchiveUserInfo.nickname}/title/${params?.id}`,
+              `https://v-archive.net/api/archive/${userData.varchiveUserInfo.nickname}/title/${params.id}`,
             )
             .then((response) => {
               const data = response.data.data
               setBaseSongData([
                 {
-                  ...songData[selectedGame].filter((value) => value.title == Number(params?.id))[0],
+                  ...songData[selectedGame].filter((value) => value.title == Number(params.id))[0],
                   ...data,
                 },
               ])
@@ -123,7 +123,7 @@ const DmrvDbDetailPage = () => {
             if (data.data.data.success) {
               // 곡 데이터를 다시 불러옴
               const response = await apiClient.getProxy<SongData>(
-                `https://v-archive.net/api/archive/${userData.varchiveUserInfo.nickname}/title/${params?.id}`,
+                `https://v-archive.net/api/archive/${userData.varchiveUserInfo.nickname}/title/${params.id}`,
               )
               const result = response.data.data
 
@@ -222,7 +222,7 @@ const DmrvDbDetailPage = () => {
     }
   }, [isScoredBaseSongData])
 
-  if (baseSongData.length > 0 && params?.id) {
+  if (baseSongData.length > 0 && params.id) {
     return (
       <React.Fragment>
         <div className='tw:flex tw:gap-4 vh-screen'>

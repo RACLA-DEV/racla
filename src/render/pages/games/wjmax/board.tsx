@@ -610,7 +610,7 @@ const WjmaxBoardPage = () => {
                                   <span className='tw:text-xs tw:text-slate-500 tw:dark:text-slate-400'>
                                     SCORE : {pattern.score ? pattern.score : 0}%
                                   </span>
-                                  {pattern?.maxCombo && (
+                                  {pattern.maxCombo && (
                                     <span className='tw:text-xs tw:text-yellow-400'>MAX COMBO</span>
                                   )}
                                 </>

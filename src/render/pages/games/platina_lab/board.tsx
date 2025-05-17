@@ -176,7 +176,7 @@ const PlatinaLabBoardPage = () => {
       // 점수를 숫자로 변환
       const score = typeof pattern.score === 'string' ? parseFloat(pattern.score) : pattern.score
 
-      if (pattern?.maxCombo) stats.maxCombo++
+      if (pattern.maxCombo) stats.maxCombo++
 
       // 점수 기준을 중첩되게 처리
       if (score === 100.0) {
@@ -239,7 +239,7 @@ const PlatinaLabBoardPage = () => {
           matches = score >= 97.0
           break
         case 'maxCombo':
-          matches = pattern?.maxCombo === 1
+          matches = pattern.maxCombo === 1
           break
         case 'clear':
           matches = score > 0
@@ -612,7 +612,7 @@ const PlatinaLabBoardPage = () => {
                                   <span className='tw:text-xs tw:text-slate-500 tw:dark:text-slate-400'>
                                     SCORE : {pattern.score ? pattern.score : 0}%
                                   </span>
-                                  {pattern?.maxCombo && (
+                                  {pattern.maxCombo && (
                                     <span className='tw:text-xs tw:text-yellow-400'>MAX COMBO</span>
                                   )}
                                 </>
