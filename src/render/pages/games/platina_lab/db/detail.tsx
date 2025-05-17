@@ -65,7 +65,7 @@ const PlatinaLabDbDetailPage = () => {
               patterns,
             },
           ])
-          console.log({
+          createLog('info', 'fetchUserSongData', {
             ...data,
             patterns,
           })

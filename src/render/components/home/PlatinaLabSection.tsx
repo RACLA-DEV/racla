@@ -85,11 +85,9 @@ export default function PlatinaLabHomeComponent() {
           })
         } catch (error) {
           createLog('error', { message: 'Error fetching board data', userData })
-          console.error(`Error fetching: `, error)
         }
       } catch (error) {
         createLog('error', { message: 'Error fetching all data', userData })
-        console.error('Error fetching all data:', error)
       } finally {
         setIsLoading(false)
       }

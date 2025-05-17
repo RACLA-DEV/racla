@@ -71,7 +71,7 @@ const DmrvDbDetailPage = () => {
                 },
                 'error',
               )
-              console.error('Error fetching user song data:', error)
+              createLog('error', 'Error fetching user song data:', { ...userData })
               setBaseSongData(filteredData)
             })
         } catch (error) {
@@ -100,7 +100,6 @@ const DmrvDbDetailPage = () => {
   const fetchUpdateScore = async () => {
     if (updateScore <= 100) {
       try {
-        console.log(userData.varchiveUserInfo.userNo, userData.varchiveUserInfo.token)
         await apiClient
           .postProxy<{
             success: boolean
@@ -178,7 +177,6 @@ const DmrvDbDetailPage = () => {
         return data
       } catch (error) {
         createLog('error', 'Error in loadDataWithScore', { ...userData }, error)
-        console.error('There has been a problem with your fetch operation:', error)
         return null
       }
     }

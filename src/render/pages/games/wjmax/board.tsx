@@ -133,7 +133,7 @@ const WjmaxBoardPage = () => {
                 .filter(Boolean),
             })) || []
 
-          console.log(combinedFloors)
+          createLog('info', 'combinedFloors', { combinedFloors })
 
           setFloorData(combinedFloors)
         }

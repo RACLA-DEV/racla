@@ -89,10 +89,16 @@ const LazyListItem = React.memo(
       <div
         ref={ref}
         data-song-title={songItem.title}
-        onClick={handleClick}
+        onClick={() => {
+          handleClick()
+        }}
         className={`tw:flex tw:items-center tw:gap-4 tw:p-2 tw:border-b tw:border-slate-200 tw:dark:border-slate-700 tw:relative tw:overflow-hidden tw:cursor-pointer ${hoveredTitle === songItem.title ? 'tw:bg-slate-100 tw:dark:bg-slate-700/50' : ''} hover:tw:bg-slate-100 hover:tw:dark:bg-slate-700/50`}
-        onMouseEnter={() => handleMouseEnter(songItem)}
-        onMouseLeave={handleMouseLeave}
+        onMouseEnter={() => {
+          handleMouseEnter(songItem)
+        }}
+        onMouseLeave={() => {
+          handleMouseLeave()
+        }}
       >
         {/* 애니메이션 배경 레이어 */}
         <div
@@ -340,9 +346,9 @@ const DmrvHardDbPage = () => {
                           ].map((category) => (
                             <button
                               key={category}
-                              onClick={() =>
+                              onClick={() => {
                                 setSelectedCategory(category as typeof selectedCategory)
-                              }
+                              }}
                               className={`tw:py-2 tw:px-4 tw:flex-1 tw:text-sm tw:font-medium tw:whitespace-nowrap tw:relative tw:transition-all tw:duration-300 tw:rounded-md ${
                                 selectedCategory === category
                                   ? 'tw:text-white tw:bg-indigo-500'

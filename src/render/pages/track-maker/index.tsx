@@ -1,4 +1,5 @@
 import TrackMakerModal from '@render/components/track-maker/TrackMakerModal'
+import { createLog } from '@render/libs/logger'
 import { RootState } from '@render/store'
 import { setIsTrackMaker } from '@render/store/slices/appSlice'
 import type {
@@ -93,7 +94,9 @@ const TrackMakerHub: React.FC = () => {
       setTotalPages(data.totalPages)
       setCurrentPage(data.page)
     } catch (error) {
-      console.error('Error fetching patterns:', error)
+      createLog('error', 'fetchPatterns', {
+        error: error,
+      })
     } finally {
       setIsLoading(false)
     }

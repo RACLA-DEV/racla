@@ -215,7 +215,9 @@ export default function FeedbackDetailPage() {
             <button
               type='button'
               className='tw:px-4 tw:py-1.5 tw:text-sm tw:bg-indigo-600 tw:text-white tw:rounded hover:tw:bg-indigo-700 tw:transition-colors'
-              onClick={() => navigate('/feedback')}
+              onClick={() => {
+                navigate('/feedback')
+              }}
             >
               피드백 센터로 돌아가기
             </button>
@@ -249,7 +251,9 @@ export default function FeedbackDetailPage() {
                   <div className='tw:flex tw:gap-2'>
                     <textarea
                       value={newComment}
-                      onChange={(e) => setNewComment(e.target.value)}
+                      onChange={(e) => {
+                        setNewComment(e.target.value)
+                      }}
                       className='tw:flex-1 tw:bg-white tw:dark:bg-slate-700 tw:border tw:border-gray-300 tw:dark:border-slate-600 tw:rounded tw:px-3 tw:py-2 tw:text-gray-700 tw:dark:text-white focus:tw:outline-none focus:tw:ring-2 focus:tw:ring-indigo-500'
                       placeholder='추가 의견을 작성해주세요. 부적절한 언어 사용과 문제 발생 시 피드백 센터의 이용 제한 조치가 이루어질 수 있습니다.'
                       rows={3}

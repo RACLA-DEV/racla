@@ -296,7 +296,7 @@ export default function FeedbackListPage() {
         },
       )
       const data: FeedbackPageResponse = await response.data.data
-      console.log(data)
+      createLog('info', 'fetchBugs', { data })
       setBugs(data.content)
       setPagination({
         ...pagination,
@@ -476,7 +476,9 @@ export default function FeedbackListPage() {
             {userData.playerName !== '' ? (
               <button
                 type='button'
-                onClick={() => setIsModalVisible(true)}
+                onClick={() => {
+                  setIsModalVisible(true)
+                }}
                 className='tw:px-4 tw:py-1.5 tw:text-sm tw:bg-indigo-600 tw:rounded hover:tw:bg-indigo-700 tw:text-white'
               >
                 피드백 생성
@@ -596,7 +598,9 @@ export default function FeedbackListPage() {
                       'tw:flex tw:items-center tw:gap-4 tw:px-2 tw:py-4 tw:text-sm hover:tw:bg-gray-100 hover:tw:dark:bg-slate-700/50 tw:cursor-pointer tw:transition-all tw:border-opacity-50 tw:border-gray-200 tw:dark:border-slate-700 ' +
                       (bugs.length - 1 != index ? 'tw:border-b' : '')
                     }
-                    onClick={() => navigate(`/feedback/${bug.id}`)}
+                    onClick={() => {
+                      navigate(`/feedback/${bug.id}`)
+                    }}
                   >
                     <div className='tw:w-20 tw:text-gray-500 tw:dark:text-gray-400'>
                       {categoryCodeToName(bug.category)}
@@ -716,14 +720,16 @@ export default function FeedbackListPage() {
 
               <div className='tw:shrink-0 tw:mt-4 tw:flex tw:justify-end tw:gap-2'>
                 <button
-                  onClick={() => setIsModalVisible(false)}
+                  onClick={() => {
+                    setIsModalVisible(false)
+                  }}
                   className='tw:px-4 tw:py-2 tw:bg-white tw:dark:bg-slate-700 tw:text-gray-700 tw:dark:text-gray-200 tw:border tw:border-gray-300 tw:dark:border-slate-600 tw:rounded hover:tw:bg-gray-100 hover:tw:dark:bg-slate-600 tw:transition-colors'
                 >
                   취소
                 </button>
                 <button
                   onClick={() => {
-                    handleCreateBug()
+                    void handleCreateBug()
                   }}
                   disabled={loading}
                   className='tw:px-4 tw:py-2 tw:bg-indigo-600 tw:text-white tw:rounded hover:tw:bg-indigo-700 tw:transition-colors disabled:tw:opacity-50'

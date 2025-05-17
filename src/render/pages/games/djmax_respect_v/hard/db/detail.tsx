@@ -122,7 +122,9 @@ const DmrvHardDbDetailPage = () => {
               },
             }
           } catch (error) {
-            console.error(`Error fetching SC pattern records for ${button} ${level}:`, error)
+            createLog('error', `Error fetching SC pattern records for ${button} ${level}:`, {
+              error,
+            })
             return {
               key: `${button}_${level}`,
               data: { hard: null, max: null },
@@ -155,7 +157,7 @@ const DmrvHardDbDetailPage = () => {
   // 곡 데이터가 로드되면 기록 가져오기
   useEffect(() => {
     if (baseSongData.length > 0) {
-      fetchRecords()
+      void fetchRecords()
     }
   }, [baseSongData])
 
@@ -241,7 +243,9 @@ const DmrvHardDbDetailPage = () => {
                     return (
                       <button
                         key={buttonType}
-                        onClick={() => setActiveTab(buttonType as '4B' | '5B' | '6B' | '8B')}
+                        onClick={() => {
+                          setActiveTab(buttonType as '4B' | '5B' | '6B' | '8B')
+                        }}
                         className={`tw:flex-1 tw:py-3 tw:px-4 tw:relative tw:transition-all ${
                           activeTab === buttonType
                             ? 'tw:text-indigo-600 tw:dark:text-indigo-300 tw:font-medium'

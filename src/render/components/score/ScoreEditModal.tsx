@@ -33,7 +33,9 @@ export default function ScoreEditComponent({
     }
 
     window.addEventListener('keydown', handleEscKey)
-    return () => window.removeEventListener('keydown', handleEscKey)
+    return () => {
+      window.removeEventListener('keydown', handleEscKey)
+    }
   }, [show, onHide])
 
   return (
@@ -87,7 +89,9 @@ export default function ScoreEditComponent({
                 max='100'
                 step='0.0001'
                 value={updateScore !== undefined && updateScore !== null ? Number(updateScore) : 0}
-                onChange={(e) => setUpdateScore(Number(e.currentTarget.value))}
+                onChange={(e) => {
+                  setUpdateScore(Number(e.currentTarget.value))
+                }}
               />
               <span className='tw:text-sm tw:font-light tw:text-gray-500 tw:dark:text-gray-400 tw:text-center'>
                 점수를 입력해주세요 (0-100)
@@ -103,7 +107,9 @@ export default function ScoreEditComponent({
                   max='3000'
                   step='1'
                   value={updateMax !== undefined && updateMax !== null ? Number(updateMax) : 0}
-                  onChange={(e) => setUpdateMax(Number(e.currentTarget.value))}
+                  onChange={(e) => {
+                    setUpdateMax(Number(e.currentTarget.value))
+                  }}
                 />
                 <span className='tw:text-sm tw:font-light tw:text-gray-500 tw:dark:text-gray-400 tw:text-center'>
                   PERFECT를 달성한 경우 MAX-값을 입력해주세요.(0-3000)

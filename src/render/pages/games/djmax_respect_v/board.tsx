@@ -215,7 +215,7 @@ const DmrvBoardPage = () => {
                 .filter(Boolean),
             })) || []
 
-          console.log(combinedFloors)
+          createLog('info', 'combinedFloors', { combinedFloors })
 
           setFloorData(combinedFloors)
         }
@@ -791,7 +791,7 @@ const DmrvBoardPage = () => {
                             <div className='tw:flex tw:gap-2'>
                               <ScorePopupComponent
                                 songTitle={pattern.title}
-                                keyMode={keyMode || '4'}
+                                keyMode={keyMode ?? '4'}
                                 isVisibleCode={true}
                               />
                               <div className='tw:flex tw:flex-1 tw:flex-col tw:gap-2 tw:items-end tw:justify-center tw:bg-slate-200 tw:dark:bg-slate-700 tw:bg-opacity-25 tw:rounded-md tw:py-2 tw:px-3'>

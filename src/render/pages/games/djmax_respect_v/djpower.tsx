@@ -266,7 +266,9 @@ const DmrvDjpowerPage = () => {
             }
           }),
         )
-          .then((value) => setNewSongData(value))
+          .then((value) => {
+            setNewSongData(value)
+          })
           .finally(() => {
             setIsScoredNewSongData(true)
           })
@@ -292,7 +294,9 @@ const DmrvDjpowerPage = () => {
               {globalDictionary.gameDictionary[selectedGame].keyModeList.map((mode) => (
                 <button
                   key={`mode_${mode}`}
-                  onClick={() => setKeyMode(String(mode))}
+                  onClick={() => {
+                    setKeyMode(String(mode))
+                  }}
                   className={`tw:flex tw:items-center tw:justify-center tw:relative tw:px-4 tw:py-0.5 tw:border tw:border-opacity-50 tw:transition-all tw:duration-500 tw:rounded-md tw:flex-1 ${
                     String(mode) === keyMode
                       ? 'tw:border-indigo-500 tw:bg-indigo-600/20 tw:dark:bg-indigo-600/20 tw:brightness-150'

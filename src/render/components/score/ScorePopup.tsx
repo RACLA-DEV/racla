@@ -232,8 +232,12 @@ const ScorePopupComponent = memo(
     useEffect(() => {
       if (imageUrl) {
         preloadImage(imageUrl)
-          .then(() => setImageLoaded(true))
-          .catch(() => setImageLoaded(true)) // 로드 실패해도 표시는 해야 함
+          .then(() => {
+            setImageLoaded(true)
+          })
+          .catch(() => {
+            setImageLoaded(true)
+          }) // 로드 실패해도 표시는 해야 함
       }
     }, [imageUrl])
 
@@ -289,7 +293,9 @@ const ScorePopupComponent = memo(
                 alt={songItem?.name || ''}
                 fallbackSrc='https://cdn.racla.app/common/no-image.jpg'
                 style={{ objectFit: 'cover' }}
-                onLoad={() => setImageLoaded(true)}
+                onLoad={() => {
+                  setImageLoaded(true)
+                }}
               />
               {isVisibleCode && imageLoaded && (
                 <span className='tw:absolute tw:top-0 tw:left-0 djmax_respect_v_dlc_code_wrap tw:rounded-tl-md'>
@@ -323,7 +329,9 @@ const ScorePopupComponent = memo(
                 alt={songItem?.name || ''}
                 fallbackSrc='https://cdn.racla.app/common/no-image.jpg'
                 style={{ objectFit: 'cover' }}
-                onLoad={() => setImageLoaded(true)}
+                onLoad={() => {
+                  setImageLoaded(true)
+                }}
               />
             </div>
           )}

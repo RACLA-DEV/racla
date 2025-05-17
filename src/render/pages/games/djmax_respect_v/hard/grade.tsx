@@ -20,12 +20,12 @@ const sortByName = (songs: SongData[]) => {
   return [...songs].sort((a, b) => a.name.localeCompare(b.name))
 }
 
-type FloorItem = {
+interface FloorItem {
   floor: number
   songItems: SongData[]
 }
 
-type BaseSongData = {
+interface BaseSongData {
   level: number
   floorItems: FloorItem[]
 }

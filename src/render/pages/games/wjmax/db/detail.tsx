@@ -77,7 +77,7 @@ const WjmaxDbDetailPage = () => {
               patterns: newPatterns,
             },
           ])
-          console.log({
+          createLog('info', 'fetchUserSongData', {
             ...data,
             patterns: newPatterns,
           })

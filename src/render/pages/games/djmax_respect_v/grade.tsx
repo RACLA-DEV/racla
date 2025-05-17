@@ -43,12 +43,12 @@ const LazyFloorItem = ({ floorItem, keyMode, levelData }) => {
   )
 }
 
-type FloorItem = {
+interface FloorItem {
   floor: number
   songItems: SongData[]
 }
 
-type BaseSongData = {
+interface BaseSongData {
   level: number
   floorItems: FloorItem[]
 }

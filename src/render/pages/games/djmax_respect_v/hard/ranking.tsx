@@ -3,6 +3,7 @@ import 'dayjs/locale/ko'
 import React, { useEffect, useState } from 'react'
 
 import { Icon } from '@iconify/react'
+import { createLog } from '@render/libs/logger'
 import { setIsOpenExternalLink, setOpenExternalLink } from '@render/store/slices/uiSlice'
 import dayjs from 'dayjs'
 import LocalizedFormat from 'dayjs/plugin/localizedFormat'
@@ -77,7 +78,9 @@ const DmrvHardRankingPage = () => {
       setTotalRankingData(totalResponse.data.data.data)
     } catch (err) {
       setError('랭킹 데이터를 불러오는 데 실패했습니다.')
-      console.error('Error fetching ranking data:', err)
+      createLog('error', 'fetchRankingData', {
+        error: err,
+      })
     } finally {
       setIsLoading(false)
     }
@@ -369,7 +372,9 @@ const DmrvHardRankingPage = () => {
               <h1 className='tw:text-xl tw:font-bold tw:text-slate-900 tw:dark:text-white'>랭킹</h1>
               <div className='tw:flex tw:gap-2'>
                 <button
-                  onClick={() => handleRankingTypeChange('daily')}
+                  onClick={() => {
+                    handleRankingTypeChange('daily')
+                  }}
                   className={`tw:px-4 tw:py-1.5 tw:text-sm tw:rounded-md tw:transition-all tw:flex tw:items-center tw:gap-1 ${
                     selectedRanking === 'daily'
                       ? 'tw:bg-indigo-600 tw:text-white'
@@ -380,7 +385,9 @@ const DmrvHardRankingPage = () => {
                   <span>전일 랭킹</span>
                 </button>
                 <button
-                  onClick={() => handleRankingTypeChange('total')}
+                  onClick={() => {
+                    handleRankingTypeChange('total')
+                  }}
                   className={`tw:px-4 tw:py-1.5 tw:text-sm tw:rounded-md tw:transition-all tw:flex tw:items-center tw:gap-1 ${
                     selectedRanking === 'total'
                       ? 'tw:bg-indigo-600 tw:text-white'
@@ -393,7 +400,9 @@ const DmrvHardRankingPage = () => {
               </div>
             </div>
             <button
-              onClick={handleRefresh}
+              onClick={() => {
+                handleRefresh()
+              }}
               className='tw:bg-indigo-600 hover:tw:bg-indigo-700 tw:text-white tw:px-4 tw:py-1.5 tw:text-sm tw:rounded-md tw:transition-all tw:flex tw:items-center tw:gap-1'
             >
               <Icon icon='lucide:refresh-cw' className='tw:w-4 tw:h-4' />

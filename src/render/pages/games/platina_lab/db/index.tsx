@@ -58,10 +58,16 @@ const LazyListItem = React.memo(
       <div
         ref={ref}
         data-song-title={songItem.title}
-        onClick={handleClick}
+        onClick={() => {
+          handleClick()
+        }}
         className={`tw:flex tw:items-center tw:gap-4 tw:p-2 tw:border-b tw:border-slate-200 tw:dark:border-slate-700 tw:relative tw:overflow-hidden tw:cursor-pointer ${hoveredTitle === String(songItem.title) ? 'tw:bg-slate-100 tw:dark:bg-slate-700/50' : ''} hover:tw:bg-slate-100 hover:tw:dark:bg-slate-700/50`}
-        onMouseEnter={() => handleMouseEnter(songItem)}
-        onMouseLeave={handleMouseLeave}
+        onMouseEnter={() => {
+          handleMouseEnter(songItem)
+        }}
+        onMouseLeave={() => {
+          handleMouseLeave()
+        }}
       >
         {/* 애니메이션 배경 레이어 */}
         <div

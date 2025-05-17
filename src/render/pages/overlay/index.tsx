@@ -185,13 +185,7 @@ function OverlayPage() {
 
   // 패턴 레벨 가져오기 함수
   const getCurrentPatternLevel = (songData: SongData, buttonType: string, patternType: string) => {
-    if (
-      songData.patterns[buttonType][patternType] &&
-      songData.patterns[buttonType][patternType].level
-    ) {
-      return songData.patterns[buttonType][patternType].level
-    }
-    return null
+    return songData.patterns[buttonType][patternType].level
   }
 
   // 패턴 코드 변환 함수

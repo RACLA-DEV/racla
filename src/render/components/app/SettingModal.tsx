@@ -500,7 +500,7 @@ const AccountInfo = () => {
         })
         .then((data) => {
           if (data.data.success && data.data.data.result === 'Success') {
-            console.log(data.data.data)
+            createLog('info', 'handleDiscordLink', { data: data.data.data })
             showNotification(
               {
                 mode: 'i18n',
@@ -574,11 +574,15 @@ const AccountInfo = () => {
     navigator.clipboard.writeText(text).then(
       () => {
         setCopySuccess(field)
-        setTimeout(() => setCopySuccess(null), 2000)
+        setTimeout(() => {
+          setCopySuccess(null), 2000
+        })
       },
       () => {
         setCopySuccess('error')
-        setTimeout(() => setCopySuccess(null), 2000)
+        setTimeout(() => {
+          setCopySuccess(null)
+        }, 2000)
       },
     )
   }
@@ -600,7 +604,9 @@ const AccountInfo = () => {
           <span className='tw:text-sm tw:font-mono'>{value}</span>
         </div>
         <button
-          onClick={() => copyToClipboard(String(value), fieldId)}
+          onClick={() => {
+            copyToClipboard(String(value), fieldId)
+          }}
           className='tw:p-1.5 tw:rounded-full tw:bg-gray-100 tw:dark:bg-slate-700 tw:text-gray-600 tw:dark:text-gray-300 hover:tw:bg-indigo-100 hover:tw:dark:bg-indigo-900 tw:transition-colors'
           title='복사하기'
         >
