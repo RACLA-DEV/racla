@@ -119,10 +119,11 @@ const WjmaxBoardPage = () => {
               floorNumber: floor.floorNumber,
               patterns: floor.patterns
                 .map((apiPattern) => {
-                  const basePattern = baseSongData.find(
+                  let basePattern = null
+                  basePattern = baseSongData.find(
                     (bp) => bp.title === apiPattern.title && bp.pattern === apiPattern.pattern,
                   )
-                  if (!basePattern) return null
+
                   return {
                     ...basePattern,
                     ...apiPattern,
@@ -236,7 +237,7 @@ const WjmaxBoardPage = () => {
           matches = score >= 97.0
           break
         case 'maxCombo':
-          matches = pattern?.maxCombo === 1
+          matches = pattern.maxCombo === 1
           break
         case 'clear':
           matches = score > 0
@@ -340,7 +341,7 @@ const WjmaxBoardPage = () => {
 
   // 층별 평균 점수 계산 함수 추가
   const calculateScoreStats = (patterns: Pattern[]) => {
-    const validPatterns = patterns.filter((p) => p.score != null && p.score > 0)
+    const validPatterns = patterns.filter((p) => p.score > 0)
     if (validPatterns.length === 0) return null
 
     const avgScore =

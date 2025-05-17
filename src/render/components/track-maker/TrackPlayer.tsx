@@ -620,11 +620,9 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
         return note.lane === laneIndex
       } else if (noteType === 'fx' || noteType === 'lr') {
         return note.lane === laneIndex
-      } else if (noteType === 'enter') {
+      } else {
         return true
       }
-
-      return false
     })
 
     // 노트가 없으면 미스 처리하지 않고 그냥 리턴
@@ -882,7 +880,7 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ pattern, bpm, keyMode }) => {
       } else if (note.type === 'fx' || note.type === 'lr') {
         noteX = note.lane === 0 ? 0 : gameWidth / 2
         noteWidth = gameWidth / 2
-      } else if (note.type === 'enter') {
+      } else {
         noteX = 0
         noteWidth = gameWidth
       }

@@ -128,9 +128,7 @@ export default function WjmaxChartViewer({
         const endSectionIndex = Math.floor(note.tailMilliSec / sectionDuration)
 
         for (let i = sectionIndex; i <= endSectionIndex; i++) {
-          if (!groupedNotes[i]) {
-            groupedNotes[i] = []
-          }
+          groupedNotes[i] = []
 
           const clonedNote = { ...note }
 
@@ -143,9 +141,7 @@ export default function WjmaxChartViewer({
           groupedNotes[i].push(clonedNote)
         }
       } else {
-        if (!groupedNotes[sectionIndex]) {
-          groupedNotes[sectionIndex] = []
-        }
+        groupedNotes[sectionIndex] = []
         groupedNotes[sectionIndex].push(note)
       }
     })
@@ -380,7 +376,7 @@ export default function WjmaxChartViewer({
       <div className='chart-column tw:z-[99999]'>
         {Array.from({ length: SECTIONS_PER_COLUMN }).map((_, i) => {
           const sectionIndex = startSectionIndex + (SECTIONS_PER_COLUMN - 1 - i)
-          const sectionNotes = sections[sectionIndex] || []
+          const sectionNotes = sections[sectionIndex]
           const sectionTime = formatTime(sectionIndex * calculateSectionDuration(bpm))
 
           return (

@@ -529,7 +529,9 @@ export default function FeedbackListPage() {
                       'tw:flex tw:items-center tw:gap-4 tw:px-2 tw:py-4 tw:text-sm tw:cursor-pointer tw:border-gray-200 tw:dark:border-slate-700 tw:border-opacity-50 hover:tw:bg-gray-100 hover:tw:dark:bg-slate-700/50 tw:transition-all ' +
                       (notices.length - 1 != index ? 'tw:border-b' : '')
                     }
-                    onClick={() => navigate(`/feedback/${notice.id}`)}
+                    onClick={() => {
+                      navigate(`/feedback/${notice.id}`)
+                    }}
                   >
                     <div className='tw:w-20 tw:text-gray-500 tw:dark:text-gray-400'>
                       {categoryCodeToName(notice.category)}

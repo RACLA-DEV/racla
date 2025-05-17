@@ -159,8 +159,12 @@ const OverlaySettingsPage = () => {
   }) => (
     <div
       className='tw:flex-1 tw:flex tw:flex-col tw:gap-3 tw:bg-white tw:dark:bg-slate-800 tw:border tw:border-slate-200 tw:dark:border-slate-700 tw:rounded-lg tw:p-4 tw:shadow-sm hover:tw:shadow-md tw:transition-all'
-      onMouseEnter={() => handleImageChange(imageKey)}
-      onMouseLeave={() => handleImageChange(IMAGE_KEYS.DEFAULT)}
+      onMouseEnter={() => {
+        handleImageChange(imageKey)
+      }}
+      onMouseLeave={() => {
+        handleImageChange(IMAGE_KEYS.DEFAULT)
+      }}
     >
       <div className='tw:flex tw:flex-col tw:gap-2'>
         <div className='tw:flex tw:items-center tw:justify-between'>

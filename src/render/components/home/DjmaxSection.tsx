@@ -349,7 +349,7 @@ export default function DjmaxHomeComponent() {
               className='tw:w-4 tw:h-4'
             />
             <span className='tw:font-extrabold tw:mb-0.5'>
-              {pattern.floor != null && pattern.floor !== 0 ? pattern.floor + 'F' : pattern.level}
+              {pattern.floor !== 0 ? pattern.floor + 'F' : pattern.level}
             </span>
           </span>
         )
@@ -369,7 +369,7 @@ export default function DjmaxHomeComponent() {
             height={16}
             className='tw:w-4 tw:h-4'
           />
-          <span className='tw:font-extrabold tw:mb-0.5'>{`${pattern.floor != null && pattern.floor !== 0 ? pattern.floor + 'F' : pattern.level}`}</span>
+          <span className='tw:font-extrabold tw:mb-0.5'>{`${pattern.floor !== 0 ? pattern.floor + 'F' : pattern.level}`}</span>
         </span>
       )
     }
@@ -405,8 +405,8 @@ export default function DjmaxHomeComponent() {
     // 패턴의 난이도를 비교하는 함수
     const compareDifficulty = (a: Pattern, b: Pattern) => {
       // SC 패턴 (floor가 있는 경우)
-      const aFloor = a.floor !== null && a.floor !== undefined ? Number(a.floor) : -1
-      const bFloor = b.floor !== null && b.floor !== undefined ? Number(b.floor) : -1
+      const aFloor = Number(a.floor) || -1
+      const bFloor = Number(b.floor) || -1
 
       // 둘 다 SC 패턴인 경우 floor로 비교
       if (aFloor >= 0 && bFloor >= 0) {
@@ -554,14 +554,13 @@ export default function DjmaxHomeComponent() {
 
       // TOP 50 렬 (rating 기준)
       const top50Patterns = [...allPatterns]
-        .filter((pattern: Pattern) => pattern.rating != null)
         .sort((a: Pattern, b: Pattern) => (b.rating || 0) - (a.rating || 0))
         .slice(0, 50)
 
       newCutoffScores[keyMode] = {
-        new30: (newPatterns[29] as Pattern)?.djpower || 0,
-        basic70: (basicPatterns[69] as Pattern)?.djpower || 0,
-        top50: (top50Patterns[49] as Pattern)?.rating || 0,
+        new30: (newPatterns[29] as Pattern).djpower || 0,
+        basic70: (basicPatterns[69] as Pattern).djpower || 0,
+        top50: (top50Patterns[49] as Pattern).rating || 0,
       }
     })
 
@@ -1240,8 +1239,6 @@ export default function DjmaxHomeComponent() {
                           }
 
                           const highestPattern = getHighestLevelInfo(patterns, condition)
-
-                          if (!highestPattern) return null
 
                           return (
                             <div key={`${key}_${selectedKeyMode}`} className='tw:flex tw:gap-2'>

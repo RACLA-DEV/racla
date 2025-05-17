@@ -268,8 +268,8 @@ const DmrvHardDbPage = () => {
       // DLC 카테고리 필터
       const categoryFilter =
         selectedCategory === 'all' ||
-        DLC_CATEGORY_MAPPING[selectedCategory]?.includes(songItem.dlcCode) ||
-        DLC_CATEGORY_MAPPING[selectedCategory]?.includes(songItem.dlc)
+        DLC_CATEGORY_MAPPING[selectedCategory].includes(songItem.dlcCode) ||
+        DLC_CATEGORY_MAPPING[selectedCategory].includes(songItem.dlc)
 
       return searchFilter && levelFilter && categoryFilter
     })

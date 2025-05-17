@@ -122,10 +122,11 @@ const PlatinaLabBoardPage = () => {
               floorNumber: floor.floorNumber,
               patterns: floor.patterns
                 .map((apiPattern) => {
-                  const basePattern = baseSongData.find(
+                  let basePattern = null
+                  basePattern = baseSongData.find(
                     (bp) => bp.title === apiPattern.title && bp.pattern === apiPattern.pattern,
                   )
-                  if (!basePattern) return null
+
                   return {
                     ...basePattern,
                     ...apiPattern,

@@ -246,7 +246,7 @@ const PlatinaLabDbDetailPage = () => {
   // 모달 상태 추가
   const [showScoreModal, setShowScoreModal] = useState(false)
 
-  if (baseSongData.length > 0 && params?.id) {
+  if (baseSongData.length > 0 && params.id) {
     return (
       <React.Fragment>
         <div className='tw:flex tw:gap-4 tw:h-[calc(100vh-106px)]'>
@@ -336,7 +336,7 @@ const PlatinaLabDbDetailPage = () => {
             {!isLoading && (
               <div className='tw:w-full tw:h-full tw:text-center tw:flex tw:flex-col tw:flex-1 tw:gap-4'>
                 <div className='tw:flex tw:flex-col tw:gap-4 tw:h-full'>
-                  {baseSongData.length !== 0 && !isLoading ? (
+                  {!isLoading ? (
                     Object.keys(baseSongData[0].patterns)
                       .sort((a, b) => {
                         const numA = parseInt(a)

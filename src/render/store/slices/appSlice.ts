@@ -53,11 +53,6 @@ const initialState: AppState = {
 
 // 노래 데이터 유효성 검증 함수
 const isValidSongData = (data: SongData[], gameCode: GameType): boolean => {
-  if (!data) {
-    createLog('error', `setSongData: 데이터가 존재하지 않음`)
-    return false
-  }
-
   if (!gameCode || typeof gameCode !== 'string') {
     createLog('error', `setSongData: 유효하지 않은 게임코드: ${String(gameCode)}`)
     return false

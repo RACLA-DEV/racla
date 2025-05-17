@@ -88,7 +88,7 @@ export default function ScoreEditComponent({
                 min='0'
                 max='100'
                 step='0.0001'
-                value={updateScore !== undefined && updateScore !== null ? Number(updateScore) : 0}
+                value={Number(updateScore) || 0}
                 onChange={(e) => {
                   setUpdateScore(Number(e.currentTarget.value))
                 }}
@@ -106,7 +106,7 @@ export default function ScoreEditComponent({
                   min='0'
                   max='3000'
                   step='1'
-                  value={updateMax !== undefined && updateMax !== null ? Number(updateMax) : 0}
+                  value={Number(updateMax) || 0}
                   onChange={(e) => {
                     setUpdateMax(Number(e.currentTarget.value))
                   }}

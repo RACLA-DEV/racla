@@ -37,12 +37,12 @@ const DmrvHardDbPatternPage = () => {
   const [isLoadingRanking, setIsLoadingRanking] = useState<boolean>(false)
 
   useEffect(() => {
-    if (params?.id && params?.patternName) {
+    if (params.id && params.patternName) {
       setBaseSongData(
         songData[selectedGame].filter((songItem) => String(songItem.title) == String(params.id)),
       )
     }
-  }, [params?.id, params?.patternName])
+  }, [params.id, params.patternName])
 
   useEffect(() => {
     if (baseSongData.length > 0) {
@@ -52,7 +52,7 @@ const DmrvHardDbPatternPage = () => {
   }, [baseSongData])
 
   const fetchRankingData = async () => {
-    if (!params?.patternName) return
+    if (!params.patternName) return
 
     setIsLoadingRanking(true)
     try {
@@ -115,7 +115,7 @@ const DmrvHardDbPatternPage = () => {
             <div className='tw:flex tw:flex-col tw:gap-1 tw:relative tw:bg-opacity-10 tw:rounded-md tw:mb-4 tw:h-auto tw:border tw:border-slate-200 tw:dark:border-slate-700'>
               <div className='tw:absolute tw:inset-0 tw:overflow-hidden'>
                 <Image
-                  src={`${import.meta.env.VITE_CDN_URL}/djmax_respect_v/jackets/${params?.id}.jpg`}
+                  src={`${import.meta.env.VITE_CDN_URL}/djmax_respect_v/jackets/${params.id}.jpg`}
                   alt=''
                   className='tw:opacity-50 tw:blur-xl'
                   style={{
@@ -131,7 +131,7 @@ const DmrvHardDbPatternPage = () => {
                 <div className='tw:flex tw:relative tw:p-2 tw:gap-2 tw:backdrop-blur-sm tw:rounded-md'>
                   <Image
                     loading='lazy'
-                    src={`${import.meta.env.VITE_CDN_URL}/djmax_respect_v/jackets/${params?.id}.jpg`}
+                    src={`${import.meta.env.VITE_CDN_URL}/djmax_respect_v/jackets/${params.id}.jpg`}
                     height={80}
                     width={80}
                     alt=''

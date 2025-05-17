@@ -201,9 +201,7 @@ const FileSelector = ({
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] as ElectronFile
-    if (file) {
-      onChange(file.path ?? file.name)
-    }
+    onChange(file.path ?? file.name)
   }
 
   return (

@@ -278,11 +278,7 @@ export class GameMonitorService {
                     this.isProcessingResult = false
                     this.retryCount++
                   }
-                } else if (
-                  this.isGameWindowFocused &&
-                  ocrResult.resultInfo.isResult.length === 0 &&
-                  this.lastResultInfo
-                ) {
+                } else if (ocrResult.resultInfo.isResult.length === 0 && this.lastResultInfo) {
                   this.logger.debug('Result screen not not detected')
                   this.lastResultInfo = undefined
                   this.retryCount = 0

@@ -47,12 +47,12 @@ const DmrvHardDbDetailPage = () => {
   const [activeTab, setActiveTab] = useState<'4B' | '5B' | '6B' | '8B'>('4B')
 
   useEffect(() => {
-    if (params?.id) {
+    if (params.id) {
       setBaseSongData(
         songData[selectedGame].filter((songItem) => String(songItem.title) == String(params.id)),
       )
     }
-  }, [params?.id])
+  }, [params.id])
 
   useEffect(() => {
     if (baseSongData.length > 0) {
@@ -166,7 +166,7 @@ const DmrvHardDbDetailPage = () => {
     return Object.entries(records).filter(([key]) => key.startsWith(buttonType))
   }
 
-  if (params?.id && baseSongData.length > 0) {
+  if (params.id && baseSongData.length > 0) {
     return (
       <React.Fragment>
         <div className='tw:flex tw:flex-col tw:gap-4 tw:h-full'>
@@ -175,7 +175,7 @@ const DmrvHardDbDetailPage = () => {
             <div className='tw:flex tw:flex-col tw:gap-1 tw:relative tw:bg-opacity-10 tw:rounded-md tw:mb-4 tw:h-auto tw:border tw:border-slate-200 tw:dark:border-slate-700'>
               <div className='tw:absolute tw:inset-0 tw:overflow-hidden'>
                 <Image
-                  src={`${import.meta.env.VITE_CDN_URL}/djmax_respect_v/jackets/${params?.id}.jpg`}
+                  src={`${import.meta.env.VITE_CDN_URL}/djmax_respect_v/jackets/${params.id}.jpg`}
                   alt=''
                   className='tw:opacity-50 tw:blur-xl'
                   style={{
@@ -191,7 +191,7 @@ const DmrvHardDbDetailPage = () => {
                 <div className='tw:flex tw:relative tw:p-2 tw:gap-2 tw:backdrop-blur-sm tw:rounded-md'>
                   <Image
                     loading='lazy'
-                    src={`${import.meta.env.VITE_CDN_URL}/djmax_respect_v/jackets/${params?.id}.jpg`}
+                    src={`${import.meta.env.VITE_CDN_URL}/djmax_respect_v/jackets/${params.id}.jpg`}
                     height={80}
                     width={80}
                     alt=''

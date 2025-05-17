@@ -193,9 +193,7 @@ const PlatinaLabDbPage = () => {
     setHoveredTitle(null)
     setIsScrolling(true)
 
-    if (scrollTimer.current) {
-      clearTimeout(scrollTimer.current)
-    }
+    clearTimeout(scrollTimer.current)
 
     scrollTimer.current = setTimeout(() => {
       setIsScrolling(false)

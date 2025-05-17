@@ -842,9 +842,8 @@ export default function PlatinaLabHomeComponent() {
                       {String(selectedKeyMode).includes('_PLUS') ? '+' : ''} {t('best')}{' '}
                       {t('achievement')}
                     </span>
-                    {!isLoading && keyModeData[selectedKeyMode] && (
+                    {!isLoading && (
                       <motion.div
-                        key={`achievements_${selectedKeyMode}`}
                         initial={{ opacity: 0, x: 10 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.2 }}

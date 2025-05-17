@@ -170,9 +170,6 @@ const DmrvDbDetailPage = () => {
         const response = await apiClient.getProxy<SongData>(
           `https://v-archive.net/api/archive/${userData.varchiveUserInfo.nickname}/title/${title}`,
         )
-        if (!response) {
-          throw new Error('Network response was not ok')
-        }
         const data = response.data.data
         return data
       } catch (error) {
