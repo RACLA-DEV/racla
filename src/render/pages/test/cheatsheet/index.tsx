@@ -140,7 +140,7 @@ function CheatsheetPage() {
         title: 'createLog() - Error',
         description: '에러 로그를 생성합니다',
         example: 'createLog("error", "에러 메시지")',
-        usage: async () => {
+        usage: () => {
           electronActions.createLog('error', '에러 메시지')
         },
       },

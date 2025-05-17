@@ -48,13 +48,13 @@ const WjmaxBoardPage = () => {
 
   // state 초기값 설정
   const [selectedDifficulty, setSelectedDifficulty] = useState<'1~10' | '11~20' | '21~30'>(() => {
-    return getDifficultyByLevel(board as string)
+    return getDifficultyByLevel(board!)
   })
 
   // useEffect로 board 변경 시 난이도 자동 업데이트
   useEffect(() => {
     if (board) {
-      setSelectedDifficulty(getDifficultyByLevel(board as string))
+      setSelectedDifficulty(getDifficultyByLevel(board))
     }
   }, [board])
 
@@ -377,7 +377,7 @@ const WjmaxBoardPage = () => {
                           </span>
                         </span>{' '}
                         <span className='tw:text-2xl tw:font-bold'>
-                          {String(keyBoardTitle[board as string])}
+                          {String(keyBoardTitle[board!])}
                         </span>
                       </span>
                     </div>
@@ -386,7 +386,7 @@ const WjmaxBoardPage = () => {
                       {Object.entries(calculateStats(floorData.flatMap((f) => f.patterns))).map(
                         ([key, value], _, entries) => {
                           if (key === 'total') return null
-                          const totalPatterns = entries.find(([k]) => k === 'total')?.[1] || 0
+                          const totalPatterns = entries.find(([k]) => k === 'total')?.[1] ?? 0
                           const percentage = (value / totalPatterns) * 100
 
                           return (

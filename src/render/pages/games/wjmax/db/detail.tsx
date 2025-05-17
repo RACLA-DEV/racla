@@ -169,7 +169,7 @@ const WjmaxDbDetailPage = () => {
               )
             }
           })
-          .catch((error) => {
+          .catch((error: unknown) => {
             createLog('error', 'Error in fetchUpdateScore', { ...userData, error })
             showNotification(
               {
@@ -423,12 +423,12 @@ const WjmaxDbDetailPage = () => {
                                                 ? 'tw:bg-wjmax-SC tw:border-wjmax-SC'
                                                 : 'tw:bg-wjmax-DPC tw:border-wjmax-DPC'
                                       }`}
-                                      onClick={() =>
+                                      onClick={() => {
                                         fetchPatternData(
                                           baseSongData[0].patterns[patternName][difficultyCode]
                                             .patternFileName,
                                         )
-                                      }
+                                      }}
                                     >
                                       <Icon icon='lucide:table-2' width={16} height={16} />
                                     </button>

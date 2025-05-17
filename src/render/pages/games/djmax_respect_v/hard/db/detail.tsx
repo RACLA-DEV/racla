@@ -9,21 +9,21 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import { PuffLoader } from 'react-spinners'
 import apiClint from '../../../../../../libs/apiClient'
 
-interface Record {
+interface HardArchiveRecord {
   nickname: string
   max_combo: boolean
   rate: number
   score: number
 }
 
-interface HardArchiveRecord {
+interface HardArchiveRecordResponse {
   code: string
-  data: Record[]
+  data: HardArchiveRecord[]
 }
 
 interface PatternRecord {
-  hard: Record | null
-  max: Record | null
+  hard: HardArchiveRecord | null
+  max: HardArchiveRecord | null
 }
 
 interface Pattern {
@@ -42,7 +42,7 @@ const DmrvHardDbDetailPage = () => {
   const [baseSongData, setBaseSongData] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(true)
 
-  const [records, setRecords] = useState<{ [key: string]: PatternRecord }>({})
+  const [records, setRecords] = useState<Record<string, PatternRecord>>({})
   const [activeTab, setActiveTab] = useState<'4B' | '5B' | '6B' | '8B'>('4B')
 
   useEffect(() => {
@@ -105,10 +105,10 @@ const DmrvHardDbDetailPage = () => {
         const scPromises = scPatterns.map(async ({ button, level }) => {
           try {
             const [hardResponse, maxResponse] = await Promise.all([
-              apiClint.getProxy<HardArchiveRecord>(
+              apiClint.getProxy<HardArchiveRecordResponse>(
                 `https://hard-archive.com/api/v2/record?button=${button}&lv=${level}&song=${baseSongData[0].uuid}&judge=hard`,
               ),
-              apiClint.getProxy<HardArchiveRecord>(
+              apiClint.getProxy<HardArchiveRecordResponse>(
                 `https://hard-archive.com/api/v2/record?button=${button}&lv=${level}&song=${baseSongData[0].uuid}&judge=max`,
               ),
             ])

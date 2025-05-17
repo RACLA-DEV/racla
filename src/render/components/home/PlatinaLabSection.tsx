@@ -16,9 +16,7 @@ import ScorePopupComponent from '../score/ScorePopup'
 
 ChartJS.register(ArcElement, Tooltip, Legend)
 
-interface KeyModeData {
-  [keyMode: string]: PlayBoardPatternInfo[]
-}
+type KeyModeData = Record<string, PlayBoardPatternInfo[]>
 
 export default function PlatinaLabHomeComponent() {
   const { t } = useTranslation(['home'])
@@ -171,7 +169,11 @@ export default function PlatinaLabHomeComponent() {
               className={pattern.level > 20 ? 'tw:w-4 tw:h-4' : 'tw:w-5 tw:h-5'}
             />
           ) : null}
-          <span className='tw:font-extrabold'>{`${selectedGame == 'wjmax' ? Number(pattern.level).toFixed(1) : 'Lv.' + Number(pattern.level).toFixed(0)}`}</span>
+          <span className='tw:font-extrabold'>
+            {selectedGame == 'wjmax'
+              ? Number(pattern.level).toFixed(1)
+              : 'Lv.' + Number(pattern.level).toFixed(0)}
+          </span>
         </span>
       )
     }

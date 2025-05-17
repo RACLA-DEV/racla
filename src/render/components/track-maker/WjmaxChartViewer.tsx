@@ -25,9 +25,7 @@ interface ChartData {
   notes: Note[]
 }
 
-interface ChartSection {
-  [key: number]: Note[]
-}
+type ChartSection = Record<number, Note[]>
 
 // components/Note.jsx
 const Note = ({ position, length, isLongNote }) => {

@@ -58,7 +58,6 @@ export class AppService implements OnApplicationBootstrap {
             response.result.screenType,
           )
 
-          this.logger.debug(`Masking regions: ${maskingRegions}`)
           const maskedImage = await this.imageProcessorService.applyProfileMask(
             response.image,
             maskingRegions,

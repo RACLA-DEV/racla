@@ -123,7 +123,7 @@ const DmrvGradePage = () => {
         const patternButton = patterns[keyMode + 'B']
 
         for (let key in patternButton) {
-          if (patternButton.hasOwnProperty(key)) {
+          if (Object.prototype.hasOwnProperty.call(patternButton, key)) {
             const newTrack = {
               title,
               name,

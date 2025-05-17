@@ -16,9 +16,7 @@ import ScorePopupComponent from '../score/ScorePopup'
 
 ChartJS.register(ArcElement, Tooltip, Legend)
 
-interface KeyModeData {
-  [keyMode: string]: PlayBoardPatternInfo[]
-}
+type KeyModeData = Record<string, PlayBoardPatternInfo[]>
 
 export default function WjmaxHomeComponent() {
   const { t } = useTranslation(['home'])
@@ -173,7 +171,7 @@ export default function WjmaxHomeComponent() {
             height={pattern.level > 20 ? 16 : 20}
             className={pattern.level > 20 ? 'tw:w-4 tw:h-4' : 'tw:w-5 tw:h-5'}
           />
-          <span className='tw:font-extrabold'>{`${Number(pattern.level).toFixed(1)}`}</span>
+          <span className='tw:font-extrabold'>{Number(pattern.level).toFixed(1)}</span>
         </span>
       )
     }

@@ -64,7 +64,7 @@ export class GameMonitorService {
   }
 
   // 앱 시작 시 포커스 상태 확인하여 처리하는 함수
-  private async checkInitialFocusState(): Promise<void> {
+  private checkInitialFocusState(): void {
     const mainWindow = this.mainWindowService.getWindow()
     if (!mainWindow) {
       this.logger.warn('Main window not found for initial focus check')
@@ -72,7 +72,7 @@ export class GameMonitorService {
     }
 
     // 약간의 지연을 두고 초기 포커스 상태 확인 (윈도우 생성 및 표시 후)
-    setTimeout(async () => {
+    setTimeout(() => {
       try {
         // 현재 앱에 포커스가 없는지 확인
         const isFocused = mainWindow.isFocused()
@@ -80,7 +80,9 @@ export class GameMonitorService {
         if (!isFocused && !this.isInitialized) {
           this.logger.debug('App started without focus - initializing overlay')
           this.isInitialized = true
-          await this.overlayWindowService.createOverlayInit()
+
+          // 비동기 함수 내부에서 await 대신 then/catch 사용
+          void this.overlayWindowService.createOverlayInit()
 
           // 약간의 지연 후 모니터링 시작
           setTimeout(() => {
@@ -229,7 +231,6 @@ export class GameMonitorService {
                           ocrResult.resultInfo.gameCode,
                           ocrResult.resultInfo.where,
                         )
-                        this.logger.debug(`Masking regions: ${maskingRegions}`)
                         const maskedImage = await this.imageProcessorService.applyProfileMask(
                           ocrResult.image,
                           maskingRegions,

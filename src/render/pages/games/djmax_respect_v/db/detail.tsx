@@ -61,7 +61,7 @@ const DmrvDbDetailPage = () => {
                 },
               ])
             })
-            .catch((error) => {
+            .catch((error: unknown) => {
               createLog('error', 'Error in fetchUserSongData', { ...userData })
               showNotification(
                 {
@@ -140,7 +140,7 @@ const DmrvDbDetailPage = () => {
               )
             }
           })
-          .catch((error) => {
+          .catch((error: unknown) => {
             createLog('error', 'Error in fetchUpdateScore', { ...userData }, error)
           })
       } catch (error) {

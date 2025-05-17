@@ -348,43 +348,6 @@ const PlatinaLabDbPage = () => {
   // 검색 input ref 추가
   const searchInputRef = useRef<HTMLInputElement>(null)
 
-  // 키보드 접근성
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // 검색창에 포커스가 있을 때
-      if (document.activeElement === searchInputRef.current) {
-        if (e.key === 'Escape' || e.key === 'Enter') {
-          e.preventDefault()
-          searchInputRef.current.blur()
-        }
-        return // 다른 모든 키보드 단축키 무시
-      }
-
-      // 일반 입력 필드에서는 키보드 단축키를 무시
-      if (
-        (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) &&
-        e.target !== searchInputRef.current
-      ) {
-        return
-      }
-
-      // 메타키가 눌려있으면 무시
-      if (e.metaKey || e.ctrlKey || e.altKey) {
-        return
-      }
-
-      if (e.key.toLowerCase() === 'f') {
-        e.preventDefault()
-        searchInputRef.current?.focus()
-      }
-    }
-
-    document.addEventListener('keydown', handleKeyDown)
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown)
-    }
-  }, [])
-
   // 초기 선택 인덱스 설정
   useEffect(() => {
     if (viewMode === 'list' && filteredSongData.length > 0 && selectedSongIndex === -1) {

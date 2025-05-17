@@ -202,7 +202,7 @@ const FileSelector = ({
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] as ElectronFile
     if (file) {
-      onChange(file.path || file.name)
+      onChange(file.path ?? file.name)
     }
   }
 
@@ -331,7 +331,7 @@ const AccountInfo = () => {
     vArchiveFileInputRef.current?.click()
   }
 
-  const onVArchiveFileChange = async (e) => {
+  const onVArchiveFileChange = (e) => {
     const file = e.target.files[0]
     const fileReader = new FileReader()
     fileReader.onload = () => {
@@ -413,7 +413,7 @@ const AccountInfo = () => {
                     )
                   }
                 })
-                .catch((error) => {
+                .catch((error: unknown) => {
                   createLog('error', 'Error linking V-ARCHIVE account', String(error))
                   showNotification(
                     {
@@ -534,7 +534,7 @@ const AccountInfo = () => {
             )
           }
         })
-        .catch((error) => {
+        .catch((error: unknown) => {
           createLog('error', 'Error linking Discord account', String(error))
           showNotification(
             {
@@ -651,7 +651,9 @@ const AccountInfo = () => {
           ref={vArchiveFileInputRef}
           type='file'
           accept='.txt'
-          onChange={onVArchiveFileChange}
+          onChange={(e) => {
+            onVArchiveFileChange(e)
+          }}
           className='tw:hidden'
         />
 
@@ -743,7 +745,9 @@ const AccountInfo = () => {
         ) : (
           <div className='tw:space-y-4'>
             <button
-              onClick={handleDiscordLink}
+              onClick={() => {
+                handleDiscordLink()
+              }}
               className='tw:flex tw:items-center tw:justify-center tw:gap-2 tw:px-4 tw:py-2.5 tw:bg-[#5865F2] hover:tw:bg-[#4752C4] tw:text-white tw:text-sm tw:font-medium tw:rounded-lg tw:w-full tw:transition-colors'
             >
               <FaDiscord className='tw:text-base' />

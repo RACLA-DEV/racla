@@ -231,8 +231,8 @@ const DmrvHardDbPage = () => {
   const filteredSongData = useMemo(() => {
     const filtered = songData[selectedGame].filter((songItem) => {
       const patterns = songItem.patterns[keyMode + 'B']
-      const scLevel = patterns?.['SC']?.level ?? 0
-      const mxLevel = patterns?.['MX']?.level ?? 0
+      const scLevel = patterns?.SC?.level ?? 0
+      const mxLevel = patterns?.MX?.level ?? 0
 
       // 검색어 필터
       const searchFilter = searchName === '' || searchSong(songItem, searchName)
@@ -274,41 +274,6 @@ const DmrvHardDbPage = () => {
       setVisibleItems((prev) => Math.min(prev + 20, filteredSongData.length))
     }
   }, [inView, filteredSongData.length, visibleItems])
-
-  // 키보드 접근성
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // 검색창에 포커스가 있을 때
-      if (document.activeElement === searchInputRef.current) {
-        if (e.key === 'Escape' || e.key === 'Enter') {
-          e.preventDefault()
-          searchInputRef.current.blur()
-        }
-        return
-      }
-
-      // 일반 입력 필드에서는 키보드 단축키를 무시
-      if (
-        (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) &&
-        e.target !== searchInputRef.current
-      ) {
-        return
-      }
-
-      // 메타키가 눌려있으면 무시
-      if (e.metaKey || e.ctrlKey || e.altKey) {
-        return
-      }
-
-      if (e.key.toLowerCase() === 'f') {
-        e.preventDefault()
-        searchInputRef.current?.focus()
-      }
-    }
-
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [])
 
   // 호버 핸들러 수정
   const handleMouseEnter = useCallback((songItem) => {

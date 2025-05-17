@@ -395,9 +395,8 @@ export default function FeedbackListPage() {
                   default: response.data.data.url,
                 })
               })
-              .catch((error) => {
+              .catch((error: unknown) => {
                 createLog('error', 'Error in customUploadAdapter', error)
-                reject(error)
               })
           })
         })
@@ -723,7 +722,9 @@ export default function FeedbackListPage() {
                   취소
                 </button>
                 <button
-                  onClick={handleCreateBug}
+                  onClick={() => {
+                    handleCreateBug()
+                  }}
                   disabled={loading}
                   className='tw:px-4 tw:py-2 tw:bg-indigo-600 tw:text-white tw:rounded hover:tw:bg-indigo-700 tw:transition-colors disabled:tw:opacity-50'
                 >

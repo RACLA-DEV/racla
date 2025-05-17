@@ -4,6 +4,7 @@ import { createLog } from '@render/libs/logger'
 import { RootState } from '@render/store'
 import { FeedbackCommentResponse, FeedbackResponse } from '@src/types/dto/feedback/FeedbackResponse'
 import dayjs from 'dayjs'
+import DOMPurify from 'dompurify'
 import { motion } from 'framer-motion'
 import { useSelector } from 'react-redux'
 import { useNavigate, useParams } from 'react-router-dom'
@@ -233,7 +234,7 @@ export default function FeedbackDetailPage() {
             </p>
             <div
               className='rich-text-content tw:bg-white tw:dark:bg-slate-700/50 tw:border tw:border-gray-200 tw:dark:border-slate-600 tw:p-6 tw:rounded-lg tw:space-y-4 tw:text-gray-700 tw:dark:text-gray-200'
-              dangerouslySetInnerHTML={{ __html: bug.description }}
+              dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(bug.description) }}
             />
           </div>
 
@@ -254,7 +255,9 @@ export default function FeedbackDetailPage() {
                       rows={3}
                     />
                     <button
-                      onClick={handleAddComment}
+                      onClick={() => {
+                        handleAddComment()
+                      }}
                       disabled={loading || !newComment.trim()}
                       className='tw:px-4 tw:py-2 tw:bg-indigo-600 tw:text-white tw:rounded hover:tw:bg-indigo-700 tw:transition-colors disabled:tw:opacity-50'
                     >

@@ -148,7 +148,7 @@ const DmrvHardRankingPage = () => {
             subRank: totalEntry?.rank,
             subScore: totalEntry?.score,
           }
-        }) || []
+        }) ?? []
       )
     } else {
       return (
@@ -161,7 +161,7 @@ const DmrvHardRankingPage = () => {
             subRank: dailyEntry?.rank,
             subScore: { count: dailyEntry?.count },
           }
-        }) || []
+        }) ?? []
       )
     }
   }

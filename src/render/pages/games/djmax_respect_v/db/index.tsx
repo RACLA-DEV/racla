@@ -224,10 +224,9 @@ const DmrvDbPage = () => {
                 Math.floor(songItem.patterns[keyMode + 'B']?.[diff]?.level ?? 0) ===
                 parseInt(selectedLevel),
             )
-          : songItem.patterns[keyMode + 'B']?.['SC']?.level && // SC 난이도 존재 확인
+          : songItem.patterns[keyMode + 'B']?.SC?.level && // SC 난이도 존재 확인
             (selectedLevel === 'all' ||
-              Math.floor(songItem.patterns[keyMode + 'B']?.['SC']?.level) ===
-                parseInt(selectedLevel))
+              Math.floor(songItem.patterns[keyMode + 'B']?.SC?.level) === parseInt(selectedLevel))
 
       // DLC 필터 추가
       const dlcFilter = selectedDlcCode === 'all' || songItem.dlcCode === selectedDlcCode

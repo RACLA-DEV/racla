@@ -146,7 +146,7 @@ const PlatinaLabDbDetailPage = () => {
               )
             }
           })
-          .catch((error) => {
+          .catch((error: unknown) => {
             createLog('error', 'Error in fetchUpdateScore', error)
             showNotification(
               {

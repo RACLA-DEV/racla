@@ -115,13 +115,13 @@ const DmrvBoardPage = () => {
 
   // state 추가
   const [selectedDifficulty, setSelectedDifficulty] = useState<'NORMAL' | 'SC'>(() => {
-    return getDifficultyByLevel(board as string)
+    return getDifficultyByLevel(board!)
   })
 
   // useEffect로 board 변경 시 난이도 자동 업데이트
   useEffect(() => {
     if (board) {
-      setSelectedDifficulty(getDifficultyByLevel(board as string))
+      setSelectedDifficulty(getDifficultyByLevel(board))
     }
   }, [board])
 
@@ -524,7 +524,7 @@ const DmrvBoardPage = () => {
                           <span className='tw:text-4xl tw:font-bold'>{keyMode}</span>{' '}
                           <span className='tw:me-auto'>Button</span>{' '}
                           <span className='tw:text-2xl tw:font-bold'>
-                            {String(keyBoardTitle[board as string])}
+                            {String(keyBoardTitle[board!])}
                           </span>
                         </span>
                       </div>
@@ -533,7 +533,7 @@ const DmrvBoardPage = () => {
                         {Object.entries(calculateStats(floorData.flatMap((f) => f.patterns))).map(
                           ([key, value], _, entries) => {
                             if (key === 'total') return null
-                            const totalPatterns = entries.find(([k]) => k === 'total')?.[1] || 0
+                            const totalPatterns = entries.find(([k]) => k === 'total')?.[1] ?? 0
                             const percentage = (value / totalPatterns) * 100
 
                             return (
@@ -790,7 +790,7 @@ const DmrvBoardPage = () => {
                             <div className='tw:flex tw:gap-2'>
                               <ScorePopupComponent
                                 songTitle={pattern.title}
-                                keyMode={keyMode as string}
+                                keyMode={keyMode!}
                                 isVisibleCode={true}
                               />
                               <div className='tw:flex tw:flex-1 tw:flex-col tw:gap-2 tw:items-end tw:justify-center tw:bg-slate-200 tw:dark:bg-slate-700 tw:bg-opacity-25 tw:rounded-md tw:py-2 tw:px-3'>

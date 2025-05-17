@@ -78,13 +78,9 @@ export default function DjmaxHomeComponent() {
     'SC15',
   ])
 
-  const [cutoffScores, setCutoffScores] = useState<{
-    [keyMode: string]: {
-      new30: number
-      basic70: number
-      top50: number
-    }
-  }>({
+  const [cutoffScores, setCutoffScores] = useState<
+    Record<string, { new30: number; basic70: number; top50: number }>
+  >({
     '4': { new30: 0, basic70: 0, top50: 0 },
     '5': { new30: 0, basic70: 0, top50: 0 },
     '6': { new30: 0, basic70: 0, top50: 0 },
@@ -482,17 +478,14 @@ export default function DjmaxHomeComponent() {
   }
 
   // 티어 점수를 저장할 state 추가
-  const [tierScores, setTierScores] = useState<{
-    [keyMode: string]: {
-      tierScore: number
-      tier: string
-    }
-  }>({
-    '4': { tierScore: 0, tier: 'Beginner' },
-    '5': { tierScore: 0, tier: 'Beginner' },
-    '6': { tierScore: 0, tier: 'Beginner' },
-    '8': { tierScore: 0, tier: 'Beginner' },
-  })
+  const [tierScores, setTierScores] = useState<Record<string, { tierScore: number; tier: string }>>(
+    {
+      '4': { tierScore: 0, tier: 'Beginner' },
+      '5': { tierScore: 0, tier: 'Beginner' },
+      '6': { tierScore: 0, tier: 'Beginner' },
+      '8': { tierScore: 0, tier: 'Beginner' },
+    },
+  )
 
   // keyModeData가 업데이트될 때마다 티어 점수 계산
   useEffect(() => {

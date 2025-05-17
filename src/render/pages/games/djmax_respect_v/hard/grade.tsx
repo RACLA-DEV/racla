@@ -79,7 +79,7 @@ const DmrvHardGradePage = () => {
         if (!gradeItem) return null
 
         const patternButton = song.patterns[keyMode + 'B']
-        if (!patternButton || !patternButton[gradeItem.pattern]) return null
+        if (!patternButton?.[gradeItem.pattern]) return null
 
         return {
           title: song.title, // 원본 title ID

@@ -9,6 +9,7 @@ import apiClient from '../../../libs/apiClient'
 
 import { setSettingData } from '@render/store/slices/appSlice'
 import { setTheme } from '@render/store/slices/uiSlice'
+import { SongData } from '@src/types/games/SongData'
 import dayjs from 'dayjs'
 import timezone from 'dayjs/plugin/timezone'
 import utc from 'dayjs/plugin/utc'
@@ -182,9 +183,8 @@ function OverlayPage() {
   }
 
   // 패턴 레벨 가져오기 함수
-  const getCurrentPatternLevel = (songData: any, buttonType: string, patternType: string) => {
+  const getCurrentPatternLevel = (songData: SongData, buttonType: string, patternType: string) => {
     if (
-      songData?.patterns &&
       songData.patterns[buttonType] &&
       songData.patterns[buttonType][patternType] &&
       songData.patterns[buttonType][patternType].level
@@ -205,7 +205,7 @@ function OverlayPage() {
   const addNotification = (
     message: string,
     type: NotificationType = 'info',
-    duration: number = 5000,
+    duration = 5000,
     mode: 'i18n' | 'default' = 'default',
     props?: Record<string, string>,
   ) => {
@@ -640,7 +640,7 @@ function OverlayPage() {
               )}
 
               {/* 전일 아카이브 기록 */}
-              {(hardScore || maxScore) && (
+              {(hardScore ?? maxScore) && (
                 <div className='tw:bg-white tw:dark:bg-slate-900 tw:rounded-lg tw:overflow-hidden tw:shadow-lg tw:border tw:border-slate-200 tw:dark:border-white/10 tw:w-[280px]'>
                   <div className='tw:p-3'>
                     <div className='tw:flex tw:items-center tw:gap-2 tw:mb-2'>
@@ -654,7 +654,7 @@ function OverlayPage() {
                     </div>
 
                     <div className='tw:flex tw:flex-col tw:gap-2'>
-                      {hardScore && hardScore.rate && (
+                      {hardScore.rate && (
                         <div className='tw:bg-slate-100 tw:dark:bg-slate-800 tw:rounded tw:p-2 tw:flex tw:flex-col tw:gap-1'>
                           {/* <div className='tw:flex tw:items-center tw:gap-1.5'>
                             <div className='tw:px-1.5 tw:rounded tw:bg-slate-200 tw:dark:bg-slate-700 tw:min-w-[40px] tw:text-center'>
@@ -695,7 +695,7 @@ function OverlayPage() {
                         </div>
                       )}
 
-                      {maxScore && maxScore.rate && (
+                      {maxScore.rate && (
                         <div className='tw:bg-slate-100 tw:dark:bg-slate-800 tw:rounded tw:p-2 tw:flex tw:flex-col tw:gap-1'>
                           {/* <div className='tw:flex tw:items-center tw:gap-1.5'>
                             <div className='tw:px-1.5 tw:rounded tw:bg-slate-200 tw:dark:bg-slate-700 tw:min-w-[40px] tw:text-center'>
