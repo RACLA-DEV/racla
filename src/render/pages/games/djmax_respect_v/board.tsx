@@ -486,7 +486,7 @@ const DmrvBoardPage = () => {
         },
         'error',
       )
-      navigate('/home')
+      navigate('/')
     }
   }, [])
 

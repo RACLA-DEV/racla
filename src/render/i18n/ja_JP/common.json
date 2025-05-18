@@ -71,7 +71,7 @@
     "changeDark": "ダークモードに切り替え"
   },
   "update": {
-    "updateAvailable": "V{{version}} アップデート準備中",
+    "updateAvailable": "V{{version}} アップデートが処理中です。Windows タスクバー - 通知領域を確認してください。",
     "downloading": "V{{version}} アップデートダウンロード中 ({{percent}}%)",
     "downloaded": "V{{version}} アップデート適用のためアプリの再起動が必要です。",
     "clickToUpdate": "クリックするとアプリが再起動します。",

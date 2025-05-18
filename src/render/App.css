@@ -1901,3 +1901,22 @@ button {
 .lane.special-lane.red-theme {
   background: linear-gradient(to bottom, rgba(255, 153, 153, 0.02) 0%, transparent 100%);
 }
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%) skewX(-12deg);
+  }
+  100% {
+    transform: translateX(200%) skewX(-12deg);
+  }
+}
+.shimmer-effect {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: skewX(-12deg);
+  animation: shimmer 2s infinite linear;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  width: 30%;
+  height: 100%;
+}

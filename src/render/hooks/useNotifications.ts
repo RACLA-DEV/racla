@@ -22,12 +22,38 @@ export function useNotificationSystem() {
         value: string
         props?: Record<string, string>
       },
-      type: 'success' | 'error' | 'info' | 'warning' = 'info',
+      type: 'success' | 'error' | 'info' | 'warning' | 'update' = 'info',
       duration = 5000,
+      updateInfo?: any,
     ) => {
       const id = uuidv4()
 
-      // Redux를 통해 알림 추가
+      // 업데이트 타입의 알림인 경우 기존 업데이트 알림이 있는지 확인
+      if (type === 'update') {
+        // 기존 업데이트 알림 찾기
+        const existingUpdateNotification = notifications.find(
+          (notification) => notification.type === 'update' && !notification.isRemoving,
+        )
+
+        if (existingUpdateNotification) {
+          // 기존 업데이트 알림이 있으면 업데이트만 하고 새 알림은 추가하지 않음
+          dispatch({
+            type: 'app/updateNotification',
+            payload: {
+              id: existingUpdateNotification.id,
+              data: {
+                message,
+                updateInfo,
+                isRemoving: false,
+              },
+            },
+          })
+          console.log('기존 업데이트 알림 업데이트:', existingUpdateNotification.id)
+          return existingUpdateNotification.id
+        }
+      }
+
+      // 새 알림 추가 (업데이트 타입의 알림이 없거나 다른 타입의 알림인 경우)
       dispatch(
         addNotification({
           id,
@@ -35,11 +61,12 @@ export function useNotificationSystem() {
           type,
           duration,
           isRemoving: false,
+          updateInfo,
         }),
       )
 
-      // 자동 제거 설정
-      if (duration > 0) {
+      // 자동 제거 설정 (업데이트 타입은 자동 제거하지 않음)
+      if (duration > 0 && type !== 'update') {
         setTimeout(() => {
           // 애니메이션을 위해 isRemoving 설정
           dispatch(removeNotification(id))
@@ -53,7 +80,7 @@ export function useNotificationSystem() {
 
       return id
     },
-    [dispatch],
+    [dispatch, notifications],
   )
 
   const removeNotificationById = useCallback(

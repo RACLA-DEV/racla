@@ -233,6 +233,13 @@ export class GameMonitorService {
                         .getOverlayWindow()
                         .webContents.send('overlay-ocr-result', response)
 
+                      this.mainWindowService.sendMessage(
+                        JSON.stringify({
+                          type: 'ocr-result',
+                          data: response,
+                        }),
+                      )
+
                       if (settingData.saveImageWhenCapture) {
                         const maskingRegions = this.imageProcessorService.getMaskingRegions(
                           ocrResult.resultInfo.gameCode,

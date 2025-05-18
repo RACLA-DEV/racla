@@ -198,26 +198,73 @@ export const appSlice = createSlice({
         createdAt: Date.now(),
       }
 
+      // 업데이트 타입 알림 처리 - 동일한 타입의 알림이 있으면 새로 추가하지 않고 기존 알림 업데이트
+      if (notification.type === 'update') {
+        const existingUpdateIndex = state.notifications.findIndex(
+          (n) => n.type === 'update' && !n.isRemoving,
+        )
+
+        if (existingUpdateIndex !== -1) {
+          // 기존 알림 ID 유지하면서 내용 업데이트
+          const updatedNotification = {
+            ...state.notifications[existingUpdateIndex],
+            message: notification.message,
+            updateInfo: notification.updateInfo,
+            isRemoving: false,
+            createdAt: Date.now(),
+          }
+          state.notifications[existingUpdateIndex] = updatedNotification
+          return
+        }
+      }
+
       // 최대 5개까지만 보여주기 위해 오래된 알림 제거
       if (state.notifications.length >= 5) {
-        // 오래된 알림부터 제거 (createdAt 기준)
-        const sortedNotifications = [...state.notifications].sort(
-          (a, b) => a.createdAt - b.createdAt,
+        // 업데이트 알림을 제외한 알림들 중에서 오래된 것 제거
+        const nonUpdateNotifications = state.notifications.filter(
+          (n) => n.type !== 'update' || n.isRemoving,
         )
-        state.notifications = [...sortedNotifications.slice(1), notification]
-      } else {
-        state.notifications.push(notification)
+        if (nonUpdateNotifications.length > 0) {
+          // 오래된 알림부터 제거 (createdAt 기준)
+          const sortedNotifications = [...nonUpdateNotifications].sort(
+            (a, b) => a.createdAt - b.createdAt,
+          )
+          const toRemove = sortedNotifications[0].id
+          state.notifications = state.notifications.filter((n) => n.id !== toRemove)
+        }
       }
+
+      // 새 알림 추가
+      state.notifications.push(notification)
     },
     updateNotification: (
       state,
       action: PayloadAction<{ id: string; data: Partial<Notification> }>,
     ) => {
       const { id, data } = action.payload
-      const index = state.notifications.findIndex((notification) => notification.id === id)
+      const notificationIndex = state.notifications.findIndex((n) => n.id === id)
 
-      if (index !== -1 && index >= 0 && index < state.notifications.length) {
-        state.notifications[index] = { ...state.notifications[index], ...data }
+      if (notificationIndex !== -1) {
+        // 중첩된 객체 속성이 있는 경우 올바르게 병합
+        if (data.updateInfo && state.notifications[notificationIndex].updateInfo) {
+          state.notifications[notificationIndex].updateInfo = {
+            ...state.notifications[notificationIndex].updateInfo,
+            ...data.updateInfo,
+          }
+        } else if (data.updateInfo) {
+          state.notifications[notificationIndex].updateInfo = data.updateInfo
+        }
+
+        // 메시지 업데이트
+        if (data.message) {
+          state.notifications[notificationIndex].message = data.message
+        }
+
+        // 기타 속성들 업데이트
+        state.notifications[notificationIndex] = {
+          ...state.notifications[notificationIndex],
+          ...data,
+        }
       }
     },
     removeNotification: (state, action: PayloadAction<string>) => {

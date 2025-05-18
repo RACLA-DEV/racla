@@ -71,7 +71,7 @@
     "changeDark": "Switch to Dark Mode"
   },
   "update": {
-    "updateAvailable": "V{{version}} update preparing",
+    "updateAvailable": "V{{version}} update is being processed. Please check your Windows taskbar - notification area.",
     "downloading": "Downloading V{{version}} update ({{percent}}%)",
     "downloaded": "App restart required to apply V{{version}} update.",
     "clickToUpdate": "Click to restart the app.",
