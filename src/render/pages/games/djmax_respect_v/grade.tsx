@@ -6,6 +6,7 @@ import { SongData } from '@src/types/games/SongData'
 import * as R from 'ramda'
 
 import React, { useCallback, useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useInView } from 'react-intersection-observer'
 import { useSelector } from 'react-redux'
 import { PuffLoader } from 'react-spinners'
@@ -54,6 +55,7 @@ interface BaseSongData {
 }
 
 const DmrvGradePage = () => {
+  const { t } = useTranslation(['grade'])
   const { songData, selectedGame } = useSelector((state: RootState) => state.app)
   const [keyMode, setKeyMode] = useState<string>('4')
   const [keyPattern, setKeyPattern] = useState<string>('SC')
@@ -239,7 +241,7 @@ const DmrvGradePage = () => {
               {/* 헤더 */}
               <div className='tw:flex tw:w-full tw:items-end tw:justify-between'>
                 <span className='tw:text-xl tw:font-bold tw:text-slate-900 tw:dark:text-white'>
-                  서열표
+                  {t('grade')}
                 </span>
               </div>
               <div className='tw:flex tw:gap-4'>

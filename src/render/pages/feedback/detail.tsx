@@ -6,6 +6,7 @@ import { FeedbackCommentResponse, FeedbackResponse } from '@src/types/dto/feedba
 import dayjs from 'dayjs'
 import DOMPurify from 'dompurify'
 import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
 import { useSelector } from 'react-redux'
 import { useNavigate, useParams } from 'react-router-dom'
 import { PuffLoader, SyncLoader } from 'react-spinners'
@@ -146,6 +147,7 @@ export default function FeedbackDetailPage() {
   const [newComment, setNewComment] = useState('')
   const [loading, setLoading] = useState(false)
   const { userData } = useSelector((state: RootState) => state.app)
+  const { t } = useTranslation(['feedback'])
 
   const fetchBugDetail = async () => {
     try {
@@ -205,7 +207,7 @@ export default function FeedbackDetailPage() {
       <motion.div
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: 1, x: 0 }}
-        className='tw:space-y-6'
+        className='tw:space-y-6 tw:p-2'
       >
         <div className='tw:bg-white tw:dark:bg-slate-800 tw:rounded-lg tw:text-sm'>
           <div className='tw:flex tw:items-center tw:justify-between tw:mb-4'>
@@ -219,19 +221,19 @@ export default function FeedbackDetailPage() {
                 navigate('/feedback')
               }}
             >
-              피드백 센터로 돌아가기
+              {t('detail.backToList')}
             </button>
           </div>
 
           <div className='tw:space-y-2 tw:mb-4'>
             <p className='tw:text-gray-500 tw:dark:text-gray-400'>
-              <span className='tw:font-semibold'>상태:</span> {bug.status}
+              <span className='tw:font-semibold'>{t('detail.status')}:</span> {bug.status}
             </p>
             <p className='tw:text-gray-500 tw:dark:text-gray-400'>
-              <span className='tw:font-semibold'>작성자:</span> {bug.reporterName}
+              <span className='tw:font-semibold'>{t('detail.author')}:</span> {bug.reporterName}
             </p>
             <p className='tw:text-gray-500 tw:dark:text-gray-400'>
-              <span className='tw:font-semibold'>작성 시간:</span>{' '}
+              <span className='tw:font-semibold'>{t('detail.createdAt')}:</span>{' '}
               {dayjs(bug.createdAt).format('YYYY-MM-DD HH:mm:ss')}
             </p>
             <div
@@ -242,7 +244,7 @@ export default function FeedbackDetailPage() {
 
           <div className='tw:space-y-4'>
             <h2 className='tw:text-lg tw:font-semibold tw:text-gray-900 tw:dark:text-white'>
-              추가 의견
+              {t('detail.comments')}
             </h2>
 
             {userData.playerName !== '' ? (
@@ -255,7 +257,7 @@ export default function FeedbackDetailPage() {
                         setNewComment(e.target.value)
                       }}
                       className='tw:flex-1 tw:bg-white tw:dark:bg-slate-700 tw:border tw:border-gray-300 tw:dark:border-slate-600 tw:rounded tw:px-3 tw:py-2 tw:text-gray-700 tw:dark:text-white focus:tw:outline-none focus:tw:ring-2 focus:tw:ring-indigo-500'
-                      placeholder='추가 의견을 작성해주세요. 부적절한 언어 사용과 문제 발생 시 피드백 센터의 이용 제한 조치가 이루어질 수 있습니다.'
+                      placeholder={t('detail.commentPlaceholder')}
                       rows={3}
                     />
                     <button
@@ -265,21 +267,18 @@ export default function FeedbackDetailPage() {
                       disabled={loading || !newComment.trim()}
                       className='tw:px-4 tw:py-2 tw:bg-indigo-600 tw:text-white tw:rounded hover:tw:bg-indigo-700 tw:transition-colors disabled:tw:opacity-50'
                     >
-                      {loading ? <SyncLoader size={8} color='#ffffff' /> : '작성하기'}
+                      {loading ? <SyncLoader size={8} color='#ffffff' /> : t('detail.submit')}
                     </button>
                   </div>
                 </div>
               ) : (
                 <div className='tw:bg-gray-50 tw:dark:bg-slate-700/50 tw:border tw:border-gray-200 tw:dark:border-slate-600 tw:p-6 tw:rounded-lg tw:space-y-4 tw:text-center tw:text-gray-700 tw:dark:text-gray-300'>
-                  <p className='tw:whitespace-pre-wrap'>
-                    관리자가 해당 피드백의 상태를 CLOSED로 변경하여 추가 의견을 더 이상 작성할 수
-                    없습니다.
-                  </p>
+                  <p className='tw:whitespace-pre-wrap'>{t('detail.closedExplanation')}</p>
                 </div>
               )
             ) : (
               <div className='tw:bg-gray-50 tw:dark:bg-slate-700/50 tw:border tw:border-gray-200 tw:dark:border-slate-600 tw:p-6 tw:rounded-lg tw:space-y-4 tw:text-center tw:text-gray-700 tw:dark:text-gray-300'>
-                <p className='tw:whitespace-pre-wrap'>추가 의견 작성은 로그인이 필요합니다.</p>
+                <p className='tw:whitespace-pre-wrap'>{t('detail.loginRequired')}</p>
               </div>
             )}
 

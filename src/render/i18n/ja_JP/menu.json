@@ -1,40 +1,44 @@
 {
   "racla": {
     "raclaNavTitle": "RACLA",
-    "raclaHome": "홈",
-    "raclaOverlay": "오버레이",
-    "raclaSettings": "설정",
-    "raclaLicense": "라이선스 및 이용약관",
-    "raclaCheatsheet": "치트시트",
-    "raclaTrackMaker": "트랙 메이커",
-    "raclaFeedback": "피드백 센터"
+    "raclaHome": "ホーム",
+    "raclaOverlay": "オーバーレイ",
+    "raclaSettings": "設定",
+    "raclaLicense": "ライセンスと利用規約",
+    "raclaCheatsheet": "チートシート",
+    "raclaTrackMaker": "トラックメーカー",
+    "raclaFeedback": "フィードバックセンター"
+  },
+  "common": {
+    "user": "ユーザー",
+    "loginRequired": "ログインが必要です"
   },
   "quickMenu": {
-    "quickMenuNavTitle": "바로가기 메뉴",
-    "login": "로그인",
-    "logout": "로그아웃",
-    "raclaHome": "RACLA 바로가기",
-    "vArchiveHome": "V-ARCHIVE 바로가기",
-    "hjaHome": "전일 아카이브 바로가기",
-    "close": "닫기"
+    "quickMenuNavTitle": "クイックメニュー",
+    "login": "ログイン",
+    "logout": "ログアウト",
+    "raclaHome": "RACLA",
+    "vArchiveHome": "V-ARCHIVE",
+    "hardArchiveHome": "HARD-ARCHIVE",
+    "close": "閉じる"
   },
   "djmax_respect_v": {
     "vArchiveNavTitle": "V-ARCHIVE",
     "vArchiveRegScore": {
       "name": {
         "startWithSup": "",
-        "base": "기록 등록",
+        "base": "スコア登録",
         "lastWithSup": ""
       },
-      "description": "V-ARCHIVE 기록 등록"
+      "description": "V-ARCHIVEスコア登録"
     },
     "vArchiveMyBoard": {
       "name": {
         "startWithSup": "",
-        "base": "성과표",
+        "base": "成果表",
         "lastWithSup": ""
       },
-      "description": "V-ARCHIVE 성과표"
+      "description": "V-ARCHIVE成果表"
     },
     "vArchiveDjpower": {
       "name": {
@@ -47,68 +51,68 @@
     "vArchiveDb": {
       "name": {
         "startWithSup": "",
-        "base": "데이터베이스",
+        "base": "データベース",
         "lastWithSup": ""
       },
-      "description": "V-ARCHIVE 데이터베이스"
+      "description": "V-ARCHIVEデータベース"
     },
     "vArchiveGrade": {
       "name": {
         "startWithSup": "",
-        "base": "서열표",
+        "base": "ランク表",
         "lastWithSup": ""
       },
-      "description": "V-ARCHIVE 서열표"
+      "description": "V-ARCHIVEランク表"
     },
-    "hjaNavTitle": "전일 아카이브",
-    "hjaRanking": {
+    "hardArchiveNavTitle": "HARD-ARCHIVE",
+    "hardArchiveRanking": {
       "name": {
         "startWithSup": "",
-        "base": "종합 랭킹",
+        "base": "総合ランキング",
         "lastWithSup": ""
       },
-      "description": "전일 아카이브 종합 랭킹"
+      "description": "HARD-ARCHIVE総合ランキング"
     },
-    "hjaDatabase": {
+    "hardArchiveDatabase": {
       "name": {
         "startWithSup": "",
-        "base": "랭킹 데이터베이스",
+        "base": "ランキングデータベース",
         "lastWithSup": ""
       },
-      "description": "전일 아카이브 랭킹 데이터베이스(SC8/MX15+)"
+      "description": "HARD-ARCHIVEランキングデータベース(SC8/MX15+)"
     },
-    "hjaGrade": {
+    "hardArchiveGrade": {
       "name": {
         "startWithSup": "",
-        "base": "하드 판정 서열표",
+        "base": "ハード判定ランク表",
         "lastWithSup": ""
       },
-      "description": "전일 아카이브 하드 판정 서열표(SC8/MX15+)"
+      "description": "HARD-ARCHIVEハード判定ランク表(SC8/MX15+)"
     },
-    "utilityNavTitle": "유틸리티",
+    "utilityNavTitle": "ユーティリティ",
     "utilityNavItemsVArchiveMacro": {
       "name": {
         "startWithSup": "",
-        "base": "V-ARCHIVE 매크로",
+        "base": "V-ARCHIVEマクロ",
         "lastWithSup": ""
       },
-      "description": "V-ARCHIVE 매크로"
+      "description": "V-ARCHIVEマクロ"
     },
     "utilityVArchiveMacro": {
       "name": {
         "startWithSup": "",
-        "base": "V-ARCHIVE 매크로",
+        "base": "V-ARCHIVEマクロ",
         "lastWithSup": ""
       },
-      "description": "V-ARCHIVE 매크로"
+      "description": "V-ARCHIVEマクロ"
     },
     "utilityRandomSelector": {
       "name": {
         "startWithSup": "",
-        "base": "랜덤 선곡기",
+        "base": "ランダムセレクター",
         "lastWithSup": ""
       },
-      "description": "랜덤 선곡기"
+      "description": "ランダムセレクター"
     },
     "utilityVScouter": {
       "name": {
@@ -121,18 +125,18 @@
     "utilityBest30": {
       "name": {
         "startWithSup": "",
-        "base": "BEST 30 봇 (Discord)",
+        "base": "BEST 30 ボット (Discord)",
         "lastWithSup": ""
       },
-      "description": "BEST 30 봇 (Discord)"
+      "description": "BEST 30 ボット (Discord)"
     },
     "utilityHangyee": {
       "name": {
         "startWithSup": "",
-        "base": "행이봇 (Discord)",
+        "base": "ハンイボット (Discord)",
         "lastWithSup": ""
       },
-      "description": "행이봇 (Discord)"
+      "description": "ハンイボット (Discord)"
     }
   },
   "wjmax": {
@@ -140,42 +144,42 @@
     "wjmaxRegScore": {
       "name": {
         "startWithSup": "",
-        "base": "기록 등록",
+        "base": "スコア登録",
         "lastWithSup": ""
       },
-      "description": "WJMAX 기록 등록"
+      "description": "WJMAXスコア登録"
     },
     "wjmaxMyBoard": {
       "name": {
         "startWithSup": "",
-        "base": "성과표",
+        "base": "成果表",
         "lastWithSup": ""
       },
-      "description": "WJMAX 성과표"
+      "description": "WJMAX成果表"
     },
     "wjmaxDb": {
       "name": {
         "startWithSup": "",
-        "base": "데이터베이스",
+        "base": "データベース",
         "lastWithSup": ""
       },
-      "description": "WJMAX 데이터베이스"
+      "description": "WJMAXデータベース"
     },
     "wjmaxLeaderboard": {
       "name": {
         "startWithSup": "",
-        "base": "리더보드(랭킹)",
+        "base": "リーダーボード(ランキング)",
         "lastWithSup": ""
       },
-      "description": "WJMAX 리더보드(랭킹)"
+      "description": "WJMAXリーダーボード(ランキング)"
     },
     "wjmaxCourseMaker": {
       "name": {
         "startWithSup": "",
-        "base": "코스 메이커",
+        "base": "コースメーカー",
         "lastWithSup": ""
       },
-      "description": "WJMAX 코스 메이커"
+      "description": "WJMAXコースメーカー"
     }
   },
   "platina_lab": {
@@ -183,44 +187,44 @@
     "platinaLabRegScore": {
       "name": {
         "startWithSup": "",
-        "base": "기록 등록",
+        "base": "スコア登録",
         "lastWithSup": ""
       },
-      "description": "PLATiNA :: LAB 기록 등록"
+      "description": "PLATiNA :: LABスコア登録"
     },
     "platinaLabMyBoard": {
       "name": {
         "startWithSup": "",
-        "base": "성과표",
+        "base": "成果表",
         "lastWithSup": ""
       },
-      "description": "PLATiNA :: LAB 성과표"
+      "description": "PLATiNA :: LAB成果表"
     },
     "platinaLabDb": {
       "name": {
         "startWithSup": "",
-        "base": "데이터베이스",
+        "base": "データベース",
         "lastWithSup": ""
       },
-      "description": "PLATiNA :: LAB 데이터베이스"
+      "description": "PLATiNA :: LABデータベース"
     },
     "platinaLabLeaderboard": {
       "name": {
         "startWithSup": "",
-        "base": "리더보드(랭킹)",
+        "base": "リーダーボード(ランキング)",
         "lastWithSup": ""
       },
-      "description": "PLATiNA :: LAB 리더보드(랭킹)"
+      "description": "PLATiNA :: LABリーダーボード(ランキング)"
     },
     "platinaLabCourseMaker": {
       "name": {
         "startWithSup": "",
-        "base": "코스 메이커",
+        "base": "コースメーカー",
         "lastWithSup": ""
       },
-      "description": "PLATiNA :: LAB 코스 메이커"
+      "description": "PLATiNA :: LABコースメーカー"
     },
-    "officialNavTitle": "공식 바로가기",
+    "officialNavTitle": "公式ショートカット",
     "officialMusic": {
       "name": {
         "startWithSup": "",

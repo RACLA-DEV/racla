@@ -1,0 +1,21 @@
+{
+  "clearAll": "Clear All",
+  "processing": "Processing",
+  "selectMultipleImages": "You can select multiple images at once",
+  "selectImage": "Select Image",
+  "noResults": "No registered results",
+  "uploadImage": "Drag or click on the left area to upload images",
+  "scoreRegistration": "Score Registration",
+  "dropImageInstruction": "Drag images to upload",
+  "processingImage": "Processing image",
+  "dragAndDropImage": "Drag images to upload",
+  "orClickToSelect": "Or click to select",
+  "djmaxRespectV": "DJMAX RESPECT V supports Freestyle song selection, Freestyle results, Open Match song selection, Open Match results, and Ladder/Versus match results screens.",
+  "wjmax": "WJMAX supports Freestyle results screen.",
+  "platinaLab": "PLATINA LAB supports Single play results screen.",
+  "needLogin": "Score registration requires login or account linking with the corresponding service.",
+  "noImageFiles": "No images to process.",
+  "convertImageError": "An error occurred while converting the image. Please select another image of the same score.",
+  "ocrError": "An error occurred during OCR processing. Please select another image of the same score.",
+  "ocrErrorMultiple": "An error occurred during OCR processing for some images. Processing will continue for the remaining images if any exist."
+}

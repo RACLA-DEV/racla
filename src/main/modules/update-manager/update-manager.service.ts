@@ -43,6 +43,11 @@ export class UpdateManagerService {
       autoUpdater.on('update-downloaded', (info) => {
         this.logger.log(`Update Downloaded: ${JSON.stringify(info)}`)
         mainWindow.webContents.send('update-downloaded', info.version)
+        const settings = this.fileManagerService.loadSettings()
+        this.fileManagerService.saveSettings({
+          ...settings,
+          isCheckedForUpdate: false,
+        })
       })
     }
   }

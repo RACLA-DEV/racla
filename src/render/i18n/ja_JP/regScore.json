@@ -1,0 +1,21 @@
+{
+  "clearAll": "すべて消去",
+  "processing": "処理中",
+  "selectMultipleImages": "複数の画像を一度に選択できます",
+  "selectImage": "画像を選択",
+  "noResults": "登録された結果がありません",
+  "uploadImage": "左側の領域に画像をドラッグするか、クリックしてアップロードしてください",
+  "scoreRegistration": "スコア登録",
+  "dropImageInstruction": "画像をドラッグしてアップロードしてください",
+  "processingImage": "画像処理中",
+  "dragAndDropImage": "画像をドラッグしてアップロードしてください",
+  "orClickToSelect": "またはクリックして選択してください",
+  "djmaxRespectV": "DJMAX RESPECT Vはフリースタイル曲選択、フリースタイル結果、オープンマッチ曲選択、オープンマッチ結果、ラダー/バーサスマッチ結果画面をサポートしています。",
+  "wjmax": "WJMAXはフリースタイル結果画面をサポートしています。",
+  "platinaLab": "PLATINA LABはシングルプレイ結果画面をサポートしています。",
+  "needLogin": "スコア登録機能はログインまたは該当するサービスのアカウント連携が必要です。",
+  "noImageFiles": "処理する画像がありません。",
+  "convertImageError": "画像変換中にエラーが発生しました。同じスコアの別の画像を選択してください。",
+  "ocrError": "OCR処理中にエラーが発生しました。同じスコアの別の画像を選択してください。",
+  "ocrErrorMultiple": "一部の画像のOCR処理中にエラーが発生しました。残りの画像が存在する場合、処理を続行します。"
+}

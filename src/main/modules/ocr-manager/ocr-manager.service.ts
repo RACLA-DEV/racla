@@ -9,16 +9,20 @@ import { v4 as uuidv4 } from 'uuid'
 import apiClient from '../../../libs/apiClient'
 import { FileManagerService } from '../file-manager/file-manager.service'
 import { ImageProcessorService } from '../image-processor/image-processor.service'
+import { MainWindowService } from '../main-window/main-window.service'
 import { OverlayWindowService } from '../overlay-window/overlay-window.service'
 
 @Injectable()
 export class OcrManagerService {
   private readonly logger = new Logger(OcrManagerService.name)
+  private processingQueue: { image: Buffer; gameCode: string }[] = []
+  private isProcessing = false
 
   constructor(
     private readonly imageProcessor: ImageProcessorService,
     private readonly fileManagerService: FileManagerService,
     private readonly overlayWindowService: OverlayWindowService,
+    private readonly mainWindowService: MainWindowService,
   ) {}
 
   /**
@@ -239,6 +243,71 @@ export class OcrManagerService {
       }
     } else {
       this.logger.error('Menu Window Capture Error: Not Found Game Window or Not Focused')
+    }
+  }
+
+  /**
+   * 여러 이미지를 배치로 처리하는 메서드
+   */
+  public async processImagesBatch(
+    images: Buffer[],
+    gameCode: string,
+  ): Promise<OcrPlayDataResponse[]> {
+    this.logger.log(`OCR Batch Process Start: ${images.length} images`)
+
+    const results: OcrPlayDataResponse[] = []
+
+    // 이미지를 하나씩 처리
+    for (const image of images) {
+      try {
+        const result = await this.getOcrResultServer(image, gameCode)
+        results.push(result)
+
+        // 결과를 오버레이 윈도우에 전송 (일반 윈도우에도 전송하려면 메인 IPC 서비스 통합 필요)
+        this.mainWindowService.sendMessage(
+          JSON.stringify({
+            type: 'ocr-result',
+            data: result,
+          }),
+        )
+
+        // 처리 간격을 두어 서버 부하 방지
+        await new Promise((resolve) => setTimeout(resolve, 1000))
+      } catch (error) {
+        this.logger.error(`OCR Batch Process Error: ${error.message}`)
+      }
+    }
+
+    this.logger.log(`OCR Batch Process End: ${results.length}/${images.length} images success`)
+    return results
+  }
+
+  /**
+   * 처리 큐를 순차적으로 처리하는 메서드
+   */
+  private async processQueue(): Promise<void> {
+    if (this.processingQueue.length === 0 || this.isProcessing) {
+      this.isProcessing = false
+      return
+    }
+
+    this.isProcessing = true
+    const { image, gameCode } = this.processingQueue[0]
+
+    try {
+      this.logger.log(`OCR Process Start (Remaining Queue: ${this.processingQueue.length})`)
+      await this.getOcrResultServer(image, gameCode)
+      this.logger.log('OCR Process End')
+    } catch (error) {
+      this.logger.error(`OCR Process Error: ${error.message}`)
+    } finally {
+      // 처리 완료된 항목 제거
+      this.processingQueue.shift()
+      // 다음 항목 처리
+      setTimeout(() => {
+        this.isProcessing = false
+        this.processQueue()
+      }, 1000) // 1초 간격으로 처리
     }
   }
 

@@ -44,7 +44,7 @@
   },
   "font": {
     "name": "폰트",
-    "description": "프로그램의 폰트를 설정합니다.",
+    "description": "프로그램의 폰트를 설정합니다. 일부 항목은 언어 설정에 따라 폰트가 변경됩니다.",
     "default": "RACLA 스타일",
     "platina_lab": "PLATiNA :: LAB 스타일"
   },
@@ -105,9 +105,9 @@
     "name": "결과 오버레이 표시",
     "description": "결과 오버레이를 표시합니다."
   },
-  "hjaOverlay": {
-    "name": "HJA 오버레이 표시",
-    "description": "HJA 오버레이를 표시합니다."
+  "hardJudgementPlayRecordOverlay": {
+    "name": "전일 기록 오버레이 표시",
+    "description": "전일 기록 오버레이를 표시합니다."
   },
   "recentOverlay": {
     "name": "최근 기록 오버레이 표시",
@@ -198,8 +198,19 @@
   },
   "accountInfo": {
     "name": "계정 정보",
+    "linkInfo": "연동 정보",
     "description": "계정 정보를 확인합니다.",
+    "playerId": "계정 번호",
+    "playerToken": "계정 토큰",
+    "playerWarning": "노출되는 정보는 RACLA에서 로그인 데이터로 사용되는 계정 번호(playerNo)와 계정 토큰(playerToken)입니다. 계정 번호와 계정 토큰은 외부에 노출되지 않도록 주의해주세요.",
+    "vArchiveUserNo": "V-ARCHIVE 계정 번호",
+    "vArchiveToken": "V-ARCHIVE 계정 토큰",
+    "vArchiveWarning": "노출되는 정보는 V-ARCHIVE에서 로그인 데이터로 사용되는 계정 번호(userNo)와 계정 토큰(token)입니다. 계정 번호와 계정 토큰은 외부에 노출되지 않도록 주의해주세요.",
+    "discordUid": "Discord 사용자 고유 번호",
+    "discordWarning": "노출되는 정보는 Discord에서 로그인 데이터로 사용되는 사용자 고유 번호(UID)입니다. 사용자 고유 번호는 외부에 노출되지 않도록 주의해주세요.",
     "vArchive": {
+      "Link": "V-ARCHIVE 계정 연동하기",
+      "NotLinked": "V-ARCHIVE 로그인 연동이 되어 있지 않습니다. DJMAX RESPECT V 서비스를 이용하시려면 연동하기 버튼을 눌러 V-ARCHIVE 공식 클라이언트에서 생성한 로그인 데이터(account.txt)를 첨부하여 연동을 진행해주세요.",
       "Success": "V-ARCHIVE 계정 연동이 완료되었습니다.",
       "NotFound": "V-ARCHIVE 계정 연동에 실패했습니다. V-ARCHIVE에 존재하지 않는 계정 정보입니다.",
       "Already": "V-ARCHIVE 계정 연동에 실패했습니다. 이미 연동된 계정입니다.",
@@ -207,6 +218,8 @@
       "Invalid": "유효하지 않은 사용자 정보입니다. V-ARCHIVE 공식 클라이언트로 생성한 로그인 데이터(account.txt) 파일을 선택해주세요."
     },
     "discord": {
+      "Link": "Discord 계정 연동하기",
+      "NotLinked": "Discord 로그인 연동이 되어 있지 않습니다. 연동 후 Discord를 통한 로그인과 추가로 업데이트될 전일 아카이브 기능을 이용할 수 있습니다.",
       "Success": "Discord 계정 연동이 완료되었습니다.",
       "NotFound": "Discord 계정 연동에 실패했습니다. Discord에 존재하지 않는 계정 정보입니다.",
       "Already": "Discord 계정 연동에 실패했습니다. 이미 연동된 계정입니다.",

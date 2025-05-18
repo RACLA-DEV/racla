@@ -1,0 +1,229 @@
+{
+  "account": "アカウント情報",
+  "settings": "設定",
+  "general": "一般",
+  "storage": "ストレージ",
+  "storageSettingFile": "RACLA設定ファイル",
+  "storageCaptureImage": "RACLAキャプチャー画像",
+  "storageLogs": "RACLAログファイル",
+  "storageLogsDeleting": "削除中...",
+  "storageLogsDeleteAll": "ログファイル削除",
+  "autoStart": "ゲーム自動起動",
+  "capture": "自動キャプチャーモード",
+  "restartApp": "アプリ再起動",
+  "requiresRestart": "※ この設定を適用するにはアプリの再起動が必要です。",
+  "uneditable": "※ 現在のバージョンでは編集できない設定値です。",
+  "copyright": "DJMAX RESPECT V(©NEOWIZ), WJMAX(©WJMAX STUDIO), PLATiNA :: LAB(©HIGH-END Games).\nWe deeply respect you. <3\nRACLA is dedicated to your remarkable games and services.",
+  "hardwareAcceleration": {
+    "name": "ハードウェアアクセラレーション有効化",
+    "description": "ハードウェアアクセラレーションはGPUを使用してRACLAデスクトップアプリをよりスムーズに動作させます。アプリの画面に問題が発生した場合は、この設定を無効にしてみてください。設定を変更するとアプリが再起動します。"
+  },
+  "autoCaptureMode": {
+    "name": "自動キャプチャーモード",
+    "description": "自動キャプチャーモードを有効/無効にします。"
+  },
+  "autoCaptureIntervalTime": {
+    "name": "自動キャプチャー間隔",
+    "description": "自動キャプチャーモードの間隔を設定します。",
+    "1000": "1秒",
+    "2000": "2秒",
+    "3000": "3秒",
+    "5000": "5秒",
+    "10000": "10秒"
+  },
+  "autoCaptureProcessIntervalTime": {
+    "name": "自動キャプチャー処理間隔",
+    "description": "自動キャプチャー処理モードの間隔を設定します。"
+  },
+  "language": {
+    "name": "言語",
+    "description": "プログラムの言語を設定します。韓国語(Korean)を除くすべての言語はClaude Sonnet 3.7を使用して翻訳されました。翻訳に貢献したい場合は、配布リポジトリにイシューまたはプルリクエストを残してください。",
+    "en_US": "English (US)",
+    "ja_JP": "日本語 (Japanese)",
+    "ko_KR": "한국어 (Korean)"
+  },
+  "font": {
+    "name": "フォント",
+    "description": "プログラムのフォントを設定します。一部の項目は言語設定によってフォントが変更されます。",
+    "default": "RACLAスタイル",
+    "platina_lab": "PLATiNA :: LABスタイル"
+  },
+  "autoCaptureApi": {
+    "name": "自動キャプチャーAPI",
+    "description": "自動キャプチャーモードで使用するAPIを設定します。",
+    "xcap-api": "XCap API",
+    "eapi": "Electron API",
+    "napi": "Native API (Rust)"
+  },
+  "visibleBga": {
+    "name": "BGA映像表示",
+    "description": "基本的な背景BGA映像とBGAが存在する曲のイメージ（ジャケット）にマウスカーソルを置いた場合、その曲のBGA映像を表示します。"
+  },
+  "visibleAnimation": {
+    "name": "アニメーション効果",
+    "description": "プログラムのすべてのアニメーション効果を有効/無効にします。"
+  },
+  "captureOnlyFocused": {
+    "name": "ウィンドウがフォーカスされている場合のみキャプチャー",
+    "description": "ウィンドウがフォーカスされている場合のみキャプチャーを実行します。"
+  },
+  "autoUpdate": {
+    "name": "自動アップデート",
+    "description": "プログラムの自動アップデートを有効/無効にします。"
+  },
+  "autoRemoveBlackPixel": {
+    "name": "自動白黒余白除去",
+    "description": "自動キャプチャーモードで白黒画像を除去します。"
+  },
+  "removeBlackPixelPx": {
+    "name": "白黒余白除去サイズ",
+    "description": "手動で白黒余白除去サイズを設定します。"
+  },
+  "saveImageWhenCapture": {
+    "name": "キャプチャー時に画像保存",
+    "description": "手動キャプチャーまたは自動キャプチャーモードでキャプチャーした画像を保存します。"
+  },
+  "saveImageWithAllProfileWhenCapture": {
+    "name": "すべてのプロフィールを含めて保存",
+    "description": "すべてのプロフィールを含めて画像を保存します。"
+  },
+  "saveImageWithoutOtherProfileWhenCapture": {
+    "name": "第三者プロフィールを除外して保存",
+    "description": "第三者プロフィールを除外して画像を保存します。"
+  },
+  "saveImageWithoutAllProfileWhenCapture": {
+    "name": "すべてのプロフィールを除外して保存",
+    "description": "すべてのプロフィールを除外して画像を保存します。"
+  },
+  "saveImageBlurMode": {
+    "name": "プロフィール除外ブラー効果",
+    "description": "プロフィール除外画像に適用するブラー効果を設定します。",
+    "blur": "ブラー効果",
+    "mask": "黒色マスキング (V-ARCHIVE)"
+  },
+  "resultOverlay": {
+    "name": "リザルトオーバーレイ表示",
+    "description": "リザルトオーバーレイを表示します。"
+  },
+  "hardJudgementPlayRecordOverlay": {
+    "name": "全一記録オーバーレイ表示",
+    "description": "全一記録オーバーレイを表示します。"
+  },
+  "recentOverlay": {
+    "name": "最近の記録オーバーレイ表示",
+    "description": "最近の記録オーバーレイを表示します。"
+  },
+  "alwaysOverlay": {
+    "name": "常時オーバーレイ表示",
+    "description": "常時オーバーレイを表示します。"
+  },
+  "autoCaptureDjmaxRespectVOcrResultRegion": {
+    "name": "自動認識領域 - DJMAX RESPECT Vフリースタイル結果画面",
+    "description": "自動キャプチャーモードでDJMAX RESPECT Vフリースタイル結果画面領域のOCR検査を有効/無効にします。"
+  },
+  "autoCaptureDjmaxRespectVOcrOpen2Region": {
+    "name": "自動認識領域 - DJMAX RESPECT Vオープンマッチ(2人)",
+    "description": "自動キャプチャーモードでDJMAX RESPECT Vオープンマッチ(2人)結果画面領域のOCR検査を有効/無効にします。"
+  },
+  "autoCaptureDjmaxRespectVOcrOpen3Region": {
+    "name": "自動認識領域 - DJMAX RESPECT Vオープンマッチ(1人または3人以上)",
+    "description": "自動キャプチャーモードでDJMAX RESPECT Vオープンマッチ(1人または3人以上)結果画面領域のOCR検査を有効/無効にします。"
+  },
+  "autoCaptureDjmaxRespectVOcrVersusRegion": {
+    "name": "自動認識領域 - DJMAX RESPECT Vラダー/バーサスマッチ",
+    "description": "自動キャプチャーモードでDJMAX RESPECT Vラダー/バーサスマッチ結果画面領域のOCR検査を有効/無効にします。"
+  },
+  "autoCaptureWjmaxOcrResultRegion": {
+    "name": "自動認識領域 - WJMAXフリースタイル結果画面",
+    "description": "自動キャプチャーモードでWJMAXフリースタイル結果画面領域のOCR検査を有効/無効にします。"
+  },
+  "autoCapturePlatinaLabOcrResultRegion": {
+    "name": "自動認識領域 - PLATiNA :: LABシングルプレイ結果画面",
+    "description": "自動キャプチャーモードでPLATiNA :: LABシングルプレイ結果画面領域のOCR検査を有効/無効にします。"
+  },
+  "autoStartGame": {
+    "name": "ゲーム自動起動",
+    "description": "RACLAデスクトップアプリ起動時に選択したゲームを自動的に起動します。"
+  },
+  "autoStartGameDjmaxRespectV": {
+    "name": "DJMAX RESPECT V自動起動",
+    "description": "RACLAデスクトップアプリ起動時にDJMAX RESPECT Vを自動的に起動します。この機能はSteamバージョンのDJMAX RESPECT Vでのみ動作します。"
+  },
+  "autoStartGameWjmax": {
+    "name": "WJMAX自動起動",
+    "description": "RACLAデスクトップアプリ起動時にWJMAXを自動的に起動します。この機能はWJMAX実行ファイルのパスを指定した場合にのみ動作します。"
+  },
+  "autoStartGameWjmaxPath": {
+    "name": "WJMAXパス",
+    "description": "WJMAXパスを指定します。"
+  },
+  "autoStartGamePlatinaLab": {
+    "name": "PLATiNA :: LAB自動起動",
+    "description": "RACLAデスクトップアプリ起動時にPLATiNA :: LABを自動的に起動します。この機能はSteamバージョンのDJMAX RESPECT Vでのみ動作します。"
+  },
+  "isMiniMode": {
+    "name": "ミニモード",
+    "description": "ミニモードを有効/無効にします。"
+  },
+  "hideToTray": {
+    "name": "トレイに最小化",
+    "description": "トレイに最小化します。"
+  },
+  "isNotificationSound": {
+    "name": "スコア登録時に通知音",
+    "description": "スコア登録時に通知音を有効/無効にします。"
+  },
+  "autoDeleteCapturedImages": {
+    "name": "キャプチャー画像自動削除",
+    "description": "設定した期間が経過したキャプチャー画像を自動的に削除します。0に設定すると自動削除しません。",
+    "0": "自動削除しない",
+    "7": "7日",
+    "14": "14日",
+    "30": "30日",
+    "90": "90日"
+  },
+  "autoCaptureDelayTime": {
+    "name": "キャプチャー待機時間",
+    "description": "一部のゲームでは結果画面表示までにアニメーションが含まれる場合があり、この場合、正確な検証のためにもう一度キャプチャーを試みることがあります。その際の待機時間を設定します。",
+    "0": "待機しない",
+    "1000": "1秒",
+    "2000": "2秒",
+    "3000": "3秒",
+    "5000": "5秒",
+    "10000": "10秒"
+  },
+  "log": {
+    "clearAllLogsSuccess": "すべてのログファイルが削除されました。",
+    "clearAllLogsError": "ログファイル削除中にエラーが発生しました。"
+  },
+  "accountInfo": {
+    "name": "アカウント情報",
+    "linkInfo": "連携情報",
+    "description": "アカウント情報を確認します。",
+    "playerId": "アカウントID",
+    "playerToken": "アカウントトークン",
+    "playerWarning": "表示される情報はRACLAでログインデータとして使用されるアカウントID（playerNo）とアカウントトークン（playerToken）です。アカウントIDとアカウントトークンが外部に漏れないよう注意してください。",
+    "vArchiveUserNo": "V-ARCHIVEアカウントID",
+    "vArchiveToken": "V-ARCHIVEアカウントトークン",
+    "vArchiveWarning": "表示される情報はV-ARCHIVEでログインデータとして使用されるアカウントID（userNo）とアカウントトークン（token）です。アカウントIDとアカウントトークンが外部に漏れないよう注意してください。",
+    "discordUid": "DiscordユーザーID",
+    "discordWarning": "表示される情報は連携されたDiscordアカウントのユーザーID（UID）です。ユーザーIDが外部に漏れないよう注意してください。",
+    "vArchive": {
+      "Link": "V-ARCHIVEアカウント連携",
+      "NotLinked": "V-ARCHIVEログイン連携が行われていません。DJMAX RESPECT Vサービスを利用するには、連携ボタンを押してV-ARCHIVE公式クライアントで作成したログインデータ（account.txt）を添付して連携を行ってください。",
+      "Success": "V-ARCHIVEアカウント連携が完了しました。",
+      "NotFound": "V-ARCHIVEアカウント連携に失敗しました。V-ARCHIVEに存在しないアカウント情報です。",
+      "Already": "V-ARCHIVEアカウント連携に失敗しました。すでに連携されているアカウントです。",
+      "Unknown": "V-ARCHIVEアカウント連携に失敗しました。不明なエラーが発生しました。",
+      "Invalid": "無効なユーザー情報です。V-ARCHIVE公式クライアントで作成したログインデータ(account.txt)ファイルを選択してください。"
+    },
+    "discord": {
+      "Link": "Discordアカウント連携",
+      "NotLinked": "Discordログイン連携が行われていません。連携後、Discordを通じたログインや今後追加されるHARD-ARCHIVE機能を利用できます。",
+      "Success": "Discordアカウント連携が完了しました。",
+      "NotFound": "Discordアカウント連携に失敗しました。Discordに存在しないアカウント情報です。",
+      "Already": "Discordアカウント連携に失敗しました。すでに連携されているアカウントです。",
+      "Unknown": "Discordアカウント連携に失敗しました。不明なエラーが発生しました。"
+    }
+  }
+}

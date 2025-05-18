@@ -1,0 +1,57 @@
+{
+  "title": "フィードバックセンター",
+  "createFeedback": "フィードバック作成",
+  "loginRequired": "フィードバック作成にはログインが必要です。",
+  "description": "バグ報告や意見提供などのフィードバックを作成・確認できる空間です。不適切な言語使用や問題が発生した場合、フィードバックセンターの利用制限措置が行われる可能性があります。",
+  "statusExplanation": {
+    "title": "ステータス説明",
+    "open": "OPENステータスは、まだ開発者が確認していない段階を意味し、該当内容が確認された場合、IN_PROGRESSステータスに変更されます。",
+    "closed": "CLOSEDステータスの場合、該当フィードバックに対する措置が完了したことを意味し、元の内容を維持するために追加意見を作成できません。"
+  },
+  "pinned": "固定",
+  "list": "リスト",
+  "tableHeader": {
+    "category": "カテゴリ",
+    "title": "タイトル",
+    "status": "ステータス",
+    "author": "作成者",
+    "date": "作成日"
+  },
+  "status": {
+    "OPEN": "新規",
+    "IN_PROGRESS": "処理中",
+    "CLOSED": "完了"
+  },
+  "category": {
+    "NOTICE": "お知らせ",
+    "BUG": "バグ報告",
+    "FEATURE_REQUEST": "機能リクエスト",
+    "QUESTION": "質問",
+    "OTHER": "その他"
+  },
+  "feedbackCreation": {
+    "title": "フィードバック作成",
+    "inputTitle": "タイトル",
+    "titlePlaceholder": "タイトルを入力してください",
+    "category": "カテゴリ",
+    "content": "内容",
+    "contentPlaceholder": "内容を入力してください",
+    "cancel": "キャンセル",
+    "submit": "作成"
+  },
+  "detail": {
+    "backToList": "フィードバックセンターに戻る",
+    "status": "ステータス",
+    "author": "作成者",
+    "createdAt": "作成時間",
+    "comments": "追加意見",
+    "commentPlaceholder": "追加意見を作成してください。不適切な言語使用や問題が発生した場合、フィードバックセンターの利用制限措置が行われる可能性があります。",
+    "submit": "作成",
+    "closedExplanation": "管理者が該当フィードバックのステータスをCLOSEDに変更したため、追加意見をこれ以上作成できません。",
+    "loginRequired": "追加意見の作成にはログインが必要です。"
+  },
+  "error": {
+    "fetchFeedbackPageFailed": "フィードバックリストの読み込みに失敗しました。",
+    "createBugFailed": "フィードバック作成に失敗しました。"
+  }
+}

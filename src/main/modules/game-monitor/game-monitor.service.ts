@@ -164,7 +164,14 @@ export class GameMonitorService {
         this.autoCaptureInterval = setInterval(() => {
           Promise.resolve()
             .then(async () => {
-              if (this.activeWindow && this.isGameWindowFocused && !this.isProcessingResult) {
+              const session = this.fileService.loadSession()
+              if (
+                session.playerId &&
+                session.playerToken &&
+                this.activeWindow &&
+                this.isGameWindowFocused &&
+                !this.isProcessingResult
+              ) {
                 this.isProcessingResult = true
                 let ocrResult = await this.ocrManagerService.getOcrResult(
                   this.activeWindow?.title,

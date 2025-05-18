@@ -1,8 +1,26 @@
+import { OcrPlayDataResponse } from '../dto/ocr/OcrPlayDataResponse'
 import { GameType } from '../games/GameType'
 import { SongData } from '../games/SongData'
 import { Notification } from '../notifications/Notification'
 import { SessionData } from '../sessions/SessionData'
 import { SettingsData } from '../settings/SettingData'
+
+// OCR 처리 상태 타입 정의
+export interface OcrProcessState {
+  results: OcrPlayDataResponse[]
+  totalImages: number
+  processedImages: number
+  isProcessing: boolean
+  lastProcessedAt: number | null
+  gameCode: GameType | null
+}
+
+// 게임별 OCR 상태 관리
+export interface GameOcrStates {
+  djmax_respect_v: OcrProcessState
+  wjmax: OcrProcessState
+  platina_lab: OcrProcessState
+}
 
 export interface AppState {
   selectedGame: GameType
@@ -28,4 +46,8 @@ export interface AppState {
     }
   }
   refresh: boolean
+  // 게임별 OCR 상태
+  gameOcrStates: GameOcrStates
+  // 현재 선택된 게임의 OCR 처리 상태 (호환성 유지)
+  ocrProcessState: OcrProcessState
 }

@@ -8,6 +8,7 @@ import ScorePopupComponent from '@render/components/score/ScorePopup'
 import { globalDictionary } from '@render/constants/globalDictionary'
 import { RootState } from '@render/store'
 import { SongData } from '@src/types/games/SongData'
+import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 
 // LazyListItem 인터페이스 정의
@@ -160,6 +161,7 @@ const LazyGridItem = React.memo(({ songItem, keyMode }: LazyGridItemProps) => {
 })
 
 const PlatinaLabDbPage = () => {
+  const { t } = useTranslation(['db'])
   const { songData, selectedGame } = useSelector((state: RootState) => state.app)
 
   const [keyMode, setKeyMode] = useState<string>('4')
@@ -402,7 +404,7 @@ const PlatinaLabDbPage = () => {
                             : 'tw:text-slate-600 tw:dark:text-slate-300 hover:tw:text-slate-900 hover:tw:dark:text-white hover:tw:bg-slate-200 hover:tw:dark:bg-slate-600'
                         } `}
                       >
-                        {dlcCode}
+                        {t(dlcCode)}
                       </button>
                     ))}
                   </div>
@@ -457,7 +459,7 @@ const PlatinaLabDbPage = () => {
                         }}
                         className='tw:p-1.5 tw:min-w-[120px] tw:max-w-[120px] tw:w-36 tw:text-sm tw:rounded-lg tw:border tw:dark:bg-slate-700 tw:dark:text-white tw:dark:border-slate-600 tw:bg-white tw:text-slate-700 tw:border-slate-300 focus:tw:border-indigo-400 focus:tw:ring-2 focus:tw:ring-indigo-400 focus:tw:ring-opacity-20 tw:transition-all'
                       >
-                        <option value='all'>모든 난이도</option>
+                        <option value='all'>{t('allDifficulty')}</option>
                         {Array.from({ length: 30 }, (_, i) => i + 1).map((level) => (
                           <option key={level} value={level.toString()}>
                             Lv.{level}
@@ -471,7 +473,7 @@ const PlatinaLabDbPage = () => {
                         }}
                         className='tw:bg-slate-200 tw:dark:bg-slate-700 tw:text-slate-700 tw:dark:text-slate-200 tw:px-4 tw:py-1.5 tw:rounded-lg tw:border tw:border-slate-300 tw:dark:border-slate-600 hover:tw:bg-slate-300 hover:tw:dark:bg-slate-600 tw:transition-all'
                       >
-                        {sortOrder === 'asc' ? '이름 ↑' : '이름 ↓'}
+                        {sortOrder === 'asc' ? t('nameAsc') : t('nameDesc')}
                       </button>
 
                       <div className='tw:relative tw:flex-1'>
@@ -497,7 +499,7 @@ const PlatinaLabDbPage = () => {
                             setSearchName(e.currentTarget.value)
                           }}
                           type='text'
-                          placeholder='제목, 제작자명 또는 DLC명으로 검색'
+                          placeholder={t('searchPlaceholder')}
                         />
                       </div>
                       <div className='tw:flex tw:gap-2'>
@@ -544,13 +546,13 @@ const PlatinaLabDbPage = () => {
                 >
                   {viewMode === 'list' && (
                     <div className='tw:flex tw:items-center tw:gap-4 tw:p-2 tw:border-b tw:border-slate-200 tw:dark:border-slate-700 tw:text-slate-500 tw:dark:text-slate-400 tw:font-bold tw:text-sm'>
-                      <div className='tw:w-[80px] tw:text-center'>곡 이미지</div>
+                      <div className='tw:w-[80px] tw:text-center'>{t('songImage')}</div>
                       <div className='tw:flex tw:flex-1'>
-                        <div className='tw:flex-1'>곡 정보</div>
+                        <div className='tw:flex-1'>{t('songInfo')}</div>
                         <div
                           className={`${!showPlusOnly ? 'tw:w-[576px]' : 'tw:w-[288px]'} tw:text-center`}
                         >
-                          난이도
+                          {t('difficulty')}
                         </div>
                       </div>
                     </div>
@@ -587,7 +589,7 @@ const PlatinaLabDbPage = () => {
                     >
                       <div className='tw:flex tw:items-center tw:gap-2 tw:text-sm tw:text-slate-500 tw:dark:text-slate-400'>
                         <Icon icon='lucide:loader' className='tw:animate-spin tw:w-4 tw:h-4' />
-                        <span>더 불러오는 중...</span>
+                        <span>{t('loadingMore')}</span>
                       </div>
                     </div>
                   )}
@@ -599,7 +601,7 @@ const PlatinaLabDbPage = () => {
                         icon='lucide:search-x'
                         className='tw:w-12 tw:h-12 tw:mb-2 tw:opacity-40'
                       />
-                      <p>검색 결과가 없습니다.</p>
+                      <p>{t('noResult')}</p>
                     </div>
                   )}
                 </div>

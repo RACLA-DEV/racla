@@ -1,0 +1,82 @@
+{
+  "copyright": "Developed by RACLA from 공감대로0번길(GGDRN0 STUDIO)",
+  "general": {
+    "time_hour": "hour",
+    "time_minute": "minute",
+    "time_second": "second",
+    "time_day": "day",
+    "time_month": "month",
+    "time_year": "year",
+    "time_ago": "ago",
+    "time_before": "before",
+    "time_after": "after",
+    "time_just_now": "just now",
+    "hour": "hour",
+    "minute": "minute",
+    "second": "second",
+    "day": "day",
+    "week": "week",
+    "month": "month",
+    "year": "year"
+  },
+  "externalLinkModal": {
+    "title": "Open External Link",
+    "description": "This link will open in your browser. Please make sure it's a trusted link before proceeding.",
+    "open": "Open",
+    "cancel": "Cancel"
+  },
+  "database": {
+    "syncSuccess": "{{gameName}} database synchronization successful :)",
+    "syncError": "{{gameName}} database synchronization failed :(",
+    "syncLocalSuccess": "{{gameName}} local database loaded successfully",
+    "syncLocalError": "{{gameName}} failed to load local database"
+  },
+  "auth": {
+    "login": "Login",
+    "loginWithDiscord": "Login with Discord",
+    "loginWithVArchive": "Login with V-ARCHIVE",
+    "logout": "Logout",
+    "register": "Create Account",
+    "backToLogin": "Back to Login",
+    "loginSuccess": "Welcome to RACLA, {{userName}}.",
+    "loginFailed": "Login failed. Please try again.",
+    "logoutSuccess": "You have been successfully logged out.",
+    "logoutFailed": "Logout failed. Please try again.",
+    "invalidVArchiveUserInfo": "Invalid user information. Please select the login data (account.txt) file created by the V-ARCHIVE official client.",
+    "vArchiveServerError": "An error occurred while connecting to the V-ARCHIVE server.",
+    "vArchiveLoginFailed": "V-ARCHIVE login failed. Please try again.",
+    "unknownError": "An unknown error occurred. Please try again.",
+    "discordLoginCanceled": "Discord login was canceled.",
+    "discordLoginFailed": "Discord login failed. Please try again.",
+    "announcement_1": "RACLA collects and uses user data from V-ARCHIVE and Discord.",
+    "announcement_2": "Some DJMAX RESPECT V services will not be available if your V-ARCHIVE account is not linked.",
+    "announcement_3": "When you first log in with V-ARCHIVE or Discord, a RACLA account is automatically created and linked to the corresponding service account.",
+    "announcement_4": "You can check linking settings on the settings page after logging in.",
+    "announcement_5": "Download V-ARCHIVE official client"
+  },
+  "ui": {
+    "minimize": "Minimize",
+    "restore": "Restore",
+    "maximize": "Maximize",
+    "close": "Close",
+    "sidebarCollapse": "Collapse Sidebar",
+    "sidebarExpand": "Expand Sidebar",
+    "back": "Back",
+    "refresh": "Refresh"
+  },
+  "theme": {
+    "light": "Light Mode",
+    "dark": "Dark Mode",
+    "changeLight": "Switch to Light Mode",
+    "changeDark": "Switch to Dark Mode"
+  },
+  "update": {
+    "updateAvailable": "V{{version}} update preparing",
+    "downloading": "Downloading V{{version}} update ({{percent}}%)",
+    "downloaded": "App restart required to apply V{{version}} update.",
+    "clickToUpdate": "Click to restart the app.",
+    "newVersion": "Update Contents",
+    "checkUpdates": "Update Contents",
+    "confirmAndDontShowAgain": "Confirm and Don't Show Again"
+  }
+}

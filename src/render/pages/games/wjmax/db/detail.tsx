@@ -17,6 +17,7 @@ import { setIsOpenExternalLink, setOpenExternalLink } from '@render/store/slices
 import { SongData } from '@src/types/games/SongData'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
+import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams } from 'react-router-dom'
 import { PuffLoader } from 'react-spinners'
 import apiClient from '../../../../../libs/apiClient'
@@ -24,6 +25,8 @@ import apiClient from '../../../../../libs/apiClient'
 dayjs.extend(utc)
 const WjmaxDbDetailPage = () => {
   const { showNotification } = useNotificationSystem()
+  const { t } = useTranslation(['db'])
+  const { language } = useSelector((state: RootState) => state.app.settingData)
 
   const params = useParams()
   const navigate = useNavigate()
@@ -339,10 +342,7 @@ const WjmaxDbDetailPage = () => {
                   {/* 제목 */}
                   <span className='tw:text-xs tw:font-light tw:text-slate-500 tw:dark:text-slate-400'>
                     RACLA : {baseSongData[0].title} / {baseSongData[0].bpm} BPM /{' '}
-                    {dayjs
-                      .utc(baseSongData[0].time * 1000)
-                      .locale('ko')
-                      .format('m분 s초')}
+                    {dayjs.utc(baseSongData[0].time * 1000).format('m:ss')}
                   </span>
                   <span className='tw:flex tw:text-sm tw:font-light tw:text-slate-600 tw:dark:text-slate-300'>
                     {baseSongData[0].artist}
@@ -362,7 +362,7 @@ const WjmaxDbDetailPage = () => {
                       }}
                     >
                       <Icon icon='lucide:youtube' />
-                      <span>BGA 영상</span>
+                      <span>{t('bgaVideo')}</span>
                     </span>
                   )}
                   <div
@@ -594,8 +594,12 @@ const WjmaxDbDetailPage = () => {
                                           <span className='tw:font-light tw:text-sm tw:text-slate-500 tw:dark:text-slate-400'>
                                             -
                                           </span>
-                                          <span className='tw:font-light tw:text-xs tw:text-slate-400 tw:dark:text-slate-500 tw:break-keep'>
-                                            (기록 미존재)
+                                          <span
+                                            className={`tw:font-light tw:text-xs tw:text-slate-400 tw:dark:text-slate-500 ${
+                                              language !== 'ja_JP' ? 'tw:break-keep' : ''
+                                            }`}
+                                          >
+                                            ({t('noRecord')})
                                           </span>
                                         </>
                                       )}

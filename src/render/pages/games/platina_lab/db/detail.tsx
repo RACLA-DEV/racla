@@ -15,18 +15,21 @@ import { setIsOpenExternalLink, setOpenExternalLink } from '@render/store/slices
 import { SongData } from '@src/types/games/SongData'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
+import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams } from 'react-router-dom'
 import apiClient from '../../../../../libs/apiClient'
 
 dayjs.extend(utc)
 
 const PlatinaLabDbDetailPage = () => {
+  const { t } = useTranslation(['db'])
   const { showNotification } = useNotificationSystem()
 
   const params = useParams()
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const { songData, userData, selectedGame } = useSelector((state: RootState) => state.app)
+  const { language } = useSelector((state: RootState) => state.app.settingData)
 
   const [baseSongData, setBaseSongData] = useState<SongData[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(true)
@@ -311,7 +314,7 @@ const PlatinaLabDbDetailPage = () => {
                         }}
                       >
                         <Icon icon='lucide:medal' />
-                        <span>랭킹(공식)</span>
+                        <span>{t('rankingOfficial')}</span>
                       </span>
                     )}
                   <div
@@ -507,8 +510,12 @@ const PlatinaLabDbDetailPage = () => {
                                           <span className='tw:font-light tw:text-sm tw:text-slate-500 tw:dark:text-slate-400'>
                                             -
                                           </span>
-                                          <span className='tw:font-light tw:text-xs tw:text-slate-400 tw:dark:text-slate-500 tw:break-keep'>
-                                            (기록 미존재)
+                                          <span
+                                            className={`tw:font-light tw:text-xs tw:text-slate-400 tw:dark:text-slate-500 ${
+                                              language !== 'ja_JP' ? 'tw:break-keep' : ''
+                                            }`}
+                                          >
+                                            ({t('noRecord')})
                                           </span>
                                         </>
                                       )}
@@ -676,8 +683,12 @@ const PlatinaLabDbDetailPage = () => {
                                           <span className='tw:font-light tw:text-sm tw:text-slate-500 tw:dark:text-slate-400'>
                                             -
                                           </span>
-                                          <span className='tw:font-light tw:text-xs tw:text-slate-400 tw:dark:text-slate-500 tw:break-keep'>
-                                            (기록 미존재)
+                                          <span
+                                            className={`tw:font-light tw:text-xs tw:text-slate-400 tw:dark:text-slate-500 ${
+                                              language !== 'ja_JP' ? 'tw:break-keep' : ''
+                                            }`}
+                                          >
+                                            ({t('noRecord')})
                                           </span>
                                         </>
                                       )}

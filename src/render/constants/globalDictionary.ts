@@ -97,6 +97,8 @@ export const globalDictionary = {
       isEditable: true,
       requiresRestart: false,
       isVisible: true,
+      getEditableState: (language: string) => language === 'ko_KR',
+      getDefaultValue: (language: string) => (language === 'ko_KR' ? 'platina_lab' : 'default'),
       selectList: [
         {
           id: 'default',
@@ -229,8 +231,8 @@ export const globalDictionary = {
       requiresRestart: false,
       isVisible: false,
     },
-    hjaOverlay: {
-      id: 'hjaOverlay',
+    hardJudgementPlayRecordOverlay: {
+      id: 'hardJudgementPlayRecordOverlay',
       defaultValue: false,
       isEditable: true,
       requiresRestart: false,
@@ -402,6 +404,13 @@ export const globalDictionary = {
           },
         },
       ],
+    },
+    isCheckedForUpdate: {
+      id: 'isCheckedForUpdate',
+      defaultValue: false,
+      isEditable: false,
+      requiresRestart: false,
+      isVisible: false,
     },
   },
   gameDictionary: {
@@ -593,13 +602,13 @@ export const globalDictionary = {
           },
         ],
       },
-      hja: {
-        id: 'hjaNavTitle',
+      hardArchive: {
+        id: 'hardArchiveNavTitle',
         isDisplay: true,
         link: '/games/djmax_respect_v',
         pages: [
           {
-            id: 'hjaRanking',
+            id: 'hardArchiveRanking',
             icon: 'lucide:trophy',
             isDisplay: true,
             isOpenBrowser: false,
@@ -608,7 +617,7 @@ export const globalDictionary = {
             platform: ['win32'],
           },
           {
-            id: 'hjaDatabase',
+            id: 'hardArchiveDatabase',
             icon: 'lucide:database',
             isDisplay: true,
             isOpenBrowser: false,
@@ -617,9 +626,9 @@ export const globalDictionary = {
             platform: ['win32'],
           },
           {
-            id: 'hjaGrade',
+            id: 'hardArchiveGrade',
             icon: 'lucide:sheet',
-            isDisplay: true,
+            isDisplay: false,
             isOpenBrowser: false,
             link: '/hard/grade',
             status: 'stable',

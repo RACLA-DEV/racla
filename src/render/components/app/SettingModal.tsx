@@ -315,6 +315,7 @@ const AccountInfo = () => {
   const dispatch = useDispatch()
   const { userData } = useSelector((state: RootState) => state.app)
   const { showNotification } = useNotificationSystem()
+  const { language } = useSelector((state: RootState) => state.app.settingData)
   const [copySuccess, setCopySuccess] = useState<string | null>(null)
 
   const getUserName = async <T = ApiArchiveUserNameResponse, R = ApiArchiveUserNameRequest>(
@@ -590,10 +591,12 @@ const AccountInfo = () => {
     label,
     value,
     fieldId,
+    language,
   }: {
     label: string
     value: string | number
     fieldId: string
+    language: string
   }) => (
     <div className={`tw:flex tw:items-center tw:justify-between tw:mb-2`}>
       <span className='tw:text-sm tw:font-medium'>{label}</span>
@@ -606,7 +609,6 @@ const AccountInfo = () => {
             copyToClipboard(String(value), fieldId)
           }}
           className='tw:p-1.5 tw:rounded-full tw:bg-gray-100 tw:dark:bg-slate-700 tw:text-gray-600 tw:dark:text-gray-300 hover:tw:bg-indigo-100 hover:tw:dark:bg-indigo-900 tw:transition-colors'
-          title='복사하기'
         >
           {copySuccess === fieldId ? (
             <Icon icon='lucide:check' className='tw:w-4 tw:h-4 tw:text-green-500' />
@@ -617,6 +619,8 @@ const AccountInfo = () => {
       </div>
     </div>
   )
+
+  const { t } = useTranslation(['settings'])
 
   return (
     <div className='tw:flex tw:flex-col tw:gap-6'>
@@ -629,23 +633,29 @@ const AccountInfo = () => {
               className='tw:w-5 tw:h-5 tw:text-indigo-600 tw:dark:text-indigo-400'
             />
           </div>
-          <h3 className='tw:text-base tw:font-medium'>RACLA 계정 정보</h3>
+          <h3 className='tw:text-base tw:font-medium'>RACLA {t('accountInfo.name')}</h3>
         </div>
 
         <div className='tw:space-y-4'>
           <div className='tw:space-y-2'>
-            <AccountField label='계정 번호' value={userData.playerId} fieldId='playerId' />
-            <AccountField label='계정 토큰' value={userData.playerToken} fieldId='playerToken' />
+            <AccountField
+              label={t('accountInfo.playerId')}
+              value={userData.playerId}
+              fieldId='playerId'
+              language={language}
+            />
+            <AccountField
+              label={t('accountInfo.playerToken')}
+              value={userData.playerToken}
+              fieldId='playerToken'
+              language={language}
+            />
           </div>
 
           <div className='tw:mt-3 tw:p-3 tw:bg-red-50 tw:dark:bg-red-900/20 tw:rounded-lg tw:border tw:border-red-100 tw:dark:border-red-900/30'>
             <span className='tw:text-sm tw:font-light tw:text-red-600 tw:dark:text-red-400 tw:break-keep tw:flex tw:items-start tw:gap-2'>
               <Icon icon='lucide:alert-triangle' className='tw:w-4 tw:h-4 tw:shrink-0 tw:mt-0.5' />
-              <span>
-                노출되는 정보는 RACLA에서 로그인 데이터로 사용되는 계정 번호(playerNo)와 계정
-                토큰(playerToken)입니다. 계정 번호와 계정 토큰은 외부에 노출되지 않도록
-                주의해주세요.
-              </span>
+              <span>{t('accountInfo.playerWarning')}</span>
             </span>
           </div>
         </div>
@@ -660,7 +670,7 @@ const AccountInfo = () => {
               className='tw:w-5 tw:h-5 tw:text-blue-600 tw:dark:text-blue-400'
             />
           </div>
-          <h3 className='tw:text-base tw:font-medium'>V-ARCHIVE 계정 정보</h3>
+          <h3 className='tw:text-base tw:font-medium'>V-ARCHIVE {t('accountInfo.linkInfo')}</h3>
         </div>
 
         <input
@@ -677,27 +687,28 @@ const AccountInfo = () => {
           <div className='tw:space-y-4'>
             <div className='tw:space-y-2'>
               <AccountField
-                label='계정 번호'
+                label={t('accountInfo.vArchiveUserNo')}
                 value={userData.varchiveUserInfo.userNo || ''}
                 fieldId='vArchiveUserNo'
+                language={language}
               />
               <AccountField
-                label='계정 토큰'
+                label={t('accountInfo.vArchiveToken')}
                 value={userData.varchiveUserInfo.token}
                 fieldId='vArchiveToken'
+                language={language}
               />
             </div>
 
             <div className='tw:mt-3 tw:p-3 tw:bg-red-50 tw:dark:bg-red-900/20 tw:rounded-lg tw:border tw:border-red-100 tw:dark:border-red-900/30'>
-              <span className='tw:text-sm tw:font-light tw:text-red-600 tw:dark:text-red-400 tw:break-keep tw:flex tw:items-start tw:gap-2'>
+              <span
+                className={`tw:text-sm tw:font-light tw:text-red-600 tw:dark:text-red-400 ${language !== 'ja_JP' ? 'tw:break-keep' : ''} tw:flex tw:items-start tw:gap-2`}
+              >
                 <Icon
                   icon='lucide:alert-triangle'
                   className='tw:w-4 tw:h-4 tw:shrink-0 tw:mt-0.5'
                 />
-                <span>
-                  노출되는 정보는 V-ARCHIVE에서 로그인 데이터로 사용되는 계정 번호(userNo)와 계정
-                  토큰(token)입니다. 계정 번호와 계정 토큰은 외부에 노출되지 않도록 주의해주세요.
-                </span>
+                <span>{t('accountInfo.vArchiveWarning')}</span>
               </span>
             </div>
           </div>
@@ -708,7 +719,7 @@ const AccountInfo = () => {
               className='tw:flex tw:items-center tw:justify-center tw:gap-2 tw:px-4 tw:py-2.5 tw:bg-blue-600 hover:tw:bg-blue-700 tw:text-white tw:text-sm tw:font-medium tw:rounded-lg tw:w-full tw:transition-colors'
             >
               <Icon icon='lucide:file-plus' className='tw:w-4 tw:h-4' />
-              V-ARCHIVE 연동하기
+              {t('accountInfo.vArchive.Link')}
             </button>
 
             <div className='tw:flex tw:items-start tw:gap-3 tw:p-4 tw:bg-gray-50 tw:dark:bg-slate-800 tw:rounded-lg'>
@@ -716,10 +727,10 @@ const AccountInfo = () => {
                 icon='lucide:info'
                 className='tw:w-5 tw:h-5 tw:text-gray-400 tw:shrink-0 tw:mt-0.5'
               />
-              <span className='tw:text-sm tw:font-light tw:text-gray-600 tw:dark:text-gray-400 tw:break-keep'>
-                V-ARCHIVE 로그인 연동이 되어 있지 않습니다. DJMAX RESPECT V 서비스를 이용하시려면
-                연동하기 버튼을 눌러 V-ARCHIVE 공식 클라이언트에서 생성한 로그인
-                데이터(account.txt)를 첨부하여 연동을 진행해주세요.
+              <span
+                className={`tw:text-sm tw:font-light tw:text-gray-600 tw:dark:text-gray-400 ${language !== 'ja_JP' ? 'tw:break-keep' : ''}`}
+              >
+                {t('accountInfo.vArchive.NotLinked')}
               </span>
             </div>
           </div>
@@ -732,29 +743,29 @@ const AccountInfo = () => {
           <div className='tw:p-2 tw:bg-[#5865F2]/10 tw:dark:bg-[#5865F2]/20 tw:rounded-lg'>
             <FaDiscord className='tw:w-5 tw:h-5 tw:text-[#5865F2]' />
           </div>
-          <h3 className='tw:text-base tw:font-medium'>Discord 연동 정보</h3>
+          <h3 className='tw:text-base tw:font-medium'>Discord {t('accountInfo.linkInfo')}</h3>
         </div>
 
         {userData.discordUserInfo.isLinked ? (
           <div className='tw:space-y-4'>
             <div className='tw:space-y-2'>
               <AccountField
-                label='사용자 고유 번호'
+                label={t('accountInfo.discordUid')}
                 value={userData.discordUserInfo.uid}
                 fieldId='discordUid'
+                language={language}
               />
             </div>
 
             <div className='tw:mt-3 tw:p-3 tw:bg-red-50 tw:dark:bg-red-900/20 tw:rounded-lg tw:border tw:border-red-100 tw:dark:border-red-900/30'>
-              <span className='tw:text-sm tw:font-light tw:text-red-600 tw:dark:text-red-400 tw:break-keep tw:flex tw:items-start tw:gap-2'>
+              <span
+                className={`tw:text-sm tw:font-light tw:text-red-600 tw:dark:text-red-400 ${language !== 'ja_JP' ? 'tw:break-keep' : ''} tw:flex tw:items-start tw:gap-2`}
+              >
                 <Icon
                   icon='lucide:alert-triangle'
                   className='tw:w-4 tw:h-4 tw:shrink-0 tw:mt-0.5'
                 />
-                <span>
-                  노출되는 정보는 연동된 Discord 계정의 사용자 고유 번호(UID)입니다. 사용자 고유
-                  번호가 외부에 노출되지 않도록 주의해주세요.
-                </span>
+                <span>{t('accountInfo.discordWarning')}</span>
               </span>
             </div>
           </div>
@@ -767,7 +778,7 @@ const AccountInfo = () => {
               className='tw:flex tw:items-center tw:justify-center tw:gap-2 tw:px-4 tw:py-2.5 tw:bg-[#5865F2] hover:tw:bg-[#4752C4] tw:text-white tw:text-sm tw:font-medium tw:rounded-lg tw:w-full tw:transition-colors'
             >
               <FaDiscord className='tw:text-base' />
-              Discord 로그인 연동하기
+              {t('accountInfo.discord.Link')}
             </button>
 
             <div className='tw:flex tw:items-start tw:gap-3 tw:p-4 tw:bg-gray-50 tw:dark:bg-slate-800 tw:rounded-lg'>
@@ -775,9 +786,10 @@ const AccountInfo = () => {
                 icon='lucide:info'
                 className='tw:w-5 tw:h-5 tw:text-gray-400 tw:shrink-0 tw:mt-0.5'
               />
-              <span className='tw:text-sm tw:font-light tw:text-gray-600 tw:dark:text-gray-400 tw:break-keep'>
-                Discord 로그인 연동이 되어 있지 않습니다. 연동 후 Discord를 통한 로그인과 추가로
-                업데이트될 전일 아카이브 기능을 이용할 수 있습니다.
+              <span
+                className={`tw:text-sm tw:font-light tw:text-gray-600 tw:dark:text-gray-400 ${language !== 'ja_JP' ? 'tw:break-keep' : ''}`}
+              >
+                {t('accountInfo.discord.NotLinked')}
               </span>
             </div>
           </div>
@@ -1123,7 +1135,7 @@ export default function SettingModal() {
   const { theme } = useSelector((state: RootState) => state.ui)
   const { isLoggedIn } = useSelector((state: RootState) => state.app)
   const { isSetting, settingData } = useSelector((state: RootState) => state.app)
-  const { font } = useSelector((state: RootState) => state.app.settingData)
+  const { font, language } = useSelector((state: RootState) => state.app.settingData)
   const [activeCategory, setActiveCategory] = useState<string>('general')
   const [localSettings, setLocalSettings] = useState<SettingsData>({} as SettingsData)
   const { t, i18n } = useTranslation(['settings'])
@@ -1132,9 +1144,24 @@ export default function SettingModal() {
   // 모달이 열릴 때 설정 데이터를 로컬 상태로 복사
   useEffect(() => {
     if (isSetting && settingData) {
-      setLocalSettings({ ...settingData })
+      // 언어에 따라 폰트 설정 조정
+      const settings = { ...settingData }
+      if (
+        globalDictionary.settingDictionary.font.getDefaultValue &&
+        settings.language !== 'ko_KR' &&
+        settings.font !== 'default'
+      ) {
+        settings.font = globalDictionary.settingDictionary.font.getDefaultValue(settings.language)
+        // Redux 상태 업데이트
+        dispatch(setSettingData(settings))
+        // electron을 통해 설정 저장
+        if (window.electron?.saveSettings) {
+          window.electron.saveSettings(settings)
+        }
+      }
+      setLocalSettings({ ...settings })
     }
-  }, [isSetting, settingData])
+  }, [isSetting, settingData, dispatch])
 
   // ESC 키 누름 감지
   useEffect(() => {
@@ -1201,6 +1228,12 @@ export default function SettingModal() {
 
       if (id === 'language') {
         void i18n.changeLanguage(value as string)
+        // 언어가 변경될 때 font 기본값도 적절히 변경
+        if (globalDictionary.settingDictionary.font.getDefaultValue) {
+          newSettings['font'] = globalDictionary.settingDictionary.font.getDefaultValue(
+            value as string,
+          )
+        }
       }
 
       return newSettings as SettingsData
@@ -1223,7 +1256,7 @@ export default function SettingModal() {
 
   return (
     <div
-      className={`tw:fixed ${font != 'default' ? 'tw:font-medium' : ''} tw:break-keep tw:inset-0 tw:z-50 tw:flex tw:items-center tw:justify-center tw:transition-all tw:duration-300 ${
+      className={`tw:fixed ${font != 'default' ? 'tw:font-medium' : ''} tw:inset-0 ${language !== 'ja_JP' ? 'tw:break-keep' : ''} tw:z-50 tw:flex tw:items-center tw:justify-center tw:transition-all tw:duration-300 ${
         isSetting ? 'tw:opacity-100' : 'tw:opacity-0 tw:pointer-events-none'
       }`}
     >
@@ -1336,7 +1369,12 @@ export default function SettingModal() {
                                   !settingData.autoCaptureMode) ||
                                 (activeCategory === 'autoStart' &&
                                   setting.id !== 'autoStartGame' &&
-                                  !settingData.autoStartGame)
+                                  !settingData.autoStartGame) ||
+                                (setting.id === 'font' &&
+                                  globalDictionary.settingDictionary.font.getEditableState &&
+                                  !globalDictionary.settingDictionary.font.getEditableState(
+                                    settingData.language,
+                                  ))
                               }
                               theme={theme}
                             />
@@ -1353,7 +1391,12 @@ export default function SettingModal() {
                                   !settingData.autoCaptureMode) ||
                                 (activeCategory === 'autoStart' &&
                                   setting.id !== 'autoStartGame' &&
-                                  !settingData.autoStartGame)
+                                  !settingData.autoStartGame) ||
+                                (setting.id === 'font' &&
+                                  globalDictionary.settingDictionary.font.getEditableState &&
+                                  !globalDictionary.settingDictionary.font.getEditableState(
+                                    settingData.language,
+                                  ))
                               }
                               theme={theme}
                             />
@@ -1371,7 +1414,12 @@ export default function SettingModal() {
                                   !settingData.autoCaptureMode) ||
                                 (activeCategory === 'autoStart' &&
                                   setting.id !== 'autoStartGame' &&
-                                  !settingData.autoStartGame)
+                                  !settingData.autoStartGame) ||
+                                (setting.id === 'font' &&
+                                  globalDictionary.settingDictionary.font.getEditableState &&
+                                  !globalDictionary.settingDictionary.font.getEditableState(
+                                    settingData.language,
+                                  ))
                               }
                               theme={theme}
                             />

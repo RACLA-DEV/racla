@@ -55,7 +55,7 @@ const ScorePopupComponent = memo(
     isLink = true,
   }: ScorePopupComponentProps) => {
     const { songData, userData, isLoggedIn } = useSelector((state: RootState) => state.app)
-    const { font } = useSelector((state: RootState) => state.app.settingData)
+    const { font, language } = useSelector((state: RootState) => state.app.settingData)
     const [songItem, setSongItem] = useState<SongData | null>(null)
     const [scoreData, setScoreData] = useState<SongData | null>(null)
     const [pattern, setPattern] = useState<string | null>(null)
@@ -383,7 +383,9 @@ const ScorePopupComponent = memo(
                         style={{ objectFit: 'cover' }}
                       />
                       <div className={`tw:absolute tw:inset-0 tw:bg-slate-800/75`} />
-                      <span className='tw:absolute tw:left-0 tw:bottom-1 tw:px-2 tw:font-bold tw:text-left tw:break-keep'>
+                      <span
+                        className={`tw:absolute tw:left-0 tw:bottom-1 tw:px-2 tw:font-bold tw:text-left ${language !== 'ja_JP' ? 'tw:break-keep' : ''}`}
+                      >
                         <span className={`tw:font-medium tw:text-xs tw:text-slate-200`}>
                           {songItem?.composer || songItem?.artist}
                         </span>

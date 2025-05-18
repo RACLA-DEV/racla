@@ -1,7 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common'
 import type { SongData } from '@src/types/games/SongData'
 import { LocalSessionData } from '@src/types/sessions/LocalSessionData'
-import type { SessionData } from '@src/types/sessions/SessionData'
 import type { SettingsData } from '@src/types/settings/SettingData'
 import type { StorageInfo } from '@src/types/storage/StroageInfo'
 import { app, shell } from 'electron'
@@ -29,23 +28,9 @@ function createDefaultSettings(): SettingsData {
 
 const defaultSettings: SettingsData = createDefaultSettings()
 
-const defaultSession: SessionData = {
+const defaultSession: LocalSessionData = {
   playerId: 0,
   playerToken: '',
-  playerName: '',
-  playerNickname: '',
-  isSetupPassword: false,
-  profileImageUrl: '',
-  varchiveUserInfo: {
-    isLinked: false,
-    userNo: 0,
-    token: '',
-    nickname: '',
-  },
-  discordUserInfo: {
-    isLinked: false,
-    uid: '',
-  },
 }
 
 @Injectable()

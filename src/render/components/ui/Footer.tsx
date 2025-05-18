@@ -193,7 +193,7 @@ const Footer: React.FC = () => {
                     handleOpenExternalLink('https://hard-archive.com')
                   }}
                 >
-                  {t('djmax_respect_v.hjaNavTitle')}
+                  {t('djmax_respect_v.hardArchiveNavTitle')}
                 </span>
               </Tooltip>
               <span> · </span>

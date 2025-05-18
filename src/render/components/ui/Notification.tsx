@@ -22,6 +22,9 @@ export function Notification({ notification, onRemove, index }: NotificationProp
     'db',
     'board',
     'feedback',
+    'overlay',
+    'ranking',
+    'regScore',
   ])
 
   // 타입에 따른 스타일 및 아이콘 설정

@@ -1,6 +1,7 @@
 import { globalDictionary } from '@render/constants/globalDictionary'
 import { useAlert } from '@render/hooks/useAlert'
 import { useAuth } from '@render/hooks/useAuth'
+import { addOcrResult } from '@render/store/slices/appSlice'
 import { setOverlayMode, setSidebarCollapsed } from '@render/store/slices/uiSlice'
 import { GameType } from '@src/types/games/GameType'
 import { SongData } from '@src/types/games/SongData'
@@ -696,6 +697,43 @@ export default function WrappedApp() {
       }
     }
   }, [])
+
+  // 오버레이 메시지 처리 이벤트 리스너 추가
+  useEffect(() => {
+    if (!window.electron) return
+
+    // 메인 윈도우 메시지 핸들러
+    const mainWindowMessageHandler = (message: string) => {
+      try {
+        const parsedMessage = JSON.parse(message)
+
+        // OCR 결과 처리
+        if (parsedMessage.type === 'ocr-result' && parsedMessage.data) {
+          createLog('debug', 'OCR Result:', parsedMessage.data)
+          dispatch(addOcrResult(parsedMessage.data))
+        }
+      } catch (error) {
+        createLog('error', 'Main window message parsing error:', error)
+      }
+    }
+
+    // 오버레이 결과 핸들러
+    const overlayResultHandler = (data: any) => {
+      if (data) {
+        createLog('debug', 'Overlay Result:', data)
+        dispatch(addOcrResult(data))
+      }
+    }
+
+    // 이벤트 리스너 등록
+    window.electron.onMainWindowMessage(mainWindowMessageHandler)
+    window.electron.onOverlayResult(overlayResultHandler)
+
+    // 정리 함수
+    return () => {
+      // 이벤트 리스너 정리 (필요하다면 구현)
+    }
+  }, [dispatch])
 
   // 페이지 로드 및 오버레이 감지
   useEffect(() => {

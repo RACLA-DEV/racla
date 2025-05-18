@@ -33,6 +33,9 @@ declare global {
       onOverlayPressedAltInsert: (callback: (data: boolean) => void) => void
       initializeMonitor: () => Promise<void>
 
+      // 메인 윈도우 관련
+      onMainWindowMessage: (callback: (data: any) => void) => void
+
       // 로깅 관련
       sendLog: (level: LogLevel, where: string, ...args: unknown[]) => void
       clearAllLogs: () => Promise<boolean>
@@ -93,7 +96,14 @@ declare global {
       initializeDiscord: () => void
 
       // OCR 관련
-      getOcrResultServer: (image: Buffer, gameCode: string) => Promise<OcrPlayDataResponse>
+      getOcrResultServer: (data: {
+        image: Buffer
+        gameCode: string
+      }) => Promise<OcrPlayDataResponse>
+      processImagesBatch: (data: {
+        images: Buffer[]
+        gameCode: string
+      }) => Promise<OcrPlayDataResponse[]>
     }
   }
 }

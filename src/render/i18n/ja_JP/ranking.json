@@ -1,0 +1,13 @@
+{
+  "ranking": "ランキング",
+  "failedToFetchRanking": "ランキングデータの読み込みに失敗しました。",
+  "deletedUser": "退会したユーザー",
+  "achievement": "個達成",
+  "total": "総合",
+  "hard": "全一",
+  "score": "点",
+  "rankingList": "ランキングリスト",
+  "finalUpdate": "最終更新",
+  "refresh": "更新",
+  "noRankingData": "ランキングデータがありません"
+}

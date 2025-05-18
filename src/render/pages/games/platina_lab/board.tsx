@@ -6,6 +6,7 @@ import { createLog } from '@render/libs/logger'
 import { RootState } from '@render/store'
 import { PlayBoardResponse } from '@src/types/dto/playBoard/PlayBoardResponse'
 import { PatternInfo } from '@src/types/games/SongData'
+import { useTranslation } from 'react-i18next'
 import { useSelector } from 'react-redux'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { PuffLoader } from 'react-spinners'
@@ -30,6 +31,7 @@ interface Floor {
 }
 
 const PlatinaLabBoardPage = () => {
+  const { t } = useTranslation(['board'])
   const navigate = useNavigate()
   const { keyMode, board } = useParams()
   const { userData, songData, selectedGame } = useSelector((state: RootState) => state.app)
@@ -39,6 +41,7 @@ const PlatinaLabBoardPage = () => {
   const [isMounted, setIsMounted] = useState<boolean>(true)
   const [highlightCondition, setHighlightCondition] = useState<string | null>(null)
   const [highlightInverse, setHighlightInverse] = useState<boolean>(false)
+  const { language } = useSelector((state: RootState) => state.app.settingData)
 
   // 현재 레벨에 따른 난이도 결정 함수
   const getDifficultyByLevel = (level: string) => {
@@ -124,8 +127,7 @@ const PlatinaLabBoardPage = () => {
                 .map((apiPattern) => {
                   // for 루프로 baseSongData를 순회하여 매칭되는 패턴 찾기
                   let basePattern = null
-                  for (let i = 0; i < baseSongData.length; i++) {
-                    const bp = baseSongData[i]
+                  for (const bp of baseSongData) {
                     if (bp.title === apiPattern.title && bp.pattern === apiPattern.pattern) {
                       basePattern = bp
                       break
@@ -295,7 +297,7 @@ const PlatinaLabBoardPage = () => {
     over99: 'OVER 99%',
     over97: 'OVER 97%',
     clear: 'CLEAR',
-    total: '전체',
+    total: 'ALL',
   }
 
   const keyBoardTitle = {
@@ -466,7 +468,7 @@ const PlatinaLabBoardPage = () => {
               <div className='tw:flex tw:flex-col tw:gap-4 tw:rounded-lg tw:p-6 tw:w-1/3 tw:border tw:border-slate-200 tw:dark:border-slate-700'>
                 {/* 키모드 설명 */}
                 <div className='tw:text-sm tw:text-slate-600 tw:dark:text-slate-400 tw:font-medium'>
-                  키(버튼)
+                  {t('keyMode')}
                 </div>
                 {/* 키모드 선택 버튼 */}
                 <div className='tw:flex tw:gap-2'>
@@ -494,7 +496,7 @@ const PlatinaLabBoardPage = () => {
                 <div className='tw:flex tw:flex-col tw:gap-2'>
                   {/* 난이도 범위 설명 */}
                   <div className='tw:text-sm tw:text-slate-600 tw:dark:text-slate-400 tw:font-medium'>
-                    레벨
+                    {t('level')}
                   </div>
                   {/* 난이도 선택 탭 */}
                   <div className='tw:flex tw:gap-2 tw:mb-1'>
@@ -569,7 +571,7 @@ const PlatinaLabBoardPage = () => {
                             {calculateScoreStats(floor.patterns) && (
                               <div className='tw:flex tw:flex-col tw:items-end'>
                                 <span className='tw:text-sm tw:text-slate-500 tw:dark:text-slate-400 tw:font-light'>
-                                  점수 평균
+                                  {t('averageScore')}
                                 </span>
                                 <div className='tw:text-sm tw:text-slate-700 tw:dark:text-slate-200'>
                                   {calculateScoreStats(floor.patterns)}%
@@ -580,11 +582,11 @@ const PlatinaLabBoardPage = () => {
                         </div>
                       ) : (
                         <div className='tw:flex tw:flex-col tw:items-end tw:gap-1'>
-                          <div>미분류</div>
+                          <div>{t('unclassified')}</div>
                           {calculateScoreStats(floor.patterns) && (
                             <div className='tw:flex tw:flex-col tw:items-end'>
                               <span className='tw:text-sm tw:text-slate-500 tw:dark:text-slate-400 tw:font-light'>
-                                점수 평균
+                                {t('averageScore')}
                               </span>
                               <div className='tw:text-sm tw:text-slate-700 tw:dark:text-slate-200'>
                                 {calculateScoreStats(floor.patterns)}%
@@ -624,12 +626,16 @@ const PlatinaLabBoardPage = () => {
                                 </>
                               ) : (
                                 <span className='tw:text-xs tw:text-slate-500 tw:dark:text-slate-400'>
-                                  기록 미존재
+                                  {t('noRecord')}
                                 </span>
                               )}
                             </div>
                           </div>
-                          <span className='tw:flex tw:flex-1 tw:bg-slate-200 tw:dark:bg-slate-700 tw:bg-opacity-25 tw:px-2 tw:py-1 tw:rounded-md tw:break-keep tw:justify-center tw:items-center tw:text-center tw:text-xs tw:text-slate-700 tw:dark:text-slate-300'>
+                          <span
+                            className={`tw:flex tw:flex-1 tw:bg-slate-200 tw:dark:bg-slate-700 tw:bg-opacity-25 tw:px-2 tw:py-1 tw:rounded-md ${
+                              language !== 'ja_JP' ? 'tw:break-keep' : ''
+                            } tw:justify-center tw:items-center tw:text-center tw:text-xs tw:text-slate-700 tw:dark:text-slate-300`}
+                          >
                             {pattern.name}
                           </span>
                         </div>

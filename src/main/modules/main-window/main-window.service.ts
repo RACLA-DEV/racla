@@ -94,4 +94,8 @@ export class MainWindowService {
       this.mainWindow.show()
     }
   }
+
+  public sendMessage(message: string): void {
+    this.mainWindow?.webContents.send('main-window-msg', message)
+  }
 }

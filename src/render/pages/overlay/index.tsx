@@ -80,6 +80,7 @@ interface RecentRecord {
 
 function OverlayPage() {
   const { t, i18n } = useTranslation(['overlay'])
+  const { language } = useSelector((state: RootState) => state.app.settingData)
   const [activeWindows, setActiveWindows] = useState<Result | undefined>(undefined)
   const [overlayMode, setOverlayMode] = useState<OverlayMode>(
     process.env.NODE_ENV === 'development' ? 'debug' : 'transparent',
@@ -265,7 +266,7 @@ function OverlayPage() {
     }
 
     // 전일 아카이브 기록 가져오기 (DJMAX RESPECT V 게임 코드인 경우에만)
-    if (settings.hjaOverlay && resultData.gameCode === 'djmax_respect_v') {
+    if (settings.hardJudgementPlayRecordOverlay && resultData.gameCode === 'djmax_respect_v') {
       const currentLevel = getCurrentPatternLevel(
         resultData.songData,
         `${resultData.button}B`,
@@ -402,7 +403,7 @@ function OverlayPage() {
           // 기록 데이터 로드 및 표시
           if (
             settings.recentOverlay ||
-            (settings.hjaOverlay && data.gameCode === 'djmax_respect_v')
+            (settings.hardJudgementPlayRecordOverlay && data.gameCode === 'djmax_respect_v')
           ) {
             void loadRecordsData(data, settings)
           }
@@ -492,7 +493,7 @@ function OverlayPage() {
             }}
             className={font != 'default' ? 'tw:font-medium' : ''}
           >
-            <h2 style={{ margin: '0 0 10px 0', fontSize: '18px' }}>활성 윈도우</h2>
+            <h2 style={{ margin: '0 0 10px 0', fontSize: '18px' }}>Active Window</h2>
             {activeWindows ? (
               <div style={{ fontSize: '0.9rem' }}>
                 <div style={{ marginBottom: '5px', fontWeight: 'bold' }}>{activeWindows.title}</div>
@@ -505,7 +506,7 @@ function OverlayPage() {
                 )}
               </div>
             ) : (
-              <div>활성 윈도우 없음</div>
+              <div>No active window</div>
             )}
           </div>
         </>
@@ -521,7 +522,7 @@ function OverlayPage() {
             return (
               <motion.div
                 key={notification.id}
-                className='tw:flex tw:text-xs tw:w-full tw:max-w-sm tw:overflow-hidden tw:rounded-lg tw:shadow-lg tw:mt-2'
+                className='tw:flex tw:text-sm tw:w-full tw:max-w-sm tw:overflow-hidden tw:rounded-lg tw:shadow-lg tw:mt-2'
                 initial={{ opacity: 0, x: 300 }}
                 animate={{
                   opacity: notification.isRemoving ? 0 : 1,
@@ -531,18 +532,22 @@ function OverlayPage() {
                 exit={{ opacity: 0, x: 300 }}
                 style={{ zIndex: 1000 - index }}
               >
-                <div className='tw:flex-grow tw:bg-white tw:dark:bg-slate-900 tw:py-2 tw:px-1'>
-                  <div className='tw:flex tw:items-center tw:py-2 tw:px-3'>
+                <div className='tw:flex-grow tw:bg-white tw:dark:bg-slate-900'>
+                  <div className='tw:flex tw:items-center tw:pt-3 tw:px-4'>
                     <div className='tw:flex-shrink-0 tw:mr-2'>
                       <div
-                        className={`tw:flex tw:items-center tw:w-4 tw:h-4 tw:justify-center tw:rounded-sm ${bgColor}`}
+                        className={`tw:flex tw:items-center tw:w-5 tw:h-5 tw:justify-center tw:rounded-sm ${bgColor}`}
                       >
-                        <Icon icon={iconName} className={`tw:w-3 tw:h-3 ${iconColor}`} />
+                        <Icon icon={iconName} className={`tw:w-4 tw:h-4 ${iconColor}`} />
                       </div>
                     </div>
 
-                    <div className='tw:flex-grow tw:min-w-0 tw:pr-1'>
-                      <p className='tw:text-xs tw:leading-tight tw:text-slate-800 tw:dark:text-slate-200 tw:break-keep tw:whitespace-pre-wrap'>
+                    <div className='tw:flex-grow'>
+                      <p
+                        className={`tw:text-xs tw:text-slate-800 tw:dark:text-slate-200 ${
+                          language !== 'ja_JP' ? 'tw:break-keep' : ''
+                        } tw:whitespace-pre-wrap`}
+                      >
                         {notification.mode === 'i18n'
                           ? t(notification.message, {
                               ...(notification.props ? notification.props : {}),
@@ -553,12 +558,11 @@ function OverlayPage() {
                   </div>
 
                   {notification.duration && notification.duration > 0 && (
-                    <div className='tw:flex tw:justify-end tw:h-0.5 tw:w-full tw:bg-slate-200 tw:dark:bg-slate-700'>
+                    <div className='tw:mt-2 tw:flex tw:justify-start tw:h-1 tw:w-full tw:rounded tw:bg-slate-200 tw:dark:bg-slate-700'>
                       <div
-                        className={`tw:h-full ${background} tw:rounded-none`}
+                        className={`tw:h-full ${background} tw:rounded tw:transition-all tw:duration-300`}
                         style={{
                           width: '100%',
-                          transition: `width ${notification.duration / 1000}s linear`,
                           animation: `shrinkWidth ${notification.duration / 1000}s linear forwards`,
                         }}
                       ></div>
@@ -590,7 +594,9 @@ function OverlayPage() {
                   <div className='tw:p-3'>
                     <div className='tw:flex tw:items-center tw:gap-2 tw:mb-2'>
                       {/* <Icon icon='lucide:database' className='tw:w-4 tw:h-4 tw:text-blue-500' /> */}
-                      <span className='tw:text-sm tw:font-bold tw:text-blue-500'>최근 기록</span>
+                      <span className='tw:text-sm tw:font-bold tw:text-blue-500'>
+                        {t('recentPlayRecord')}
+                      </span>
                     </div>
 
                     <div className='tw:flex tw:flex-col tw:gap-2'>
@@ -643,7 +649,7 @@ function OverlayPage() {
                         className='tw:w-4 tw:h-4 tw:text-amber-500 tw:dark:text-amber-400'
                       /> */}
                       <span className='tw:text-sm tw:font-bold tw:text-amber-500 tw:dark:text-amber-400'>
-                        전일 기록
+                        {t('hardJudgementPlayRecord')}
                       </span>
                     </div>
 
@@ -684,7 +690,7 @@ function OverlayPage() {
                             )} */}
                           </div>
                           <div className='tw:text-xs tw:text-slate-500 tw:dark:text-slate-400'>
-                            HARD JUDGE
+                            HARD JUDGEMENT
                           </div>
                         </div>
                       )}
@@ -725,7 +731,7 @@ function OverlayPage() {
                             )} */}
                           </div>
                           <div className='tw:text-xs tw:text-slate-500 tw:dark:text-slate-400'>
-                            MAX JUDGE
+                            MAX JUDGEMENT
                           </div>
                         </div>
                       )}
