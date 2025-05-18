@@ -111,7 +111,7 @@ export function Notification({ notification, onRemove, index }: NotificationProp
         style={{ zIndex: 1000 - index }}
         onClick={handleUpdateClick}
       >
-        <div className='tw:flex-grow tw:bg-white tw:dark:bg-slate-900'>
+        <div className='tw:flex-grow tw:w-full tw:bg-white tw:dark:bg-slate-900'>
           <div className='tw:flex tw:items-center tw:pt-3 tw:px-4'>
             <div className='tw:flex-shrink-0 tw:mr-2'>
               <div
@@ -136,18 +136,17 @@ export function Notification({ notification, onRemove, index }: NotificationProp
             </div>
           </div>
 
-          {updateInfo?.progress && !updateInfo.isDownloaded ? (
-            <div className='tw:mt-2 tw:flex tw:justify-start tw:h-1 tw:w-full tw:rounded tw:bg-slate-200 tw:dark:bg-slate-700'>
-              <div
-                className={`tw:h-full ${background} tw:rounded tw:transition-all tw:duration-300`}
-                style={{ width: `${updateInfo.progress.percent}%` }}
-              ></div>
+          {!updateInfo?.isDownloaded ? (
+            <div className='tw:mt-2 tw:flex tw:justify-start tw:h-1 tw:w-full tw:relative tw:rounded tw:bg-slate-200 tw:dark:bg-slate-700 tw:overflow-hidden'>
+              <div className={`tw:h-full ${background} tw:rounded`} style={{ width: '100%' }}>
+                <div className='shimmer-effect'></div>
+              </div>
             </div>
           ) : (
             <div className='tw:mt-2 tw:flex tw:justify-start tw:h-1 tw:w-full tw:rounded tw:bg-slate-200 tw:dark:bg-slate-700'>
               <div
                 className={`tw:h-full ${background} tw:rounded tw:transition-all tw:duration-300`}
-                style={{ width: `0%` }}
+                style={{ width: '100%' }}
               ></div>
             </div>
           )}

@@ -3,6 +3,7 @@ import dayjs from 'dayjs'
 import { BrowserWindow, app, globalShortcut } from 'electron'
 import { FileManagerService } from './modules/file-manager/file-manager.service'
 import { ImageProcessorService } from './modules/image-processor/image-processor.service'
+import { MainWindowService } from './modules/main-window/main-window.service'
 import { OcrManagerService } from './modules/ocr-manager/ocr-manager.service'
 import { OverlayWindowService } from './modules/overlay-window/overlay-window.service'
 
@@ -16,6 +17,7 @@ export class AppService implements OnApplicationBootstrap {
     private readonly ocrManagerService: OcrManagerService,
     private readonly imageProcessorService: ImageProcessorService,
     private readonly fileManagerService: FileManagerService,
+    private readonly mainWindowService: MainWindowService,
   ) {
     // ElectronModule에서 생성된 window 참조 가져오기
     this.mainWindow = BrowserWindow.getAllWindows()[0]
@@ -52,6 +54,13 @@ export class AppService implements OnApplicationBootstrap {
         this.overlayWindowService
           .getOverlayWindow()
           .webContents.send('overlay-ocr-result', response.result)
+
+        this.mainWindowService.sendMessage(
+          JSON.stringify({
+            type: 'ocr-result',
+            data: response,
+          }),
+        )
         if (settings.saveImageWhenCapture) {
           const maskingRegions = this.imageProcessorService.getMaskingRegions(
             response.result.gameCode,

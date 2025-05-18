@@ -53,184 +53,153 @@ export default function WrappedApp() {
   const [updateNotificationId, setUpdateNotificationId] = useState<string | null>(null)
   const [updateVersion, setUpdateVersion] = useState<string | null>(null)
   const { i18n } = useTranslation()
-  // 앱 초기화 상태를 추적하는 ref 추가
+
+  // 앱 초기화 상태를 추적하는 ref를 컴포넌트 최상위 레벨로 이동
   const appInitialized = React.useRef(false)
+  // 업데이트 이벤트 리스너 등록 여부를 추적하는 ref
+  const listenersRegistered = React.useRef(false)
 
   // 업데이트 관련 이벤트 리스너
   useEffect(() => {
-    if (!window.electron) return
+    // electron 객체가 없으면 실행하지 않음
+    if (!window.electron) {
+      createLog('warn', '업데이트 이벤트 리스너 등록 실패: electron 객체 없음')
+      return
+    }
 
-    // 업데이트 초기화 상태 추적을 위한 플래그
-    const updateInitialized = { current: false }
+    // 이미 등록된 경우 중복 실행 방지 (전역 플래그 사용)
+    if (listenersRegistered.current) {
+      createLog(
+        'debug',
+        settingData.language === 'ko_KR'
+          ? '업데이트 이벤트 리스너가 이미 등록되어 있습니다. 중복 등록 방지'
+          : 'Update event listeners are already registered. Preventing duplicate registration.',
+      )
+      return
+    }
 
-    // 업데이트 초기화
+    // 처음 등록 시에만 기록 (두 번째 실행부터는 위 조건으로 차단됨)
     createLog(
       'debug',
       settingData.language === 'ko_KR'
-        ? '업데이트 매니저 초기화 시작'
-        : 'Update manager initialization started',
+        ? '업데이트 이벤트 리스너 등록 시작 (첫 번째 실행)'
+        : 'Starting update event listener registration (first run)',
     )
 
-    // 한 번만 초기화
-    if (!updateInitialized.current) {
-      window.electron.initializeUpdate()
-      updateInitialized.current = true
-      createLog(
-        'debug',
-        settingData.language === 'ko_KR'
-          ? '업데이트 매니저 초기화 완료'
-          : 'Update manager initialization completed',
-      )
-    }
+    try {
+      // 업데이트 가용 시 이벤트 리스너
+      const updateAvailableHandler = (version: string) => {
+        createLog('info', '업데이트 가용 이벤트 수신됨:', version)
+        const id = uuidv4()
+        setUpdateNotificationId(id)
+        setUpdateVersion(version)
 
-    // 이벤트 리스너 등록 상태 추적을 위한 플래그
-    const listenersRegistered = { current: false }
-
-    // 이벤트 리스너 등록 지연 함수
-    const registerEventListeners = () => {
-      // 이미 등록되었다면 다시 등록하지 않음
-      if (listenersRegistered.current) {
-        createLog(
-          'debug',
-          settingData.language === 'ko_KR'
-            ? '이벤트 리스너가 이미 등록되어 있습니다.'
-            : 'Event listeners are already registered.',
+        // 기존 디스패치 대신 showNotification 사용
+        showNotification(
+          {
+            mode: 'i18n',
+            value: 'update.updateAvailable',
+            ns: 'common',
+            props: { version },
+          },
+          'update',
+          0, // 자동 제거 안함
+          { version },
         )
-        return
       }
 
-      createLog(
-        'debug',
-        settingData.language === 'ko_KR'
-          ? '업데이트 이벤트 리스너 등록 준비 중...'
-          : 'Preparing to register update event listeners...',
-      )
-
-      // 이벤트 리스너 등록 전 2초 지연
-      setTimeout(() => {
-        createLog(
-          'debug',
-          settingData.language === 'ko_KR'
-            ? '업데이트 이벤트 리스너 등록 시작'
-            : 'Starting update event listeners registration',
-        )
-
-        // 업데이트 가용 시 이벤트 리스너
-        const updateAvailableHandler = (version: string) => {
-          createLog('info', 'Update Available:', version)
-          const id = uuidv4()
-          setUpdateNotificationId(id)
-          setUpdateVersion(version)
-          dispatch({
-            type: 'app/addNotification',
-            payload: {
-              id,
-              message: {
-                mode: 'i18n',
-                value: 'update.updateAvailable',
-                ns: 'common',
-                props: { version },
+      // 다운로드 진행 상황 이벤트 리스너
+      const downloadProgressHandler = (progress: {
+        percent: number
+        transferred: number
+        total: number
+      }) => {
+        createLog('info', '업데이트 다운로드 진행 상황 이벤트 수신됨:', progress)
+        if (updateNotificationId) {
+          // 기존 알림 업데이트 사용
+          showNotification(
+            {
+              mode: 'i18n',
+              value: 'update.downloading',
+              ns: 'common',
+              props: {
+                version: updateVersion,
+                percent: String(Math.round(progress.percent || 0)),
               },
-              type: 'update',
-              updateInfo: { version },
-              isRemoving: false,
             },
-          })
+            'update',
+            0, // 자동 제거 안함
+            { progress },
+          )
+        } else {
+          createLog('warn', '업데이트 다운로드 진행 상황을 표시할 알림 ID가 없음')
         }
+      }
 
-        // 다운로드 진행 상황 이벤트 리스너
-        const downloadProgressHandler = (progress: {
-          percent: number
-          transferred: number
-          total: number
-        }) => {
-          createLog('info', 'Update Download Progress:', progress)
-          if (updateNotificationId) {
-            dispatch({
-              type: 'app/updateNotification',
-              payload: {
-                id: updateNotificationId,
-                data: {
-                  message: {
-                    mode: 'i18n',
-                    value: 'update.downloading',
-                    ns: 'common',
-                    props: {
-                      version: updateVersion,
-                      percent: Math.round(progress.percent),
-                    },
-                  },
-                  updateInfo: { progress },
-                },
-              },
-            })
-          }
+      // 업데이트 다운로드 완료 이벤트 리스너
+      const updateDownloadedHandler = (version: string) => {
+        createLog('info', '업데이트 다운로드 완료 이벤트 수신됨:', version)
+        if (updateNotificationId) {
+          // 기존 알림 업데이트 사용
+          showNotification(
+            {
+              mode: 'i18n',
+              value: 'update.downloaded',
+              ns: 'common',
+              props: { version },
+            },
+            'update',
+            0, // 자동 제거 안함
+            { version, isDownloaded: true },
+          )
+        } else {
+          createLog('warn', '업데이트 다운로드 완료를 표시할 알림 ID가 없음')
         }
+      }
 
-        // 업데이트 다운로드 완료 이벤트 리스너
-        const updateDownloadedHandler = (version: string) => {
-          createLog('info', 'Update Downloaded:', version)
-          if (updateNotificationId) {
-            dispatch({
-              type: 'app/updateNotification',
-              payload: {
-                id: updateNotificationId,
-                data: {
-                  message: {
-                    mode: 'i18n',
-                    value: 'update.downloaded',
-                    ns: 'common',
-                    props: { version },
-                  },
-                  updateInfo: { version, isDownloaded: true },
-                },
-              },
-            })
-          }
-        }
+      // 초기화 함수 호출 전 로그
+      createLog('debug', '업데이트 매니저 초기화 호출 시작')
 
-        // 이벤트 리스너 등록
-        if (window.electron.onUpdateAvailable) {
-          window.electron.onUpdateAvailable(updateAvailableHandler)
-          createLog('debug', 'Update Available 이벤트 리스너 등록됨')
-        }
+      // 업데이트 매니저 초기화 (이벤트 연결 전)
+      window.electron.initializeUpdate()
+      createLog('debug', '업데이트 매니저 초기화 호출 완료')
 
-        if (window.electron.onDownloadProgress) {
-          window.electron.onDownloadProgress(downloadProgressHandler)
-          createLog('debug', 'Download Progress 이벤트 리스너 등록됨')
-        }
+      // 이벤트 리스너 등록
+      if (window.electron.onUpdateAvailable) {
+        window.electron.onUpdateAvailable(updateAvailableHandler)
+        createLog('debug', 'Update Available 이벤트 리스너 등록됨')
+      } else {
+        createLog('error', 'onUpdateAvailable 함수가 없음')
+      }
 
-        if (window.electron.onUpdateDownloaded) {
-          window.electron.onUpdateDownloaded(updateDownloadedHandler)
-          createLog('debug', 'Update Downloaded 이벤트 리스너 등록됨')
-        }
+      if (window.electron.onDownloadProgress) {
+        window.electron.onDownloadProgress(downloadProgressHandler)
+        createLog('debug', 'Download Progress 이벤트 리스너 등록됨')
+      } else {
+        createLog('error', 'onDownloadProgress 함수가 없음')
+      }
 
-        // 리스너 등록 완료 플래그 설정
-        listenersRegistered.current = true
+      if (window.electron.onUpdateDownloaded) {
+        window.electron.onUpdateDownloaded(updateDownloadedHandler)
+        createLog('debug', 'Update Downloaded 이벤트 리스너 등록됨')
+      } else {
+        createLog('error', 'onUpdateDownloaded 함수가 없음')
+      }
 
-        createLog(
-          'debug',
-          settingData.language === 'ko_KR'
-            ? '모든 업데이트 이벤트 리스너 등록 완료'
-            : 'All update event listeners registration completed',
-        )
-      }, 2000)
+      // 리스너 등록 완료 플래그 설정
+      listenersRegistered.current = true
+      createLog('debug', '모든 업데이트 이벤트 리스너 등록 완료')
+    } catch (error) {
+      createLog('error', '업데이트 이벤트 리스너 등록 중 오류 발생:', error)
     }
-
-    // 이벤트 리스너 등록 함수 실행
-    registerEventListeners()
 
     // 정리 함수
     return () => {
-      // 이벤트 리스너 정리 (필요하다면 구현)
-      createLog(
-        'debug',
-        settingData.language === 'ko_KR'
-          ? '업데이트 이벤트 리스너 정리'
-          : 'Cleaning up update event listeners',
-      )
+      // 컴포넌트 언마운트 시 호출되는 정리 함수
+      // 실제 이벤트 리스너 제거 로직은 비워둠 - 이벤트 리스너는 앱 생명주기 동안 유지
+      createLog('debug', '업데이트 이벤트 리스너 컴포넌트 정리 함수 호출됨')
     }
-  }, []) // 의존성 배열을 비워 처음 한 번만 실행되도록 함
+  }, []) // 의존성 배열을 비워서 한 번만 실행되도록 함
 
   // 곡 데이터 로드 함수
   const loadSongDataFromAPI = useCallback(async (gameCode: GameType, showNotifications = false) => {
@@ -514,7 +483,13 @@ export default function WrappedApp() {
                 settings,
               )
 
-              void i18n.changeLanguage(settings.language)
+              if (['ko_KR', 'en_US', 'ja_JP'].includes(settings.language)) {
+                void i18n.changeLanguage(settings.language)
+              } else {
+                void i18n.changeLanguage('ko_KR')
+                dispatch(setSettingData({ ...settings, language: 'ko_KR' }))
+                window.electron.saveSettings({ ...settings, language: 'ko_KR' })
+              }
 
               // 설정 로드 후 잠시 지연
               await new Promise((resolve) => setTimeout(resolve, 500))
@@ -696,7 +671,7 @@ export default function WrappedApp() {
         clearInterval(songRefreshInterval)
       }
     }
-  }, [])
+  }, [isLoading, location.pathname, settingData.language])
 
   // 오버레이 메시지 처리 이벤트 리스너 추가
   useEffect(() => {

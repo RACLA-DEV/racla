@@ -37,7 +37,7 @@ const config = {
   publish: {
     provider: 'github',
     owner: 'RACLA-DEV',
-    repo: 'racla-vite',
+    repo: 'racla',
     releaseType: 'release',
   },
 

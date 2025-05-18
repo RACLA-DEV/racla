@@ -89,15 +89,40 @@ contextBridge.exposeInMainWorld('electron', {
   }) => ipcRenderer.invoke('file-manager:open-file-dialog', options),
 
   // 업데이트 관련
-  onUpdateAvailable: (callback: (version: string) => void) =>
-    ipcRenderer.on('update-available', (_event, version: string) => callback(version)),
+  onUpdateAvailable: (callback: (version: string) => void) => {
+    // 기존 리스너가 있다면 제거 (중복 이벤트 방지)
+    ipcRenderer.removeAllListeners('update-available')
+    ipcRenderer.on('update-available', (_event, version: string) => {
+      console.log('[Preload] update-available 이벤트 수신됨:', version)
+      callback(version)
+    })
+  },
   onDownloadProgress: (
     callback: (progress: { percent: number; transferred: number; total: number }) => void,
-  ) => ipcRenderer.on('download-progress', (_event, progress) => callback(progress)),
-  onUpdateDownloaded: (callback: (version: string) => void) =>
-    ipcRenderer.on('update-downloaded', (_event, version: string) => callback(version)),
-  updateApp: () => ipcRenderer.invoke('update-manager:update-app'),
-  initializeUpdate: () => ipcRenderer.invoke('update-manager:initialize'),
+  ) => {
+    // 기존 리스너가 있다면 제거 (중복 이벤트 방지)
+    ipcRenderer.removeAllListeners('download-progress')
+    ipcRenderer.on('download-progress', (_event, progress) => {
+      console.log('[Preload] download-progress 이벤트 수신됨:', progress)
+      callback(progress)
+    })
+  },
+  onUpdateDownloaded: (callback: (version: string) => void) => {
+    // 기존 리스너가 있다면 제거 (중복 이벤트 방지)
+    ipcRenderer.removeAllListeners('update-downloaded')
+    ipcRenderer.on('update-downloaded', (_event, version: string) => {
+      console.log('[Preload] update-downloaded 이벤트 수신됨:', version)
+      callback(version)
+    })
+  },
+  updateApp: () => {
+    console.log('[Preload] updateApp 함수 호출됨')
+    return ipcRenderer.invoke('update-manager:update-app')
+  },
+  initializeUpdate: () => {
+    console.log('[Preload] initializeUpdate 함수 호출됨')
+    return ipcRenderer.invoke('update-manager:initialize')
+  },
 
   // 디스코드 관련
   initializeDiscord: () => ipcRenderer.invoke('discord-manager:initialize'),
