@@ -1,0 +1,229 @@
+{
+  "account": "Account Information",
+  "settings": "Settings",
+  "general": "General",
+  "storage": "Storage",
+  "storageSettingFile": "RACLA Setting Files",
+  "storageCaptureImage": "RACLA Captured Images",
+  "storageLogs": "RACLA Log Files",
+  "storageLogsDeleting": "Deleting...",
+  "storageLogsDeleteAll": "Delete Log Files",
+  "autoStart": "Auto Launch Game",
+  "capture": "Auto Capture Mode",
+  "restartApp": "Restart App",
+  "requiresRestart": "※ This setting requires restarting the app to apply.",
+  "uneditable": "※ This setting cannot be modified in the current version.",
+  "copyright": "DJMAX RESPECT V(©NEOWIZ), WJMAX(©WJMAX STUDIO), PLATiNA :: LAB(©HIGH-END Games).\nWe deeply respect you. <3\nRACLA is dedicated to your remarkable games and services.",
+  "hardwareAcceleration": {
+    "name": "Enable Hardware Acceleration",
+    "description": "Hardware acceleration uses the GPU to make the RACLA desktop app run more smoothly. If you experience issues with the app display, try disabling this setting. Changing this setting will restart the app."
+  },
+  "autoCaptureMode": {
+    "name": "Auto Capture Mode",
+    "description": "Enable/disable auto capture mode."
+  },
+  "autoCaptureIntervalTime": {
+    "name": "Auto Capture Interval",
+    "description": "Set the interval for auto capture mode.",
+    "1000": "1 second",
+    "2000": "2 seconds",
+    "3000": "3 seconds",
+    "5000": "5 seconds",
+    "10000": "10 seconds"
+  },
+  "autoCaptureProcessIntervalTime": {
+    "name": "Auto Capture Processing Interval",
+    "description": "Set the interval for auto capture processing mode."
+  },
+  "language": {
+    "name": "Language",
+    "description": "Set the program language. All languages except Korean have been translated using Claude Sonnet 3.7. If you would like to contribute to translations, please submit an issue or pull request to the distribution repository.",
+    "en_US": "English (US)",
+    "ja_JP": "日本語 (Japanese)",
+    "ko_KR": "한국어 (Korean)"
+  },
+  "font": {
+    "name": "Font",
+    "description": "Set the program font. Some items may change font depending on the language setting.",
+    "default": "RACLA Style",
+    "platina_lab": "PLATiNA :: LAB Style"
+  },
+  "autoCaptureApi": {
+    "name": "Auto Capture API",
+    "description": "Set the API to use in auto capture mode.",
+    "xcap-api": "XCap API",
+    "eapi": "Electron API",
+    "napi": "Native API (Rust)"
+  },
+  "visibleBga": {
+    "name": "Show BGA Video",
+    "description": "Display the BGA video when hovering over a song image (jacket) that has a BGA."
+  },
+  "visibleAnimation": {
+    "name": "Animation Effects",
+    "description": "Enable/disable all animation effects in the program."
+  },
+  "captureOnlyFocused": {
+    "name": "Capture Only When Window is Focused",
+    "description": "Only capture when the window is focused."
+  },
+  "autoUpdate": {
+    "name": "Auto Update",
+    "description": "Enable/disable program auto updates."
+  },
+  "autoRemoveBlackPixel": {
+    "name": "Auto Remove Black and White Margins",
+    "description": "Remove black and white images in auto capture mode."
+  },
+  "removeBlackPixelPx": {
+    "name": "Margin Removal Size",
+    "description": "Manually set the size for removing black and white margins."
+  },
+  "saveImageWhenCapture": {
+    "name": "Save Image When Capturing",
+    "description": "Save images captured in manual or auto capture mode."
+  },
+  "saveImageWithAllProfileWhenCapture": {
+    "name": "Save With All Profiles",
+    "description": "Save images including all profiles."
+  },
+  "saveImageWithoutOtherProfileWhenCapture": {
+    "name": "Save Without Third-Party Profiles",
+    "description": "Save images without third-party profiles."
+  },
+  "saveImageWithoutAllProfileWhenCapture": {
+    "name": "Save Without Any Profiles",
+    "description": "Save images without any profiles."
+  },
+  "saveImageBlurMode": {
+    "name": "Profile Exclusion Blur Effect",
+    "description": "Set the blur effect to apply to images where profiles are excluded.",
+    "blur": "Blur Effect",
+    "mask": "Black Masking (V-ARCHIVE)"
+  },
+  "resultOverlay": {
+    "name": "Show Result Overlay",
+    "description": "Display result overlay."
+  },
+  "hardJudgementPlayRecordOverlay": {
+    "name": "Show World Record Overlay",
+    "description": "Display World Record overlay."
+  },
+  "recentOverlay": {
+    "name": "Show Recent Records Overlay",
+    "description": "Display recent records overlay."
+  },
+  "alwaysOverlay": {
+    "name": "Show Persistent Overlay",
+    "description": "Display persistent overlay."
+  },
+  "autoCaptureDjmaxRespectVOcrResultRegion": {
+    "name": "Auto Recognition Area - DJMAX RESPECT V Freestyle Results",
+    "description": "Enable/disable OCR scanning of DJMAX RESPECT V freestyle results area in auto capture mode."
+  },
+  "autoCaptureDjmaxRespectVOcrOpen2Region": {
+    "name": "Auto Recognition Area - DJMAX RESPECT V Open Match (2 Players)",
+    "description": "Enable/disable OCR scanning of DJMAX RESPECT V open match (2 players) results area in auto capture mode."
+  },
+  "autoCaptureDjmaxRespectVOcrOpen3Region": {
+    "name": "Auto Recognition Area - DJMAX RESPECT V Open Match (1 or 3+ Players)",
+    "description": "Enable/disable OCR scanning of DJMAX RESPECT V open match (1 or 3+ players) results area in auto capture mode."
+  },
+  "autoCaptureDjmaxRespectVOcrVersusRegion": {
+    "name": "Auto Recognition Area - DJMAX RESPECT V Ladder/Versus Match",
+    "description": "Enable/disable OCR scanning of DJMAX RESPECT V ladder/versus match results area in auto capture mode."
+  },
+  "autoCaptureWjmaxOcrResultRegion": {
+    "name": "Auto Recognition Area - WJMAX Freestyle Results",
+    "description": "Enable/disable OCR scanning of WJMAX freestyle results area in auto capture mode."
+  },
+  "autoCapturePlatinaLabOcrResultRegion": {
+    "name": "Auto Recognition Area - PLATiNA :: LAB Single Play Results",
+    "description": "Enable/disable OCR scanning of PLATiNA :: LAB single play results area in auto capture mode."
+  },
+  "autoStartGame": {
+    "name": "Auto Launch Game",
+    "description": "Automatically launch the selected game when starting the RACLA desktop app."
+  },
+  "autoStartGameDjmaxRespectV": {
+    "name": "Auto Launch DJMAX RESPECT V",
+    "description": "Automatically launch DJMAX RESPECT V when starting the RACLA desktop app. This feature only works with the Steam version of DJMAX RESPECT V."
+  },
+  "autoStartGameWjmax": {
+    "name": "Auto Launch WJMAX",
+    "description": "Automatically launch WJMAX when starting the RACLA desktop app. This feature only works if the WJMAX executable path is specified."
+  },
+  "autoStartGameWjmaxPath": {
+    "name": "WJMAX Path",
+    "description": "Specify the WJMAX path."
+  },
+  "autoStartGamePlatinaLab": {
+    "name": "Auto Launch PLATiNA :: LAB",
+    "description": "Automatically launch PLATiNA :: LAB when starting the RACLA desktop app. This feature only works with the Steam version of DJMAX RESPECT V."
+  },
+  "isMiniMode": {
+    "name": "Mini Mode",
+    "description": "Enable/disable mini mode."
+  },
+  "hideToTray": {
+    "name": "Minimize to Tray",
+    "description": "Minimize to system tray."
+  },
+  "isNotificationSound": {
+    "name": "Notification Sound for Achievement Recording",
+    "description": "Enable/disable notification sound when recording achievements."
+  },
+  "autoDeleteCapturedImages": {
+    "name": "Auto Delete Captured Images",
+    "description": "Automatically delete captured images after the specified period. Set to 0 to disable auto deletion.",
+    "0": "Don't Auto Delete",
+    "7": "7 days",
+    "14": "14 days",
+    "30": "30 days",
+    "90": "90 days"
+  },
+  "autoCaptureDelayTime": {
+    "name": "Capture Delay Time",
+    "description": "Some games may include animations before displaying results. In this case, another capture attempt may be made for accurate verification. Set the waiting time for this.",
+    "0": "No delay",
+    "1000": "1 second",
+    "2000": "2 seconds",
+    "3000": "3 seconds",
+    "5000": "5 seconds",
+    "10000": "10 seconds"
+  },
+  "log": {
+    "clearAllLogsSuccess": "All log files have been deleted.",
+    "clearAllLogsError": "An error occurred while deleting log files."
+  },
+  "accountInfo": {
+    "name": "Account Information",
+    "linkInfo": "Linked Account",
+    "description": "View account information.",
+    "playerId": "Account ID",
+    "playerToken": "Account Token",
+    "playerWarning": "The information shown here includes the account ID (playerNo) and account token (playerToken) used for login data in RACLA. Please be careful not to expose your account ID and account token to others.",
+    "vArchiveUserNo": "V-ARCHIVE Account ID",
+    "vArchiveToken": "V-ARCHIVE Account Token",
+    "vArchiveWarning": "The information shown here includes the account ID (userNo) and account token used for login data in V-ARCHIVE. Please be careful not to expose your account ID and account token to others.",
+    "discordUid": "Discord User ID",
+    "discordWarning": "The information shown here includes the user ID (UID) used for login data in Discord. Please be careful not to expose your user ID to others.",
+    "vArchive": {
+      "Link": "Link V-ARCHIVE Account",
+      "NotLinked": "Your V-ARCHIVE login is not linked. To use DJMAX RESPECT V service, please click the link button and attach the login data (account.txt) created by the V-ARCHIVE official client.",
+      "Success": "V-ARCHIVE account linking completed successfully.",
+      "NotFound": "V-ARCHIVE account linking failed. The account information does not exist in V-ARCHIVE.",
+      "Already": "V-ARCHIVE account linking failed. This account is already linked.",
+      "Unknown": "V-ARCHIVE account linking failed. An unknown error occurred.",
+      "Invalid": "Invalid user information. Please select the login data (account.txt) file created by the V-ARCHIVE official client."
+    },
+    "discord": {
+      "Link": "Link Discord Account",
+      "NotLinked": "Your Discord login is not linked. After linking, you can use Discord login and the HARD-ARCHIVE features that will be updated additionally.",
+      "Success": "Discord account linking completed successfully.",
+      "NotFound": "Discord account linking failed. The account information does not exist in Discord.",
+      "Already": "Discord account linking failed. This account is already linked.",
+      "Unknown": "Discord account linking failed. An unknown error occurred."
+    }
+  }
+}

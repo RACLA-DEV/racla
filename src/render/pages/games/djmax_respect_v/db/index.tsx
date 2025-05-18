@@ -18,6 +18,7 @@ import { globalDictionary } from '@render/constants/globalDictionary'
 import { createLog } from '@render/libs/logger'
 import { RootState } from '@render/store'
 import { SongData } from '@src/types/games/SongData'
+import { useTranslation } from 'react-i18next'
 
 // 컴포넌트 Props 인터페이스 정의
 interface LazyGridItemProps {
@@ -152,6 +153,7 @@ const LazyListItem = React.memo(
 )
 
 const DmrvDbPage = () => {
+  const { t } = useTranslation(['db'])
   const { songData } = useSelector((state: RootState) => state.app)
   const [keyMode, setKeyMode] = useState<string>('4')
   const [hoveredTitle, setHoveredTitle] = useState<number>(null)
@@ -305,7 +307,7 @@ const DmrvDbPage = () => {
                               : 'tw:bg-slate-200 tw:dark:bg-slate-600 tw:text-slate-700 tw:dark:text-slate-300 hover:tw:bg-slate-300 hover:tw:dark:bg-slate-500'
                           }`}
                         >
-                          전체 보기
+                          {t('all')}
                         </button>
                         {globalDictionary.gameDictionary[selectedGame].dlcList.map((item) => (
                           <button
@@ -390,7 +392,7 @@ const DmrvDbPage = () => {
                           }}
                           className='tw:p-1.5 tw:min-w-[120px] tw:max-w-[120px] tw:w-36 tw:text-sm tw:rounded-lg tw:border tw:dark:bg-slate-700 tw:dark:text-white tw:dark:border-slate-600 tw:bg-white tw:text-slate-700 tw:border-slate-300 focus:tw:border-indigo-400 focus:tw:ring-2 focus:tw:ring-indigo-400 focus:tw:ring-opacity-20 tw:transition-all'
                         >
-                          <option value='all'>모든 난이도</option>
+                          <option value='all'>{t('allDifficulty')}</option>
                           {Array.from({ length: 15 }, (_, i) => i + 1).map((level) => (
                             <option key={level} value={level.toString()}>
                               Lv.{level}
@@ -403,7 +405,7 @@ const DmrvDbPage = () => {
                           }}
                           className='tw:text-sm tw:bg-slate-200 tw:dark:bg-slate-700/50 tw:text-slate-700 tw:dark:text-white tw:px-4 tw:py-1.5 tw:rounded-lg tw:border tw:border-slate-300 tw:dark:border-slate-600 hover:tw:bg-slate-300 hover:tw:dark:bg-slate-600 tw:transition-all'
                         >
-                          {sortOrder === 'asc' ? '이름 ↑' : '이름 ↓'}
+                          {sortOrder === 'asc' ? t('nameAsc') : t('nameDesc')}
                         </button>
                         <div className='tw:relative tw:flex-1'>
                           <div className='tw:absolute tw:inset-y-0 tw:left-0 tw:pl-3 tw:flex tw:items-center tw:pointer-events-none'>
@@ -428,7 +430,7 @@ const DmrvDbPage = () => {
                               setSearchName(e.currentTarget.value)
                             }}
                             type='text'
-                            placeholder='제목, 제작자명 또는 DLC명으로 검색'
+                            placeholder={t('searchPlaceholder')}
                           />
                         </div>
                       </div>
@@ -475,10 +477,10 @@ const DmrvDbPage = () => {
                 >
                   {viewMode === 'list' && (
                     <div className='tw:flex tw:items-center tw:gap-4 tw:p-2 tw:border-b tw:border-slate-300 tw:dark:border-slate-600 tw:text-slate-500 tw:dark:text-slate-300 tw:font-bold tw:text-sm'>
-                      <div className='tw:w-[80px] tw:text-center'>곡 이미지</div>
+                      <div className='tw:w-[80px] tw:text-center'>{t('songImage')}</div>
                       <div className='tw:flex tw:flex-1'>
-                        <div className='tw:flex-1'>곡 정보</div>
-                        <div className='tw:w-96 tw:text-center'>난이도</div>
+                        <div className='tw:flex-1'>{t('songInfo')}</div>
+                        <div className='tw:w-96 tw:text-center'>{t('difficulty')}</div>
                       </div>
                     </div>
                   )}
@@ -514,7 +516,7 @@ const DmrvDbPage = () => {
                       ref={loadMoreRef}
                       className={`tw:h-20 tw:w-full tw:flex tw:justify-center tw:items-center ${viewMode === 'grid' ? 'tw:col-span-full' : ''}`}
                     >
-                      <div className='tw:text-sm tw:text-slate-500'>더 불러오는 중...</div>
+                      <div className='tw:text-sm tw:text-slate-500'>{t('loadingMore')}</div>
                     </div>
                   )}
                 </div>

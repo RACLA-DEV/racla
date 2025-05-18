@@ -1,0 +1,11 @@
+{
+  "needLogin": "You need to log in or link your account to the corresponding service to view the performance board.",
+  "keyMode": "Key (Button) Selection",
+  "level": "Level",
+  "averageScore": "Average Score",
+  "unclassified": "Unclassified",
+  "noRecord": "No Record",
+  "board": "Performance Board",
+  "scoreAverage": "Score Average",
+  "tpAverage": "TP Average"
+}

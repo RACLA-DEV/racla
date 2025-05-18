@@ -181,10 +181,10 @@ RACLA는 다국어 지원을 위한 국제화(i18n) 시스템을 구축하고 �
 - [x] 오버레이 - 인게임 오버레이
 - [x] 오버레이 - 설정
 - [x] 피드백 센터 (버그 제보, 기능 추가 요청...)
-- [ ] 트랙 메이커 - 허브
+- [x] 트랙 메이커 - 허브
 - [x] 트랙 메이커 - 패턴 에디어
 - [x] 트랙 메이커 - 플레이어
-- [ ] DMRV - V-ARCHIVE - 기록 등록
+- [x] DMRV - V-ARCHIVE - 기록 등록
 - [x] DMRV - V-ARCHIVE - 성과표
 - [x] DMRV - V-ARCHIVE - MAX DJ POWER
 - [x] DMRV - V-ARCHIVE - 데이터베이스
@@ -192,10 +192,10 @@ RACLA는 다국어 지원을 위한 국제화(i18n) 시스템을 구축하고 �
 - [x] DMRV - 전일 아카이브 - 종합 랭킹
 - [x] DMRV - 전일 아카이브 - 랭킹 데이터베이스
 - [x] DMRV - 전일 아카이브 - 하드 판정 서열표
-- [ ] WJMAX - 기록 등록
+- [x] WJMAX - 기록 등록
 - [x] WJMAX - 성과표
 - [x] WJMAX - 데이터베이스
-- [ ] PLATiNA :: LAB - 기록 등록
+- [x] PLATiNA :: LAB - 기록 등록
 - [x] PLATiNA :: LAB - 성과표
 - [x] PLATiNA :: LAB - 데이터베이스
 - [x] 설정 - 계정 (내 계정 정보, V-ARCHIVE, Discord 연동 상태 관리 등)

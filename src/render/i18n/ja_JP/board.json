@@ -1,0 +1,11 @@
+{
+  "needLogin": "成果表の閲覧機能はログインまたは該当するサービスのアカウント連携が必要です。",
+  "keyMode": "キー(ボタン)選択",
+  "level": "レベル",
+  "averageScore": "スコア平均",
+  "unclassified": "未分類",
+  "noRecord": "記録なし",
+  "board": "成果表",
+  "scoreAverage": "スコア平均",
+  "tpAverage": "TP平均"
+}

@@ -13,14 +13,16 @@ import { useNotificationSystem } from '@render/hooks/useNotifications'
 import { createLog } from '@render/libs/logger'
 import { RootState } from '@render/store'
 import { SongData } from '@src/types/games/SongData'
+import { useTranslation } from 'react-i18next'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { PuffLoader } from 'react-spinners'
 import apiClient from '../../../../../libs/apiClient'
 
 const DmrvDbDetailPage = () => {
   const { showNotification } = useNotificationSystem()
-
+  const { t } = useTranslation(['db'])
   const { songData, userData, selectedGame } = useSelector((state: RootState) => state.app)
+  const { language } = useSelector((state: RootState) => state.app.settingData)
   const [baseSongData, setBaseSongData] = useState<SongData[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [isScoredBaseSongData, setIsScoredBaseSongData] = useState<boolean>(true)
@@ -62,7 +64,7 @@ const DmrvDbDetailPage = () => {
               ])
             })
             .catch((error: unknown) => {
-              createLog('error', 'Error in fetchUserSongData', { ...userData })
+              createLog('error', 'Error in fetchUserSongData', { ...userData }, error)
               showNotification(
                 {
                   mode: 'i18n',
@@ -275,7 +277,7 @@ const DmrvDbDetailPage = () => {
                       className='tw:inline-flex tw:items-center tw:gap-2 tw:bg-slate-100 tw:border tw:dark:border-0 tw:border-slate-200 tw:dark:bg-slate-700 tw:text-slate-800 tw:dark:text-slate-300 tw:rounded-md hover:tw:bg-indigo-600 tw:transition-colors tw:text-xs tw:py-1 tw:px-2'
                     >
                       <Icon icon='lucide:database' />
-                      <span>전일 기록(전일 아카이브)</span>
+                      <span>{t('hardArchiveRecord')}</span>
                     </Link>
                   )}
                   <div
@@ -457,8 +459,12 @@ const DmrvDbDetailPage = () => {
                                           <span className='tw:font-light tw:text-sm tw:text-slate-500 tw:dark:text-slate-400'>
                                             -
                                           </span>
-                                          <span className='tw:font-light tw:text-xs tw:text-slate-400 tw:dark:text-slate-500 tw:break-keep'>
-                                            (기록 미존재)
+                                          <span
+                                            className={`tw:font-light tw:text-xs tw:text-slate-400 tw:dark:text-slate-500 ${
+                                              language !== 'ja_JP' ? 'tw:break-keep' : ''
+                                            }`}
+                                          >
+                                            {t('noRecord')}
                                           </span>
                                         </>
                                       )}

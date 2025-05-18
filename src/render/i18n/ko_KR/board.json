@@ -1,0 +1,11 @@
+{
+  "needLogin": "성과표 조회 기능은 로그인 또는 해당되는 서비스의 계정 연동이 필요합니다.",
+  "keyMode": "키(버튼) 선택",
+  "level": "레벨",
+  "averageScore": "점수 평균",
+  "unclassified": "미분류",
+  "noRecord": "기록 없음",
+  "board": "성과표",
+  "scoreAverage": "점수 평균",
+  "tpAverage": "TP 평균"
+}

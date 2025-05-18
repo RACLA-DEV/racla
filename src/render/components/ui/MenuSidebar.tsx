@@ -284,7 +284,7 @@ const MenuSidebar: React.FC = () => {
               }}
             >
               <Icon icon='lucide:hard-drive' className='tw:w-4 tw:h-4 tw:mr-2' />
-              {t('quickMenu.hjaHome')}
+              {t('quickMenu.hardArchiveHome')}
             </span>
           </li>
           <li className={`tw:border-t tw:dark:border-slate-700 tw:border-gray-200`}></li>
@@ -437,10 +437,12 @@ const MenuSidebar: React.FC = () => {
             </div>
             <div className='tw:ml-3 tw:overflow-hidden'>
               <p className='tw:text-sm tw:font-medium tw:truncate'>
-                {isLoggedIn ? userData.playerNickname || '사용자' : '로그인 필요'}
+                {isLoggedIn
+                  ? userData.playerNickname || t('common.user')
+                  : t('common.loginRequired')}
               </p>
               <p className='tw:text-xs tw:text-slate-400 tw:truncate'>
-                {isLoggedIn ? userData.playerName : '로그인하여 모든 기능 사용'}
+                {isLoggedIn ? userData.playerName : t('common.loginRequired')}
               </p>
             </div>
             <Icon
@@ -475,10 +477,10 @@ const MenuSidebar: React.FC = () => {
           </div>
           <div className='tw:ml-3 tw:overflow-hidden tw:max-w-[100px] tw:mr-auto'>
             <p className='tw:text-sm tw:font-medium tw:truncate'>
-              {isLoggedIn ? userData.playerNickname || '사용자' : '로그인 필요'}
+              {isLoggedIn ? userData.playerNickname || t('common.user') : t('common.loginRequired')}
             </p>
             <p className='tw:text-xs tw:text-slate-400 tw:truncate'>
-              {isLoggedIn ? userData.playerName : '로그인하여 모든 기능 사용'}
+              {isLoggedIn ? userData.playerName : t('common.loginRequired')}
             </p>
           </div>
           <Icon
@@ -562,7 +564,7 @@ const MenuSidebar: React.FC = () => {
                 }}
               >
                 <Icon icon='lucide:hard-drive' className='tw:w-4 tw:h-4 tw:mr-2' />
-                {t('quickMenu.hjaHome')}
+                {t('quickMenu.hardArchiveHome')}
               </span>
             </li>
             <li className={`tw:border-t tw:dark:border-slate-700 tw:border-gray-200`}></li>

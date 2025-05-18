@@ -8,6 +8,7 @@ import { createLog } from '@render/libs/logger'
 import { RootState } from '@render/store'
 import { setIsOpenExternalLink, setOpenExternalLink } from '@render/store/slices/uiSlice'
 import { SongData } from '@src/types/games/SongData'
+import { useTranslation } from 'react-i18next'
 import { Link, useParams } from 'react-router-dom'
 import { PuffLoader } from 'react-spinners'
 import { v4 as uuidv4 } from 'uuid'
@@ -26,6 +27,7 @@ interface RankingData {
 }
 
 const DmrvHardDbPatternPage = () => {
+  const { t } = useTranslation(['db'])
   const { showNotification } = useNotificationSystem()
   const params = useParams()
   const dispatch = useDispatch()
@@ -152,7 +154,7 @@ const DmrvHardDbPatternPage = () => {
                     className='tw:inline-flex tw:items-center tw:gap-2 tw:bg-slate-100 tw:border tw:dark:border-0 tw:border-slate-200 tw:dark:bg-slate-700 tw:text-slate-800 tw:dark:text-slate-300 tw:rounded-md hover:tw:bg-indigo-600 tw:transition-colors tw:text-xs tw:py-1 tw:px-2'
                   >
                     <Icon icon='lucide:database' />
-                    <span>내 기록 (V-ARCHIVE)</span>
+                    <span>{t('myRecord')}</span>
                   </Link>
                   <div className='tw:rounded-md tw:bg-slate-100 tw:border tw:dark:border-0 tw:border-slate-200 tw:dark:bg-slate-700 tw:text-slate-800 tw:dark:text-slate-300 tw:p-1'>
                     <span className='djmax_respect_v_dlc_code_wrap'>
@@ -173,10 +175,11 @@ const DmrvHardDbPatternPage = () => {
               <div className='tw:flex tw:justify-between tw:items-center tw:border-b tw:border-slate-200 tw:dark:border-slate-700 tw:pb-4'>
                 <div className='tw:flex tw:items-center tw:gap-4'>
                   <h1 className='tw:text-xl tw:font-bold tw:text-slate-900 tw:dark:text-white'>
-                    {button} - {level.replace('MX', 'MX ').replace('SC', 'SC ')} - {judge} 판정
+                    {button} - {level.replace('MX', 'MX ').replace('SC', 'SC ')} - {judge}{' '}
+                    {t('judge')}
                   </h1>
                   <span className='tw:text-slate-500 tw:dark:text-slate-400 tw:text-sm'>
-                    상위 30위
+                    {t('top30')}
                   </span>
                 </div>
                 <Link
@@ -184,7 +187,7 @@ const DmrvHardDbPatternPage = () => {
                   className='tw:bg-indigo-600 hover:tw:bg-indigo-700 tw:text-white tw:px-4 tw:py-1.5 tw:text-sm tw:rounded-md tw:transition-all tw:flex tw:items-center tw:gap-1'
                 >
                   <Icon icon='lucide:arrow-left' className='tw:w-4 tw:h-4' />
-                  <span>돌아가기</span>
+                  <span>{t('back')}</span>
                 </Link>
               </div>
 
@@ -196,7 +199,7 @@ const DmrvHardDbPatternPage = () => {
               ) : rankingData.length === 0 ? (
                 <div className='tw:text-slate-500 tw:dark:text-slate-400 tw:text-center tw:py-12 tw:flex tw:flex-col tw:items-center tw:gap-2'>
                   <Icon icon='lucide:info' className='tw:w-8 tw:h-8' />
-                  <span>등록된 기록이 없습니다</span>
+                  <span>{t('noRankingRecord')}</span>
                 </div>
               ) : (
                 <div className='tw:space-y-2'>
@@ -229,7 +232,7 @@ const DmrvHardDbPatternPage = () => {
                           <span className='tw:text-sm tw:font-medium tw:text-slate-900 tw:dark:text-white'>
                             {entry.nickname === '#탈퇴한사용자' ? (
                               <span className='tw:text-slate-400 tw:dark:text-slate-500'>
-                                {entry.nickname}
+                                {t('deletedUser')}
                               </span>
                             ) : (
                               entry.nickname
@@ -247,7 +250,7 @@ const DmrvHardDbPatternPage = () => {
                         </div>
                         <div className='tw:flex tw:items-center tw:gap-2'>
                           <span className='tw:text-xs tw:text-slate-500 tw:dark:text-slate-400'>
-                            정확도: {entry.rate.toFixed(2)}%
+                            {t('accuracy')}: {entry.rate.toFixed(2)}%
                           </span>
                           {entry.max_combo && (
                             <span className='tw:flex tw:items-center tw:gap-0.5 tw:text-xs tw:text-yellow-500 tw:dark:text-yellow-400'>

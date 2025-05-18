@@ -1,0 +1,57 @@
+{
+  "title": "Feedback Center",
+  "createFeedback": "Create Feedback",
+  "loginRequired": "Login is required to create feedback.",
+  "description": "This is a space where you can write and check feedback such as bug reports and suggestions. Inappropriate language usage and problematic behavior may result in restrictions on using the Feedback Center.",
+  "statusExplanation": {
+    "title": "Status Description",
+    "open": "OPEN status means the developer has not yet reviewed the feedback. Once reviewed, it will be changed to IN_PROGRESS status.",
+    "closed": "CLOSED status means that action has been completed for the feedback. Additional comments cannot be added to maintain the original content."
+  },
+  "pinned": "Pinned",
+  "list": "List",
+  "tableHeader": {
+    "category": "Category",
+    "title": "Title",
+    "status": "Status",
+    "author": "Author",
+    "date": "Date"
+  },
+  "status": {
+    "OPEN": "New",
+    "IN_PROGRESS": "In Progress",
+    "CLOSED": "Completed"
+  },
+  "category": {
+    "NOTICE": "Notice",
+    "BUG": "Bug Report",
+    "FEATURE_REQUEST": "Feature Request",
+    "QUESTION": "Question",
+    "OTHER": "Other"
+  },
+  "feedbackCreation": {
+    "title": "Create Feedback",
+    "inputTitle": "Title",
+    "titlePlaceholder": "Enter a title",
+    "category": "Category",
+    "content": "Content",
+    "contentPlaceholder": "Enter content",
+    "cancel": "Cancel",
+    "submit": "Submit"
+  },
+  "detail": {
+    "backToList": "Back to Feedback Center",
+    "status": "Status",
+    "author": "Author",
+    "createdAt": "Created at",
+    "comments": "Comments",
+    "commentPlaceholder": "Please write your additional comment. Inappropriate language usage and problematic behavior may result in restrictions on using the Feedback Center.",
+    "submit": "Submit",
+    "closedExplanation": "The administrator has changed the status of this feedback to CLOSED, so no further comments can be added.",
+    "loginRequired": "Login is required to add comments."
+  },
+  "error": {
+    "fetchFeedbackPageFailed": "Failed to load feedback list.",
+    "createBugFailed": "Failed to create feedback."
+  }
+}

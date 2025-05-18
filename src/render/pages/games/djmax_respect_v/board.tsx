@@ -6,6 +6,7 @@ import { createLog } from '@render/libs/logger'
 import { RootState } from '@render/store'
 import { ApiArchiveNicknameBoard } from '@src/types/dto/v-archive/ApiArchiveNicknameBoard'
 import { PatternInfo } from '@src/types/games/SongData'
+import { useTranslation } from 'react-i18next'
 import { useSelector } from 'react-redux'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { PuffLoader } from 'react-spinners'
@@ -93,8 +94,10 @@ const tierPointMap = {
 }
 
 const DmrvBoardPage = () => {
+  const { t } = useTranslation(['board'])
   const { keyMode, board } = useParams()
   const { showNotification } = useNotificationSystem()
+  const { language } = useSelector((state: RootState) => state.app.settingData)
   const { userData, songData, selectedGame } = useSelector((state: RootState) => state.app)
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [floorData, setFloorData] = useState<Floor[]>([])
@@ -203,8 +206,7 @@ const DmrvBoardPage = () => {
                 .map((apiPattern) => {
                   // for 루프로 baseSongData를 순회하여 매칭되는 패턴 찾기
                   let matchingPattern = null
-                  for (let i = 0; i < baseSongData.length; i++) {
-                    const bp = baseSongData[i]
+                  for (const bp of baseSongData) {
                     if (bp.title === apiPattern.title && bp.pattern === apiPattern.pattern) {
                       matchingPattern = bp
                       break
@@ -452,7 +454,7 @@ const DmrvBoardPage = () => {
     over99: 'OVER 99%',
     over97: 'OVER 97%',
     clear: 'CLEAR',
-    total: '전체',
+    total: 'ALL',
   }
 
   const keyBoardTitle = {
@@ -610,7 +612,7 @@ const DmrvBoardPage = () => {
                 <div className='tw:flex tw:flex-col tw:gap-4 tw:bg-opacity-75 tw:dark:bg-opacity-75 tw:rounded-lg tw:p-6 tw:w-1/3 tw:border tw:border-slate-200 tw:dark:border-slate-700'>
                   {/* 키모드 설명 */}
                   <div className='tw:text-sm tw:text-slate-600 tw:dark:text-slate-400 tw:font-medium'>
-                    키(버튼)
+                    {t('keyMode')}
                   </div>
                   {/* 키모드 선택 버튼 */}
                   <div className='tw:flex tw:gap-2'>
@@ -638,7 +640,7 @@ const DmrvBoardPage = () => {
                   <div className='tw:flex tw:flex-col tw:gap-2'>
                     {/* 난이도 범위 설명 */}
                     <div className='tw:text-sm tw:text-slate-600 tw:dark:text-slate-400 tw:font-medium'>
-                      성과표
+                      {t('board')}
                     </div>
                     {/* 난이도 선택 탭 */}
                     <div className='tw:flex tw:gap-2 tw:mb-1'>
@@ -742,7 +744,7 @@ const DmrvBoardPage = () => {
                               {calculateScoreStats(floor.patterns) && (
                                 <div className='tw:flex tw:flex-col tw:items-end'>
                                   <span className='tw:text-sm tw:text-slate-500 tw:dark:text-slate-400 tw:font-light'>
-                                    점수 평균
+                                    {t('scoreAverage')}
                                   </span>
                                   <div className='tw:text-sm tw:text-slate-700 tw:dark:text-slate-200'>
                                     {calculateScoreStats(floor.patterns)}%
@@ -753,7 +755,7 @@ const DmrvBoardPage = () => {
                                 calculateFloorStats(floor.patterns, floor.floorNumber) && (
                                   <div className='tw:flex tw:flex-col tw:items-end'>
                                     <span className='tw:text-sm tw:text-slate-500 tw:dark:text-slate-400 tw:font-light'>
-                                      TP 평균
+                                      {t('tpAverage')}
                                     </span>
                                     <div className='tw:text-sm tw:text-slate-700 tw:dark:text-slate-200'>
                                       {
@@ -768,11 +770,11 @@ const DmrvBoardPage = () => {
                           </div>
                         ) : (
                           <div className='tw:flex tw:flex-col tw:items-end tw:gap-1'>
-                            <div>미분류</div>
+                            <div>{t('unclassified')}</div>
                             {calculateScoreStats(floor.patterns) && (
                               <div className='tw:flex tw:flex-col tw:items-end'>
                                 <span className='tw:text-sm tw:text-slate-500 tw:dark:text-slate-400 tw:font-light'>
-                                  점수 평균
+                                  {t('scoreAverage')}
                                 </span>
                                 <div className='tw:text-sm tw:text-slate-700 tw:dark:text-slate-200'>
                                   {calculateScoreStats(floor.patterns)}%
@@ -815,12 +817,16 @@ const DmrvBoardPage = () => {
                                   </>
                                 ) : (
                                   <span className='tw:text-xs tw:text-slate-500 tw:dark:text-slate-400'>
-                                    기록 미존재
+                                    {t('noRecord')}
                                   </span>
                                 )}
                               </div>
                             </div>
-                            <span className='tw:flex tw:flex-1 tw:bg-slate-200 tw:dark:bg-slate-700 tw:bg-opacity-25 tw:px-2 tw:py-1 tw:rounded-md tw:break-keep tw:justify-center tw:items-center tw:text-center tw:text-xs tw:text-slate-700 tw:dark:text-slate-300'>
+                            <span
+                              className={`tw:flex tw:flex-1 tw:bg-slate-200 tw:dark:bg-slate-700 tw:bg-opacity-25 tw:px-2 tw:py-1 tw:rounded-md ${
+                                language !== 'ja_JP' ? 'tw:break-keep' : ''
+                              } tw:justify-center tw:items-center tw:text-center tw:text-xs tw:text-slate-700 tw:dark:text-slate-300`}
+                            >
                               {pattern.name}
                             </span>
                           </div>

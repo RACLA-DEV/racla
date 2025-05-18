@@ -1,0 +1,13 @@
+{
+  "ranking": "Ranking",
+  "failedToFetchRanking": "Failed to load ranking data.",
+  "deletedUser": "Deleted User",
+  "achievement": "achievements",
+  "total": "Total",
+  "hard": "World Record",
+  "score": "points",
+  "rankingList": "Ranking List",
+  "finalUpdate": "Last Update",
+  "refresh": "Refresh",
+  "noRankingData": "No ranking data available"
+}

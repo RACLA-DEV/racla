@@ -13,6 +13,7 @@ import { RootState } from '@render/store'
 import { SongData } from '@src/types/games/SongData'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
+import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 
 dayjs.extend(utc)
@@ -104,10 +105,7 @@ const LazyListItem = React.memo(
                     ' / ' +
                     songItem.bpm +
                     ' BPM / ' +
-                    dayjs
-                      .utc(songItem.time * 1000)
-                      .locale('ko')
-                      .format('m분 s초')}
+                    dayjs.utc(songItem.time * 1000).format('m:ss')}
                 </div>
               </div>
             </div>
@@ -176,6 +174,7 @@ const LazyGridItem = React.memo(({ songItem, keyMode }: LazyGridItemProps) => {
 })
 
 const WjmaxDbPage = () => {
+  const { t } = useTranslation(['db'])
   const { songData, selectedGame } = useSelector((state: RootState) => state.app)
 
   const [keyMode, setKeyMode] = useState<string>('4')
@@ -403,10 +402,10 @@ const WjmaxDbPage = () => {
             : 'tw:text-slate-600 tw:dark:text-slate-300 hover:tw:text-slate-900 hover:tw:dark:text-white hover:tw:bg-slate-200 hover:tw:dark:bg-slate-600'
         } `}
       >
-        {dlcCode}
+        {t(dlcCode)}
       </button>
     ))
-  }, [dlcCodeList, selectedDlcCode])
+  }, [dlcCodeList, selectedDlcCode, t])
 
   // 메모이징된 키 모드 버튼 렌더링
   const renderKeyModeButtons = useMemo(() => {
@@ -513,7 +512,7 @@ const WjmaxDbPage = () => {
             ref={loadMoreRef}
             className={`tw:h-20 tw:w-full tw:flex tw:justify-center tw:items-center ${viewMode === 'grid' ? 'tw:col-span-full' : ''}`}
           >
-            <div className='tw:text-sm tw:text-slate-500'>더 불러오는 중...</div>
+            <div className='tw:text-sm tw:text-slate-500'>{t('loadingMore')}</div>
           </div>
         )}
       </>
@@ -555,7 +554,7 @@ const WjmaxDbPage = () => {
                         }}
                         className='tw:text-sm tw:bg-white tw:dark:bg-slate-700 tw:text-slate-700 tw:dark:text-slate-200 tw:w-36 tw:border tw:border-slate-300 tw:dark:border-slate-600 focus:tw:border-indigo-400 focus:tw:ring-2 focus:tw:ring-indigo-400 focus:tw:ring-opacity-20 tw:transition-all tw:rounded-lg'
                       >
-                        <option value='all'>모든 난이도</option>
+                        <option value='all'>{t('allDifficulty')}</option>
                         {Array.from({ length: 30 }, (_, i) => i + 1).map((level) => (
                           <option key={level} value={level.toString()}>
                             Lv.{level}
@@ -567,7 +566,7 @@ const WjmaxDbPage = () => {
                         onClick={handleSortOrderChange}
                         className='tw:bg-slate-200 tw:dark:bg-slate-700 tw:text-slate-700 tw:dark:text-slate-200 tw:px-4 tw:py-1.5 tw:rounded-lg tw:border tw:border-slate-300 tw:dark:border-slate-600 hover:tw:bg-slate-300 hover:tw:dark:bg-slate-600 tw:transition-all'
                       >
-                        {sortOrder === 'asc' ? '이름 ↑' : '이름 ↓'}
+                        {sortOrder === 'asc' ? t('nameAsc') : t('nameDesc')}
                       </button>
 
                       <div className='tw:relative tw:flex-1'>
@@ -582,7 +581,7 @@ const WjmaxDbPage = () => {
                             setSearchName(e.currentTarget.value)
                           }}
                           type='text'
-                          placeholder='제목, 제작자명 또는 DLC명으로 검색'
+                          placeholder={t('searchPlaceholder')}
                         />
                       </div>
 
@@ -609,10 +608,10 @@ const WjmaxDbPage = () => {
                 >
                   {viewMode === 'list' && (
                     <div className='tw:flex tw:items-center tw:gap-4 tw:p-2 tw:border-b tw:border-slate-200 tw:dark:border-slate-700 tw:text-slate-500 tw:dark:text-slate-400 tw:font-bold tw:text-sm'>
-                      <div className='tw:w-[130px] tw:text-center'>곡 이미지</div>
+                      <div className='tw:w-[130px] tw:text-center'>{t('songImage')}</div>
                       <div className='tw:flex tw:flex-1'>
-                        <div className='tw:flex-1'>곡 정보</div>
-                        <div className='tw:w-[480px] tw:text-center'>난이도</div>
+                        <div className='tw:flex-1'>{t('songInfo')}</div>
+                        <div className='tw:w-[480px] tw:text-center'>{t('difficulty')}</div>
                       </div>
                     </div>
                   )}

@@ -1,0 +1,81 @@
+{
+  "djmax_respect_v": {
+    "name": "DJMAX RESPECT V",
+    "difficulty": {
+      "NM": {
+        "name": "NM",
+        "fullName": "NORMAL"
+      },
+      "HD": {
+        "name": "HD",
+        "fullName": "HARD"
+      },
+      "MX": {
+        "name": "MX",
+        "fullName": "MAXIMUM"
+      },
+      "SC": {
+        "name": "SC",
+        "fullName": "SC"
+      },
+      "DPC": {
+        "name": "DPC",
+        "fullName": "DPC"
+      }
+    }
+  },
+  "wjmax": {
+    "name": "WJMAX",
+    "difficulty": {
+      "NM": {
+        "name": "NM",
+        "fullName": "MESSI"
+      },
+      "HD": {
+        "name": "HD",
+        "fullName": "ANGEL"
+      },
+      "MX": {
+        "name": "MX",
+        "fullName": "WAKGOOD"
+      },
+      "SC": {
+        "name": "SC",
+        "fullName": "MINSU"
+      },
+      "DPC": {
+        "name": "DPC",
+        "fullName": "LIE"
+      }
+    }
+  },
+  "platina_lab": {
+    "name": "PLATiNA :: LAB",
+    "difficulty": {
+      "EASY": {
+        "name": "EASY",
+        "fullName": "EASY"
+      },
+      "HD": {
+        "name": "HD",
+        "fullName": "HARD"
+      },
+      "OVER": {
+        "name": "OVER",
+        "fullName": "OVER"
+      },
+      "PLUS_1": {
+        "name": "PLUS_1",
+        "fullName": "PLUS"
+      },
+      "PLUS_2": {
+        "name": "PLUS_2",
+        "fullName": "PLUS"
+      },
+      "PLUS_3": {
+        "name": "PLUS_3",
+        "fullName": "PLUS"
+      }
+    }
+  }
+}

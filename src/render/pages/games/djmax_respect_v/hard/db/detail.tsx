@@ -5,6 +5,7 @@ import { createLog } from '@render/libs/logger'
 import { RootState } from '@render/store'
 import { SongData } from '@src/types/games/SongData'
 import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useSelector } from 'react-redux'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { PuffLoader } from 'react-spinners'
@@ -35,6 +36,7 @@ interface Pattern {
 
 const DmrvHardDbDetailPage = () => {
   const { showNotification } = useNotificationSystem()
+  const { t } = useTranslation(['db'])
   const navigate = useNavigate()
 
   const params = useParams()
@@ -215,7 +217,7 @@ const DmrvHardDbDetailPage = () => {
                     className='tw:inline-flex tw:items-center tw:gap-2 tw:bg-slate-100 tw:border tw:dark:border-0 tw:border-slate-200 tw:dark:bg-slate-700 tw:text-slate-800 tw:dark:text-slate-300 tw:rounded-md hover:tw:bg-indigo-600 tw:transition-colors tw:text-xs tw:py-1 tw:px-2'
                   >
                     <Icon icon='lucide:database' />
-                    <span>내 기록 (V-ARCHIVE)</span>
+                    <span>{t('myRecord')}</span>
                   </Link>
                   <div className='tw:rounded-md tw:bg-slate-100 tw:border tw:dark:border-0 tw:border-slate-200 tw:dark:bg-slate-700 tw:text-slate-800 tw:dark:text-slate-300 tw:p-1'>
                     <span className='djmax_respect_v_dlc_code_wrap'>
@@ -326,7 +328,7 @@ const DmrvHardDbDetailPage = () => {
                                     </div>
                                   ) : (
                                     <div className='tw:text-slate-500 tw:dark:text-slate-400 tw:py-4 tw:h-[100px]'>
-                                      기록 없음
+                                      {t('noRecord')}
                                     </div>
                                   )}
                                 </div>
@@ -372,7 +374,7 @@ const DmrvHardDbDetailPage = () => {
                                     </div>
                                   ) : (
                                     <div className='tw:text-slate-500 tw:dark:text-slate-400 tw:py-4 tw:h-[100px]'>
-                                      기록 없음
+                                      {t('noRecord')}
                                     </div>
                                   )}
                                 </div>
@@ -384,10 +386,7 @@ const DmrvHardDbDetailPage = () => {
                     ) : (
                       <div className='tw:col-span-full tw:flex tw:flex-col tw:items-center tw:justify-center tw:text-center tw:text-slate-500 tw:dark:text-slate-400 tw:border tw:border-slate-200 tw:dark:border-slate-600 tw:bg-slate-50 tw:dark:bg-slate-700/20 tw:rounded-lg tw:p-8 tw:h-48'>
                         <Icon icon='lucide:info' className='tw:w-8 tw:h-8 tw:mb-2' />
-                        <p>
-                          해당 수록곡의 {activeTab} 모드는 SC8(MX15) 이상의 패턴이 존재하지 않거나
-                          전일 아카이브에 등록되지 않은 패턴으로 조회 결과가 없습니다.
-                        </p>
+                        <p>{t('noHardArchivePatternPattern', { props: { activeTab } })}</p>
                       </div>
                     )}
                   </div>

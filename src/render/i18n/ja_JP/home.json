@@ -1,0 +1,34 @@
+{
+  "noDifficultyInfo": "難易度情報なし",
+  "stat": "統計",
+  "stats": "統計",
+  "clear": "クリア",
+  "perfect": "パーフェクト",
+  "over999": {
+    "name": "99.9%+",
+    "fullName": "スコア99.9%以上"
+  },
+  "over995": {
+    "name": "99.5%+",
+    "fullName": "スコア99.5%以上"
+  },
+  "over99": {
+    "name": "99.0%+",
+    "fullName": "スコア99.0%以上"
+  },
+  "over97": {
+    "name": "97.0%+",
+    "fullName": "スコア97.0%以上"
+  },
+  "under97": {
+    "name": "97.0%-",
+    "fullName": "スコア97.0%以下"
+  },
+  "maxCombo": "マックスコンボ",
+  "withoutMaxCombo": "マックスコンボ以外のクリア",
+  "noRecord": "未クリア(記録なし)",
+  "all": "全て",
+  "total": "全体",
+  "best": "最高",
+  "achievement": "スコア記録"
+}

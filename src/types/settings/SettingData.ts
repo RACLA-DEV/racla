@@ -21,7 +21,7 @@ export interface SettingsData {
   saveImageWithoutAllProfileWhenCapture?: boolean
   saveImageBlurMode?: string
   resultOverlay?: boolean
-  hjaOverlay?: boolean
+  hardJudgementPlayRecordOverlay?: boolean
   recentOverlay?: boolean
   alwaysOverlay?: boolean
   autoCaptureDjmaxRespectVOcrResultRegion?: boolean
@@ -39,5 +39,6 @@ export interface SettingsData {
   hideToTray?: boolean
   isNotificationSound?: boolean
   autoDeleteCapturedImages?: number
+  isCheckedForUpdate?: boolean
   // 필요에 따라 다른 설정들도 추가할 수 있습니다.
 }

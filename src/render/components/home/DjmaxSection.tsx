@@ -491,7 +491,7 @@ export default function DjmaxHomeComponent() {
 
     Object.entries(keyModeData).forEach(([keyMode, patterns]) => {
       // rating 기준으로 정렬하고 상위 50개 선택
-      const top50 = [...patterns].sort((a, b) => (b.rating || 0) - (a.rating || 0)).slice(0, 50)
+      const top50 = [...patterns].sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0)).slice(0, 50)
 
       // rating 합계 계산
       const totalRating = top50.reduce((sum, pattern) => sum + (pattern.rating || 0), 0)
@@ -536,7 +536,7 @@ export default function DjmaxHomeComponent() {
             pattern.name === 'Phoenix Virus' ||
             pattern.name === 'alliance',
         )
-        .sort((a: Pattern, b: Pattern) => (b.djpower || 0) - (a.djpower || 0))
+        .sort((a: Pattern, b: Pattern) => (b.djpower ?? 0) - (a.djpower ?? 0))
 
       // BASIC 70 패턴 필터링 및 정렬 (VL, TEK DLC와 Insane Drift 제외)
       const basicPatterns = allPatterns
@@ -550,17 +550,17 @@ export default function DjmaxHomeComponent() {
             pattern.name !== 'Phoenix Virus' &&
             pattern.name !== 'alliance',
         )
-        .sort((a: Pattern, b: Pattern) => (b.djpower || 0) - (a.djpower || 0))
+        .sort((a: Pattern, b: Pattern) => (b.djpower ?? 0) - (a.djpower ?? 0))
 
       // TOP 50 렬 (rating 기준)
       const top50Patterns = [...allPatterns]
-        .sort((a: Pattern, b: Pattern) => (b.rating || 0) - (a.rating || 0))
+        .sort((a: Pattern, b: Pattern) => (b.rating ?? 0) - (a.rating ?? 0))
         .slice(0, 50)
 
       newCutoffScores[keyMode] = {
-        new30: (newPatterns[29] as Pattern)?.djpower || 0,
-        basic70: (basicPatterns[69] as Pattern)?.djpower || 0,
-        top50: (top50Patterns[49] as Pattern)?.rating || 0,
+        new30: (newPatterns[29] as Pattern)?.djpower ?? 0,
+        basic70: (basicPatterns[69] as Pattern)?.djpower ?? 0,
+        top50: (top50Patterns[49] as Pattern)?.rating ?? 0,
       }
     })
 

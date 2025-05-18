@@ -7,6 +7,7 @@ import { createLog } from '@render/libs/logger'
 import { setIsOpenExternalLink, setOpenExternalLink } from '@render/store/slices/uiSlice'
 import dayjs from 'dayjs'
 import LocalizedFormat from 'dayjs/plugin/localizedFormat'
+import { useTranslation } from 'react-i18next'
 import { useDispatch } from 'react-redux'
 import { PuffLoader } from 'react-spinners'
 import { v4 as uuidv4 } from 'uuid'
@@ -26,7 +27,7 @@ interface TotalRankingEntry {
   score: Score
 }
 
-interface DailyRankingEntry {
+interface HardRankingEntry {
   nickname: string
   rank: number
   count: number
@@ -37,13 +38,13 @@ interface TotalRankingData {
   chart: TotalRankingEntry[]
 }
 
-interface DailyRankingData {
+interface HardRankingData {
   renew_time: number
-  chart: DailyRankingEntry[]
+  chart: HardRankingEntry[]
 }
 
-interface DailyRankingResponse {
-  data: DailyRankingData
+interface HardRankingResponse {
+  data: HardRankingData
   code: string
 }
 
@@ -52,12 +53,13 @@ interface TotalRankingResponse {
   code: string
 }
 
-type RankingType = 'daily' | 'total'
+type RankingType = 'hard' | 'total'
 
 const DmrvHardRankingPage = () => {
+  const { t } = useTranslation(['ranking'])
   const [totalRankingData, setTotalRankingData] = useState<TotalRankingData | null>(null)
-  const [dailyRankingData, setDailyRankingData] = useState<DailyRankingData | null>(null)
-  const [selectedRanking, setSelectedRanking] = useState<RankingType>('daily')
+  const [hardRankingData, setHardRankingData] = useState<HardRankingData | null>(null)
+  const [selectedRanking, setSelectedRanking] = useState<RankingType>('hard')
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const dispatch = useDispatch()
@@ -67,17 +69,15 @@ const DmrvHardRankingPage = () => {
       setIsLoading(true)
       setError(null)
 
-      const [dailyResponse, totalResponse] = await Promise.all([
-        apiClient.getProxy<DailyRankingResponse>(
-          `https://hard-archive.com/api/v2/ranking/top-rank`,
-        ),
+      const [hardResponse, totalResponse] = await Promise.all([
+        apiClient.getProxy<HardRankingResponse>(`https://hard-archive.com/api/v2/ranking/top-rank`),
         apiClient.getProxy<TotalRankingResponse>(`https://hard-archive.com/api/v2/ranking/total`),
       ])
 
-      setDailyRankingData(dailyResponse.data.data.data)
+      setHardRankingData(hardResponse.data.data.data)
       setTotalRankingData(totalResponse.data.data.data)
     } catch (err) {
-      setError('랭킹 데이터를 불러오는 데 실패했습니다.')
+      setError(t('failedToFetchRanking'))
       createLog('error', 'fetchRankingData', {
         error: err,
       })
@@ -87,7 +87,7 @@ const DmrvHardRankingPage = () => {
   }
 
   useEffect(() => {
-    if (!dailyRankingData || !totalRankingData) {
+    if (!hardRankingData || !totalRankingData) {
       void fetchRankingData()
     }
   }, [])
@@ -156,9 +156,9 @@ const DmrvHardRankingPage = () => {
   }
 
   const getMergedRankingData = (): MergedRankingEntry[] => {
-    if (selectedRanking === 'daily') {
+    if (selectedRanking === 'hard') {
       return (
-        dailyRankingData?.chart.map((entry) => {
+        hardRankingData?.chart.map((entry) => {
           const totalEntry = totalRankingData?.chart.find(
             (item) => item.nickname === entry.nickname,
           )
@@ -172,13 +172,11 @@ const DmrvHardRankingPage = () => {
     } else {
       return (
         totalRankingData?.chart.map((entry) => {
-          const dailyEntry = dailyRankingData?.chart.find(
-            (item) => item.nickname === entry.nickname,
-          )
+          const hardEntry = hardRankingData?.chart.find((item) => item.nickname === entry.nickname)
           return {
             ...entry,
-            subRank: dailyEntry?.rank,
-            subScore: { count: dailyEntry?.count },
+            subRank: hardEntry?.rank,
+            subScore: { count: hardEntry?.count },
           }
         }) ?? []
       )
@@ -192,7 +190,7 @@ const DmrvHardRankingPage = () => {
     return (
       <div className='tw:grid tw:grid-cols-3 tw:gap-4 tw:mb-8'>
         {topThree.map((entry) => {
-          const isDaily = selectedRanking === 'daily'
+          const isHard = selectedRanking === 'hard'
           return (
             <div
               key={`top_${entry.rank}_${uuidv4()}`}
@@ -223,7 +221,7 @@ const DmrvHardRankingPage = () => {
                   <span className='tw:text-base tw:font-bold tw:text-slate-900 tw:dark:text-white tw:text-center tw:truncate tw:w-full'>
                     {entry.nickname === '#탈퇴한사용자' ? (
                       <span className='tw:text-slate-500 tw:dark:text-slate-400'>
-                        {entry.nickname}
+                        {t('deletedUser')}
                       </span>
                     ) : (
                       entry.nickname
@@ -231,14 +229,14 @@ const DmrvHardRankingPage = () => {
                   </span>
                   {entry.subRank && (
                     <span className='tw:text-xs tw:text-slate-500 tw:dark:text-slate-400'>
-                      {isDaily ? '종합' : '전일'} #{entry.subRank}
+                      {isHard ? t('total') : t('hard')} #{entry.subRank}
                     </span>
                   )}
                 </div>
               </div>
 
               <div className='tw:flex tw:flex-col tw:items-center tw:mt-3 tw:w-full'>
-                {isDaily ? (
+                {isHard ? (
                   <div className='tw:flex tw:flex-col tw:items-center tw:gap-1'>
                     <div className='tw:flex tw:items-center tw:gap-1'>
                       <Icon
@@ -246,12 +244,12 @@ const DmrvHardRankingPage = () => {
                         className='tw:w-4 tw:h-4 tw:text-indigo-600 tw:dark:text-indigo-400'
                       />
                       <span className='tw:text-sm tw:font-medium tw:text-slate-900 tw:dark:text-white'>
-                        {entry.count}개 달성
+                        {entry.count} {t('achievement')}
                       </span>
                     </div>
                     {entry.subScore && (
                       <div className='tw:text-xs tw:text-slate-500 tw:dark:text-slate-400'>
-                        종합 : {entry.subScore.c?.toFixed(1) ?? '-'}점
+                        {t('total')} : {entry.subScore.c?.toFixed(1) ?? '-'} {t('score')}
                       </div>
                     )}
                   </div>
@@ -263,12 +261,12 @@ const DmrvHardRankingPage = () => {
                         className='tw:w-4 tw:h-4 tw:text-indigo-600 tw:dark:text-indigo-400'
                       />
                       <span className='tw:text-sm tw:font-medium tw:text-slate-900 tw:dark:text-white'>
-                        {entry.score.c.toFixed(1) || '-'}점
+                        {entry.score.c.toFixed(1) || '-'} {t('score')}
                       </span>
                     </div>
                     {entry.subScore && (
                       <div className='tw:text-xs tw:text-slate-500 tw:dark:text-slate-400'>
-                        전일: {entry.subScore.count ?? '-'}개
+                        {t('hard')} : {entry.subScore.count ?? '-'} {t('achievement')}
                       </div>
                     )}
                   </div>
@@ -285,7 +283,7 @@ const DmrvHardRankingPage = () => {
     // 상위 3등은 별도로 표시하므로 건너뜀
     if (index < 3) return null
 
-    const isDaily = selectedRanking === 'daily'
+    const isHard = selectedRanking === 'hard'
     return (
       <div
         key={`${entry.rank}_${uuidv4()}`}
@@ -312,31 +310,35 @@ const DmrvHardRankingPage = () => {
           <div className='tw:flex tw:flex-col'>
             <span className='tw:text-sm tw:font-medium tw:text-slate-900 tw:dark:text-white'>
               {entry.nickname === '#탈퇴한사용자' ? (
-                <span className='tw:text-slate-400 tw:dark:text-slate-500'>{entry.nickname}</span>
+                <span className='tw:text-slate-400 tw:dark:text-slate-500'>{t('deletedUser')}</span>
               ) : (
                 entry.nickname
               )}
             </span>
             {entry.subRank && (
               <span className='tw:text-xs tw:text-slate-500 tw:dark:text-slate-400'>
-                {isDaily ? '종합' : '전일'} #{entry.subRank}
+                {isHard ? t('total') : t('hard')} #{entry.subRank}
               </span>
             )}
           </div>
         </div>
         <div className='tw:flex tw:flex-col tw:items-end tw:gap-1'>
-          {isDaily ? (
+          {isHard ? (
             <>
               <div className='tw:flex tw:items-center tw:gap-1 tw:text-sm tw:font-medium tw:text-slate-900 tw:dark:text-white'>
                 <Icon
                   icon='lucide:trophy'
                   className='tw:w-4 tw:h-4 tw:text-indigo-600 tw:dark:text-indigo-400'
                 />
-                <span>{entry.count}개 달성</span>
+                <span>
+                  {entry.count} {t('achievement')}
+                </span>
               </div>
               {entry.subScore && (
                 <div className='tw:flex tw:items-center tw:gap-2 tw:text-xs tw:text-slate-500 tw:dark:text-slate-400'>
-                  <span>종합 : {entry.subScore.c?.toFixed(1) ?? '-'}점</span>
+                  <span>
+                    {t('total')} : {entry.subScore.c?.toFixed(1) ?? '-'} {t('score')}
+                  </span>
                 </div>
               )}
             </>
@@ -347,11 +349,15 @@ const DmrvHardRankingPage = () => {
                   icon='lucide:bar-chart-2'
                   className='tw:w-4 tw:h-4 tw:text-indigo-600 tw:dark:text-indigo-400'
                 />
-                <span>{entry.score.c.toFixed(1) || '-'}점</span>
+                <span>
+                  {entry.score.c.toFixed(1) || '-'} {t('score')}
+                </span>
               </div>
               {entry.subScore && (
                 <div className='tw:flex tw:items-center tw:gap-2 tw:text-xs tw:text-slate-500 tw:dark:text-slate-400'>
-                  <span>전일: {entry.subScore.count ?? '-'}개</span>
+                  <span>
+                    {t('hard')} : {entry.subScore.count ?? '-'} {t('achievement')}
+                  </span>
                 </div>
               )}
             </>
@@ -369,20 +375,24 @@ const DmrvHardRankingPage = () => {
           {/* 헤더 */}
           <div className='tw:flex tw:justify-between tw:items-center tw:border-b tw:border-slate-200 tw:dark:border-slate-700 tw:pb-4'>
             <div className='tw:flex tw:items-center tw:gap-4'>
-              <h1 className='tw:text-xl tw:font-bold tw:text-slate-900 tw:dark:text-white'>랭킹</h1>
+              <h1 className='tw:text-xl tw:font-bold tw:text-slate-900 tw:dark:text-white'>
+                {t('ranking')}
+              </h1>
               <div className='tw:flex tw:gap-2'>
                 <button
                   onClick={() => {
-                    handleRankingTypeChange('daily')
+                    handleRankingTypeChange('hard')
                   }}
                   className={`tw:px-4 tw:py-1.5 tw:text-sm tw:rounded-md tw:transition-all tw:flex tw:items-center tw:gap-1 ${
-                    selectedRanking === 'daily'
+                    selectedRanking === 'hard'
                       ? 'tw:bg-indigo-600 tw:text-white'
                       : 'tw:bg-slate-100 tw:dark:bg-slate-700 tw:text-slate-600 tw:dark:text-slate-300 hover:tw:bg-slate-200 hover:tw:dark:bg-slate-600'
                   }`}
                 >
                   <Icon icon='lucide:trophy' className='tw:w-4 tw:h-4' />
-                  <span>전일 랭킹</span>
+                  <span>
+                    {t('hard')} {t('ranking')}
+                  </span>
                 </button>
                 <button
                   onClick={() => {
@@ -395,7 +405,9 @@ const DmrvHardRankingPage = () => {
                   }`}
                 >
                   <Icon icon='lucide:bar-chart-2' className='tw:w-4 tw:h-4' />
-                  <span>종합 랭킹</span>
+                  <span>
+                    {t('total')} {t('ranking')}
+                  </span>
                 </button>
               </div>
             </div>
@@ -406,25 +418,25 @@ const DmrvHardRankingPage = () => {
               className='tw:bg-indigo-600 hover:tw:bg-indigo-700 tw:text-white tw:px-4 tw:py-1.5 tw:text-sm tw:rounded-md tw:transition-all tw:flex tw:items-center tw:gap-1'
             >
               <Icon icon='lucide:refresh-cw' className='tw:w-4 tw:h-4' />
-              <span>새로고침</span>
+              <span>{t('refresh')}</span>
             </button>
           </div>
 
           {/* 업데이트 시간 */}
           <div className='tw:flex tw:items-center tw:mb-2'>
-            {selectedRanking === 'daily' && dailyRankingData?.renew_time ? (
+            {selectedRanking === 'hard' && hardRankingData?.renew_time ? (
               <span className='tw:ms-auto tw:text-slate-500 tw:dark:text-slate-400 tw:text-sm tw:flex tw:items-center tw:gap-1'>
                 <Icon icon='lucide:clock' className='tw:w-4 tw:h-4' />
                 <span>
-                  전일 랭킹 최종 업데이트:{' '}
-                  {dayjs.unix(dailyRankingData.renew_time).locale('ko').format('LLL')}
+                  {t('hard')} {t('ranking')} {t('finalUpdate')}:{' '}
+                  {dayjs.unix(hardRankingData.renew_time).locale('ko').format('LLL')}
                 </span>
               </span>
             ) : selectedRanking === 'total' && totalRankingData?.renew_time ? (
               <span className='tw:ms-auto tw:text-slate-500 tw:dark:text-slate-400 tw:text-sm tw:flex tw:items-center tw:gap-1'>
                 <Icon icon='lucide:clock' className='tw:w-4 tw:h-4' />
                 <span>
-                  종합 랭킹 최종 업데이트:{' '}
+                  {t('total')} {t('ranking')} {t('finalUpdate')}:{' '}
                   {dayjs.unix(totalRankingData.renew_time).locale('ko').format('LLL')}
                 </span>
               </span>
@@ -444,7 +456,7 @@ const DmrvHardRankingPage = () => {
           ) : getMergedRankingData().length === 0 ? (
             <div className='tw:text-slate-500 tw:dark:text-slate-400 tw:text-center tw:py-12 tw:flex tw:flex-col tw:items-center tw:gap-2'>
               <Icon icon='lucide:info' className='tw:w-8 tw:h-8' />
-              <span>랭킹 데이터가 없습니다</span>
+              <span>{t('noRankingData')}</span>
             </div>
           ) : (
             <>

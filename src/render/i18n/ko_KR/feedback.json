@@ -1,0 +1,57 @@
+{
+  "title": "피드백 센터",
+  "createFeedback": "피드백 생성",
+  "loginRequired": "피드백 생성은 로그인이 필요합니다.",
+  "description": "버그 신고, 의견 제공 등의 피드백을 작성 및 확인 할 수 있는 공간입니다. 부적절한 언어 사용과 문제 발생 시 피드백 센터의 이용 제한 조치가 이루어질 수 있습니다.",
+  "statusExplanation": {
+    "title": "상태 설명",
+    "open": "OPEN 상태는 아직 개발자가 확인하지 않은 단계를 의미하며 해당 내용이 확인된 경우 IN_PROGRESS 상태로 전환됩니다.",
+    "closed": "CLOSED 상태인 경우 해당 피드백에 대한 조치가 완료 되었다는 것을 의미하며 원본 내용을 유지하기 위해 추가 의견을 작성할 수 없습니다."
+  },
+  "pinned": "고정됨",
+  "list": "목록",
+  "tableHeader": {
+    "category": "카테고리",
+    "title": "제목",
+    "status": "상태",
+    "author": "작성자",
+    "date": "작성일"
+  },
+  "status": {
+    "OPEN": "신규",
+    "IN_PROGRESS": "처리중",
+    "CLOSED": "완료"
+  },
+  "category": {
+    "NOTICE": "공지사항",
+    "BUG": "버그 제보",
+    "FEATURE_REQUEST": "기능 요청",
+    "QUESTION": "질문",
+    "OTHER": "기타"
+  },
+  "feedbackCreation": {
+    "title": "피드백 작성하기",
+    "inputTitle": "제목",
+    "titlePlaceholder": "제목을 입력하세요",
+    "category": "카테고리",
+    "content": "내용",
+    "contentPlaceholder": "내용을 입력하세요",
+    "cancel": "취소",
+    "submit": "작성하기"
+  },
+  "detail": {
+    "backToList": "피드백 센터로 돌아가기",
+    "status": "상태",
+    "author": "작성자",
+    "createdAt": "작성 시간",
+    "comments": "추가 의견",
+    "commentPlaceholder": "추가 의견을 작성해주세요. 부적절한 언어 사용과 문제 발생 시 피드백 센터의 이용 제한 조치가 이루어질 수 있습니다.",
+    "submit": "작성하기",
+    "closedExplanation": "관리자가 해당 피드백의 상태를 CLOSED로 변경하여 추가 의견을 더 이상 작성할 수 없습니다.",
+    "loginRequired": "추가 의견 작성은 로그인이 필요합니다."
+  },
+  "error": {
+    "fetchFeedbackPageFailed": "피드백 목록을 불러오는데 실패했습니다.",
+    "createBugFailed": "피드백 생성에 실패했습니다."
+  }
+}

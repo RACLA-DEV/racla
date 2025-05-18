@@ -74,6 +74,9 @@
     "updateAvailable": "V{{version}} 업데이트 준비 중 ",
     "downloading": "V{{version}} 업데이트 다운로드 중 ({{percent}}%)",
     "downloaded": "V{{version}} 업데이트 적용을 위해 앱 재시작이 필요합니다.",
-    "clickToUpdate": "클릭 시 앱을 재시작합니다."
+    "clickToUpdate": "클릭 시 앱을 재시작합니다.",
+    "newVersion": "업데이트 내용",
+    "checkUpdates": "업데이트 내용",
+    "confirmAndDontShowAgain": "확인 및 다시 보지 않기"
   }
 }

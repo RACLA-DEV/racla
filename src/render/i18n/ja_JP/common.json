@@ -1,0 +1,82 @@
+{
+  "copyright": "Developed by RACLA from 공감대로0번길(GGDRN0 STUDIO)",
+  "general": {
+    "time_hour": "時",
+    "time_minute": "分",
+    "time_second": "秒",
+    "time_day": "日",
+    "time_month": "月",
+    "time_year": "年",
+    "time_ago": "前",
+    "time_before": "前",
+    "time_after": "後",
+    "time_just_now": "たった今",
+    "hour": "時間",
+    "minute": "分",
+    "second": "秒",
+    "day": "日",
+    "week": "週",
+    "month": "ヶ月",
+    "year": "年"
+  },
+  "externalLinkModal": {
+    "title": "外部リンクを開く",
+    "description": "このリンクはブラウザで開きます。信頼できるリンクであることを確認してから移動してください。",
+    "open": "開く",
+    "cancel": "キャンセル"
+  },
+  "database": {
+    "syncSuccess": "{{gameName}} データベース同期成功 :)",
+    "syncError": "{{gameName}} データベース同期失敗 :(",
+    "syncLocalSuccess": "{{gameName}} ローカルデータベース読み込み成功",
+    "syncLocalError": "{{gameName}} ローカルデータベース読み込み失敗"
+  },
+  "auth": {
+    "login": "ログイン",
+    "loginWithDiscord": "Discordでログイン",
+    "loginWithVArchive": "V-ARCHIVEでログイン",
+    "logout": "ログアウト",
+    "register": "アカウント作成",
+    "backToLogin": "ログイン画面に戻る",
+    "loginSuccess": "{{userName}}さん、RACLAへようこそ。",
+    "loginFailed": "ログインに失敗しました。もう一度お試しください。",
+    "logoutSuccess": "正常にログアウトしました。",
+    "logoutFailed": "ログアウトに失敗しました。もう一度お試しください。",
+    "invalidVArchiveUserInfo": "無効なユーザー情報です。V-ARCHIVE公式クライアントで作成したログインデータ(account.txt)ファイルを選択してください。",
+    "vArchiveServerError": "V-ARCHIVEサーバー接続中にエラーが発生しました。",
+    "vArchiveLoginFailed": "V-ARCHIVEログインに失敗しました。もう一度お試しください。",
+    "unknownError": "不明なエラーが発生しました。もう一度お試しください。",
+    "discordLoginCanceled": "Discordログインがキャンセルされました。",
+    "discordLoginFailed": "Discordログインに失敗しました。もう一度お試しください。",
+    "announcement_1": "RACLAはV-ARCHIVEとDiscordのユーザーデータを収集・使用しています。",
+    "announcement_2": "V-ARCHIVEアカウント未連携の場合、DJMAX RESPECT Vサービスの一部機能は使用できません。",
+    "announcement_3": "V-ARCHIVEまたはDiscordで初回ログイン時、自動的にRACLAアカウントが作成され、該当するサービスのアカウント情報と連携されます。",
+    "announcement_4": "連携に関する設定はログイン後、設定ページで確認できます。",
+    "announcement_5": "V-ARCHIVE公式クライアントダウンロードはこちら"
+  },
+  "ui": {
+    "minimize": "最小化",
+    "restore": "元のサイズに戻す",
+    "maximize": "最大化",
+    "close": "閉じる",
+    "sidebarCollapse": "サイドバーを閉じる",
+    "sidebarExpand": "サイドバーを開く",
+    "back": "戻る",
+    "refresh": "更新"
+  },
+  "theme": {
+    "light": "ライトモード",
+    "dark": "ダークモード",
+    "changeLight": "ライトモードに切り替え",
+    "changeDark": "ダークモードに切り替え"
+  },
+  "update": {
+    "updateAvailable": "V{{version}} アップデート準備中",
+    "downloading": "V{{version}} アップデートダウンロード中 ({{percent}}%)",
+    "downloaded": "V{{version}} アップデート適用のためアプリの再起動が必要です。",
+    "clickToUpdate": "クリックするとアプリが再起動します。",
+    "newVersion": "アップデート内容",
+    "checkUpdates": "アップデート内容",
+    "confirmAndDontShowAgain": "確認して次回から表示しない"
+  }
+}

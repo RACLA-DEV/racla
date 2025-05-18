@@ -15,6 +15,10 @@ contextBridge.exposeInMainWorld('electron', {
   // 프로세스 관련
   getPsList: (): Promise<ProcessDescriptor[]> => ipcRenderer.invoke('process-manager:list'),
 
+  // 메인 윈도우 관련
+  onMainWindowMessage: (callback: (data: any) => void) =>
+    ipcRenderer.on('main-window-msg', (_event, data) => callback(data)),
+
   // 오버레이 관련
   createOverlay: (): Promise<boolean> => ipcRenderer.invoke('overlay:create'),
   sendToOverlay: (message: string): Promise<boolean> => ipcRenderer.invoke('overlay:send', message),
@@ -101,4 +105,6 @@ contextBridge.exposeInMainWorld('electron', {
   // OCR 관련
   getOcrResultServer: (data: { image: Buffer; gameCode: string }) =>
     ipcRenderer.invoke('ocr-manager:get-ocr-result-server', data),
+  processImagesBatch: (data: { images: Buffer[]; gameCode: string }) =>
+    ipcRenderer.invoke('ocr-manager:process-images-batch', data),
 })

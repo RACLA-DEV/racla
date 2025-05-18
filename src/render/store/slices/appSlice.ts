@@ -1,12 +1,32 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit'
 import { globalDictionary } from '@render/constants/globalDictionary'
 import { createLog } from '@render/libs/logger'
+import { OcrPlayDataResponse } from '@src/types/dto/ocr/OcrPlayDataResponse'
 import type { GameType } from '@src/types/games/GameType'
 import { SongData } from '@src/types/games/SongData'
 import type { Notification } from '@src/types/notifications/Notification'
-import type { AppState } from '@src/types/redux/AppState'
+import type { AppState, GameOcrStates, OcrProcessState } from '@src/types/redux/AppState'
 import { SessionData } from '@src/types/sessions/SessionData'
 import { SettingsData } from '@src/types/settings/SettingData'
+import { persistReducer } from 'redux-persist'
+import storage from 'redux-persist/lib/storage'
+
+// 기본 OCR 상태
+const defaultOcrState: OcrProcessState = {
+  results: [],
+  totalImages: 0,
+  processedImages: 0,
+  isProcessing: false,
+  lastProcessedAt: null,
+  gameCode: null,
+}
+
+// 게임별 OCR 상태 초기화
+const initialGameOcrStates: GameOcrStates = {
+  djmax_respect_v: { ...defaultOcrState, gameCode: 'djmax_respect_v' },
+  wjmax: { ...defaultOcrState, gameCode: 'wjmax' },
+  platina_lab: { ...defaultOcrState, gameCode: 'platina_lab' },
+}
 
 const initialState: AppState = {
   selectedGame: 'djmax_respect_v',
@@ -49,16 +69,20 @@ const initialState: AppState = {
     },
   },
   refresh: false,
+  // 게임별 OCR 상태 초기화
+  gameOcrStates: initialGameOcrStates,
+  // 현재 선택된 게임의 OCR 처리 상태 (호환성 유지)
+  ocrProcessState: { ...defaultOcrState },
 }
 
 // 노래 데이터 유효성 검증 함수
 const isValidSongData = (data: SongData[], gameCode: GameType): boolean => {
   if (!gameCode || typeof gameCode !== 'string') {
-    createLog('error', `setSongData: 유효하지 않은 게임코드: ${String(gameCode)}`)
+    createLog('error', `setSongData: Not valid game code: ${String(gameCode)}`)
     return false
   }
 
-  createLog('debug', `setSongData: ${gameCode} 데이터 설정 중, 항목 수: ${data.length}`)
+  createLog('debug', `setSongData: Setting ${gameCode} data, item count: ${data.length}`)
   return true
 }
 
@@ -82,10 +106,10 @@ const updateSongDataIfValidGameCode = (
       if (Object.prototype.hasOwnProperty.call(state.songData.lastUpdated, validKey)) {
         state.songData.lastUpdated[validKey] = Date.now()
       }
-      createLog('debug', `setSongData: ${gameCode} 데이터 설정 완료`)
+      createLog('debug', `setSongData: ${gameCode} data set complete`)
     }
   } else {
-    createLog('error', `유효하지 않은 게임 코드`)
+    createLog('error', `Not valid game code`)
   }
 }
 
@@ -100,6 +124,10 @@ export const appSlice = createSlice({
   reducers: {
     setSelectedGame: (state, action: PayloadAction<GameType>) => {
       state.selectedGame = action.payload
+      // 선택한 게임의 OCR 상태를 현재 OCR 상태로 설정 (호환성 유지)
+      if (isValidGameCode(action.payload)) {
+        state.ocrProcessState = state.gameOcrStates[action.payload]
+      }
     },
     setIsSetting: (state, action: PayloadAction<boolean>) => {
       state.isSetting = action.payload
@@ -223,8 +251,133 @@ export const appSlice = createSlice({
     setRefresh: (state, action: PayloadAction<boolean>) => {
       state.refresh = action.payload
     },
+    // OCR 처리 시작
+    startOcrProcess: (
+      state,
+      action: PayloadAction<{ totalImages: number; gameCode: GameType }>,
+    ) => {
+      const gameCode = action.payload.gameCode
+
+      if (isValidGameCode(gameCode)) {
+        // 게임별 OCR 상태 업데이트
+        state.gameOcrStates[gameCode] = {
+          ...state.gameOcrStates[gameCode],
+          totalImages: action.payload.totalImages,
+          processedImages: 0,
+          isProcessing: true,
+          lastProcessedAt: Date.now(),
+        }
+
+        // 현재 선택된 게임의 OCR 상태도 업데이트 (호환성 유지)
+        if (state.selectedGame === gameCode) {
+          state.ocrProcessState = state.gameOcrStates[gameCode]
+        }
+
+        createLog(
+          'debug',
+          `OCR process start: ${action.payload.totalImages} images, game: ${gameCode}`,
+        )
+      }
+    },
+    // OCR 결과 추가
+    addOcrResult: (state, action: PayloadAction<OcrPlayDataResponse>) => {
+      const gameCode = action.payload.gameCode as GameType
+
+      if (isValidGameCode(gameCode)) {
+        // 해당 게임의 OCR 결과에 추가
+        const gameOcrState = state.gameOcrStates[gameCode]
+
+        // 최대 20개까지만 저장
+        if (gameOcrState.results.length >= 20) {
+          gameOcrState.results.pop() // 가장 오래된 결과 제거
+        }
+
+        // 새 결과를 배열 맨 앞에 추가 (최신순 정렬)
+        gameOcrState.results.unshift(action.payload)
+        gameOcrState.processedImages += 1
+        gameOcrState.lastProcessedAt = Date.now()
+
+        // 현재 선택된 게임의 OCR 상태도 업데이트 (호환성 유지)
+        if (state.selectedGame === gameCode) {
+          state.ocrProcessState = gameOcrState
+        }
+
+        createLog(
+          'debug',
+          `OCR result added: ${gameOcrState.processedImages}/${gameOcrState.totalImages}, game: ${gameCode}`,
+        )
+      }
+    },
+    // 특정 OCR 결과 삭제
+    removeOcrResult: (state, action: PayloadAction<{ index: number; gameCode: GameType }>) => {
+      const { index, gameCode } = action.payload
+
+      if (isValidGameCode(gameCode)) {
+        const gameOcrState = state.gameOcrStates[gameCode]
+
+        if (index >= 0 && index < gameOcrState.results.length) {
+          gameOcrState.results.splice(index, 1)
+
+          // 현재 선택된 게임의 OCR 상태도 업데이트 (호환성 유지)
+          if (state.selectedGame === gameCode) {
+            state.ocrProcessState = gameOcrState
+          }
+
+          createLog(
+            'debug',
+            `OCR result ${index} deleted, game: ${gameCode}, remaining results: ${gameOcrState.results.length}`,
+          )
+        }
+      }
+    },
+    // OCR 처리 완료
+    completeOcrProcess: (state, action: PayloadAction<GameType>) => {
+      const gameCode = action.payload
+
+      if (isValidGameCode(gameCode)) {
+        state.gameOcrStates[gameCode].isProcessing = false
+        state.gameOcrStates[gameCode].lastProcessedAt = Date.now()
+
+        // 현재 선택된 게임의 OCR 상태도 업데이트 (호환성 유지)
+        if (state.selectedGame === gameCode) {
+          state.ocrProcessState = state.gameOcrStates[gameCode]
+        }
+
+        createLog(
+          'debug',
+          `OCR process complete, game: ${gameCode}, total ${state.gameOcrStates[gameCode].processedImages} results`,
+        )
+      }
+    },
+    // OCR 결과 초기화
+    clearOcrResults: (state, action: PayloadAction<GameType>) => {
+      const gameCode = action.payload
+
+      if (isValidGameCode(gameCode)) {
+        state.gameOcrStates[gameCode].results = []
+        state.gameOcrStates[gameCode].processedImages = 0
+        state.gameOcrStates[gameCode].totalImages = 0
+        state.gameOcrStates[gameCode].lastProcessedAt = null
+        state.gameOcrStates[gameCode].isProcessing = false
+
+        // 현재 선택된 게임의 OCR 상태도 업데이트 (호환성 유지)
+        if (state.selectedGame === gameCode) {
+          state.ocrProcessState = state.gameOcrStates[gameCode]
+        }
+
+        createLog('debug', `OCR results cleared, game: ${gameCode}`)
+      }
+    },
   },
 })
+
+// Redux Persist 설정
+const persistConfig = {
+  key: 'ocrResults',
+  storage,
+  // 필요한 상태만 유지
+  whitelist: ['gameOcrStates', 'ocrProcessState'],
+}
 
 export const {
   setSelectedGame,
@@ -247,6 +400,12 @@ export const {
   clearAllNotifications,
   deleteAllNotifications,
   setRefresh,
+  // OCR 관련 액션
+  startOcrProcess,
+  addOcrResult,
+  removeOcrResult,
+  completeOcrProcess,
+  clearOcrResults,
 } = appSlice.actions
 
-export default appSlice.reducer
+export default persistReducer(persistConfig, appSlice.reducer)

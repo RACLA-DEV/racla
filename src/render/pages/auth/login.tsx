@@ -1,10 +1,11 @@
 import { Icon } from '@iconify/react/dist/iconify.js'
 import { createLog } from '@render/libs/logger'
+import { RootState } from '@render/store'
 import { setIsOpenExternalLink, setOpenExternalLink } from '@render/store/slices/uiSlice'
 import { SessionData } from '@src/types/sessions/SessionData'
 import { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import apiClient from '../../../libs/apiClient'
 import { useAuth } from '../../hooks/useAuth'
@@ -16,6 +17,7 @@ export default function LoginPage() {
   const { showNotification } = useNotificationSystem()
   const dispatch = useDispatch()
   const { t } = useTranslation()
+  const { language } = useSelector((state: RootState) => state.app.settingData)
 
   const raFileInputRef = useRef<HTMLInputElement>(null)
   const vArchiveFileInputRef = useRef<HTMLInputElement>(null)
@@ -206,7 +208,9 @@ export default function LoginPage() {
                     icon='lucide:info'
                     className='tw:mt-0.5 tw:min-w-4 tw:h-4 tw:text-indigo-500 tw:dark:text-indigo-400'
                   />
-                  <div className='tw:flex tw:flex-col tw:gap-1 tw:break-keep'>
+                  <div
+                    className={`tw:flex tw:flex-col tw:gap-1 ${language !== 'ja_JP' ? 'tw:break-keep' : ''}`}
+                  >
                     <p>{t('auth.announcement_1')}</p>
                     <p>{t('auth.announcement_2')}</p>
                     <p>{t('auth.announcement_3')}</p>

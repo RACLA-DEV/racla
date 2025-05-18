@@ -1,0 +1,34 @@
+{
+  "noDifficultyInfo": "No Difficulty Information",
+  "stat": "Statistic",
+  "stats": "Statistics",
+  "clear": "Clear",
+  "perfect": "Perfect",
+  "over999": {
+    "name": "99.9%+",
+    "fullName": "Score 99.9% or higher"
+  },
+  "over995": {
+    "name": "99.5%+",
+    "fullName": "Score 99.5% or higher"
+  },
+  "over99": {
+    "name": "99.0%+",
+    "fullName": "Score 99.0% or higher"
+  },
+  "over97": {
+    "name": "97.0%+",
+    "fullName": "Score 97.0% or higher"
+  },
+  "under97": {
+    "name": "97.0%-",
+    "fullName": "Score below 97.0%"
+  },
+  "maxCombo": "Max Combo",
+  "withoutMaxCombo": "Clear without Max Combo",
+  "noRecord": "Not Cleared (No Record)",
+  "all": "All",
+  "total": "Total",
+  "best": "Best",
+  "achievement": "Achievement Record"
+}

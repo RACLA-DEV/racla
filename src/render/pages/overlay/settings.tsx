@@ -6,20 +6,23 @@ import { globalDictionary } from '@render/constants/globalDictionary'
 import { RootState } from '@render/store'
 import { setSettingData } from '@render/store/slices/appSlice'
 import { SettingsData } from '@src/types/settings/SettingData'
+import { useTranslation } from 'react-i18next'
 
 // 이미지 키 상수 정의
 const IMAGE_KEYS = {
   DEFAULT: 'RESULT_OVERLAY_EXAMPLE',
   UPLOAD: 'RESULT_OVERLAY_EXAMPLE_UPLOAD',
-  HJA: 'RESULT_OVERLAY_EXAMPLE_HJA',
   RECENT: 'RESULT_OVERLAY_EXAMPLE_RECENT',
+  HARD_JUDGEMENT_PLAY_RECORD: 'RESULT_OVERLAY_EXAMPLE_HJA',
 }
 
 const OverlaySettingsPage = () => {
   const dispatch = useDispatch()
+  const { t } = useTranslation(['overlay'])
   const { settingData } = useSelector((state: RootState) => state.app)
   const [activeImage, setActiveImage] = useState<string>(IMAGE_KEYS.DEFAULT)
   const [isTransitioning, setIsTransitioning] = useState<boolean>(false)
+  const { language } = useSelector((state: RootState) => state.app.settingData)
   const [preloadedImages, setPreloadedImages] = useState<Set<string>>(new Set([IMAGE_KEYS.DEFAULT]))
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
 
@@ -192,7 +195,11 @@ const OverlaySettingsPage = () => {
             />
           </button>
         </div>
-        <span className='tw:text-sm tw:font-normal tw:text-slate-600 tw:dark:text-slate-400 tw:break-keep tw:mb-2'>
+        <span
+          className={`tw:text-sm tw:font-normal tw:text-slate-600 tw:dark:text-slate-400 ${
+            language !== 'ja_JP' ? 'tw:break-keep' : ''
+          } tw:mb-2`}
+        >
           {description}
         </span>
       </div>
@@ -211,21 +218,21 @@ const OverlaySettingsPage = () => {
                 className='tw:w-6 tw:h-6 tw:text-indigo-600 tw:dark:text-indigo-400'
               />
               <span className='tw:text-xl tw:font-bold tw:text-slate-900 tw:dark:text-white'>
-                오버레이 설정
+                {t('overlaySettings')}
               </span>
             </div>
           </div>
 
           <div className='tw:bg-slate-50 tw:dark:bg-slate-700/30 tw:p-4 tw:rounded-md tw:border tw:border-slate-200 tw:dark:border-slate-600'>
             <p className='tw:leading-relaxed tw:text-slate-700 tw:dark:text-slate-300'>
-              게임 실행 중 표시되는 오버레이의 설정을 변경할 수 있습니다.
+              {t('overlaySettingsDescription')}
             </p>
           </div>
 
           <div className='tw:flex tw:justify-end tw:gap-2 tw:items-start tw:text-xs tw:font-semibold'>
             <Icon icon='lucide:info' className='tw:mt-0.5 tw:text-indigo-500' />
             <div className='tw:flex tw:flex-col tw:gap-1 tw:text-slate-600 tw:dark:text-slate-400'>
-              <span>추후 더 많은 오버레이 기능을 제공할 예정입니다.</span>
+              <span>{t('overlaySettingsFuture')}</span>
             </div>
           </div>
         </div>
@@ -233,8 +240,8 @@ const OverlaySettingsPage = () => {
       <div className='tw:flex tw:gap-6'>
         <div className='tw:flex tw:flex-col tw:gap-4 tw:flex-1'>
           <OverlaySettingCard
-            title='결과 오버레이 표시'
-            description='자동 캡쳐 또는 수동 캡쳐 모드에서 캡쳐한 결과와 처리 과정을 인게임 오버레이로 표시합니다. DJMAX RESPECT V는 V-ARCHIVE와 연동이 필요하며, 버서스/래더 매치 화면은 지원하지 않습니다.'
+            title={t('resultOverlay')}
+            description={t('resultOverlayDescription')}
             settingKey='resultOverlay'
             value={settingData.resultOverlay}
             icon='lucide:layout-dashboard'
@@ -242,8 +249,8 @@ const OverlaySettingsPage = () => {
           />
 
           <OverlaySettingCard
-            title='결과 오버레이 표시 시 최근 기록 오버레이 표시'
-            description='결과 오버레이 표시 시 해당 수록곡 패턴의 RACLA 최근 기록 정보를 표시합니다.'
+            title={t('recentOverlay')}
+            description={t('recentOverlayDescription')}
             settingKey='recentOverlay'
             value={settingData.recentOverlay}
             icon='lucide:clock'
@@ -251,12 +258,12 @@ const OverlaySettingsPage = () => {
           />
 
           <OverlaySettingCard
-            title='결과 오버레이 표시 시 전일 기록 오버레이 표시'
-            description='DJMAX RESPECT V의 결과 오버레이 표시 시 전일 아카이브에 등록된 최고 기록 정보를 표시합니다. WJMAX와 PLATiNA :: LAB은 RACLA 기록을 바탕으로 추후 지원 예정입니다.'
-            settingKey='hjaOverlay'
-            value={settingData.hjaOverlay}
+            title={t('hardJudgementPlayRecordOverlay')}
+            description={t('hardJudgementPlayRecordOverlayDescription')}
+            settingKey='hardJudgementPlayRecordOverlay'
+            value={settingData.hardJudgementPlayRecordOverlay}
             icon='lucide:history'
-            imageKey={IMAGE_KEYS.HJA}
+            imageKey={IMAGE_KEYS.HARD_JUDGEMENT_PLAY_RECORD}
           />
         </div>
 
@@ -301,20 +308,20 @@ const OverlaySettingsPage = () => {
                 <Icon icon='lucide:upload' className='tw:w-5 tw:h-5' />
               </button>
               <button
-                className={`tw:p-2 tw:rounded-md tw:transition-all ${activeImage === IMAGE_KEYS.HJA ? 'tw:bg-indigo-600 tw:text-white' : 'tw:bg-slate-100 tw:dark:bg-slate-700 tw:text-slate-600 tw:dark:text-slate-300'}`}
-                onClick={() => {
-                  handleImageChange(IMAGE_KEYS.HJA)
-                }}
-              >
-                <Icon icon='lucide:history' className='tw:w-5 tw:h-5' />
-              </button>
-              <button
                 className={`tw:p-2 tw:rounded-md tw:transition-all ${activeImage === IMAGE_KEYS.RECENT ? 'tw:bg-indigo-600 tw:text-white' : 'tw:bg-slate-100 tw:dark:bg-slate-700 tw:text-slate-600 tw:dark:text-slate-300'}`}
                 onClick={() => {
                   handleImageChange(IMAGE_KEYS.RECENT)
                 }}
               >
                 <Icon icon='lucide:clock' className='tw:w-5 tw:h-5' />
+              </button>
+              <button
+                className={`tw:p-2 tw:rounded-md tw:transition-all ${activeImage === IMAGE_KEYS.HARD_JUDGEMENT_PLAY_RECORD ? 'tw:bg-indigo-600 tw:text-white' : 'tw:bg-slate-100 tw:dark:bg-slate-700 tw:text-slate-600 tw:dark:text-slate-300'}`}
+                onClick={() => {
+                  handleImageChange(IMAGE_KEYS.HARD_JUDGEMENT_PLAY_RECORD)
+                }}
+              >
+                <Icon icon='lucide:history' className='tw:w-5 tw:h-5' />
               </button>
             </div>
           </div>

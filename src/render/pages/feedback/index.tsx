@@ -10,6 +10,7 @@ import { FeedbackPageResponse, FeedbackResponse } from '@src/types/dto/feedback/
 import { FileUploadResponse } from '@src/types/dto/file/FileUploadResponse'
 import dayjs from 'dayjs'
 import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
 import { useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { PuffLoader } from 'react-spinners'
@@ -277,6 +278,7 @@ export default function FeedbackListPage() {
   const [newBug, setNewBug] = useState({ title: '', description: '', category: 'OTHER' })
   const [loading, setLoading] = useState(false)
   const { userData } = useSelector((state: RootState) => state.app)
+  const { t } = useTranslation(['feedback'])
 
   const { showNotification } = useNotificationSystem()
 
@@ -433,31 +435,11 @@ export default function FeedbackListPage() {
   }
 
   const categoryCodeToName = (category: string) => {
-    switch (category) {
-      case 'NOTICE':
-        return '공지사항'
-      case 'BUG':
-        return '버그 제보'
-      case 'FEATURE_REQUEST':
-        return '기능 요청'
-      case 'QUESTION':
-        return '질문'
-      case 'OTHER':
-        return '기타'
-      default:
-        return category
-    }
+    return t(`category.${category}`)
   }
 
   const statusCodeToName = (status: string) => {
-    switch (status) {
-      case 'OPEN':
-        return '신규'
-      case 'IN_PROGRESS':
-        return '처리중'
-      case 'CLOSED':
-        return '완료'
-    }
+    return t(`status.${status}`)
   }
 
   return (
@@ -466,12 +448,12 @@ export default function FeedbackListPage() {
       <motion.div
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: 1, x: 0 }}
-        className='tw:flex tw:flex-col tw:gap-4'
+        className='tw:flex tw:flex-col tw:gap-4 tw:p-2'
       >
         <div className='tw:flex tw:flex-col tw:gap-4 tw:bg-white tw:dark:bg-slate-800 tw:rounded-lg tw:text-sm'>
           <div className='tw:flex tw:justify-between tw:items-center'>
             <h1 className='tw:text-2xl tw:font-bold tw:text-gray-900 tw:dark:text-white'>
-              피드백 센터
+              {t('title')}
             </h1>
             {userData.playerName !== '' ? (
               <button
@@ -481,44 +463,38 @@ export default function FeedbackListPage() {
                 }}
                 className='tw:px-4 tw:py-1.5 tw:text-sm tw:bg-indigo-600 tw:rounded hover:tw:bg-indigo-700 tw:text-white'
               >
-                피드백 생성
+                {t('createFeedback')}
               </button>
             ) : (
-              <span className='tw:text-gray-700 tw:dark:text-gray-300'>
-                피드백 생성은 로그인이 필요합니다.
-              </span>
+              <span className='tw:text-gray-700 tw:dark:text-gray-300'>{t('loginRequired')}</span>
             )}
           </div>
 
           <div className='tw:bg-gray-50 tw:dark:bg-slate-700/50 tw:p-4 tw:rounded tw:space-y-2 tw:mb-auto tw:border tw:border-gray-200 tw:dark:border-slate-600'>
             <p className='tw:leading-relaxed tw:text-gray-700 tw:dark:text-gray-300'>
-              버그 신고, 의견 제공 등의 피드백을 작성 및 확인 할 수 있는 공간입니다. 부적절한 언어
-              사용과 문제 발생 시 피드백 센터의 이용 제한 조치가 이루어질 수 있습니다.
+              {t('description')}
             </p>
             {/* <p className='tw:leading-relaxed'>
-              OPEN 상태는 아직 개발자가 확인하지 않은 단계를 의미하며 해당 내용이 확인된 경우
-              IN_PROGRESS 상태로 전환됩니다.{' '}
+              {t('statusExplanation.open')}
             </p>
             <p className='tw:leading-relaxed'>
-              CLOSED 상태인 경우 해당 피드백에 대한 조치가 완료 되었다는 것을 의미하며 원본 내용을
-              유지하기 위해 추가 의견을 작성할 수 없습니다.
+              {t('statusExplanation.closed')}
             </p> */}
           </div>
 
           {notices.length > 0 && (
             <div className='tw:flex tw:flex-col tw:gap-2'>
               <h2 className='tw:text-xl tw:font-bold tw:text-gray-900 tw:dark:text-white'>
-                고정됨
+                {t('pinned')}
               </h2>
 
               <div className='tw:flex tw:flex-col tw:bg-white tw:dark:bg-slate-800 tw:border tw:border-gray-200 tw:dark:border-slate-700 tw:rounded-md tw:px-4 tw:py-2'>
                 <div className='tw:flex tw:items-center tw:gap-4 tw:p-2 tw:border-b tw:border-gray-200 tw:dark:border-slate-700 tw:text-gray-500 tw:dark:text-gray-400 tw:font-bold tw:text-sm'>
-                  <div className='tw:w-20'>카테고리</div>
-                  <div className='tw:flex-1'>제목</div>
-                  <div className='tw:w-16'>상태</div>
-                  <div className='tw:w-32'>작성자</div>
-                  {/* <div className='tw:w-32'>수정자</div> */}
-                  <div className='tw:w-24'>작성일</div>
+                  <div className='tw:w-20'>{t('tableHeader.category')}</div>
+                  <div className='tw:flex-1'>{t('tableHeader.title')}</div>
+                  <div className='tw:w-16'>{t('tableHeader.status')}</div>
+                  <div className='tw:w-32'>{t('tableHeader.author')}</div>
+                  <div className='tw:w-24'>{t('tableHeader.date')}</div>
                 </div>
                 {notices.map((notice, index) => (
                   <motion.div
@@ -553,19 +529,6 @@ export default function FeedbackListPage() {
                     <div className='tw:w-32 tw:text-gray-500 tw:dark:text-gray-400'>
                       {notice.reporterName}
                     </div>
-                    {/* <div className='tw:w-32 tw:text-gray-400'>
-                      {notice.comments &&
-                      notice.comments.filter((data) => data.commenterName != notice.reporterName)
-                        .length > 0
-                        ? notice.comments.filter(
-                            (data) => data.commenterName != notice.reporterName,
-                          )[
-                            notice.comments.filter(
-                              (data) => data.commenterName != notice.reporterName,
-                            ).length - 1
-                          ]?.commenterName
-                        : '없음'}
-                    </div> */}
                     <div className='tw:w-24 tw:text-gray-500 tw:dark:text-gray-400'>
                       {dayjs(notice.createdAt).format('YYYY-MM-DD')}
                     </div>
@@ -581,15 +544,16 @@ export default function FeedbackListPage() {
             </div>
           ) : (
             <>
-              <h2 className='tw:text-xl tw:font-bold tw:text-gray-900 tw:dark:text-white'>목록</h2>
+              <h2 className='tw:text-xl tw:font-bold tw:text-gray-900 tw:dark:text-white'>
+                {t('list')}
+              </h2>
               <div className='tw:flex tw:flex-col tw:bg-white tw:dark:bg-slate-800 tw:border tw:border-gray-200 tw:dark:border-slate-700 tw:rounded-md tw:px-4 tw:py-2'>
                 <div className='tw:flex tw:items-center tw:gap-4 tw:p-2 tw:border-b tw:border-gray-200 tw:dark:border-slate-700 tw:text-gray-500 tw:dark:text-gray-400 tw:font-bold tw:text-sm'>
-                  <div className='tw:w-20'>카테고리</div>
-                  <div className='tw:flex-1'>제목</div>
-                  <div className='tw:w-16'>상태</div>
-                  <div className='tw:w-32'>작성자</div>
-                  {/* <div className='tw:w-32'>수정자</div> */}
-                  <div className='tw:w-24'>작성일</div>
+                  <div className='tw:w-20'>{t('tableHeader.category')}</div>
+                  <div className='tw:flex-1'>{t('tableHeader.title')}</div>
+                  <div className='tw:w-16'>{t('tableHeader.status')}</div>
+                  <div className='tw:w-32'>{t('tableHeader.author')}</div>
+                  <div className='tw:w-24'>{t('tableHeader.date')}</div>
                 </div>
                 {bugs.map((bug, index) => (
                   <motion.div
@@ -616,16 +580,6 @@ export default function FeedbackListPage() {
                     <div className='tw:w-32 tw:text-gray-500 tw:dark:text-gray-400'>
                       {bug.reporterName}
                     </div>
-                    {/* <div className='tw:w-32 tw:text-gray-400'>
-                      {bug.comments &&
-                      bug.comments.filter((data) => data.commenterName != bug.reporterName).length >
-                        0
-                        ? bug.comments.filter((data) => data.commenterName != bug.reporterName)[
-                            bug.comments.filter((data) => data.commenterName != bug.reporterName)
-                              .length - 1
-                          ]?.commenterName
-                        : '없음'}
-                    </div> */}
                     <div className='tw:w-24 tw:text-gray-500 tw:dark:text-gray-400'>
                       {dayjs(bug.createdAt).format('YYYY-MM-DD')}
                     </div>
@@ -662,13 +616,13 @@ export default function FeedbackListPage() {
             onClose={() => {
               setIsModalVisible(false)
             }}
-            title='피드백 작성하기'
+            title={t('feedbackCreation.title')}
           >
             <div className='tw:flex tw:flex-col tw:h-full'>
               <div className='tw:shrink-0 tw:mb-4 tw:flex tw:gap-4'>
                 <div className='tw:flex-1'>
                   <label className='tw:block tw:mb-2 tw:text-gray-700 tw:dark:text-gray-300'>
-                    제목
+                    {t('feedbackCreation.inputTitle')}
                   </label>
                   <input
                     type='text'
@@ -677,12 +631,12 @@ export default function FeedbackListPage() {
                       setNewBug({ ...newBug, title: e.target.value })
                     }}
                     className='tw:w-full tw:bg-white tw:dark:bg-slate-700 tw:border tw:border-gray-300 tw:dark:border-slate-600 tw:rounded-sm tw:px-3 tw:py-2 tw:text-gray-700 tw:dark:text-white focus:tw:outline-none focus:tw:ring-2 focus:tw:ring-indigo-500'
-                    placeholder='제목을 입력하세요'
+                    placeholder={t('feedbackCreation.titlePlaceholder')}
                   />
                 </div>
                 <div className='tw:flex-1'>
                   <label className='tw:block tw:mb-2 tw:text-gray-700 tw:dark:text-gray-300'>
-                    카테고리
+                    {t('feedbackCreation.category')}
                   </label>
                   <select
                     value={newBug.category}
@@ -691,24 +645,27 @@ export default function FeedbackListPage() {
                     }}
                     className='tw:w-full tw:bg-white tw:dark:bg-slate-700 tw:border tw:border-gray-300 tw:dark:border-slate-600 tw:text-gray-700 tw:dark:text-white tw:rounded-sm tw:h-9 tw:px-3 tw:py-2 focus:tw:outline-none focus:tw:ring-2 focus:tw:ring-indigo-500'
                   >
-                    <option value='BUG'>버그 제보</option>
-                    <option value='FEATURE_REQUEST'>기능 요청</option>
-                    <option value='QUESTION'>질문</option>
-                    <option value='OTHER'>기타</option>
+                    <option value='BUG'>{t('category.BUG')}</option>
+                    <option value='FEATURE_REQUEST'>{t('category.FEATURE_REQUEST')}</option>
+                    <option value='QUESTION'>{t('category.QUESTION')}</option>
+                    <option value='OTHER'>{t('category.OTHER')}</option>
                   </select>
                 </div>
               </div>
 
               <div className='tw:flex-1 tw:flex tw:flex-col tw:min-h-0 tw:rounded rich-text-content'>
                 <label className='tw:block tw:mb-2 tw:text-gray-700 tw:dark:text-gray-300'>
-                  내용
+                  {t('feedbackCreation.content')}
                 </label>
                 {editorLoaded ? (
                   <div className='editor-wrapper tw:flex-1 tw:h-full'>
                     <CKEditor
                       editor={ClassicEditor}
                       data={newBug.description}
-                      config={editorConfiguration}
+                      config={{
+                        ...editorConfiguration,
+                        placeholder: t('feedbackCreation.contentPlaceholder'),
+                      }}
                       onChange={(event: unknown, editor: ClassicEditor) => {
                         const data = editor.getData()
                         setNewBug({ ...newBug, description: data })
@@ -727,7 +684,7 @@ export default function FeedbackListPage() {
                   }}
                   className='tw:px-4 tw:py-2 tw:bg-white tw:dark:bg-slate-700 tw:text-gray-700 tw:dark:text-gray-200 tw:border tw:border-gray-300 tw:dark:border-slate-600 tw:rounded hover:tw:bg-gray-100 hover:tw:dark:bg-slate-600 tw:transition-colors'
                 >
-                  취소
+                  {t('feedbackCreation.cancel')}
                 </button>
                 <button
                   onClick={() => {
@@ -736,7 +693,7 @@ export default function FeedbackListPage() {
                   disabled={loading}
                   className='tw:px-4 tw:py-2 tw:bg-indigo-600 tw:text-white tw:rounded hover:tw:bg-indigo-700 tw:transition-colors disabled:tw:opacity-50'
                 >
-                  {loading ? <PuffLoader size={8} color='#ffffff' /> : '작성하기'}
+                  {loading ? <PuffLoader size={8} color='#ffffff' /> : t('feedbackCreation.submit')}
                 </button>
               </div>
             </div>

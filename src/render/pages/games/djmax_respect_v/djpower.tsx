@@ -7,11 +7,14 @@ import apiClient from '../../../../libs/apiClient'
 
 import { SongData } from '@src/types/games/SongData'
 import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useSelector } from 'react-redux'
 import { PuffLoader } from 'react-spinners'
 
 const DmrvDjpowerPage = () => {
+  const { t } = useTranslation(['grade'])
   const [keyMode, setKeyMode] = useState<string>('4')
+  const { language } = useSelector((state: RootState) => state.app.settingData)
   const [baseSongData, setBaseSongData] = useState<SongData[]>([])
   const [newSongData, setNewSongData] = useState<SongData[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(false)
@@ -312,10 +315,10 @@ const DmrvDjpowerPage = () => {
           {/* 설명 내용 */}
           <div className='tw:bg-slate-100 tw:dark:bg-slate-700/50 tw:p-4 tw:rounded tw:space-y-2 tw:text-sm tw:mb-auto'>
             <p className='tw:leading-relaxed tw:text-slate-700 tw:dark:text-slate-300'>
-              전 패턴을 퍼펙트 플레이를 하면 DJ CLASS 만점(이론치)을 달성할 수 있는 리스트입니다.
+              {t('djpowerDescription1')}
             </p>
             <p className='tw:leading-relaxed tw:text-slate-700 tw:dark:text-slate-300'>
-              DJ CLASS 최상위 랭커를 노린다면 최소 BASIC 70패턴, NEW 30패턴을 플레이 해야합니다.
+              {t('djpowerDescription2')}
             </p>
           </div>
         </div>
@@ -408,12 +411,16 @@ const DmrvDjpowerPage = () => {
                                   </>
                                 ) : (
                                   <span className='tw:text-xs tw:text-slate-500 tw:dark:text-slate-400'>
-                                    기록 미존재
+                                    {t('noRecord')}
                                   </span>
                                 )}
                               </div>
                             </div>
-                            <span className='tw:flex tw:bg-slate-200 tw:dark:bg-slate-700 tw:bg-opacity-25 tw:px-2 tw:py-1 tw:rounded-md tw:break-keep tw:justify-center tw:items-center tw:text-center tw:text-xs tw:text-slate-700 tw:dark:text-slate-300'>
+                            <span
+                              className={`tw:flex tw:bg-slate-200 tw:dark:bg-slate-700 tw:bg-opacity-25 tw:px-2 tw:py-1 tw:rounded-md ${
+                                language !== 'ja_JP' ? 'tw:break-keep' : ''
+                              } tw:justify-center tw:items-center tw:text-center tw:text-xs tw:text-slate-700 tw:dark:text-slate-300`}
+                            >
                               {songItem.name}
                             </span>
                           </div>
