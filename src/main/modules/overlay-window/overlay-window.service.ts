@@ -1,6 +1,7 @@
 import { join } from 'node:path'
 
 import { Injectable, Logger } from '@nestjs/common'
+import { SettingsData } from '@src/types/settings/SettingData'
 import { app, BrowserWindow, BrowserWindowConstructorOptions } from 'electron'
 
 @Injectable()
@@ -39,11 +40,30 @@ export class OverlayWindowService {
     ? `${process.env.DS_RENDERER_URL}#/overlay`
     : `file://${join(app.getAppPath(), 'dist/render/index.html')}#/overlay`
 
+  private settings: SettingsData = {}
+
+  // 설정 업데이트 메서드
+  public updateSettings(settings: SettingsData): void {
+    this.settings = settings
+    this.logger.debug('오버레이 윈도우 설정 업데이트됨')
+    if (this.settings.enableOverlayWindow === false) {
+      this.destroyOverlay()
+    } else {
+      this.createOverlayInit()
+    }
+  }
+
   public getOverlayWindow(): BrowserWindow | undefined {
     return this.overlayWindow
   }
 
   public createOverlay(): BrowserWindow | undefined {
+    // 오버레이 윈도우가 비활성화되어 있으면 생성하지 않음
+    if (this.settings.enableOverlayWindow === false) {
+      this.logger.debug('설정에 따라 오버레이 윈도우 생성이 비활성화됨')
+      return undefined
+    }
+
     if (this.overlayWindow) {
       this.overlayWindow.focus()
       return this.overlayWindow
@@ -69,6 +89,12 @@ export class OverlayWindowService {
   }
 
   public createOverlayInit(): BrowserWindow | undefined {
+    // 오버레이 윈도우가 비활성화되어 있으면 생성하지 않음
+    if (this.settings.enableOverlayWindow === false) {
+      this.logger.debug('설정에 따라 오버레이 윈도우 초기화가 비활성화됨')
+      return undefined
+    }
+
     if (this.overlayWindow) {
       this.overlayWindow.focus()
       return this.overlayWindow
@@ -101,6 +127,10 @@ export class OverlayWindowService {
   }
 
   public sendMessage(message: string): void {
+    // 오버레이 윈도우가 비활성화되어 있으면 메시지 전송하지 않음
+    if (this.settings.enableOverlayWindow === false || !this.overlayWindow) {
+      return
+    }
     this.overlayWindow?.webContents.send('overlay-msg', message)
   }
 

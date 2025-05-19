@@ -36,6 +36,7 @@ const appPersistConfig = {
     'isLoading',
     'isTrackMaker',
     'refresh',
+    'settingData',
   ],
 }
 

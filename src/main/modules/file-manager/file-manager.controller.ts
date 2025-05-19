@@ -5,16 +5,22 @@ import type { LocalSessionData } from '@src/types/sessions/LocalSessionData'
 import type { SettingsData } from '@src/types/settings/SettingData'
 import type { StorageInfo } from '@src/types/storage/StroageInfo'
 import { dialog } from 'electron'
+import { OverlayWindowService } from '../overlay-window/overlay-window.service'
 import { FileManagerService } from './file-manager.service'
 
 @Controller()
 export class FileManagerController {
   private readonly logger = new Logger(FileManagerController.name)
-  constructor(private readonly fileManagerService: FileManagerService) {}
+  constructor(
+    private readonly fileManagerService: FileManagerService,
+    private readonly overlayWindowService: OverlayWindowService,
+  ) {}
 
   @IpcHandle('file-manager:save-settings')
   saveSettings(settings: SettingsData): SettingsData {
-    return this.fileManagerService.saveSettings(settings)
+    const savedSettings = this.fileManagerService.saveSettings(settings)
+    this.overlayWindowService.updateSettings(savedSettings)
+    return savedSettings
   }
 
   @IpcHandle('file-manager:load-settings')

@@ -23,7 +23,18 @@ export class AppService implements OnApplicationBootstrap {
     this.mainWindow = BrowserWindow.getAllWindows()[0]
   }
 
-  onApplicationBootstrap() {
+  async onApplicationBootstrap() {
+    this.logger.log('Application bootstrapped')
+
+    // 앱 시작 시 설정 로드 및 오버레이 윈도우 서비스에 전달
+    try {
+      const settings = this.fileManagerService.loadSettings()
+      this.overlayWindowService.updateSettings(settings)
+      this.logger.log('설정 로드 및 오버레이 윈도우 서비스에 전달 완료')
+    } catch (error) {
+      this.logger.error('설정 로드 실패:', error)
+    }
+
     // 앱 ID 설정
     app.setAppUserModelId('RACLA')
 
@@ -128,5 +139,9 @@ export class AppService implements OnApplicationBootstrap {
   restartApp(): void {
     app.relaunch()
     app.exit(0)
+  }
+
+  getHello(): string {
+    return `Hello World! App version: ${app.getVersion()}`
   }
 }

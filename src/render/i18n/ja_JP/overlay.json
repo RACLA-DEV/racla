@@ -11,6 +11,8 @@
   "overlaySettings": "オーバーレイ設定",
   "overlaySettingsDescription": "ゲームプレイ中に表示されるオーバーレイの設定を変更できます。",
   "overlaySettingsFuture": "今後さらに多くのオーバーレイ機能を提供する予定です。",
+  "enableOverlayWindow": "オーバーレイウィンドウを有効にする",
+  "enableOverlayWindowDescription": "オーバーレイウィンドウを画面に表示するかどうかを選択します。",
   "resultOverlay": "リザルトオーバーレイ表示",
   "resultOverlayDescription": "自動キャプチャーまたは手動キャプチャーモードでキャプチャーしたリザルトと処理過程をインゲームオーバーレイとして表示します。DJMAX RESPECT VはV-ARCHIVEとの連携が必要で、バーサス/ラダーマッチ画面はサポートしていません。",
   "recentOverlay": "リザルトオーバーレイ表示時に最近の記録オーバーレイを表示",

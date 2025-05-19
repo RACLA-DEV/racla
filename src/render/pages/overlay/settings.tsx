@@ -240,6 +240,15 @@ const OverlaySettingsPage = () => {
       <div className='tw:flex tw:gap-6'>
         <div className='tw:flex tw:flex-col tw:gap-4 tw:flex-1'>
           <OverlaySettingCard
+            title={t('enableOverlayWindow')}
+            description={t('enableOverlayWindowDescription')}
+            settingKey='enableOverlayWindow'
+            value={settingData.enableOverlayWindow || false}
+            icon='lucide:monitor'
+            imageKey={IMAGE_KEYS.DEFAULT}
+          />
+
+          <OverlaySettingCard
             title={t('resultOverlay')}
             description={t('resultOverlayDescription')}
             settingKey='resultOverlay'
