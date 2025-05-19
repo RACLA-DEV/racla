@@ -1,11 +1,12 @@
 import { join } from 'node:path'
 
 import { Injectable, Logger } from '@nestjs/common'
-import { SettingsData } from '@src/types/settings/SettingData'
 import { app, BrowserWindow, BrowserWindowConstructorOptions } from 'electron'
+import { FileManagerService } from '../file-manager/file-manager.service'
 
 @Injectable()
 export class OverlayWindowService {
+  constructor(private readonly fileManagerService: FileManagerService) {}
   private overlayWindow: BrowserWindow | undefined = undefined
   private readonly logger = new Logger(OverlayWindowService.name)
   private readonly isDev = !app.isPackaged
@@ -40,26 +41,14 @@ export class OverlayWindowService {
     ? `${process.env.DS_RENDERER_URL}#/overlay`
     : `file://${join(app.getAppPath(), 'dist/render/index.html')}#/overlay`
 
-  private settings: SettingsData = {}
-
-  // 설정 업데이트 메서드
-  public updateSettings(settings: SettingsData): void {
-    this.settings = settings
-    this.logger.debug('오버레이 윈도우 설정 업데이트됨')
-    if (this.settings.enableOverlayWindow === false) {
-      this.destroyOverlay()
-    } else {
-      this.createOverlayInit()
-    }
-  }
-
   public getOverlayWindow(): BrowserWindow | undefined {
     return this.overlayWindow
   }
 
   public createOverlay(): BrowserWindow | undefined {
+    const settings = this.fileManagerService.loadSettings()
     // 오버레이 윈도우가 비활성화되어 있으면 생성하지 않음
-    if (this.settings.enableOverlayWindow === false) {
+    if (settings.enableOverlayWindow === false) {
       this.logger.debug('설정에 따라 오버레이 윈도우 생성이 비활성화됨')
       return undefined
     }
@@ -69,6 +58,11 @@ export class OverlayWindowService {
       return this.overlayWindow
     }
 
+    // 약간의 지연 추가
+    setTimeout(() => {
+      this.logger.debug('오버레이 윈도우 생성 시작')
+    }, 100)
+
     this.overlayWindow = new BrowserWindow(this.OVERLAY_SETTING)
 
     this.overlayWindow.setIgnoreMouseEvents(true, { forward: true })
@@ -76,6 +70,11 @@ export class OverlayWindowService {
     this.overlayWindow.setVisibleOnAllWorkspaces(true)
 
     if (this.URL) {
+      // 로딩 완료 이벤트 추가
+      this.overlayWindow.webContents.on('did-finish-load', () => {
+        this.logger.debug('오버레이 윈도우 컨텐츠 로드 완료')
+      })
+
       this.overlayWindow.loadURL(this.URL)
     } else {
       this.logger.error('Failed to determine URL for overlay window')
@@ -83,14 +82,16 @@ export class OverlayWindowService {
 
     this.overlayWindow.on('closed', () => {
       this.overlayWindow = undefined
+      this.logger.debug('오버레이 윈도우 닫힘')
     })
 
     return this.overlayWindow
   }
 
   public createOverlayInit(): BrowserWindow | undefined {
+    const settings = this.fileManagerService.loadSettings()
     // 오버레이 윈도우가 비활성화되어 있으면 생성하지 않음
-    if (this.settings.enableOverlayWindow === false) {
+    if (settings.enableOverlayWindow === false) {
       this.logger.debug('설정에 따라 오버레이 윈도우 초기화가 비활성화됨')
       return undefined
     }
@@ -100,6 +101,11 @@ export class OverlayWindowService {
       return this.overlayWindow
     }
 
+    // 약간의 지연 추가
+    setTimeout(() => {
+      this.logger.debug('오버레이 윈도우 초기화 시작')
+    }, 100)
+
     this.overlayWindow = new BrowserWindow(this.OVERLAY_SETTING)
 
     this.overlayWindow.setIgnoreMouseEvents(true, { forward: true })
@@ -107,6 +113,11 @@ export class OverlayWindowService {
     this.overlayWindow.setVisibleOnAllWorkspaces(true)
 
     if (this.URL) {
+      // 로딩 완료 이벤트 추가
+      this.overlayWindow.webContents.on('did-finish-load', () => {
+        this.logger.debug('오버레이 윈도우 컨텐츠 로드 완료')
+      })
+
       this.overlayWindow.loadURL(this.URL)
     } else {
       this.logger.error('Failed to determine URL for overlay window')
@@ -114,6 +125,7 @@ export class OverlayWindowService {
 
     this.overlayWindow.on('closed', () => {
       this.overlayWindow = undefined
+      this.logger.debug('오버레이 윈도우 닫힘')
     })
 
     return this.overlayWindow
@@ -127,8 +139,9 @@ export class OverlayWindowService {
   }
 
   public sendMessage(message: string): void {
+    const settings = this.fileManagerService.loadSettings()
     // 오버레이 윈도우가 비활성화되어 있으면 메시지 전송하지 않음
-    if (this.settings.enableOverlayWindow === false || !this.overlayWindow) {
+    if (settings.enableOverlayWindow === false || !this.overlayWindow) {
       return
     }
     this.overlayWindow?.webContents.send('overlay-msg', message)

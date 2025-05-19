@@ -118,6 +118,18 @@ const OverlaySettingsPage = () => {
     if (window.electron?.saveSettings) {
       window.electron.saveSettings(newSettings)
     }
+
+    // enableOverlayWindow 설정이 변경되면 오버레이 윈도우 생성/제거
+    if (id === 'enableOverlayWindow') {
+      // 약간의 지연 후 오버레이 윈도우 생성/제거
+      setTimeout(() => {
+        if (value === true) {
+          window.electron?.createOverlayInit()
+        } else {
+          window.electron?.closeOverlay()
+        }
+      }, 500) // 500ms 지연
+    }
   }
 
   // 설정 항목 버튼을 호버할 때 이미지를 변경하는 함수

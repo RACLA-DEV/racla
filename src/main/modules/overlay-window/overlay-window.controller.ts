@@ -1,8 +1,7 @@
 import { IpcHandle } from '@doubleshot/nest-electron'
 
 import { Controller } from '@nestjs/common'
-import { from, Observable, of } from 'rxjs'
-import { map } from 'rxjs/operators'
+import { Observable, of } from 'rxjs'
 import { OverlayWindowService } from './overlay-window.service'
 
 @Controller()
@@ -10,8 +9,15 @@ export class OverlayWindowController {
   constructor(private readonly overlayWindowService: OverlayWindowService) {}
 
   @IpcHandle('overlay:create')
-  createOverlay(): Observable<boolean> {
-    return from(void this.overlayWindowService.createOverlay()).pipe(map((window) => !!window))
+  createOverlay(): boolean {
+    this.overlayWindowService.createOverlay()
+    return true
+  }
+
+  @IpcHandle('overlay:createInit')
+  createOverlayInit(): boolean {
+    this.overlayWindowService.createOverlayInit()
+    return true
   }
 
   @IpcHandle('overlay:send')

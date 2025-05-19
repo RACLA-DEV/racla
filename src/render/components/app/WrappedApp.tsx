@@ -381,7 +381,9 @@ export default function WrappedApp() {
 
       // 오버레이 경로에서 로딩 중이었다면 로딩 상태 해제
       if (isLoading) {
-        dispatch(setIsLoading(false))
+        setTimeout(() => {
+          dispatch(setIsLoading(false))
+        }, 500) // 약간의 지연 추가
       }
 
       // 오버레이 윈도우가 비활성화되었고 현재 오버레이 경로에 있다면, 사용자에게 알림
@@ -706,7 +708,7 @@ export default function WrappedApp() {
         clearInterval(songRefreshInterval)
       }
     }
-  }, [isLoading, location.pathname, settingData.language])
+  }, [isLoading, location.pathname, settingData.language, settingData.enableOverlayWindow])
 
   // 오버레이 메시지 처리 이벤트 리스너 추가
   useEffect(() => {
