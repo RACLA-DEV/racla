@@ -1,16 +1,26 @@
 import { Icon } from '@iconify/react'
 import { RootState } from '@render/store'
-import type { NotificationContainerProps } from '@src/types/notifications/NotificationContainerProps'
 import type { NotificationProps } from '@src/types/notifications/NotificationProps'
-import { AnimatePresence, motion } from 'framer-motion'
-import { useEffect, useState } from 'react'
+import { motion } from 'framer-motion'
+import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useSelector } from 'react-redux'
+
+// 애니메이션 스타일을 정의
+const shimmerKeyframes = `
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%) skewX(-12deg);
+  }
+  100% {
+    transform: translateX(200%) skewX(-12deg);
+  }
+}
+`
 
 // 알림 컴포넌트
 export function Notification({ notification, onRemove, index }: NotificationProps) {
   const { id, message, type, isRemoving, updateInfo } = notification
-  const [progress, setProgress] = useState(100)
   const { theme } = useSelector((state: RootState) => state.ui)
   const { t } = useTranslation([
     'common',
@@ -70,21 +80,21 @@ export function Notification({ notification, onRemove, index }: NotificationProp
 
   const { background, iconName, iconColor, bgColor } = getTypeStyles()
 
-  // 프로그레스 바 애니메이션
+  // 애니메이션 스타일 요소를 헤더에 추가
   useEffect(() => {
-    if (notification.duration && notification.duration > 0) {
-      const intervalId = setInterval(() => {
-        setProgress((prev) => {
-          const newValue = prev - 100 / (notification.duration / 100)
-          return newValue < 0 ? 0 : newValue
-        })
-      }, 100)
-
-      return () => {
-        clearInterval(intervalId)
-      }
+    // 기존 스타일이 있는지 확인
+    const existingStyle = document.getElementById('shimmer-animation-style')
+    if (!existingStyle) {
+      const styleElement = document.createElement('style')
+      styleElement.id = 'shimmer-animation-style'
+      styleElement.textContent = shimmerKeyframes
+      document.head.appendChild(styleElement)
     }
-  }, [notification.duration])
+    return () => {
+      // 컴포넌트 언마운트 시 스타일 제거 (필요한 경우)
+      // 단, 다른 컴포넌트에서도 사용할 수 있으므로 여기서는 제거하지 않습니다.
+    }
+  }, [])
 
   // 업데이트 알림 클릭 핸들러
   const handleUpdateClick = () => {
@@ -134,12 +144,35 @@ export function Notification({ notification, onRemove, index }: NotificationProp
                     })}
               </p>
             </div>
+
+            <button
+              onClick={(e) => {
+                e.stopPropagation()
+                onRemove(id)
+              }}
+              className='tw:ml-2 tw:flex-shrink-0 tw:text-slate-400 tw:hover:text-slate-500 tw:focus:outline-none tw:dark:text-slate-500 tw:dark:hover:text-slate-400'
+            >
+              <Icon icon='lucide:x' className='tw:w-4 tw:h-4' />
+            </button>
           </div>
 
           {!updateInfo?.isDownloaded ? (
             <div className='tw:mt-2 tw:flex tw:justify-start tw:h-1 tw:w-full tw:relative tw:rounded tw:bg-slate-200 tw:dark:bg-slate-700 tw:overflow-hidden'>
               <div className={`tw:h-full ${background} tw:rounded`} style={{ width: '100%' }}>
-                <div className='shimmer-effect'></div>
+                <div
+                  className='shimmer-effect'
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '30%',
+                    height: '100%',
+                    background:
+                      'linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)',
+                    transform: 'skewX(-12deg)',
+                    animation: 'shimmer 2s infinite linear',
+                  }}
+                />
               </div>
             </div>
           ) : (
@@ -203,53 +236,13 @@ export function Notification({ notification, onRemove, index }: NotificationProp
           </button>
         </div>
 
-        {notification.duration && notification.duration > 0 && (
-          <div className='tw:mt-2 tw:flex tw:justify-end tw:h-1 tw:w-full tw:rounded tw:bg-slate-200 tw:dark:bg-slate-700'>
-            <div
-              className={`tw:h-full ${background} tw:rounded tw:transition-all tw:duration-300`}
-              style={{ width: `${progress}%` }}
-            ></div>
-          </div>
-        )}
+        <div className='tw:mt-2 tw:flex tw:justify-end tw:h-1 tw:w-full tw:rounded tw:bg-slate-200 tw:dark:bg-slate-700'>
+          <div
+            className={`tw:h-full ${background} tw:rounded tw:transition-all tw:duration-300`}
+            style={{ width: `100%` }}
+          ></div>
+        </div>
       </div>
     </motion.div>
-  )
-}
-
-// 알림 목록 컴포넌트
-export function NotificationContainer({ notifications, onRemove }: NotificationContainerProps) {
-  // 업데이트 알림과 일반 알림 분리
-  const updateNotifications = notifications.filter((notification) => notification.type === 'update')
-  const regularNotifications = notifications.filter(
-    (notification) => notification.type !== 'update',
-  )
-
-  // 일반 알림은 최대 5개까지만 표시
-  const visibleRegularNotifications = regularNotifications.slice(-5)
-  const { isLoading } = useSelector((state: RootState) => state.app)
-
-  return (
-    <div
-      className={`tw:fixed tw:right-2 tw:bottom-10 tw:z-[99999999] tw:space-y-2 tw:transition-opacity tw:duration-300 ${isLoading ? 'tw:opacity-0 tw:pointer-events-none' : 'tw:opacity-100'}`}
-    >
-      <AnimatePresence>
-        {visibleRegularNotifications.map((notification, index) => (
-          <Notification
-            key={notification.id}
-            notification={notification}
-            onRemove={onRemove}
-            index={index}
-          />
-        ))}
-        {updateNotifications.map((notification, index) => (
-          <Notification
-            key={notification.id}
-            notification={notification}
-            onRemove={onRemove}
-            index={visibleRegularNotifications.length + index}
-          />
-        ))}
-      </AnimatePresence>
-    </div>
   )
 }

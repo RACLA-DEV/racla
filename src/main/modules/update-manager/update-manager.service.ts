@@ -1,16 +1,19 @@
 import { Injectable, Logger } from '@nestjs/common'
-import { autoUpdater } from 'electron-updater'
+import { AppUpdater, autoUpdater } from 'electron-updater'
 import { FileManagerService } from '../file-manager/file-manager.service'
 import { MainWindowService } from '../main-window/main-window.service'
 @Injectable()
 export class UpdateManagerService {
   private readonly logger = new Logger(UpdateManagerService.name)
-  private readonly autoUpdater = autoUpdater
+  private readonly autoUpdater: AppUpdater
+  private latestVersion: string
 
   constructor(
     private readonly mainWindowService: MainWindowService,
     private readonly fileManagerService: FileManagerService,
-  ) {}
+  ) {
+    this.autoUpdater = autoUpdater
+  }
 
   initialize(): void {
     this.logger.log('Initializing update manager...')
@@ -49,8 +52,16 @@ export class UpdateManagerService {
           // 업데이트 가용 시 버전 정보를 렌더러 프로세스로 전송
           this.autoUpdater.on('update-available', (info) => {
             this.logger.log(`업데이트 가능: ${JSON.stringify(info)}`)
+
+            // 버전 정보 저장
+            const updateVersion = info.version
+            this.logger.log(`업데이트 버전: ${updateVersion}`)
+
             if (mainWindow && !mainWindow.isDestroyed()) {
-              mainWindow.webContents.send('update-available', info.version)
+              mainWindow.webContents.send('update-available', updateVersion)
+
+              // 다음 진행 상황 이벤트에 사용하기 위해 버전 정보 저장
+              this.latestVersion = updateVersion
             } else {
               this.logger.warn(
                 '메인 윈도우가 없거나 파괴되어 update-available 메시지를 보낼 수 없습니다.',
@@ -60,12 +71,14 @@ export class UpdateManagerService {
 
           // 다운로드 진행 상황을 렌더러 프로세스로 전송
           this.autoUpdater.on('download-progress', (progress) => {
-            this.logger.log(`업데이트 다운로드 진행 상황: ${JSON.stringify(progress)}`)
+            this.logger.debug(`업데이트 다운로드 진행 상황: ${JSON.stringify(progress)}`)
             if (mainWindow && !mainWindow.isDestroyed()) {
               const progressData = {
                 percent: progress.percent || 0,
                 transferred: progress.transferred || 0,
                 total: progress.total || 0,
+                // 저장된 버전 정보 사용
+                version: this.latestVersion,
               }
               mainWindow.webContents.send('download-progress', progressData)
             } else {

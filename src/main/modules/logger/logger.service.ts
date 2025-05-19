@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common'
 
 import type { ClientErrorLogRequest } from '@src/types/dto/log/ClientErrorLogReqeust'
 import { LogLevel } from '@src/types/dto/log/LogLevel'
+import { CanceledError } from 'axios'
 import dotenv from 'dotenv'
 import { app } from 'electron'
 import packageJson from '../../../../package.json'
@@ -58,14 +59,15 @@ export class LoggerService {
         },
       }
 
-      const response = await apiClient.post<Record<string, unknown>>(
-        `/v3/racla/log/client/create`,
-        errorData,
-      )
-      if (response.status === 200) {
-        this.logger.log(`[MAIN] Exception Report Successfully.`)
+      if (error.message.includes('CanceledError') || error instanceof CanceledError) {
+        this.logger.debug('[MAIN] Canceled Error is not sent to server.')
       } else {
-        this.logger.error(`[MAIN] Exception Report Failed:\n${JSON.stringify(response, null, 2)}`)
+        const response = await apiClient.sendErrorLog(errorData)
+        if (response.status === 200) {
+          this.logger.log(`[MAIN] Exception Report Successfully.`)
+        } else {
+          this.logger.error(`[MAIN] Exception Report Failed:\n${JSON.stringify(response, null, 2)}`)
+        }
       }
     } catch (loggingError) {
       this.logger.error(

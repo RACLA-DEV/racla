@@ -6,11 +6,10 @@ import { setOverlayMode, setSidebarCollapsed } from '@render/store/slices/uiSlic
 import { GameType } from '@src/types/games/GameType'
 import { SongData } from '@src/types/games/SongData'
 import { SessionData } from '@src/types/sessions/SessionData'
-import React, { lazy, Suspense, useCallback, useEffect, useState } from 'react'
+import React, { lazy, Suspense, useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useDispatch, useSelector } from 'react-redux'
 import { Outlet, useLocation } from 'react-router-dom'
-import { v4 as uuidv4 } from 'uuid'
 import apiClient from '../../../libs/apiClient'
 import { useNotificationSystem } from '../../hooks/useNotifications'
 import { createLog } from '../../libs/logger'
@@ -29,7 +28,9 @@ import { ThemeProvider } from '../ui/ThemeProvider'
 
 // 지연 로딩을 위한 컴포넌트 임포트
 const NotificationContainer = lazy(() =>
-  import('../ui/Notification').then((module) => ({ default: module.NotificationContainer })),
+  import('../ui/NotificationContainer').then((module) => ({
+    default: module.NotificationContainer,
+  })),
 )
 const ExternalLinkModal = lazy(() => import('./ExternalLinkModal'))
 const LoadingSkeleton = lazy(() => import('./LoadingSkeleton'))
@@ -45,13 +46,12 @@ export default function WrappedApp() {
     (state: RootState) => state.app,
   )
   const { isOverlayMode, alertModal } = useSelector((state: RootState) => state.ui)
+  const { selectedGame } = useSelector((state: RootState) => state.app)
   const location = useLocation()
   const { notifications, removeNotification, showNotification } = useNotificationSystem()
   const { handleConfirm, hideAlert } = useAlert()
   const dispatch = useDispatch()
   const { logout } = useAuth()
-  const [updateNotificationId, setUpdateNotificationId] = useState<string | null>(null)
-  const [updateVersion, setUpdateVersion] = useState<string | null>(null)
   const { i18n } = useTranslation()
 
   // 앱 초기화 상태를 추적하는 ref를 컴포넌트 최상위 레벨로 이동
@@ -63,7 +63,7 @@ export default function WrappedApp() {
   useEffect(() => {
     // electron 객체가 없으면 실행하지 않음
     if (!window.electron) {
-      createLog('warn', '업데이트 이벤트 리스너 등록 실패: electron 객체 없음')
+      createLog('debug', '업데이트 이벤트 리스너 등록 실패: electron 객체 없음')
       return
     }
 
@@ -89,23 +89,24 @@ export default function WrappedApp() {
     try {
       // 업데이트 가용 시 이벤트 리스너
       const updateAvailableHandler = (version: string) => {
-        createLog('info', '업데이트 가용 이벤트 수신됨:', version)
-        const id = uuidv4()
-        setUpdateNotificationId(id)
-        setUpdateVersion(version)
-
+        createLog('debug', '업데이트 가용 이벤트 수신됨:', version)
         // 기존 디스패치 대신 showNotification 사용
-        showNotification(
-          {
-            mode: 'i18n',
-            value: 'update.updateAvailable',
-            ns: 'common',
-            props: { version },
-          },
-          'update',
-          0, // 자동 제거 안함
-          { version },
-        )
+        try {
+          const notificationId = showNotification(
+            {
+              mode: 'i18n',
+              value: 'update.updateAvailable',
+              ns: 'common',
+              props: { version },
+            },
+            'update',
+            0, // 자동 제거 안함
+            { version },
+          )
+          createLog('debug', `업데이트 알림 표시됨 (ID: ${notificationId})`)
+        } catch (error) {
+          createLog('debug', '업데이트 알림 표시 중 오류 발생:', error)
+        }
       }
 
       // 다운로드 진행 상황 이벤트 리스너
@@ -113,35 +114,40 @@ export default function WrappedApp() {
         percent: number
         transferred: number
         total: number
+        version: string
       }) => {
-        createLog('info', '업데이트 다운로드 진행 상황 이벤트 수신됨:', progress)
-        if (updateNotificationId) {
-          // 기존 알림 업데이트 사용
-          showNotification(
+        createLog('debug', '업데이트 다운로드 진행 상황 이벤트 수신됨:', progress)
+        try {
+          // 직접 showNotification 호출하여 업데이트 알림을 표시/업데이트
+          const notificationId = showNotification(
             {
               mode: 'i18n',
               value: 'update.downloading',
               ns: 'common',
               props: {
-                version: updateVersion,
+                version: progress.version || '',
                 percent: String(Math.round(progress.percent || 0)),
               },
             },
             'update',
             0, // 자동 제거 안함
-            { progress },
+            { progress, version: progress.version },
           )
-        } else {
-          createLog('warn', '업데이트 다운로드 진행 상황을 표시할 알림 ID가 없음')
+          createLog(
+            'debug',
+            `업데이트 진행 알림 업데이트됨 (ID: ${notificationId}, 버전: ${progress.version})`,
+          )
+        } catch (error) {
+          createLog('debug', '업데이트 진행 알림 업데이트 중 오류 발생:', error)
         }
       }
 
       // 업데이트 다운로드 완료 이벤트 리스너
       const updateDownloadedHandler = (version: string) => {
-        createLog('info', '업데이트 다운로드 완료 이벤트 수신됨:', version)
-        if (updateNotificationId) {
-          // 기존 알림 업데이트 사용
-          showNotification(
+        createLog('debug', '업데이트 다운로드 완료 이벤트 수신됨:', version)
+        try {
+          // 직접 showNotification 호출하여 다운로드 완료 알림을 표시
+          const notificationId = showNotification(
             {
               mode: 'i18n',
               value: 'update.downloaded',
@@ -152,8 +158,9 @@ export default function WrappedApp() {
             0, // 자동 제거 안함
             { version, isDownloaded: true },
           )
-        } else {
-          createLog('warn', '업데이트 다운로드 완료를 표시할 알림 ID가 없음')
+          createLog('debug', `업데이트 완료 알림 표시됨 (ID: ${notificationId})`)
+        } catch (error) {
+          createLog('debug', '업데이트 완료 알림 표시 중 오류 발생:', error)
         }
       }
 
@@ -410,6 +417,17 @@ export default function WrappedApp() {
           'debug',
           settingData.language === 'ko_KR' ? '🚀 앱 초기화 시작' : '🚀 App initialization started',
         )
+
+        try {
+          const response = await apiClient.healthCheck()
+          if (response.status === 200) {
+            createLog('debug', '서버 상태 확인 성공')
+          } else {
+            createLog('error', '서버 상태 확인 실패')
+          }
+        } catch (error) {
+          createLog('error', '서버 상태 확인 중 오류 발생:', error)
+        }
 
         // 디스코드와 게임 모니터 초기화 상태 추적
         const servicesInitialized = { discord: false, monitor: false }
@@ -744,6 +762,16 @@ export default function WrappedApp() {
       dispatch(setRefresh(!refresh))
     }
   }, [location.pathname])
+
+  // useEffect(() => {
+  //   // 페이지 전환 시 특정 패턴을 가진 요청을 보존하면서 나머지는 취소
+  //   // 여기서는 예시로 새 페이지에서 일반적으로 필요한 요청 패턴을 지정
+  //   apiClient.cancelRequestsExcept([
+  //     '/v4/racla/ping', // 헬스체크 요청 보존
+  //     `get:${location.pathname}`, // 현재 페이지와 관련된 GET 요청 보존
+  //     `post:${location.pathname}`, // 현재 페이지와 관련된 POST 요청 보존
+  //   ])
+  // }, [location.pathname, selectedGame])
 
   if (isOverlayMode) {
     return <>{!isLoading && <Outlet />}</>

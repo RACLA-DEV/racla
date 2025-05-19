@@ -80,7 +80,7 @@ const WjmaxDbDetailPage = () => {
               patterns: newPatterns,
             },
           ])
-          createLog('info', 'fetchUserSongData', {
+          createLog('debug', 'fetchUserSongData', {
             ...data,
             patterns: newPatterns,
           })

@@ -298,7 +298,7 @@ export default function FeedbackListPage() {
         },
       )
       const data: FeedbackPageResponse = await response.data.data
-      createLog('info', 'fetchBugs', { data })
+      createLog('debug', 'fetchBugs', { data })
       setBugs(data.content)
       setPagination({
         ...pagination,

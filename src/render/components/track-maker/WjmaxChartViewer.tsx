@@ -711,10 +711,10 @@ export default function WjmaxChartViewer({
             minScale={0.2}
             maxScale={2}
             onPanning={(position) => {
-              createLog('info', 'onPanning', { position })
+              createLog('debug', 'onPanning', { position })
             }}
             onInit={(init) => {
-              createLog('info', 'onInit', { init })
+              createLog('debug', 'onInit', { init })
             }}
             initialPositionX={0}
           >

@@ -499,7 +499,7 @@ const AccountInfo = () => {
         })
         .then((data) => {
           if (data.data.success && data.data.data.result === 'Success') {
-            createLog('info', 'handleDiscordLink', { data: data.data.data })
+            createLog('debug', 'handleDiscordLink', { data: data.data.data })
             showNotification(
               {
                 mode: 'i18n',

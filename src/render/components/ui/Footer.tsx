@@ -3,58 +3,206 @@ import { globalDictionary } from '@render/constants/globalDictionary'
 import { createLog } from '@render/libs/logger'
 import { RootState } from '@render/store'
 import { setIsOpenExternalLink, setOpenExternalLink } from '@render/store/slices/uiSlice'
-import React, { useEffect, useState } from 'react'
+import dayjs from 'dayjs'
+import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useDispatch, useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
 import apiClient from '../../../libs/apiClient'
 import Tooltip from './Tooltip'
+// 서버 상태 열거형
+enum ServerStatus {
+  ALL_ONLINE = 'ALL_ONLINE', // 모든 서버 정상
+  PARTIAL_PROXY_OFFLINE = 'PARTIAL_PROXY_OFFLINE', // 일부 프록시 서버 오프라인
+  ALL_PROXY_OFFLINE = 'ALL_PROXY_OFFLINE', // 모든 프록시 서버 오프라인
+  MAIN_OFFLINE = 'MAIN_OFFLINE', // 메인 서버 오프라인
+}
+
+// 프록시 상태 인터페이스
+interface ProxyStatus {
+  url: string
+  isOnline: boolean
+  displayName: string
+}
+
+// 서버 상태 체크 간격 (밀리초)
+const SERVER_STATUS_CHECK_INTERVAL = 30000 // 30초
 
 const Footer: React.FC = () => {
   const { selectedGame, isTrackMaker } = useSelector((state: RootState) => state.app)
-  const [ServerStatusResponse, setServerStatusResponse] = useState<string>('')
-  const [isOnline, setIsOnline] = useState<boolean>(false)
+  const [serverVersion, setServerVersion] = useState<string>('')
+  const [isMainServerOnline, setIsMainServerOnline] = useState<boolean>(false)
+  const [lastChecked, setLastChecked] = useState<string>('')
+  const [proxyStatuses, setProxyStatuses] = useState<ProxyStatus[]>([
+    { url: 'https://v-archive.net', isOnline: false, displayName: 'V-ARCHIVE' },
+    { url: 'https://hard-archive.com', isOnline: false, displayName: 'HARD-ARCHIVE' },
+  ])
+  const [serverStatus, setServerStatus] = useState<ServerStatus>(ServerStatus.MAIN_OFFLINE)
+  const [isChecking, setIsChecking] = useState<boolean>(false) // 체크 중인지 여부
+  const intervalRef = useRef<NodeJS.Timeout | null>(null) // 인터벌 참조 저장
+
   const dispatch = useDispatch()
   const { t } = useTranslation(['menu'])
 
-  useEffect(() => {
-    // 서버 상태 확인 함수
-    const checkServerStatusResponse = async () => {
-      try {
-        createLog('info', 'Checking server status...', `/v3/racla/ping`) // 디버깅용 로그
-        const response = await apiClient.get<string>(`/v3/racla/ping`, {
-          timeout: 5000, // 5초 타임아웃 설정
-        })
+  // 서버 상태에 따른 색상 반환
+  const getStatusColor = () => {
+    switch (serverStatus) {
+      case ServerStatus.ALL_ONLINE:
+        return 'tw:text-green-500'
+      case ServerStatus.PARTIAL_PROXY_OFFLINE:
+        return 'tw:text-yellow-500'
+      case ServerStatus.ALL_PROXY_OFFLINE:
+        return 'tw:text-orange-500'
+      case ServerStatus.MAIN_OFFLINE:
+      default:
+        return 'tw:text-red-500'
+    }
+  }
 
-        if (response.status === 200) {
-          createLog('debug', 'Server response:', response.data) // 디버깅용 로그
-          setServerStatusResponse(response.data.data)
-          setIsOnline(true)
-        } else {
-          createLog('debug', 'Server error status:', response.status) // 디버깅용 로그
-          setIsOnline(false)
-        }
-      } catch (error) {
-        createLog('error', 'Server connection error:', error.message) // 디버깅용 로그
-        setIsOnline(false)
-      }
+  // 서버 상태에 따른 배경색 반환
+  const getStatusBgColor = () => {
+    switch (serverStatus) {
+      case ServerStatus.ALL_ONLINE:
+        return 'tw:bg-green-500'
+      case ServerStatus.PARTIAL_PROXY_OFFLINE:
+        return 'tw:bg-yellow-500'
+      case ServerStatus.ALL_PROXY_OFFLINE:
+        return 'tw:bg-orange-500'
+      case ServerStatus.MAIN_OFFLINE:
+      default:
+        return 'tw:bg-red-500'
+    }
+  }
+
+  // 서버 상태 메시지 반환
+  const getStatusMessage = () => {
+    switch (serverStatus) {
+      case ServerStatus.ALL_ONLINE:
+        return 'All Services Online'
+      case ServerStatus.PARTIAL_PROXY_OFFLINE:
+        return 'Some Proxy Services Offline'
+      case ServerStatus.ALL_PROXY_OFFLINE:
+        return 'Proxy Services Offline'
+      case ServerStatus.MAIN_OFFLINE:
+      default:
+        return 'Server Disconnected'
+    }
+  }
+
+  // 서버 상태 툴팁 내용 생성
+  const getStatusTooltipContent = () => {
+    let content = `RACLA: ${isMainServerOnline ? 'Online' : 'Offline'}\n`
+
+    // 게임이 DJMAX인 경우에만 프록시 서버 상태 표시
+    if (selectedGame === 'djmax_respect_v') {
+      proxyStatuses.forEach((proxy) => {
+        content += `${proxy.displayName.toUpperCase()}: ${proxy.isOnline ? 'Online' : 'Offline'}\n`
+      })
     }
 
-    // 초기 실행
-    void checkServerStatusResponse()
+    if (lastChecked) {
+      content += `Last Check: ${dayjs(lastChecked).format('YYYY-MM-DD HH:mm:ss')}\n`
+    }
 
-    // 30초마다 실행되는 인터벌 설정
-    const interval = setInterval(() => {
-      createLog('debug', 'Running interval check...') // 디버깅용 로그
-      void checkServerStatusResponse()
-    }, 30000)
+    return content
+  }
+
+  // 전체 서버 상태 업데이트
+  const updateServerStatus = () => {
+    if (!isMainServerOnline) {
+      setServerStatus(ServerStatus.MAIN_OFFLINE)
+      return
+    }
+
+    if (selectedGame !== 'djmax_respect_v') {
+      setServerStatus(ServerStatus.ALL_ONLINE)
+      return
+    }
+
+    const onlineProxies = proxyStatuses.filter((proxy) => proxy.isOnline)
+
+    if (onlineProxies.length === proxyStatuses.length) {
+      setServerStatus(ServerStatus.ALL_ONLINE)
+    } else if (onlineProxies.length > 0) {
+      setServerStatus(ServerStatus.PARTIAL_PROXY_OFFLINE)
+    } else {
+      setServerStatus(ServerStatus.ALL_PROXY_OFFLINE)
+    }
+  }
+
+  // 서버 상태 확인 함수
+  const checkServerStatus = async () => {
+    // 이미 체크 중이면 리턴
+    if (isChecking) return
+
+    try {
+      setIsChecking(true)
+      createLog('debug', 'Checking server status...', `/v4/ping`)
+
+      // 메인 서버 및 프록시 서버 상태 확인 (v4/ping API)
+      const response = await apiClient.healthCheck()
+
+      if (response.status === 200 && response.data.success) {
+        createLog('debug', 'Server response:', response.data)
+
+        // 서버 버전 저장
+        const serverData = response.data.data
+        setServerVersion(serverData.version || '')
+        setIsMainServerOnline(true)
+        setLastChecked(serverData.last_checked_utc || '')
+
+        // 프록시 서버 상태 업데이트
+        if (selectedGame === 'djmax_respect_v') {
+          setProxyStatuses([
+            {
+              url: 'https://v-archive.net',
+              isOnline: serverData.v_archive_status,
+              displayName: 'V-ARCHIVE',
+            },
+            {
+              url: 'https://hard-archive.com',
+              isOnline: serverData.hard_archive_status,
+              displayName: 'HARD-ARCHIVE',
+            },
+          ])
+        }
+      } else {
+        createLog('debug', 'Server error status:', response.status)
+        setIsMainServerOnline(false)
+      }
+    } catch (error) {
+      createLog('error', 'Server connection error:', error.message)
+      setIsMainServerOnline(false)
+    } finally {
+      setIsChecking(false)
+    }
+  }
+
+  // 컴포넌트 마운트/언마운트 시 실행
+  useEffect(() => {
+    // 초기 상태 확인
+    checkServerStatus()
+
+    // 인터벌 설정
+    intervalRef.current = setInterval(() => {
+      checkServerStatus()
+    }, SERVER_STATUS_CHECK_INTERVAL)
 
     // 클린업 함수
     return () => {
-      createLog('debug', 'Cleaning up interval') // 디버깅용 로그
-      clearInterval(interval)
+      if (intervalRef.current) {
+        createLog('debug', 'Cleaning up interval')
+        clearInterval(intervalRef.current)
+        intervalRef.current = null
+      }
     }
-  }, []) // 빈 의존성 배열 - 컴포넌트 마운트 시 한 번만 실행
+    // 빈 의존성 배열: 컴포넌트 마운트/언마운트 시에만 실행
+  }, [])
+
+  // 서버 상태나 게임 선택이 변경될 때마다 전체 상태 업데이트
+  useEffect(() => {
+    updateServerStatus()
+  }, [isMainServerOnline, proxyStatuses, selectedGame])
 
   const handleOpenExternalLink = (url: string) => {
     if (url) {
@@ -143,7 +291,7 @@ const Footer: React.FC = () => {
       <div className='tw:flex tw:justify-center tw:items-center tw:gap-1 tw:pl-1 tw:h-8 tw:me-auto'>
         <span className='tw:text-xs tw:flex tw:items-center'>
           <span className='tw:flex tw:items-center tw:gap-1'>
-            <Tooltip position='top' content='https://status.racla.app'>
+            <Tooltip position='top' content={getStatusTooltipContent()}>
               <span
                 onClick={() => {
                   handleOpenExternalLink('https://status.racla.app')
@@ -152,18 +300,18 @@ const Footer: React.FC = () => {
               >
                 <div className='tw:relative tw:flex tw:items-center tw:justify-center tw:mr-1'>
                   <span
-                    className={`tw:text-xs ${isOnline ? 'tw:text-green-500' : 'tw:text-red-500'} tw:relative tw:z-10 tw:align-middle`}
+                    className={`tw:text-xs ${getStatusColor()} tw:relative tw:z-10 tw:align-middle`}
                   >
                     <Icon icon='lucide:circle' width='10' height='10' />
                   </span>
                   <div
-                    className={`tw:absolute tw:w-3 tw:h-3 tw:rounded-full tw:animate-custom-ping tw:opacity-40 ${isOnline ? 'tw:bg-green-500' : 'tw:bg-red-500'}`}
+                    className={`tw:absolute tw:w-3 tw:h-3 tw:rounded-full tw:animate-custom-ping tw:opacity-40 ${getStatusBgColor()}`}
                   />
                 </div>
-                <span className='tw:leading-none'>
-                  {isOnline
-                    ? `Server Connected · ${ServerStatusResponse || ''} · ${globalDictionary.version}`
-                    : `Server Disconnected · ${globalDictionary.version}`}
+                <span className='tw:leading-none tw:flex tw:items-center'>
+                  {isMainServerOnline
+                    ? `${getStatusMessage()} · ${serverVersion || ''} · ${globalDictionary.version}`
+                    : `${getStatusMessage()} · ${globalDictionary.version}`}
                 </span>
               </span>
             </Tooltip>
@@ -175,9 +323,9 @@ const Footer: React.FC = () => {
           {selectedGame === 'djmax_respect_v' && !isTrackMaker && (
             <>
               <span>Powered by </span>
-              <Tooltip position='top' content='https://v-archive.net'>
+              <Tooltip position='top' content={`https://v-archive.net`}>
                 <span
-                  className='tw:text-xs tw:cursor-pointer'
+                  className={`tw:text-xs tw:cursor-pointer`}
                   onClick={() => {
                     handleOpenExternalLink('https://v-archive.net')
                   }}
@@ -186,9 +334,9 @@ const Footer: React.FC = () => {
                 </span>
               </Tooltip>
               <span> & </span>
-              <Tooltip position='top' content='https://hard-archive.com'>
+              <Tooltip position='top' content={`https://hard-archive.com'`}>
                 <span
-                  className='tw:text-xs tw:cursor-pointer'
+                  className={`tw:text-xs tw:cursor-pointer`}
                   onClick={() => {
                     handleOpenExternalLink('https://hard-archive.com')
                   }}

@@ -93,17 +93,22 @@ contextBridge.exposeInMainWorld('electron', {
     // 기존 리스너가 있다면 제거 (중복 이벤트 방지)
     ipcRenderer.removeAllListeners('update-available')
     ipcRenderer.on('update-available', (_event, version: string) => {
-      console.log('[Preload] update-available 이벤트 수신됨:', version)
       callback(version)
     })
   },
   onDownloadProgress: (
-    callback: (progress: { percent: number; transferred: number; total: number }) => void,
+    callback: (progress: {
+      percent: number
+      transferred: number
+      total: number
+      version?: string
+    }) => void,
   ) => {
     // 기존 리스너가 있다면 제거 (중복 이벤트 방지)
     ipcRenderer.removeAllListeners('download-progress')
     ipcRenderer.on('download-progress', (_event, progress) => {
-      console.log('[Preload] download-progress 이벤트 수신됨:', progress)
+      // 버전 정보를 가지고 있는 전역 변수 또는 마지막 버전 정보가 있다면 추가
+      // 주의: 이 부분은 전역 상태 관리가 필요할 수 있음
       callback(progress)
     })
   },
@@ -111,16 +116,13 @@ contextBridge.exposeInMainWorld('electron', {
     // 기존 리스너가 있다면 제거 (중복 이벤트 방지)
     ipcRenderer.removeAllListeners('update-downloaded')
     ipcRenderer.on('update-downloaded', (_event, version: string) => {
-      console.log('[Preload] update-downloaded 이벤트 수신됨:', version)
       callback(version)
     })
   },
   updateApp: () => {
-    console.log('[Preload] updateApp 함수 호출됨')
     return ipcRenderer.invoke('update-manager:update-app')
   },
   initializeUpdate: () => {
-    console.log('[Preload] initializeUpdate 함수 호출됨')
     return ipcRenderer.invoke('update-manager:initialize')
   },
 
