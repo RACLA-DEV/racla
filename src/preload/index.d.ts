@@ -23,6 +23,7 @@ declare global {
 
       // 오버레이 관련
       createOverlay: () => Promise<boolean>
+      createOverlayInit: () => Promise<boolean>
       closeOverlay: () => Promise<boolean>
 
       // 게임 모니터링 관련

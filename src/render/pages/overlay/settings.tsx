@@ -118,6 +118,18 @@ const OverlaySettingsPage = () => {
     if (window.electron?.saveSettings) {
       window.electron.saveSettings(newSettings)
     }
+
+    // enableOverlayWindow 설정이 변경되면 오버레이 윈도우 생성/제거
+    if (id === 'enableOverlayWindow') {
+      // 약간의 지연 후 오버레이 윈도우 생성/제거
+      setTimeout(() => {
+        if (value === true) {
+          window.electron?.createOverlayInit()
+        } else {
+          window.electron?.closeOverlay()
+        }
+      }, 500) // 500ms 지연
+    }
   }
 
   // 설정 항목 버튼을 호버할 때 이미지를 변경하는 함수
@@ -239,6 +251,15 @@ const OverlaySettingsPage = () => {
       </div>
       <div className='tw:flex tw:gap-6'>
         <div className='tw:flex tw:flex-col tw:gap-4 tw:flex-1'>
+          <OverlaySettingCard
+            title={t('enableOverlayWindow')}
+            description={t('enableOverlayWindowDescription')}
+            settingKey='enableOverlayWindow'
+            value={settingData.enableOverlayWindow || false}
+            icon='lucide:monitor'
+            imageKey={IMAGE_KEYS.DEFAULT}
+          />
+
           <OverlaySettingCard
             title={t('resultOverlay')}
             description={t('resultOverlayDescription')}

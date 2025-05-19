@@ -24,6 +24,7 @@ export interface SettingsData {
   hardJudgementPlayRecordOverlay?: boolean
   recentOverlay?: boolean
   alwaysOverlay?: boolean
+  enableOverlayWindow?: boolean
   autoCaptureDjmaxRespectVOcrResultRegion?: boolean
   autoCaptureDjmaxRespectVOcrOpen3Region?: boolean
   autoCaptureDjmaxRespectVOcrOpen2Region?: boolean

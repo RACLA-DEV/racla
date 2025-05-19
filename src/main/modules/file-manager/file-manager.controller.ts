@@ -14,7 +14,8 @@ export class FileManagerController {
 
   @IpcHandle('file-manager:save-settings')
   saveSettings(settings: SettingsData): SettingsData {
-    return this.fileManagerService.saveSettings(settings)
+    const savedSettings = this.fileManagerService.saveSettings(settings)
+    return savedSettings
   }
 
   @IpcHandle('file-manager:load-settings')

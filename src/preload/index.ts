@@ -20,7 +20,10 @@ contextBridge.exposeInMainWorld('electron', {
     ipcRenderer.on('main-window-msg', (_event, data) => callback(data)),
 
   // 오버레이 관련
-  createOverlay: (): Promise<boolean> => ipcRenderer.invoke('overlay:create'),
+  createOverlay: (): Promise<boolean> =>
+    ipcRenderer
+      .invoke('overlay:create')
+      .catch((error) => console.error('Overlay window creation error:', error)),
   sendToOverlay: (message: string): Promise<boolean> => ipcRenderer.invoke('overlay:send', message),
   onOverlayMessage: (callback: (data: any) => void) =>
     ipcRenderer.on('overlay-msg', (_event, message) => callback(message)),
@@ -29,7 +32,7 @@ contextBridge.exposeInMainWorld('electron', {
   onOverlayPressedAltInsert: (callback: (data: boolean) => void) =>
     ipcRenderer.on('overlay-pressed-alt-insert', (_event, data) => callback(data)),
   closeOverlay: (): Promise<boolean> => ipcRenderer.invoke('overlay:close'),
-
+  createOverlayInit: (): Promise<boolean> => ipcRenderer.invoke('overlay:createInit'),
   // 게임 모니터링 관련
   getProcessList: () => ipcRenderer.invoke('monitor:get-process-list'),
   getActiveWindows: () => ipcRenderer.invoke('monitor:get-active-windows'),

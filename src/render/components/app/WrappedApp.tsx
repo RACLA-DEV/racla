@@ -46,7 +46,6 @@ export default function WrappedApp() {
     (state: RootState) => state.app,
   )
   const { isOverlayMode, alertModal } = useSelector((state: RootState) => state.ui)
-  const { selectedGame } = useSelector((state: RootState) => state.app)
   const location = useLocation()
   const { notifications, removeNotification, showNotification } = useNotificationSystem()
   const { handleConfirm, hideAlert } = useAlert()
@@ -363,18 +362,36 @@ export default function WrappedApp() {
     [loadSongDataFromAPI],
   )
 
-  // 오버레이 모드 확인 및 설정
+  // 오버레이 모드 감지 및 처리
   useEffect(() => {
-    // 현재 경로가 'overlay'를 포함하는지 확인
-    const isOverlayPath = location.pathname.includes('overlay')
-    // createLog('debug', '현재 경로:', location.pathname, '오버레이 모드:', isOverlayPath)
+    // 오버레이 모드 감지
+    const isOverlayPath = location.pathname === '/overlay'
+    createLog('debug', 'Overlay Mode:', isOverlayPath)
+
+    // 오버레이 모드 설정 상태 확인 (기본값은 true로 가정하여 하위 호환성 유지)
+    const isOverlayEnabled = settingData.enableOverlayWindow !== false
+
+    // 오버레이 모드 및 설정에 따라 UI 상태 업데이트
+    dispatch(setOverlayMode(isOverlayPath && isOverlayEnabled))
 
     if (isOverlayPath) {
       // 오버레이 모드일 때 필요한 설정
       document.body.style.backgroundColor = 'transparent'
       document.body.style.overflow = 'hidden'
 
-      // 오버레이 모드에서는 데이터 로드 생략
+      // 오버레이 경로에서 로딩 중이었다면 로딩 상태 해제
+      if (isLoading) {
+        setTimeout(() => {
+          dispatch(setIsLoading(false))
+        }, 500) // 약간의 지연 추가
+      }
+
+      // 오버레이 윈도우가 비활성화되었고 현재 오버레이 경로에 있다면, 사용자에게 알림
+      if (!isOverlayEnabled) {
+        createLog('debug', '오버레이 윈도우가 설정에서 비활성화되었습니다.')
+      }
+
+      // 오버레이 모드에서는 추가 초기화 로직 건너뜀
       return
     } else {
       // 오버레이 모드가 아닐 때는 기본 스타일로 복원
@@ -410,232 +427,234 @@ export default function WrappedApp() {
 
         void startInitialization()
       }
+    }
 
-      // 서버에서 데이터 로드 및 초기화 로직
-      const initializeApp = async () => {
+    // 서버에서 데이터 로드 및 초기화 로직
+    const initializeApp = async () => {
+      createLog(
+        'debug',
+        settingData.language === 'ko_KR' ? '🚀 앱 초기화 시작' : '🚀 App initialization started',
+      )
+
+      try {
+        const response = await apiClient.healthCheck()
+        if (response.status === 200) {
+          createLog('debug', '서버 상태 확인 성공')
+        } else {
+          createLog('error', '서버 상태 확인 실패')
+        }
+      } catch (error) {
+        createLog('error', '서버 상태 확인 중 오류 발생:', error)
+      }
+
+      // 디스코드와 게임 모니터 초기화 상태 추적
+      const servicesInitialized = { discord: false, monitor: false }
+
+      // 디스코드 초기화
+      if (!servicesInitialized.discord) {
         createLog(
           'debug',
-          settingData.language === 'ko_KR' ? '🚀 앱 초기화 시작' : '🚀 App initialization started',
+          settingData.language === 'ko_KR'
+            ? '디스코드 매니저 초기화 시작'
+            : 'Discord manager initialization started',
         )
-
         try {
-          const response = await apiClient.healthCheck()
-          if (response.status === 200) {
-            createLog('debug', '서버 상태 확인 성공')
-          } else {
-            createLog('error', '서버 상태 확인 실패')
-          }
-        } catch (error) {
-          createLog('error', '서버 상태 확인 중 오류 발생:', error)
-        }
-
-        // 디스코드와 게임 모니터 초기화 상태 추적
-        const servicesInitialized = { discord: false, monitor: false }
-
-        // 디스코드 초기화
-        if (!servicesInitialized.discord) {
+          window.electron.initializeDiscord()
+          servicesInitialized.discord = true
           createLog(
             'debug',
             settingData.language === 'ko_KR'
-              ? '디스코드 매니저 초기화 시작'
-              : 'Discord manager initialization started',
+              ? '디스코드 매니저 초기화 완료'
+              : 'Discord manager initialization completed',
           )
-          try {
-            window.electron.initializeDiscord()
-            servicesInitialized.discord = true
-            createLog(
-              'debug',
-              settingData.language === 'ko_KR'
-                ? '디스코드 매니저 초기화 완료'
-                : 'Discord manager initialization completed',
-            )
-          } catch (error) {
-            createLog(
-              'error',
-              settingData.language === 'ko_KR'
-                ? `디스코드 매니저 초기화 실패: ${error.message}`
-                : `Discord manager initialization failed: ${error.message}`,
-            )
-          }
-        }
-
-        // 게임 모니터링 초기화
-        if (!servicesInitialized.monitor) {
-          createLog(
-            'debug',
-            settingData.language === 'ko_KR'
-              ? '게임 모니터 초기화 시작'
-              : 'Game monitor initialization started',
-          )
-          try {
-            window.electron.initializeMonitor()
-            servicesInitialized.monitor = true
-            createLog(
-              'debug',
-              settingData.language === 'ko_KR'
-                ? '게임 모니터 초기화 완료'
-                : 'Game monitor initialization completed',
-            )
-          } catch (error) {
-            createLog(
-              'error',
-              settingData.language === 'ko_KR'
-                ? `게임 모니터 초기화 실패: ${error.message}`
-                : `Game monitor initialization failed: ${error.message}`,
-            )
-          }
-        }
-
-        // 설정 모달 상태 초기화
-        dispatch(setIsSetting(false))
-
-        try {
-          // 1. 설정 로드
-          try {
-            if (window.electron?.loadSettings) {
-              const settings = await window.electron.loadSettings()
-              dispatch(setSettingData(settings))
-              createLog(
-                'debug',
-                settingData.language === 'ko_KR' ? '설정 로드됨:' : 'Settings loaded:',
-                settings,
-              )
-
-              if (['ko_KR', 'en_US', 'ja_JP'].includes(settings.language)) {
-                void i18n.changeLanguage(settings.language)
-              } else {
-                void i18n.changeLanguage('ko_KR')
-                dispatch(setSettingData({ ...settings, language: 'ko_KR' }))
-                window.electron.saveSettings({ ...settings, language: 'ko_KR' })
-              }
-
-              // 설정 로드 후 잠시 지연
-              await new Promise((resolve) => setTimeout(resolve, 500))
-            }
-          } catch (error) {
-            createLog(
-              'error',
-              settingData.language === 'ko_KR' ? '설정 로드 실패:' : 'Settings load failed:',
-              error.message,
-            )
-            // 오류 발생 시에도 계속 진행
-            await new Promise((resolve) => setTimeout(resolve, 500))
-          }
-
-          // 2. 세션 데이터 로드 및 자동 로그인
-          try {
-            if (window.electron?.getSession) {
-              const session = await window.electron.getSession()
-
-              // 세션 로드 후 잠시 지연
-              await new Promise((resolve) => setTimeout(resolve, 300))
-
-              if (session?.playerId && session?.playerToken) {
-                try {
-                  createLog(
-                    'debug',
-                    settingData.language === 'ko_KR'
-                      ? '세션 데이터가 존재하여 자동 로그인 요청:'
-                      : 'Session data exists, requesting auto-login:',
-                    session,
-                  )
-
-                  const response = await apiClient.post<SessionData>(
-                    `/v3/racla/player/login`,
-                    {
-                      playerId: session.playerId,
-                      playerToken: session.playerToken,
-                    },
-                    {
-                      timeout: 10000,
-                    },
-                  )
-
-                  if (response.status === 200) {
-                    const sessionData = response.data.data
-
-                    // API 응답 이후 잠시 지연
-                    await new Promise((resolve) => setTimeout(resolve, 300))
-
-                    const success = await window.electron.login({
-                      playerId: sessionData.playerId,
-                      playerToken: sessionData.playerToken,
-                    })
-                    if (success) {
-                      createLog(
-                        'debug',
-                        settingData.language === 'ko_KR' ? '로그인 성공:' : 'Login successful:',
-                        sessionData,
-                      )
-                      // 사용자 정보 설정
-                      dispatch(setUserData(response.data.data))
-                      dispatch(setIsLoggedIn(true))
-                      showNotification(
-                        {
-                          mode: 'i18n',
-                          value: 'auth.loginSuccess',
-                          props: { userName: sessionData.playerName },
-                        },
-                        'success',
-                      )
-                    }
-                  } else {
-                    createLog(
-                      'error',
-                      settingData.language === 'ko_KR' ? '세션 로드 실패:' : 'Session load failed:',
-                      session,
-                    )
-                    logout()
-                  }
-                } catch (error) {
-                  createLog(
-                    'error',
-                    settingData.language === 'ko_KR' ? '로그인 API 오류:' : 'Login API error:',
-                    error.message,
-                  )
-                  logout()
-                }
-              }
-            }
-          } catch (error) {
-            createLog(
-              'error',
-              settingData.language === 'ko_KR' ? '세션 로드 실패:' : 'Session load failed:',
-              error.message,
-            )
-            logout()
-          }
-
-          // 3. 곡 데이터 로드 이전에 추가 지연
-          await new Promise((resolve) => setTimeout(resolve, 1000))
-
-          createLog(
-            'debug',
-            settingData.language === 'ko_KR' ? '곡 데이터 로드 시작' : 'Starting song data loading',
-          )
-
-          // 곡 데이터 로드 (초기 로딩 시에만 알림 표시)
-          await loadAllSongData(true)
-
-          createLog(
-            'debug',
-            settingData.language === 'ko_KR' ? '앱 초기화 완료' : 'App initialization completed',
-          )
-
-          dispatch(setIsLoading(false))
         } catch (error) {
           createLog(
             'error',
-            settingData.language === 'ko_KR' ? '앱 초기화 실패:' : 'App initialization failed:',
-            error.message,
+            settingData.language === 'ko_KR'
+              ? `디스코드 매니저 초기화 실패: ${error.message}`
+              : `Discord manager initialization failed: ${error.message}`,
           )
-
-          // 오류가 발생해도 로딩 상태는 해제
-          dispatch(setIsLoading(false))
         }
       }
 
-      // 5분마다 곡 데이터 리프레시 (알림 표시 없음)
+      // 게임 모니터링 초기화
+      if (!servicesInitialized.monitor) {
+        createLog(
+          'debug',
+          settingData.language === 'ko_KR'
+            ? '게임 모니터 초기화 시작'
+            : 'Game monitor initialization started',
+        )
+        try {
+          window.electron.initializeMonitor()
+          servicesInitialized.monitor = true
+          createLog(
+            'debug',
+            settingData.language === 'ko_KR'
+              ? '게임 모니터 초기화 완료'
+              : 'Game monitor initialization completed',
+          )
+        } catch (error) {
+          createLog(
+            'error',
+            settingData.language === 'ko_KR'
+              ? `게임 모니터 초기화 실패: ${error.message}`
+              : `Game monitor initialization failed: ${error.message}`,
+          )
+        }
+      }
+
+      // 설정 모달 상태 초기화
+      dispatch(setIsSetting(false))
+
+      try {
+        // 1. 설정 로드
+        try {
+          if (window.electron?.loadSettings) {
+            const settings = await window.electron.loadSettings()
+            dispatch(setSettingData(settings))
+            createLog(
+              'debug',
+              settingData.language === 'ko_KR' ? '설정 로드됨:' : 'Settings loaded:',
+              settings,
+            )
+
+            if (['ko_KR', 'en_US', 'ja_JP'].includes(settings.language)) {
+              void i18n.changeLanguage(settings.language)
+            } else {
+              void i18n.changeLanguage('ko_KR')
+              dispatch(setSettingData({ ...settings, language: 'ko_KR' }))
+              window.electron.saveSettings({ ...settings, language: 'ko_KR' })
+            }
+
+            // 설정 로드 후 잠시 지연
+            await new Promise((resolve) => setTimeout(resolve, 500))
+          }
+        } catch (error) {
+          createLog(
+            'error',
+            settingData.language === 'ko_KR' ? '설정 로드 실패:' : 'Settings load failed:',
+            error.message,
+          )
+          // 오류 발생 시에도 계속 진행
+          await new Promise((resolve) => setTimeout(resolve, 500))
+        }
+
+        // 2. 세션 데이터 로드 및 자동 로그인
+        try {
+          if (window.electron?.getSession) {
+            const session = await window.electron.getSession()
+
+            // 세션 로드 후 잠시 지연
+            await new Promise((resolve) => setTimeout(resolve, 300))
+
+            if (session?.playerId && session?.playerToken) {
+              try {
+                createLog(
+                  'debug',
+                  settingData.language === 'ko_KR'
+                    ? '세션 데이터가 존재하여 자동 로그인 요청:'
+                    : 'Session data exists, requesting auto-login:',
+                  session,
+                )
+
+                const response = await apiClient.post<SessionData>(
+                  `/v3/racla/player/login`,
+                  {
+                    playerId: session.playerId,
+                    playerToken: session.playerToken,
+                  },
+                  {
+                    timeout: 10000,
+                  },
+                )
+
+                if (response.status === 200) {
+                  const sessionData = response.data.data
+
+                  // API 응답 이후 잠시 지연
+                  await new Promise((resolve) => setTimeout(resolve, 300))
+
+                  const success = await window.electron.login({
+                    playerId: sessionData.playerId,
+                    playerToken: sessionData.playerToken,
+                  })
+                  if (success) {
+                    createLog(
+                      'debug',
+                      settingData.language === 'ko_KR' ? '로그인 성공:' : 'Login successful:',
+                      sessionData,
+                    )
+                    // 사용자 정보 설정
+                    dispatch(setUserData(response.data.data))
+                    dispatch(setIsLoggedIn(true))
+                    showNotification(
+                      {
+                        mode: 'i18n',
+                        value: 'auth.loginSuccess',
+                        props: { userName: sessionData.playerName },
+                      },
+                      'success',
+                    )
+                  }
+                } else {
+                  createLog(
+                    'error',
+                    settingData.language === 'ko_KR' ? '세션 로드 실패:' : 'Session load failed:',
+                    session,
+                  )
+                  logout()
+                }
+              } catch (error) {
+                createLog(
+                  'error',
+                  settingData.language === 'ko_KR' ? '로그인 API 오류:' : 'Login API error:',
+                  error.message,
+                )
+                logout()
+              }
+            }
+          }
+        } catch (error) {
+          createLog(
+            'error',
+            settingData.language === 'ko_KR' ? '세션 로드 실패:' : 'Session load failed:',
+            error.message,
+          )
+          logout()
+        }
+
+        // 3. 곡 데이터 로드 이전에 추가 지연
+        await new Promise((resolve) => setTimeout(resolve, 1000))
+
+        createLog(
+          'debug',
+          settingData.language === 'ko_KR' ? '곡 데이터 로드 시작' : 'Starting song data loading',
+        )
+
+        // 곡 데이터 로드 (초기 로딩 시에만 알림 표시)
+        await loadAllSongData(true)
+
+        createLog(
+          'debug',
+          settingData.language === 'ko_KR' ? '앱 초기화 완료' : 'App initialization completed',
+        )
+
+        dispatch(setIsLoading(false))
+      } catch (error) {
+        createLog(
+          'error',
+          settingData.language === 'ko_KR' ? '앱 초기화 실패:' : 'App initialization failed:',
+          error.message,
+        )
+
+        // 오류가 발생해도 로딩 상태는 해제
+        dispatch(setIsLoading(false))
+      }
+    }
+
+    // 5분마다 곡 데이터 리프레시 (알림 표시 없음) - 오버레이 모드가 아닐 때만
+    if (!isOverlayPath) {
       const songRefreshInterval = setInterval(
         () => {
           createLog(
@@ -689,7 +708,7 @@ export default function WrappedApp() {
         clearInterval(songRefreshInterval)
       }
     }
-  }, [isLoading, location.pathname, settingData.language])
+  }, [isLoading, location.pathname, settingData.language, settingData.enableOverlayWindow])
 
   // 오버레이 메시지 처리 이벤트 리스너 추가
   useEffect(() => {
@@ -727,17 +746,6 @@ export default function WrappedApp() {
       // 이벤트 리스너 정리 (필요하다면 구현)
     }
   }, [dispatch])
-
-  // 페이지 로드 및 오버레이 감지
-  useEffect(() => {
-    // 오버레이 모드 감지
-    const isOverlayPath = location.pathname == '/overlay'
-    createLog('debug', 'Overlay Mode:', isOverlayPath)
-    dispatch(setOverlayMode(isOverlayPath))
-    if (isLoading && isOverlayPath) {
-      dispatch(setIsLoading(false))
-    }
-  }, [])
 
   useEffect(() => {
     const isTrackMakerPath =

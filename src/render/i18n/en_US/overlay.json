@@ -11,6 +11,8 @@
   "overlaySettings": "Overlay Settings",
   "overlaySettingsDescription": "You can change the settings of the overlay displayed during gameplay.",
   "overlaySettingsFuture": "More overlay features will be provided in the future.",
+  "enableOverlayWindow": "Enable Overlay Window",
+  "enableOverlayWindowDescription": "Enables the overlay window to be displayed on the screen.",
   "resultOverlay": "Show Result Overlay",
   "resultOverlayDescription": "Displays the captured results and processing from auto capture or manual capture mode as an in-game overlay. DJMAX RESPECT V requires V-ARCHIVE integration, and versus/ladder match screens are not supported.",
   "recentOverlay": "Show Recent Record Overlay with Result Overlay",

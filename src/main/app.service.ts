@@ -23,7 +23,9 @@ export class AppService implements OnApplicationBootstrap {
     this.mainWindow = BrowserWindow.getAllWindows()[0]
   }
 
-  onApplicationBootstrap() {
+  async onApplicationBootstrap() {
+    this.logger.log('Application bootstrapped')
+
     // 앱 ID 설정
     app.setAppUserModelId('RACLA')
 
@@ -128,5 +130,9 @@ export class AppService implements OnApplicationBootstrap {
   restartApp(): void {
     app.relaunch()
     app.exit(0)
+  }
+
+  getHello(): string {
+    return `Hello World! App version: ${app.getVersion()}`
   }
 }

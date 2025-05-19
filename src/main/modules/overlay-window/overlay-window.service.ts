@@ -2,9 +2,11 @@ import { join } from 'node:path'
 
 import { Injectable, Logger } from '@nestjs/common'
 import { app, BrowserWindow, BrowserWindowConstructorOptions } from 'electron'
+import { FileManagerService } from '../file-manager/file-manager.service'
 
 @Injectable()
 export class OverlayWindowService {
+  constructor(private readonly fileManagerService: FileManagerService) {}
   private overlayWindow: BrowserWindow | undefined = undefined
   private readonly logger = new Logger(OverlayWindowService.name)
   private readonly isDev = !app.isPackaged
@@ -44,10 +46,22 @@ export class OverlayWindowService {
   }
 
   public createOverlay(): BrowserWindow | undefined {
+    const settings = this.fileManagerService.loadSettings()
+    // 오버레이 윈도우가 비활성화되어 있으면 생성하지 않음
+    if (settings.enableOverlayWindow === false) {
+      this.logger.debug('설정에 따라 오버레이 윈도우 생성이 비활성화됨')
+      return undefined
+    }
+
     if (this.overlayWindow) {
       this.overlayWindow.focus()
       return this.overlayWindow
     }
+
+    // 약간의 지연 추가
+    setTimeout(() => {
+      this.logger.debug('오버레이 윈도우 생성 시작')
+    }, 100)
 
     this.overlayWindow = new BrowserWindow(this.OVERLAY_SETTING)
 
@@ -56,6 +70,11 @@ export class OverlayWindowService {
     this.overlayWindow.setVisibleOnAllWorkspaces(true)
 
     if (this.URL) {
+      // 로딩 완료 이벤트 추가
+      this.overlayWindow.webContents.on('did-finish-load', () => {
+        this.logger.debug('오버레이 윈도우 컨텐츠 로드 완료')
+      })
+
       this.overlayWindow.loadURL(this.URL)
     } else {
       this.logger.error('Failed to determine URL for overlay window')
@@ -63,16 +82,29 @@ export class OverlayWindowService {
 
     this.overlayWindow.on('closed', () => {
       this.overlayWindow = undefined
+      this.logger.debug('오버레이 윈도우 닫힘')
     })
 
     return this.overlayWindow
   }
 
   public createOverlayInit(): BrowserWindow | undefined {
+    const settings = this.fileManagerService.loadSettings()
+    // 오버레이 윈도우가 비활성화되어 있으면 생성하지 않음
+    if (settings.enableOverlayWindow === false) {
+      this.logger.debug('설정에 따라 오버레이 윈도우 초기화가 비활성화됨')
+      return undefined
+    }
+
     if (this.overlayWindow) {
       this.overlayWindow.focus()
       return this.overlayWindow
     }
+
+    // 약간의 지연 추가
+    setTimeout(() => {
+      this.logger.debug('오버레이 윈도우 초기화 시작')
+    }, 100)
 
     this.overlayWindow = new BrowserWindow(this.OVERLAY_SETTING)
 
@@ -81,6 +113,11 @@ export class OverlayWindowService {
     this.overlayWindow.setVisibleOnAllWorkspaces(true)
 
     if (this.URL) {
+      // 로딩 완료 이벤트 추가
+      this.overlayWindow.webContents.on('did-finish-load', () => {
+        this.logger.debug('오버레이 윈도우 컨텐츠 로드 완료')
+      })
+
       this.overlayWindow.loadURL(this.URL)
     } else {
       this.logger.error('Failed to determine URL for overlay window')
@@ -88,6 +125,7 @@ export class OverlayWindowService {
 
     this.overlayWindow.on('closed', () => {
       this.overlayWindow = undefined
+      this.logger.debug('오버레이 윈도우 닫힘')
     })
 
     return this.overlayWindow
@@ -101,6 +139,11 @@ export class OverlayWindowService {
   }
 
   public sendMessage(message: string): void {
+    const settings = this.fileManagerService.loadSettings()
+    // 오버레이 윈도우가 비활성화되어 있으면 메시지 전송하지 않음
+    if (settings.enableOverlayWindow === false || !this.overlayWindow) {
+      return
+    }
     this.overlayWindow?.webContents.send('overlay-msg', message)
   }
 

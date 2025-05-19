@@ -238,6 +238,13 @@ export const globalDictionary = {
       requiresRestart: false,
       isVisible: false,
     },
+    enableOverlayWindow: {
+      id: 'enableOverlayWindow',
+      defaultValue: true,
+      isEditable: true,
+      requiresRestart: false,
+      isVisible: true,
+    },
     recentOverlay: {
       id: 'recentOverlay',
       defaultValue: false,

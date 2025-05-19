@@ -475,6 +475,28 @@ function OverlayPage() {
     return `${timeStr} (${timezoneStr})`
   }
 
+  useEffect(() => {
+    // 설정 로드 시 지연을 추가하여 초기화 문제 방지
+    const loadSettings = async () => {
+      try {
+        // 잠시 지연 후 설정 로드
+        await new Promise((resolve) => setTimeout(resolve, 1000))
+
+        if (window.electron?.loadSettings) {
+          const settings = await window.electron.loadSettings()
+          if (settings) {
+            dispatch(setSettingData(settings))
+            createOverlayLog('debug', '오버레이 윈도우 설정 로드 완료')
+          }
+        }
+      } catch (error) {
+        createOverlayLog('error', '오버레이 윈도우 설정 로드 실패:', error)
+      }
+    }
+
+    void loadSettings()
+  }, [])
+
   return (
     <div
       className={`tw:flex tw:flex-col tw:gap-2 tw:h-full tw:w-full tw:relative tw:bg-transparent tw:p-2`}
