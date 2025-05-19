@@ -107,7 +107,7 @@ const PlatinaLabBoardPage = () => {
         // 기본 곡 데이터 가져오기
         const baseSongData = processBaseSongData()
 
-        createLog('info', 'baseSongData', { baseSongData })
+        createLog('debug', 'baseSongData', { baseSongData })
 
         // V-ARCHIVE API에서 점수 데이터 가져오기
         const response = await apiClient.get<PlayBoardResponse>(
@@ -144,7 +144,7 @@ const PlatinaLabBoardPage = () => {
                 .filter(Boolean),
             })) || []
 
-          createLog('info', 'combinedFloors', { combinedFloors })
+          createLog('debug', 'combinedFloors', { combinedFloors })
 
           setFloorData(combinedFloors)
         }

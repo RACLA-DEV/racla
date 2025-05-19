@@ -1,3 +1,4 @@
+import { createLog } from '@render/libs/logger'
 import { RootState } from '@render/store'
 import type { NotificationContainerProps } from '@src/types/notifications/NotificationContainerProps'
 import { AnimatePresence, motion } from 'framer-motion'
@@ -13,7 +14,8 @@ export function NotificationContainer({ notifications, onRemove }: NotificationC
   )
 
   // 업데이트 알림이 있는지 여부를 로깅
-  console.log(
+  createLog(
+    'debug',
     `NotificationContainer: 업데이트 알림 ${updateNotifications.length}개, 일반 알림 ${regularNotifications.length}개`,
   )
 

@@ -1,3 +1,4 @@
+import { createLog } from '@render/libs/logger'
 import { RootState } from '@render/store'
 import {
   addNotification,
@@ -48,7 +49,7 @@ export function useNotificationSystem() {
               },
             },
           })
-          console.log('기존 업데이트 알림 업데이트:', existingUpdateNotification.id)
+          createLog('debug', '기존 업데이트 알림 업데이트:', existingUpdateNotification.id)
           return existingUpdateNotification.id
         }
       }

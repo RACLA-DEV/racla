@@ -354,7 +354,7 @@ export const globalDictionary = {
       defaultValue: false,
       isEditable: true,
       requiresRestart: false,
-      isVisible: true,
+      isVisible: false,
     },
     autoDeleteCapturedImages: {
       id: 'autoDeleteCapturedImages',

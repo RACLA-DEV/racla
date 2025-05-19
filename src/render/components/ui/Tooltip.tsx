@@ -94,10 +94,11 @@ const Tooltip: React.FC<TooltipProps> = ({ children, content, position = 'right'
       {isVisible &&
         createPortal(
           <div
-            className={`tw:fixed tw:z-[999999] tw:px-2 tw:py-1 tw:text-xs tw:rounded tw:whitespace-nowrap tw:pointer-events-none tw:opacity-90 tw:dark:bg-slate-900 tw:dark:text-slate-200 tw:dark:shadow-lg tw:bg-gray-700 tw:text-white tw:shadow-md ${getPositionClass()}`}
+            className={`tw:fixed tw:z-[999999] tw:px-2 tw:py-1 tw:text-xs tw:rounded tw:pointer-events-none tw:opacity-90 tw:dark:bg-slate-900 tw:dark:text-slate-200 tw:dark:shadow-lg tw:bg-gray-700 tw:text-white tw:shadow-md ${getPositionClass()}`}
             style={{
               top: `${tooltipPosition.top}px`,
               left: `${tooltipPosition.left}px`,
+              whiteSpace: 'pre-line',
             }}
           >
             {content}

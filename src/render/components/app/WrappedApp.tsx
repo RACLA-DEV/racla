@@ -46,6 +46,7 @@ export default function WrappedApp() {
     (state: RootState) => state.app,
   )
   const { isOverlayMode, alertModal } = useSelector((state: RootState) => state.ui)
+  const { selectedGame } = useSelector((state: RootState) => state.app)
   const location = useLocation()
   const { notifications, removeNotification, showNotification } = useNotificationSystem()
   const { handleConfirm, hideAlert } = useAlert()
@@ -115,7 +116,7 @@ export default function WrappedApp() {
         total: number
         version: string
       }) => {
-        createLog('info', '업데이트 다운로드 진행 상황 이벤트 수신됨:', progress)
+        createLog('debug', '업데이트 다운로드 진행 상황 이벤트 수신됨:', progress)
         try {
           // 직접 showNotification 호출하여 업데이트 알림을 표시/업데이트
           const notificationId = showNotification(
@@ -416,6 +417,17 @@ export default function WrappedApp() {
           'debug',
           settingData.language === 'ko_KR' ? '🚀 앱 초기화 시작' : '🚀 App initialization started',
         )
+
+        try {
+          const response = await apiClient.healthCheck()
+          if (response.status === 200) {
+            createLog('debug', '서버 상태 확인 성공')
+          } else {
+            createLog('error', '서버 상태 확인 실패')
+          }
+        } catch (error) {
+          createLog('error', '서버 상태 확인 중 오류 발생:', error)
+        }
 
         // 디스코드와 게임 모니터 초기화 상태 추적
         const servicesInitialized = { discord: false, monitor: false }
@@ -750,6 +762,10 @@ export default function WrappedApp() {
       dispatch(setRefresh(!refresh))
     }
   }, [location.pathname])
+
+  useEffect(() => {
+    apiClient.cancelAllRequests()
+  }, [location.pathname, selectedGame])
 
   if (isOverlayMode) {
     return <>{!isLoading && <Outlet />}</>
