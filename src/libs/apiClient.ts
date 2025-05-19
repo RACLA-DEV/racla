@@ -1,7 +1,7 @@
 import { ApiResponse } from '@src/types/dto/common/ApiResponse'
 import { ClientErrorLogRequest } from '@src/types/dto/log/ClientErrorLogReqeust'
 import type { ProxyRequest } from '@src/types/dto/proxy/ProxyRequest'
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, CancelTokenSource } from 'axios'
+import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
 
 // 요청 우선순위 정의
 export enum RequestPriority {
@@ -16,9 +16,6 @@ const HEALTH_CHECK_TIMEOUT = 60000 // 60초
 const HEALTH_CHECK_ID = 'health-check' // 헬스체크 요청 ID 상수
 const ERROR_LOG_ID = 'error-log' // 에러 로그 요청 ID 상수
 const TARGET_HEALTH_CHECK_ID = 'target-health-check' // 대상 사이트 헬스체크 ID 상수
-
-// 취소되지 않는 요청 ID 목록
-const NON_CANCELABLE_IDS = [HEALTH_CHECK_ID, ERROR_LOG_ID, TARGET_HEALTH_CHECK_ID]
 
 // 프록시 대상 URL 목록
 const PROXY_TARGET_URLS = ['https://v-archive.net', 'https://hard-archive.com']
@@ -40,10 +37,6 @@ interface RequestItem<T> {
 
 class ApiClient {
   private client: AxiosInstance
-  private cancelTokens: Map<string, CancelTokenSource> = new Map()
-  private maxConcurrentRequests: number = 6 // 최대 동시 요청 수
-  private activeRequests: number = 0 // 현재 활성 요청 수
-  private requestQueue: RequestItem<any>[] = [] // 요청 대기열
   private targetUrlStatus: Map<string, boolean> = new Map() // 대상 URL 가용성 상태
 
   constructor(
@@ -60,175 +53,25 @@ class ApiClient {
       timeout: DEFAULT_TIMEOUT,
     })
 
-    // 초기화 시 프록시 URL 상태 설정
+    // 초기화 시 프록시 URL 상태를 true로 설정 (항상 가용하도록)
     PROXY_TARGET_URLS.forEach((url) => {
-      this.targetUrlStatus.set(url, false)
+      this.targetUrlStatus.set(url, true)
     })
   }
 
   /**
-   * 요청이 취소 불가능한지 확인합니다
-   * @param requestId 요청 식별자
-   * @returns 취소 불가능 여부
-   */
-  private isNonCancelable(requestId: string): boolean {
-    return NON_CANCELABLE_IDS.includes(requestId)
-  }
-
-  /**
-   * 요청을 위한 취소 토큰을 생성합니다.
-   * @param requestId 요청 식별자
-   * @returns 취소 토큰
-   */
-  private createCancelToken(requestId: string): CancelTokenSource {
-    // 이미 존재하는 같은 ID의 요청이 있다면 취소
-    if (!this.isNonCancelable(requestId)) {
-      this.cancelRequest(requestId)
-    }
-
-    // 새 취소 토큰 생성
-    const source = axios.CancelToken.source()
-    this.cancelTokens.set(requestId, source)
-    return source
-  }
-
-  /**
-   * 특정 요청을 취소합니다.
-   * @param requestId 취소할 요청의 ID
-   */
-  public cancelRequest(requestId: string): void {
-    // 취소 불가능한 요청은 취소하지 않음
-    if (this.isNonCancelable(requestId)) {
-      return
-    }
-
-    const source = this.cancelTokens.get(requestId)
-    if (source) {
-      source.cancel(`Request ${requestId} canceled`)
-      this.cancelTokens.delete(requestId)
-    }
-
-    // 큐에서도 해당 요청 제거
-    this.requestQueue = this.requestQueue.filter((item) => item.requestId !== requestId)
-  }
-
-  /**
-   * 모든 진행 중인 요청을 취소합니다. (취소 불가능 요청 제외)
-   */
-  public cancelAllRequests(): void {
-    this.cancelTokens.forEach((source, id) => {
-      // 취소 불가능한 요청은 취소하지 않음
-      if (!this.isNonCancelable(id)) {
-        source.cancel(`Request ${id} canceled due to cancelAllRequests call`)
-        this.cancelTokens.delete(id)
-      }
-    })
-    // 취소 불가능한 요청을 제외한 모든 큐 요청 제거
-    this.requestQueue = this.requestQueue.filter((item) => this.isNonCancelable(item.requestId))
-  }
-
-  /**
-   * 클라이언트 정리 작업을 수행합니다.
-   * 애플리케이션 종료 시 호출하여 리소스를 정리할 수 있습니다.
-   */
-  public cleanup(): void {
-    // 모든 진행 중인 요청 취소
-    this.cancelAllRequests()
-  }
-
-  /**
-   * 요청을 큐에 추가하고 처리를 시작합니다.
-   * @param requestItem 요청 아이템
-   * @returns 요청 결과를 포함한 Promise
-   */
-  private async enqueueRequest<T>(
-    requestItem: RequestItem<T>,
-  ): Promise<AxiosResponse<ApiResponse<T>>> {
-    // 높은 우선순위 요청이거나 동시 요청 제한에 도달하지 않았다면 바로 실행
-    if (
-      requestItem.priority === RequestPriority.HIGH ||
-      this.activeRequests < this.maxConcurrentRequests
-    ) {
-      return this.executeRequest(requestItem)
-    }
-
-    // 그렇지 않으면 큐에 추가
-    return new Promise<AxiosResponse<ApiResponse<T>>>((resolve, reject) => {
-      // 우선순위에 따라 큐에 정렬하여 삽입
-      let inserted = false
-      for (let i = 0; i < this.requestQueue.length; i++) {
-        if (this.requestQueue[i].priority > requestItem.priority) {
-          this.requestQueue.splice(i, 0, {
-            ...requestItem,
-            execute: async () => {
-              try {
-                const response = await requestItem.execute()
-                resolve(response)
-                return response
-              } catch (error) {
-                reject(error)
-                throw error
-              }
-            },
-          })
-          inserted = true
-          break
-        }
-      }
-
-      // 적절한 위치를 찾지 못했으면 맨 뒤에 추가
-      if (!inserted) {
-        this.requestQueue.push({
-          ...requestItem,
-          execute: async () => {
-            try {
-              const response = await requestItem.execute()
-              resolve(response)
-              return response
-            } catch (error) {
-              reject(error)
-              throw error
-            }
-          },
-        })
-      }
-
-      // 큐 처리 시작
-      this.processQueue()
-    })
-  }
-
-  /**
-   * 큐에서 다음 요청을 처리합니다.
-   */
-  private processQueue() {
-    // 활성 요청이 제한 미만이고 큐에 요청이 있으면 다음 요청 처리
-    if (this.activeRequests < this.maxConcurrentRequests && this.requestQueue.length > 0) {
-      const nextRequest = this.requestQueue.shift()
-      if (nextRequest) {
-        this.executeRequest(nextRequest).catch(() => {
-          // 에러 처리는 이미 요청 내부에서 처리됨
-        })
-      }
-    }
-  }
-
-  /**
-   * 요청을 실행합니다.
+   * 요청을 직접 실행합니다.
    * @param requestItem 요청 아이템
    * @returns 요청 결과를 포함한 Promise
    */
   private async executeRequest<T>(
     requestItem: RequestItem<T>,
   ): Promise<AxiosResponse<ApiResponse<T>>> {
-    this.activeRequests++
     try {
       const response = await requestItem.execute()
       return response
-    } finally {
-      this.activeRequests--
-      // 다음 요청 처리
-      this.processQueue()
+    } catch (error) {
+      throw error
     }
   }
 
@@ -248,22 +91,16 @@ class ApiClient {
   ): Promise<AxiosResponse<ApiResponse<T>>> {
     const effectiveRequestId = requestId || `get:${url}`
 
-    return this.enqueueRequest<T>({
+    return this.executeRequest<T>({
       requestId: effectiveRequestId,
       priority,
       execute: async () => {
-        const source = this.createCancelToken(effectiveRequestId)
         try {
           const response = await this.client.get<ApiResponse<T>>(url, {
             ...config,
-            cancelToken: source.token,
           })
-          this.cancelTokens.delete(effectiveRequestId)
           return response
         } catch (error) {
-          if (!axios.isCancel(error)) {
-            this.cancelTokens.delete(effectiveRequestId)
-          }
           throw error
         }
       },
@@ -288,25 +125,19 @@ class ApiClient {
   ): Promise<AxiosResponse<ApiResponse<T>>> {
     const effectiveRequestId = requestId || `post:${url}`
 
-    return this.enqueueRequest<T>({
+    return this.executeRequest<T>({
       requestId: effectiveRequestId,
       priority,
       execute: async () => {
-        const source = this.createCancelToken(effectiveRequestId)
         try {
           const requestConfig: AxiosRequestConfig = {
             ...config,
             withCredentials: true,
-            cancelToken: source.token,
           }
 
           const response = await this.client.post<ApiResponse<T>>(url, data, requestConfig)
-          this.cancelTokens.delete(effectiveRequestId)
           return response
         } catch (error) {
-          if (!axios.isCancel(error)) {
-            this.cancelTokens.delete(effectiveRequestId)
-          }
           throw error
         }
       },
@@ -455,39 +286,6 @@ class ApiClient {
    */
   public getTargetUrlStatus(): Map<string, boolean> {
     return this.targetUrlStatus
-  }
-
-  /**
-   * 페이지 전환 시 호출되는 메서드로, 새 페이지에 필요한 요청을 보호하면서 불필요한 요청은 취소합니다.
-   * @param preservePatterns 보존할 요청 ID 패턴 배열 (예: ['get:new', 'post:init'])
-   */
-  public cancelRequestsExcept(preservePatterns: string[] = []): void {
-    // 취소 불가능한 요청 ID와 보존할 패턴에 매칭되지 않는 요청만 취소
-    this.cancelTokens.forEach((source, id) => {
-      // 취소 불가능한 요청이거나 보존 패턴과 일치하는 요청은 취소하지 않음
-      if (this.isNonCancelable(id) || this.matchesAnyPattern(id, preservePatterns)) {
-        return
-      }
-      source.cancel(`Request ${id} canceled due to page navigation`)
-      this.cancelTokens.delete(id)
-    })
-
-    // 큐에서도 해당 요청들 제거
-    this.requestQueue = this.requestQueue.filter(
-      (item) =>
-        this.isNonCancelable(item.requestId) ||
-        this.matchesAnyPattern(item.requestId, preservePatterns),
-    )
-  }
-
-  /**
-   * 요청 ID가 주어진 패턴 중 하나와 일치하는지 확인합니다.
-   * @param requestId 요청 ID
-   * @param patterns 패턴 배열
-   * @returns 패턴 일치 여부
-   */
-  private matchesAnyPattern(requestId: string, patterns: string[]): boolean {
-    return patterns.some((pattern) => requestId.includes(pattern))
   }
 }
 

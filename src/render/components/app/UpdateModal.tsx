@@ -8,6 +8,18 @@ import { useDispatch, useSelector } from 'react-redux'
 // 하드코딩된 업데이트 내역 데이터 (배열로 변경)
 const UPDATE_NOTES = [
   {
+    version: 'V0.8.6',
+    date: '2025-05-19',
+    notes: [
+      {
+        category: '수정',
+        items: [
+          'API 요청 - 일부 요청이 취소되는 버그를 수정하였습니다. (성과표 조회 불가 현상 등)',
+        ],
+      },
+    ],
+  },
+  {
     version: 'V0.8.5',
     date: '2025-05-19',
     notes: [
