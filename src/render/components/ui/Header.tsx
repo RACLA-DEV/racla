@@ -213,7 +213,7 @@ const TitleBar: React.FC = () => {
             </button>
           </Tooltip>
 
-          <Tooltip position='bottom' content={t('ui.close', { ns: 'common' })}>
+          <Tooltip position='left' content={t('ui.close', { ns: 'common' })}>
             <button
               onClick={() => closeApp()}
               className='tw:p-1.5 tw:rounded tw:text-red-500 tw:hover:bg-red-500 tw:hover:text-white tw:transition-all'
