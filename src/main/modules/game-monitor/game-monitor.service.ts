@@ -229,9 +229,10 @@ export class GameMonitorService {
                       this.logger.debug('Result screen successfully sent to server')
                       this.logger.debug(response)
 
-                      this.overlayWindowService
-                        .getOverlayWindow()
-                        .webContents.send('overlay-ocr-result', response)
+                      const overlayWindow = await this.overlayWindowService.getOverlayWindow()
+                      if (overlayWindow) {
+                        overlayWindow.webContents.send('overlay-ocr-result', response)
+                      }
 
                       this.mainWindowService.sendMessage(
                         JSON.stringify({
