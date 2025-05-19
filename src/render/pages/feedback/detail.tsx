@@ -182,9 +182,10 @@ export default function FeedbackDetailPage() {
         },
       )
 
-      if (response.status === 201) {
+      if (response.data.success) {
         setNewComment('')
-        void fetchBugDetail()
+        setBug((prev) => ({ ...prev, comments: [...prev.comments, response.data.data] }))
+        // void fetchBugDetail()
       }
     } catch (error) {
       createLog('error', 'Error in handleAddComment', error)

@@ -1,1 +1,1 @@
-export const BUILD_DATE = '202505182142 Client (Vite)';
+export const BUILD_DATE = '202505191337 Client (Vite Developer Build)';

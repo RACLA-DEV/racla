@@ -98,12 +98,20 @@ contextBridge.exposeInMainWorld('electron', {
     })
   },
   onDownloadProgress: (
-    callback: (progress: { percent: number; transferred: number; total: number }) => void,
+    callback: (progress: {
+      percent: number
+      transferred: number
+      total: number
+      version?: string
+    }) => void,
   ) => {
     // 기존 리스너가 있다면 제거 (중복 이벤트 방지)
     ipcRenderer.removeAllListeners('download-progress')
     ipcRenderer.on('download-progress', (_event, progress) => {
       console.log('[Preload] download-progress 이벤트 수신됨:', progress)
+
+      // 버전 정보를 가지고 있는 전역 변수 또는 마지막 버전 정보가 있다면 추가
+      // 주의: 이 부분은 전역 상태 관리가 필요할 수 있음
       callback(progress)
     })
   },

@@ -6,11 +6,10 @@ import { setOverlayMode, setSidebarCollapsed } from '@render/store/slices/uiSlic
 import { GameType } from '@src/types/games/GameType'
 import { SongData } from '@src/types/games/SongData'
 import { SessionData } from '@src/types/sessions/SessionData'
-import React, { lazy, Suspense, useCallback, useEffect, useState } from 'react'
+import React, { lazy, Suspense, useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useDispatch, useSelector } from 'react-redux'
 import { Outlet, useLocation } from 'react-router-dom'
-import { v4 as uuidv4 } from 'uuid'
 import apiClient from '../../../libs/apiClient'
 import { useNotificationSystem } from '../../hooks/useNotifications'
 import { createLog } from '../../libs/logger'
@@ -29,7 +28,9 @@ import { ThemeProvider } from '../ui/ThemeProvider'
 
 // 지연 로딩을 위한 컴포넌트 임포트
 const NotificationContainer = lazy(() =>
-  import('../ui/Notification').then((module) => ({ default: module.NotificationContainer })),
+  import('../ui/NotificationContainer').then((module) => ({
+    default: module.NotificationContainer,
+  })),
 )
 const ExternalLinkModal = lazy(() => import('./ExternalLinkModal'))
 const LoadingSkeleton = lazy(() => import('./LoadingSkeleton'))
@@ -50,8 +51,6 @@ export default function WrappedApp() {
   const { handleConfirm, hideAlert } = useAlert()
   const dispatch = useDispatch()
   const { logout } = useAuth()
-  const [updateNotificationId, setUpdateNotificationId] = useState<string | null>(null)
-  const [updateVersion, setUpdateVersion] = useState<string | null>(null)
   const { i18n } = useTranslation()
 
   // 앱 초기화 상태를 추적하는 ref를 컴포넌트 최상위 레벨로 이동
@@ -63,7 +62,7 @@ export default function WrappedApp() {
   useEffect(() => {
     // electron 객체가 없으면 실행하지 않음
     if (!window.electron) {
-      createLog('warn', '업데이트 이벤트 리스너 등록 실패: electron 객체 없음')
+      createLog('debug', '업데이트 이벤트 리스너 등록 실패: electron 객체 없음')
       return
     }
 
@@ -89,23 +88,24 @@ export default function WrappedApp() {
     try {
       // 업데이트 가용 시 이벤트 리스너
       const updateAvailableHandler = (version: string) => {
-        createLog('info', '업데이트 가용 이벤트 수신됨:', version)
-        const id = uuidv4()
-        setUpdateNotificationId(id)
-        setUpdateVersion(version)
-
+        createLog('debug', '업데이트 가용 이벤트 수신됨:', version)
         // 기존 디스패치 대신 showNotification 사용
-        showNotification(
-          {
-            mode: 'i18n',
-            value: 'update.updateAvailable',
-            ns: 'common',
-            props: { version },
-          },
-          'update',
-          0, // 자동 제거 안함
-          { version },
-        )
+        try {
+          const notificationId = showNotification(
+            {
+              mode: 'i18n',
+              value: 'update.updateAvailable',
+              ns: 'common',
+              props: { version },
+            },
+            'update',
+            0, // 자동 제거 안함
+            { version },
+          )
+          createLog('debug', `업데이트 알림 표시됨 (ID: ${notificationId})`)
+        } catch (error) {
+          createLog('debug', '업데이트 알림 표시 중 오류 발생:', error)
+        }
       }
 
       // 다운로드 진행 상황 이벤트 리스너
@@ -113,35 +113,40 @@ export default function WrappedApp() {
         percent: number
         transferred: number
         total: number
+        version: string
       }) => {
         createLog('info', '업데이트 다운로드 진행 상황 이벤트 수신됨:', progress)
-        if (updateNotificationId) {
-          // 기존 알림 업데이트 사용
-          showNotification(
+        try {
+          // 직접 showNotification 호출하여 업데이트 알림을 표시/업데이트
+          const notificationId = showNotification(
             {
               mode: 'i18n',
               value: 'update.downloading',
               ns: 'common',
               props: {
-                version: updateVersion,
+                version: progress.version || '',
                 percent: String(Math.round(progress.percent || 0)),
               },
             },
             'update',
             0, // 자동 제거 안함
-            { progress },
+            { progress, version: progress.version },
           )
-        } else {
-          createLog('warn', '업데이트 다운로드 진행 상황을 표시할 알림 ID가 없음')
+          createLog(
+            'debug',
+            `업데이트 진행 알림 업데이트됨 (ID: ${notificationId}, 버전: ${progress.version})`,
+          )
+        } catch (error) {
+          createLog('debug', '업데이트 진행 알림 업데이트 중 오류 발생:', error)
         }
       }
 
       // 업데이트 다운로드 완료 이벤트 리스너
       const updateDownloadedHandler = (version: string) => {
-        createLog('info', '업데이트 다운로드 완료 이벤트 수신됨:', version)
-        if (updateNotificationId) {
-          // 기존 알림 업데이트 사용
-          showNotification(
+        createLog('debug', '업데이트 다운로드 완료 이벤트 수신됨:', version)
+        try {
+          // 직접 showNotification 호출하여 다운로드 완료 알림을 표시
+          const notificationId = showNotification(
             {
               mode: 'i18n',
               value: 'update.downloaded',
@@ -152,8 +157,9 @@ export default function WrappedApp() {
             0, // 자동 제거 안함
             { version, isDownloaded: true },
           )
-        } else {
-          createLog('warn', '업데이트 다운로드 완료를 표시할 알림 ID가 없음')
+          createLog('debug', `업데이트 완료 알림 표시됨 (ID: ${notificationId})`)
+        } catch (error) {
+          createLog('debug', '업데이트 완료 알림 표시 중 오류 발생:', error)
         }
       }
 
