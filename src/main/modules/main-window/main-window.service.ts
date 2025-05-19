@@ -25,7 +25,11 @@ export class MainWindowService {
     try {
       // 앱이 패키징되었는지 확인
       const iconPath = app.isPackaged
-        ? path.join(__dirname + '/../../resources/', 'icon-tray.ico')
+        ? path.join(
+            app.getPath('exe').split('\\').slice(0, -1).join('\\'),
+            'resources',
+            'icon-tray.ico',
+          )
         : path.join(__dirname + '/../../resources/', 'icon-tray.ico')
 
       // 아이콘 생성

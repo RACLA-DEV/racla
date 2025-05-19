@@ -763,9 +763,15 @@ export default function WrappedApp() {
     }
   }, [location.pathname])
 
-  useEffect(() => {
-    apiClient.cancelAllRequests()
-  }, [location.pathname, selectedGame])
+  // useEffect(() => {
+  //   // 페이지 전환 시 특정 패턴을 가진 요청을 보존하면서 나머지는 취소
+  //   // 여기서는 예시로 새 페이지에서 일반적으로 필요한 요청 패턴을 지정
+  //   apiClient.cancelRequestsExcept([
+  //     '/v4/racla/ping', // 헬스체크 요청 보존
+  //     `get:${location.pathname}`, // 현재 페이지와 관련된 GET 요청 보존
+  //     `post:${location.pathname}`, // 현재 페이지와 관련된 POST 요청 보존
+  //   ])
+  // }, [location.pathname, selectedGame])
 
   if (isOverlayMode) {
     return <>{!isLoading && <Outlet />}</>

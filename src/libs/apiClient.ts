@@ -28,7 +28,7 @@ interface ServerStatusResponse {
   version: string
   hard_archive_status: boolean
   v_archive_status: boolean
-  last_checked: string
+  last_checked_utc: string
 }
 
 // 요청 객체 인터페이스
@@ -455,6 +455,39 @@ class ApiClient {
    */
   public getTargetUrlStatus(): Map<string, boolean> {
     return this.targetUrlStatus
+  }
+
+  /**
+   * 페이지 전환 시 호출되는 메서드로, 새 페이지에 필요한 요청을 보호하면서 불필요한 요청은 취소합니다.
+   * @param preservePatterns 보존할 요청 ID 패턴 배열 (예: ['get:new', 'post:init'])
+   */
+  public cancelRequestsExcept(preservePatterns: string[] = []): void {
+    // 취소 불가능한 요청 ID와 보존할 패턴에 매칭되지 않는 요청만 취소
+    this.cancelTokens.forEach((source, id) => {
+      // 취소 불가능한 요청이거나 보존 패턴과 일치하는 요청은 취소하지 않음
+      if (this.isNonCancelable(id) || this.matchesAnyPattern(id, preservePatterns)) {
+        return
+      }
+      source.cancel(`Request ${id} canceled due to page navigation`)
+      this.cancelTokens.delete(id)
+    })
+
+    // 큐에서도 해당 요청들 제거
+    this.requestQueue = this.requestQueue.filter(
+      (item) =>
+        this.isNonCancelable(item.requestId) ||
+        this.matchesAnyPattern(item.requestId, preservePatterns),
+    )
+  }
+
+  /**
+   * 요청 ID가 주어진 패턴 중 하나와 일치하는지 확인합니다.
+   * @param requestId 요청 ID
+   * @param patterns 패턴 배열
+   * @returns 패턴 일치 여부
+   */
+  private matchesAnyPattern(requestId: string, patterns: string[]): boolean {
+    return patterns.some((pattern) => requestId.includes(pattern))
   }
 }
 

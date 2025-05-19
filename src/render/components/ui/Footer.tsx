@@ -3,13 +3,13 @@ import { globalDictionary } from '@render/constants/globalDictionary'
 import { createLog } from '@render/libs/logger'
 import { RootState } from '@render/store'
 import { setIsOpenExternalLink, setOpenExternalLink } from '@render/store/slices/uiSlice'
+import dayjs from 'dayjs'
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useDispatch, useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
 import apiClient from '../../../libs/apiClient'
 import Tooltip from './Tooltip'
-
 // 서버 상태 열거형
 enum ServerStatus {
   ALL_ONLINE = 'ALL_ONLINE', // 모든 서버 정상
@@ -101,7 +101,7 @@ const Footer: React.FC = () => {
     }
 
     if (lastChecked) {
-      content += `Last Check: ${lastChecked}\n`
+      content += `Last Check: ${dayjs(lastChecked).format('YYYY-MM-DD HH:mm:ss')}\n`
     }
 
     return content
@@ -149,7 +149,7 @@ const Footer: React.FC = () => {
         const serverData = response.data.data
         setServerVersion(serverData.version || '')
         setIsMainServerOnline(true)
-        setLastChecked(serverData.last_checked || '')
+        setLastChecked(serverData.last_checked_utc || '')
 
         // 프록시 서버 상태 업데이트
         if (selectedGame === 'djmax_respect_v') {
@@ -310,7 +310,7 @@ const Footer: React.FC = () => {
                 </div>
                 <span className='tw:leading-none tw:flex tw:items-center'>
                   {isMainServerOnline
-                    ? `${getStatusMessage()} · ${serverVersion || ''} · ${lastChecked ? `Last Check: ${lastChecked} · ` : ''}${globalDictionary.version}`
+                    ? `${getStatusMessage()} · ${serverVersion || ''} · ${globalDictionary.version}`
                     : `${getStatusMessage()} · ${globalDictionary.version}`}
                 </span>
               </span>
