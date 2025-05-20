@@ -401,31 +401,6 @@ function OverlayPage() {
     return typeStyles[type]
   }
 
-  // 현재 언어에 따른 시간대 가져오기
-  const getTimezoneByLocale = () => {
-    const locale = i18n.language || 'en_US'
-    // 한국어와 일본어인 경우 UTC+9 반환
-    if (locale === 'ko_KR' || locale === 'ja_JP') {
-      return 'Asia/Seoul'
-    }
-    // 기본적으로는 UTC 반환
-    return 'UTC'
-  }
-
-  // 날짜 형식화 함수
-  const formatDateTime = (timestamp: string) => {
-    const timezone = getTimezoneByLocale()
-    // 서버에서 이미 UTC+9로 보내주므로, 한국/일본어가 아닌 경우 9시간을 뺌
-    let adjustedTime = timestamp
-    if (timezone === 'UTC') {
-      adjustedTime = dayjs(timestamp).subtract(9, 'hour').format('YYYY-MM-DD HH:mm:ss')
-    }
-
-    const timeStr = dayjs(adjustedTime).format('YYYY-MM-DD HH:mm:ss')
-    const timezoneStr = timezone === 'UTC' ? 'UTC' : 'UTC+9'
-    return `${timeStr} (${timezoneStr})`
-  }
-
   useEffect(() => {
     // 설정 로드 시 지연을 추가하여 초기화 문제 방지
     const loadSettings = async () => {
@@ -603,7 +578,7 @@ function OverlayPage() {
                           </div>
 
                           <div className='tw:text-xs tw:text-slate-500 tw:dark:text-slate-400'>
-                            {formatDateTime(history.playedAtISO)}
+                            {dayjs(history.playedAtISO).format('YYYY-MM-DD HH:mm:ss')}
                           </div>
                         </div>
                       ))}
