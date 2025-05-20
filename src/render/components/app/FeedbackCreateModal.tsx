@@ -1,16 +1,7 @@
+import { FeedbackCreateModalProps } from '@src/types/render/FeedbackCreateModalProps'
 import { AnimatePresence, motion } from 'framer-motion'
 
-import { ReactNode } from 'react'
 import { FiX } from 'react-icons/fi'
-
-interface FeedbackCreateModalProps {
-  isOpen: boolean
-  onClose: () => void
-  title?: string
-  children: ReactNode
-  className?: string
-  fullscreen?: boolean
-}
 
 export default function FeedbackCreateModal({
   isOpen,

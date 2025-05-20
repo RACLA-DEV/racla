@@ -3,6 +3,7 @@ import { globalDictionary } from '@render/constants/globalDictionary'
 import { createLog } from '@render/libs/logger'
 import { RootState } from '@render/store'
 import { setIsOpenExternalLink, setOpenExternalLink } from '@render/store/slices/uiSlice'
+import { ProxyStatus } from '@src/types/render/ProxyStatus'
 import dayjs from 'dayjs'
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -16,13 +17,6 @@ enum ServerStatus {
   PARTIAL_PROXY_OFFLINE = 'PARTIAL_PROXY_OFFLINE', // 일부 프록시 서버 오프라인
   ALL_PROXY_OFFLINE = 'ALL_PROXY_OFFLINE', // 모든 프록시 서버 오프라인
   MAIN_OFFLINE = 'MAIN_OFFLINE', // 메인 서버 오프라인
-}
-
-// 프록시 상태 인터페이스
-interface ProxyStatus {
-  url: string
-  isOnline: boolean
-  displayName: string
 }
 
 // 서버 상태 체크 간격 (밀리초)
@@ -91,7 +85,7 @@ const Footer: React.FC = () => {
 
   // 서버 상태 툴팁 내용 생성
   const getStatusTooltipContent = () => {
-    let content = `RACLA: ${isMainServerOnline ? 'Online' : 'Offline'}\n`
+    let content = `RACLA: ${isMainServerOnline ? 'Online (' + serverVersion + ')' : 'Offline'}\n`
 
     // 게임이 DJMAX인 경우에만 프록시 서버 상태 표시
     if (selectedGame === 'djmax_respect_v') {
@@ -310,7 +304,7 @@ const Footer: React.FC = () => {
                 </div>
                 <span className='tw:leading-none tw:flex tw:items-center'>
                   {isMainServerOnline
-                    ? `${getStatusMessage()} · ${serverVersion || ''} · ${globalDictionary.version}`
+                    ? `${getStatusMessage()} · ${globalDictionary.version}`
                     : `${getStatusMessage()} · ${globalDictionary.version}`}
                 </span>
               </span>

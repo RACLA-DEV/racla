@@ -4,8 +4,9 @@ import { useSelector } from 'react-redux'
 
 import { createLog } from '@render/libs/logger'
 import { RootState } from '@render/store'
-import type { PlayBoardFlattenResponse } from '@src/types/dto/playBoard/PlayBoardFlattenResponse'
-import type { PlayBoardPatternInfo } from '@src/types/dto/playBoard/PlayBoardPatternInfo'
+import type { PlayBoardFlattenResponse } from '@src/types/dto/play/PlayBoardFlattenResponse'
+import type { PlayBoardPatternInfo } from '@src/types/dto/play/PlayBoardPatternInfo'
+import { WjmaxKeyModeData } from '@src/types/render/HomeKeyModeSongData'
 import { motion } from 'framer-motion'
 import { Doughnut } from 'react-chartjs-2'
 import { useTranslation } from 'react-i18next'
@@ -16,13 +17,11 @@ import ScorePopupComponent from '../score/ScorePopup'
 
 ChartJS.register(ArcElement, Tooltip, Legend)
 
-type KeyModeData = Record<string, PlayBoardPatternInfo[]>
-
 export default function WjmaxHomeComponent() {
   const { t } = useTranslation(['home'])
   const userData = useSelector((state: RootState) => state.app.userData)
   const selectedGame = useSelector((state: RootState) => state.app.selectedGame)
-  const [keyModeData, setKeyModeData] = useState<KeyModeData>({
+  const [keyModeData, setKeyModeData] = useState<WjmaxKeyModeData>({
     '4B': [],
     '4B_PLUS': [],
     '6B': [],

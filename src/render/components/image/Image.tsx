@@ -1,19 +1,5 @@
+import { ImageProps } from '@src/types/render/ImageProps'
 import { useEffect, useRef, useState } from 'react'
-
-interface ImageProps {
-  src: string
-  alt: string
-  width?: number | string
-  height?: number | string
-  className?: string
-  blurClassName?: string
-  style?: React.CSSProperties
-  loading?: 'lazy' | 'eager'
-  onLoad?: () => void
-  onError?: () => void
-  placeholder?: string
-  fallbackSrc?: string // 이미지 로드 실패 시 대체 이미지
-}
 
 export default function Image({
   src,

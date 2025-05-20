@@ -4,8 +4,8 @@ import { createLog } from '@render/libs/logger'
 import { OcrPlayDataResponse } from '@src/types/dto/ocr/OcrPlayDataResponse'
 import type { GameType } from '@src/types/games/GameType'
 import { SongData } from '@src/types/games/SongData'
-import type { Notification } from '@src/types/notifications/Notification'
 import type { AppState, GameOcrStates, OcrProcessState } from '@src/types/redux/AppState'
+import type { Notification } from '@src/types/render/Notification'
 import { SessionData } from '@src/types/sessions/SessionData'
 import { SettingsData } from '@src/types/settings/SettingData'
 import { persistReducer } from 'redux-persist'
@@ -334,8 +334,8 @@ export const appSlice = createSlice({
         // 해당 게임의 OCR 결과에 추가
         const gameOcrState = state.gameOcrStates[gameCode]
 
-        // 최대 20개까지만 저장
-        if (gameOcrState.results.length >= 20) {
+        // 최대 100개까지만 저장
+        if (gameOcrState.results.length >= 100) {
           gameOcrState.results.pop() // 가장 오래된 결과 제거
         }
 

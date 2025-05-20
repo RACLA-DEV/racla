@@ -53,16 +53,16 @@ export class AppService implements OnApplicationBootstrap {
       this.logger.debug(`OCR Result: ${response.result}`)
 
       if (response.result.isVerified) {
-        this.overlayWindowService
-          .getOverlayWindow()
-          .webContents.send('overlay-ocr-result', response.result)
+        const overlayWindow = await this.overlayWindowService.getOverlayWindow()
+        if (overlayWindow) {
+          overlayWindow.webContents.send('overlay-ocr-result', response.result)
+        }
 
-        this.mainWindowService.sendMessage(
-          JSON.stringify({
-            type: 'ocr-result',
-            data: response,
-          }),
-        )
+        const mainWindow = this.mainWindowService.getWindow()
+        if (mainWindow) {
+          mainWindow.webContents.send('main-window-ocr-result', response.result)
+        }
+
         if (settings.saveImageWhenCapture) {
           const maskingRegions = this.imageProcessorService.getMaskingRegions(
             response.result.gameCode,

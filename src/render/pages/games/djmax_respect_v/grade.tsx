@@ -1,7 +1,8 @@
 import ScorePopupComponent from '@render/components/score/ScorePopup'
 import { globalDictionary } from '@render/constants/globalDictionary'
 import { RootState } from '@render/store'
-import type { PlayBoardPatternInfo } from '@src/types/dto/playBoard/PlayBoardPatternInfo'
+import type { PlayBoardPatternInfo } from '@src/types/dto/play/PlayBoardPatternInfo'
+import { FloorSongData } from '@src/types/games/Floor'
 import { SongData } from '@src/types/games/SongData'
 import * as R from 'ramda'
 
@@ -44,23 +45,13 @@ const LazyFloorItem = ({ floorItem, keyMode, levelData }) => {
   )
 }
 
-interface FloorItem {
-  floor: number
-  songItems: SongData[]
-}
-
-interface BaseSongData {
-  level: number
-  floorItems: FloorItem[]
-}
-
 const DmrvGradePage = () => {
   const { t } = useTranslation(['grade'])
   const { songData, selectedGame } = useSelector((state: RootState) => state.app)
   const [keyMode, setKeyMode] = useState<string>('4')
   const [keyPattern, setKeyPattern] = useState<string>('SC')
   const [keyDjPower, setKeyDjPower] = useState<boolean>(false)
-  const [baseSongData, setBaseSongData] = useState<BaseSongData[]>([])
+  const [baseSongData, setBaseSongData] = useState<FloorSongData[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(true)
 
   const descendWithNull = R.descend((SongItem: PlayBoardPatternInfo) =>
@@ -92,7 +83,7 @@ const DmrvGradePage = () => {
   const sortedDjPowerData = (
     originalData: PlayBoardPatternInfo[],
     pattern: string,
-  ): BaseSongData[] => {
+  ): FloorSongData[] => {
     if (originalData.length > 0) {
       const sortedData = originalData.filter(
         (songItem) =>
@@ -218,7 +209,7 @@ const DmrvGradePage = () => {
       )
       setIsLoading(false)
     }
-  }, [keyMode, keyPattern, keyDjPower, songData, selectedGame])
+  }, [keyMode, keyPattern, keyDjPower, selectedGame])
 
   useEffect(() => {
     sortData()

@@ -10,15 +10,18 @@ import {
   removeOcrResult,
   startOcrProcess,
 } from '@render/store/slices/appSlice'
-import { OcrPlayDataBase, OcrPlayDataResponse } from '@src/types/dto/ocr/OcrPlayDataResponse'
+import { GameType } from '@src/types/games/GameType'
+import { ResultCardProps } from '@src/types/render/ResultCardProps'
+import { ResultDisplayProps } from '@src/types/render/ResultDisplayProps'
 import { AnimatePresence, motion } from 'framer-motion'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useDispatch, useSelector } from 'react-redux'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { PuffLoader } from 'react-spinners'
 
-export default function PlatinaLabRegScorePage() {
+export default function RegScorePage() {
+  const { gameCode } = useParams<{ gameCode: GameType }>() as { gameCode: GameType }
   const { t } = useTranslation(['regScore'])
   const { showNotification } = useNotificationSystem()
   const navigate = useNavigate()
@@ -43,8 +46,6 @@ export default function PlatinaLabRegScorePage() {
       )
     }
   }, [])
-
-  const gameCode = 'wjmax' as const
 
   // OCR 결과 가져오기 - 게임별 상태
   const ocrState = gameOcrStates[gameCode]
@@ -309,9 +310,6 @@ export default function PlatinaLabRegScorePage() {
             {isProcessing ? (
               <div className='tw:flex tw:flex-col tw:items-center tw:gap-4 tw:p-8'>
                 <PuffLoader color='#6366f1' size={32} />
-                <p className='tw:text-lg tw:font-semibold tw:text-slate-700 tw:dark:text-slate-300'>
-                  {t('processingImage')}
-                </p>
                 {totalFiles > 1 && (
                   <p className='tw:text-sm tw:text-slate-500 tw:dark:text-slate-400'>
                     {t('processing')} ({processedFiles}/{totalFiles})
@@ -339,8 +337,8 @@ export default function PlatinaLabRegScorePage() {
                 >
                   {t('selectImage')}
                 </button>
-                <p className='tw:text-xs tw:text-slate-500 tw:dark:text-slate-400 tw:text-center tw:mt-2'>
-                  {t('wjmax')}
+                <p className='tw:text-xs tw:text-slate-500 tw:dark:text-slate-400 tw:mt-2 tw:text-center'>
+                  {t('djmaxRespectV')}
                 </p>
               </div>
             )}
@@ -401,12 +399,6 @@ export default function PlatinaLabRegScorePage() {
   )
 }
 
-// 결과 표시 컴포넌트
-interface ResultDisplayProps {
-  result: OcrPlayDataResponse
-  viewMode: 'grid' | 'list'
-}
-
 function ResultDisplay({ result, viewMode }: ResultDisplayProps) {
   const hasVersusData = result.versusData && result.versusData.length > 0
 
@@ -433,14 +425,6 @@ function ResultDisplay({ result, viewMode }: ResultDisplayProps) {
       )}
     </div>
   )
-}
-
-// 개별 결과 카드 컴포넌트
-interface ResultCardProps {
-  data: OcrPlayDataBase
-  isMain: boolean
-  viewMode: 'grid' | 'list'
-  className?: string
 }
 
 function ResultCard({ data, isMain, viewMode, className = '' }: ResultCardProps) {
@@ -495,7 +479,32 @@ function ResultCard({ data, isMain, viewMode, className = '' }: ResultCardProps)
             {/* 점수 */}
             <div className='tw:flex tw:justify-between tw:items-center tw:mt-1'>
               <span className='tw:text-lg tw:font-bold tw:text-slate-800 tw:dark:text-white'>
-                {data.score}%
+                {data.score}%{' '}
+                {data?.lastScore ? (
+                  data.score.toFixed(2) >= data.lastScore.toFixed(2) ? (
+                    data.score.toFixed(2) == data.lastScore.toFixed(2) ? (
+                      <></>
+                    ) : (
+                      <span className='tw:text-blue-500 tw:rounded'>
+                        (+
+                        {(
+                          Number(data.score.toFixed(2)) - Number(data.lastScore.toFixed(2))
+                        ).toFixed(2)}
+                        %)
+                      </span>
+                    )
+                  ) : (
+                    <span className='tw:text-red-500 tw:rounded'>
+                      (-
+                      {(Number(data.lastScore.toFixed(2)) - Number(data.score.toFixed(2))).toFixed(
+                        2,
+                      )}
+                      %)
+                    </span>
+                  )
+                ) : (
+                  ''
+                )}
               </span>
               <div className='tw:flex tw:space-x-1'>
                 {/* 퍼펙트 타입 */}
@@ -523,16 +532,18 @@ function ResultCard({ data, isMain, viewMode, className = '' }: ResultCardProps)
               <div className='tw:rounded tw:px-1.5 tw:py-0.5 tw:text-xs tw:text-slate-800 tw:dark:text-slate-200 tw:bg-slate-200 tw:dark:bg-slate-700'>
                 {data.pattern}
               </div>
-              {data.songData.patterns?.[`${data.button}B`]?.[data.pattern] && (
+              {(data.songData.patterns?.[`${data.button}B`]?.[data.pattern] || data?.level) && (
                 <div className='tw:rounded tw:px-1.5 tw:py-0.5 tw:text-xs tw:text-slate-800 tw:dark:text-slate-200 tw:bg-slate-200 tw:dark:bg-slate-700'>
-                  Lv.{data.songData.patterns?.[`${data.button}B`]?.[data.pattern].level}
+                  {data?.level
+                    ? `Lv.${data.level}`
+                    : `Lv.${data.songData.patterns?.[`${data.button}B`]?.[data.pattern].level}`}
                 </div>
               )}
-              {data.max && data.score === 100.0 && (
+              {data.max && data.score === 100.0 ? (
                 <div className='tw:rounded tw:px-1.5 tw:py-0.5 tw:text-xs tw:text-slate-800 tw:dark:text-slate-200 tw:bg-slate-200 tw:dark:bg-slate-700'>
                   MAX-{data.max}
                 </div>
-              )}
+              ) : null}
             </div>
           </div>
         </div>

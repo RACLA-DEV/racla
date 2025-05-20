@@ -3,6 +3,11 @@ import Image from '@render/components/image/Image'
 import { useNotificationSystem } from '@render/hooks/useNotifications'
 import { createLog } from '@render/libs/logger'
 import { RootState } from '@render/store'
+import {
+  HardArchiveRecordResponse,
+  Pattern,
+  PatternRecord,
+} from '@src/types/dto/hard-archive/HardArchiveRecord'
 import { SongData } from '@src/types/games/SongData'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -10,29 +15,6 @@ import { useSelector } from 'react-redux'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { PuffLoader } from 'react-spinners'
 import apiClint from '../../../../../../libs/apiClient'
-
-interface HardArchiveRecord {
-  nickname: string
-  max_combo: boolean
-  rate: number
-  score: number
-}
-
-interface HardArchiveRecordResponse {
-  code: string
-  data: HardArchiveRecord[]
-}
-
-interface PatternRecord {
-  hard: HardArchiveRecord | null
-  max: HardArchiveRecord | null
-}
-
-interface Pattern {
-  button: string
-  level: string
-  type: 'MX' | 'SC'
-}
 
 const DmrvHardDbDetailPage = () => {
   const { showNotification } = useNotificationSystem()

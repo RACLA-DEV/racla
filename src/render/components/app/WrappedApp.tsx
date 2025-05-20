@@ -3,6 +3,8 @@ import { useAlert } from '@render/hooks/useAlert'
 import { useAuth } from '@render/hooks/useAuth'
 import { addOcrResult } from '@render/store/slices/appSlice'
 import { setOverlayMode, setSidebarCollapsed } from '@render/store/slices/uiSlice'
+import { OcrPlayDataResponse } from '@src/types/dto/ocr/OcrPlayDataResponse'
+import { RecentPlayRecordResponse } from '@src/types/dto/play/RecentPlayRecordResponse'
 import { GameType } from '@src/types/games/GameType'
 import { SongData } from '@src/types/games/SongData'
 import { SessionData } from '@src/types/sessions/SessionData'
@@ -36,7 +38,7 @@ const ExternalLinkModal = lazy(() => import('./ExternalLinkModal'))
 const LoadingSkeleton = lazy(() => import('./LoadingSkeleton'))
 const SettingModal = lazy(() => import('./SettingModal'))
 const TrackMakerModal = lazy(() => import('../track-maker/TrackMakerModal'))
-const AlertModal = lazy(() => import('./AlertModal'))
+const AlertModal = lazy(() => import('../ui/AlertModal'))
 
 // 하드코딩된 배열 대신 타입에서 유효한 게임 배열 생성
 const VALID_GAMES: GameType[] = globalDictionary.supportGameList as GameType[]
@@ -52,6 +54,7 @@ export default function WrappedApp() {
   const dispatch = useDispatch()
   const { logout } = useAuth()
   const { i18n } = useTranslation()
+  const { userData, gameOcrStates } = useSelector((state: RootState) => state.app)
 
   // 앱 초기화 상태를 추적하는 ref를 컴포넌트 최상위 레벨로 이동
   const appInitialized = React.useRef(false)
@@ -715,31 +718,20 @@ export default function WrappedApp() {
     if (!window.electron) return
 
     // 메인 윈도우 메시지 핸들러
-    const mainWindowMessageHandler = (message: string) => {
+    const mainWindowMessageHandler = (data: OcrPlayDataResponse) => {
       try {
-        const parsedMessage = JSON.parse(message)
-
         // OCR 결과 처리
-        if (parsedMessage.type === 'ocr-result' && parsedMessage.data) {
-          createLog('debug', 'OCR Result:', parsedMessage.data)
-          dispatch(addOcrResult(parsedMessage.data))
+        if (data) {
+          createLog('debug', 'OCR Received')
+          dispatch(addOcrResult(data))
         }
       } catch (error) {
         createLog('error', 'Main window message parsing error:', error)
       }
     }
 
-    // 오버레이 결과 핸들러
-    const overlayResultHandler = (data: any) => {
-      if (data) {
-        createLog('debug', 'Overlay Result:', data)
-        dispatch(addOcrResult(data))
-      }
-    }
-
     // 이벤트 리스너 등록
-    window.electron.onMainWindowMessage(mainWindowMessageHandler)
-    window.electron.onOverlayResult(overlayResultHandler)
+    window.electron?.onMainWindowResult(mainWindowMessageHandler)
 
     // 정리 함수
     return () => {
@@ -770,6 +762,86 @@ export default function WrappedApp() {
       dispatch(setRefresh(!refresh))
     }
   }, [location.pathname])
+
+  // 로그인 시 최근 플레이 기록 가져오는 로직 수정
+  useEffect(() => {
+    // 사용자가 로그인 상태이고, playerId가 있는 경우에만 실행
+    if (userData.playerId && userData.playerToken) {
+      const fetchRecentPlayData = async () => {
+        try {
+          createLog('debug', '로그인 상태 변경으로 최근 플레이 기록 로드 시작')
+
+          // 지원하는 게임 타입 목록
+          const gameTypes: GameType[] = globalDictionary.supportGameList as GameType[]
+
+          // 게임타입별로 데이터 로드
+          for (const gameCode of gameTypes) {
+            // 해당 게임의 OCR 결과가 비어있는지 확인
+            const gameOcrState = gameOcrStates[gameCode]
+            if (gameOcrState.results.length === 0) {
+              try {
+                const response = await apiClient.get<RecentPlayRecordResponse[]>(
+                  `/v3/racla/play/history/${userData.playerId}/${gameCode}`,
+                  {
+                    headers: {
+                      Authorization: `${userData.playerId}|${userData.playerToken}`,
+                    },
+                    withCredentials: true,
+                  },
+                )
+
+                // 응답이 성공하고 데이터가 있는 경우
+                if (
+                  response.status === 200 &&
+                  response.data.data &&
+                  response.data.data.length > 0
+                ) {
+                  // 각 결과를 OCR 결과로 추가
+                  response.data.data.reverse().forEach((result: RecentPlayRecordResponse) => {
+                    dispatch(
+                      addOcrResult({
+                        isVerified: true,
+                        isVarchiveUpdated: false,
+                        screenType: 'recent',
+                        gameCode: gameCode,
+                        button: Number(result.keyType.replace('B', '').replace('_PLUS', '')),
+                        speed: 0,
+                        pattern: result.difficultyType,
+                        level: result.level,
+                        judgementType: result.judgementType,
+                        score: result.score,
+                        maxCombo: result.maxCombo,
+                        max: result.max,
+                        songData: {
+                          title: result.songId,
+                          name: result.songName,
+                          composer: result.composer,
+                          dlc: result.dlc,
+                          dlcCode: result.dlcCode,
+                        },
+                      } as OcrPlayDataResponse),
+                    )
+                  })
+                  createLog(
+                    'debug',
+                    `${gameCode} 최근 플레이 기록 로드 완료:`,
+                    response.data.data.length,
+                  )
+                }
+              } catch (error) {
+                createLog('error', `${gameCode} 최근 플레이 기록 로드 실패:`, error)
+              }
+            }
+          }
+        } catch (error) {
+          createLog('error', '최근 플레이 기록 로드 중 오류 발생:', error)
+        }
+      }
+
+      // 함수 실행
+      void fetchRecentPlayData()
+    }
+  }, [userData.playerId]) // 의존성 배열 수정
 
   // useEffect(() => {
   //   // 페이지 전환 시 특정 패턴을 가진 요청을 보존하면서 나머지는 취소

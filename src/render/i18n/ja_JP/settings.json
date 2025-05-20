@@ -3,6 +3,7 @@
   "settings": "設定",
   "general": "一般",
   "storage": "ストレージ",
+  "games": "ゲーム",
   "storageSettingFile": "RACLA設定ファイル",
   "storageCaptureImage": "RACLAキャプチャー画像",
   "storageLogs": "RACLAログファイル",
@@ -192,9 +193,25 @@
     "5000": "5秒",
     "10000": "10秒"
   },
+  "showGameDjmaxRespectV": {
+    "name": "DJMAX RESPECT V 表示",
+    "description": "アイコン サイド バーに DJMAX RESPECT V ゲームを表示します。"
+  },
+  "showGameWjmax": {
+    "name": "WJMAX 表示",
+    "description": "アイコン サイド バーに WJMAX ゲームを表示します。"
+  },
+  "showGamePlatinaLab": {
+    "name": "PLATiNA :: LAB 表示",
+    "description": "アイコン サイド バーに PLATiNA :: LAB ゲームを表示します。"
+  },
   "log": {
     "clearAllLogsSuccess": "すべてのログファイルが削除されました。",
     "clearAllLogsError": "ログファイル削除中にエラーが発生しました。"
+  },
+  "enableOverlayWindow": {
+    "name": "オーバーレイウィンドウ",
+    "description": "オーバーレイウィンドウを有効/無効にします。"
   },
   "accountInfo": {
     "name": "アカウント情報",

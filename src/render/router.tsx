@@ -1,6 +1,6 @@
 import { lazy, Suspense } from 'react'
 import { createHashRouter, Navigate, Outlet } from 'react-router-dom'
-import PageLoading from './components/app/PageLoading'
+import PageLoading from './components/ui/PageLoading'
 
 const WrappedApp = lazy(() => import('./components/app/WrappedApp'))
 const AppLayout = lazy(() => import('./components/ui/AppLayout'))
@@ -20,15 +20,13 @@ const DmrvHardRankingPage = lazy(() => import('./pages/games/djmax_respect_v/har
 const DmrvBoardPage = lazy(() => import('./pages/games/djmax_respect_v/board'))
 const DmrvGradePage = lazy(() => import('./pages/games/djmax_respect_v/grade'))
 const DmrvDjpowerPage = lazy(() => import('./pages/games/djmax_respect_v/djpower'))
-const DmrvRegScorePage = lazy(() => import('./pages/games/djmax_respect_v/regScore'))
+const RegScorePage = lazy(() => import('./pages/games/regScore'))
 const PlatinaLabDbPage = lazy(() => import('./pages/games/platina_lab/db'))
 const PlatinaLabDbDetailPage = lazy(() => import('./pages/games/platina_lab/db/detail'))
 const PlatinaLabBoardPage = lazy(() => import('./pages/games/platina_lab/board'))
-const PlatinaLabRegScorePage = lazy(() => import('./pages/games/platina_lab/regScore'))
 const WjmaxDbPage = lazy(() => import('./pages/games/wjmax/db'))
 const WjmaxDbDetailPage = lazy(() => import('./pages/games/wjmax/db/detail'))
 const WjmaxBoardPage = lazy(() => import('./pages/games/wjmax/board'))
-const WjmaxRegScorePage = lazy(() => import('./pages/games/wjmax/regScore'))
 const LicensePage = lazy(() => import('./pages/license'))
 const FeedbackListPage = lazy(() => import('./pages/feedback'))
 const FeedbackDetailPage = lazy(() => import('./pages/feedback/detail'))
@@ -173,14 +171,6 @@ export const router = createHashRouter([
             ),
           },
           {
-            path: '/games/djmax_respect_v/regScore',
-            element: (
-              <Suspense fallback={<PageLoading />}>
-                <DmrvRegScorePage />
-              </Suspense>
-            ),
-          },
-          {
             path: '/games/platina_lab/db',
             element: (
               <Suspense fallback={<PageLoading />}>
@@ -205,14 +195,6 @@ export const router = createHashRouter([
             element: (
               <Suspense fallback={<PageLoading />}>
                 <PlatinaLabBoardPage />
-              </Suspense>
-            ),
-          },
-          {
-            path: '/games/platina_lab/regScore',
-            element: (
-              <Suspense fallback={<PageLoading />}>
-                <PlatinaLabRegScorePage />
               </Suspense>
             ),
           },
@@ -245,10 +227,10 @@ export const router = createHashRouter([
             ),
           },
           {
-            path: '/games/wjmax/regScore',
+            path: '/games/:gameCode/regScore',
             element: (
               <Suspense fallback={<PageLoading />}>
-                <WjmaxRegScorePage />
+                <RegScorePage />
               </Suspense>
             ),
           },

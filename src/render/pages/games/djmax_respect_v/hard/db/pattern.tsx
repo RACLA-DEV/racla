@@ -7,24 +7,13 @@ import { useNotificationSystem } from '@render/hooks/useNotifications'
 import { createLog } from '@render/libs/logger'
 import { RootState } from '@render/store'
 import { setIsOpenExternalLink, setOpenExternalLink } from '@render/store/slices/uiSlice'
+import { RankingData, RankingEntry } from '@src/types/dto/hard-archive/HardArchiveRanking'
 import { SongData } from '@src/types/games/SongData'
 import { useTranslation } from 'react-i18next'
 import { Link, useParams } from 'react-router-dom'
 import { PuffLoader } from 'react-spinners'
 import { v4 as uuidv4 } from 'uuid'
 import apiClient from '../../../../../../libs/apiClient'
-
-interface RankingEntry {
-  nickname: string
-  score: number
-  rate: number
-  max_combo: boolean
-}
-
-interface RankingData {
-  code: string
-  data: RankingEntry[]
-}
 
 const DmrvHardDbPatternPage = () => {
   const { t } = useTranslation(['db'])

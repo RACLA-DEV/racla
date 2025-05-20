@@ -1,33 +1,15 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useInView } from 'react-intersection-observer'
 import { useSelector } from 'react-redux'
-import { NavigateFunction } from 'react-router-dom'
 
 import { Icon } from '@iconify/react'
 import ScorePopupComponent from '@render/components/score/ScorePopup'
 import { globalDictionary } from '@render/constants/globalDictionary'
 import { RootState } from '@render/store'
-import { SongData } from '@src/types/games/SongData'
+import { LazySongGridItemProps } from '@src/types/render/LazySongGridItemProps'
+import { LazySongListItemProps } from '@src/types/render/LazySongListItemProps'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
-
-// LazyListItem 인터페이스 정의
-interface LazyListItemProps {
-  songItem: SongData
-  keyMode: string
-  hoveredTitle: string | null
-  handleMouseEnter: (songItem: SongData) => void
-  handleMouseLeave: () => void
-  selectedLevel: string
-  showPlusOnly: boolean
-  navigate: NavigateFunction
-}
-
-// LazyGridItem 인터페이스 정의
-interface LazyGridItemProps {
-  songItem: SongData
-  keyMode: string
-}
 
 // LazyListItem 컴포넌트 추가
 const LazyListItem = React.memo(
@@ -40,7 +22,7 @@ const LazyListItem = React.memo(
     selectedLevel,
     showPlusOnly,
     navigate,
-  }: LazyListItemProps) => {
+  }: LazySongListItemProps) => {
     const { ref, inView } = useInView({
       triggerOnce: false,
       threshold: 0.1,
@@ -64,10 +46,10 @@ const LazyListItem = React.memo(
         }}
         className={`tw:flex tw:items-center tw:gap-4 tw:p-2 tw:border-b tw:border-slate-200 tw:dark:border-slate-700 tw:relative tw:overflow-hidden tw:cursor-pointer ${hoveredTitle === String(songItem.title) ? 'tw:bg-slate-100 tw:dark:bg-slate-700/50' : ''} hover:tw:bg-slate-100 hover:tw:dark:bg-slate-700/50`}
         onMouseEnter={() => {
-          handleMouseEnter(songItem)
+          handleMouseEnter?.(songItem)
         }}
         onMouseLeave={() => {
-          handleMouseLeave()
+          handleMouseLeave?.()
         }}
       >
         {/* 애니메이션 배경 레이어 */}
@@ -140,7 +122,7 @@ const LazyListItem = React.memo(
 )
 
 // LazyGridItem 컴포넌트 추가
-const LazyGridItem = React.memo(({ songItem, keyMode }: LazyGridItemProps) => {
+const LazyGridItem = React.memo(({ songItem, keyMode }: LazySongGridItemProps) => {
   const { ref, inView } = useInView({
     triggerOnce: false,
     threshold: 0.1,
@@ -165,7 +147,7 @@ const PlatinaLabDbPage = () => {
   const { songData, selectedGame } = useSelector((state: RootState) => state.app)
 
   const [keyMode, setKeyMode] = useState<string>('4')
-  const [hoveredTitle, setHoveredTitle] = useState<string>(null)
+  const [hoveredTitle, setHoveredTitle] = useState<string | null>(null)
   const [searchName, setSearchName] = useState<string>('')
   const [selectedLevel, setSelectedLevel] = useState<string>('all')
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc')
@@ -292,7 +274,7 @@ const PlatinaLabDbPage = () => {
       })
 
     return ['전체', ...codes] // '전체'를 마지막에 추가
-  }, [songData, selectedGame])
+  }, [selectedGame])
 
   const buttonRefs = useRef<(HTMLButtonElement | null)[]>([])
 
@@ -450,7 +432,7 @@ const PlatinaLabDbPage = () => {
                             : 'tw:bg-slate-200 tw:dark:bg-slate-700 tw:text-slate-700 tw:dark:text-slate-200 hover:tw:bg-slate-300 hover:tw:dark:bg-slate-600'
                         }`}
                       >
-                        PLUS ONLY {showPlusOnly ? 'ON' : 'OFF'}
+                        PLUS
                       </button>
                       <select
                         value={selectedLevel}

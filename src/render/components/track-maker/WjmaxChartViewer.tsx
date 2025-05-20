@@ -3,30 +3,13 @@ import { FaArrowRightArrowLeft, FaArrowsRotate, FaDice, FaPalette, FaXmark } fro
 import { TransformComponent, TransformWrapper } from 'react-zoom-pan-pinch'
 
 import { createLog } from '@render/libs/logger'
+import { WjmaxChartData, WjmaxChartDataSection } from '@src/types/games/WjmaxChartData'
+import { WjmaxChartViewerProps } from '@src/types/render/WjmaxChartViewerProps'
 import { createPortal } from 'react-dom'
 import Tooltip from '../ui/Tooltip'
 
 // constants/chart.js
 export const DEFAULT_BPM = 206
-
-// utils/timing.js
-
-// types/chart.ts
-interface Note {
-  type: 0 | 1
-  index: number
-  headMilliSec: number
-  tailMilliSec: number
-}
-
-interface ChartData {
-  key: number
-  mode: number
-  level: number
-  notes: Note[]
-}
-
-type ChartSection = Record<number, Note[]>
 
 // components/Note.jsx
 const Note = ({ position, length, isLongNote }) => {
@@ -39,20 +22,13 @@ const Note = ({ position, length, isLongNote }) => {
   return <div className={`note ${isLongNote ? 'long-note' : 'tap-note'}`} style={noteStyle} />
 }
 
-// components/ChartSection.tsx
-interface WjmaxChartProps {
-  chartData: string // CSV 형식의 문자열로 변경
-  bpm?: number
-  onClose: () => void
-}
-
 export default function WjmaxChartViewer({
   chartData,
   bpm = DEFAULT_BPM,
   onClose,
-}: WjmaxChartProps) {
-  const [parsedChartData, setParsedChartData] = useState<ChartData | null>(null)
-  const [sections, setSections] = useState<ChartSection>({})
+}: WjmaxChartViewerProps) {
+  const [parsedChartData, setParsedChartData] = useState<WjmaxChartData | null>(null)
+  const [sections, setSections] = useState<WjmaxChartDataSection>({})
   const [scale, setScale] = useState(0.5) // 기본 0.5배 크기로 시작
   const [isVisible, setIsVisible] = useState(false)
   const [position, setPosition] = useState({ x: 0, y: 0 })
@@ -78,13 +54,13 @@ export default function WjmaxChartViewer({
   }
 
   // CSV 파싱 함수 추가
-  const parseCSVChartData = (csvData: string): ChartData => {
+  const parseCSVChartData = (csvData: string): WjmaxChartData => {
     const lines = csvData.trim().split('\n')
 
     // 첫 번째 줄은 헤더 (key, mode, level)
     const headerParts = lines[0].split(',').map((part) => parseFloat(part))
 
-    const chartData: ChartData = {
+    const chartData: WjmaxChartData = {
       key: headerParts[0],
       mode: headerParts[1],
       level: headerParts[2],
@@ -119,7 +95,7 @@ export default function WjmaxChartViewer({
     if (!parsedChartData) return
 
     const sectionDuration = calculateSectionDuration(bpm)
-    const groupedNotes: ChartSection = {}
+    const groupedNotes: WjmaxChartDataSection = {}
 
     parsedChartData.notes.forEach((note) => {
       const sectionIndex = Math.floor(note.headMilliSec / sectionDuration)

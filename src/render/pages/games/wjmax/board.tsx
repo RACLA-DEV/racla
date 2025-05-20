@@ -4,30 +4,14 @@ import React, { useEffect, useState } from 'react'
 import ScorePopupComponent from '@render/components/score/ScorePopup'
 import { useNotificationSystem } from '@render/hooks/useNotifications'
 import { createLog } from '@render/libs/logger'
-import { PlayBoardResponse } from '@src/types/dto/playBoard/PlayBoardResponse'
-import { PatternInfo } from '@src/types/games/SongData'
+import { PlayBoardResponse } from '@src/types/dto/play/PlayBoardResponse'
+import { Floor } from '@src/types/games/Floor'
+import { BoardPatternInfo, PatternInfo } from '@src/types/games/SongData'
 import { useTranslation } from 'react-i18next'
 import { useSelector } from 'react-redux'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { PuffLoader } from 'react-spinners'
 import apiClient from '../../../../libs/apiClient'
-interface Pattern {
-  title: number
-  name: string
-  composer: string
-  pattern: string
-  score: number | null
-  maxCombo: number | null
-  djpower: number
-  rating: number
-  dlc: string
-  dlcCode: string
-}
-
-interface Floor {
-  floorNumber: number
-  patterns: Pattern[]
-}
 
 const WjmaxBoardPage = () => {
   const navigate = useNavigate()
@@ -35,6 +19,7 @@ const WjmaxBoardPage = () => {
   const { keyMode, board } = useParams()
   const { userData, songData, selectedGame } = useSelector((state: RootState) => state.app)
   const { language } = useSelector((state: RootState) => state.app.settingData)
+  const gameOcrStates = useSelector((state: RootState) => state.app.gameOcrStates)
 
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [floorData, setFloorData] = useState<Floor[]>([])
@@ -160,12 +145,75 @@ const WjmaxBoardPage = () => {
       setIsMounted(false)
       setFloorData([])
     }
-  }, [userData.playerName, keyMode, board, songData[selectedGame]])
+  }, [userData.playerName, keyMode, board])
+
+  // OCR 결과 감지 및 처리
+  useEffect(() => {
+    // 마운트되지 않았거나 게임코드가 일치하지 않으면 처리하지 않음
+    if (!isMounted || selectedGame !== 'wjmax' || isLoading) return
+
+    // 게임 OCR 상태 가져오기
+    const ocrState = gameOcrStates.wjmax
+
+    // OCR 결과가 없으면 처리하지 않음
+    if (!ocrState?.results?.length) return
+
+    // 가장 최근 OCR 결과 가져오기 (배열의 첫 번째 항목)
+    const latestResult = ocrState.results[0]
+
+    // 판정 타입 확인 (B+ 모드의 경우 1, 일반 모드의 경우 0)
+    const currentJudgementType = String(keyMode).includes('_PLUS') ? 1 : 0
+
+    // OCR 결과가 현재 보드와 관련있는지 확인
+    if (
+      latestResult &&
+      latestResult.gameCode === 'wjmax' &&
+      String(latestResult.button) === String(keyMode).replace('B', '').replace('_PLUS', '') &&
+      String(latestResult.judgementType) === String(currentJudgementType)
+    ) {
+      createLog('debug', 'OCR Result detected for WJMAX Board', latestResult)
+
+      // floorData를 순회하면서 일치하는 패턴 찾기
+      const updatedFloorData = floorData.map((floor) => {
+        const updatedPatterns = floor.patterns.map((pattern) => {
+          // 제목과 패턴 타입이 일치하는지 확인
+          if (
+            pattern.title === latestResult.songData.title &&
+            pattern.pattern === latestResult.pattern
+          ) {
+            createLog('debug', 'Found matching pattern in board view - updating', {
+              title: pattern.title,
+              pattern: pattern.pattern,
+              oldScore: pattern.score,
+              newScore: latestResult.score,
+            })
+
+            // 새로운 점수와 맥스콤보 정보로 업데이트
+            // maxCombo는 boolean에서 number로 변환 필요 (1은 MAX, 0은 MAX 아님)
+            return {
+              ...pattern,
+              score: latestResult.score,
+              maxCombo: latestResult.maxCombo ? 1 : 0,
+            }
+          }
+          return pattern
+        })
+
+        return {
+          ...floor,
+          patterns: updatedPatterns,
+        }
+      }) as Floor[]
+
+      // 업데이트된 데이터로 상태 갱신
+      setFloorData(updatedFloorData)
+    }
+  }, [gameOcrStates.wjmax?.results])
 
   if (!isMounted) return null
 
   // 통계 계산 함수 수정
-  const calculateStats = (patterns: Pattern[]) => {
+  const calculateStats = (patterns: BoardPatternInfo[]) => {
     const stats = {
       maxCombo: 0,
       perfect: 0,
@@ -213,7 +261,7 @@ const WjmaxBoardPage = () => {
   }
 
   // 하이라이트 조건 체크 함수도 동일하게 수정
-  const shouldHighlight = (pattern: Pattern) => {
+  const shouldHighlight = (pattern: BoardPatternInfo) => {
     if (!highlightCondition) return true
 
     const score = typeof pattern.score === 'string' ? parseFloat(pattern.score) : pattern.score
@@ -259,7 +307,7 @@ const WjmaxBoardPage = () => {
   }
 
   // 정렬 함수 추가
-  const sortPatterns = (patterns: Pattern[]) => {
+  const sortPatterns = (patterns: BoardPatternInfo[]) => {
     return [...patterns].sort((a, b) => {
       // 패턴 타입 우선순위 정의
       const patternOrder = { NM: 1, HD: 2, MX: 3, SC: 4 }
@@ -347,7 +395,7 @@ const WjmaxBoardPage = () => {
   }, [])
 
   // 층별 평균 점수 계산 함수 추가
-  const calculateScoreStats = (patterns: Pattern[]) => {
+  const calculateScoreStats = (patterns: BoardPatternInfo[]) => {
     const validPatterns = patterns.filter((p) => p.score > 0)
     if (validPatterns.length === 0) return null
 

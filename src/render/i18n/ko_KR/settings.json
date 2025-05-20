@@ -3,6 +3,7 @@
   "settings": "설정",
   "general": "일반",
   "storage": "저장공간",
+  "games": "게임",
   "storageSettingFile": "RACLA 설정 파일",
   "storageCaptureImage": "RACLA 캡처 이미지",
   "storageLogs": "RACLA 로그 파일",
@@ -191,6 +192,22 @@
     "3000": "3초",
     "5000": "5초",
     "10000": "10초"
+  },
+  "showGameDjmaxRespectV": {
+    "name": "DJMAX RESPECT V 표시",
+    "description": "아이콘 사이드 바에서 DJMAX RESPECT V 게임을 표시합니다."
+  },
+  "showGameWjmax": {
+    "name": "WJMAX 표시",
+    "description": "아이콘 사이드 바에서 WJMAX 게임을 표시합니다."
+  },
+  "showGamePlatinaLab": {
+    "name": "PLATiNA :: LAB 표시",
+    "description": "아이콘 사이드 바에서 PLATiNA :: LAB 게임을 표시합니다."
+  },
+  "enableOverlayWindow": {
+    "name": "오버레이 창 활성화",
+    "description": "오버레이 창을 활성화/비활성화 합니다."
   },
   "log": {
     "clearAllLogsSuccess": "모든 로그 파일이 삭제되었습니다.",

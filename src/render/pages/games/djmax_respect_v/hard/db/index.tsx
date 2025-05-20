@@ -2,14 +2,15 @@ import { Icon } from '@iconify/react'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useInView } from 'react-intersection-observer'
 import { useSelector } from 'react-redux'
-import { NavigateFunction, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import Image from '@render/components/image/Image'
 import ScorePopupComponent from '@render/components/score/ScorePopup'
 import { globalDictionary } from '@render/constants/globalDictionary'
 import { useNotificationSystem } from '@render/hooks/useNotifications'
 import { RootState } from '@render/store'
-import { SongData } from '@src/types/games/SongData'
+import { LazySongGridItemProps } from '@src/types/render/LazySongGridItemProps'
+import { LazySongListItemProps } from '@src/types/render/LazySongListItemProps'
 import { useTranslation } from 'react-i18next'
 
 // DLC 카테고리 매핑 추가
@@ -20,33 +21,6 @@ const DLC_CATEGORY_MAPPING = {
   LIBERTY: ['VL', 'VL1', 'VL2'],
   COLLABORATION: ['COLLABORATION'],
   PLI: ['PLI1'],
-}
-
-// LazyListItem 인터페이스 정의
-interface LazyListItemProps {
-  songItem: SongData
-  keyMode: string
-  hoveredTitle: number
-  handleMouseEnter: (songItem: SongData) => void
-  handleMouseLeave: () => void
-  selectedLevel: string
-  navigate: NavigateFunction
-  showNotification: (
-    message: {
-      mode: 'string' | 'i18n'
-      ns?: string
-      value: string
-      props?: Record<string, string>
-    },
-    type?: 'success' | 'error' | 'info' | 'warning',
-    duration?: number,
-  ) => void
-}
-
-// LazyGridItem 인터페이스 정의
-interface LazyGridItemProps {
-  songItem: SongData
-  keyMode: string
 }
 
 // LazyListItem 컴포넌트 추가
@@ -60,7 +34,7 @@ const LazyListItem = React.memo(
     selectedLevel,
     navigate,
     showNotification,
-  }: LazyListItemProps) => {
+  }: LazySongListItemProps) => {
     const { ref, inView } = useInView({
       triggerOnce: false,
       threshold: 0.1,
@@ -93,7 +67,7 @@ const LazyListItem = React.memo(
         onClick={() => {
           handleClick()
         }}
-        className={`tw:flex tw:items-center tw:gap-4 tw:p-2 tw:border-b tw:border-slate-200 tw:dark:border-slate-700 tw:relative tw:overflow-hidden tw:cursor-pointer ${hoveredTitle === songItem.title ? 'tw:bg-slate-100 tw:dark:bg-slate-700/50' : ''} hover:tw:bg-slate-100 hover:tw:dark:bg-slate-700/50`}
+        className={`tw:flex tw:items-center tw:gap-4 tw:p-2 tw:border-b tw:border-slate-200 tw:dark:border-slate-700 tw:relative tw:overflow-hidden tw:cursor-pointer ${hoveredTitle === String(songItem.title) ? 'tw:bg-slate-100 tw:dark:bg-slate-700/50' : ''} hover:tw:bg-slate-100 hover:tw:dark:bg-slate-700/50`}
         onMouseEnter={() => {
           handleMouseEnter(songItem)
         }}
@@ -103,7 +77,7 @@ const LazyListItem = React.memo(
       >
         {/* 애니메이션 배경 레이어 */}
         <div
-          className={`tw:absolute tw:inset-0 tw:opacity-0 tw:transition-opacity tw:duration-300 before:tw:content-[''] before:tw:absolute before:tw:inset-[-150%] before:tw:bg-[length:200%_200%] before:tw:animate-gradientSlide before:tw:bg-gradient-to-r before:tw:from-[#1d8975] before:tw:via-[#5276b4] before:tw:via-[#8432bd] before:tw:via-[#5276b4] before:tw:to-[#1d8975] ${hoveredTitle === songItem.title ? 'tw:opacity-10' : ''} `}
+          className={`tw:absolute tw:inset-0 tw:opacity-0 tw:transition-opacity tw:duration-300 before:tw:content-[''] before:tw:absolute before:tw:inset-[-150%] before:tw:bg-[length:200%_200%] before:tw:animate-gradientSlide before:tw:bg-gradient-to-r before:tw:from-[#1d8975] before:tw:via-[#5276b4] before:tw:via-[#8432bd] before:tw:via-[#5276b4] before:tw:to-[#1d8975] ${hoveredTitle === String(songItem.title) ? 'tw:opacity-10' : ''} `}
         />
 
         {/* 곡 정보 */}
@@ -176,7 +150,7 @@ const LazyListItem = React.memo(
 )
 
 // LazyGridItem 컴포넌트 추가
-const LazyGridItem = React.memo(({ songItem, keyMode }: LazyGridItemProps) => {
+const LazyGridItem = React.memo(({ songItem, keyMode }: LazySongGridItemProps) => {
   const { ref, inView } = useInView({
     triggerOnce: false,
     threshold: 0.1,
@@ -203,7 +177,6 @@ const DmrvHardDbPage = () => {
   const { songData, selectedGame } = useSelector((state: RootState) => state.app)
 
   const [keyMode, setKeyMode] = useState<string>('4')
-  const [hoveredTitle, setHoveredTitle] = useState<number>(null)
   const [searchName, setSearchName] = useState<string>('')
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('list')
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc')
@@ -283,7 +256,7 @@ const DmrvHardDbPage = () => {
         return b.name.localeCompare(a.name)
       }
     })
-  }, [songData, searchName, selectedLevel, keyMode, sortOrder, selectedCategory])
+  }, [searchName, selectedLevel, keyMode, sortOrder, selectedCategory])
 
   // 스크롤 시 더 많은 아이템 로드
   useEffect(() => {
@@ -291,15 +264,6 @@ const DmrvHardDbPage = () => {
       setVisibleItems((prev) => Math.min(prev + 20, filteredSongData.length))
     }
   }, [inView, filteredSongData.length, visibleItems])
-
-  // 호버 핸들러 수정
-  const handleMouseEnter = useCallback((songItem) => {
-    setHoveredTitle(songItem.title)
-  }, [])
-
-  const handleMouseLeave = useCallback(() => {
-    setHoveredTitle(null)
-  }, [])
 
   // 현재 화면에 보여줄 곡 목록
   const visibleSongData = useMemo(() => {
@@ -499,9 +463,7 @@ const DmrvHardDbPage = () => {
                         key={songItem.title}
                         songItem={songItem}
                         keyMode={String(keyMode)}
-                        hoveredTitle={hoveredTitle}
-                        handleMouseEnter={handleMouseEnter}
-                        handleMouseLeave={handleMouseLeave}
+                        hoveredTitle={String(songItem.title)}
                         selectedLevel={selectedLevel}
                         navigate={navigate}
                         showNotification={showNotification}

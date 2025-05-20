@@ -1,12 +1,45 @@
 import { Icon } from '@iconify/react'
 import { RootState } from '@render/store'
 import { setSettingData } from '@render/store/slices/appSlice'
+import { UpdateModalProps } from '@src/types/render/UpdateModalProps'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useDispatch, useSelector } from 'react-redux'
 
 // 하드코딩된 업데이트 내역 데이터 (배열로 변경)
 const UPDATE_NOTES = [
+  {
+    version: 'V0.8.7',
+    date: '2025-05-20',
+    notes: [
+      {
+        category: '추가',
+        items: [
+          '전체 게임 - 기록 등록 - 화면에 표시되는 목록에서 등록한 패턴의 기록과 이전 기록의 점수 차이를 표시합니다.',
+          '전체 게임 - 기록 등록 - 화면 최초 진입 시, 해당 게임의 최근 기록 100개를 RACLA 데이터베이스 기준으로 불러옵니다. (참고: V-ARCHIVE는 Open API로 최근 기록을 제공하지 않습니다.)',
+          '전체 게임 - 성과표 - 화면을 보고 있는 중에 인게임 기록 등록이 이루어지면, 해당 패턴의 기록이 즉시 갱신됩니다.',
+          'DJMAX RESPECT V - 성과표 - MAX COMBO 달성 패턴은 스코어가 노란색 또는 보라색으로 강조되어 표시됩니다.',
+          'DJMAX RESPECT V - 성과표 - 난이도(DIFF) 구분이 추가되었습니다. NM / HD / MX / SC 난이도별 성과표 확인이 가능하며 우측 하단에 레벨을 기준으로 빠른 이동 메뉴 제공합니다.',
+          '오버레이 - 결과 오버레이에서 등록한 패턴의 기록과 이전 기록의 점수 차이를 표시합니다.',
+          '설정 - 이용할 게임만 아이콘 사이드 바에 표시되도록 설정할 수 있습니다.',
+        ],
+      },
+      {
+        category: '개선',
+        items: [
+          '전체 게임 - 성과표 - 화면에 표시되는 점수 텍스트의 가독성을 개선하였습니다.',
+          '최소 앱 크기 - 세로 모니터 사용자를 위해 최소 앱 너비를 1280px → 1080px으로 조정하였습니다.',
+        ],
+      },
+      {
+        category: '수정',
+        items: [
+          '오버레이 - 전일 기록 오버레이 표시 시, 전일 아카이브 기록을 불러올 수 없는 경우 발생하는 버그를 수정하였습니다.',
+          '곡 데이터 갱신 - 5분 주기로 갱신되는 곡 데이터로 인해 일부 화면에서 발생하던 화면 번쩍임(컴포넌트 리렌더링) 문제를 해결하였습니다.',
+        ],
+      },
+    ],
+  },
   {
     version: 'V0.8.6',
     date: '2025-05-19',
@@ -126,11 +159,6 @@ const UPDATE_NOTES = [
     ],
   },
 ]
-
-interface UpdateModalProps {
-  isOpen: boolean
-  onClose: () => void
-}
 
 export default function UpdateModal({ isOpen, onClose }: UpdateModalProps) {
   const dispatch = useDispatch()

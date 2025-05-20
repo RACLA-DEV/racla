@@ -1,97 +1,18 @@
 import React, { useEffect, useState } from 'react'
 
 import ScorePopupComponent from '@render/components/score/ScorePopup'
+import { globalDictionary } from '@render/constants/globalDictionary'
 import { useNotificationSystem } from '@render/hooks/useNotifications'
 import { createLog } from '@render/libs/logger'
 import { RootState } from '@render/store'
 import { ApiArchiveNicknameBoard } from '@src/types/dto/v-archive/ApiArchiveNicknameBoard'
-import { PatternInfo } from '@src/types/games/SongData'
+import { Floor } from '@src/types/games/Floor'
+import { BoardPatternInfo, PatternInfo, SongData } from '@src/types/games/SongData'
 import { useTranslation } from 'react-i18next'
 import { useSelector } from 'react-redux'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { PuffLoader } from 'react-spinners'
 import apiClient from '../../../../libs/apiClient'
-
-interface Pattern {
-  title: number
-  name: string
-  composer: string
-  pattern: string
-  score: number | null
-  maxCombo: number | null
-  djpower: number
-  rating: number
-  dlc: string
-  dlcCode: string
-}
-
-interface Floor {
-  floorNumber: number
-  patterns: Pattern[]
-}
-
-// 티어 포인트 맵 추가
-const tierPointMap = {
-  '16.3': 208,
-  '16.2': 206,
-  '16.1': 204,
-  '15.3': 202,
-  '15.2': 200,
-  '15.1': 199,
-  '14.3': 198,
-  '14.2': 196,
-  '14.1': 195,
-  '13.3': 194,
-  '13.2': 192,
-  '13.1': 191,
-  '12.3': 190,
-  '12.2': 188,
-  '12.1': 187,
-  '11.3': 186,
-  '11.2': 184,
-  '11.1': 182,
-  '10.3': 180,
-  '10.2': 178,
-  '10.1': 176,
-  '9.3': 174,
-  '9.2': 172,
-  '9.1': 170,
-  '8.3': 168,
-  '8.2': 167,
-  '8.1': 166,
-  '7.3': 165,
-  '7.2': 164,
-  '7.1': 163,
-  '6.3': 162,
-  '6.2': 161,
-  '6.1': 160,
-  '5.3': 159,
-  '5.2': 158,
-  '5.1': 157,
-  '4.3': 156,
-  '4.2': 155,
-  '4.1': 154,
-  '3.3': 153,
-  '3.2': 152,
-  '3.1': 151,
-  '2.3': 150,
-  '2.2': 148,
-  '2.1': 146,
-  '1.3': 144,
-  '1.2': 142,
-  '1.1': 140,
-  '11L': 140,
-  '10L': 130,
-  '9L': 120,
-  '8L': 110,
-  '7L': 100,
-  '6L': 90,
-  '5L': 80,
-  '4L': 70,
-  '3L': 60,
-  '2L': 50,
-  '1L': 40,
-}
 
 const DmrvBoardPage = () => {
   const { t } = useTranslation(['board'])
@@ -99,6 +20,7 @@ const DmrvBoardPage = () => {
   const { showNotification } = useNotificationSystem()
   const { language } = useSelector((state: RootState) => state.app.settingData)
   const { userData, songData, selectedGame } = useSelector((state: RootState) => state.app)
+  const gameOcrStates = useSelector((state: RootState) => state.app.gameOcrStates)
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [floorData, setFloorData] = useState<Floor[]>([])
   const [isMounted, setIsMounted] = useState<boolean>(true)
@@ -113,19 +35,48 @@ const DmrvBoardPage = () => {
 
   // 현재 레벨에 따른 난이도 그룹 결정 함수
   const getDifficultyByLevel = (level: string) => {
-    if (level.startsWith('SC')) return 'SC'
+    if (level?.startsWith('SC')) return 'SC'
+    if (level?.startsWith('DIFF_')) return 'DIFF'
     return 'NORMAL'
   }
 
+  // DIFF 모드에서 패턴 타입 추출 함수 추가
+  const getPatternTypeFromDiff = (diffValue: string): 'NM' | 'HD' | 'MX' | 'SC' => {
+    if (diffValue?.startsWith('DIFF_')) {
+      const patternType = diffValue.split('_')[1]
+      if (['NM', 'HD', 'MX', 'SC'].includes(patternType)) {
+        return patternType as 'NM' | 'HD' | 'MX' | 'SC'
+      }
+    }
+    return 'NM'
+  }
+
   // state 추가
-  const [selectedDifficulty, setSelectedDifficulty] = useState<'NORMAL' | 'SC'>(() => {
+  const [selectedDifficulty, setSelectedDifficulty] = useState<'NORMAL' | 'SC' | 'DIFF'>(() => {
     return board ? getDifficultyByLevel(board) : 'NORMAL'
   })
+
+  // 선택된 패턴 타입 상태 추가
+  const [selectedPatternType, setSelectedPatternType] = useState<'NM' | 'HD' | 'MX' | 'SC'>(() => {
+    return board?.startsWith('DIFF_') ? getPatternTypeFromDiff(board) : 'NM'
+  })
+
+  // DIFF 모드일 때 사용할 전체 보드 데이터를 저장할 상태 추가
+  const [allBoardData, setAllBoardData] = useState<BoardPatternInfo[]>([])
+
+  // 자주 사용하는 레벨 목록 상태 추가
+  const [uniqueLevels, setUniqueLevels] = useState<number[]>([])
 
   // useEffect로 board 변경 시 난이도 자동 업데이트
   useEffect(() => {
     if (board) {
-      setSelectedDifficulty(getDifficultyByLevel(board))
+      const difficulty = getDifficultyByLevel(board)
+      setSelectedDifficulty(difficulty)
+
+      // DIFF 모드인 경우 패턴 타입도 설정
+      if (difficulty === 'DIFF') {
+        setSelectedPatternType(getPatternTypeFromDiff(board))
+      }
     }
   }, [board])
 
@@ -179,6 +130,10 @@ const DmrvBoardPage = () => {
     'SC5',
     'SC10',
     'SC15',
+    'DIFF_NM',
+    'DIFF_HD',
+    'DIFF_MX',
+    'DIFF_SC',
   ])
 
   useEffect(() => {
@@ -236,13 +191,248 @@ const DmrvBoardPage = () => {
       }
     }
 
-    void fetchBoardData()
+    const fetchAllBoardsForDiff = async () => {
+      if (!userData.varchiveUserInfo.isLinked || !keyMode) return
+
+      setIsLoading(true)
+      try {
+        // 기본 곡 데이터 가져오기
+        const baseSongData = processBaseSongData()
+
+        // 모든 보드의 데이터 가져오기
+        const allBoardResponses = await Promise.all(
+          boards.map(async (boardType) => {
+            try {
+              const response = await apiClient.getProxy<ApiArchiveNicknameBoard>(
+                `https://v-archive.net/api/archive/${userData.varchiveUserInfo.nickname}/board/${keyMode}/${boardType}`,
+              )
+              return (
+                response.data.data.floors?.flatMap((floor) =>
+                  floor.patterns.map((pattern) => ({
+                    ...pattern,
+                    floor: floor.floorNumber,
+                  })),
+                ) || []
+              )
+            } catch (error) {
+              createLog('error', 'Error in fetchAllBoardsForDiff', error)
+              return []
+            }
+          }),
+        )
+
+        if (isMounted) {
+          // 모든 패턴을 하나의 배열로 합치고 중복 제거
+          const allPatterns = Object.values(
+            allBoardResponses
+              .flat()
+              .reduce<Record<string, BoardPatternInfo>>((acc, apiPattern: any) => {
+                const key = `${apiPattern.title}_${apiPattern.pattern}`
+                const basePattern = baseSongData.find(
+                  (bp) => bp.title === apiPattern.title && bp.pattern === apiPattern.pattern,
+                )
+
+                if (
+                  !acc[key] ||
+                  (apiPattern.djpower && apiPattern.djpower > (acc[key].djpower || 0))
+                ) {
+                  // 기본 객체 구조 생성
+                  const mergedPattern = {
+                    ...basePattern,
+                    ...apiPattern,
+                    patterns: basePattern?.patterns || {},
+                  }
+                  acc[key] = mergedPattern as BoardPatternInfo
+                }
+                return acc
+              }, {}),
+          )
+
+          // 전체 데이터 저장
+          setAllBoardData(allPatterns as BoardPatternInfo[])
+
+          // 유니크한 레벨 목록 추출 (level 값이 있는 경우)
+          const levels = allPatterns
+            .filter(
+              (pattern: BoardPatternInfo) =>
+                pattern.pattern === selectedPatternType && pattern.level != null,
+            )
+            .map((pattern: BoardPatternInfo) => {
+              // 레벨을 숫자로 변환 (SC 접두사 제거하고 숫자만 추출)
+              const levelStr = String(pattern.level)
+              const numericLevel = parseInt(levelStr.replace(/\D/g, ''))
+              return numericLevel
+            })
+            .filter((level, index, self) => self.indexOf(level) === index && !isNaN(level))
+            .sort((a, b) => b - a) // 내림차순 정렬
+
+          setUniqueLevels(levels)
+
+          // 패턴 타입 및 레벨별로 Floor 구성
+          const filteredPatterns = allPatterns.filter(
+            (pattern: BoardPatternInfo) => pattern.pattern === selectedPatternType,
+          )
+
+          // 레벨별로 그룹화
+          const patternsByLevel = filteredPatterns.reduce<Record<number, BoardPatternInfo[]>>(
+            (groups, pattern) => {
+              const levelStr = String(pattern.level || '0')
+              const numericLevel = parseInt(levelStr.replace(/\D/g, '')) || 0
+
+              if (!groups[numericLevel]) {
+                groups[numericLevel] = []
+              }
+              groups[numericLevel].push(pattern)
+
+              return groups
+            },
+            {},
+          )
+
+          // 레벨별 floors 생성 (레벨 내림차순)
+          const patternTypeFloors = Object.entries(patternsByLevel)
+            .sort(([levelA], [levelB]) => parseInt(levelB) - parseInt(levelA))
+            .map(([level, patterns]) => ({
+              floorNumber: parseInt(level),
+              patterns: patterns,
+            }))
+
+          setFloorData(patternTypeFloors as Floor[])
+        }
+      } catch (error) {
+        createLog('error', 'Error in fetchAllBoardsForDiff', error)
+      } finally {
+        if (isMounted) {
+          setIsLoading(false)
+        }
+      }
+    }
+
+    // DIFF 모드일 때는 전체 보드 데이터를 가져옴
+    if (selectedDifficulty === 'DIFF') {
+      void fetchAllBoardsForDiff()
+    } else {
+      void fetchBoardData()
+    }
 
     return () => {
       setIsMounted(false)
       setFloorData([])
     }
-  }, [userData.varchiveUserInfo.nickname, keyMode, board, songData])
+  }, [userData.varchiveUserInfo.nickname, keyMode, board, selectedDifficulty, selectedPatternType])
+
+  // OCR 결과 감지 및 처리
+  useEffect(() => {
+    // 마운트되지 않았거나 게임코드가 일치하지 않으면 처리하지 않음
+    if (!isMounted || selectedGame !== 'djmax_respect_v' || isLoading) return
+
+    // 게임 OCR 상태 가져오기
+    const ocrState = gameOcrStates.djmax_respect_v
+
+    // OCR 결과가 없으면 처리하지 않음
+    if (!ocrState?.results?.length) return
+
+    // 가장 최근 OCR 결과 가져오기 (배열의 첫 번째 항목)
+    const latestResult = ocrState.results[0]
+
+    // OCR 결과가 현재 보드와 관련있는지 확인
+    if (
+      latestResult &&
+      latestResult.gameCode === 'djmax_respect_v' &&
+      String(latestResult.button) === keyMode
+    ) {
+      createLog('debug', 'OCR Result detected for DJMAX Respect V Board', latestResult)
+
+      // V-ARCHIVE API에서 곡의 상세 정보 가져오기
+      const fetchSongDetail = async () => {
+        try {
+          if (!userData.varchiveUserInfo.isLinked) {
+            createLog('debug', 'User not linked to V-ARCHIVE, skipping song detail fetch')
+            return null
+          }
+
+          const response = await apiClient.getProxy<SongData>(
+            `https://v-archive.net/api/archive/${userData.varchiveUserInfo.nickname}/title/${latestResult.songData.title}`,
+          )
+
+          if (response.status === 200 && response.data.data) {
+            createLog('debug', 'Song detail fetched successfully', response.data.data)
+            return response.data.data
+          }
+          return null
+        } catch (error) {
+          createLog('error', 'Error fetching song detail', error)
+          return null
+        }
+      }
+
+      const updateSongData = async () => {
+        // V-ARCHIVE에서 상세 정보 가져오기
+        const songDetail = await fetchSongDetail()
+
+        // floorData를 순회하면서 일치하는 패턴 찾기
+        const updatedFloorData = floorData.map((floor) => {
+          const updatedPatterns = floor.patterns.map((pattern) => {
+            // 제목과 패턴 타입이 일치하는지 확인
+            if (
+              pattern.title === latestResult.songData.title &&
+              pattern.pattern === latestResult.pattern
+            ) {
+              createLog('debug', 'Found matching pattern in board view - updating', {
+                title: pattern.title,
+                pattern: pattern.pattern,
+                oldScore: pattern.score,
+                newScore: latestResult.score,
+              })
+
+              // 상세 정보가 있으면 djpower와 rating 정보 업데이트
+              let djpower = pattern.djpower
+              let rating = pattern.rating
+
+              if (songDetail) {
+                // songDetail에서 해당 패턴의 djpower와 rating 정보 찾기
+                const patternKey = keyMode + 'B'
+                if (
+                  songDetail.patterns &&
+                  songDetail.patterns[patternKey] &&
+                  songDetail.patterns[patternKey][pattern.pattern]
+                ) {
+                  djpower = songDetail.patterns[patternKey][pattern.pattern].djpower
+                  rating = songDetail.patterns[patternKey][pattern.pattern].rating
+
+                  createLog('debug', 'Updated pattern info from V-ARCHIVE', {
+                    djpower,
+                    rating,
+                  })
+                }
+              }
+
+              // 새로운 점수와 맥스콤보 정보로 업데이트
+              // maxCombo는 boolean에서 number로 변환 필요 (1은 MAX, 0은 MAX 아님)
+              return {
+                ...pattern,
+                score: latestResult.score,
+                maxCombo: latestResult.maxCombo ? 1 : 0,
+                djpower,
+                rating,
+              }
+            }
+            return pattern
+          })
+
+          return {
+            ...floor,
+            patterns: updatedPatterns,
+          }
+        }) as Floor[]
+
+        // 업데이트된 데이터로 상태 갱신
+        setFloorData(updatedFloorData)
+      }
+
+      void updateSongData()
+    }
+  }, [gameOcrStates.djmax_respect_v?.results])
 
   useEffect(() => {
     const fetchAllBoardData = async () => {
@@ -278,7 +468,7 @@ const DmrvBoardPage = () => {
         // NEW 30 패턴 필터링 및 정렬
         const newPatterns = allPatterns
           .filter(
-            (pattern: Pattern) =>
+            (pattern: BoardPatternInfo) =>
               pattern.dlcCode === 'VL2' ||
               pattern.dlcCode === 'BA' ||
               pattern.dlcCode === 'PLI1' ||
@@ -287,12 +477,12 @@ const DmrvBoardPage = () => {
               pattern.name === 'Phoenix Virus' ||
               pattern.name === 'alliance',
           )
-          .sort((a: Pattern, b: Pattern) => b.djpower - a.djpower)
+          .sort((a: BoardPatternInfo, b: BoardPatternInfo) => b.djpower - a.djpower)
 
         // BASIC 70 패턴 필터링 및 정렬
         const basicPatterns = allPatterns
           .filter(
-            (pattern: Pattern) =>
+            (pattern: BoardPatternInfo) =>
               pattern.dlcCode !== 'VL2' &&
               pattern.dlcCode !== 'BA' &&
               pattern.dlcCode !== 'PLI1' &&
@@ -301,18 +491,18 @@ const DmrvBoardPage = () => {
               pattern.name !== 'Phoenix Virus' &&
               pattern.name !== 'alliance',
           )
-          .sort((a: Pattern, b: Pattern) => b.djpower - a.djpower)
+          .sort((a: BoardPatternInfo, b: BoardPatternInfo) => b.djpower - a.djpower)
 
         // TOP 50 정렬 (이건 여전히 rating 기준)
         const top50Patterns = [...allPatterns]
-          .sort((a: Pattern, b: Pattern) => b.rating - a.rating)
+          .sort((a: BoardPatternInfo, b: BoardPatternInfo) => b.rating - a.rating)
           .slice(0, 50)
 
         // 컷오프 점수 설정
         setCutoffScores({
-          new30: (newPatterns[29] as Pattern)?.djpower || 0,
-          basic70: (basicPatterns[69] as Pattern)?.djpower || 0,
-          top50: (top50Patterns[49] as Pattern)?.rating || 0,
+          new30: (newPatterns[29] as BoardPatternInfo)?.djpower || 0,
+          basic70: (basicPatterns[69] as BoardPatternInfo)?.djpower || 0,
+          top50: (top50Patterns[49] as BoardPatternInfo)?.rating || 0,
         })
       } catch (error) {
         createLog('error', 'Error in fetchAllBoardData', error)
@@ -325,7 +515,7 @@ const DmrvBoardPage = () => {
   if (!isMounted) return null
 
   // 통계 계산 함수 수정
-  const calculateStats = (patterns: Pattern[]) => {
+  const calculateStats = (patterns: BoardPatternInfo[]) => {
     const stats = {
       maxCombo: 0,
       perfect: 0,
@@ -373,7 +563,7 @@ const DmrvBoardPage = () => {
   }
 
   // 하이라이트 조건 체크 함수도 동일하게 수정
-  const shouldHighlight = (pattern: Pattern) => {
+  const shouldHighlight = (pattern: BoardPatternInfo) => {
     if (!highlightCondition) return true
 
     const score = typeof pattern.score === 'string' ? parseFloat(pattern.score) : pattern.score
@@ -419,7 +609,7 @@ const DmrvBoardPage = () => {
   }
 
   // 정렬 함수 추가
-  const sortPatterns = (patterns: Pattern[]) => {
+  const sortPatterns = (patterns: BoardPatternInfo[]) => {
     return [...patterns].sort((a, b) => {
       // 패턴 타입 우선순위 정의
       const patternOrder = { NM: 1, HD: 2, MX: 3, SC: 4 }
@@ -491,12 +681,13 @@ const DmrvBoardPage = () => {
   }, [])
 
   // 층별 평균 레이팅 계산 함수 수정
-  const calculateFloorStats = (patterns: Pattern[], floorNumber: number) => {
+  const calculateFloorStats = (patterns: BoardPatternInfo[], floorNumber: number) => {
     const validPatterns = patterns.filter((p) => p.rating > 0)
     if (validPatterns.length === 0) return null
 
     const avgRating = validPatterns.reduce((sum, p) => sum + p.rating, 0) / validPatterns.length
-    const floorMaxTP = tierPointMap[floorNumber.toString()]
+    const floorMaxTP =
+      globalDictionary.gameDictionary.djmax_respect_v.tierPointMap[floorNumber.toString()]
 
     if (!floorMaxTP) return null
 
@@ -507,7 +698,7 @@ const DmrvBoardPage = () => {
   }
 
   // 층별 평균 점수 계산 함수 추가
-  const calculateScoreStats = (patterns: Pattern[]) => {
+  const calculateScoreStats = (patterns: BoardPatternInfo[]) => {
     const validPatterns = patterns.filter((p) => p.score != null && p.score > 0)
     if (validPatterns.length === 0) return null
 
@@ -515,6 +706,56 @@ const DmrvBoardPage = () => {
       validPatterns.reduce((sum, p) => sum + Number(p.score), 0) / validPatterns.length
     return avgScore.toFixed(2)
   }
+
+  // 패턴 타입이 변경되면 DIFF 모드에서 floorData 업데이트
+  useEffect(() => {
+    if (selectedDifficulty === 'DIFF' && allBoardData.length > 0) {
+      // 선택된 패턴 타입에 맞는 패턴 필터링
+      const filteredPatterns = allBoardData.filter(
+        (pattern: BoardPatternInfo) => pattern.pattern === selectedPatternType,
+      )
+
+      // 유니크한 레벨 목록 추출 (level 값이 있는 경우)
+      const levels = filteredPatterns
+        .filter((pattern: BoardPatternInfo) => pattern.level != null)
+        .map((pattern: BoardPatternInfo) => {
+          // 레벨을 숫자로 변환 (SC 접두사 제거하고 숫자만 추출)
+          const levelStr = String(pattern.level)
+          const numericLevel = parseInt(levelStr.replace(/\D/g, ''))
+          return numericLevel
+        })
+        .filter((level, index, self) => self.indexOf(level) === index && !isNaN(level))
+        .sort((a, b) => b - a) // 내림차순 정렬
+
+      setUniqueLevels(levels)
+
+      // 레벨별로 그룹화
+      const patternsByLevel = filteredPatterns.reduce<Record<number, BoardPatternInfo[]>>(
+        (groups, pattern: BoardPatternInfo) => {
+          const levelStr = String(pattern.level || '0')
+          const numericLevel = parseInt(levelStr.replace(/\D/g, '')) || 0
+
+          if (!groups[numericLevel]) {
+            groups[numericLevel] = []
+          }
+          groups[numericLevel].push(pattern)
+
+          return groups
+        },
+        {},
+      )
+
+      // 레벨별 floors 생성 (레벨 내림차순)
+      const patternTypeFloors = Object.entries(patternsByLevel)
+        .sort(([levelA], [levelB]) => parseInt(levelB) - parseInt(levelA))
+        .map(([level, patterns]) => ({
+          floorNumber: parseInt(level),
+          patterns: patterns,
+        }))
+
+      setFloorData(patternTypeFloors as Floor[])
+    }
+  }, [selectedPatternType, selectedDifficulty, allBoardData])
 
   return (
     <React.Fragment>
@@ -533,7 +774,9 @@ const DmrvBoardPage = () => {
                           <span className='tw:text-4xl tw:font-bold'>{keyMode}</span>{' '}
                           <span className='tw:me-auto'>Button</span>{' '}
                           <span className='tw:text-2xl tw:font-bold'>
-                            {board && String(keyBoardTitle[board])}
+                            {selectedDifficulty == 'DIFF'
+                              ? selectedPatternType
+                              : board && String(keyBoardTitle[board])}
                           </span>
                         </span>
                       </div>
@@ -644,11 +887,23 @@ const DmrvBoardPage = () => {
                     </div>
                     {/* 난이도 선택 탭 */}
                     <div className='tw:flex tw:gap-2 tw:mb-1'>
-                      {['NORMAL', 'SC'].map((group) => (
+                      {['NORMAL', 'SC', 'DIFF'].map((group) => (
                         <button
                           key={group}
                           onClick={() => {
-                            setSelectedDifficulty(group as 'NORMAL' | 'SC')
+                            setSelectedDifficulty(group as 'NORMAL' | 'SC' | 'DIFF')
+                            // 선택한 난이도에 따라 URL 업데이트
+                            if (keyMode) {
+                              if (group === 'DIFF') {
+                                navigate(
+                                  `/games/djmax_respect_v/board/${keyMode}/DIFF_${selectedPatternType}`,
+                                )
+                              } else if (group === 'NORMAL') {
+                                navigate(`/games/djmax_respect_v/board/${keyMode}/1`)
+                              } else if (group === 'SC') {
+                                navigate(`/games/djmax_respect_v/board/${keyMode}/SC`)
+                              }
+                            }
                           }}
                           className={`tw:flex-1 tw:px-4 tw:py-1.5 tw:rounded-md tw:text-sm tw:font-medium tw:transition-all ${
                             selectedDifficulty === group
@@ -656,33 +911,58 @@ const DmrvBoardPage = () => {
                               : 'tw:bg-slate-100/50 tw:dark:bg-slate-700/30 hover:tw:bg-slate-200/50 hover:tw:dark:bg-slate-700/50 tw:text-slate-600 tw:dark:text-slate-400'
                           }`}
                         >
-                          {group === 'NORMAL' ? 'NORMAL' : 'SC'}
+                          {group}
                         </button>
                       ))}
                     </div>
 
-                    {/* 레벨 선택 설명 */}
-                    {/* <div className="tw:text-sm tw:text-slate-400 tw:font-medium">레벨 선택</div> */}
-                    {/* 선택된 난이도의 레벨 그리드 */}
-                    <div className='tw:grid tw:grid-cols-5 tw:gap-1'>
-                      {boards
-                        .filter((level) => {
-                          if (selectedDifficulty === 'NORMAL') return !level.startsWith('SC')
-                          return level.startsWith('SC')
-                        })
-                        .map((level) => (
-                          <Link
-                            key={`level_${level}`}
-                            to={`/games/djmax_respect_v/board/${keyMode}/${level}`}
-                            className={`tw:flex tw:items-center tw:justify-center tw:relative tw:h-8 tw:transition-all tw:duration-300 tw:rounded-md ${
-                              level === board
+                    {/* 패턴 타입 선택 - DIFF 모드일 때만 표시 */}
+                    {selectedDifficulty === 'DIFF' && (
+                      <div className='tw:flex tw:gap-2 tw:mb-1'>
+                        {['NM', 'HD', 'MX', 'SC'].map((pattern) => (
+                          <button
+                            key={pattern}
+                            onClick={() => {
+                              setSelectedPatternType(pattern as 'NM' | 'HD' | 'MX' | 'SC')
+                              // URL 업데이트
+                              if (keyMode) {
+                                navigate(`/games/djmax_respect_v/board/${keyMode}/DIFF_${pattern}`)
+                              }
+                            }}
+                            className={`tw:flex-1 tw:px-4 tw:py-1.5 tw:rounded-md tw:text-sm tw:font-medium tw:transition-all ${
+                              selectedPatternType === pattern
                                 ? 'tw:bg-indigo-600/20 tw:text-indigo-700 tw:dark:text-indigo-200 tw:border tw:border-indigo-500'
                                 : 'tw:bg-slate-100/50 tw:dark:bg-slate-700/30 hover:tw:bg-slate-200/50 hover:tw:dark:bg-slate-700/50 tw:text-slate-600 tw:dark:text-slate-400'
-                            } tw:text-sm tw:font-medium`}
+                            }`}
                           >
-                            {keyBoardTitle[level]}
-                          </Link>
+                            {pattern}
+                          </button>
                         ))}
+                      </div>
+                    )}
+
+                    {/* 선택된 난이도의 레벨 그리드 */}
+                    <div className='tw:grid tw:grid-cols-5 tw:gap-1'>
+                      {selectedDifficulty !== 'DIFF' &&
+                        boards
+                          .filter((level) => {
+                            if (selectedDifficulty === 'NORMAL')
+                              return !level.startsWith('SC') && !level.startsWith('DIFF_')
+                            return level.startsWith('SC') || level.startsWith('DIFF_')
+                          })
+                          .map((level) => (
+                            <Link
+                              key={`level_${level}`}
+                              to={`/games/djmax_respect_v/board/${keyMode}/${level}`}
+                              className={`tw:flex tw:items-center tw:justify-center tw:relative tw:h-8 tw:transition-all tw:duration-300 tw:rounded-md ${
+                                level === board
+                                  ? 'tw:bg-indigo-600/20 tw:text-indigo-700 tw:dark:text-indigo-200 tw:border tw:border-indigo-500'
+                                  : 'tw:bg-slate-100/50 tw:dark:bg-slate-700/30 hover:tw:bg-slate-200/50 hover:tw:dark:bg-slate-700/50 tw:text-slate-600 tw:dark:text-slate-400'
+                              } tw:text-sm tw:font-medium`}
+                            >
+                              {keyBoardTitle[level]}
+                            </Link>
+                          ))}
                     </div>
                   </div>
                 </div>
@@ -724,6 +1004,105 @@ const DmrvBoardPage = () => {
                 <div className='tw:flex tw:justify-center'>
                   <PuffLoader color='#6366f1' size={32} />
                 </div>
+              ) : selectedDifficulty === 'DIFF' ? (
+                // DIFF 모드일 때는 레벨별로 패턴 표시 (기존 코드 대체)
+                floorData.map((floor) => {
+                  // 각 floor의 patterns를 정렬
+                  const sortedPatterns = sortPatterns(floor.patterns)
+
+                  return (
+                    <div
+                      key={`floor_${floor.floorNumber}`}
+                      id={`level-${floor.floorNumber}`}
+                      className={`tw:flex tw:gap-3 tw:my-3 ${floor !== floorData[floorData.length - 1] ? 'tw:border-b tw:border-slate-200 tw:dark:border-slate-700 tw:pb-6' : ''}`}
+                    >
+                      <span className='tw:font-bold tw:text-base tw:min-w-24 tw:text-right tw:text-slate-700 tw:dark:text-slate-300'>
+                        <div className='tw:flex tw:flex-col tw:items-end tw:gap-1'>
+                          <div className='tw:flex tw:items-center tw:gap-1'>
+                            <span className='tw:text-indigo-600 tw:dark:text-indigo-400'>
+                              {selectedPatternType}
+                            </span>
+                            <span className='tw:text-xl'>Lv.{floor.floorNumber}</span>
+                          </div>
+                          {calculateScoreStats(floor.patterns) && (
+                            <div className='tw:flex tw:flex-col tw:items-end'>
+                              <span className='tw:text-sm tw:text-slate-500 tw:dark:text-slate-400 tw:font-light'>
+                                {t('scoreAverage')}
+                              </span>
+                              <div className='tw:text-sm tw:text-slate-700 tw:dark:text-slate-200'>
+                                {calculateScoreStats(floor.patterns)}%
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </span>
+                      <div className='tw:flex tw:flex-wrap tw:gap-3'>
+                        {sortedPatterns.map((pattern) => (
+                          <div
+                            key={`pattern_${pattern.title}_${pattern.pattern}`}
+                            className={`tw:transition-opacity tw:duration-300 tw:w-60 tw:max-w-60 tw:flex tw:flex-col tw:bg-slate-100 tw:dark:bg-slate-700/50 tw:rounded-md tw:bg-opacity-50 tw:gap-2 tw:p-2 ${
+                              highlightCondition
+                                ? shouldHighlight(pattern)
+                                  ? 'tw:opacity-100'
+                                  : 'tw:opacity-30'
+                                : 'tw:opacity-100'
+                            }`}
+                          >
+                            <div className='tw:flex tw:gap-2'>
+                              <ScorePopupComponent
+                                songTitle={pattern.title}
+                                keyMode={keyMode ?? '4'}
+                                isVisibleCode={true}
+                              />
+                              <div className='tw:flex tw:flex-1 tw:flex-col tw:gap-2 tw:items-end tw:justify-center tw:bg-slate-200 tw:dark:bg-slate-700 tw:bg-opacity-25 tw:rounded-md tw:py-2 tw:px-3'>
+                                {pattern.score ? (
+                                  <>
+                                    {pattern.score ? (
+                                      <span
+                                        className={`tw:text-xs tw:font-extrabold ${
+                                          pattern.maxCombo
+                                            ? 'tw:text-indigo-500 tw:dark:text-yellow-500'
+                                            : 'tw:text-slate-700 tw:dark:text-slate-200'
+                                        }`}
+                                      >
+                                        <span className='tw:text-xs tw:text-slate-700 tw:dark:text-slate-200 tw:font-normal'>
+                                          SCORE :
+                                        </span>{' '}
+                                        {pattern.score}%
+                                      </span>
+                                    ) : null}
+
+                                    {pattern.djpower ? (
+                                      <span className='tw:text-xs tw:text-slate-700 tw:dark:text-slate-200'>
+                                        DP : {pattern.djpower}
+                                      </span>
+                                    ) : null}
+                                    {pattern.rating ? (
+                                      <span className='tw:text-xs tw:text-slate-700 tw:dark:text-slate-200'>
+                                        TP : {pattern.rating}
+                                      </span>
+                                    ) : null}
+                                  </>
+                                ) : (
+                                  <span className='tw:text-xs tw:text-slate-500 tw:dark:text-slate-400'>
+                                    {t('noRecord')}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                            <span
+                              className={`tw:flex tw:flex-1 tw:bg-slate-200 tw:dark:bg-slate-700 tw:bg-opacity-25 tw:px-2 tw:py-1 tw:rounded-md ${
+                                language !== 'ja_JP' ? 'tw:break-keep' : ''
+                              } tw:justify-center tw:items-center tw:text-center tw:text-xs tw:text-slate-700 tw:dark:text-slate-300`}
+                            >
+                              {pattern.name}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )
+                })
               ) : (
                 floorData.map((floor) => {
                   // 각 floor의 patterns를 정렬
@@ -762,7 +1141,11 @@ const DmrvBoardPage = () => {
                                         calculateFloorStats(floor.patterns, floor.floorNumber)
                                           .avgRating
                                       }{' '}
-                                      / {tierPointMap[floor.floorNumber]}
+                                      /{' '}
+                                      {
+                                        globalDictionary.gameDictionary.djmax_respect_v
+                                          .tierPointMap[floor.floorNumber.toString()]
+                                      }
                                     </div>
                                   </div>
                                 )}
@@ -805,15 +1188,31 @@ const DmrvBoardPage = () => {
                               <div className='tw:flex tw:flex-1 tw:flex-col tw:gap-2 tw:items-end tw:justify-center tw:bg-slate-200 tw:dark:bg-slate-700 tw:bg-opacity-25 tw:rounded-md tw:py-2 tw:px-3'>
                                 {pattern.score ? (
                                   <>
-                                    <span className='tw:text-xs tw:text-slate-500 tw:dark:text-slate-400'>
-                                      SCORE : {pattern.score ? pattern.score : 0}%
-                                    </span>
-                                    <span className='tw:text-xs tw:text-slate-500 tw:dark:text-slate-400'>
-                                      DP : {pattern.djpower ? pattern.djpower : 0}
-                                    </span>
-                                    <span className='tw:text-xs tw:text-slate-500 tw:dark:text-slate-400'>
-                                      TP : {pattern.rating ? pattern.rating : 0}
-                                    </span>
+                                    {pattern.score ? (
+                                      <span
+                                        className={`tw:text-xs tw:font-extrabold ${
+                                          pattern.maxCombo
+                                            ? 'tw:text-indigo-500 tw:dark:text-yellow-500'
+                                            : 'tw:text-slate-700 tw:dark:text-slate-200'
+                                        }`}
+                                      >
+                                        <span className='tw:text-xs tw:text-slate-700 tw:dark:text-slate-200 tw:font-normal'>
+                                          SCORE :
+                                        </span>{' '}
+                                        {pattern.score}%
+                                      </span>
+                                    ) : null}
+
+                                    {pattern.djpower ? (
+                                      <span className='tw:text-xs tw:text-slate-700 tw:dark:text-slate-200'>
+                                        DP : {pattern.djpower}
+                                      </span>
+                                    ) : null}
+                                    {pattern.rating ? (
+                                      <span className='tw:text-xs tw:text-slate-700 tw:dark:text-slate-200'>
+                                        TP : {pattern.rating}
+                                      </span>
+                                    ) : null}
                                   </>
                                 ) : (
                                   <span className='tw:text-xs tw:text-slate-500 tw:dark:text-slate-400'>
@@ -840,6 +1239,35 @@ const DmrvBoardPage = () => {
           </div>
         </div>
       ) : null}
+
+      {/* DIFF 모드일 때 레벨 빠른 이동 플로팅 버튼 추가 */}
+      {selectedDifficulty === 'DIFF' && !isLoading && uniqueLevels.length > 0 && (
+        <div className='tw:fixed tw:bottom-2 tw:right-2 tw:flex tw:flex-col tw:gap-2 tw:z-50'>
+          <div className='tw:p-1 tw:bg-slate-100 tw:dark:bg-slate-800 tw:rounded-lg tw:shadow-lg tw:border tw:border-slate-200 tw:dark:border-slate-600'>
+            {/* <div className='tw:text-xs tw:font-medium tw:text-center tw:text-slate-600 tw:dark:text-slate-300'>
+              {t('quickJump')}
+            </div> */}
+            <div className='tw:flex tw:gap-2 tw:max-h-56 tw:overflow-y-auto tw:p-1'>
+              {uniqueLevels.map((level) => (
+                <a
+                  key={`quick_level_${level}`}
+                  href={`#level-${level}`}
+                  onClick={(e) => {
+                    e.preventDefault()
+                    const element = document.getElementById(`level-${level}`)
+                    if (element) {
+                      element.scrollIntoView({ behavior: 'smooth' })
+                    }
+                  }}
+                  className='tw:flex tw:items-center tw:justify-center tw:px-2 tw:py-2.5 tw:bg-slate-200 tw:dark:bg-slate-600 tw:rounded-md tw:text-xs tw:font-medium tw:hover:bg-indigo-100 tw:dark:hover:bg-indigo-900/30 tw:transition-colors'
+                >
+                  Lv.{level}
+                </a>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </React.Fragment>
   )
 }

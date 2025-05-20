@@ -181,7 +181,7 @@ const DmrvDjpowerPage = () => {
 
       setIsLoading(false)
     }
-  }, [songData, keyMode])
+  }, [keyMode])
 
   const loadDataWithScore = async (title) => {
     try {
@@ -255,11 +255,13 @@ const DmrvDjpowerPage = () => {
                     ...item.patterns[`${keyMode}B`].SC,
                     score: data?.patterns?.[`${keyMode}B`]?.SC?.score,
                     rating: data?.patterns?.[`${keyMode}B`]?.SC?.rating,
+                    maxCombo: data?.patterns?.[`${keyMode}B`]?.SC?.maxCombo,
                   },
                   MX: {
                     ...item.patterns[`${keyMode}B`].MX,
                     score: data?.patterns?.[`${keyMode}B`]?.MX?.score,
                     rating: data?.patterns?.[`${keyMode}B`]?.MX?.rating,
+                    maxCombo: data?.patterns?.[`${keyMode}B`]?.MX?.maxCombo,
                   },
                 },
               },
@@ -388,26 +390,70 @@ const DmrvDjpowerPage = () => {
                                 isVisibleCode={true}
                               />
                               <div className='tw:flex tw:flex-1 tw:flex-col tw:gap-2 tw:items-end tw:justify-center tw:bg-slate-200 tw:dark:bg-slate-700 tw:bg-opacity-25 tw:rounded-md tw:py-2 tw:px-3'>
-                                {songItem.patterns[`${keyMode}B`].SC?.score ||
-                                songItem.patterns[`${keyMode}B`].MX?.score ? (
+                                {(songItem.patterns[`${keyMode}B`].SC?.score &&
+                                  parseFloat(songItem.patterns[`${keyMode}B`].SC?.score) > 0) ||
+                                (songItem.patterns[`${keyMode}B`].MX?.score &&
+                                  parseFloat(songItem.patterns[`${keyMode}B`].MX?.score) > 0) ? (
                                   <>
-                                    <span className='tw:text-xs tw:text-slate-500 tw:dark:text-slate-400'>
-                                      SCORE :{' '}
+                                    <span>
                                       {String(songItem.patterns[`${keyMode}B`].SC.level).includes(
                                         '.5',
-                                      )
-                                        ? songItem.patterns[`${keyMode}B`].MX.score || '0'
-                                        : songItem.patterns[`${keyMode}B`].SC.score || '0'}
-                                      %
+                                      ) ? (
+                                        songItem.patterns[`${keyMode}B`].MX.score &&
+                                        parseFloat(songItem.patterns[`${keyMode}B`].MX.score) >
+                                          0 ? (
+                                          <span
+                                            className={`tw:text-xs tw:font-extrabold ${
+                                              songItem.patterns[`${keyMode}B`].MX.maxCombo
+                                                ? 'tw:text-indigo-500 tw:dark:text-yellow-500'
+                                                : 'tw:text-slate-700 tw:dark:text-slate-200'
+                                            }`}
+                                          >
+                                            <span className='tw:text-xs tw:text-slate-700 tw:dark:text-slate-200 tw:font-normal'>
+                                              SCORE :
+                                            </span>{' '}
+                                            {songItem.patterns[`${keyMode}B`].MX.score}%
+                                          </span>
+                                        ) : (
+                                          <span className='tw:text-xs tw:text-slate-500 tw:dark:text-slate-400'>
+                                            {t('noRecord')}
+                                          </span>
+                                        )
+                                      ) : songItem.patterns[`${keyMode}B`].SC.score &&
+                                        parseFloat(songItem.patterns[`${keyMode}B`].SC.score) >
+                                          0 ? (
+                                        <span
+                                          className={`tw:text-xs tw:font-extrabold ${
+                                            songItem.patterns[`${keyMode}B`].SC.maxCombo
+                                              ? 'tw:text-indigo-500 tw:dark:text-yellow-500'
+                                              : 'tw:text-slate-700 tw:dark:text-slate-200'
+                                          }`}
+                                        >
+                                          <span className='tw:text-xs tw:text-slate-700 tw:dark:text-slate-200 tw:font-normal'>
+                                            SCORE :
+                                          </span>{' '}
+                                          {songItem.patterns[`${keyMode}B`].SC.score}%
+                                        </span>
+                                      ) : (
+                                        <span className='tw:text-xs tw:text-slate-500 tw:dark:text-slate-400'>
+                                          {t('noRecord')}
+                                        </span>
+                                      )}
                                     </span>
-                                    <span className='tw:text-xs tw:text-slate-500 tw:dark:text-slate-400'>
-                                      TP :{' '}
-                                      {String(songItem.patterns[`${keyMode}B`].SC.level).includes(
-                                        '.5',
-                                      )
-                                        ? songItem.patterns[`${keyMode}B`].MX.rating || '0'
-                                        : songItem.patterns[`${keyMode}B`].SC.rating || '0'}
-                                    </span>
+
+                                    {String(songItem.patterns[`${keyMode}B`].SC.level).includes(
+                                      '.5',
+                                    ) ? (
+                                      songItem.patterns[`${keyMode}B`].MX.rating ? (
+                                        <span className='tw:text-xs tw:text-slate-700 tw:dark:text-slate-200'>
+                                          TP : {songItem.patterns[`${keyMode}B`].MX.rating}
+                                        </span>
+                                      ) : null
+                                    ) : songItem.patterns[`${keyMode}B`].SC.rating ? (
+                                      <span className='tw:text-xs tw:text-slate-700 tw:dark:text-slate-200'>
+                                        TP : {songItem.patterns[`${keyMode}B`].SC.rating}
+                                      </span>
+                                    ) : null}
                                   </>
                                 ) : (
                                   <span className='tw:text-xs tw:text-slate-500 tw:dark:text-slate-400'>

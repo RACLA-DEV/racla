@@ -36,6 +36,7 @@ declare global {
 
       // 메인 윈도우 관련
       onMainWindowMessage: (callback: (data: any) => void) => void
+      onMainWindowResult: (callback: (data: OcrPlayDataResponse) => void) => void
 
       // 로깅 관련
       sendLog: (level: LogLevel, where: string, ...args: unknown[]) => void

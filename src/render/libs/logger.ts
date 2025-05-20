@@ -4,7 +4,14 @@ import dayjs from 'dayjs'
 const { sendLog } = window.electron
 
 export function createLog(level: LogLevel, ...args: unknown[]) {
-  sendLog(level, 'RENDERER', ...args)
+  if (
+    process.env.NODE_ENV === 'development' &&
+    ['debug', 'info', 'warn', 'error'].includes(level)
+  ) {
+    sendLog(level, 'RENDERER', ...args)
+  } else if (process.env.NODE_ENV === 'production' && ['info', 'warn', 'error'].includes(level)) {
+    sendLog(level, 'RENDERER', ...args)
+  }
   const styles = {
     error: 'color: #ff5555; font-weight: bold',
     warn: 'color: #ffb86c; font-weight: bold',
@@ -71,7 +78,14 @@ export function createLog(level: LogLevel, ...args: unknown[]) {
 }
 
 export function createOverlayLog(level: LogLevel, ...args: unknown[]) {
-  sendLog(level, 'OVERLAY', ...args)
+  if (
+    process.env.NODE_ENV === 'development' &&
+    ['debug', 'info', 'warn', 'error'].includes(level)
+  ) {
+    sendLog(level, 'OVERLAY', ...args)
+  } else if (process.env.NODE_ENV === 'production' && ['info', 'warn', 'error'].includes(level)) {
+    sendLog(level, 'OVERLAY', ...args)
+  }
   const styles = {
     error: 'color: #ff5555; font-weight: bold',
     warn: 'color: #ffb86c; font-weight: bold',

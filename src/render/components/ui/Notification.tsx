@@ -1,6 +1,6 @@
 import { Icon } from '@iconify/react'
 import { RootState } from '@render/store'
-import type { NotificationProps } from '@src/types/notifications/NotificationProps'
+import type { NotificationProps } from '@src/types/render/NotificationProps'
 import { motion } from 'framer-motion'
 import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'

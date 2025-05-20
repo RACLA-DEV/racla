@@ -41,5 +41,9 @@ export interface SettingsData {
   isNotificationSound?: boolean
   autoDeleteCapturedImages?: number
   isCheckedForUpdate?: boolean
+  // 게임 표시 설정
+  showGameDjmaxRespectV?: boolean
+  showGameWjmax?: boolean
+  showGamePlatinaLab?: boolean
   // 필요에 따라 다른 설정들도 추가할 수 있습니다.
 }

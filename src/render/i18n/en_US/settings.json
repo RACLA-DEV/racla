@@ -3,6 +3,7 @@
   "settings": "Settings",
   "general": "General",
   "storage": "Storage",
+  "games": "Games",
   "storageSettingFile": "RACLA Setting Files",
   "storageCaptureImage": "RACLA Captured Images",
   "storageLogs": "RACLA Log Files",
@@ -192,9 +193,25 @@
     "5000": "5 seconds",
     "10000": "10 seconds"
   },
+  "showGameDjmaxRespectV": {
+    "name": "Show DJMAX RESPECT V",
+    "description": "Display DJMAX RESPECT V game in the icon sidebar."
+  },
+  "showGameWjmax": {
+    "name": "Show WJMAX",
+    "description": "Display WJMAX game in the icon sidebar."
+  },
+  "showGamePlatinaLab": {
+    "name": "Show PLATiNA :: LAB",
+    "description": "Display PLATiNA :: LAB game in the icon sidebar."
+  },
   "log": {
     "clearAllLogsSuccess": "All log files have been deleted.",
     "clearAllLogsError": "An error occurred while deleting log files."
+  },
+  "enableOverlayWindow": {
+    "name": "Enable Overlay Window",
+    "description": "Enable/disable overlay window."
   },
   "accountInfo": {
     "name": "Account Information",
