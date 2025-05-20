@@ -1,97 +1,18 @@
 import React, { useEffect, useState } from 'react'
 
 import ScorePopupComponent from '@render/components/score/ScorePopup'
+import { globalDictionary } from '@render/constants/globalDictionary'
 import { useNotificationSystem } from '@render/hooks/useNotifications'
 import { createLog } from '@render/libs/logger'
 import { RootState } from '@render/store'
 import { ApiArchiveNicknameBoard } from '@src/types/dto/v-archive/ApiArchiveNicknameBoard'
-import { PatternInfo } from '@src/types/games/SongData'
+import { Floor } from '@src/types/games/Floor'
+import { BoardPatternInfo, PatternInfo } from '@src/types/games/SongData'
 import { useTranslation } from 'react-i18next'
 import { useSelector } from 'react-redux'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { PuffLoader } from 'react-spinners'
 import apiClient from '../../../../libs/apiClient'
-
-interface Pattern {
-  title: number
-  name: string
-  composer: string
-  pattern: string
-  score: number | null
-  maxCombo: number | null
-  djpower: number
-  rating: number
-  dlc: string
-  dlcCode: string
-}
-
-interface Floor {
-  floorNumber: number
-  patterns: Pattern[]
-}
-
-// 티어 포인트 맵 추가
-const tierPointMap = {
-  '16.3': 208,
-  '16.2': 206,
-  '16.1': 204,
-  '15.3': 202,
-  '15.2': 200,
-  '15.1': 199,
-  '14.3': 198,
-  '14.2': 196,
-  '14.1': 195,
-  '13.3': 194,
-  '13.2': 192,
-  '13.1': 191,
-  '12.3': 190,
-  '12.2': 188,
-  '12.1': 187,
-  '11.3': 186,
-  '11.2': 184,
-  '11.1': 182,
-  '10.3': 180,
-  '10.2': 178,
-  '10.1': 176,
-  '9.3': 174,
-  '9.2': 172,
-  '9.1': 170,
-  '8.3': 168,
-  '8.2': 167,
-  '8.1': 166,
-  '7.3': 165,
-  '7.2': 164,
-  '7.1': 163,
-  '6.3': 162,
-  '6.2': 161,
-  '6.1': 160,
-  '5.3': 159,
-  '5.2': 158,
-  '5.1': 157,
-  '4.3': 156,
-  '4.2': 155,
-  '4.1': 154,
-  '3.3': 153,
-  '3.2': 152,
-  '3.1': 151,
-  '2.3': 150,
-  '2.2': 148,
-  '2.1': 146,
-  '1.3': 144,
-  '1.2': 142,
-  '1.1': 140,
-  '11L': 140,
-  '10L': 130,
-  '9L': 120,
-  '8L': 110,
-  '7L': 100,
-  '6L': 90,
-  '5L': 80,
-  '4L': 70,
-  '3L': 60,
-  '2L': 50,
-  '1L': 40,
-}
 
 const DmrvBoardPage = () => {
   const { t } = useTranslation(['board'])
@@ -278,7 +199,7 @@ const DmrvBoardPage = () => {
         // NEW 30 패턴 필터링 및 정렬
         const newPatterns = allPatterns
           .filter(
-            (pattern: Pattern) =>
+            (pattern: BoardPatternInfo) =>
               pattern.dlcCode === 'VL2' ||
               pattern.dlcCode === 'BA' ||
               pattern.dlcCode === 'PLI1' ||
@@ -287,12 +208,12 @@ const DmrvBoardPage = () => {
               pattern.name === 'Phoenix Virus' ||
               pattern.name === 'alliance',
           )
-          .sort((a: Pattern, b: Pattern) => b.djpower - a.djpower)
+          .sort((a: BoardPatternInfo, b: BoardPatternInfo) => b.djpower - a.djpower)
 
         // BASIC 70 패턴 필터링 및 정렬
         const basicPatterns = allPatterns
           .filter(
-            (pattern: Pattern) =>
+            (pattern: BoardPatternInfo) =>
               pattern.dlcCode !== 'VL2' &&
               pattern.dlcCode !== 'BA' &&
               pattern.dlcCode !== 'PLI1' &&
@@ -301,18 +222,18 @@ const DmrvBoardPage = () => {
               pattern.name !== 'Phoenix Virus' &&
               pattern.name !== 'alliance',
           )
-          .sort((a: Pattern, b: Pattern) => b.djpower - a.djpower)
+          .sort((a: BoardPatternInfo, b: BoardPatternInfo) => b.djpower - a.djpower)
 
         // TOP 50 정렬 (이건 여전히 rating 기준)
         const top50Patterns = [...allPatterns]
-          .sort((a: Pattern, b: Pattern) => b.rating - a.rating)
+          .sort((a: BoardPatternInfo, b: BoardPatternInfo) => b.rating - a.rating)
           .slice(0, 50)
 
         // 컷오프 점수 설정
         setCutoffScores({
-          new30: (newPatterns[29] as Pattern)?.djpower || 0,
-          basic70: (basicPatterns[69] as Pattern)?.djpower || 0,
-          top50: (top50Patterns[49] as Pattern)?.rating || 0,
+          new30: (newPatterns[29] as BoardPatternInfo)?.djpower || 0,
+          basic70: (basicPatterns[69] as BoardPatternInfo)?.djpower || 0,
+          top50: (top50Patterns[49] as BoardPatternInfo)?.rating || 0,
         })
       } catch (error) {
         createLog('error', 'Error in fetchAllBoardData', error)
@@ -325,7 +246,7 @@ const DmrvBoardPage = () => {
   if (!isMounted) return null
 
   // 통계 계산 함수 수정
-  const calculateStats = (patterns: Pattern[]) => {
+  const calculateStats = (patterns: BoardPatternInfo[]) => {
     const stats = {
       maxCombo: 0,
       perfect: 0,
@@ -373,7 +294,7 @@ const DmrvBoardPage = () => {
   }
 
   // 하이라이트 조건 체크 함수도 동일하게 수정
-  const shouldHighlight = (pattern: Pattern) => {
+  const shouldHighlight = (pattern: BoardPatternInfo) => {
     if (!highlightCondition) return true
 
     const score = typeof pattern.score === 'string' ? parseFloat(pattern.score) : pattern.score
@@ -419,7 +340,7 @@ const DmrvBoardPage = () => {
   }
 
   // 정렬 함수 추가
-  const sortPatterns = (patterns: Pattern[]) => {
+  const sortPatterns = (patterns: BoardPatternInfo[]) => {
     return [...patterns].sort((a, b) => {
       // 패턴 타입 우선순위 정의
       const patternOrder = { NM: 1, HD: 2, MX: 3, SC: 4 }
@@ -491,12 +412,13 @@ const DmrvBoardPage = () => {
   }, [])
 
   // 층별 평균 레이팅 계산 함수 수정
-  const calculateFloorStats = (patterns: Pattern[], floorNumber: number) => {
+  const calculateFloorStats = (patterns: BoardPatternInfo[], floorNumber: number) => {
     const validPatterns = patterns.filter((p) => p.rating > 0)
     if (validPatterns.length === 0) return null
 
     const avgRating = validPatterns.reduce((sum, p) => sum + p.rating, 0) / validPatterns.length
-    const floorMaxTP = tierPointMap[floorNumber.toString()]
+    const floorMaxTP =
+      globalDictionary.gameDictionary.djmax_respect_v.tierPointMap[floorNumber.toString()]
 
     if (!floorMaxTP) return null
 
@@ -507,7 +429,7 @@ const DmrvBoardPage = () => {
   }
 
   // 층별 평균 점수 계산 함수 추가
-  const calculateScoreStats = (patterns: Pattern[]) => {
+  const calculateScoreStats = (patterns: BoardPatternInfo[]) => {
     const validPatterns = patterns.filter((p) => p.score != null && p.score > 0)
     if (validPatterns.length === 0) return null
 
@@ -762,7 +684,11 @@ const DmrvBoardPage = () => {
                                         calculateFloorStats(floor.patterns, floor.floorNumber)
                                           .avgRating
                                       }{' '}
-                                      / {tierPointMap[floor.floorNumber]}
+                                      /{' '}
+                                      {
+                                        globalDictionary.gameDictionary.djmax_respect_v
+                                          .tierPointMap[floor.floorNumber.toString()]
+                                      }
                                     </div>
                                   </div>
                                 )}

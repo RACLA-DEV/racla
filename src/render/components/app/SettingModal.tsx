@@ -9,6 +9,7 @@ import {
   ApiArchiveUserNameRequest,
   ApiArchiveUserNameResponse,
 } from '@src/types/dto/v-archive/ApiArchiveUserName'
+import { ElectronFile } from '@src/types/file/ElectronFile'
 import { SessionData } from '@src/types/sessions/SessionData'
 import type { SettingsData } from '@src/types/settings/SettingData'
 import type { SettingItem } from '@src/types/settings/SettingItem'
@@ -18,11 +19,6 @@ import { FaDiscord } from 'react-icons/fa6'
 import { useDispatch, useSelector } from 'react-redux'
 import { PuffLoader } from 'react-spinners'
 import apiClient from '../../../libs/apiClient'
-
-// Electron에서 사용되는 File 인터페이스 확장
-interface ElectronFile extends File {
-  path?: string
-}
 
 // 카테고리 정의
 const settingCategories = {

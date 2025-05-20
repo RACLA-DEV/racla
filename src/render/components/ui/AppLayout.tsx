@@ -2,7 +2,7 @@ import { RootState } from '@render/store'
 import type { ChildrenReactNodeProps } from '@src/types/render/ChildrenReactNodeProps'
 import React, { lazy, Suspense } from 'react'
 import { useSelector } from 'react-redux'
-import PageLoading from '../app/PageLoading'
+import PageLoading from './PageLoading'
 
 // 지연 로딩을 위한 컴포넌트 임포트
 const Footer = lazy(() => import('./Footer'))

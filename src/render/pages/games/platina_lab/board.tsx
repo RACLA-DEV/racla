@@ -4,31 +4,14 @@ import ScorePopupComponent from '@render/components/score/ScorePopup'
 import { useNotificationSystem } from '@render/hooks/useNotifications'
 import { createLog } from '@render/libs/logger'
 import { RootState } from '@render/store'
-import { PlayBoardResponse } from '@src/types/dto/playBoard/PlayBoardResponse'
-import { PatternInfo } from '@src/types/games/SongData'
+import { PlayBoardResponse } from '@src/types/dto/play/PlayBoardResponse'
+import { Floor } from '@src/types/games/Floor'
+import { BoardPatternInfo, PatternInfo } from '@src/types/games/SongData'
 import { useTranslation } from 'react-i18next'
 import { useSelector } from 'react-redux'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { PuffLoader } from 'react-spinners'
 import apiClient from '../../../../libs/apiClient'
-
-interface Pattern {
-  title: number
-  name: string
-  composer: string
-  pattern: string
-  score: number | null
-  maxCombo: number | null
-  djpower: number
-  rating: number
-  dlc: string
-  dlcCode: string
-}
-
-interface Floor {
-  floorNumber: number
-  patterns: Pattern[]
-}
 
 const PlatinaLabBoardPage = () => {
   const { t } = useTranslation(['board'])
@@ -168,7 +151,7 @@ const PlatinaLabBoardPage = () => {
   if (!isMounted) return null
 
   // 통계 계산 함수 수정
-  const calculateStats = (patterns: Pattern[]) => {
+  const calculateStats = (patterns: BoardPatternInfo[]) => {
     const stats = {
       maxCombo: 0,
       perfect: 0,
@@ -216,7 +199,7 @@ const PlatinaLabBoardPage = () => {
   }
 
   // 하이라이트 조건 체크 함수도 동일하게 수정
-  const shouldHighlight = (pattern: Pattern) => {
+  const shouldHighlight = (pattern: BoardPatternInfo) => {
     if (!highlightCondition) return true
 
     const score = typeof pattern.score === 'string' ? parseFloat(pattern.score) : pattern.score
@@ -262,7 +245,7 @@ const PlatinaLabBoardPage = () => {
   }
 
   // 정렬 함수 추가
-  const sortPatterns = (patterns: Pattern[]) => {
+  const sortPatterns = (patterns: BoardPatternInfo[]) => {
     return [...patterns].sort((a, b) => {
       // 패턴 타입 우선순위 정의
       const patternOrder = { NM: 1, HD: 2, MX: 3, SC: 4 }
@@ -350,7 +333,7 @@ const PlatinaLabBoardPage = () => {
   }, [])
 
   // 층별 평균 점수 계산 함수 추가
-  const calculateScoreStats = (patterns: Pattern[]) => {
+  const calculateScoreStats = (patterns: BoardPatternInfo[]) => {
     const validPatterns = patterns.filter((p) => p.score != null && p.score > 0)
     if (validPatterns.length === 0) return null
 

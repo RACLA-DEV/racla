@@ -1,6 +1,6 @@
 import { lazy, Suspense } from 'react'
 import { createHashRouter, Navigate, Outlet } from 'react-router-dom'
-import PageLoading from './components/app/PageLoading'
+import PageLoading from './components/ui/PageLoading'
 
 const WrappedApp = lazy(() => import('./components/app/WrappedApp'))
 const AppLayout = lazy(() => import('./components/ui/AppLayout'))

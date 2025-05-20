@@ -9,7 +9,14 @@ import apiClient from '../../../libs/apiClient'
 
 import { setSettingData } from '@render/store/slices/appSlice'
 import { setTheme } from '@render/store/slices/uiSlice'
+import {
+  HardArchiveRecord,
+  HardArchiveRecordResponse,
+} from '@src/types/dto/hard-archive/HardArchiveRecord'
+import { RecentPlayRecordResponse } from '@src/types/dto/play/RecentPlayRecordResponse'
 import { SongData } from '@src/types/games/SongData'
+import { OverlayMode } from '@src/types/render/Overlay'
+import { NotificationType, OverlayNotification } from '@src/types/render/OverlayNotification'
 import { SettingsData } from '@src/types/settings/SettingData'
 import dayjs from 'dayjs'
 import timezone from 'dayjs/plugin/timezone'
@@ -21,62 +28,6 @@ import { useDispatch, useSelector } from 'react-redux'
 // dayjs 플러그인 확장
 dayjs.extend(utc)
 dayjs.extend(timezone)
-
-// 오버레이 모드 타입 정의
-type OverlayMode = 'debug' | 'transparent' | 'minimal' | 'full'
-
-// 알림 타입 정의
-type NotificationType = 'success' | 'error' | 'warning' | 'info' | 'debug'
-
-// 알림 인터페이스 정의
-interface OverlayNotification {
-  id: string
-  message: string
-  type: NotificationType
-  duration?: number
-  isRemoving?: boolean
-  mode: 'i18n' | 'default'
-  props?: Record<string, string>
-}
-
-interface HardArchiveRecord {
-  nickname: string
-  max_combo: boolean
-  rate: number
-  score: number
-}
-
-interface HardArchiveRecord {
-  code: string
-  data: HardArchiveRecord[]
-}
-
-interface RecentRecord {
-  historyId: number
-  playedAt: number
-  playedAtISO: string
-  score: number
-  maxCombo: boolean
-  judgementType: string
-
-  // 게임 정보
-  gameCode: string
-
-  // 패턴 정보
-  keyType: string
-  difficultyType: string
-  level: number
-  floor: number
-
-  // 곡 정보
-  songId: number
-  songName: string
-  composer: string
-  dlcCode: string
-  dlc: string
-  folderName: string
-  max: number
-}
 
 function OverlayPage() {
   const { t, i18n } = useTranslation(['overlay'])
@@ -100,7 +51,7 @@ function OverlayPage() {
   const [notifications, setNotifications] = useState<OverlayNotification[]>([])
 
   // 기록 데이터 상태 관리
-  const [recentHistory, setRecentHistory] = useState<RecentRecord[]>([])
+  const [recentHistory, setRecentHistory] = useState<RecentPlayRecordResponse[]>([])
   const [hardScore, setHardScore] = useState<HardArchiveRecord | null>(null)
   const [maxScore, setMaxScore] = useState<HardArchiveRecord | null>(null)
   const [showRecordsOverlay, setShowRecordsOverlay] = useState(false)
@@ -135,7 +86,7 @@ function OverlayPage() {
   ) => {
     try {
       if (songId) {
-        const response = await apiClient.getProxy<HardArchiveRecord>(
+        const response = await apiClient.getProxy<HardArchiveRecordResponse>(
           `https://hard-archive.com/api/v2/record?button=${button}B&lv=SC${level}&judge=${judge}&song=${songId}`,
         )
         const data = response.data.data.data
@@ -163,7 +114,7 @@ function OverlayPage() {
   ) => {
     const session = await window.electron?.getSession()
     try {
-      const response = await apiClient.get<RecentRecord[]>(
+      const response = await apiClient.get<RecentPlayRecordResponse[]>(
         `/v3/racla/play/history/${session.playerId}/${gameCode}/${songTitle}/${String(button).replace('B', '')}B/${pattern}`,
         {
           headers: {
@@ -676,7 +627,7 @@ function OverlayPage() {
                     </div>
 
                     <div className='tw:flex tw:flex-col tw:gap-2'>
-                      {hardScore.rate && (
+                      {hardScore?.rate && (
                         <div className='tw:bg-slate-100 tw:dark:bg-slate-800 tw:rounded tw:p-2 tw:flex tw:flex-col tw:gap-1'>
                           {/* <div className='tw:flex tw:items-center tw:gap-1.5'>
                             <div className='tw:px-1.5 tw:rounded tw:bg-slate-200 tw:dark:bg-slate-700 tw:min-w-[40px] tw:text-center'>
@@ -717,7 +668,7 @@ function OverlayPage() {
                         </div>
                       )}
 
-                      {maxScore.rate && (
+                      {maxScore?.rate && (
                         <div className='tw:bg-slate-100 tw:dark:bg-slate-800 tw:rounded tw:p-2 tw:flex tw:flex-col tw:gap-1'>
                           {/* <div className='tw:flex tw:items-center tw:gap-1.5'>
                             <div className='tw:px-1.5 tw:rounded tw:bg-slate-200 tw:dark:bg-slate-700 tw:min-w-[40px] tw:text-center'>

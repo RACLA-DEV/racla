@@ -1,18 +1,7 @@
 import { Icon } from '@iconify/react'
+import { AlertModalProps } from '@src/types/render/AlertModalProps'
 import { AnimatePresence, motion } from 'framer-motion'
 import { createPortal } from 'react-dom'
-
-interface AlertModalProps {
-  isOpen: boolean
-  onClose: () => void
-  title: string
-  message: string
-  type?: 'success' | 'error' | 'warning' | 'info'
-  confirmMode?: boolean
-  onConfirm?: () => void
-  confirmText?: string
-  cancelText?: string
-}
 
 export default function AlertModal({
   isOpen,

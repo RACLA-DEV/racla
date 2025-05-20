@@ -1,15 +1,7 @@
-import React, {
-  Dispatch,
-  SetStateAction,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useInView } from 'react-intersection-observer'
 import { useSelector } from 'react-redux'
-import { NavigateFunction, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { Icon } from '@iconify/react'
 import Image from '@render/components/image/Image'
@@ -17,25 +9,12 @@ import ScorePopupComponent from '@render/components/score/ScorePopup'
 import { globalDictionary } from '@render/constants/globalDictionary'
 import { createLog } from '@render/libs/logger'
 import { RootState } from '@render/store'
-import { SongData } from '@src/types/games/SongData'
+import { LazySongGridItemProps } from '@src/types/render/LazySongGridItemProps'
+import { LazySongListItemProps } from '@src/types/render/LazySongListItemProps'
 import { useTranslation } from 'react-i18next'
 
-// 컴포넌트 Props 인터페이스 정의
-interface LazyGridItemProps {
-  songItem: SongData
-  keyMode: string
-}
-
-interface LazyListItemProps {
-  songItem: SongData
-  keyMode: string
-  hoveredTitle: number
-  setHoveredTitle: Dispatch<SetStateAction<number>>
-  navigate: NavigateFunction
-}
-
 // 지연 로딩되는 그리드 아이템 컴포넌트
-const LazyGridItem = ({ songItem, keyMode }: LazyGridItemProps) => {
+const LazyGridItem = ({ songItem, keyMode }: LazySongGridItemProps) => {
   const { ref, inView } = useInView({
     triggerOnce: false,
     threshold: 0.1,
@@ -57,7 +36,14 @@ const LazyGridItem = ({ songItem, keyMode }: LazyGridItemProps) => {
 
 // 지연 로딩되는 리스트 아이템 컴포넌트
 const LazyListItem = React.memo(
-  ({ songItem, keyMode, hoveredTitle, setHoveredTitle, navigate }: LazyListItemProps) => {
+  ({
+    songItem,
+    keyMode,
+    hoveredTitle,
+    navigate,
+    handleMouseEnter,
+    handleMouseLeave,
+  }: LazySongListItemProps) => {
     const { ref, inView } = useInView({
       triggerOnce: false,
       threshold: 0.1,
@@ -77,20 +63,16 @@ const LazyListItem = React.memo(
         ref={ref}
         data-song-title={songItem.title}
         className={`tw:flex tw:items-center tw:gap-4 tw:p-2 tw:border-b tw:border-slate-200 tw:dark:border-slate-700 tw:relative tw:overflow-hidden tw:cursor-pointer ${
-          hoveredTitle === songItem.title ? 'tw:bg-slate-100 tw:dark:bg-slate-700/50' : ''
+          hoveredTitle === String(songItem.title) ? 'tw:bg-slate-100 tw:dark:bg-slate-700/50' : ''
         } hover:tw:bg-slate-100 hover:tw:dark:bg-slate-700/50`}
-        onMouseEnter={() => {
-          setHoveredTitle(songItem.title)
-        }}
-        onMouseLeave={() => {
-          setHoveredTitle(null)
-        }}
+        onMouseEnter={() => handleMouseEnter?.(songItem)}
+        onMouseLeave={() => handleMouseLeave?.()}
         onClick={handleClick}
       >
         {/* 애니메이션 배경 레이어 */}
         <div
           className={`tw:absolute tw:inset-0 tw:opacity-0 tw:transition-opacity tw:duration-300 before:tw:content-[''] before:tw:absolute before:tw:inset-[-150%] before:tw:bg-[length:200%_200%] before:tw:animate-gradientSlide before:tw:bg-gradient-to-r before:tw:from-[#1d8975] before:tw:via-[#5276b4] before:tw:via-[#8432bd] before:tw:via-[#5276b4] before:tw:to-[#1d8975] ${
-            hoveredTitle === songItem.title ? 'tw:opacity-10' : ''
+            hoveredTitle === String(songItem.title) ? 'tw:opacity-10' : ''
           } `}
         />
 
@@ -120,7 +102,7 @@ const LazyListItem = React.memo(
                   {songItem.patterns[`${keyMode.replace('P', '')}B`]?.[diff] ? (
                     <div
                       className={`tw:flex tw:justify-center tw:items-center tw:gap-1 tw:font-extrabold ${
-                        hoveredTitle === songItem.title ? 'tw:opacity-100' : 'tw:opacity-90'
+                        hoveredTitle === String(songItem.title) ? 'tw:opacity-100' : 'tw:opacity-90'
                       } ${diff === 'NM' && 'tw:text-respect-nm-5'} ${
                         diff === 'HD' && 'tw:text-respect-nm-10'
                       } ${diff === 'MX' && 'tw:text-respect-nm-15'} ${
@@ -156,7 +138,6 @@ const DmrvDbPage = () => {
   const { t } = useTranslation(['db'])
   const { songData } = useSelector((state: RootState) => state.app)
   const [keyMode, setKeyMode] = useState<string>('4')
-  const [hoveredTitle, setHoveredTitle] = useState<number>(null)
   const [searchName, setSearchName] = useState<string>('')
   const { selectedGame } = useSelector((state: RootState) => state.app)
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('list')
@@ -165,6 +146,7 @@ const DmrvDbPage = () => {
   const searchInputRef = useRef<HTMLInputElement>(null)
   const [difficulty, setDifficulty] = useState<'all' | 'sc'>('all')
   const navigate = useNavigate()
+  const [hoveredTitle, setHoveredTitle] = useState<string | null>(null)
 
   const searchSong = useCallback((songItem, searchName) => {
     const searchNameLower = searchName.toLowerCase().trim()
@@ -504,8 +486,9 @@ const DmrvDbPage = () => {
                         songItem={songItem}
                         keyMode={keyMode}
                         hoveredTitle={hoveredTitle}
-                        setHoveredTitle={setHoveredTitle}
                         navigate={navigate}
+                        handleMouseEnter={(song) => setHoveredTitle(String(song.title))}
+                        handleMouseLeave={() => setHoveredTitle(null)}
                       />
                     ))
                   )}

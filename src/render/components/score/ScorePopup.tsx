@@ -14,6 +14,7 @@ import { createLog } from '@render/libs/logger'
 import { RootState } from '@render/store'
 import { GameType } from '@src/types/games/GameType'
 import { PatternInfo, SongData } from '@src/types/games/SongData'
+import { ScorePopupComponentProps } from '@src/types/render/ScorePopupComponentProps'
 import { AnimatePresence, motion } from 'framer-motion'
 import * as R from 'ramda'
 import { useTranslation } from 'react-i18next'
@@ -21,18 +22,6 @@ import { Link } from 'react-router-dom'
 import { PuffLoader } from 'react-spinners'
 import apiClient from '../../../libs/apiClient'
 import Image from '../image/Image'
-
-interface ScorePopupComponentProps {
-  songTitle: number
-  keyMode: string
-  isVisibleCode?: boolean
-  width?: number
-  height?: number
-  judgementType?: number
-  floor?: number
-  isLink?: boolean
-}
-
 // 이미지 미리 가져오는 함수
 const preloadImage = (src: string) => {
   return new Promise((resolve, reject) => {
@@ -66,11 +55,17 @@ const ScorePopupComponent = memo(
     const [game, setGame] = useState<GameType>(() => {
       // 초기 게임 타입 설정
       switch (true) {
-        case songTitle < 1000000:
+        case songTitle !== undefined && songTitle !== null && songTitle < 1000000:
           return 'djmax_respect_v'
-        case songTitle >= 1000000 && songTitle < 20000000:
+        case songTitle !== undefined &&
+          songTitle !== null &&
+          songTitle >= 1000000 &&
+          songTitle < 20000000:
           return 'wjmax'
-        case songTitle >= 40000000 && songTitle < 50000000:
+        case songTitle !== undefined &&
+          songTitle !== null &&
+          songTitle >= 40000000 &&
+          songTitle < 50000000:
           return 'platina_lab'
         default:
           return 'djmax_respect_v'
@@ -143,11 +138,17 @@ const ScorePopupComponent = memo(
         setGame(
           ((): GameType => {
             switch (true) {
-              case songTitle < 1000000:
+              case songTitle !== undefined && songTitle !== null && songTitle < 1000000:
                 return 'djmax_respect_v'
-              case songTitle >= 1000000 && songTitle < 20000000:
+              case songTitle !== undefined &&
+                songTitle !== null &&
+                songTitle >= 1000000 &&
+                songTitle < 20000000:
                 return 'wjmax'
-              case songTitle >= 40000000 && songTitle < 50000000:
+              case songTitle !== undefined &&
+                songTitle !== null &&
+                songTitle >= 40000000 &&
+                songTitle < 50000000:
                 return 'platina_lab'
               default:
                 return 'djmax_respect_v'
@@ -155,7 +156,7 @@ const ScorePopupComponent = memo(
           })(),
         )
 
-        if (!isLoggedIn || !songTitle) {
+        if (!isLoggedIn || songTitle === undefined || songTitle === null) {
           setIsLoading(false)
           return
         }

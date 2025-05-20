@@ -1,6 +1,7 @@
 import { Icon } from '@iconify/react'
 import { RootState } from '@render/store'
 import type { JudgementDisplay, KeyState } from '@src/types/track-maker/JudgementDisplay'
+import { JudgementPreset } from '@src/types/track-maker/JudgementPreset'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useSelector } from 'react-redux'
 import type { KeyMode, Note, TrackPlayerProps } from '../../../types/track-maker/TrackMaker'
@@ -34,18 +35,6 @@ const getLaneCount = (keyMode: KeyMode): number => {
       return 8
     default:
       return 4
-  }
-}
-
-// 판정 프리셋 정의
-interface JudgementPreset {
-  name: string
-  values: {
-    PERFECT_PLUS: number
-    PERFECT: number
-    GREAT: number
-    GOOD: number
-    BAD: number
   }
 }
 

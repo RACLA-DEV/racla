@@ -2,7 +2,8 @@ import { globalDictionary } from '@render/constants/globalDictionary'
 import { createLog } from '@render/libs/logger'
 import { RootState } from '@render/store'
 import { ApiArchiveNicknameBoard } from '@src/types/dto/v-archive/ApiArchiveNicknameBoard'
-import { PatternInfo } from '@src/types/games/SongData'
+import { BoardPatternInfo, PatternInfo } from '@src/types/games/SongData'
+import { DjmaxKeyModeData } from '@src/types/render/HomeKeyModeSongData'
 import { ArcElement, Chart as ChartJS, Legend, Tooltip, TooltipItem } from 'chart.js'
 import { motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
@@ -16,30 +17,12 @@ import ScorePopupComponent from '../score/ScorePopup'
 
 ChartJS.register(ArcElement, Tooltip, Legend)
 
-interface Pattern {
-  title: number
-  name: string
-  composer: string
-  pattern: string
-  score: number | null
-  maxCombo: number | null
-  djpower?: number
-  rating?: number
-  dlc: string
-  dlcCode: string
-  floor: number
-  level?: number
-  board: number
-}
-
-type KeyModeData = Record<string, Pattern[]>
-
 export default function DjmaxHomeComponent() {
   const { t } = useTranslation(['home'])
   const userData = useSelector((state: RootState) => state.app.userData)
   const selectedGame = useSelector((state: RootState) => state.app.selectedGame)
   const songData = useSelector((state: RootState) => state.app.songData)
-  const [keyModeData, setKeyModeData] = useState<KeyModeData>({
+  const [keyModeData, setKeyModeData] = useState<DjmaxKeyModeData>({
     '4': [],
     '5': [],
     '6': [],
@@ -122,7 +105,7 @@ export default function DjmaxHomeComponent() {
 
       try {
         const keyModes = ['4', '5', '6', '8']
-        const allKeyModeData: KeyModeData = {}
+        const allKeyModeData: DjmaxKeyModeData = {}
 
         for (const keyMode of keyModes) {
           // 기본 곡 데이터 가져오기 (songData 활용)
@@ -334,7 +317,7 @@ export default function DjmaxHomeComponent() {
     '8': 9741,
   }
 
-  const getLevelDisplay = (pattern: Pattern) => {
+  const getLevelDisplay = (pattern: BoardPatternInfo) => {
     if (pattern.level) {
       if (pattern.pattern === 'SC') {
         return (
@@ -377,7 +360,10 @@ export default function DjmaxHomeComponent() {
     return t('noDifficultyInfo')
   }
 
-  const getHighestLevelInfo = (patterns: Pattern[], condition: (pattern: Pattern) => boolean) => {
+  const getHighestLevelInfo = (
+    patterns: BoardPatternInfo[],
+    condition: (pattern: BoardPatternInfo) => boolean,
+  ) => {
     // 조건에 맞는 패턴들만 터
     const filteredPatterns = patterns.filter(condition)
 
@@ -403,7 +389,7 @@ export default function DjmaxHomeComponent() {
     })
 
     // 패턴의 난이도를 비교하는 함수
-    const compareDifficulty = (a: Pattern, b: Pattern) => {
+    const compareDifficulty = (a: BoardPatternInfo, b: BoardPatternInfo) => {
       // SC 패턴 (floor가 있는 경우)
       const aFloor = Number(a.floor) || -1
       const bFloor = Number(b.floor) || -1
@@ -428,7 +414,7 @@ export default function DjmaxHomeComponent() {
   }
 
   // board 페이지의 통계 계산 함수와 동일한 로직
-  const calculateStats = (patterns: Pattern[]) => {
+  const calculateStats = (patterns: BoardPatternInfo[]) => {
     const stats = {
       maxCombo: 0,
       perfect: 0,
@@ -527,7 +513,7 @@ export default function DjmaxHomeComponent() {
       // NEW 30 턴 필터링 및 정렬 (VL, TEK DLC와 Insane Drift)
       const newPatterns = allPatterns
         .filter(
-          (pattern: Pattern) =>
+          (pattern: BoardPatternInfo) =>
             pattern.dlcCode === 'VL2' ||
             pattern.dlcCode === 'BA' ||
             pattern.dlcCode === 'PLI1' ||
@@ -536,12 +522,12 @@ export default function DjmaxHomeComponent() {
             pattern.name === 'Phoenix Virus' ||
             pattern.name === 'alliance',
         )
-        .sort((a: Pattern, b: Pattern) => (b.djpower ?? 0) - (a.djpower ?? 0))
+        .sort((a: BoardPatternInfo, b: BoardPatternInfo) => (b.djpower ?? 0) - (a.djpower ?? 0))
 
       // BASIC 70 패턴 필터링 및 정렬 (VL, TEK DLC와 Insane Drift 제외)
       const basicPatterns = allPatterns
         .filter(
-          (pattern: Pattern) =>
+          (pattern: BoardPatternInfo) =>
             pattern.dlcCode !== 'VL2' &&
             pattern.dlcCode !== 'BA' &&
             pattern.dlcCode !== 'PLI1' &&
@@ -550,17 +536,17 @@ export default function DjmaxHomeComponent() {
             pattern.name !== 'Phoenix Virus' &&
             pattern.name !== 'alliance',
         )
-        .sort((a: Pattern, b: Pattern) => (b.djpower ?? 0) - (a.djpower ?? 0))
+        .sort((a: BoardPatternInfo, b: BoardPatternInfo) => (b.djpower ?? 0) - (a.djpower ?? 0))
 
       // TOP 50 렬 (rating 기준)
       const top50Patterns = [...allPatterns]
-        .sort((a: Pattern, b: Pattern) => (b.rating ?? 0) - (a.rating ?? 0))
+        .sort((a: BoardPatternInfo, b: BoardPatternInfo) => (b.rating ?? 0) - (a.rating ?? 0))
         .slice(0, 50)
 
       newCutoffScores[keyMode] = {
-        new30: (newPatterns[29] as Pattern)?.djpower ?? 0,
-        basic70: (basicPatterns[69] as Pattern)?.djpower ?? 0,
-        top50: (top50Patterns[49] as Pattern)?.rating ?? 0,
+        new30: (newPatterns[29] as BoardPatternInfo)?.djpower ?? 0,
+        basic70: (basicPatterns[69] as BoardPatternInfo)?.djpower ?? 0,
+        top50: (top50Patterns[49] as BoardPatternInfo)?.rating ?? 0,
       }
     })
 
@@ -1204,7 +1190,7 @@ export default function DjmaxHomeComponent() {
                         clear: t('clear'),
                       }).map(([key, label]) => {
                         const patterns = keyModeData[selectedKeyMode]
-                        const condition = (pattern: Pattern) => {
+                        const condition = (pattern: BoardPatternInfo) => {
                           const score =
                             typeof pattern.score === 'string'
                               ? parseFloat(pattern.score)

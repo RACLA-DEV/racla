@@ -1,7 +1,7 @@
 import { OcrPlayDataResponse } from '../dto/ocr/OcrPlayDataResponse'
 import { GameType } from '../games/GameType'
 import { SongData } from '../games/SongData'
-import { Notification } from '../notifications/Notification'
+import { Notification } from '../render/Notification'
 import { SessionData } from '../sessions/SessionData'
 import { SettingsData } from '../settings/SettingData'
 

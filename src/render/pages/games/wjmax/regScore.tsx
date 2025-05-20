@@ -10,7 +10,8 @@ import {
   removeOcrResult,
   startOcrProcess,
 } from '@render/store/slices/appSlice'
-import { OcrPlayDataBase, OcrPlayDataResponse } from '@src/types/dto/ocr/OcrPlayDataResponse'
+import { ResultCardProps } from '@src/types/render/ResultCardProps'
+import { ResultDisplayProps } from '@src/types/render/ResultDisplayProps'
 import { AnimatePresence, motion } from 'framer-motion'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -401,12 +402,6 @@ export default function PlatinaLabRegScorePage() {
   )
 }
 
-// 결과 표시 컴포넌트
-interface ResultDisplayProps {
-  result: OcrPlayDataResponse
-  viewMode: 'grid' | 'list'
-}
-
 function ResultDisplay({ result, viewMode }: ResultDisplayProps) {
   const hasVersusData = result.versusData && result.versusData.length > 0
 
@@ -433,14 +428,6 @@ function ResultDisplay({ result, viewMode }: ResultDisplayProps) {
       )}
     </div>
   )
-}
-
-// 개별 결과 카드 컴포넌트
-interface ResultCardProps {
-  data: OcrPlayDataBase
-  isMain: boolean
-  viewMode: 'grid' | 'list'
-  className?: string
 }
 
 function ResultCard({ data, isMain, viewMode, className = '' }: ResultCardProps) {

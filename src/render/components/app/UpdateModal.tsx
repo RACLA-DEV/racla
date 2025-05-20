@@ -1,6 +1,7 @@
 import { Icon } from '@iconify/react'
 import { RootState } from '@render/store'
 import { setSettingData } from '@render/store/slices/appSlice'
+import { UpdateModalProps } from '@src/types/render/UpdateModalProps'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useDispatch, useSelector } from 'react-redux'
@@ -126,11 +127,6 @@ const UPDATE_NOTES = [
     ],
   },
 ]
-
-interface UpdateModalProps {
-  isOpen: boolean
-  onClose: () => void
-}
 
 export default function UpdateModal({ isOpen, onClose }: UpdateModalProps) {
   const dispatch = useDispatch()

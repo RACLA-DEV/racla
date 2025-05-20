@@ -5,6 +5,14 @@ import React, { useEffect, useState } from 'react'
 import { Icon } from '@iconify/react'
 import { createLog } from '@render/libs/logger'
 import { setIsOpenExternalLink, setOpenExternalLink } from '@render/store/slices/uiSlice'
+import {
+  HardRankingData,
+  HardRankingResponse,
+  MergedRankingEntry,
+  RankingType,
+  TotalRankingData,
+  TotalRankingResponse,
+} from '@src/types/dto/hard-archive/HardArchiveRanking'
 import dayjs from 'dayjs'
 import LocalizedFormat from 'dayjs/plugin/localizedFormat'
 import { useTranslation } from 'react-i18next'
@@ -14,46 +22,6 @@ import { v4 as uuidv4 } from 'uuid'
 import apiClient from '../../../../..//libs/apiClient'
 
 dayjs.extend(LocalizedFormat)
-
-interface Score {
-  a: number
-  b: number
-  c: number
-}
-
-interface TotalRankingEntry {
-  nickname: string
-  rank: number
-  score: Score
-}
-
-interface HardRankingEntry {
-  nickname: string
-  rank: number
-  count: number
-}
-
-interface TotalRankingData {
-  renew_time: number
-  chart: TotalRankingEntry[]
-}
-
-interface HardRankingData {
-  renew_time: number
-  chart: HardRankingEntry[]
-}
-
-interface HardRankingResponse {
-  data: HardRankingData
-  code: string
-}
-
-interface TotalRankingResponse {
-  data: TotalRankingData
-  code: string
-}
-
-type RankingType = 'hard' | 'total'
 
 const DmrvHardRankingPage = () => {
   const { t } = useTranslation(['ranking'])
@@ -137,22 +105,6 @@ const DmrvHardRankingPage = () => {
       default:
         return 'tw:border-slate-300 tw:dark:border-slate-600'
     }
-  }
-
-  interface SubScore {
-    count?: number
-    c?: number
-    b?: number
-    a?: number
-  }
-
-  interface MergedRankingEntry {
-    nickname: string
-    rank: number
-    score?: Score
-    count?: number
-    subRank?: number
-    subScore?: SubScore
   }
 
   const getMergedRankingData = (): MergedRankingEntry[] => {

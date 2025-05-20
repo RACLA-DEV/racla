@@ -5,7 +5,9 @@ import { useSelector } from 'react-redux'
 import ScorePopupComponent from '@render/components/score/ScorePopup'
 import { getGradeTableData } from '@render/libs/hjaGradeParserUtils'
 import { RootState } from '@render/store'
+import { FloorSongData } from '@src/types/games/Floor'
 import { SongData } from '@src/types/games/SongData'
+import { LazyFloorItemProps } from '@src/types/render/LazyFloorItemProps'
 import { PuffLoader } from 'react-spinners'
 
 const gradeTableMap = {
@@ -18,25 +20,6 @@ const gradeTableMap = {
 // songs를 name 기준으로 정렬하는 함수 추가
 const sortByName = (songs: SongData[]) => {
   return [...songs].sort((a, b) => a.name.localeCompare(b.name))
-}
-
-interface FloorItem {
-  floor: number
-  songItems: SongData[]
-}
-
-interface BaseSongData {
-  level: number
-  floorItems: FloorItem[]
-}
-
-// LazyFloorItem 컴포넌트 타입 정의
-interface LazyFloorItemProps {
-  floorItem: {
-    floor: number
-    songItems: SongData[]
-  }
-  keyMode: string
 }
 
 // 지연 로딩되는 FloorItem 컴포넌트
@@ -73,7 +56,7 @@ const DmrvHardGradePage = () => {
   const { songData, selectedGame } = useSelector((state: RootState) => state.app)
 
   const [keyMode, setKeyMode] = useState<string>('4')
-  const [baseSongData, setBaseSongData] = useState<BaseSongData[]>([])
+  const [baseSongData, setBaseSongData] = useState<FloorSongData[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(true)
 
   const processGradeData = useCallback(() => {

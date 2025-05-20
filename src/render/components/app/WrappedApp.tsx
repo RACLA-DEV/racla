@@ -36,7 +36,7 @@ const ExternalLinkModal = lazy(() => import('./ExternalLinkModal'))
 const LoadingSkeleton = lazy(() => import('./LoadingSkeleton'))
 const SettingModal = lazy(() => import('./SettingModal'))
 const TrackMakerModal = lazy(() => import('../track-maker/TrackMakerModal'))
-const AlertModal = lazy(() => import('./AlertModal'))
+const AlertModal = lazy(() => import('../ui/AlertModal'))
 
 // 하드코딩된 배열 대신 타입에서 유효한 게임 배열 생성
 const VALID_GAMES: GameType[] = globalDictionary.supportGameList as GameType[]

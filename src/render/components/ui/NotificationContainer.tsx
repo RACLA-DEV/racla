@@ -1,6 +1,6 @@
 import { createLog } from '@render/libs/logger'
 import { RootState } from '@render/store'
-import type { NotificationContainerProps } from '@src/types/notifications/NotificationContainerProps'
+import type { NotificationContainerProps } from '@src/types/render/NotificationContainerProps'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useSelector } from 'react-redux'
 import { Notification } from './Notification'

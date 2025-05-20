@@ -3,37 +3,20 @@ import 'dayjs/locale/ko'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useInView } from 'react-intersection-observer'
 import { useSelector } from 'react-redux'
-import { NavigateFunction } from 'react-router-dom'
 
 import { Icon } from '@iconify/react'
 import Image from '@render/components/image/Image'
 import ScorePopupComponent from '@render/components/score/ScorePopup'
 import { globalDictionary } from '@render/constants/globalDictionary'
 import { RootState } from '@render/store'
-import { SongData } from '@src/types/games/SongData'
+import { LazySongGridItemProps } from '@src/types/render/LazySongGridItemProps'
+import { LazySongListItemProps } from '@src/types/render/LazySongListItemProps'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 
 dayjs.extend(utc)
-
-// LazyListItem 인터페이스 정의
-interface LazyListItemProps {
-  songItem: SongData
-  keyMode: string
-  hoveredTitle: string | null
-  handleMouseEnter: (songItem: SongData) => void
-  handleMouseLeave: () => void
-  selectedLevel: string
-  navigate: NavigateFunction
-}
-
-// LazyGridItem 인터페이스 정의
-interface LazyGridItemProps {
-  songItem: SongData
-  keyMode: string
-}
 
 // LazyListItem 컴포넌트 추가
 const LazyListItem = React.memo(
@@ -45,7 +28,7 @@ const LazyListItem = React.memo(
     handleMouseLeave,
     selectedLevel,
     navigate,
-  }: LazyListItemProps) => {
+  }: LazySongListItemProps) => {
     const { ref, inView } = useInView({
       triggerOnce: false,
       threshold: 0.1,
@@ -150,7 +133,7 @@ const LazyListItem = React.memo(
 )
 
 // LazyGridItem 컴포넌트 추가
-const LazyGridItem = React.memo(({ songItem, keyMode }: LazyGridItemProps) => {
+const LazyGridItem = React.memo(({ songItem, keyMode }: LazySongGridItemProps) => {
   const { ref, inView } = useInView({
     triggerOnce: false,
     threshold: 0.1,
@@ -179,7 +162,7 @@ const WjmaxDbPage = () => {
 
   const [keyMode, setKeyMode] = useState<string>('4')
 
-  const [hoveredTitle, setHoveredTitle] = useState<string>(null)
+  const [hoveredTitle, setHoveredTitle] = useState<string | null>(null)
 
   const [searchName, setSearchName] = useState<string>('')
   const [selectedLevel, setSelectedLevel] = useState<string>('all')
