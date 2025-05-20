@@ -1,6 +1,6 @@
 {
   "name": "racla-electron-app",
-  "version": "0.8.6",
+  "version": "0.8.7",
   "private": true,
   "packageManager": "pnpm@10.11.0",
   "description": "RACLA for Desktop",
@@ -67,6 +67,7 @@
     "rxjs": "^7.8.2",
     "sass": "^1.89.0",
     "sharp": "^0.34.1",
+    "swiper": "^11.2.7",
     "tesseract.js": "^6.0.1",
     "uuid": "^11.1.0",
     "winston": "^3.17.0",

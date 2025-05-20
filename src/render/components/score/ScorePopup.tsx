@@ -127,7 +127,7 @@ const ScorePopupComponent = memo(
       }
 
       findSongItem()
-    }, [songTitle, songData])
+    }, [songTitle])
 
     useEffect(() => {
       const fetchData = async () => {

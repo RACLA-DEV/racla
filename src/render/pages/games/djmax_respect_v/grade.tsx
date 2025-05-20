@@ -209,7 +209,7 @@ const DmrvGradePage = () => {
       )
       setIsLoading(false)
     }
-  }, [keyMode, keyPattern, keyDjPower, songData, selectedGame])
+  }, [keyMode, keyPattern, keyDjPower, selectedGame])
 
   useEffect(() => {
     sortData()

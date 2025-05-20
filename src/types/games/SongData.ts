@@ -14,6 +14,7 @@ export interface PatternInfo {
   combo?: number | null
   patternFileName?: string | null
   max?: number | null
+  djpower?: number | null
 }
 
 export interface BoardPatternInfo {
@@ -30,6 +31,7 @@ export interface BoardPatternInfo {
   floor: number
   level?: number
   board: number
+  level?: number
 }
 
 export type PatternSet = Record<string, PatternInfo>

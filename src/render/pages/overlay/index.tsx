@@ -756,6 +756,32 @@ function OverlayPage() {
                   <div className='tw:flex tw:justify-between tw:items-center'>
                     <span className='tw:text-lg tw:font-bold tw:text-slate-800 tw:dark:text-white'>
                       {result.score}%
+                      {result?.lastScore ? (
+                        result.score.toFixed(2) >= result.lastScore.toFixed(2) ? (
+                          result.score.toFixed(2) == result.lastScore.toFixed(2) ? (
+                            <></>
+                          ) : (
+                            <span className='tw:text-blue-500 tw:rounded'>
+                              (+
+                              {(
+                                Number(result.score.toFixed(2)) -
+                                Number(result.lastScore.toFixed(2))
+                              ).toFixed(2)}
+                              %)
+                            </span>
+                          )
+                        ) : (
+                          <span className='tw:text-red-500 tw:rounded'>
+                            (-
+                            {(
+                              Number(result.lastScore.toFixed(2)) - Number(result.score.toFixed(2))
+                            ).toFixed(2)}
+                            %)
+                          </span>
+                        )
+                      ) : (
+                        ''
+                      )}
                     </span>
                     <div className='tw:flex tw:space-x-1'>
                       {/* 퍼펙트 타입 */}

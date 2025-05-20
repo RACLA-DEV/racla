@@ -113,13 +113,13 @@ const DmrvHardGradePage = () => {
     ])
 
     setIsLoading(false)
-  }, [songData, selectedGame, keyMode])
+  }, [selectedGame, keyMode])
 
   useEffect(() => {
     if (songData[selectedGame].length > 0) {
       processGradeData()
     }
-  }, [songData, keyMode, processGradeData])
+  }, [keyMode, processGradeData])
 
   return (
     <React.Fragment>

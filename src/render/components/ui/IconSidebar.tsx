@@ -10,7 +10,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useLocation, useNavigate } from 'react-router-dom'
 import Tooltip from './Tooltip'
 const IconSidebar: React.FC = () => {
-  const { selectedGame } = useSelector((state: RootState) => state.app)
+  const { selectedGame, settingData } = useSelector((state: RootState) => state.app)
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const location = useLocation() // 현재 경로 가져오기
@@ -52,6 +52,7 @@ const IconSidebar: React.FC = () => {
         }
         navigate('/home')
       },
+      showSetting: 'showGameDjmaxRespectV',
     },
     {
       id: 'wjmax' as GameType,
@@ -71,6 +72,7 @@ const IconSidebar: React.FC = () => {
         }
         navigate('/home')
       },
+      showSetting: 'showGameWjmax',
     },
     {
       id: 'platina_lab' as GameType,
@@ -87,8 +89,15 @@ const IconSidebar: React.FC = () => {
         }
         navigate('/home')
       },
+      showSetting: 'showGamePlatinaLab',
     },
   ]
+
+  // 표시할 게임 아이콘만 필터링
+  const filteredGameIcons = gameIcons.filter((game) => {
+    // 설정이 존재하지 않으면 기본값 true로 표시
+    return settingData[game.showSetting] !== false
+  })
 
   const handleNavigation = (path: string) => {
     navigate(path)
@@ -153,7 +162,7 @@ const IconSidebar: React.FC = () => {
         <div
           className={`tw:flex tw:flex-col tw:items-center tw:space-y-4 tw:relative tw:z-10 tw:mt-2`}
         >
-          {gameIcons.map((game) => (
+          {filteredGameIcons.map((game) => (
             <Tooltip key={game.id} content={game.tooltip}>
               <motion.div
                 variants={iconAnimation()}
@@ -209,78 +218,49 @@ const IconSidebar: React.FC = () => {
             </motion.div>
           </Tooltip>
         </div> */}
-
-        <div className='tw:mb-4 tw:relative tw:z-10 tw:mt-4 tw:pt-4 tw:border-t tw:dark:border-slate-700 tw:border-gray-300'>
-          <Tooltip content={t('racla.raclaOverlay')}>
-            <motion.div
-              variants={iconAnimation()}
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => {
-                handleNavigation('/overlay/settings')
-              }}
-              className={`tw:w-12 tw:h-12 tw:flex tw:items-center tw:justify-center tw:rounded-lg tw:cursor-pointer tw:transition-all ${
-                location.pathname === '/overlay/settings'
-                  ? 'tw:dark:bg-slate-700 tw:dark:text-indigo-400 tw:bg-white tw:text-indigo-600 tw:shadow-md'
-                  : 'tw:dark:bg-slate-800 tw:dark:text-indigo-400 tw:dark:hover:bg-slate-700 tw:bg-gray-50 tw:shadow-md tw:hover:bg-white tw:hover:shadow-md'
-              }`}
-            >
-              <LuLayers size={28} />
-            </motion.div>
-          </Tooltip>
-        </div>
-
-        {process.env.NODE_ENV === 'development' && (
-          <>
-            <div className='tw:flex tw:flex-col tw:items-center'>
-              <div className='tw:mb-4 tw:relative tw:z-10'>
-                <Tooltip content={t('racla.raclaTrackMaker')}>
-                  <motion.div
-                    variants={iconAnimation()}
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => {
-                      handleNavigation('/track-maker')
-                    }}
-                    className={`tw:w-12 tw:h-12 tw:flex tw:items-center tw:justify-center tw:rounded-lg tw:cursor-pointer tw:transition-all ${
-                      location.pathname === '/track-maker'
-                        ? 'tw:dark:bg-slate-700 tw:dark:text-indigo-400 tw:bg-white tw:text-indigo-600 tw:shadow-md'
-                        : 'tw:dark:bg-slate-800 tw:dark:text-indigo-400 tw:dark:hover:bg-slate-700 tw:bg-gray-50 tw:shadow-md tw:hover:bg-white tw:hover:shadow-md'
-                    }`}
-                  >
-                    <LuGamepad size={28} />
-                  </motion.div>
-                </Tooltip>
-              </div>
-            </div>
-
-            <div className='tw:flex tw:flex-col tw:items-center'>
-              <div className='tw:mb-4 tw:relative tw:z-10'>
-                <Tooltip content={t('racla.raclaCheatsheet')}>
-                  <motion.div
-                    variants={iconAnimation()}
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => {
-                      handleNavigation('/test/cheatsheet')
-                    }}
-                    className={`tw:w-12 tw:h-12 tw:flex tw:items-center tw:justify-center tw:rounded-lg tw:cursor-pointer tw:transition-all ${
-                      location.pathname === '/test/cheatsheet'
-                        ? 'tw:dark:bg-slate-700 tw:dark:text-indigo-400 tw:bg-white tw:text-indigo-600 tw:shadow-md'
-                        : 'tw:dark:bg-slate-800 tw:dark:text-indigo-400 tw:dark:hover:bg-slate-700 tw:bg-gray-50 tw:shadow-md tw:hover:bg-white tw:hover:shadow-md'
-                    }`}
-                  >
-                    <LuBook size={28} />
-                  </motion.div>
-                </Tooltip>
-              </div>
-            </div>
-          </>
-        )}
       </div>
 
       {/* 설정 버튼 (하단) */}
       <div className='tw:mb-10 tw:relative tw:flex tw:gap-2 tw:flex-col tw:z-10'>
+        {process.env.NODE_ENV === 'development' && (
+          <>
+            <Tooltip content={t('racla.raclaCheatsheet')}>
+              <motion.div
+                variants={iconAnimation()}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => {
+                  handleNavigation('/test/cheatsheet')
+                }}
+                className={`tw:w-12 tw:h-12 tw:flex tw:items-center tw:justify-center tw:rounded-lg tw:cursor-pointer tw:transition-all ${
+                  location.pathname === '/test/cheatsheet'
+                    ? 'tw:dark:bg-slate-700 tw:dark:text-indigo-400 tw:bg-white tw:text-indigo-600 tw:shadow-md'
+                    : 'tw:dark:bg-slate-800 tw:dark:text-indigo-400 tw:dark:hover:bg-slate-700 tw:bg-gray-50 tw:shadow-md tw:hover:bg-white tw:hover:shadow-md'
+                }`}
+              >
+                <LuBook size={28} />
+              </motion.div>
+            </Tooltip>
+            <Tooltip content={t('racla.raclaTrackMaker')}>
+              <motion.div
+                variants={iconAnimation()}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => {
+                  handleNavigation('/track-maker')
+                }}
+                className={`tw:w-12 tw:h-12 tw:flex tw:items-center tw:justify-center tw:rounded-lg tw:cursor-pointer tw:transition-all ${
+                  location.pathname === '/track-maker'
+                    ? 'tw:dark:bg-slate-700 tw:dark:text-indigo-400 tw:bg-white tw:text-indigo-600 tw:shadow-md'
+                    : 'tw:dark:bg-slate-800 tw:dark:text-indigo-400 tw:dark:hover:bg-slate-700 tw:bg-gray-50 tw:shadow-md tw:hover:bg-white tw:hover:shadow-md'
+                }`}
+              >
+                <LuGamepad size={28} />
+              </motion.div>
+            </Tooltip>
+          </>
+        )}
+
         <Tooltip content={t('racla.raclaFeedback')}>
           <motion.div
             variants={iconAnimation()}
@@ -298,6 +278,25 @@ const IconSidebar: React.FC = () => {
             <LuBug size={28} />
           </motion.div>
         </Tooltip>
+
+        <Tooltip content={t('racla.raclaOverlay')}>
+          <motion.div
+            variants={iconAnimation()}
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => {
+              handleNavigation('/overlay/settings')
+            }}
+            className={`tw:w-12 tw:h-12 tw:flex tw:items-center tw:justify-center tw:rounded-lg tw:cursor-pointer tw:transition-all ${
+              location.pathname === '/overlay/settings'
+                ? 'tw:dark:bg-slate-700 tw:dark:text-indigo-400 tw:bg-white tw:text-indigo-600 tw:shadow-md'
+                : 'tw:dark:bg-slate-800 tw:dark:text-indigo-400 tw:dark:hover:bg-slate-700 tw:bg-gray-50 tw:shadow-md tw:hover:bg-white tw:hover:shadow-md'
+            }`}
+          >
+            <LuLayers size={28} />
+          </motion.div>
+        </Tooltip>
+
         <Tooltip content={t('racla.raclaSettings')}>
           <motion.div
             variants={iconAnimation()}

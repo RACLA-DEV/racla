@@ -15,7 +15,6 @@ const DEFAULT_TIMEOUT = 30000 // 30초
 const HEALTH_CHECK_TIMEOUT = 60000 // 60초
 const HEALTH_CHECK_ID = 'health-check' // 헬스체크 요청 ID 상수
 const ERROR_LOG_ID = 'error-log' // 에러 로그 요청 ID 상수
-const TARGET_HEALTH_CHECK_ID = 'target-health-check' // 대상 사이트 헬스체크 ID 상수
 
 // 프록시 대상 URL 목록
 const PROXY_TARGET_URLS = ['https://v-archive.net', 'https://hard-archive.com']
@@ -41,7 +40,7 @@ class ApiClient {
 
   constructor(
     baseURL: string = process.env.NODE_ENV === 'development'
-      ? 'https://api.racla.app/api'
+      ? 'https://dev.api.racla.app/api'
       : 'https://api.racla.app/api',
   ) {
     this.client = axios.create({

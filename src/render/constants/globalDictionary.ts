@@ -243,7 +243,7 @@ export const globalDictionary = {
       defaultValue: true,
       isEditable: true,
       requiresRestart: false,
-      isVisible: true,
+      isVisible: false,
     },
     recentOverlay: {
       id: 'recentOverlay',
@@ -411,6 +411,27 @@ export const globalDictionary = {
           },
         },
       ],
+    },
+    showGameDjmaxRespectV: {
+      id: 'showGameDjmaxRespectV',
+      defaultValue: true,
+      isEditable: true,
+      requiresRestart: false,
+      isVisible: true,
+    },
+    showGameWjmax: {
+      id: 'showGameWjmax',
+      defaultValue: true,
+      isEditable: true,
+      requiresRestart: false,
+      isVisible: true,
+    },
+    showGamePlatinaLab: {
+      id: 'showGamePlatinaLab',
+      defaultValue: true,
+      isEditable: true,
+      requiresRestart: false,
+      isVisible: true,
     },
     isCheckedForUpdate: {
       id: 'isCheckedForUpdate',

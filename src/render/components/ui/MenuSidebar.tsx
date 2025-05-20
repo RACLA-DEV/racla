@@ -7,7 +7,7 @@ import { setRefresh } from '@render/store/slices/appSlice'
 import { setIsOpenExternalLink, setOpenExternalLink } from '@render/store/slices/uiSlice'
 import type { MenuItem } from '@src/types/menu/MenuItem'
 import { motion } from 'framer-motion'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FaCircleUser } from 'react-icons/fa6'
 import { useDispatch, useSelector } from 'react-redux'
@@ -22,8 +22,27 @@ const MenuSidebar: React.FC = () => {
   const { isLoggedIn, userData, logout } = useAuth()
   const { showNotification } = useNotificationSystem()
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+  const [isSmallScreen, setIsSmallScreen] = useState(false)
   const location = useLocation()
   const { t } = useTranslation(['menu'])
+
+  // 화면 크기 감지
+  useEffect(() => {
+    const handleResize = () => {
+      setIsSmallScreen(window.innerWidth < 1280)
+    }
+
+    // 초기 로드 시 확인
+    handleResize()
+
+    // 리사이즈 이벤트 리스너 등록
+    window.addEventListener('resize', handleResize)
+
+    // 클린업
+    return () => {
+      window.removeEventListener('resize', handleResize)
+    }
+  }, [])
 
   // 드롭다운 토글 핸들러
   const toggleDropdown = () => {
@@ -326,10 +345,10 @@ const MenuSidebar: React.FC = () => {
         initial='hidden'
         animate='visible'
         variants={sidebarAnimation}
-        className={`tw:flex tw:flex-col tw:h-full tw:pt-2 tw:transition-all tw:duration-300 tw:ease-in-out tw:relative tw:overflow-x-hidden tw:bg-transparent tw:dark:text-slate-200 tw:text-gray-800 ${
+        className={`tw:flex tw:flex-col tw:h-full tw:pt-2 tw:transition-all tw:duration-300 tw:ease-in-out tw:overflow-x-hidden tw:bg-transparent tw:dark:text-slate-200 tw:text-gray-800 ${isSmallScreen ? 'tw:fixed tw:top-0 tw:bottom-0 tw:z-50 tw:bg-white tw:dark:bg-slate-800' : ''} ${
           sidebarCollapsed
-            ? 'tw:w-0 tw:transition-[width] tw:duration-300 tw:delay-150'
-            : 'tw:w-64 tw:transition-[width] tw:duration-300'
+            ? `tw:w-0 tw:transition-[width] tw:duration-300 tw:delay-150 ${isSmallScreen ? 'tw:left-[-100%] tw:fixed' : 'tw:relative'}`
+            : `tw:w-64 tw:transition-[width] tw:duration-300 tw:border-gray-200 tw:dark:border-slate-700 ${isSmallScreen ? 'tw:opacity-100 tw:left-0 tw:fixed tw:border-r' : 'tw:relative'}`
         }`}
       >
         <div

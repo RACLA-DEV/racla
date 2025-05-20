@@ -85,7 +85,7 @@ const Footer: React.FC = () => {
 
   // 서버 상태 툴팁 내용 생성
   const getStatusTooltipContent = () => {
-    let content = `RACLA: ${isMainServerOnline ? 'Online' : 'Offline'}\n`
+    let content = `RACLA: ${isMainServerOnline ? 'Online (' + serverVersion + ')' : 'Offline'}\n`
 
     // 게임이 DJMAX인 경우에만 프록시 서버 상태 표시
     if (selectedGame === 'djmax_respect_v') {
@@ -304,7 +304,7 @@ const Footer: React.FC = () => {
                 </div>
                 <span className='tw:leading-none tw:flex tw:items-center'>
                   {isMainServerOnline
-                    ? `${getStatusMessage()} · ${serverVersion || ''} · ${globalDictionary.version}`
+                    ? `${getStatusMessage()} · ${globalDictionary.version}`
                     : `${getStatusMessage()} · ${globalDictionary.version}`}
                 </span>
               </span>

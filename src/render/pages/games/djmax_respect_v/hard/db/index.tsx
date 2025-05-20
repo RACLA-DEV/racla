@@ -256,7 +256,7 @@ const DmrvHardDbPage = () => {
         return b.name.localeCompare(a.name)
       }
     })
-  }, [songData, searchName, selectedLevel, keyMode, sortOrder, selectedCategory])
+  }, [searchName, selectedLevel, keyMode, sortOrder, selectedCategory])
 
   // 스크롤 시 더 많은 아이템 로드
   useEffect(() => {

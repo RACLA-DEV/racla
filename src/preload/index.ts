@@ -18,6 +18,8 @@ contextBridge.exposeInMainWorld('electron', {
   // 메인 윈도우 관련
   onMainWindowMessage: (callback: (data: any) => void) =>
     ipcRenderer.on('main-window-msg', (_event, data) => callback(data)),
+  onMainWindowResult: (callback: (data: OcrPlayDataResponse) => void) =>
+    ipcRenderer.on('main-window-ocr-result', (_event, data) => callback(data)),
 
   // 오버레이 관련
   createOverlay: (): Promise<boolean> =>

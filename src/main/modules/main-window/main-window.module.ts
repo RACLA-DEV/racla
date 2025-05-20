@@ -19,7 +19,7 @@ import { MainWindowService } from './main-window.service'
         const win = new BrowserWindow({
           width: 1280,
           height: 720,
-          minWidth: 1280,
+          minWidth: 1080,
           minHeight: 720,
           frame: false,
           autoHideMenuBar: true,

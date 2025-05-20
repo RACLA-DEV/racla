@@ -334,8 +334,8 @@ export const appSlice = createSlice({
         // 해당 게임의 OCR 결과에 추가
         const gameOcrState = state.gameOcrStates[gameCode]
 
-        // 최대 20개까지만 저장
-        if (gameOcrState.results.length >= 20) {
+        // 최대 100개까지만 저장
+        if (gameOcrState.results.length >= 100) {
           gameOcrState.results.pop() // 가장 오래된 결과 제거
         }
 

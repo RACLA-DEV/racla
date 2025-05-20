@@ -18,6 +18,7 @@ const PlatinaLabBoardPage = () => {
   const navigate = useNavigate()
   const { keyMode, board } = useParams()
   const { userData, songData, selectedGame } = useSelector((state: RootState) => state.app)
+  const gameOcrStates = useSelector((state: RootState) => state.app.gameOcrStates)
 
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [floorData, setFloorData] = useState<Floor[]>([])
@@ -146,7 +147,66 @@ const PlatinaLabBoardPage = () => {
       setIsMounted(false)
       setFloorData([])
     }
-  }, [userData.playerName, keyMode, board, songData])
+  }, [userData.playerName, keyMode, board])
+
+  // OCR 결과 감지 및 처리
+  useEffect(() => {
+    // 마운트되지 않았거나 게임코드가 일치하지 않으면 처리하지 않음
+    if (!isMounted || selectedGame !== 'platina_lab' || isLoading) return
+
+    // 게임 OCR 상태 가져오기
+    const ocrState = gameOcrStates.platina_lab
+
+    // OCR 결과가 없으면 처리하지 않음
+    if (!ocrState?.results?.length) return
+
+    // 가장 최근 OCR 결과 가져오기 (배열의 첫 번째 항목)
+    const latestResult = ocrState.results[0]
+
+    // OCR 결과가 현재 보드와 관련있는지 확인
+    if (
+      latestResult &&
+      latestResult.gameCode === 'platina_lab' &&
+      String(latestResult.button) === String(keyMode).replace('B', '').replace('_PLUS', '')
+    ) {
+      createLog('debug', 'OCR Result detected for Platina Lab Board', latestResult)
+
+      // floorData를 순회하면서 일치하는 패턴 찾기
+      const updatedFloorData = floorData.map((floor) => {
+        const updatedPatterns = floor.patterns.map((pattern) => {
+          // 제목과 패턴 타입이 일치하는지 확인
+          if (
+            pattern.title === latestResult.songData.title &&
+            pattern.pattern === latestResult.pattern
+          ) {
+            createLog('debug', 'Found matching pattern in board view - updating', {
+              title: pattern.title,
+              pattern: pattern.pattern,
+              oldScore: pattern.score,
+              newScore: latestResult.score,
+            })
+
+            // 새로운 점수와 맥스콤보 정보로 업데이트
+            // maxCombo는 boolean에서 number로 변환 필요 (1은 MAX, 0은 MAX 아님)
+            return {
+              ...pattern,
+              score: latestResult.score,
+              maxCombo: latestResult.maxCombo ? 1 : 0,
+            }
+          }
+          return pattern
+        })
+
+        return {
+          ...floor,
+          patterns: updatedPatterns,
+        }
+      }) as Floor[]
+
+      // 업데이트된 데이터로 상태 갱신
+      setFloorData(updatedFloorData)
+    }
+  }, [gameOcrStates.platina_lab?.results])
 
   if (!isMounted) return null
 

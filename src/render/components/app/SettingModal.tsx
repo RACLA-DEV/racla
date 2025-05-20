@@ -25,6 +25,7 @@ const settingCategories = {
   account: { id: 'account', name: '계정 정보', icon: 'lucide:user', needLogin: true },
   general: { id: 'general', name: '일반', icon: 'lucide:settings', needLogin: false },
   storage: { id: 'storage', name: '저장공간', icon: 'lucide:database', needLogin: false },
+  games: { id: 'games', name: '게임 표시 설정', icon: 'lucide:gamepad-2', needLogin: false },
   autoStart: { id: 'autoStart', name: '게임 자동 실행', icon: 'lucide:play', needLogin: false },
   capture: { id: 'capture', name: '자동 캡처 모드', icon: 'lucide:camera', needLogin: false },
 }
@@ -72,6 +73,10 @@ const isAutoStartSetting = (settingId: string): boolean => {
   return settingId.includes('autoStart') || settingId.includes('StartGame')
 }
 
+const isGameSetting = (settingId: string): boolean => {
+  return settingId.includes('showGame')
+}
+
 // 설정 항목을 카테고리별로 분류
 const categorizeSettings = () => {
   const { settingDictionary } = globalDictionary
@@ -80,6 +85,7 @@ const categorizeSettings = () => {
     capture: [] as SettingItem[],
     storage: [] as SettingItem[],
     autoStart: [] as SettingItem[],
+    games: [] as SettingItem[],
   }
 
   Object.entries(settingDictionary).forEach(([key, value]) => {
@@ -101,6 +107,8 @@ const categorizeSettings = () => {
       categorized.capture.push({ id: settingId, ...settingValue })
     } else if (isAutoStartSetting(settingId)) {
       categorized.autoStart.push({ id: settingId, ...settingValue })
+    } else if (isGameSetting(settingId)) {
+      categorized.games.push({ id: settingId, ...settingValue })
     } else {
       categorized.general.push({ id: settingId, ...settingValue })
     }

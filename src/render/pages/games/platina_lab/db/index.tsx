@@ -274,7 +274,7 @@ const PlatinaLabDbPage = () => {
       })
 
     return ['전체', ...codes] // '전체'를 마지막에 추가
-  }, [songData, selectedGame])
+  }, [selectedGame])
 
   const buttonRefs = useRef<(HTMLButtonElement | null)[]>([])
 

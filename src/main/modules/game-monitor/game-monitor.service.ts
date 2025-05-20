@@ -234,12 +234,10 @@ export class GameMonitorService {
                         overlayWindow.webContents.send('overlay-ocr-result', response)
                       }
 
-                      this.mainWindowService.sendMessage(
-                        JSON.stringify({
-                          type: 'ocr-result',
-                          data: response,
-                        }),
-                      )
+                      const mainWindow = this.mainWindowService.getWindow()
+                      if (mainWindow) {
+                        mainWindow.webContents.send('main-window-ocr-result', response)
+                      }
 
                       if (settingData.saveImageWhenCapture) {
                         const maskingRegions = this.imageProcessorService.getMaskingRegions(
