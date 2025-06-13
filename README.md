@@ -106,13 +106,6 @@ racla/
     </td>
   </tr>
   <tr>
-    <td><b>🎮 WJMAX</b></td>
-    <td>
-      <a href="https://waktaverse.games/gameDetail/wjmax/">왁제이맥스</a><br>
-      RACLA 자체 구축 서비스로 운영됩니다.
-    </td>
-  </tr>
-  <tr>
     <td><b>🎧 PLATiNA::LAB</b></td>
     <td>
       <a href="https://platinalab.net/">플라티나 랩</a><br>
@@ -191,9 +184,6 @@ RACLA는 다국어 지원을 위한 국제화(i18n) 시스템을 구축하고 �
 - [x] DMRV - 전일 아카이브 - 종합 랭킹
 - [x] DMRV - 전일 아카이브 - 랭킹 데이터베이스
 - [x] DMRV - 전일 아카이브 - 하드 판정 서열표
-- [x] WJMAX - 기록 등록
-- [x] WJMAX - 성과표
-- [x] WJMAX - 데이터베이스
 - [x] PLATiNA :: LAB - 기록 등록
 - [x] PLATiNA :: LAB - 성과표
 - [x] PLATiNA :: LAB - 데이터베이스
