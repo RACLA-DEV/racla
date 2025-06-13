@@ -1,6 +1,5 @@
 import DjmaxHomeComponent from '@render/components/home/DjmaxSection'
 import PlatinaLabHomeComponent from '@render/components/home/PlatinaLabSection'
-import WjmaxHomeComponent from '@render/components/home/WjmaxSection'
 import { RootState } from '@render/store'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useSelector } from 'react-redux'
@@ -13,7 +12,7 @@ const pageTransition = {
     x: 0,
     transition: {
       duration: 0.5,
-      ease: [0.25, 0.1, 0.25, 1.0], // 부드러운 이징
+      ease: 'easeInOut' as const,
     },
   },
   exit: {
@@ -21,10 +20,10 @@ const pageTransition = {
     x: -20,
     transition: {
       duration: 0.3,
-      ease: [0.25, 0.1, 0.25, 1.0],
+      ease: 'easeInOut' as const,
     },
   },
-}
+} as const
 
 const HomePage = () => {
   const { selectedGame } = useSelector((state: RootState) => state.app)
@@ -42,18 +41,6 @@ const HomePage = () => {
             className='tw:absolute tw:w-full'
           >
             <DjmaxHomeComponent />
-          </motion.div>
-        )}
-        {selectedGame == 'wjmax' && (
-          <motion.div
-            key='wjmax'
-            initial='hidden'
-            animate='visible'
-            exit='exit'
-            variants={pageTransition}
-            className='tw:absolute tw:w-full'
-          >
-            <WjmaxHomeComponent />
           </motion.div>
         )}
         {selectedGame == 'platina_lab' && (

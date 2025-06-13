@@ -18,5 +18,5 @@
   "recentOverlay": "リザルトオーバーレイ表示時に最近の記録オーバーレイを表示",
   "recentOverlayDescription": "リザルトオーバーレイ表示時に該当する収録曲パターンのRACLA最近の記録情報を表示します。",
   "hardJudgementPlayRecordOverlay": "リザルトオーバーレイ表示時に全一記録オーバーレイを表示",
-  "hardJudgementPlayRecordOverlayDescription": "DJMAX RESPECT Vのリザルトオーバーレイ表示時にHARD-ARCHIVEに登録された最高記録情報を表示します。WJMAXとPLATiNA :: LABはRACLA記録を基に今後サポート予定です。"
+  "hardJudgementPlayRecordOverlayDescription": "DJMAX RESPECT Vのリザルトオーバーレイ表示時にHARD-ARCHIVEに登録された最高記録情報を表示します。PLATiNA :: LABはRACLA記録を基に今後サポート予定です。"
 }

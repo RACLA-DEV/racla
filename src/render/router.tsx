@@ -24,9 +24,6 @@ const RegScorePage = lazy(() => import('./pages/games/regScore'))
 const PlatinaLabDbPage = lazy(() => import('./pages/games/platina_lab/db'))
 const PlatinaLabDbDetailPage = lazy(() => import('./pages/games/platina_lab/db/detail'))
 const PlatinaLabBoardPage = lazy(() => import('./pages/games/platina_lab/board'))
-const WjmaxDbPage = lazy(() => import('./pages/games/wjmax/db'))
-const WjmaxDbDetailPage = lazy(() => import('./pages/games/wjmax/db/detail'))
-const WjmaxBoardPage = lazy(() => import('./pages/games/wjmax/board'))
 const LicensePage = lazy(() => import('./pages/license'))
 const FeedbackListPage = lazy(() => import('./pages/feedback'))
 const FeedbackDetailPage = lazy(() => import('./pages/feedback/detail'))
@@ -195,34 +192,6 @@ export const router = createHashRouter([
             element: (
               <Suspense fallback={<PageLoading />}>
                 <PlatinaLabBoardPage />
-              </Suspense>
-            ),
-          },
-          {
-            path: '/games/wjmax/db',
-            element: (
-              <Suspense fallback={<PageLoading />}>
-                <WjmaxDbPage />
-              </Suspense>
-            ),
-          },
-          {
-            path: '/games/wjmax/db/:id',
-            element: (
-              <Suspense fallback={<PageLoading />}>
-                <WjmaxDbDetailPage />
-              </Suspense>
-            ),
-          },
-          {
-            path: '/games/wjmax/board',
-            element: <Navigate to='/games/wjmax/board/4B/1' />,
-          },
-          {
-            path: '/games/wjmax/board/:keyMode/:board',
-            element: (
-              <Suspense fallback={<PageLoading />}>
-                <WjmaxBoardPage />
               </Suspense>
             ),
           },

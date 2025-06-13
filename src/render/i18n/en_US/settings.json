@@ -14,7 +14,7 @@
   "restartApp": "Restart App",
   "requiresRestart": "※ This setting requires restarting the app to apply.",
   "uneditable": "※ This setting cannot be modified in the current version.",
-  "copyright": "DJMAX RESPECT V(©NEOWIZ), WJMAX(©WJMAX STUDIO), PLATiNA :: LAB(©HIGH-END Games).\nWe deeply respect you. <3\nRACLA is dedicated to your remarkable games and services.",
+  "copyright": "DJMAX RESPECT V(©NEOWIZ), PLATiNA :: LAB(©HIGH-END Games).\nWe deeply respect you. <3\nRACLA is dedicated to your remarkable games and services.",
   "hardwareAcceleration": {
     "name": "Enable Hardware Acceleration",
     "description": "Hardware acceleration uses the GPU to make the RACLA desktop app run more smoothly. If you experience issues with the app display, try disabling this setting. Changing this setting will restart the app."
@@ -134,10 +134,6 @@
     "name": "Auto Recognition Area - DJMAX RESPECT V Ladder/Versus Match",
     "description": "Enable/disable OCR scanning of DJMAX RESPECT V ladder/versus match results area in auto capture mode."
   },
-  "autoCaptureWjmaxOcrResultRegion": {
-    "name": "Auto Recognition Area - WJMAX Freestyle Results",
-    "description": "Enable/disable OCR scanning of WJMAX freestyle results area in auto capture mode."
-  },
   "autoCapturePlatinaLabOcrResultRegion": {
     "name": "Auto Recognition Area - PLATiNA :: LAB Single Play Results",
     "description": "Enable/disable OCR scanning of PLATiNA :: LAB single play results area in auto capture mode."
@@ -149,14 +145,6 @@
   "autoStartGameDjmaxRespectV": {
     "name": "Auto Launch DJMAX RESPECT V",
     "description": "Automatically launch DJMAX RESPECT V when starting the RACLA desktop app. This feature only works with the Steam version of DJMAX RESPECT V."
-  },
-  "autoStartGameWjmax": {
-    "name": "Auto Launch WJMAX",
-    "description": "Automatically launch WJMAX when starting the RACLA desktop app. This feature only works if the WJMAX executable path is specified."
-  },
-  "autoStartGameWjmaxPath": {
-    "name": "WJMAX Path",
-    "description": "Specify the WJMAX path."
   },
   "autoStartGamePlatinaLab": {
     "name": "Auto Launch PLATiNA :: LAB",
@@ -196,10 +184,6 @@
   "showGameDjmaxRespectV": {
     "name": "Show DJMAX RESPECT V",
     "description": "Display DJMAX RESPECT V game in the icon sidebar."
-  },
-  "showGameWjmax": {
-    "name": "Show WJMAX",
-    "description": "Display WJMAX game in the icon sidebar."
   },
   "showGamePlatinaLab": {
     "name": "Show PLATiNA :: LAB",

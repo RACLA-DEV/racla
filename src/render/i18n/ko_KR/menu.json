@@ -139,49 +139,6 @@
       "description": "행이봇 (Discord)"
     }
   },
-  "wjmax": {
-    "wjmaxNavTitle": "WJMAX",
-    "wjmaxRegScore": {
-      "name": {
-        "startWithSup": "",
-        "base": "기록 등록",
-        "lastWithSup": ""
-      },
-      "description": "WJMAX 기록 등록"
-    },
-    "wjmaxMyBoard": {
-      "name": {
-        "startWithSup": "",
-        "base": "성과표",
-        "lastWithSup": ""
-      },
-      "description": "WJMAX 성과표"
-    },
-    "wjmaxDb": {
-      "name": {
-        "startWithSup": "",
-        "base": "데이터베이스",
-        "lastWithSup": ""
-      },
-      "description": "WJMAX 데이터베이스"
-    },
-    "wjmaxLeaderboard": {
-      "name": {
-        "startWithSup": "",
-        "base": "리더보드(랭킹)",
-        "lastWithSup": ""
-      },
-      "description": "WJMAX 리더보드(랭킹)"
-    },
-    "wjmaxCourseMaker": {
-      "name": {
-        "startWithSup": "",
-        "base": "코스 메이커",
-        "lastWithSup": ""
-      },
-      "description": "WJMAX 코스 메이커"
-    }
-  },
   "platina_lab": {
     "platinaLabNavTitle": "PLATiNA :: LAB",
     "platinaLabRegScore": {

@@ -3,6 +3,5 @@ import { BoardPatternInfo } from '../games/SongData'
 
 type DjmaxKeyModeData = Record<string, BoardPatternInfo[]>
 type PlatinaLabKeyModeData = Record<string, PlayBoardPatternInfo[]>
-type WjmaxKeyModeData = Record<string, PlayBoardPatternInfo[]>
 
-export type { DjmaxKeyModeData, PlatinaLabKeyModeData, WjmaxKeyModeData }
+export type { DjmaxKeyModeData, PlatinaLabKeyModeData }

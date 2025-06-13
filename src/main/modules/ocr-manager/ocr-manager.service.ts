@@ -98,14 +98,6 @@ export class OcrManagerService {
         )
         texts.open2 = await this.recognizeText(regions.open2)
       }
-    } else if (gameCode.toLowerCase().includes('wjmax')) {
-      if (settings.autoCaptureWjmaxOcrResultRegion) {
-        regions.result = await this.imageProcessor.extractRegion(
-          imageBuffer,
-          GLOBAL_DICTONARY.OCR_REGIONS.wjmax.result,
-        )
-        texts.result = await this.recognizeText(regions.result)
-      }
     } else if (gameCode.toLowerCase().includes('platina')) {
       if (settings.autoCapturePlatinaLabOcrResultRegion) {
         regions.result = await this.imageProcessor.extractRegion(
@@ -176,18 +168,6 @@ export class OcrManagerService {
           resultInfo.isResult = ['open2']
           resultInfo.text = texts.open2
           resultInfo.gameCode = 'djmax_respect_v'
-        }
-      }
-    } else if (gameCode.toLowerCase().includes('wjmax')) {
-      if (settings.autoCaptureWjmaxOcrResultRegion && texts.result) {
-        resultInfo.isResult = this.checkResultKeywords(
-          texts.result,
-          GLOBAL_DICTONARY.RESULT_KEYWORDS.wjmax.result,
-        )
-        if (resultInfo.isResult.length > 0) {
-          resultInfo.where = 'result'
-          resultInfo.text = texts.result
-          resultInfo.gameCode = 'wjmax'
         }
       }
     } else if (gameCode.toLowerCase().includes('platina')) {

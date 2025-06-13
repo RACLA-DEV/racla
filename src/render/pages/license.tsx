@@ -99,33 +99,6 @@ export default function LicensePage() {
                   className='tw:flex tw:items-center tw:gap-2 tw:cursor-pointer tw:p-2 tw:rounded-md hover:tw:bg-indigo-100 hover:tw:dark:bg-indigo-800/30 tw:transition-colors tw:text-slate-700 tw:dark:text-slate-300'
                   onClick={() => {
                     dispatch(setIsOpenExternalLink(true))
-                    dispatch(setOpenExternalLink('https://waktaverse.games/gameDetail/wjmax'))
-                  }}
-                >
-                  <Icon
-                    icon='lucide:external-link'
-                    className='tw:h-4 tw:w-4 tw:text-indigo-600 tw:dark:text-indigo-400'
-                  />
-                  <span>WJMAX(왁제이맥스, 게임)</span>
-                  <span>-</span>
-                  <span
-                    className='tw:text-indigo-600 tw:dark:text-indigo-400 hover:tw:underline'
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      dispatch(setIsOpenExternalLink(true))
-                      dispatch(setOpenExternalLink('https://waktaverse.games'))
-                    }}
-                  >
-                    WJMAX STUDIO, WAKTAVERSE GAMES
-                  </span>
-                </div>
-
-                <hr className='tw:my-2 tw:border-indigo-200 tw:dark:border-indigo-800/50' />
-
-                <div
-                  className='tw:flex tw:items-center tw:gap-2 tw:cursor-pointer tw:p-2 tw:rounded-md hover:tw:bg-indigo-100 hover:tw:dark:bg-indigo-800/30 tw:transition-colors tw:text-slate-700 tw:dark:text-slate-300'
-                  onClick={() => {
-                    dispatch(setIsOpenExternalLink(true))
                     dispatch(setOpenExternalLink('https://platinalab.net'))
                   }}
                 >
@@ -223,7 +196,7 @@ export default function LicensePage() {
                     4.
                   </span>
                   <p className='tw:leading-relaxed'>
-                    리소스 사용을 허락해주신 WJMAX 개발자님을 포함한 WJMAX STUDIO 관계자분들
+                    RACLA 서비스를 함께 만들어가는 공감대로0번길(GGDRN0 STUDIO)와 RACLA 팀원들
                   </p>
                 </div>
                 <div className='tw:flex tw:gap-2'>
@@ -231,7 +204,7 @@ export default function LicensePage() {
                     5.
                   </span>
                   <p className='tw:leading-relaxed'>
-                    RACLA 서비스를 함께 만들어가는 공감대로0번길(GGDRN0 STUDIO)와 RACLA 팀원들
+                    RACLA 서비스에서 가장 많은 기여도를 주신 HanA 사용자님
                   </p>
                 </div>
                 <div className='tw:flex tw:gap-2'>
@@ -239,20 +212,12 @@ export default function LicensePage() {
                     6.
                   </span>
                   <p className='tw:leading-relaxed'>
-                    RACLA 서비스에서 가장 많은 기여도를 주신 HanA 사용자님
-                  </p>
-                </div>
-                <div className='tw:flex tw:gap-2'>
-                  <span className='tw:font-medium tw:text-slate-900 tw:dark:text-slate-200'>
-                    7.
-                  </span>
-                  <p className='tw:leading-relaxed'>
                     RACLA 서비스 유지와 개선을 위해 정기적으로 후원해주시는 KIHARU 후원자님
                   </p>
                 </div>
                 <div className='tw:flex tw:gap-2'>
                   <span className='tw:font-medium tw:text-slate-900 tw:dark:text-slate-200'>
-                    8.
+                    7.
                   </span>
                   <p className='tw:leading-relaxed'>
                     마지막으로 RACLA를 사용해주시는 모든 사용자 여러분들께 감사합니다.

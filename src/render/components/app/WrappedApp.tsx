@@ -219,9 +219,6 @@ export default function WrappedApp() {
         case 'djmax_respect_v':
           endpoint = '/v3/racla/songs/djmax_respect_v'
           break
-        case 'wjmax':
-          endpoint = '/v3/racla/songs/wjmax'
-          break
         case 'platina_lab':
           endpoint = '/v3/racla/songs/platina_lab'
           break
@@ -753,9 +750,6 @@ export default function WrappedApp() {
     }
     if (location.pathname.includes('djmax_respect_v')) {
       dispatch(setSelectedGame('djmax_respect_v'))
-      dispatch(setRefresh(!refresh))
-    } else if (location.pathname.includes('wjmax')) {
-      dispatch(setSelectedGame('wjmax'))
       dispatch(setRefresh(!refresh))
     } else if (location.pathname.includes('platina_lab')) {
       dispatch(setSelectedGame('platina_lab'))

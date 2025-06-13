@@ -14,7 +14,7 @@
   "restartApp": "アプリ再起動",
   "requiresRestart": "※ この設定を適用するにはアプリの再起動が必要です。",
   "uneditable": "※ 現在のバージョンでは編集できない設定値です。",
-  "copyright": "DJMAX RESPECT V(©NEOWIZ), WJMAX(©WJMAX STUDIO), PLATiNA :: LAB(©HIGH-END Games).\nWe deeply respect you. <3\nRACLA is dedicated to your remarkable games and services.",
+  "copyright": "DJMAX RESPECT V(©NEOWIZ), PLATiNA :: LAB(©HIGH-END Games).\nWe deeply respect you. <3\nRACLA is dedicated to your remarkable games and services.",
   "hardwareAcceleration": {
     "name": "ハードウェアアクセラレーション有効化",
     "description": "ハードウェアアクセラレーションはGPUを使用してRACLAデスクトップアプリをよりスムーズに動作させます。アプリの画面に問題が発生した場合は、この設定を無効にしてみてください。設定を変更するとアプリが再起動します。"
@@ -134,10 +134,6 @@
     "name": "自動認識領域 - DJMAX RESPECT Vラダー/バーサスマッチ",
     "description": "自動キャプチャーモードでDJMAX RESPECT Vラダー/バーサスマッチ結果画面領域のOCR検査を有効/無効にします。"
   },
-  "autoCaptureWjmaxOcrResultRegion": {
-    "name": "自動認識領域 - WJMAXフリースタイル結果画面",
-    "description": "自動キャプチャーモードでWJMAXフリースタイル結果画面領域のOCR検査を有効/無効にします。"
-  },
   "autoCapturePlatinaLabOcrResultRegion": {
     "name": "自動認識領域 - PLATiNA :: LABシングルプレイ結果画面",
     "description": "自動キャプチャーモードでPLATiNA :: LABシングルプレイ結果画面領域のOCR検査を有効/無効にします。"
@@ -149,14 +145,6 @@
   "autoStartGameDjmaxRespectV": {
     "name": "DJMAX RESPECT V自動起動",
     "description": "RACLAデスクトップアプリ起動時にDJMAX RESPECT Vを自動的に起動します。この機能はSteamバージョンのDJMAX RESPECT Vでのみ動作します。"
-  },
-  "autoStartGameWjmax": {
-    "name": "WJMAX自動起動",
-    "description": "RACLAデスクトップアプリ起動時にWJMAXを自動的に起動します。この機能はWJMAX実行ファイルのパスを指定した場合にのみ動作します。"
-  },
-  "autoStartGameWjmaxPath": {
-    "name": "WJMAXパス",
-    "description": "WJMAXパスを指定します。"
   },
   "autoStartGamePlatinaLab": {
     "name": "PLATiNA :: LAB自動起動",
@@ -196,10 +184,6 @@
   "showGameDjmaxRespectV": {
     "name": "DJMAX RESPECT V 表示",
     "description": "アイコン サイド バーに DJMAX RESPECT V ゲームを表示します。"
-  },
-  "showGameWjmax": {
-    "name": "WJMAX 表示",
-    "description": "アイコン サイド バーに WJMAX ゲームを表示します。"
   },
   "showGamePlatinaLab": {
     "name": "PLATiNA :: LAB 表示",

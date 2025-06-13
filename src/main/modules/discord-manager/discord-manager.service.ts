@@ -56,9 +56,7 @@ export class DiscordManagerService implements OnModuleInit, OnModuleDestroy {
           details: `${
             gameData.gameCode === 'djmax_respect_v'
               ? 'DMRV'
-              : gameData.gameCode === 'wjmax'
-                ? 'WJMAX'
-                : gameData.gameCode === 'platina_lab'
+              : gameData.gameCode === 'platina_lab'
                   ? 'PLATiNA :: LAB'
                   : null
           } - ${gameData.songName}`,

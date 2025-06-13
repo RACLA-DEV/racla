@@ -50,16 +50,6 @@ const JUDGEMENT_PRESETS: JudgementPreset[] = [
     },
   },
   {
-    name: 'WJMAX',
-    values: {
-      PERFECT_PLUS: 41.66,
-      PERFECT: 66.66,
-      GREAT: 133.32,
-      GOOD: 199.92,
-      BAD: 266.58,
-    },
-  },
-  {
     name: 'EZ2ON REBOOT : R',
     values: {
       PERFECT_PLUS: 22,

@@ -9,6 +9,18 @@ import { useDispatch, useSelector } from 'react-redux'
 // 하드코딩된 업데이트 내역 데이터 (배열로 변경)
 const UPDATE_NOTES = [
   {
+    version: 'V0.8.8',
+    date: '2025-06-13',
+    notes: [
+      {
+        category: '수정',
+        items: [
+          'WJMAX - RACLA 지원 게임 목록에서 제거하였습니다. 상세한 내용은 피드백 센터를 확인해주세요.',
+        ],
+      },
+    ],
+  },
+  {
     version: 'V0.8.7',
     date: '2025-05-20',
     notes: [

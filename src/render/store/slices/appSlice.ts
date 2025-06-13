@@ -24,7 +24,6 @@ const defaultOcrState: OcrProcessState = {
 // 게임별 OCR 상태 초기화
 const initialGameOcrStates: GameOcrStates = {
   djmax_respect_v: { ...defaultOcrState, gameCode: 'djmax_respect_v' },
-  wjmax: { ...defaultOcrState, gameCode: 'wjmax' },
   platina_lab: { ...defaultOcrState, gameCode: 'platina_lab' },
 }
 
@@ -60,11 +59,9 @@ const initialState: AppState = {
   notifications: [],
   songData: {
     djmax_respect_v: [],
-    wjmax: [],
     platina_lab: [],
     lastUpdated: {
       djmax_respect_v: null,
-      wjmax: null,
       platina_lab: null,
     },
   },

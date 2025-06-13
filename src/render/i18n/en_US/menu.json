@@ -139,49 +139,6 @@
       "description": "Hangyi Bot (Discord)"
     }
   },
-  "wjmax": {
-    "wjmaxNavTitle": "WJMAX",
-    "wjmaxRegScore": {
-      "name": {
-        "startWithSup": "",
-        "base": "Score Registration",
-        "lastWithSup": ""
-      },
-      "description": "WJMAX Score Registration"
-    },
-    "wjmaxMyBoard": {
-      "name": {
-        "startWithSup": "",
-        "base": "Performance Board",
-        "lastWithSup": ""
-      },
-      "description": "WJMAX Performance Board"
-    },
-    "wjmaxDb": {
-      "name": {
-        "startWithSup": "",
-        "base": "Database",
-        "lastWithSup": ""
-      },
-      "description": "WJMAX Database"
-    },
-    "wjmaxLeaderboard": {
-      "name": {
-        "startWithSup": "",
-        "base": "Leaderboard (Ranking)",
-        "lastWithSup": ""
-      },
-      "description": "WJMAX Leaderboard (Ranking)"
-    },
-    "wjmaxCourseMaker": {
-      "name": {
-        "startWithSup": "",
-        "base": "Course Maker",
-        "lastWithSup": ""
-      },
-      "description": "WJMAX Course Maker"
-    }
-  },
   "platina_lab": {
     "platinaLabNavTitle": "PLATiNA :: LAB",
     "platinaLabRegScore": {

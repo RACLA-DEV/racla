@@ -24,31 +24,6 @@
       }
     }
   },
-  "wjmax": {
-    "name": "WJMAX",
-    "difficulty": {
-      "NM": {
-        "name": "NM",
-        "fullName": "MESSI"
-      },
-      "HD": {
-        "name": "HD",
-        "fullName": "ANGEL"
-      },
-      "MX": {
-        "name": "MX",
-        "fullName": "WAKGOOD"
-      },
-      "SC": {
-        "name": "SC",
-        "fullName": "MINSU"
-      },
-      "DPC": {
-        "name": "DPC",
-        "fullName": "LIE"
-      }
-    }
-  },
   "platina_lab": {
     "name": "PLATiNA :: LAB",
     "difficulty": {

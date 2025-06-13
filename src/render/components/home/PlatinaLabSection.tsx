@@ -12,7 +12,6 @@ import { Doughnut } from 'react-chartjs-2'
 import { useTranslation } from 'react-i18next'
 import { PuffLoader } from 'react-spinners'
 import apiClient from '../../../libs/apiClient'
-import Image from '../image/Image'
 import ScorePopupComponent from '../score/ScorePopup'
 
 ChartJS.register(ArcElement, Tooltip, Legend)
@@ -157,20 +156,7 @@ export default function PlatinaLabHomeComponent() {
         <span
           className={`tw:flex tw:gap-2 tw:font-extrabold tw:items-center tw:text-platina-lab-${String(pattern?.pattern).replace('PLUS_1', 'PLUS').replace('PLUS_2', 'PLUS').replace('PLUS_3', 'PLUS').toLowerCase()}`}
         >
-          {selectedGame == 'wjmax' ? (
-            <Image
-              src={`https://cdn.racla.app/wjmax/nm_${Math.ceil((pattern.level || 0) / 5) * 5}_star.png`}
-              alt='difficulty'
-              width={pattern.level > 20 ? 16 : 20}
-              height={pattern.level > 20 ? 16 : 20}
-              className={pattern.level > 20 ? 'tw:w-4 tw:h-4' : 'tw:w-5 tw:h-5'}
-            />
-          ) : null}
-          <span className='tw:font-extrabold'>
-            {selectedGame == 'wjmax'
-              ? Number(pattern.level).toFixed(1)
-              : 'Lv.' + Number(pattern.level).toFixed(0)}
-          </span>
+          <span className='tw:font-extrabold'>Lv.{Number(pattern.level).toFixed(0)}</span>
         </span>
       )
     }

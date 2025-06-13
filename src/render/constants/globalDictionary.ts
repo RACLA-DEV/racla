@@ -4,7 +4,7 @@ import { BUILD_DATE } from './buildInfo'
 
 export const globalDictionary = {
   version: `${packageJson.version} ${BUILD_DATE}`,
-  supportGameList: ['djmax_respect_v', 'wjmax', 'platina_lab'],
+  supportGameList: ['djmax_respect_v', 'platina_lab'],
   blurDataURL:
     'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDABQODxIPDRQSEBIXFRQdHx0fHRsdHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR3/2wBDAR0XFyAeIRshGxsdIR0hHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR3/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAb/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k=',
   settingDictionary: {
@@ -287,13 +287,6 @@ export const globalDictionary = {
       requiresRestart: false,
       isVisible: false, // 구클라부터 문제가 잦게 발생하여 일시적으로 비활성화
     },
-    autoCaptureWjmaxOcrResultRegion: {
-      id: 'autoCaptureWjmaxOcrResultRegion',
-      defaultValue: true,
-      isEditable: true,
-      requiresRestart: false,
-      isVisible: true,
-    },
     autoCapturePlatinaLabOcrResultRegion: {
       id: 'autoCapturePlatinaLabOcrResultRegion',
       defaultValue: true,
@@ -313,32 +306,15 @@ export const globalDictionary = {
       defaultValue: false,
       isEditable: true,
       requiresRestart: false,
-      offList: ['autoStartGameWjmax', 'autoStartGamePlatinaLab'],
+      offList: ['autoStartGamePlatinaLab'],
       onList: ['autoStartGame'],
-      isVisible: true,
-    },
-    autoStartGameWjmax: {
-      id: 'autoStartGameWjmax',
-      defaultValue: false,
-      isEditable: true,
-      requiresRestart: false,
-      offList: ['autoStartGameDjmaxRespectV', 'autoStartGamePlatinaLab'],
-      onList: ['autoStartGame'],
-      isVisible: true,
-    },
-    autoStartGameWjmaxPath: {
-      id: 'autoStartGameWjmaxPath',
-      defaultValue: '',
-      isEditable: true,
-      requiresRestart: false,
-      isFile: true,
       isVisible: true,
     },
     autoStartGamePlatinaLab: {
       id: 'autoStartGamePlatinaLab',
       defaultValue: false,
       isEditable: true,
-      offList: ['autoStartGameDjmaxRespectV', 'autoStartGameWjmax'],
+      offList: ['autoStartGameDjmaxRespectV'],
       onList: ['autoStartGame'],
       isVisible: true,
     },
@@ -414,13 +390,6 @@ export const globalDictionary = {
     },
     showGameDjmaxRespectV: {
       id: 'showGameDjmaxRespectV',
-      defaultValue: true,
-      isEditable: true,
-      requiresRestart: false,
-      isVisible: true,
-    },
-    showGameWjmax: {
-      id: 'showGameWjmax',
       defaultValue: true,
       isEditable: true,
       requiresRestart: false,
@@ -568,39 +537,6 @@ export const globalDictionary = {
         'PLI1',
         'BA',
       ],
-    },
-    wjmax: {
-      id: 'wjmax',
-      name: 'WJMAX',
-      jacketsUrl: '/wjmax/resources/jackets',
-      keyModeList: ['4', '4P', '6', '6P'],
-      levelList: [
-        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25,
-        26, 27, 28, 29, 30,
-      ],
-      difficulty: {
-        NM: {
-          name: 'wjmax.difficulty.NM.name',
-          fullName: 'wjmax.difficulty.NM.fullName',
-        },
-        HD: {
-          name: 'wjmax.difficulty.HD.name',
-          fullName: 'wjmax.difficulty.HD.fullName',
-        },
-        MX: {
-          name: 'wjmax.difficulty.MX.name',
-          fullName: 'wjmax.difficulty.MX.fullName',
-        },
-        SC: {
-          name: 'wjmax.difficulty.SC.name',
-          fullName: 'wjmax.difficulty.SC.fullName',
-        },
-        DPC: {
-          name: 'wjmax.difficulty.DPC.name',
-          fullName: 'wjmax.difficulty.DPC.fullName',
-        },
-      },
-      dlcList: [],
     },
     platina_lab: {
       id: 'platina_lab',
@@ -773,60 +709,6 @@ export const globalDictionary = {
             isOpenBrowser: true,
             link: 'https://discord.com/oauth2/authorize?client_id=1364151506835607653',
             status: 'stable',
-            platform: ['win32'],
-          },
-        ],
-      },
-    },
-    wjmax: {
-      wjmax: {
-        id: 'wjmaxNavTitle',
-        isDisplay: true,
-        link: '/games/wjmax',
-        pages: [
-          {
-            id: 'wjmaxRegScore',
-            icon: 'lucide:upload',
-            isDisplay: true,
-            isOpenBrowser: false,
-            link: '/regScore',
-            status: 'stable',
-            platform: ['win32'],
-          },
-          {
-            id: 'wjmaxMyBoard',
-            icon: 'lucide:trophy',
-            isDisplay: true,
-            isOpenBrowser: false,
-            link: '/board',
-            status: 'stable',
-            platform: ['win32'],
-          },
-          {
-            id: 'wjmaxDb',
-            icon: 'lucide:database',
-            isDisplay: true,
-            isOpenBrowser: false,
-            link: '/db',
-            status: 'stable',
-            platform: ['win32'],
-          },
-          {
-            id: 'wjmaxLeaderboard',
-            icon: 'lucide:ranking',
-            isDisplay: false,
-            isOpenBrowser: false,
-            link: '/leaderboard',
-            status: 'dev',
-            platform: ['win32'],
-          },
-          {
-            id: 'wjmaxCourseMaker',
-            icon: 'lucide:wand',
-            isDisplay: false,
-            isOpenBrowser: false,
-            link: '/course',
-            status: 'dev',
             platform: ['win32'],
           },
         ],

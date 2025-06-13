@@ -139,49 +139,6 @@
       "description": "ハンイボット (Discord)"
     }
   },
-  "wjmax": {
-    "wjmaxNavTitle": "WJMAX",
-    "wjmaxRegScore": {
-      "name": {
-        "startWithSup": "",
-        "base": "スコア登録",
-        "lastWithSup": ""
-      },
-      "description": "WJMAXスコア登録"
-    },
-    "wjmaxMyBoard": {
-      "name": {
-        "startWithSup": "",
-        "base": "成果表",
-        "lastWithSup": ""
-      },
-      "description": "WJMAX成果表"
-    },
-    "wjmaxDb": {
-      "name": {
-        "startWithSup": "",
-        "base": "データベース",
-        "lastWithSup": ""
-      },
-      "description": "WJMAXデータベース"
-    },
-    "wjmaxLeaderboard": {
-      "name": {
-        "startWithSup": "",
-        "base": "リーダーボード(ランキング)",
-        "lastWithSup": ""
-      },
-      "description": "WJMAXリーダーボード(ランキング)"
-    },
-    "wjmaxCourseMaker": {
-      "name": {
-        "startWithSup": "",
-        "base": "コースメーカー",
-        "lastWithSup": ""
-      },
-      "description": "WJMAXコースメーカー"
-    }
-  },
   "platina_lab": {
     "platinaLabNavTitle": "PLATiNA :: LAB",
     "platinaLabRegScore": {

@@ -432,7 +432,7 @@ const DmrvDbPage = () => {
                             >
                               <div
                                 className={`tw:absolute tw:w-full tw:h-full tw:opacity-30 ${
-                                  selectedGame === 'djmax_respect_v' ? 'respect' : 'wjmax'
+                                  selectedGame === 'djmax_respect_v' ? 'respect' : selectedGame
                                 }_bg_b${String(mode).replace('P', '')}`}
                               />
                               <span className='tw:relative tw:text-base tw:font-bold'>

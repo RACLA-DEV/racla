@@ -46,7 +46,6 @@ const isCaptureSetting = (settingId: string): boolean => {
   return (
     settingId.includes('autoCapture') &&
     !settingId.includes('autoCaptureDjmax') &&
-    !settingId.includes('autoCaptureWjmax') &&
     !settingId.includes('autoCapturePlatina')
   )
 }
@@ -62,11 +61,7 @@ const isStorageSetting = (settingId: string): boolean => {
 }
 
 const isGameCaptureSetting = (settingId: string): boolean => {
-  return (
-    settingId.includes('autoCaptureDjmax') ||
-    settingId.includes('autoCaptureWjmax') ||
-    settingId.includes('autoCapturePlatina')
-  )
+  return settingId.includes('autoCaptureDjmax') || settingId.includes('autoCapturePlatina')
 }
 
 const isAutoStartSetting = (settingId: string): boolean => {

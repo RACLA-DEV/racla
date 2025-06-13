@@ -13,7 +13,7 @@ const contentAnimation = {
     y: 0,
     transition: {
       duration: 0.5,
-      ease: 'easeOut',
+      ease: 'easeOut' as const,
       delay: 0.3,
       when: 'beforeChildren',
       staggerChildren: 0.2,
@@ -28,7 +28,7 @@ const childAnimation = {
     x: 0,
     transition: {
       duration: 0.4,
-      ease: 'easeOut',
+      ease: 'easeOut' as const,
     },
   },
 }

@@ -18,7 +18,6 @@ export interface OcrProcessState {
 // 게임별 OCR 상태 관리
 export interface GameOcrStates {
   djmax_respect_v: OcrProcessState
-  wjmax: OcrProcessState
   platina_lab: OcrProcessState
 }
 
@@ -37,11 +36,9 @@ export interface AppState {
   notifications: Notification[]
   songData: {
     djmax_respect_v: SongData[]
-    wjmax: SongData[]
     platina_lab: SongData[]
     lastUpdated: {
       djmax_respect_v: number | null
-      wjmax: number | null
       platina_lab: number | null
     }
   }

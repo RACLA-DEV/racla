@@ -160,9 +160,7 @@ export class ImageProcessorService {
           image: await this.captureGameWindow(activeWindow.title),
           gameCode: activeWindow.title.toLowerCase().includes('djmax')
             ? 'djmax_respect_v'
-            : activeWindow.title.toLowerCase().includes('wjmax')
-              ? 'wjmax'
-              : 'platina_lab',
+            : 'platina_lab',
         }
       }
       return null

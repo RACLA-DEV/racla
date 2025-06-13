@@ -86,7 +86,7 @@ export default function DjmaxHomeComponent() {
             }`}
           >
             <div
-              className={`tw:absolute tw:w-full tw:h-full tw:opacity-30 ${selectedGame === 'djmax_respect_v' ? 'respect' : 'wjmax'}_bg_b${String(
+              className={`tw:absolute tw:w-full tw:h-full tw:opacity-30 ${selectedGame === 'djmax_respect_v' ? 'respect' : ''}_bg_b${String(
                 mode,
               ).replace('P', '')}`}
             />

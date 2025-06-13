@@ -18,18 +18,9 @@ const IconSidebar: React.FC = () => {
 
   // 로고 인덱스 상태 관리
   const [djmaxLogoIndex, setDjmaxLogoIndex] = useState(0)
-  const [wjmaxLogoIndex, setWjmaxLogoIndex] = useState(0)
 
   // 로고 이미지 배열
   const djmaxLogos = ['new_logo_0.png', 'new_logo_1.png']
-  const wjmaxLogos = [
-    'new_logo_0.png',
-    'new_logo_1.png',
-    'new_logo_2.png',
-    'new_logo_3.png',
-    'new_logo_4.png',
-    'new_logo_5.png',
-  ]
 
   // 게임 아이콘 정보
   const gameIcons = [
@@ -53,26 +44,6 @@ const IconSidebar: React.FC = () => {
         navigate('/home')
       },
       showSetting: 'showGameDjmaxRespectV',
-    },
-    {
-      id: 'wjmax' as GameType,
-      tooltip: 'WJMAX',
-      iconUrl:
-        wjmaxLogoIndex >= 0 && wjmaxLogoIndex < wjmaxLogos.length
-          ? `${import.meta.env.VITE_CDN_URL}/wjmax/${wjmaxLogos[wjmaxLogoIndex]}`
-          : `${import.meta.env.VITE_CDN_URL}/wjmax/new_logo_0.png`,
-      onClick: () => {
-        if (selectedGame === 'wjmax') {
-          // 이미 선택된 경우 로고만 변경
-          setWjmaxLogoIndex((prev) => (prev + 1) % wjmaxLogos.length)
-        } else {
-          // 선택되지 않은 경우 게임 선택
-          handleGameSelect('wjmax')
-          dispatch(setSidebarCollapsed(false))
-        }
-        navigate('/home')
-      },
-      showSetting: 'showGameWjmax',
     },
     {
       id: 'platina_lab' as GameType,
@@ -122,24 +93,25 @@ const IconSidebar: React.FC = () => {
       opacity: 1,
       transition: {
         duration: 0.5,
-        ease: 'easeOut',
+        ease: 'easeOut' as const,
       },
     },
-  }
+  } as const
 
-  const iconAnimation = () => ({
-    hidden: { scale: 0.8, opacity: 0 },
-    visible: {
-      scale: 1,
-      opacity: 1,
-      transition: {
-        duration: 0.4,
-        type: 'spring',
-        stiffness: 260,
-        damping: 20,
+  const iconAnimation = () =>
+    ({
+      hidden: { scale: 0.8, opacity: 0 },
+      visible: {
+        scale: 1,
+        opacity: 1,
+        transition: {
+          duration: 0.4,
+          type: 'spring' as const,
+          stiffness: 260,
+          damping: 20,
+        },
       },
-    },
-  })
+    }) as const
 
   // 로고 변경 애니메이션
   const logoChangeAnimation = {
@@ -182,13 +154,7 @@ const IconSidebar: React.FC = () => {
               >
                 <AnimatePresence mode='wait'>
                   <motion.img
-                    key={
-                      game.id === 'djmax_respect_v'
-                        ? djmaxLogoIndex
-                        : game.id === 'wjmax'
-                          ? wjmaxLogoIndex
-                          : game.id
-                    }
+                    key={game.id === 'djmax_respect_v' ? djmaxLogoIndex : game.id}
                     src={game.iconUrl}
                     alt={game.tooltip}
                     {...logoChangeAnimation}

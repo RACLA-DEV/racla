@@ -44,11 +44,6 @@ export default {
       'djmax_respect_v-HD': '#f9a06a', // 파스텔 톤 주황색
       'djmax_respect_v-MX': '#f57b8a', // 파스텔 톤 핑크색
       'djmax_respect_v-SC': '#6a9eff',
-      'wjmax-NM': '#c79b61',
-      'wjmax-HD': '#9696ff',
-      'wjmax-MX': '#38bf51',
-      'wjmax-SC': '#ff4c4c',
-      'wjmax-DPC': '#ffb401',
       'platina_lab-EASY': '#ffb31a',
       'platina_lab-HD': '#fd6c6e',
       'platina_lab-OVER': '#bb63da',

@@ -1202,98 +1202,6 @@ button {
   z-index: -100 !important;
 }
 
-.wjmax_bg_b4 {
-  background: #34baa2;
-}
-
-.wjmax_bg_b4_plus {
-  background: #34baa2;
-}
-
-.wjmax_bg_b6 {
-  background: #ffb401;
-}
-
-.wjmax_bg_b6_plus {
-  background: #ffb401;
-}
-
-.wjmax_dlc_title {
-  box-sizing: border-box;
-  width: 100%;
-  font-size: 30px;
-  text-align: center;
-}
-
-.wjmax_dlc_title.wjmax_dlc_logo {
-  padding: 15px;
-}
-
-.wjmax_record .wjmax_dlc_code_wrap {
-  position: absolute;
-  background-color: #000e;
-  font-size: 12px;
-}
-
-.wjmax_dlc_code {
-  -webkit-background-clip: text !important;
-  background-clip: text !important;
-  padding: 0 5px;
-  color: transparent !important;
-  text-stroke: 1px;
-  -webkit-text-stroke: 1px;
-  font-weight: bold;
-}
-
-.wjmax_dlc_code_WJMAX_0 {
-  background-color: #e64371;
-}
-
-.wjmax_dlc_code_WJMAX_1 {
-  background-color: #78ff91;
-}
-
-.wjmax_dlc_code_WJMAX_2 {
-  background-color: #34baa2;
-}
-
-.wjmax_dlc_code_WJMAX_3 {
-  background-color: #ffb401;
-}
-
-.wjmax_dlc_code_WJMAX_4 {
-  background-color: #9696ff;
-}
-
-.wjmax_dlc_code_WJMAX_5 {
-  background-color: #ff4c4c;
-}
-
-.wjmax_dlc_code_WJMAX_6 {
-  background-color: #ffffff;
-}
-
-.pattern.wjmax.DPC {
-  background-color: #ffbb00dd;
-  color: #fff;
-}
-.pattern.wjmax.SC {
-  background-color: #bf0c0cdd;
-  color: #fff;
-}
-.pattern.wjmax.MX {
-  background-color: #38bf51dd;
-  color: #fff;
-}
-.pattern.wjmax.HD {
-  background-color: #5656bfdd;
-  color: #fff;
-}
-.pattern.wjmax.NM {
-  background-color: #835100dd;
-  color: #fff;
-}
-
 .platina_lab_bg_b4 {
   background: #34baa2;
 }
@@ -1427,23 +1335,6 @@ button {
 .text-djmax_respect_v-SC {
   color: #6a9eff;
 }
-
-.text-wjmax-NM {
-  color: #c79b61;
-}
-.text-wjmax-HD {
-  color: #9696ff;
-}
-.text-wjmax-MX {
-  color: #00dd93;
-}
-.text-wjmax-SC {
-  color: #ff4c4c;
-}
-.text-wjmax-DPC {
-  color: #ffb401;
-}
-
 .text-platina_lab-EASY {
   color: #ffb31a;
 }
@@ -1474,22 +1365,6 @@ button {
 }
 .bg-djmax_respect_v-SC {
   background-color: #6a9eff;
-}
-
-.bg-wjmax-NM {
-  background-color: #c79b61;
-}
-.bg-wjmax-HD {
-  background-color: #9696ff;
-}
-.bg-wjmax-MX {
-  background-color: #78ff91;
-}
-.bg-wjmax-SC {
-  background-color: #ff4c4c;
-}
-.bg-wjmax-DPC {
-  background-color: #ffb401;
 }
 
 .bg-platina_lab-EASY {

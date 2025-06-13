@@ -1,1 +1,1 @@
-export type GameType = 'djmax_respect_v' | 'wjmax' | 'platina_lab'
+export type GameType = 'djmax_respect_v' | 'platina_lab'

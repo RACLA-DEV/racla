@@ -59,11 +59,6 @@ const ScorePopupComponent = memo(
           return 'djmax_respect_v'
         case songTitle !== undefined &&
           songTitle !== null &&
-          songTitle >= 1000000 &&
-          songTitle < 20000000:
-          return 'wjmax'
-        case songTitle !== undefined &&
-          songTitle !== null &&
           songTitle >= 40000000 &&
           songTitle < 50000000:
           return 'platina_lab'
@@ -140,11 +135,6 @@ const ScorePopupComponent = memo(
             switch (true) {
               case songTitle !== undefined && songTitle !== null && songTitle < 1000000:
                 return 'djmax_respect_v'
-              case songTitle !== undefined &&
-                songTitle !== null &&
-                songTitle >= 1000000 &&
-                songTitle < 20000000:
-                return 'wjmax'
               case songTitle !== undefined &&
                 songTitle !== null &&
                 songTitle >= 40000000 &&
@@ -303,7 +293,7 @@ const ScorePopupComponent = memo(
                   <span
                     className={`djmax_respect_v_dlc_code ${game}_dlc_code_${songItem?.dlcCode ?? ''}`}
                   >
-                    {game == 'wjmax' ? (songItem?.dlc ?? '') : (songItem?.dlcCode ?? '')}
+                    {songItem?.dlcCode ?? ''}
                   </span>
                 </span>
               )}

@@ -104,33 +104,6 @@ const MenuSidebar: React.FC = () => {
         }
         break
 
-      case 'wjmax':
-        if (globalDictionary.navDictionary.wjmax) {
-          // WJMAX 네비게이션
-          Object.values(globalDictionary.navDictionary.wjmax).forEach((category) => {
-            if (category.isDisplay) {
-              const menuItems = category.pages
-                .filter((page) => page.isDisplay)
-                .map((page) => ({
-                  id: page.id,
-                  icon: page.icon, // 이미 lucide 아이콘 ID가 들어 있음
-                  path: page.link,
-                  isExternal: page.isOpenBrowser,
-                }))
-
-              if (menuItems.length > 0) {
-                navItems.push({
-                  id: category.id,
-                  icon: 'lucide:folder',
-                  path: category.link || '/',
-                  subItems: menuItems,
-                })
-              }
-            }
-          })
-        }
-        break
-
       case 'platina_lab':
         if (globalDictionary.navDictionary.platina_lab) {
           // PLATINA :: LAB 네비게이션
@@ -197,7 +170,7 @@ const MenuSidebar: React.FC = () => {
       x: 0,
       transition: {
         duration: 0.4,
-        ease: 'easeOut',
+        ease: 'easeOut' as const,
         when: 'beforeChildren',
         staggerChildren: 0.05,
       },
@@ -211,7 +184,7 @@ const MenuSidebar: React.FC = () => {
       y: 0,
       transition: {
         duration: 0.3,
-        ease: 'easeOut',
+        ease: 'easeOut' as const,
         when: 'beforeChildren',
         staggerChildren: 0.03,
       },
@@ -225,7 +198,7 @@ const MenuSidebar: React.FC = () => {
       x: 0,
       transition: {
         duration: 0.2,
-        ease: 'easeOut',
+        ease: 'easeOut' as const,
       },
     },
   }

@@ -240,22 +240,6 @@ const Footer: React.FC = () => {
               <span> · </span>
             </>
           )
-        case 'wjmax':
-          return (
-            <>
-              <Tooltip position='top' content='https://waktaverse.games/gameDetail/wjmax'>
-                <span
-                  className='tw:cursor-pointer'
-                  onClick={() => {
-                    handleOpenExternalLink('https://waktaverse.games/gameDetail/wjmax')
-                  }}
-                >
-                  Resources from WJMAX(©WJMAX STUDIO)
-                </span>
-              </Tooltip>
-              <span> · </span>
-            </>
-          )
         case 'platina_lab':
           return (
             <>
