@@ -74,7 +74,7 @@
     "winston-daily-rotate-file": "^5.0.0"
   },
   "devDependencies": {
-    "@babel/runtime": "7.27.1",
+    "@babel/runtime": "7.27.6",
     "@tailwindcss/postcss": "^4.1.7",
     "@types/ramda": "^0.30.2",
     "@types/react": "^19.1.8",
