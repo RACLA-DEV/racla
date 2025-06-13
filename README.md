@@ -1,7 +1,7 @@
 # 🎮 RACLA Desktop App (Vite)
 
 <div align="center">
-  <img src="https://github.com/user-attachments/assets/480fd820-6100-4018-ad61-08360e5778f0" alt="RACLA">
+  <img src="https://github.com/user-attachments/assets/80ea7d9c-63de-40f8-9969-486d062fb2a9" alt="RACLA">
   
   <p><strong>종합리듬 게임 성과 관리 도구</strong></p>
   
