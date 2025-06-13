@@ -116,7 +116,7 @@
       "simple-git-hooks"
     ],
     "overrides": {
-      "node-abi": "4.8.0"
+      "node-abi": "4.9.0"
     }
   }
 }
