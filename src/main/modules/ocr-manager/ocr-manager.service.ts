@@ -106,6 +106,14 @@ export class OcrManagerService {
         )
         texts.result = await this.recognizeText(regions.result)
       }
+    } else if (gameCode.toLowerCase().includes('ez2on')) {
+      if (settings.autoCaptureEz2onOcrResultRegion) {
+        regions.result = await this.imageProcessor.extractRegion(
+          imageBuffer,
+          GLOBAL_DICTONARY.OCR_REGIONS.ez2on.result,
+        )
+        texts.result = await this.recognizeText(regions.result)
+      }
     }
 
     return { regions, texts }
@@ -180,6 +188,18 @@ export class OcrManagerService {
           resultInfo.where = 'result'
           resultInfo.text = texts.result
           resultInfo.gameCode = 'platina_lab'
+        }
+      }
+    } else if (gameCode.toLowerCase().includes('ez2on')) {
+      if (settings.autoCaptureEz2onOcrResultRegion && texts.result) {
+        resultInfo.isResult = this.checkResultKeywords(
+          texts.result,
+          GLOBAL_DICTONARY.RESULT_KEYWORDS.ez2on.result,
+        )
+        if (resultInfo.isResult.length > 0) {
+          resultInfo.where = 'result'
+          resultInfo.text = texts.result
+          resultInfo.gameCode = 'ez2on'
         }
       }
     }

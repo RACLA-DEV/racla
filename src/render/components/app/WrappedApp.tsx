@@ -740,7 +740,9 @@ export default function WrappedApp() {
     const isTrackMakerPath =
       location.pathname.startsWith('/track-maker') ||
       location.pathname.startsWith('/overlay') ||
-      location.pathname.startsWith('/feedback')
+      location.pathname.startsWith('/feedback') ||
+      location.pathname.startsWith('/license') ||
+      location.pathname.startsWith('/auth/login')
     if (isTrackMakerPath) {
       dispatch(setSidebarCollapsed(true))
     } else {

@@ -57,7 +57,9 @@ export class DiscordManagerService implements OnModuleInit, OnModuleDestroy {
             gameData.gameCode === 'djmax_respect_v'
               ? 'DMRV'
               : gameData.gameCode === 'platina_lab'
-                  ? 'PLATiNA :: LAB'
+                ? 'PLATiNA :: LAB'
+                : gameData.gameCode === 'ez2on'
+                  ? 'EZ2ON REBOOT : R'
                   : null
           } - ${gameData.songName}`,
           state: `${String(gameData.button).replace('B', '')}B | ${gameData.pattern}${gameData.level && gameData.gameCode === 'platina_lab' ? ` Lv.${gameData.level})` : ''} | ${gameData.score.toFixed(2)}% ${gameData.max && gameData.score == 100 ? (gameData.max == 0 ? 'MAX' : `MAX-${gameData.max}`) : ''} ${gameData.maxCombo && gameData.score !== 100 && gameData.gameCode != 'platina_lab' ? '(MAX COMBO)' : ''}`,

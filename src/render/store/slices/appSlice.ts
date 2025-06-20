@@ -25,6 +25,7 @@ const defaultOcrState: OcrProcessState = {
 const initialGameOcrStates: GameOcrStates = {
   djmax_respect_v: { ...defaultOcrState, gameCode: 'djmax_respect_v' },
   platina_lab: { ...defaultOcrState, gameCode: 'platina_lab' },
+  ez2on: { ...defaultOcrState, gameCode: 'ez2on' },
 }
 
 const initialState: AppState = {
@@ -63,6 +64,7 @@ const initialState: AppState = {
     lastUpdated: {
       djmax_respect_v: null,
       platina_lab: null,
+      ez2on: null,
     },
   },
   refresh: false,

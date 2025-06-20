@@ -90,7 +90,9 @@ const TitleBar: React.FC = () => {
                 !location.pathname.startsWith('/track-maker') &&
                 !isTrackMaker &&
                 !location.pathname.startsWith('/overlay') &&
-                !location.pathname.startsWith('/feedback')
+                !location.pathname.startsWith('/feedback') &&
+                !location.pathname.startsWith('/license') &&
+                !location.pathname.startsWith('/auth/login')
                   ? 'tw:max-w-[40px] tw:opacity-100 tw:visible tw:translate-x-0 tw:mr-2'
                   : 'tw:max-w-0 tw:opacity-0 tw:invisible tw:-translate-x-8 tw:m-0 tw:p-0'
               }`}

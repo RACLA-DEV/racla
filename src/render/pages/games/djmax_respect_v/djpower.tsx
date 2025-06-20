@@ -59,7 +59,7 @@ const DmrvDjpowerPage = () => {
           const dlcCode = R.path(['dlcCode'], item)
           const name = R.path(['name'], item)
           return (
-            !['VL2', 'PLI1', 'BA'].includes(dlcCode) &&
+            !['VL3', 'PLI1', 'BA'].includes(dlcCode) &&
             !['Diomedes ~Extended Mix~', 'Kill Trap', 'alliance', 'Phoenix Virus'].includes(name)
             // (!['FAL', 'VL', 'CP', 'TEK'].includes(dlcCode) && !['Kamui', 'BlueWhite'].includes(name))
           )
@@ -91,7 +91,7 @@ const DmrvDjpowerPage = () => {
             const name = R.path(['name'], item)
             // return (['FAL', 'VL', 'CP', 'TEK'].includes(dlcCode) || ['Kamui', 'BlueWhite'].includes(name)) && !['From Hell to Breakfast', 'SURVIVOR'].includes(name)
             return (
-              ['VL2', 'PLI1', 'BA'].includes(dlcCode) ||
+              ['VL3', 'PLI1', 'BA'].includes(dlcCode) ||
               ['Diomedes ~Extended Mix~', 'Kill Trap', 'alliance', 'Phoenix Virus'].includes(name)
             )
           }),
