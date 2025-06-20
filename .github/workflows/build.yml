@@ -43,8 +43,7 @@ jobs:
 
       - name: Install dependencies (with retry)
         run: |
-          pnpm config set network-timeout 300000
-          pnpm install --no-frozen-lockfile --network-timeout 300000 || pnpm install --no-frozen-lockfile --network-timeout 300000
+          pnpm install --no-frozen-lockfile
 
       # Windows에서 필요한 추가 설정
       - name: Setup Visual Studio for Windows builds
