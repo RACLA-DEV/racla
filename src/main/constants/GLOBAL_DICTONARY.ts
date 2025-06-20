@@ -81,6 +81,13 @@ export const GLOBAL_DICTONARY = {
         chat: { left: 1, top: 1, width: 1, height: 1 },
       },
     },
+    ez2on: {
+      result: {
+        myProfile: { left: 1, top: 1, width: 1, height: 1 },
+        otherProfile: { left: 1, top: 1, width: 1, height: 1 },
+        chat: { left: 1, top: 1, width: 1, height: 1 },
+      },
+    },
   },
 
   // OCR 인식 영역 정의 (화면 타입 구분을 위한 영역)
@@ -94,6 +101,9 @@ export const GLOBAL_DICTONARY = {
     platina_lab: {
       result: { width: 100, height: 26, left: 694, top: 864 },
     },
+    ez2on: {
+      result: { width: 1, height: 1, left: 1, top: 1 },
+    },
   },
 
   // 결과 화면 키워드 (각 영역별로 다른 키워드 지정)
@@ -106,6 +116,9 @@ export const GLOBAL_DICTONARY = {
     },
     platina_lab: {
       result: ['COMBO', 'COM', 'MBO'],
+    },
+    ez2on: {
+      result: ['NOT_AVAILABLE'],
     },
   },
 }

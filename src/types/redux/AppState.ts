@@ -19,6 +19,7 @@ export interface OcrProcessState {
 export interface GameOcrStates {
   djmax_respect_v: OcrProcessState
   platina_lab: OcrProcessState
+  ez2on: OcrProcessState
 }
 
 export interface AppState {
@@ -40,6 +41,7 @@ export interface AppState {
     lastUpdated: {
       djmax_respect_v: number | null
       platina_lab: number | null
+      ez2on: number | null
     }
   }
   refresh: boolean

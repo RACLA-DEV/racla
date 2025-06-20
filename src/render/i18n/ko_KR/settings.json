@@ -148,7 +148,7 @@
   },
   "autoStartGamePlatinaLab": {
     "name": "PLATiNA :: LAB 자동 실행",
-    "description": "RACLA 데스크톱 앱 실행 시 PLATiNA :: LAB를 자동으로 실행합니다. 해당 기능은 Steam 버전의 DJMAX RESPECT V에서만 작동합니다."
+    "description": "RACLA 데스크톱 앱 실행 시 PLATiNA :: LAB를 자동으로 실행합니다. 해당 기능은 Steam 버전의 PLATiNA :: LAB에서만 작동합니다."
   },
   "isMiniMode": {
     "name": "미니 모드",

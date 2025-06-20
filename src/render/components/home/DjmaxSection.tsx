@@ -514,7 +514,7 @@ export default function DjmaxHomeComponent() {
       const newPatterns = allPatterns
         .filter(
           (pattern: BoardPatternInfo) =>
-            pattern.dlcCode === 'VL2' ||
+            pattern.dlcCode === 'VL3' ||
             pattern.dlcCode === 'BA' ||
             pattern.dlcCode === 'PLI1' ||
             pattern.name === 'Kill Trap' ||
@@ -528,7 +528,7 @@ export default function DjmaxHomeComponent() {
       const basicPatterns = allPatterns
         .filter(
           (pattern: BoardPatternInfo) =>
-            pattern.dlcCode !== 'VL2' &&
+            pattern.dlcCode !== 'VL3' &&
             pattern.dlcCode !== 'BA' &&
             pattern.dlcCode !== 'PLI1' &&
             pattern.name !== 'Kill Trap' &&

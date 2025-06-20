@@ -536,6 +536,7 @@ export const globalDictionary = {
         'VL2',
         'PLI1',
         'BA',
+        'VL3',
       ],
     },
     platina_lab: {

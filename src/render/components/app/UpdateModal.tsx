@@ -9,6 +9,19 @@ import { useDispatch, useSelector } from 'react-redux'
 // 하드코딩된 업데이트 내역 데이터 (배열로 변경)
 const UPDATE_NOTES = [
   {
+    version: 'V0.8.9',
+    date: '2025-06-20',
+    notes: [
+      {
+        category: '추가',
+        items: [
+          'DJMAX RESPECT V - V LIBERTY III DLC를 지원합니다.',
+          '참고 사항 - 기존 0.8.9 업데이트 내용은 0.8.10으로 버전 정보만 변경하여 일정 변경 없이 2025년 06월 23일에 배포될 예정입니다.',
+        ],
+      },
+    ],
+  },
+  {
     version: 'V0.8.8',
     date: '2025-06-13',
     notes: [

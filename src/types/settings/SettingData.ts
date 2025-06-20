@@ -30,6 +30,7 @@ export interface SettingsData {
   autoCaptureDjmaxRespectVOcrOpen2Region?: boolean
   autoCaptureDjmaxRespectVOcrVersusRegion?: boolean
   autoCapturePlatinaLabOcrResultRegion?: boolean
+  autoCaptureEz2onOcrResultRegion?: boolean
   autoStartGame?: boolean
   autoStartGameDjmaxRespectV?: boolean
   autoStartGamePlatinaLab?: boolean

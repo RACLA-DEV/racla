@@ -18,7 +18,7 @@ const DLC_CATEGORY_MAPPING = {
   LEGACY: ['P1', 'P2', 'P3', 'CE', 'BS', 'TR', 'T1', 'T2', 'T3'],
   RESPECT: ['R'],
   EXTENSION: ['VE', 'VE1', 'VE2', 'VE3', 'VE4', 'VE5'],
-  LIBERTY: ['VL', 'VL1', 'VL2'],
+  LIBERTY: ['VL', 'VL1', 'VL2', 'VL3'],
   COLLABORATION: ['COLLABORATION'],
   PLI: ['PLI1'],
 }
